@@ -19,7 +19,7 @@ FILLABILITY_SCHEMA = PLUGIN_ROOT / "assets/schemas/roadmap-fillability-report.v1
 RUNTIME_ROOT = PLUGIN_ROOT / "runtime/roadmap-backlog-ingest"
 DEFAULT_SCAN = RUNTIME_ROOT / "latest-scan.v1.json"
 DEFAULT_PROPOSAL = RUNTIME_ROOT / "latest-proposal.v1.json"
-DEFAULT_REPO = "BearsCLOUD/bears-codex-workflow-plugin"
+DEFAULT_REPO = "BearsCLOUD/bears_plugin"
 FILLABLE_STATES = {"queued", "running"}
 BLOCKED_STATES = {"blocked", "manual_review", "closed", "validated"}
 CLASSIFICATIONS = {
@@ -438,7 +438,7 @@ def validate_all() -> list[str]:
         for path in catalog.get("authoritative_artifacts", []):
             if not (PLUGIN_ROOT / str(path)).exists():
                 errors.append(f"authoritative artifact missing: {path}")
-        for command in ("python3 scripts/roadmap_backlog_ingest.py scan --repo BearsCLOUD/bears-codex-workflow-plugin --json", "python3 scripts/roadmap_backlog_ingest.py propose --repo BearsCLOUD/bears-codex-workflow-plugin --json", "python3 scripts/roadmap_backlog_ingest.py apply --packet <path>", "python3 scripts/roadmap_backlog_ingest.py fillability --json", "python3 scripts/roadmap_backlog_ingest.py validate"):
+        for command in ("python3 scripts/roadmap_backlog_ingest.py scan --repo BearsCLOUD/bears_plugin --json", "python3 scripts/roadmap_backlog_ingest.py propose --repo BearsCLOUD/bears_plugin --json", "python3 scripts/roadmap_backlog_ingest.py apply --packet <path>", "python3 scripts/roadmap_backlog_ingest.py fillability --json", "python3 scripts/roadmap_backlog_ingest.py validate"):
             if command not in catalog.get("commands", []):
                 errors.append(f"catalog missing command: {command}")
     good = PLUGIN_ROOT / "tests/fixtures/roadmap_backlog_ingest/good/propose-10-issues.json"

@@ -285,10 +285,10 @@
       "dev/quality",
       "dev/infrastructure",
       "dev/ops",
-      "BearsCLOUD/bears-codex-workflow-plugin",
-      "https://github.com/BearsCLOUD/bears-codex-workflow-plugin",
-      "https://github.com/BearsCLOUD/bears-codex-workflow-plugin.git",
-      "git@github.com:BearsCLOUD/bears-codex-workflow-plugin.git",
+      "BearsCLOUD/bears_plugin",
+      "https://github.com/BearsCLOUD/bears_plugin",
+      "https://github.com/BearsCLOUD/bears_plugin.git",
+      "git@github.com:BearsCLOUD/bears_plugin.git",
       "BearsCLOUD/bears-codex-workspace",
       "https://github.com/BearsCLOUD/bears-codex-workspace",
       "https://github.com/BearsCLOUD/bears-codex-workspace.git",
@@ -538,7 +538,7 @@
       "sandbox_mode": "workspace-write",
       "developer_instructions_profile": "github-actions-access-settings",
       "allowed_write_zones": [
-        "/repos/BearsCLOUD/bears-codex-workflow-plugin/actions/permissions/access after an approved packet",
+        "/repos/BearsCLOUD/bears_plugin/actions/permissions/access after an approved packet",
         "/repos/BearsCLOUD/codex-telegram-mcp/actions/permissions/access for codex-telegram-mcp image publish enablement when exact route/audit passes",
         "/repos/BearsCLOUD/codex-telegram-mcp/actions/permissions/workflow for codex-telegram-mcp image publish workflow default permission enablement when exact route/audit passes",
         "plugins/bears role-gate evidence for this exact endpoint when assigned"
@@ -556,7 +556,7 @@
         "Approved packet for Actions Access access_level=user on the BearsCLOUD user-owned private repository",
         "route and audit packets for the exact /actions/permissions/access endpoint being changed",
         "route and audit packets for the exact /actions/permissions/workflow endpoint being changed",
-        "route and audit packets for /repos/BearsCLOUD/bears-codex-workflow-plugin/actions/permissions/access",
+        "route and audit packets for /repos/BearsCLOUD/bears_plugin/actions/permissions/access",
         "current setting target and rollback note that states rollback access_level=none without raw tokens or secrets",
         "current setting target and rollback note for workflow default permissions without raw tokens or secrets"
       ],
@@ -3939,10 +3939,10 @@
       "name": "bears_plugin",
       "aliases": [
         "plugins/bears",
-        "BearsCLOUD/bears-codex-workflow-plugin",
-        "https://github.com/BearsCLOUD/bears-codex-workflow-plugin",
-        "https://github.com/BearsCLOUD/bears-codex-workflow-plugin.git",
-        "git@github.com:BearsCLOUD/bears-codex-workflow-plugin.git"
+        "BearsCLOUD/bears_plugin",
+        "https://github.com/BearsCLOUD/bears_plugin",
+        "https://github.com/BearsCLOUD/bears_plugin.git",
+        "git@github.com:BearsCLOUD/bears_plugin.git"
       ],
       "group": "workflow",
       "required_role": "bears-workflow-overlay-controller",
@@ -4997,7 +4997,7 @@
         "actions/platform-role-gate",
         "plugins/bears/actions/platform-role-gate",
         "/srv/bears/plugins/bears/actions/platform-role-gate",
-        "BearsCLOUD/bears-codex-workflow-plugin/actions/platform-role-gate",
+        "BearsCLOUD/bears_plugin/actions/platform-role-gate",
         "tests/test_platform_role_gate_action.py",
         "/srv/bears/plugins/bears/tests/test_platform_role_gate_action.py"
       ],
@@ -5035,9 +5035,9 @@
     {
       "name": "github_actions_access_setting_bears_codex_workflow_plugin",
       "aliases": [
-        "/repos/BearsCLOUD/bears-codex-workflow-plugin/actions/permissions/access",
-        "repos/BearsCLOUD/bears-codex-workflow-plugin/actions/permissions/access",
-        "https://api.github.com/repos/BearsCLOUD/bears-codex-workflow-plugin/actions/permissions/access"
+        "/repos/BearsCLOUD/bears_plugin/actions/permissions/access",
+        "repos/BearsCLOUD/bears_plugin/actions/permissions/access",
+        "https://api.github.com/repos/BearsCLOUD/bears_plugin/actions/permissions/access"
       ],
       "group": "workflow",
       "required_role": "bears-github-actions-access-settings-governor",
@@ -5046,13 +5046,13 @@
       "source": "assets/catalog/platform-role-catalog.v1.json",
       "part_kind": "concrete",
       "write_roots": [],
-      "concrete_scope": "Exact GitHub Actions Access user-access setting endpoint for the BearsCLOUD user-owned private repository bears-codex-workflow-plugin only.",
-      "allowed_write_boundary": "Only /repos/BearsCLOUD/bears-codex-workflow-plugin/actions/permissions/access for the GitHub Actions Access user-access setting with approved apply access_level=user; required rollback note must state rollback access_level=none; no broad repo settings, no branch protection, no Actions permissions siblings, no secrets, no variables, no collaborators, no teams, no webhooks, no environments, no deploy keys, no product code, no runtime mutation, no local_cd workflow mutation, and no kubernetes_deployment mutation.",
-      "trust_boundary": "This provider setting can widen user-owned private repository Actions access for BearsCLOUD/bears-codex-workflow-plugin. It is an external GitHub settings mutation and must use an approved packet that states apply access_level=user, exact route/audit evidence, security reviewer evidence, and rollback note that states rollback access_level=none without reading or printing tokens, secrets, production data, raw logs, raw chat, or raw VPN configs.",
+      "concrete_scope": "Exact GitHub Actions Access user-access setting endpoint for the BearsCLOUD user-owned private repository bears_plugin only.",
+      "allowed_write_boundary": "Only /repos/BearsCLOUD/bears_plugin/actions/permissions/access for the GitHub Actions Access user-access setting with approved apply access_level=user; required rollback note must state rollback access_level=none; no broad repo settings, no branch protection, no Actions permissions siblings, no secrets, no variables, no collaborators, no teams, no webhooks, no environments, no deploy keys, no product code, no runtime mutation, no local_cd workflow mutation, and no kubernetes_deployment mutation.",
+      "trust_boundary": "This provider setting can widen user-owned private repository Actions access for BearsCLOUD/bears_plugin. It is an external GitHub settings mutation and must use an approved packet that states apply access_level=user, exact route/audit evidence, security reviewer evidence, and rollback note that states rollback access_level=none without reading or printing tokens, secrets, production data, raw logs, raw chat, or raw VPN configs.",
       "required_validations": [
         "python3 scripts/platform_roles.py validate",
-        "python3 scripts/platform_roles.py route /repos/BearsCLOUD/bears-codex-workflow-plugin/actions/permissions/access",
-        "python3 scripts/platform_roles.py audit /repos/BearsCLOUD/bears-codex-workflow-plugin/actions/permissions/access",
+        "python3 scripts/platform_roles.py route /repos/BearsCLOUD/bears_plugin/actions/permissions/access",
+        "python3 scripts/platform_roles.py audit /repos/BearsCLOUD/bears_plugin/actions/permissions/access",
         "python3 -m unittest tests/test_platform_roles.py"
       ],
       "supporting_roles": [
@@ -6196,7 +6196,7 @@
       "required_role": "bears-session-worker-runtime-engineer",
       "role_required": true,
       "no_role_policy": "blocker",
-      "source": "https://github.com/BearsCLOUD/bears-codex-workflow-plugin/issues/201",
+      "source": "https://github.com/BearsCLOUD/bears_plugin/issues/201",
       "part_kind": "concrete",
       "write_roots": [
         "/srv/bears/plugins/bears/scripts/worker_pool.py",
@@ -7535,7 +7535,7 @@
         "capability_id": "sentry_runtime_plugin_governance",
         "runtime_plugin_repo": "BearsCLOUD/bears-sentry-runtime-plugin",
         "runtime_plugin_path": "/srv/bears/runtime-plugins/sentry",
-        "governance_repo": "BearsCLOUD/bears-codex-workflow-plugin",
+        "governance_repo": "BearsCLOUD/bears_plugin",
         "governance_path": "/srv/bears/plugins/bears",
         "owner_role": "bears-observability-platform-engineer",
         "reviewer_role": "bears-platform-security-reviewer",
@@ -10178,7 +10178,7 @@
       ],
       "concrete_scope": "Exact Bears root local-agent-runner directory, control-plane GitHub issue autoscan files, workspace-control daemon files, feature 009 autoscan spec, and the Bears orchestrator agent profile for registering GitHub issue scan orchestration state.",
       "allowed_write_boundary": "Only /srv/bears/local-agent-runner, /srv/bears/control-plane GitHub issue autoscan and workspace-control files listed in this route, /srv/bears/specs/009-agent-github-issue-autoscan/spec.md, and /srv/bears/plugins/bears/agents/bears-orchestrator.toml when assigned; daemon updates may register state only and must not broaden runtime mutation, issue-closing authority, provider access, or deploy behavior.",
-      "trust_boundary": "These surfaces can change local agent launch, GitHub issue scan registration, and workspace-control daemon orchestration state for BearsCLOUD/bears-codex-workflow-plugin; they must not close issues without validated completion proof or mutate live infrastructure.",
+      "trust_boundary": "These surfaces can change local agent launch, GitHub issue scan registration, and workspace-control daemon orchestration state for BearsCLOUD/bears_plugin; they must not close issues without validated completion proof or mutate live infrastructure.",
       "required_validations": [
         "python3 scripts/platform_roles.py validate",
         "python3 scripts/platform_roles.py route /srv/bears/local-agent-runner",
@@ -10231,7 +10231,7 @@
       ],
       "concrete_scope": "Exact Bears control-plane Codex session watchdog files, feature 010 spec, and role coverage artifact for dry-run session health registration.",
       "allowed_write_boundary": "Only /srv/bears/control-plane/agent-codex-watchdog files and /srv/bears/specs/010-agent-codex-session-watchdog artifacts listed in this route when assigned; watchdog updates may register dry-run state only and must not mutate live sessions, deploy state, secrets, or issue closeout state.",
-      "trust_boundary": "BearsCLOUD/bears-codex-workflow-plugin session watchdog surfaces can affect agent health registration and operator evidence; dry-run performs no mutation and live session mutation requires a separate exact route and proof.",
+      "trust_boundary": "BearsCLOUD/bears_plugin session watchdog surfaces can affect agent health registration and operator evidence; dry-run performs no mutation and live session mutation requires a separate exact route and proof.",
       "required_validations": [
         "python3 scripts/platform_roles.py validate",
         "python3 scripts/platform_roles.py route /srv/bears/control-plane/agent-codex-watchdog",
@@ -10978,7 +10978,7 @@
       "required_role": "bears-deploy-platform-engineer"
     },
     {
-      "target": "/repos/BearsCLOUD/bears-codex-workflow-plugin/actions/permissions/access",
+      "target": "/repos/BearsCLOUD/bears_plugin/actions/permissions/access",
       "expected_status": "matched",
       "required_role": "bears-github-actions-access-settings-governor",
       "required_route_id": "github_actions_access_setting_bears_codex_workflow_plugin"
@@ -11008,13 +11008,13 @@
       "required_route_id": "github_actions_workflow_permissions_codex_telegram_mcp"
     },
     {
-      "target": "https://api.github.com/repos/BearsCLOUD/bears-codex-workflow-plugin/actions/permissions/access",
+      "target": "https://api.github.com/repos/BearsCLOUD/bears_plugin/actions/permissions/access",
       "expected_status": "matched",
       "required_role": "bears-github-actions-access-settings-governor",
       "required_route_id": "github_actions_access_setting_bears_codex_workflow_plugin"
     },
     {
-      "target": "/repos/BearsCLOUD/bears-codex-workflow-plugin/actions/permissions",
+      "target": "/repos/BearsCLOUD/bears_plugin/actions/permissions",
       "expected_status": "ROLE_COVERAGE_BLOCKER",
       "expected_why_blocked": "unmapped"
     },
@@ -11059,17 +11059,17 @@
       "expected_why_blocked": "unmapped"
     },
     {
-      "target": "/repos/BearsCLOUD/bears-codex-workflow-plugin/actions/permissions/workflow",
+      "target": "/repos/BearsCLOUD/bears_plugin/actions/permissions/workflow",
       "expected_status": "ROLE_COVERAGE_BLOCKER",
       "expected_why_blocked": "unmapped"
     },
     {
-      "target": "/repos/BearsCLOUD/bears-codex-workflow-plugin/actions/permissions/selected-actions",
+      "target": "/repos/BearsCLOUD/bears_plugin/actions/permissions/selected-actions",
       "expected_status": "ROLE_COVERAGE_BLOCKER",
       "expected_why_blocked": "unmapped"
     },
     {
-      "target": "/repos/BearsCLOUD/bears-codex-workflow-plugin/actions/permissions/access/child",
+      "target": "/repos/BearsCLOUD/bears_plugin/actions/permissions/access/child",
       "expected_status": "ROLE_COVERAGE_BLOCKER",
       "expected_why_blocked": "unmapped"
     },
@@ -11663,22 +11663,22 @@
       "required_role": "bears-deploy-platform-engineer"
     },
     {
-      "target": "BearsCLOUD/bears-codex-workflow-plugin",
+      "target": "BearsCLOUD/bears_plugin",
       "expected_status": "ROLE_COVERAGE_BLOCKER",
       "expected_why_blocked": "parent_only"
     },
     {
-      "target": "https://github.com/BearsCLOUD/bears-codex-workflow-plugin",
+      "target": "https://github.com/BearsCLOUD/bears_plugin",
       "expected_status": "ROLE_COVERAGE_BLOCKER",
       "expected_why_blocked": "parent_only"
     },
     {
-      "target": "https://github.com/BearsCLOUD/bears-codex-workflow-plugin.git",
+      "target": "https://github.com/BearsCLOUD/bears_plugin.git",
       "expected_status": "ROLE_COVERAGE_BLOCKER",
       "expected_why_blocked": "parent_only"
     },
     {
-      "target": "git@github.com:BearsCLOUD/bears-codex-workflow-plugin.git",
+      "target": "git@github.com:BearsCLOUD/bears_plugin.git",
       "expected_status": "ROLE_COVERAGE_BLOCKER",
       "expected_why_blocked": "parent_only"
     },
@@ -11703,12 +11703,12 @@
       "expected_why_blocked": "parent_only"
     },
     {
-      "target": "BearsCLOUD/not-bears-codex-workflow-plugin",
+      "target": "BearsCLOUD/not-bears-plugin",
       "expected_status": "ROLE_COVERAGE_BLOCKER",
       "expected_why_blocked": "unmapped"
     },
     {
-      "target": "https://github.com/BearsCLOUD/not-bears-codex-workflow-plugin",
+      "target": "https://github.com/BearsCLOUD/not-bears-plugin",
       "expected_status": "ROLE_COVERAGE_BLOCKER",
       "expected_why_blocked": "unmapped"
     },
@@ -12747,7 +12747,7 @@
       "expected_why_blocked": "unmapped"
     },
     {
-      "target": "/repos/BearsCLOUD/bears-codex-workflow-plugin/branches/main/protection",
+      "target": "/repos/BearsCLOUD/bears_plugin/branches/main/protection",
       "expected_status": "ROLE_COVERAGE_BLOCKER",
       "expected_why_blocked": "unmapped"
     },

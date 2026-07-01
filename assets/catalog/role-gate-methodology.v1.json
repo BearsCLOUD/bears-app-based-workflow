@@ -977,22 +977,22 @@
       "why_blocked": "parent_only"
     },
     {
-      "target": "BearsCLOUD/bears-codex-workflow-plugin",
+      "target": "BearsCLOUD/bears_plugin",
       "expected_status": "ROLE_COVERAGE_BLOCKER",
       "why_blocked": "parent_only"
     },
     {
-      "target": "https://github.com/BearsCLOUD/bears-codex-workflow-plugin",
+      "target": "https://github.com/BearsCLOUD/bears_plugin",
       "expected_status": "ROLE_COVERAGE_BLOCKER",
       "why_blocked": "parent_only"
     },
     {
-      "target": "https://github.com/BearsCLOUD/bears-codex-workflow-plugin.git",
+      "target": "https://github.com/BearsCLOUD/bears_plugin.git",
       "expected_status": "ROLE_COVERAGE_BLOCKER",
       "why_blocked": "parent_only"
     },
     {
-      "target": "git@github.com:BearsCLOUD/bears-codex-workflow-plugin.git",
+      "target": "git@github.com:BearsCLOUD/bears_plugin.git",
       "expected_status": "ROLE_COVERAGE_BLOCKER",
       "why_blocked": "parent_only"
     },
@@ -1017,7 +1017,7 @@
       "why_blocked": "parent_only"
     },
     {
-      "target": "BearsCLOUD/not-bears-codex-workflow-plugin",
+      "target": "BearsCLOUD/not-bears-plugin",
       "expected_status": "ROLE_COVERAGE_BLOCKER",
       "why_blocked": "unmapped"
     },

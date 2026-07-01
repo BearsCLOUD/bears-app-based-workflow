@@ -2,7 +2,7 @@
   "schema": "bears-github-issue-ref-fixture.v1",
   "fixture_kind": "issue_ref",
   "scope": "plugin_local_compat",
-  "repo": "BearsCLOUD/bears-codex-workflow-plugin",
+  "repo": "BearsCLOUD/bears_plugin",
   "ref": "#413",
   "state": "resolved"
 }

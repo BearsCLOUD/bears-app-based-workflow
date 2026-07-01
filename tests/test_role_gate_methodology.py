@@ -98,7 +98,7 @@ def test_dev_core_and_theants_alignment_targets_are_enforced() -> None:
         "sentry",
         "/srv/bears/dev/products/theants",
         "/srv/bears/projects/theants",
-        "BearsCLOUD/bears-codex-workflow-plugin",
+        "BearsCLOUD/bears_plugin",
         "BearsCLOUD/bears-codex-workspace",
         "/srv/bears/.gitmodules",
     }

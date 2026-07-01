@@ -1326,8 +1326,8 @@ def _validate_duplicate_guard(value: Any) -> list[str]:
         reasons.append("agent pickup duplicate_guard requires search_query or checked_issues")
     if value.get("matching_open_issues") or value.get("active_workers") or value.get("duplicate_issue"):
         reasons.append("agent pickup duplicate guard found matching open issue or active worker")
-    if value.get("repository") != "BearsCLOUD/bears-codex-workflow-plugin":
-        reasons.append("agent pickup duplicate_guard.repository must be BearsCLOUD/bears-codex-workflow-plugin")
+    if value.get("repository") != "BearsCLOUD/bears_plugin":
+        reasons.append("agent pickup duplicate_guard.repository must be BearsCLOUD/bears_plugin")
     return reasons
 
 

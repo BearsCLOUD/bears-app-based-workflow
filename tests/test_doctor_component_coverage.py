@@ -70,7 +70,7 @@ class DoctorComponentCoverageTests(unittest.TestCase):
                 ),
                 encoding="utf-8",
             )
-            packet = coverage.scan("BearsCLOUD/bears-codex-workflow-plugin", fixture)
+            packet = coverage.scan("BearsCLOUD/bears_plugin", fixture)
         self.assertEqual("bears-doctor-component-coverage.v1", packet["schema"])
         self.assertNotIn("bears_doctor must report", json.dumps(packet))
         self.assertGreater(packet["summary"]["blocking_count"], 0)

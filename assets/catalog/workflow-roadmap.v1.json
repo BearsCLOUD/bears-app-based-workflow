@@ -27,7 +27,7 @@
     "scripts/workflow_roadmap.py decompose --node <id>",
     "scripts/workflow_roadmap.py next --json",
     "scripts/workflow_roadmap.py reconcile --json",
-    "scripts/roadmap_backlog_ingest.py scan --repo BearsCLOUD/bears-codex-workflow-plugin --json",
+    "scripts/roadmap_backlog_ingest.py scan --repo BearsCLOUD/bears_plugin --json",
     "scripts/roadmap_backlog_ingest.py fillability --json"
   ],
   "delivery_id": "bears-governance-kernel-v1",
@@ -47,7 +47,7 @@
       "decomposes_to": [],
       "depends_on": [],
       "evidence_paths": [
-        "https://github.com/BearsCLOUD/bears-codex-workflow-plugin/issues/413"
+        "https://github.com/BearsCLOUD/bears_plugin/issues/413"
       ],
       "inputs": [
         "GitHub issue #413 machine contract"

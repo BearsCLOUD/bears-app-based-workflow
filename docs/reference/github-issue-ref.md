@@ -33,7 +33,7 @@ Required identity fields:
 
 ```bash
 python3 scripts/github_issue_ref.py validate
-python3 scripts/github_issue_ref.py normalize --ref BearsCLOUD/bears-codex-workflow-plugin#424 --json
+python3 scripts/github_issue_ref.py normalize --ref BearsCLOUD/bears_plugin#424 --json
 python3 scripts/github_issue_ref.py normalize --repo BearsCLOUD/bears-platform --issue 66 --json
 python3 scripts/github_issue_ref.py compare --left BearsCLOUD/bears-platform#66 --right BearsCLOUD/bears-infra#66 --json
 ```

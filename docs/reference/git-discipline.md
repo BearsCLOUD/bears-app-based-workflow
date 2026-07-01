@@ -113,12 +113,12 @@ The branch inventory command is read-only. It does not fetch, prune, delete, swi
 
 | Issue | Branch hygiene lane |
 | --- | --- |
-| BearsCLOUD/bears-codex-workflow-plugin#133 | clean worktree and gitlink closeout guard |
-| BearsCLOUD/bears-codex-workflow-plugin#88 | branch-base preflight |
-| BearsCLOUD/bears-codex-workflow-plugin#144 | `codex/` branch-prefix governance |
-| BearsCLOUD/bears-codex-workflow-plugin#128 | gitlink sync target audit |
-| BearsCLOUD/bears-codex-workflow-plugin#132 | merge authority lane |
-| BearsCLOUD/bears-codex-workflow-plugin#120 | durable PASS evidence before merge handoff |
+| BearsCLOUD/bears_plugin#133 | clean worktree and gitlink closeout guard |
+| BearsCLOUD/bears_plugin#88 | branch-base preflight |
+| BearsCLOUD/bears_plugin#144 | `codex/` branch-prefix governance |
+| BearsCLOUD/bears_plugin#128 | gitlink sync target audit |
+| BearsCLOUD/bears_plugin#132 | merge authority lane |
+| BearsCLOUD/bears_plugin#120 | durable PASS evidence before merge handoff |
 
 ## Remote branch inventory
 

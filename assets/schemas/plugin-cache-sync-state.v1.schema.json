@@ -24,7 +24,7 @@
       "type": "string"
     },
     "repository": {
-      "const": "BearsCLOUD/bears-codex-workflow-plugin"
+      "const": "BearsCLOUD/bears_plugin"
     },
     "branch": {
       "const": "main"

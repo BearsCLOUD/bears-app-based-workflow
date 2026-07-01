@@ -346,7 +346,7 @@ def post_merge_command(args: argparse.Namespace) -> int:
 
 def validate_command(_: argparse.Namespace) -> int:
     fixture_pr = {
-        "repo": "BearsCLOUD/bears-codex-workflow-plugin",
+        "repo": "BearsCLOUD/bears_plugin",
         "number": 201,
         "issue": 201,
         "branch": "codex/issue-201-worker-pool-pr-pipeline",

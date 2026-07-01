@@ -1,7 +1,7 @@
 {
   "schema": "bears-plugin-cache-sync-state.v1",
   "updated_at": "2026-06-22T00:00:00Z",
-  "repository": "BearsCLOUD/bears-codex-workflow-plugin",
+  "repository": "BearsCLOUD/bears_plugin",
   "branch": "main",
   "main_sha": "0000000000000000000000000000000000000000",
   "local_commit_validation": {

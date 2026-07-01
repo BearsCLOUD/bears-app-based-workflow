@@ -451,7 +451,7 @@
         "doctor-component-coverage diff --base <path> --head <path> --json",
         "doctor-component-coverage doctor --json",
         "python3 scripts/doctor_component_coverage.py validate",
-        "python3 scripts/doctor_component_coverage.py scan --repo BearsCLOUD/bears-codex-workflow-plugin --json"
+        "python3 scripts/doctor_component_coverage.py scan --repo BearsCLOUD/bears_plugin --json"
       ],
       "purpose": "bears-doctor.v1",
       "read_policy": "summary_first",
@@ -2310,8 +2310,8 @@
         "Use this context record before reading the full source file."
       ],
       "public_interfaces": [
-        "python3 scripts/roadmap_backlog_ingest.py scan --repo BearsCLOUD/bears-codex-workflow-plugin --json",
-        "python3 scripts/roadmap_backlog_ingest.py propose --repo BearsCLOUD/bears-codex-workflow-plugin --json",
+        "python3 scripts/roadmap_backlog_ingest.py scan --repo BearsCLOUD/bears_plugin --json",
+        "python3 scripts/roadmap_backlog_ingest.py propose --repo BearsCLOUD/bears_plugin --json",
         "python3 scripts/roadmap_backlog_ingest.py apply --packet <path>",
         "python3 scripts/roadmap_backlog_ingest.py fillability --json",
         "python3 scripts/roadmap_backlog_ingest.py validate"
@@ -3050,7 +3050,7 @@
         "scripts/workflow_roadmap.py decompose --node <id>",
         "scripts/workflow_roadmap.py next --json",
         "scripts/workflow_roadmap.py reconcile --json",
-        "scripts/roadmap_backlog_ingest.py scan --repo BearsCLOUD/bears-codex-workflow-plugin --json",
+        "scripts/roadmap_backlog_ingest.py scan --repo BearsCLOUD/bears_plugin --json",
         "scripts/roadmap_backlog_ingest.py fillability --json"
       ],
       "purpose": "bears-workflow-roadmap.v1",

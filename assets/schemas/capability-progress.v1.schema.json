@@ -7,7 +7,7 @@
   "properties": {
     "schema": {"const": "bears-capability-progress.v1"},
     "run_id": {"type": "string", "minLength": 1},
-    "repo": {"const": "BearsCLOUD/bears-codex-workflow-plugin"},
+    "repo": {"const": "BearsCLOUD/bears_plugin"},
     "head_sha": {"type": "string", "minLength": 1},
     "task_id": {"type": "string", "minLength": 1},
     "current_level": {"enum": ["L1", "L2", "L3", "L4", "L5", "L6", "L7"]},

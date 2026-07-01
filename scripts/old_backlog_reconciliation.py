@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import Any
 PLUGIN_ROOT=Path(__file__).resolve().parents[1]
 CATALOG=PLUGIN_ROOT/'assets/catalog/old-backlog-reconciliation.v1.json'
-DEFAULT_REPO='BearsCLOUD/bears-codex-workflow-plugin'
+DEFAULT_REPO='BearsCLOUD/bears_plugin'
 if str(PLUGIN_ROOT) not in sys.path: sys.path.insert(0,str(PLUGIN_ROOT))
 from scripts import issue_state_reconciler
 

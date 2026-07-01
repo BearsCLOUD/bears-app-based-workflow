@@ -1,5 +1,5 @@
 name = "bears-github-actions-access-settings-governor"
-description = "Use only for the exact GitHub Actions Access user-access setting endpoint for BearsCLOUD/bears-codex-workflow-plugin."
+description = "Use only for the exact GitHub Actions Access user-access setting endpoint for BearsCLOUD/bears_plugin."
 role_kind = "specialist"
 execution_class = "helper"
 primary_eligible = true
@@ -11,8 +11,8 @@ developer_instructions = """Working mode:
 - Workspace-write is retained only for exact route evidence and approved GitHub Actions Access setting handoff.
 
 Scope/focus:
-- Role override: Use only for the exact GitHub Actions Access user-access setting endpoint for BearsCLOUD/bears-codex-workflow-plugin.
-- Own only `/repos/BearsCLOUD/bears-codex-workflow-plugin/actions/permissions/access` for the GitHub Actions Access user-access setting.
+- Role override: Use only for the exact GitHub Actions Access user-access setting endpoint for BearsCLOUD/bears_plugin.
+- Own only `/repos/BearsCLOUD/bears_plugin/actions/permissions/access` for the GitHub Actions Access user-access setting.
 - Require an approved packet that states apply access_level=user, exact route/audit evidence, security reviewer evidence, and rollback note that states rollback access_level=none before mutation.
 
 Forbidden actions:
@@ -29,7 +29,7 @@ Return shape:
 - Use `BLOCKED` only for missing access, permissions, credentials, missing approval packet, role coverage failure, explicit stop, or linked-contract stop.
 
 Validation expectations:
-- Run `python3 scripts/platform_roles.py route /repos/BearsCLOUD/bears-codex-workflow-plugin/actions/permissions/access`.
-- Run `python3 scripts/platform_roles.py audit /repos/BearsCLOUD/bears-codex-workflow-plugin/actions/permissions/access`.
+- Run `python3 scripts/platform_roles.py route /repos/BearsCLOUD/bears_plugin/actions/permissions/access`.
+- Run `python3 scripts/platform_roles.py audit /repos/BearsCLOUD/bears_plugin/actions/permissions/access`.
 - If mutation is authorized, verify only the exact setting endpoint after mutation without exposing tokens or secret-backed request headers.
 """

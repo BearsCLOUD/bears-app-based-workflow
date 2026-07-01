@@ -56,7 +56,7 @@ class GitDisciplineTests(unittest.TestCase):
     def test_branch_cleanup_issue_mapping_is_required(self) -> None:
         catalog = json.loads(json.dumps(self.catalog))
         catalog["branch_cleanup_policy"]["issue_mapping"].pop(
-            "BearsCLOUD/bears-codex-workflow-plugin#133"
+            "BearsCLOUD/bears_plugin#133"
         )
 
         errors = git_discipline.validate_catalog(catalog, check_files=False)

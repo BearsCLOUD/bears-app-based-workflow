@@ -5,7 +5,7 @@ from scripts import old_backlog_reconciliation
 
 class OldBacklogReconciliationTest(unittest.TestCase):
     def test_build_classifies_completed_and_phase2(self):
-        issues=[{'repo':'BearsCLOUD/bears-codex-workflow-plugin','number':382,'state':'OPEN','title':'artifact registry'}, {'repo':'BearsCLOUD/bears-codex-workflow-plugin','number':370,'state':'OPEN','title':'dispatcher'}]
+        issues=[{'repo':'BearsCLOUD/bears_plugin','number':382,'state':'OPEN','title':'artifact registry'}, {'repo':'BearsCLOUD/bears_plugin','number':370,'state':'OPEN','title':'dispatcher'}]
         with tempfile.TemporaryDirectory() as d:
             p=Path(d)/'issues.json'; p.write_text(json.dumps(issues))
             pkt=old_backlog_reconciliation.build(issues_json=p)

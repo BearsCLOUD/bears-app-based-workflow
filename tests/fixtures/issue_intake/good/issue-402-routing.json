@@ -9,10 +9,10 @@
     }
   ],
   "number": 402,
-  "repo": "BearsCLOUD/bears-codex-workflow-plugin",
+  "repo": "BearsCLOUD/bears_plugin",
   "schema": "bears-issue-intake.v1",
   "state": "OPEN",
   "title": "P1: Add multi-repo governance routing for issue autostart",
-  "url": "https://github.com/BearsCLOUD/bears-codex-workflow-plugin/issues/402",
+  "url": "https://github.com/BearsCLOUD/bears_plugin/issues/402",
   "version": "1"
 }

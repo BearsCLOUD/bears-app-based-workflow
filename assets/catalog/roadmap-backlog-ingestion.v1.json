@@ -5,8 +5,8 @@
   "owner_issue": "#423",
   "owner_role": "bears-machine-first-execution-kernel-engineer",
   "commands": [
-    "python3 scripts/roadmap_backlog_ingest.py scan --repo BearsCLOUD/bears-codex-workflow-plugin --json",
-    "python3 scripts/roadmap_backlog_ingest.py propose --repo BearsCLOUD/bears-codex-workflow-plugin --json",
+    "python3 scripts/roadmap_backlog_ingest.py scan --repo BearsCLOUD/bears_plugin --json",
+    "python3 scripts/roadmap_backlog_ingest.py propose --repo BearsCLOUD/bears_plugin --json",
     "python3 scripts/roadmap_backlog_ingest.py apply --packet <path>",
     "python3 scripts/roadmap_backlog_ingest.py fillability --json",
     "python3 scripts/roadmap_backlog_ingest.py validate"

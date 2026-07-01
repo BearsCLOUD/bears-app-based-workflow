@@ -21,7 +21,7 @@ spec.loader.exec_module(pr_pipeline)
 class PrPipelineTests(unittest.TestCase):
     def _ready_pr(self) -> dict[str, object]:
         return {
-            "repo": "BearsCLOUD/bears-codex-workflow-plugin",
+            "repo": "BearsCLOUD/bears_plugin",
             "number": 201,
             "issue": 201,
             "branch": "codex/issue-201-worker-pool-pr-pipeline",

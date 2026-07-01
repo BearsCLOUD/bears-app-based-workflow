@@ -14,7 +14,7 @@ from pathlib import Path
 from typing import Any
 
 PLUGIN_ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_REPO = "BearsCLOUD/bears-codex-workflow-plugin"
+DEFAULT_REPO = "BearsCLOUD/bears_plugin"
 DEFAULT_BRANCH = "main"
 DEFAULT_STATE_PATH = PLUGIN_ROOT / "runtime/plugin-cache-sync/plugin-cache-sync-state.v1.json"
 DEFAULT_LOCAL_VALIDATION_ROOT = PLUGIN_ROOT / "runtime/local-commit-validation"

@@ -854,8 +854,8 @@ def validate_inventory_data(inventory: dict[str, Any], skill_catalog: dict[str, 
         errors.append(error("INVENTORY_SCHEMA", "inventory schema must be bears-plugin-capability-inventory.v1"))
     if inventory.get("owner_plugin") != "bears":
         errors.append(error("OWNER_PLUGIN", "owner_plugin must be bears"))
-    if inventory.get("source_repo") != "BearsCLOUD/bears-codex-workflow-plugin":
-        errors.append(error("SOURCE_REPO", "source_repo must be BearsCLOUD/bears-codex-workflow-plugin"))
+    if inventory.get("source_repo") != "BearsCLOUD/bears_plugin":
+        errors.append(error("SOURCE_REPO", "source_repo must be BearsCLOUD/bears_plugin"))
 
     rows = inventory.get("capabilities")
     if not isinstance(rows, list):

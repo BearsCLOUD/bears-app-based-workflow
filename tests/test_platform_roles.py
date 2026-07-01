@@ -2013,10 +2013,10 @@ class PlatformRolesTest(unittest.TestCase):
 
     def test_plugin_source_repo_identity_requires_decomposition(self) -> None:
         targets = [
-            "BearsCLOUD/bears-codex-workflow-plugin",
-            "https://github.com/BearsCLOUD/bears-codex-workflow-plugin",
-            "https://github.com/BearsCLOUD/bears-codex-workflow-plugin.git",
-            "git@github.com:BearsCLOUD/bears-codex-workflow-plugin.git",
+            "BearsCLOUD/bears_plugin",
+            "https://github.com/BearsCLOUD/bears_plugin",
+            "https://github.com/BearsCLOUD/bears_plugin.git",
+            "git@github.com:BearsCLOUD/bears_plugin.git",
         ]
         for target in targets:
             with self.subTest(target=target):
@@ -2041,8 +2041,8 @@ class PlatformRolesTest(unittest.TestCase):
 
     def test_unknown_github_repo_identity_stays_unmapped(self) -> None:
         for target in (
-            "BearsCLOUD/not-bears-codex-workflow-plugin",
-            "https://github.com/BearsCLOUD/not-bears-codex-workflow-plugin",
+            "BearsCLOUD/not-bears-plugin",
+            "https://github.com/BearsCLOUD/not-bears-plugin",
         ):
             with self.subTest(target=target):
                 packet = platform_roles.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
@@ -2348,9 +2348,9 @@ class PlatformRolesTest(unittest.TestCase):
 
     def test_routes_exact_github_actions_access_setting_to_settings_governor(self) -> None:
         targets = [
-            "/repos/BearsCLOUD/bears-codex-workflow-plugin/actions/permissions/access",
-            "repos/BearsCLOUD/bears-codex-workflow-plugin/actions/permissions/access",
-            "https://api.github.com/repos/BearsCLOUD/bears-codex-workflow-plugin/actions/permissions/access",
+            "/repos/BearsCLOUD/bears_plugin/actions/permissions/access",
+            "repos/BearsCLOUD/bears_plugin/actions/permissions/access",
+            "https://api.github.com/repos/BearsCLOUD/bears_plugin/actions/permissions/access",
         ]
         for target in targets:
             for router in (platform_roles.route_target, platform_roles.audit_target):
@@ -2380,12 +2380,12 @@ class PlatformRolesTest(unittest.TestCase):
 
     def test_nearby_github_settings_endpoints_remain_blocked(self) -> None:
         targets = [
-            "/repos/BearsCLOUD/bears-codex-workflow-plugin/actions/permissions",
-            "/repos/BearsCLOUD/bears-codex-workflow-plugin/actions/permissions/workflow",
-            "/repos/BearsCLOUD/bears-codex-workflow-plugin/actions/permissions/selected-actions",
-            "/repos/BearsCLOUD/bears-codex-workflow-plugin/actions/permissions/access/child",
-            "/repos/BearsCLOUD/bears-codex-workflow-plugin/branches/main/protection",
-            "/repos/BearsCLOUD/bears-codex-workflow-plugin/settings",
+            "/repos/BearsCLOUD/bears_plugin/actions/permissions",
+            "/repos/BearsCLOUD/bears_plugin/actions/permissions/workflow",
+            "/repos/BearsCLOUD/bears_plugin/actions/permissions/selected-actions",
+            "/repos/BearsCLOUD/bears_plugin/actions/permissions/access/child",
+            "/repos/BearsCLOUD/bears_plugin/branches/main/protection",
+            "/repos/BearsCLOUD/bears_plugin/settings",
         ]
         for target in targets:
             for router in (platform_roles.route_target, platform_roles.audit_target):
@@ -2526,7 +2526,7 @@ class PlatformRolesTest(unittest.TestCase):
             "/repos/BearsCLOUD/bears-platform/actions/permissions",
             "/repos/BearsCLOUD/bears-platform/actions/permissions/access",
             "/orgs/BearsCLOUD/actions/permissions",
-            "/repos/BearsCLOUD/bears-codex-workflow-plugin/branches/main/protection",
+            "/repos/BearsCLOUD/bears_plugin/branches/main/protection",
         ]
         for target in targets:
             for router in (platform_roles.route_target, platform_roles.audit_target):
@@ -2923,7 +2923,7 @@ class PlatformRolesTest(unittest.TestCase):
                 self.assertEqual(packet["concrete_part"], "agent_orchestrator_codex_session_watchdog")
                 self.assertEqual(packet["primary_role"], "bears-codex-workspace-config-engineer")
                 self.assertIn("bears-platform-security-reviewer", packet["supporting_roles"])
-                self.assertIn("BearsCLOUD/bears-codex-workflow-plugin", packet["trust_boundary"])
+                self.assertIn("BearsCLOUD/bears_plugin", packet["trust_boundary"])
                 self.assertIn("dry-run performs no mutation", packet["trust_boundary"])
 
     def test_unmapped_child_under_codex_workspace_configuration_still_blocks(self) -> None:

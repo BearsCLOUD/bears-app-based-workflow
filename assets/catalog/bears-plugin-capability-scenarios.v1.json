@@ -37,7 +37,7 @@
     "quality_score_basis"
   ],
   "owner_role": "bears-machine-first-execution-kernel-engineer",
-  "repo": "BearsCLOUD/bears-codex-workflow-plugin",
+  "repo": "BearsCLOUD/bears_plugin",
   "required_reports": [
     "capability_progress.v1.json",
     "usage_ledger.v1.jsonl",

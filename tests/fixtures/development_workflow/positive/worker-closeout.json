@@ -1,7 +1,7 @@
 {
   "goal_id": "goal-1",
   "role": "bears-development-workflow-orchestrator",
-  "repo_boundary": "BearsCLOUD/bears-codex-workflow-plugin",
+  "repo_boundary": "BearsCLOUD/bears_plugin",
   "allowed_write_scope": [
     "scripts/development_workflow_validate.py"
   ],

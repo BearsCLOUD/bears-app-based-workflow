@@ -24,7 +24,7 @@ USAGE_LEDGER_SCHEMA = PLUGIN_ROOT / "assets/schemas/usage-ledger.v1.schema.json"
 CAPABILITY_PROGRESS_SCHEMA = PLUGIN_ROOT / "assets/schemas/capability-progress.v1.schema.json"
 COST_QUALITY_SCHEMA = PLUGIN_ROOT / "assets/schemas/cost-quality-summary.v1.schema.json"
 RUNTIME_DIR = PLUGIN_ROOT / "runtime/capability-harness"
-REPO = "BearsCLOUD/bears-codex-workflow-plugin"
+REPO = "BearsCLOUD/bears_plugin"
 STABLE_FIXTURE_AT = "2026-06-25T00:00:00Z"
 
 TASK_LEVELS = {

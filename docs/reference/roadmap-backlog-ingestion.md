@@ -6,8 +6,8 @@ Commands:
 
 ```bash
 python3 scripts/roadmap_backlog_ingest.py validate
-python3 scripts/roadmap_backlog_ingest.py scan --repo BearsCLOUD/bears-codex-workflow-plugin --json
-python3 scripts/roadmap_backlog_ingest.py propose --repo BearsCLOUD/bears-codex-workflow-plugin --json
+python3 scripts/roadmap_backlog_ingest.py scan --repo BearsCLOUD/bears_plugin --json
+python3 scripts/roadmap_backlog_ingest.py propose --repo BearsCLOUD/bears_plugin --json
 python3 scripts/roadmap_backlog_ingest.py apply --packet <path>
 python3 scripts/roadmap_backlog_ingest.py fillability --json
 ```

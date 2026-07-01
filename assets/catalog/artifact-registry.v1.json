@@ -5644,40 +5644,6 @@
       "allowed_writers": [
         "bears-machine-first-execution-kernel-engineer"
       ],
-      "artifact_type": "runtime",
-      "changelog_required": false,
-      "decision_ref_required": false,
-      "git_tracked": true,
-      "lifecycle": "durable",
-      "owner_issue": "#knowledge-orchestrator",
-      "owner_role": "bears-machine-first-execution-kernel-engineer",
-      "path": ".knowledge/manifest.json",
-      "source_of_truth_status": "canonical",
-      "validation": [
-        "python3 scripts/artifact_registry.py validate"
-      ]
-    },
-    {
-      "allowed_writers": [
-        "bears-machine-first-execution-kernel-engineer"
-      ],
-      "artifact_type": "runtime",
-      "changelog_required": false,
-      "decision_ref_required": false,
-      "git_tracked": true,
-      "lifecycle": "durable",
-      "owner_issue": "#knowledge-orchestrator",
-      "owner_role": "bears-machine-first-execution-kernel-engineer",
-      "path": ".knowledge/roles/*",
-      "source_of_truth_status": "canonical",
-      "validation": [
-        "python3 scripts/artifact_registry.py validate"
-      ]
-    },
-    {
-      "allowed_writers": [
-        "bears-machine-first-execution-kernel-engineer"
-      ],
       "artifact_type": "doc",
       "changelog_required": false,
       "decision_ref_required": false,
@@ -5695,99 +5661,14 @@
       "allowed_writers": [
         "bears-machine-first-execution-kernel-engineer"
       ],
-      "artifact_type": "script",
-      "changelog_required": false,
-      "decision_ref_required": false,
-      "git_tracked": true,
-      "lifecycle": "script",
-      "owner_issue": "#knowledge-orchestrator",
-      "owner_role": "bears-machine-first-execution-kernel-engineer",
-      "path": "packaging/systemd/*",
-      "source_of_truth_status": "canonical",
-      "validation": [
-        "python3 scripts/artifact_registry.py validate"
-      ]
-    },
-    {
-      "allowed_writers": [
-        "bears-machine-first-execution-kernel-engineer"
-      ],
       "artifact_type": "schema",
       "changelog_required": false,
       "decision_ref_required": false,
       "git_tracked": true,
       "lifecycle": "schema",
-      "owner_issue": "#knowledge-orchestrator",
+      "owner_issue": "#bears-plugin-governance",
       "owner_role": "bears-machine-first-execution-kernel-engineer",
       "path": "schemas/*",
-      "source_of_truth_status": "canonical",
-      "validation": [
-        "python3 scripts/artifact_registry.py validate"
-      ]
-    },
-    {
-      "allowed_writers": [
-        "bears-machine-first-execution-kernel-engineer"
-      ],
-      "artifact_type": "doc",
-      "changelog_required": false,
-      "decision_ref_required": false,
-      "git_tracked": true,
-      "lifecycle": "doc",
-      "owner_issue": "#knowledge-orchestrator",
-      "owner_role": "bears-machine-first-execution-kernel-engineer",
-      "path": "specdocs/*",
-      "source_of_truth_status": "canonical",
-      "validation": [
-        "python3 scripts/artifact_registry.py validate"
-      ]
-    },
-    {
-      "allowed_writers": [
-        "bears-machine-first-execution-kernel-engineer"
-      ],
-      "artifact_type": "script",
-      "changelog_required": false,
-      "decision_ref_required": false,
-      "git_tracked": true,
-      "lifecycle": "script",
-      "owner_issue": "#knowledge-orchestrator",
-      "owner_role": "bears-machine-first-execution-kernel-engineer",
-      "path": "src/knowledge_orchestrator/*",
-      "source_of_truth_status": "canonical",
-      "validation": [
-        "python3 scripts/artifact_registry.py validate"
-      ]
-    },
-    {
-      "allowed_writers": [
-        "bears-machine-first-execution-kernel-engineer"
-      ],
-      "artifact_type": "test",
-      "changelog_required": false,
-      "decision_ref_required": false,
-      "git_tracked": true,
-      "lifecycle": "test",
-      "owner_issue": "#knowledge-orchestrator",
-      "owner_role": "bears-machine-first-execution-kernel-engineer",
-      "path": "tests/test_knowledge_orchestrator_*.py",
-      "source_of_truth_status": "canonical",
-      "validation": [
-        "python3 scripts/artifact_registry.py validate"
-      ]
-    },
-    {
-      "allowed_writers": [
-        "bears-machine-first-execution-kernel-engineer"
-      ],
-      "artifact_type": "runtime",
-      "changelog_required": false,
-      "decision_ref_required": false,
-      "git_tracked": true,
-      "lifecycle": "durable",
-      "owner_issue": "#knowledge-orchestrator",
-      "owner_role": "bears-machine-first-execution-kernel-engineer",
-      "path": ".knowledge",
       "source_of_truth_status": "canonical",
       "validation": [
         "python3 scripts/artifact_registry.py validate"
@@ -5839,23 +5720,6 @@
       "owner_issue": "#bears-telegram-workflow",
       "owner_role": "bears-telegram-platform-engineer",
       "path": "skills/bears-telegram-workflow/tests",
-      "source_of_truth_status": "canonical",
-      "validation": [
-        "python3 scripts/artifact_registry.py validate"
-      ]
-    },
-    {
-      "allowed_writers": [
-        "bears-machine-first-execution-kernel-engineer"
-      ],
-      "artifact_type": "runtime",
-      "changelog_required": false,
-      "decision_ref_required": false,
-      "git_tracked": true,
-      "lifecycle": "durable",
-      "owner_issue": "#knowledge-orchestrator",
-      "owner_role": "bears-machine-first-execution-kernel-engineer",
-      "path": ".knowledge/**",
       "source_of_truth_status": "canonical",
       "validation": [
         "python3 scripts/artifact_registry.py validate"
@@ -5975,40 +5839,6 @@
       "owner_issue": "#tg-one-chat-intelligence",
       "owner_role": "bears-deploy-platform-engineer",
       "path": "skills/bears-kubernetes-ops/agents/openai.yaml",
-      "source_of_truth_status": "canonical",
-      "validation": [
-        "python3 scripts/artifact_registry.py validate"
-      ]
-    },
-    {
-      "allowed_writers": [
-        "bears-worker"
-      ],
-      "artifact_type": "script",
-      "changelog_required": false,
-      "decision_ref_required": false,
-      "git_tracked": true,
-      "lifecycle": "script",
-      "owner_issue": "knowledge-orchestrator",
-      "owner_role": "bears-worker",
-      "path": "packaging/install.sh",
-      "source_of_truth_status": "canonical",
-      "validation": [
-        "python3 scripts/artifact_registry.py validate"
-      ]
-    },
-    {
-      "allowed_writers": [
-        "bears-worker"
-      ],
-      "artifact_type": "script",
-      "changelog_required": false,
-      "decision_ref_required": false,
-      "git_tracked": true,
-      "lifecycle": "script",
-      "owner_issue": "knowledge-orchestrator",
-      "owner_role": "bears-worker",
-      "path": "packaging/uninstall.sh",
       "source_of_truth_status": "canonical",
       "validation": [
         "python3 scripts/artifact_registry.py validate"

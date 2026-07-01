@@ -1,7 +1,7 @@
 {
   "goal_id": "goal-1",
   "role": "bears-development-workflow-orchestrator",
-  "repo_boundary": "BearsCLOUD/bears-codex-workflow-plugin",
+  "repo_boundary": "BearsCLOUD/bears_plugin",
   "allowed_write_scope": [
     "scripts/development_workflow_validate.py"
   ],
@@ -15,7 +15,7 @@
   "restricted_data_taint": "none",
   "status": "pass",
   "pr_urls": [
-    "https://github.com/BearsCLOUD/bears-codex-workflow-plugin/pull/1"
+    "https://github.com/BearsCLOUD/bears_plugin/pull/1"
   ],
   "head_shas": [
     "1234567890abcdef1234567890abcdef12345678"

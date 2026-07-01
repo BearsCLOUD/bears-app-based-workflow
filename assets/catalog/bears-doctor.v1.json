@@ -246,7 +246,7 @@
         "scripts/issue_intake.py",
         "route",
         "--repo",
-        "BearsCLOUD/bears-codex-workflow-plugin",
+        "BearsCLOUD/bears_plugin",
         "--issue",
         "402",
         "--json"
@@ -731,7 +731,7 @@
     "doctor-component-coverage diff --base <path> --head <path> --json",
     "doctor-component-coverage doctor --json",
     "python3 scripts/doctor_component_coverage.py validate",
-    "python3 scripts/doctor_component_coverage.py scan --repo BearsCLOUD/bears-codex-workflow-plugin --json",
+    "python3 scripts/doctor_component_coverage.py scan --repo BearsCLOUD/bears_plugin --json",
     "python3 scripts/doctor_component_coverage.py check-issue --issue <N> --json",
     "python3 scripts/doctor_component_coverage.py diff --base <path> --head <path> --json",
     "python3 scripts/doctor_component_coverage.py doctor --json",

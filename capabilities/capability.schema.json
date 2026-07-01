@@ -33,7 +33,7 @@
       "const": "bears"
     },
     "source_repo": {
-      "const": "BearsCLOUD/bears-codex-workflow-plugin"
+      "const": "BearsCLOUD/bears_plugin"
     },
     "codex_environment_policy": {
       "type": "object",

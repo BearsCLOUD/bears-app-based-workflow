@@ -1,10 +1,10 @@
 [
   {
-    "repo": "BearsCLOUD/bears-codex-workflow-plugin",
+    "repo": "BearsCLOUD/bears_plugin",
     "number": 392,
     "title": "P0: Add self-solving issue loop for sequential codex exec",
     "state": "OPEN",
-    "url": "https://github.com/BearsCLOUD/bears-codex-workflow-plugin/issues/392",
+    "url": "https://github.com/BearsCLOUD/bears_plugin/issues/392",
     "body": "Implement bounded self-solving issue loop. Scope: @Bears plugin governance.",
     "labels": [
       {
@@ -16,11 +16,11 @@
     ]
   },
   {
-    "repo": "BearsCLOUD/bears-codex-workflow-plugin",
+    "repo": "BearsCLOUD/bears_plugin",
     "number": 393,
     "title": "Next eligible issue",
     "state": "OPEN",
-    "url": "https://github.com/BearsCLOUD/bears-codex-workflow-plugin/issues/393",
+    "url": "https://github.com/BearsCLOUD/bears_plugin/issues/393",
     "body": "Small bounded @Bears plugin issue.",
     "labels": [
       {

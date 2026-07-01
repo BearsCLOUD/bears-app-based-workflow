@@ -220,7 +220,7 @@ class ProjectRegistryGateTest(unittest.TestCase):
                 "plan_path": None,
                 "tasks_path": None,
                 "classification": "canonical_plugin_governance_repo",
-                "canonical_remote": "BearsCLOUD/bears-codex-workflow-plugin",
+                "canonical_remote": "BearsCLOUD/bears_plugin",
                 "root_owned_payload": False,
                 "primary_role": "bears-platform-role-governor",
                 "supporting_roles": ["bears-platform-security-reviewer"],

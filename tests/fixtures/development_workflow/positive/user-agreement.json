@@ -7,7 +7,7 @@
     "secrets"
   ],
   "allowed_repositories": [
-    "BearsCLOUD/bears-codex-workflow-plugin"
+    "BearsCLOUD/bears_plugin"
   ],
   "live_mutation_rules": "none",
   "secret_data_handling_rules": "no restricted data",

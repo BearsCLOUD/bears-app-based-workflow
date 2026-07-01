@@ -43,7 +43,7 @@
     "max_sync_attempts": 3,
     "state_file": "runtime/plugin-cache-sync/plugin-cache-sync-state.v1.json",
     "state_schema": "assets/schemas/plugin-cache-sync-state.v1.schema.json",
-    "github_repo": "BearsCLOUD/bears-codex-workflow-plugin",
+    "github_repo": "BearsCLOUD/bears_plugin",
     "branch": "main",
     "required_local_proof": "runtime/local-commit-validation/<main_sha>.json"
   },

@@ -18,7 +18,7 @@ DEFAULT_POLICY = PLUGIN_ROOT / "assets/catalog/subagent-orchestration-policy.v1.
 DEFAULT_CODEX_CONFIG = Path("/home/ai1/.codex/config.toml")
 EXPECTED_SCHEMA = "bears-subagent-orchestration-policy.v1"
 PARALLELIZATION_PLAN_SCHEMA = "bears-goal-parallelization-plan.v1"
-PARALLELIZATION_REPO_BOUNDARY = "BearsCLOUD/bears-codex-workflow-plugin"
+PARALLELIZATION_REPO_BOUNDARY = "BearsCLOUD/bears_plugin"
 EXPECTED_OWNER = "bears"
 REQUIRED_RULE_IDS = {
     "role-gate-first",
@@ -1064,32 +1064,32 @@ SUBAGENT_REQUIRED_STALE_RESULT_REJECTION_FIELDS = {
     "assignment_packet_id",
 }
 EXPECTED_GOAL_PREFLIGHT_ISSUE_MAPPING = {
-    "BearsCLOUD/bears-codex-workflow-plugin#173": "central_goal_parallelization_preflight_lane",
-    "BearsCLOUD/bears-codex-workflow-plugin#76": "backend_only_parallel_prompt_guard",
-    "BearsCLOUD/bears-codex-workflow-plugin#78": "task_ledger_role_gate_before_delegation",
-    "BearsCLOUD/bears-codex-workflow-plugin#83": "spawn_template_model_capability_preflight",
-    "BearsCLOUD/bears-codex-workflow-plugin#84": "fork_context_spawn_inheritance_guard",
-    "BearsCLOUD/bears-codex-workflow-plugin#87": "parallel_shared_worktree_isolation_guard",
-    "BearsCLOUD/bears-codex-workflow-plugin#89": "mixed_role_target_split_guard",
-    "BearsCLOUD/bears-codex-workflow-plugin#90": "pr_review_repo_scope_guard",
-    "BearsCLOUD/bears-codex-workflow-plugin#95": "credential_surface_output_guard",
-    "BearsCLOUD/bears-codex-workflow-plugin#99": "english_subagent_closeout_guard",
-    "BearsCLOUD/bears-codex-workflow-plugin#112": "leaf_pr_delivery_role_guard",
-    "BearsCLOUD/bears-codex-workflow-plugin#121": "slice_scoped_final_audit_verdict_guard",
-    "BearsCLOUD/bears-codex-workflow-plugin#122": "current_day_checkpoint_collector_guard",
-    "BearsCLOUD/bears-codex-workflow-plugin#127": "current_state_source_authority_guard",
-    "BearsCLOUD/bears-codex-workflow-plugin#129": "discovery_implementation_split_guard",
-    "BearsCLOUD/bears-codex-workflow-plugin#130": "parent_control_patch_content_guard",
-    "BearsCLOUD/bears-codex-workflow-plugin#131": "draft_pr_publication_merge_guard",
-    "BearsCLOUD/bears-codex-workflow-plugin#103": "no_eligible_task_non_blocking",
-    "BearsCLOUD/bears-codex-workflow-plugin#154": "fanout_thread_limit_preflight",
-    "BearsCLOUD/bears-codex-workflow-plugin#153": "wait_agent_target_id_validation",
-    "BearsCLOUD/bears-codex-workflow-plugin#142": "spawn_agent_argument_shape_validation",
-    "BearsCLOUD/bears-codex-workflow-plugin#138": "completed_subagent_close_evidence_before_new_waves",
-    "BearsCLOUD/bears-codex-workflow-plugin#158": "final_join_gate_before_parent_completion",
-    "BearsCLOUD/bears-codex-workflow-plugin#157": "partial_state_reconciliation_before_capacity_fallback",
-    "BearsCLOUD/bears-codex-workflow-plugin#145": "parent_plan_status_evidence_gate",
-    "BearsCLOUD/bears-codex-workflow-plugin#155": "nested_worker_delegation_parent_authorization",
+    "BearsCLOUD/bears_plugin#173": "central_goal_parallelization_preflight_lane",
+    "BearsCLOUD/bears_plugin#76": "backend_only_parallel_prompt_guard",
+    "BearsCLOUD/bears_plugin#78": "task_ledger_role_gate_before_delegation",
+    "BearsCLOUD/bears_plugin#83": "spawn_template_model_capability_preflight",
+    "BearsCLOUD/bears_plugin#84": "fork_context_spawn_inheritance_guard",
+    "BearsCLOUD/bears_plugin#87": "parallel_shared_worktree_isolation_guard",
+    "BearsCLOUD/bears_plugin#89": "mixed_role_target_split_guard",
+    "BearsCLOUD/bears_plugin#90": "pr_review_repo_scope_guard",
+    "BearsCLOUD/bears_plugin#95": "credential_surface_output_guard",
+    "BearsCLOUD/bears_plugin#99": "english_subagent_closeout_guard",
+    "BearsCLOUD/bears_plugin#112": "leaf_pr_delivery_role_guard",
+    "BearsCLOUD/bears_plugin#121": "slice_scoped_final_audit_verdict_guard",
+    "BearsCLOUD/bears_plugin#122": "current_day_checkpoint_collector_guard",
+    "BearsCLOUD/bears_plugin#127": "current_state_source_authority_guard",
+    "BearsCLOUD/bears_plugin#129": "discovery_implementation_split_guard",
+    "BearsCLOUD/bears_plugin#130": "parent_control_patch_content_guard",
+    "BearsCLOUD/bears_plugin#131": "draft_pr_publication_merge_guard",
+    "BearsCLOUD/bears_plugin#103": "no_eligible_task_non_blocking",
+    "BearsCLOUD/bears_plugin#154": "fanout_thread_limit_preflight",
+    "BearsCLOUD/bears_plugin#153": "wait_agent_target_id_validation",
+    "BearsCLOUD/bears_plugin#142": "spawn_agent_argument_shape_validation",
+    "BearsCLOUD/bears_plugin#138": "completed_subagent_close_evidence_before_new_waves",
+    "BearsCLOUD/bears_plugin#158": "final_join_gate_before_parent_completion",
+    "BearsCLOUD/bears_plugin#157": "partial_state_reconciliation_before_capacity_fallback",
+    "BearsCLOUD/bears_plugin#145": "parent_plan_status_evidence_gate",
+    "BearsCLOUD/bears_plugin#155": "nested_worker_delegation_parent_authorization",
 }
 REQUIRED_BATCH_ROLE_GATE_FIELDS = {
     "required",
@@ -4448,8 +4448,8 @@ def _validate_parallel_audit_lane(orchestration: dict[str, Any]) -> list[str]:
             errors.append("orchestration_model.parallel_audit_lane.hard_stop_conditions missing markers: " + ", ".join(missing))
     issue_policy = lane.get("github_issue_policy")
     if _require_object(issue_policy, "orchestration_model.parallel_audit_lane.github_issue_policy", errors):
-        if issue_policy.get("owner_repo") != "BearsCLOUD/bears-codex-workflow-plugin":
-            errors.append("orchestration_model.parallel_audit_lane.github_issue_policy.owner_repo must be BearsCLOUD/bears-codex-workflow-plugin")
+        if issue_policy.get("owner_repo") != "BearsCLOUD/bears_plugin":
+            errors.append("orchestration_model.parallel_audit_lane.github_issue_policy.owner_repo must be BearsCLOUD/bears_plugin")
         if issue_policy.get("operator_request_required") is not False:
             errors.append("orchestration_model.parallel_audit_lane.github_issue_policy.operator_request_required must be false")
         create_or_update = str(issue_policy.get("create_or_update", ""))
@@ -5022,7 +5022,7 @@ def validate_goal_parallelization_preflight(
                 errors.append(f"{guard_path}.required must be true")
             guard_id = str(guard.get("guard_id", ""))
             if guard_id and not str(guard.get("issue", "")).startswith(
-                "BearsCLOUD/bears-codex-workflow-plugin#"
+                "BearsCLOUD/bears_plugin#"
             ):
                 errors.append(f"{guard_path}.issue must name the owning GitHub issue")
             if not _as_string_set(guard.get("required_packet_fields")):

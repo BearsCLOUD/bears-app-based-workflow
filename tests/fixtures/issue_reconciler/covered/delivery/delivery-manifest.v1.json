@@ -21,16 +21,16 @@
       "proof_commit": "1111111111111111111111111111111111111111",
       "proof_path": "runtime/local-commit-validation/1111111111111111111111111111111111111111.json",
       "reason": "fixture closeout classification",
-      "repo": "BearsCLOUD/bears-codex-workflow-plugin",
-      "url": "https://github.com/BearsCLOUD/bears-codex-workflow-plugin/issues/404"
+      "repo": "BearsCLOUD/bears_plugin",
+      "url": "https://github.com/BearsCLOUD/bears_plugin/issues/404"
     },
     {
       "classification": "partial",
       "github_state": "OPEN",
       "number": 405,
       "reason": "fixture closeout classification",
-      "repo": "BearsCLOUD/bears-codex-workflow-plugin",
-      "url": "https://github.com/BearsCLOUD/bears-codex-workflow-plugin/issues/405"
+      "repo": "BearsCLOUD/bears_plugin",
+      "url": "https://github.com/BearsCLOUD/bears_plugin/issues/405"
     },
     {
       "classification": "superseded",
@@ -39,32 +39,32 @@
       "proof_commit": "1111111111111111111111111111111111111111",
       "proof_path": "runtime/local-commit-validation/1111111111111111111111111111111111111111.json",
       "reason": "fixture closeout classification",
-      "repo": "BearsCLOUD/bears-codex-workflow-plugin",
-      "url": "https://github.com/BearsCLOUD/bears-codex-workflow-plugin/issues/406"
+      "repo": "BearsCLOUD/bears_plugin",
+      "url": "https://github.com/BearsCLOUD/bears_plugin/issues/406"
     },
     {
       "classification": "blocked",
       "github_state": "OPEN",
       "number": 407,
       "reason": "fixture closeout classification",
-      "repo": "BearsCLOUD/bears-codex-workflow-plugin",
-      "url": "https://github.com/BearsCLOUD/bears-codex-workflow-plugin/issues/407"
+      "repo": "BearsCLOUD/bears_plugin",
+      "url": "https://github.com/BearsCLOUD/bears_plugin/issues/407"
     },
     {
       "classification": "out_of_scope",
       "github_state": "OPEN",
       "number": 408,
       "reason": "fixture closeout classification",
-      "repo": "BearsCLOUD/bears-codex-workflow-plugin",
-      "url": "https://github.com/BearsCLOUD/bears-codex-workflow-plugin/issues/408"
+      "repo": "BearsCLOUD/bears_plugin",
+      "url": "https://github.com/BearsCLOUD/bears_plugin/issues/408"
     },
     {
       "classification": "manual_review",
       "github_state": "OPEN",
       "number": 409,
       "reason": "fixture closeout classification",
-      "repo": "BearsCLOUD/bears-codex-workflow-plugin",
-      "url": "https://github.com/BearsCLOUD/bears-codex-workflow-plugin/issues/409"
+      "repo": "BearsCLOUD/bears_plugin",
+      "url": "https://github.com/BearsCLOUD/bears_plugin/issues/409"
     }
   ],
   "delivery_id": "issue-404-closeout-reconcile",
@@ -76,47 +76,47 @@
     {
       "closeout_state": "closed",
       "number": 404,
-      "repo": "BearsCLOUD/bears-codex-workflow-plugin",
+      "repo": "BearsCLOUD/bears_plugin",
       "state": "OPEN",
-      "url": "https://github.com/BearsCLOUD/bears-codex-workflow-plugin/issues/404"
+      "url": "https://github.com/BearsCLOUD/bears_plugin/issues/404"
     },
     {
       "closeout_state": "partial",
       "number": 405,
-      "repo": "BearsCLOUD/bears-codex-workflow-plugin",
+      "repo": "BearsCLOUD/bears_plugin",
       "state": "OPEN",
-      "url": "https://github.com/BearsCLOUD/bears-codex-workflow-plugin/issues/405"
+      "url": "https://github.com/BearsCLOUD/bears_plugin/issues/405"
     },
     {
       "closeout_state": "superseded",
       "number": 406,
-      "repo": "BearsCLOUD/bears-codex-workflow-plugin",
+      "repo": "BearsCLOUD/bears_plugin",
       "state": "CLOSED",
-      "url": "https://github.com/BearsCLOUD/bears-codex-workflow-plugin/issues/406"
+      "url": "https://github.com/BearsCLOUD/bears_plugin/issues/406"
     },
     {
       "closeout_state": "blocked",
       "number": 407,
-      "repo": "BearsCLOUD/bears-codex-workflow-plugin",
+      "repo": "BearsCLOUD/bears_plugin",
       "state": "OPEN",
-      "url": "https://github.com/BearsCLOUD/bears-codex-workflow-plugin/issues/407"
+      "url": "https://github.com/BearsCLOUD/bears_plugin/issues/407"
     },
     {
       "closeout_state": "out_of_scope",
       "number": 408,
-      "repo": "BearsCLOUD/bears-codex-workflow-plugin",
+      "repo": "BearsCLOUD/bears_plugin",
       "state": "OPEN",
-      "url": "https://github.com/BearsCLOUD/bears-codex-workflow-plugin/issues/408"
+      "url": "https://github.com/BearsCLOUD/bears_plugin/issues/408"
     },
     {
       "closeout_state": "manual_review",
       "number": 409,
-      "repo": "BearsCLOUD/bears-codex-workflow-plugin",
+      "repo": "BearsCLOUD/bears_plugin",
       "state": "OPEN",
-      "url": "https://github.com/BearsCLOUD/bears-codex-workflow-plugin/issues/409"
+      "url": "https://github.com/BearsCLOUD/bears_plugin/issues/409"
     }
   ],
-  "repo": "BearsCLOUD/bears-codex-workflow-plugin",
+  "repo": "BearsCLOUD/bears_plugin",
   "schema": "bears-delivery-manifest.v1",
   "sequential_plan": "runtime/deliveries/issue-404-closeout-reconcile/sequential-plan.v1.json",
   "state": "ready_for_closeout",

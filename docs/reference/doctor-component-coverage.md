@@ -6,7 +6,7 @@
 
 ```bash
 python3 scripts/doctor_component_coverage.py validate
-python3 scripts/doctor_component_coverage.py scan --repo BearsCLOUD/bears-codex-workflow-plugin --json
+python3 scripts/doctor_component_coverage.py scan --repo BearsCLOUD/bears_plugin --json
 python3 scripts/doctor_component_coverage.py check-issue --issue 457 --json
 python3 scripts/doctor_component_coverage.py diff --base <path> --head <path> --json
 python3 scripts/doctor_component_coverage.py doctor --json

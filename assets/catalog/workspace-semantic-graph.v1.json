@@ -20,12 +20,12 @@
     "code_property_graph_issue": "#440"
   },
   "nodes": [
-    {"schema": "bears-workspace-semantic-node.v1", "node_id": "repo:bears-codex-workflow-plugin", "node_type": "repo", "name": "BearsCLOUD/bears-codex-workflow-plugin", "path": null, "source_refs": [".codex-plugin/plugin.json"], "metadata": {"authority": "plugin"}},
+    {"schema": "bears-workspace-semantic-node.v1", "node_id": "repo:bears_plugin", "node_type": "repo", "name": "BearsCLOUD/bears_plugin", "path": null, "source_refs": [".codex-plugin/plugin.json"], "metadata": {"authority": "plugin"}},
     {"schema": "bears-workspace-semantic-node.v1", "node_id": "worktree:/srv/bears/plugins/bears", "node_type": "worktree", "name": "/srv/bears/plugins/bears", "path": "/srv/bears/plugins/bears", "source_refs": ["AGENTS.md"], "metadata": {"canonical": true}},
     {"schema": "bears-workspace-semantic-node.v1", "node_id": "issue:431", "node_type": "issue", "name": "#431 workspace semantic graph", "path": null, "source_refs": ["#431"], "metadata": {"state": "implementation"}}
   ],
   "edges": [
-    {"schema": "bears-workspace-semantic-edge.v1", "edge_id": "edge:repo-contains-worktree", "edge_type": "contains", "source": "repo:bears-codex-workflow-plugin", "target": "worktree:/srv/bears/plugins/bears", "source_refs": ["AGENTS.md"], "metadata": {}},
-    {"schema": "bears-workspace-semantic-edge.v1", "edge_id": "edge:issue-431-implements-graph", "edge_type": "implements", "source": "issue:431", "target": "repo:bears-codex-workflow-plugin", "source_refs": ["#431"], "metadata": {}}
+    {"schema": "bears-workspace-semantic-edge.v1", "edge_id": "edge:repo-contains-worktree", "edge_type": "contains", "source": "repo:bears_plugin", "target": "worktree:/srv/bears/plugins/bears", "source_refs": ["AGENTS.md"], "metadata": {}},
+    {"schema": "bears-workspace-semantic-edge.v1", "edge_id": "edge:issue-431-implements-graph", "edge_type": "implements", "source": "issue:431", "target": "repo:bears_plugin", "source_refs": ["#431"], "metadata": {}}
   ]
 }

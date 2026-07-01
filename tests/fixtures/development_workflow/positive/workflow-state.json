@@ -4,7 +4,7 @@
   "goal_id": "agent-workflow-dirty-triage",
   "runtime_state_path": "runtime/agent-workflow/agent-workflow-dirty-triage/workflow-state.v1.json",
   "generated_at": "2026-06-21T00:00:00Z",
-  "repo_boundary": "BearsCLOUD/bears-codex-workflow-plugin",
+  "repo_boundary": "BearsCLOUD/bears_plugin",
   "index_role": "aggregate_only",
   "worker_state_refs": [
     {
@@ -32,9 +32,9 @@
   "active_prs": [
     {
       "provider": "github",
-      "repository": "BearsCLOUD/bears-codex-workflow-plugin",
+      "repository": "BearsCLOUD/bears_plugin",
       "number": 363,
-      "url": "https://github.com/BearsCLOUD/bears-codex-workflow-plugin/pull/363",
+      "url": "https://github.com/BearsCLOUD/bears_plugin/pull/363",
       "state": "open",
       "draft": true,
       "head_branch": "codex/agent-workflow-dirty-triage",

@@ -1321,7 +1321,7 @@ class SubagentOrchestrationPolicyTest(unittest.TestCase):
     def test_warning_finding_with_issue_linkage_allows_monitoring_continue(self) -> None:
         packet = {
             "severity": "warning",
-            "updated_issue": "https://github.com/BearsCLOUD/bears-codex-workflow-plugin/issues/91",
+            "updated_issue": "https://github.com/BearsCLOUD/bears_plugin/issues/91",
             "issue_body": {
                 "finding_summary": "Doc drift warning.",
                 "severity": "warning",
@@ -1337,7 +1337,7 @@ class SubagentOrchestrationPolicyTest(unittest.TestCase):
     def test_issue_body_rejects_restricted_data_fields(self) -> None:
         packet = {
             "severity": "material",
-            "created_issue": "https://github.com/BearsCLOUD/bears-codex-workflow-plugin/issues/191",
+            "created_issue": "https://github.com/BearsCLOUD/bears_plugin/issues/191",
             "issue_body": {
                 "finding_summary": "Unsafe evidence.",
                 "severity": "material",
@@ -1568,7 +1568,7 @@ class SubagentOrchestrationPolicyTest(unittest.TestCase):
         for guard_id in policy_module.REQUIRED_HANDOFF_GUARDS:
             self.assertIn(guard_id, guards)
             self.assertTrue(guards[guard_id]["required"])
-            self.assertTrue(guards[guard_id]["issue"].startswith("BearsCLOUD/bears-codex-workflow-plugin#"))
+            self.assertTrue(guards[guard_id]["issue"].startswith("BearsCLOUD/bears_plugin#"))
         self.assertIn("frontend", preflight["backend_only_scope_lock"]["forbidden_task_surfaces"])
         self.assertIn("web client", preflight["backend_only_scope_lock"]["forbidden_task_surfaces"])
 
@@ -2151,7 +2151,7 @@ class SubagentOrchestrationPolicyTest(unittest.TestCase):
             "step_type": "merge",
             "status": "completed",
             "evidence": {
-                "pr_url": "https://github.com/BearsCLOUD/bears-codex-workflow-plugin/pull/999",
+                "pr_url": "https://github.com/BearsCLOUD/bears_plugin/pull/999",
                 "merge_sha": "abc1234",
                 "check_status": "PASS",
                 "reviewer_pass_evidence": "reviewer PASS in closeout",
@@ -2172,7 +2172,7 @@ class SubagentOrchestrationPolicyTest(unittest.TestCase):
             "step_type": "pull_request",
             "status": "completed",
             "evidence": {
-                "pr_url": "https://github.com/BearsCLOUD/bears-codex-workflow-plugin/pull/999",
+                "pr_url": "https://github.com/BearsCLOUD/bears_plugin/pull/999",
                 "check_status": "pending",
                 "reviewer_pass_evidence": "review pending",
             },
@@ -2190,7 +2190,7 @@ class SubagentOrchestrationPolicyTest(unittest.TestCase):
             "status": "completed",
             "prerequisite_worker_id": "worker-1",
             "evidence": {
-                "pr_url": "https://github.com/BearsCLOUD/bears-codex-workflow-plugin/pull/999",
+                "pr_url": "https://github.com/BearsCLOUD/bears_plugin/pull/999",
                 "check_status": "PASS",
                 "reviewer_pass_evidence": "reviewer PASS",
                 "worker_closeout_evidence": "worker closeout",

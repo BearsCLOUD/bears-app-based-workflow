@@ -1187,32 +1187,32 @@
         ]
       },
       "issue_mapping": {
-        "BearsCLOUD/bears-codex-workflow-plugin#173": "central_goal_parallelization_preflight_lane",
-        "BearsCLOUD/bears-codex-workflow-plugin#103": "no_eligible_task_non_blocking",
-        "BearsCLOUD/bears-codex-workflow-plugin#154": "fanout_thread_limit_preflight",
-        "BearsCLOUD/bears-codex-workflow-plugin#153": "wait_agent_target_id_validation",
-        "BearsCLOUD/bears-codex-workflow-plugin#142": "spawn_agent_argument_shape_validation",
-        "BearsCLOUD/bears-codex-workflow-plugin#138": "completed_subagent_close_evidence_before_new_waves",
-        "BearsCLOUD/bears-codex-workflow-plugin#158": "final_join_gate_before_parent_completion",
-        "BearsCLOUD/bears-codex-workflow-plugin#157": "partial_state_reconciliation_before_capacity_fallback",
-        "BearsCLOUD/bears-codex-workflow-plugin#145": "parent_plan_status_evidence_gate",
-        "BearsCLOUD/bears-codex-workflow-plugin#155": "nested_worker_delegation_parent_authorization",
-        "BearsCLOUD/bears-codex-workflow-plugin#76": "backend_only_parallel_prompt_guard",
-        "BearsCLOUD/bears-codex-workflow-plugin#78": "task_ledger_role_gate_before_delegation",
-        "BearsCLOUD/bears-codex-workflow-plugin#83": "spawn_template_model_capability_preflight",
-        "BearsCLOUD/bears-codex-workflow-plugin#84": "fork_context_spawn_inheritance_guard",
-        "BearsCLOUD/bears-codex-workflow-plugin#87": "parallel_shared_worktree_isolation_guard",
-        "BearsCLOUD/bears-codex-workflow-plugin#89": "mixed_role_target_split_guard",
-        "BearsCLOUD/bears-codex-workflow-plugin#90": "pr_review_repo_scope_guard",
-        "BearsCLOUD/bears-codex-workflow-plugin#95": "credential_surface_output_guard",
-        "BearsCLOUD/bears-codex-workflow-plugin#99": "english_subagent_closeout_guard",
-        "BearsCLOUD/bears-codex-workflow-plugin#112": "leaf_pr_delivery_role_guard",
-        "BearsCLOUD/bears-codex-workflow-plugin#121": "slice_scoped_final_audit_verdict_guard",
-        "BearsCLOUD/bears-codex-workflow-plugin#129": "discovery_implementation_split_guard",
-        "BearsCLOUD/bears-codex-workflow-plugin#130": "parent_control_patch_content_guard",
-        "BearsCLOUD/bears-codex-workflow-plugin#131": "draft_pr_publication_merge_guard",
-        "BearsCLOUD/bears-codex-workflow-plugin#122": "current_day_checkpoint_collector_guard",
-        "BearsCLOUD/bears-codex-workflow-plugin#127": "current_state_source_authority_guard"
+        "BearsCLOUD/bears_plugin#173": "central_goal_parallelization_preflight_lane",
+        "BearsCLOUD/bears_plugin#103": "no_eligible_task_non_blocking",
+        "BearsCLOUD/bears_plugin#154": "fanout_thread_limit_preflight",
+        "BearsCLOUD/bears_plugin#153": "wait_agent_target_id_validation",
+        "BearsCLOUD/bears_plugin#142": "spawn_agent_argument_shape_validation",
+        "BearsCLOUD/bears_plugin#138": "completed_subagent_close_evidence_before_new_waves",
+        "BearsCLOUD/bears_plugin#158": "final_join_gate_before_parent_completion",
+        "BearsCLOUD/bears_plugin#157": "partial_state_reconciliation_before_capacity_fallback",
+        "BearsCLOUD/bears_plugin#145": "parent_plan_status_evidence_gate",
+        "BearsCLOUD/bears_plugin#155": "nested_worker_delegation_parent_authorization",
+        "BearsCLOUD/bears_plugin#76": "backend_only_parallel_prompt_guard",
+        "BearsCLOUD/bears_plugin#78": "task_ledger_role_gate_before_delegation",
+        "BearsCLOUD/bears_plugin#83": "spawn_template_model_capability_preflight",
+        "BearsCLOUD/bears_plugin#84": "fork_context_spawn_inheritance_guard",
+        "BearsCLOUD/bears_plugin#87": "parallel_shared_worktree_isolation_guard",
+        "BearsCLOUD/bears_plugin#89": "mixed_role_target_split_guard",
+        "BearsCLOUD/bears_plugin#90": "pr_review_repo_scope_guard",
+        "BearsCLOUD/bears_plugin#95": "credential_surface_output_guard",
+        "BearsCLOUD/bears_plugin#99": "english_subagent_closeout_guard",
+        "BearsCLOUD/bears_plugin#112": "leaf_pr_delivery_role_guard",
+        "BearsCLOUD/bears_plugin#121": "slice_scoped_final_audit_verdict_guard",
+        "BearsCLOUD/bears_plugin#129": "discovery_implementation_split_guard",
+        "BearsCLOUD/bears_plugin#130": "parent_control_patch_content_guard",
+        "BearsCLOUD/bears_plugin#131": "draft_pr_publication_merge_guard",
+        "BearsCLOUD/bears_plugin#122": "current_day_checkpoint_collector_guard",
+        "BearsCLOUD/bears_plugin#127": "current_state_source_authority_guard"
       },
       "parent_plan_status_gate": {
         "required": true,
@@ -1277,7 +1277,7 @@
         {
           "guard_id": "backend_only_parallel_prompt_guard",
           "required": true,
-          "issue": "BearsCLOUD/bears-codex-workflow-plugin#76",
+          "issue": "BearsCLOUD/bears_plugin#76",
           "enforcement": "Backend-only parallel packets must front-load no frontend/mobile/UI/web client/app screens/visual assets scope, name one primary write owner per agent, name exactly one shared ledger merge owner, include route gate, role gate, diff hygiene, no-secret, and no-live validation checks, and reject launch when shared index ownership is missing.",
           "required_packet_fields": [
             "backend_only_scope_lock",
@@ -1294,7 +1294,7 @@
         {
           "guard_id": "task_ledger_role_gate_before_delegation",
           "required": true,
-          "issue": "BearsCLOUD/bears-codex-workflow-plugin#78",
+          "issue": "BearsCLOUD/bears_plugin#78",
           "enforcement": "Before a subagent edits specs/*/tasks.md or another task ledger, parent must record route/audit for that exact file; if no task row exists, parent edits locally or records a named planning-delegation exception with pre-delegation role gate evidence.",
           "required_packet_fields": [
             "ledger_path",
@@ -1310,7 +1310,7 @@
         {
           "guard_id": "spawn_template_model_capability_preflight",
           "required": true,
-          "issue": "BearsCLOUD/bears-codex-workflow-plugin#83",
+          "issue": "BearsCLOUD/bears_plugin#83",
           "enforcement": "Spawn templates must pass model capability preflight before spawn_agent; unsupported fields such as reasoning.summary for gpt-5.3-codex-spark fail with profile, model, field, and corrective action.",
           "required_packet_fields": [
             "profile_path",
@@ -1326,7 +1326,7 @@
         {
           "guard_id": "fork_context_spawn_inheritance_guard",
           "required": true,
-          "issue": "BearsCLOUD/bears-codex-workflow-plugin#84",
+          "issue": "BearsCLOUD/bears_plugin#84",
           "enforcement": "If fork_context=true, do not pass agent_type, model, or reasoning_effort. If another specialist role is required, spawn without full-history fork and pass a compact task packet.",
           "required_packet_fields": [
             "fork_context",
@@ -1343,7 +1343,7 @@
         {
           "guard_id": "parallel_shared_worktree_isolation_guard",
           "required": true,
-          "issue": "BearsCLOUD/bears-codex-workflow-plugin#87",
+          "issue": "BearsCLOUD/bears_plugin#87",
           "enforcement": "Parallel workers that may mutate the same checkout state must use separate clean worktrees or serialize; git checkout, merge --ff-only, submodule update, and repo-level generated sync are checkout mutations and closeout must report before/after branch and SHA.",
           "required_packet_fields": [
             "repo_boundary",
@@ -1361,7 +1361,7 @@
         {
           "guard_id": "mixed_role_target_split_guard",
           "required": true,
-          "issue": "BearsCLOUD/bears-codex-workflow-plugin#89",
+          "issue": "BearsCLOUD/bears_plugin#89",
           "enforcement": "Parent must route/audit every write target before specialist delegation; if targets map to different primary roles, split into role-specific tasks and do not include a path the assigned role cannot own.",
           "required_packet_fields": [
             "write_scope",
@@ -1377,7 +1377,7 @@
         {
           "guard_id": "pr_review_repo_scope_guard",
           "required": true,
-          "issue": "BearsCLOUD/bears-codex-workflow-plugin#90",
+          "issue": "BearsCLOUD/bears_plugin#90",
           "enforcement": "PR reviewers must use the assigned owner/repo and bounded clean worktree; recursive /srv/bears discovery and wrong-repo gh pr view are rejected.",
           "required_packet_fields": [
             "owner_repo",
@@ -1394,7 +1394,7 @@
         {
           "guard_id": "credential_surface_output_guard",
           "required": true,
-          "issue": "BearsCLOUD/bears-codex-workflow-plugin#95",
+          "issue": "BearsCLOUD/bears_plugin#95",
           "enforcement": "Routine publish preflights must use no-token probes and must not emit gh auth status. If auth diagnosis is the blocker, token and scope lines must be redacted before output.",
           "required_packet_fields": [
             "github_probe_command",
@@ -1410,7 +1410,7 @@
         {
           "guard_id": "english_subagent_closeout_guard",
           "required": true,
-          "issue": "BearsCLOUD/bears-codex-workflow-plugin#99",
+          "issue": "BearsCLOUD/bears_plugin#99",
           "enforcement": "Subagent artifacts and closeout packets must be English-only and fail when Cyrillic or mixed-language artifact text appears.",
           "required_packet_fields": [
             "closeout_packet",
@@ -1426,7 +1426,7 @@
         {
           "guard_id": "leaf_pr_delivery_role_guard",
           "required": true,
-          "issue": "BearsCLOUD/bears-codex-workflow-plugin#112",
+          "issue": "BearsCLOUD/bears_plugin#112",
           "enforcement": "Leaf PR delivery must use a narrow delivery role. bears-orchestrator is reserved for route, split, assign, wait, integrate evidence, run validators, close, report, and child delegation tasks.",
           "required_packet_fields": [
             "agent_type",
@@ -1442,7 +1442,7 @@
         {
           "guard_id": "slice_scoped_final_audit_verdict_guard",
           "required": true,
-          "issue": "BearsCLOUD/bears-codex-workflow-plugin#121",
+          "issue": "BearsCLOUD/bears_plugin#121",
           "enforcement": "Final audit verdicts must scope FAIL to evidence inside the assigned slice. Future unrelated task IDs are remaining_work and use PASS_WITH_REMAINING_WORK or PASS when the assigned slice passed.",
           "required_packet_fields": [
             "assigned_slice",
@@ -1458,7 +1458,7 @@
         {
           "guard_id": "discovery_implementation_split_guard",
           "required": true,
-          "issue": "BearsCLOUD/bears-codex-workflow-plugin#129",
+          "issue": "BearsCLOUD/bears_plugin#129",
           "enforcement": "Discovery/scout workers are read-only and return task id, task path, task line, repo, role, and validation only. Implementation starts only in a fresh worker after parent assigns one exact tasks.md item, allowed write paths, branch or worktree, and validation command.",
           "required_packet_fields": [
             "worker_mode",
@@ -1475,7 +1475,7 @@
         {
           "guard_id": "parent_control_patch_content_guard",
           "required": true,
-          "issue": "BearsCLOUD/bears-codex-workflow-plugin#130",
+          "issue": "BearsCLOUD/bears_plugin#130",
           "enforcement": "Parent control lane may use git status --short, git diff --stat, git diff --name-status, validation outputs, exit codes, and bounded child evidence only; patch content requires a dedicated reviewer subagent or explicit operator-approved review.",
           "required_packet_fields": [
             "parent_control_command",
@@ -1491,7 +1491,7 @@
         {
           "guard_id": "draft_pr_publication_merge_guard",
           "required": true,
-          "issue": "BearsCLOUD/bears-codex-workflow-plugin#131",
+          "issue": "BearsCLOUD/bears_plugin#131",
           "enforcement": "Subagent publish handoffs default to draft PR. Ready PR or merge requires reviewer PASS, successful required checks, or explicit operator instruction. Missing checks require NO_CHECKS_REPORTED and MERGE_NOT_AUTHORIZED.",
           "required_packet_fields": [
             "draft",
@@ -1509,7 +1509,7 @@
         {
           "guard_id": "current_day_checkpoint_collector_guard",
           "required": true,
-          "issue": "BearsCLOUD/bears-codex-workflow-plugin#122",
+          "issue": "BearsCLOUD/bears_plugin#122",
           "enforcement": "Current-day checkpoint collectors require explicit session checkpoints, exact paths, line ranges, and evidence_scope. Memory reads and broad /home/ai1/.codex/sessions discovery are rejected unless the packet stops with SCOPE_EXPANSION_REQUIRED before reading.",
           "required_packet_fields": [
             "session_checkpoints",
@@ -1524,7 +1524,7 @@
         {
           "guard_id": "current_state_source_authority_guard",
           "required": true,
-          "issue": "BearsCLOUD/bears-codex-workflow-plugin#127",
+          "issue": "BearsCLOUD/bears_plugin#127",
           "enforcement": "Current-state and final-audit packets require source_authority per claim, fresh command/API evidence, bounded read commands, explicit file/path allowlists, and output caps. MEMORY.md is rejected as evidence unless locator-only and followed by fresh source proof.",
           "required_packet_fields": [
             "source_authority",
@@ -1655,7 +1655,7 @@
         "overlapping active write scope lock for the same target path"
       ],
       "github_issue_policy": {
-        "owner_repo": "BearsCLOUD/bears-codex-workflow-plugin",
+        "owner_repo": "BearsCLOUD/bears_plugin",
         "create_or_update": "required_for_warning_material_and_hard_stop_findings",
         "operator_request_required": false,
         "deduplication_key_fields": [

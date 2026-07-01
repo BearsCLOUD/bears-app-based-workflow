@@ -21,8 +21,8 @@
       "proof_commit": "1111111111111111111111111111111111111111",
       "proof_path": "runtime/local-commit-validation/1111111111111111111111111111111111111111.json",
       "reason": "fixture closeout classification",
-      "repo": "BearsCLOUD/bears-codex-workflow-plugin",
-      "url": "https://github.com/BearsCLOUD/bears-codex-workflow-plugin/issues/392"
+      "repo": "BearsCLOUD/bears_plugin",
+      "url": "https://github.com/BearsCLOUD/bears_plugin/issues/392"
     }
   ],
   "delivery_id": "bears-governance-kernel-v1",
@@ -33,9 +33,9 @@
   "issues": [
     {
       "number": 392,
-      "repo": "BearsCLOUD/bears-codex-workflow-plugin",
+      "repo": "BearsCLOUD/bears_plugin",
       "state": "OPEN",
-      "url": "https://github.com/BearsCLOUD/bears-codex-workflow-plugin/issues/392"
+      "url": "https://github.com/BearsCLOUD/bears_plugin/issues/392"
     }
   ],
   "release_gate": {
@@ -45,7 +45,7 @@
     "reference": "",
     "status": "missing"
   },
-  "repo": "BearsCLOUD/bears-codex-workflow-plugin",
+  "repo": "BearsCLOUD/bears_plugin",
   "schema": "bears-delivery-manifest.v1",
   "sequential_plan": "runtime/deliveries/bears-governance-kernel-v1/sequential-plan.v1.json",
   "state": "ready_for_closeout",

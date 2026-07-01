@@ -94,9 +94,9 @@ class AgentGithubDevCdValidationTests(unittest.TestCase):
             "duplicate_guard": {
                 "status": "unique",
                 "duplicates_found": False,
-                "repository": "BearsCLOUD/bears-codex-workflow-plugin",
+                "repository": "BearsCLOUD/bears_plugin",
                 "normalized_scope_key": "agent-github-dev-cd:agent-pickup-gates",
-                "search_query": "repo:BearsCLOUD/bears-codex-workflow-plugin is:issue is:open agent pickup gates",
+                "search_query": "repo:BearsCLOUD/bears_plugin is:issue is:open agent pickup gates",
                 "checked_at": "2026-06-19T00:00:00Z",
                 "evidence_summary": "No matching open issue or active worker for this bounded scope.",
             },
@@ -131,7 +131,7 @@ class AgentGithubDevCdValidationTests(unittest.TestCase):
     def _issue_metadata_packet(self, issues: list[dict[str, object]]) -> dict[str, object]:
         return {
             "schema": agent_cd.ISSUE_METADATA_PACKET_SCHEMA,
-            "repository": "BearsCLOUD/bears-codex-workflow-plugin",
+            "repository": "BearsCLOUD/bears_plugin",
             "issues": issues,
         }
 
@@ -148,15 +148,15 @@ class AgentGithubDevCdValidationTests(unittest.TestCase):
                 "id": "issue-132",
                 "role": "bears-deploy-platform-engineer",
                 "merge_authority": {
-                    "repository": "BearsCLOUD/bears-codex-workflow-plugin",
+                    "repository": "BearsCLOUD/bears_plugin",
                     "pull_request_number": 132,
                     "head_ref": "codex/merge-authority-lane",
                     "head_sha": "1234567890abcdef1234567890abcdef12345678",
                     "base_ref": "main",
                 },
             },
-            "repository": "BearsCLOUD/bears-codex-workflow-plugin",
-            "pull_request": {"number": 132, "url": "https://github.com/BearsCLOUD/bears-codex-workflow-plugin/pull/132"},
+            "repository": "BearsCLOUD/bears_plugin",
+            "pull_request": {"number": 132, "url": "https://github.com/BearsCLOUD/bears_plugin/pull/132"},
             "head_ref": "codex/merge-authority-lane",
             "head_sha": "1234567890abcdef1234567890abcdef12345678",
             "base_ref": "main",
@@ -186,7 +186,7 @@ class AgentGithubDevCdValidationTests(unittest.TestCase):
 
     def _valid_merge_authority_expected(self) -> dict[str, object]:
         return {
-            "repository": "BearsCLOUD/bears-codex-workflow-plugin",
+            "repository": "BearsCLOUD/bears_plugin",
             "pull_request_number": 132,
             "head_ref": "codex/merge-authority-lane",
             "head_sha": "1234567890abcdef1234567890abcdef12345678",
@@ -579,7 +579,7 @@ class AgentGithubDevCdValidationTests(unittest.TestCase):
         payload = agent_cd.evaluate_merge_authority_packet(
             packet,
             expected={
-                "repository": "BearsCLOUD/bears-codex-workflow-plugin",
+                "repository": "BearsCLOUD/bears_plugin",
                 "pull_request_number": 999,
                 "head_ref": "codex/wrong",
                 "head_sha": "abcdefabcdefabcdefabcdefabcdefabcdefabcd",
@@ -1208,7 +1208,7 @@ jobs:
             "--packet",
             "packet.json",
             "--expected-repository",
-            "BearsCLOUD/bears-codex-workflow-plugin",
+            "BearsCLOUD/bears_plugin",
             "--expected-pr-number",
             "132",
             "--expected-head-ref",
@@ -1223,7 +1223,7 @@ jobs:
         merge = parser.parse_args([
             "merge-authority-check",
             "--packet", "packet.json",
-            "--expected-repository", "BearsCLOUD/bears-codex-workflow-plugin",
+            "--expected-repository", "BearsCLOUD/bears_plugin",
             "--expected-pr-number", "132",
             "--expected-head-ref", "codex/merge-authority-lane",
             "--expected-head-sha", "1234567890abcdef1234567890abcdef12345678",

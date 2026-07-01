@@ -9,10 +9,10 @@
     }
   ],
   "number": 499,
-  "repo": "BearsCLOUD/bears-codex-workflow-plugin",
+  "repo": "BearsCLOUD/bears_plugin",
   "schema": "bears-issue-intake.v1",
   "state": "OPEN",
   "title": "Cross-repo mutation without route metadata",
-  "url": "https://github.com/BearsCLOUD/bears-codex-workflow-plugin/issues/499",
+  "url": "https://github.com/BearsCLOUD/bears_plugin/issues/499",
   "version": "1"
 }

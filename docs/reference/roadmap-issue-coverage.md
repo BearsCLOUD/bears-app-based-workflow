@@ -30,7 +30,7 @@ Use `--issues-json <path>` for local fixture input. The accepted row fields are:
   "issue_ref": "#515",
   "title": "P0: Add workflow roadmap and issue-priority freshness gate",
   "state": "OPEN",
-  "url": "https://github.com/BearsCLOUD/bears-codex-workflow-plugin/issues/515",
+  "url": "https://github.com/BearsCLOUD/bears_plugin/issues/515",
   "labels": ["bears:auto-start", "scope:bears-plugin"],
   "updated_at": "2026-06-27T00:00:00Z",
   "priority": "P0"

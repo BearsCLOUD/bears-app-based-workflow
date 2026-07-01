@@ -1,6 +1,6 @@
 {
   "schema": "bears-doctor-component-coverage.v1",
-  "repo": "BearsCLOUD/bears-codex-workflow-plugin",
+  "repo": "BearsCLOUD/bears_plugin",
   "generated_at": "2026-06-25T00:00:00Z",
   "source_refs": [
     {"source": "fixture", "timestamp": "2026-06-25T00:00:00Z", "confidence": "high"}

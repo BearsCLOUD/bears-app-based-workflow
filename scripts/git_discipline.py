@@ -260,12 +260,12 @@ REQUIRED_CLOSEOUT_PREFLIGHT_FIELDS = {
     "read_only",
 }
 REQUIRED_BRANCH_CLEANUP_ISSUE_MAPPING = {
-    "BearsCLOUD/bears-codex-workflow-plugin#133": "clean_worktree_and_gitlink_closeout_guard",
-    "BearsCLOUD/bears-codex-workflow-plugin#88": "branch_base_preflight",
-    "BearsCLOUD/bears-codex-workflow-plugin#144": "codex_branch_prefix_governance",
-    "BearsCLOUD/bears-codex-workflow-plugin#128": "gitlink_sync_target_audit",
-    "BearsCLOUD/bears-codex-workflow-plugin#132": "merge_authority_lane",
-    "BearsCLOUD/bears-codex-workflow-plugin#120": "durable_pass_evidence_before_merge_handoff",
+    "BearsCLOUD/bears_plugin#133": "clean_worktree_and_gitlink_closeout_guard",
+    "BearsCLOUD/bears_plugin#88": "branch_base_preflight",
+    "BearsCLOUD/bears_plugin#144": "codex_branch_prefix_governance",
+    "BearsCLOUD/bears_plugin#128": "gitlink_sync_target_audit",
+    "BearsCLOUD/bears_plugin#132": "merge_authority_lane",
+    "BearsCLOUD/bears_plugin#120": "durable_pass_evidence_before_merge_handoff",
 }
 DEFAULT_IGNORED_STAGING_BLOCK_PATTERNS = (
     "dev/**",
@@ -1556,7 +1556,7 @@ def inspect_branch_base_preflight(
         "pr_create_allowed": status == "BRANCH_BASE_PREFLIGHT_PASS",
         "block_reasons": block_reasons,
         "read_only": True,
-        "catalog_issue": "BearsCLOUD/bears-codex-workflow-plugin#88",
+        "catalog_issue": "BearsCLOUD/bears_plugin#88",
     }
 
 

@@ -2,7 +2,7 @@
   "schema": "bears-issue-execution-priority.v1",
   "version": "1",
   "status": "active",
-  "scope": "BearsCLOUD/bears-codex-workflow-plugin formal logic and orchestration roadmap",
+  "scope": "BearsCLOUD/bears_plugin formal logic and orchestration roadmap",
   "priority_policy": {
     "source_of_truth": "assets/catalog/formal-logic-workflow-contract.v1.json",
     "ordering_rule": "execute prerequisites before consumers; do not start downstream write-scoped issues until blocking dependencies are complete or explicitly marked compatible",

@@ -1,7 +1,7 @@
 # Bears Workflow Backlog Lane
 
 Snapshot date: 2026-06-18.
-Source: GitHub open issues in `BearsCLOUD/bears-codex-workflow-plugin`.
+Source: GitHub open issues in `BearsCLOUD/bears_plugin`.
 Scope: Bears workflow plugin planning, validators, catalogs, docs, and issue routing only.
 
 ## Current issue state

@@ -3,7 +3,7 @@
   "version": "1",
   "updated": "2026-06-28",
   "owner_plugin": "bears",
-  "source_repo": "BearsCLOUD/bears-codex-workflow-plugin",
+  "source_repo": "BearsCLOUD/bears_plugin",
   "codex_environment_policy": {
     "environment_surfaces_are_not_capability_sources": true,
     "mutation_requires_operator_authorization": true,

@@ -18,7 +18,7 @@
     {"schema":"bears-inference-fact.v1","fact_id":"fact-438-validator","predicate":"validator_for_file","arguments":["scripts/workflow_inference.py","scripts/workflow_inference.py validate --json"],"source":"semantic_graph","confidence":"accepted","evidence_paths":["assets/catalog/workflow-inference-rules.v1.json"]},
     {"schema":"bears-inference-fact.v1","fact_id":"fact-438-roadmap-leaf","predicate":"roadmap_leaf","arguments":["node-438"],"source":"semantic_graph","confidence":"accepted","evidence_paths":["assets/catalog/workflow-roadmap.v1.json"]},
     {"schema":"bears-inference-fact.v1","fact_id":"fact-438-disjoint-units","predicate":"disjoint_lock_scope","arguments":["unit-a","unit-b"],"source":"workflow_state","confidence":"accepted","evidence_paths":["assets/catalog/workflow-inference-rules.v1.json"]},
-    {"schema":"bears-inference-fact.v1","fact_id":"fact-438-candidate-risk","predicate":"goal_has_unknowns","arguments":["goal-candidate"],"source":"github_issue","confidence":"candidate","evidence_paths":["https://github.com/BearsCLOUD/bears-codex-workflow-plugin/issues/438"]},
+    {"schema":"bears-inference-fact.v1","fact_id":"fact-438-candidate-risk","predicate":"goal_has_unknowns","arguments":["goal-candidate"],"source":"github_issue","confidence":"candidate","evidence_paths":["https://github.com/BearsCLOUD/bears_plugin/issues/438"]},
     {"schema":"bears-inference-fact.v1","fact_id":"fact-438-blocking-debt","predicate":"goal_has_blocking_debt","arguments":["goal-blocked","missing_validation"],"source":"workflow_state","confidence":"accepted","evidence_paths":["assets/catalog/bears-doctor.v1.json"]}
   ],
   "rules": [

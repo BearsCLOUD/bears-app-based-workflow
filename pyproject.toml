@@ -3,25 +3,23 @@ requires = ["setuptools>=69"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "bears-codex-workflow-plugin"
+name = "bears-plugin"
 version = "0.1.0"
-description = "Bears workspace governance overlay for Spec Kit, roles, workflow, blockers, and deploy gates."
+description = "Bears workspace governance plugin for roles, workflow, blockers, deploy gates, contracts, validators, hooks, and policy."
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
   "PyYAML",
 ]
 
-[project.scripts]
-knowledge-orchestrator = "knowledge_orchestrator.cli:main"
 
 [project.optional-dependencies]
 dev = [
   "pytest",
 ]
 
-[tool.setuptools.packages.find]
-where = ["src"]
+[tool.setuptools]
+packages = []
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

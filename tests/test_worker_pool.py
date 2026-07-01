@@ -46,7 +46,7 @@ class WorkerPoolTests(unittest.TestCase):
 
     def test_plan_tracks_pr_pipeline_fields_and_safe_parallel_actions(self) -> None:
         state = {
-            "repo": "BearsCLOUD/bears-codex-workflow-plugin",
+            "repo": "BearsCLOUD/bears_plugin",
             "issues": [
                 {
                     "number": 201,
@@ -124,7 +124,7 @@ class WorkerPoolTests(unittest.TestCase):
 
     def test_allocate_worktree_is_plan_only_for_review_and_merge(self) -> None:
         class Args:
-            repo = "BearsCLOUD/bears-codex-workflow-plugin"
+            repo = "BearsCLOUD/bears_plugin"
             purpose = "review"
             pr = 201
             branch = None
@@ -140,7 +140,7 @@ class WorkerPoolTests(unittest.TestCase):
 
     def test_cli_plan_accepts_state_file(self) -> None:
         state = {
-            "repo": "BearsCLOUD/bears-codex-workflow-plugin",
+            "repo": "BearsCLOUD/bears_plugin",
             "issues": [{"number": 201, "state": "open", "role": "bears-session-worker-runtime-engineer", "write_scope": ["scripts/worker_pool.py"], "dependencies": []}],
             "pull_requests": [],
             "assignments": [],

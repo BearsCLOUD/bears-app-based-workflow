@@ -103,7 +103,7 @@ class BearsDoctorTests(unittest.TestCase):
     def test_repo_routing_check_summary_is_exposed(self) -> None:
         packet = {
             "status": "pass",
-            "repo": "BearsCLOUD/bears-codex-workflow-plugin",
+            "repo": "BearsCLOUD/bears_plugin",
             "route": {"worktree_path": "/srv/bears/plugins/bears"},
             "hook_proof": {"status": "pass"},
             "touched_repos": [{"access": "write_scoped"}, {"access": "read_only"}],

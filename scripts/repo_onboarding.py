@@ -79,7 +79,7 @@ def validate_all()->list[str]:
     if not rp.get('governed_repositories'): errors.append('routing_policy.governed_repositories missing')
     rows=inventory()['repositories']
     if not any(r['governance_status']=='write_scoped' for r in rows): errors.append('no write_scoped repository')
-    if not any(r['governance_status']=='read_only' and r['repo']!='BearsCLOUD/bears-codex-workflow-plugin' for r in rows): errors.append('no non-plugin read_only repository')
+    if not any(r['governance_status']=='read_only' and r['repo']!='BearsCLOUD/bears_plugin' for r in rows): errors.append('no non-plugin read_only repository')
     return errors
 def doctor()->dict[str,Any]:
     errs=validate_all(); inv=inventory()

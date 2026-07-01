@@ -22,7 +22,7 @@ GOOD_DIR = PLUGIN_ROOT / "tests/fixtures/doctor_component_coverage/good"
 BAD_DIR = PLUGIN_ROOT / "tests/fixtures/doctor_component_coverage/bad"
 REQUIRED_COMMANDS = (
     "python3 scripts/doctor_component_coverage.py validate",
-    "python3 scripts/doctor_component_coverage.py scan --repo BearsCLOUD/bears-codex-workflow-plugin --json",
+    "python3 scripts/doctor_component_coverage.py scan --repo BearsCLOUD/bears_plugin --json",
     "python3 scripts/doctor_component_coverage.py check-issue --issue <N> --json",
     "python3 scripts/doctor_component_coverage.py diff --base <path> --head <path> --json",
     "python3 scripts/doctor_component_coverage.py doctor --json",
@@ -191,7 +191,7 @@ def reconcile_components(components: list[dict[str, Any]], *, generated_at: str 
     }
     return {
         "schema": "bears-doctor-component-coverage.v1",
-        "repo": "BearsCLOUD/bears-codex-workflow-plugin",
+        "repo": "BearsCLOUD/bears_plugin",
         "generated_at": generated_at or now_iso(),
         "source_refs": [
             {"source": "assets/catalog/doctor-component-coverage.v1.json", "timestamp": generated_at or now_iso(), "confidence": "high"},
@@ -362,7 +362,7 @@ def build_parser() -> argparse.ArgumentParser:
     scan_parser.add_argument("--json", action="store_true")
     issue_parser = sub.add_parser("check-issue")
     issue_parser.add_argument("--issue", required=True)
-    issue_parser.add_argument("--repo", default="BearsCLOUD/bears-codex-workflow-plugin")
+    issue_parser.add_argument("--repo", default="BearsCLOUD/bears_plugin")
     issue_parser.add_argument("--issues-fixture")
     issue_parser.add_argument("--json", action="store_true")
     diff_parser = sub.add_parser("diff")

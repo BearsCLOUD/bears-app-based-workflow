@@ -282,7 +282,7 @@ def run_validation(args: argparse.Namespace) -> int:
         "schema": SCHEMA,
         "updated_at": utc_now(),
         "status": status,
-        "repository": "BearsCLOUD/bears-codex-workflow-plugin",
+        "repository": "BearsCLOUD/bears_plugin",
         "branch": "main",
         "commit_sha": commit_sha,
         "diff_range": diff_range,

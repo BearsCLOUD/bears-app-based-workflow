@@ -270,7 +270,7 @@
   "doctor_catalog": "assets/catalog/bears-doctor.v1.json",
   "gaps": [],
   "generated_at": "2026-06-25T00:00:00Z",
-  "repo": "BearsCLOUD/bears-codex-workflow-plugin",
+  "repo": "BearsCLOUD/bears_plugin",
   "schema": "bears-doctor-component-coverage.v1",
   "source_refs": [
     {

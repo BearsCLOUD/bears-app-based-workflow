@@ -3,7 +3,7 @@
   "version": "1",
   "status": "active",
   "authority": {
-    "repo": "BearsCLOUD/bears-codex-workflow-plugin",
+    "repo": "BearsCLOUD/bears_plugin",
     "scope": "@bears formal execution logic",
     "durable_source": "git-json",
     "external_stores": "index-or-analytics-only",

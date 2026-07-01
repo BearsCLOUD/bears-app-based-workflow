@@ -394,7 +394,7 @@ def allocate_command(args: argparse.Namespace) -> int:
 
 def validate_command(_: argparse.Namespace) -> int:
     state = {
-        "repo": "BearsCLOUD/bears-codex-workflow-plugin",
+        "repo": "BearsCLOUD/bears_plugin",
         "issues": [
             {"number": 201, "state": "open", "role": "bears-session-worker-runtime-engineer", "write_scope": ["scripts/worker_pool.py", "tests/test_worker_pool.py"], "dependencies": []},
             {"number": 202, "state": "open", "role": "bears-session-worker-runtime-engineer", "write_scope": ["frontend/app/**"], "dependencies": []},

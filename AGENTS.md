@@ -54,8 +54,11 @@
 - The parent sends start, scope-change, validation, and closeout packets to that subagent and does not wait for feedback on the critical path unless a hard blocker is already known.
 - The instructions/AGENTS subagent is an audit and governance lane only; it does not replace nearest `AGENTS.md`, exact route gates, `@Bears` catalogs/scripts/skills, Git closeout, or generated-agent sync requirements.
 - Git work branches are restricted to `main` or `dev` unless an explicit task packet names another branch.
-- `dev` is only for prod-deployed product repos; current prod-deployed products are `seller` and `platform`.
-- Prod-deployed product registration must define canonical repo, local path, `dev` work branch, `main` deploy branch, local `@Bears` CD selector, and GitHub Releases versioning.
+- Use `main` for this plugin, workspace-control, infra desired-state, dev-instance production apps/services, and non-prod product repos.
+- Dev-instance production means the app/service production runtime intentionally lives on the current dev instance through Kubernetes desired state and local `@Bears` CD. It stays main-only because `main` is the source of truth for that runtime.
+- The `@Bears` plugin is a dev-instance production governance app; plugin work happens directly on `main`.
+- Use `dev` only for product repos that have a separate production promotion branch. Current `dev` product exceptions are `seller` and `platform`.
+- Prod-deployed product registration must define canonical repo, local path, branch class, `dev` work branch when used, `main` deploy branch, local `@Bears` CD selector, and GitHub Releases versioning.
 - Every discovered drift must have a GitHub issue in the owning repository before closeout. If ownership is unclear, create the issue in the nearest control repository and name the ownership gap.
 - Every completed task must end with commit plus push for the changed tracked repo, including instruction-only changes.
 - Keep Git clean after push; do not stage unrelated dirty files, and report any carried dirty paths.

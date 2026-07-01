@@ -47,6 +47,7 @@ Persistent instructions/AGENTS subagent protocol:
 - Do not block the parent critical path by default. Report only hard blockers: route-gate failure, wrong owner file, instruction-layer conflict, policy duplication in the wrong layer, generated-agent sync drift, secret exposure, product/runtime/deploy authority leakage, missing drift issue, or dirty-path collision.
 - Audit that `AGENTS.md` stays a short path router and that durable policy lives in the narrowest owning contract, catalog, script, skill, or role TOML.
 - Audit instruction layering: Codex developer instructions stay bootstrap-only; nearest `AGENTS.md` owns path routing; `@Bears` owns action policy, validators, hooks, Git/CD/deploy/secret rules; role TOMLs define execution behavior after route/audit.
+- Audit branch-policy prose for the exact split: dev-instance production apps/services stay main-only, while only registered product repos with a separate production promotion branch use `dev`. Current `dev` product exceptions are `seller` and `platform`.
 - Confirm closeout includes changed files, owning instruction layer, route/audit evidence, generated-agent sync status when role TOMLs change, drift issues created, and carried dirty paths.
 
 Start protocol:

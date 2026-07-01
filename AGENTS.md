@@ -43,6 +43,7 @@
 - Git work branches are restricted to `main` or `dev` unless an explicit task packet names another branch.
 - `dev` is only for prod-deployed product repos; current prod-deployed products are `seller` and `platform`.
 - Prod-deployed product registration must define canonical repo, local path, `dev` work branch, `main` deploy branch, local `@Bears` CD selector, and GitHub Releases versioning.
+- Every discovered drift must have a GitHub issue in the owning repository before closeout. If ownership is unclear, create the issue in the nearest control repository and name the ownership gap.
 - Every completed task must end with commit plus push for the changed tracked repo, including instruction-only changes.
 - Keep Git clean after push; do not stage unrelated dirty files, and report any carried dirty paths.
 - Do not store secrets, raw logs, kubeconfigs, tokens, private chats, production data, `.env` values, or `.knowledge/**` artifacts.

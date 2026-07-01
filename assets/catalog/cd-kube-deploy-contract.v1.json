@@ -213,6 +213,79 @@
           }
         ]
       }
+    },
+    {
+      "application": "codex-web",
+      "source": {
+        "branch_source": "git_contract",
+        "manifest_path": "manifests/codex-web-prod",
+        "image_repository": "codex-web",
+        "image_digest_required": false,
+        "reject_latest_tag": true,
+        "reject_placeholder_digest": true,
+        "image_ref": "codex-web:local-8eaa93713b7e",
+        "local_image_build": {
+          "enabled": true,
+          "source_repository": "0xcaff/codex-web",
+          "source_ref": "8eaa93713b7e3ffc9b453229faa1b561492d1803",
+          "context_path": "images/codex-web",
+          "dockerfile": "Dockerfile",
+          "load_to_k3d_nodes": true
+        }
+      },
+      "kubernetes": {
+        "server_alias": "fyuriserv",
+        "environment": "prod",
+        "namespace": "codex-web-prod",
+        "deployment": "codex-web",
+        "service": "codex-web",
+        "kubeconfig_source": "runner_environment",
+        "apply_mode": "server_side",
+        "restart_after_apply": true,
+        "rollout_timeout_seconds": 600
+      },
+      "forbidden_manifest_literals": [
+        "kind: Secret",
+        "stringData:",
+        ":latest",
+        "image: latest"
+      ],
+      "required_manifest_literals": [
+        "codex-web-prod",
+        "codex-web-runtime",
+        "ClusterSecretStore",
+        "infisical-bears-prod",
+        "readOnlyRootFilesystem: true",
+        "allowPrivilegeEscalation: false",
+        "codex-web:local-8eaa93713b7e",
+        "CODEX_WEB_PORT",
+        "8214",
+        "ipAllowList",
+        "10.13.13.0/24"
+      ],
+      "preflight": {
+        "api_resources": [
+          {
+            "name": "externalsecrets.external-secrets.io",
+            "reason": "codex-web runtime OpenAI credential is supplied through ExternalSecret"
+          },
+          {
+            "name": "ingressroutes.traefik.io",
+            "reason": "codex-web VPN-only endpoint is routed through Traefik IngressRoute"
+          },
+          {
+            "name": "middlewares.traefik.io",
+            "reason": "codex-web no-auth exposure is restricted by Traefik ipAllowList"
+          }
+        ],
+        "cluster_resources": [
+          {
+            "kind": "ClusterSecretStore",
+            "name": "infisical-bears-prod",
+            "reason": "codex-web ExternalSecret uses the shared prod Infisical ClusterSecretStore"
+          }
+        ]
+      }
     }
   ],
   "preflight": {

@@ -40,6 +40,7 @@
 - Keep artifacts and contracts in English.
 - Keep `AGENTS.md` compact; put executable policy in plugin catalogs, scripts, skills, and tests.
 - `kubernetes_deployment` is valid only when backed by Kubernetes desired state and `local_cd`; local host or manual deploy paths are policy violations.
+- For every Bears parent work session, start or reuse one long-lived parallel `gitflow` subagent with model `gpt-5.4-mini`, reasoning `high`, and no parent/start context. Reuse the same `gitflow` subagent for the entire parent work; do not spawn a new `gitflow` subagent for each step. The subagent audits branch choice, dirty paths, drift issues, commit+push, and clean closeout while the main agent continues work.
 - Git work branches are restricted to `main` or `dev` unless an explicit task packet names another branch.
 - `dev` is only for prod-deployed product repos; current prod-deployed products are `seller` and `platform`.
 - Prod-deployed product registration must define canonical repo, local path, `dev` work branch, `main` deploy branch, local `@Bears` CD selector, and GitHub Releases versioning.

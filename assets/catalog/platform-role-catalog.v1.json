@@ -35,6 +35,7 @@
       "bears_gateway_seller_route_pack_fixture",
       "bears_gateway_tenant_registry_binding_contract_tests",
       "bears_platform_auth_feature_008_contract_scope",
+      "bears_platform_auth_static_validation_ledger_docs",
       "bears_platform_billing_contract_tests",
       "bears_platform_billing_feature_008_adapter_scope",
       "bears_platform_billing_idempotency_contract_tests",
@@ -44,6 +45,7 @@
       "bears_platform_billing_status_adapter_contract_tests",
       "bears_platform_billing_surface",
       "bears_platform_build_docs",
+      "bears_platform_build_validation_scripts",
       "bears_platform_ci_docs",
       "bears_platform_data_cache_contracts_tests",
       "bears_platform_data_cache_runtime_tests",
@@ -70,6 +72,7 @@
       "bears_platform_provider_gateway_contracts_tests",
       "bears_platform_provider_gateway_runtime_tests",
       "bears_platform_provider_gateway_surface",
+      "bears_platform_publish_ghcr_workflow_governance",
       "bears_platform_python_package_metadata",
       "bears_platform_repo_readme_docs",
       "bears_platform_repo_root",
@@ -126,6 +129,7 @@
       "kubernetes_dev_platform_stateful_backend_group",
       "kubernetes_dev_platform_taskiq",
       "leadgen_product_dev_layer",
+      "leadgen_platform_research_migration",
       "machine_first_execution_kernel",
       "machine_first_execution_kernel_role_metadata",
       "payment_service_legacy_source",
@@ -3741,6 +3745,150 @@
         "required status-check policy wording change",
         "attempt to enable or execute CI",
         "branch protection mutation request"
+      ],
+      "decomposition_required": false
+    },
+    {
+      "name": "bears_platform_publish_ghcr_workflow_governance",
+      "aliases": [
+        "/srv/bears/dev/platform/.github/workflows/publish-ghcr.yml",
+        "dev/platform/.github/workflows/publish-ghcr.yml"
+      ],
+      "group": "platform",
+      "required_role": "bears-deploy-platform-engineer",
+      "role_required": true,
+      "no_role_policy": "blocker",
+      "source": "/srv/bears/dev/platform/AGENTS.md",
+      "part_kind": "concrete",
+      "write_roots": [],
+      "concrete_scope": "Exact active GitHub Actions GHCR publishing workflow governance route for Bears platform image publication cleanup.",
+      "allowed_write_boundary": "Only the exact active workflow path /srv/bears/dev/platform/.github/workflows/publish-ghcr.yml when the nearest Bears Platform repo policy and an operator-approved cleanup request allow that edit; no child path, no .github/** fallback, no branch protection mutation, no live CI execution, no production deploy, no secret access, and this catalog mapping alone does not create, rename, enable, execute, or push a workflow.",
+      "trust_boundary": "Active publish workflow governance can affect GHCR image publication and secret-backed package permissions. Edits must stay repo-only and must not execute CI, mutate branch protection, read secrets, push packages, deploy runtime, or change Kubernetes desired state.",
+      "required_validations": [
+        "python3 scripts/platform_roles.py validate",
+        "python3 scripts/role_gate_methodology.py validate",
+        "python3 -m unittest tests/test_platform_roles.py tests/test_role_gate_methodology.py",
+        "python3 scripts/platform_roles.py route /srv/bears/dev/platform/.github/workflows/publish-ghcr.yml",
+        "python3 scripts/platform_roles.py audit /srv/bears/dev/platform/.github/workflows/publish-ghcr.yml"
+      ],
+      "supporting_roles": [
+        "bears-platform-security-reviewer"
+      ],
+      "reviewer_triggers": [
+        "active GHCR publish workflow governance change",
+        "package write permission change",
+        "attempt to enable or execute CI",
+        "branch protection mutation request"
+      ],
+      "decomposition_required": false
+    },
+    {
+      "name": "bears_platform_build_validation_scripts",
+      "aliases": [
+        "/srv/bears/dev/platform/build/preflight-build-lane.py",
+        "dev/platform/build/preflight-build-lane.py",
+        "/srv/bears/dev/platform/build/validate-build-files.py",
+        "dev/platform/build/validate-build-files.py"
+      ],
+      "group": "platform",
+      "required_role": "bears-deploy-platform-engineer",
+      "role_required": true,
+      "no_role_policy": "blocker",
+      "source": "/srv/bears/dev/platform/AGENTS.md",
+      "part_kind": "concrete",
+      "write_roots": [],
+      "concrete_scope": "Exact static build validation scripts for Bears platform local build-lane file checks.",
+      "allowed_write_boundary": "Only /srv/bears/dev/platform/build/preflight-build-lane.py and /srv/bears/dev/platform/build/validate-build-files.py as static validators; no image build execution, container start, workflow activation, registry push, runtime start, Kubernetes/kubik mutation, secret access, product code ownership, or broad build/** fallback.",
+      "trust_boundary": "Build validators shape preflight evidence and can affect CI-visible delivery claims, but this route is static-file-only and must not execute builds, read secrets, push images, or mutate runtime infrastructure.",
+      "required_validations": [
+        "python3 scripts/platform_roles.py validate",
+        "python3 scripts/role_gate_methodology.py validate",
+        "python3 -m unittest tests/test_platform_roles.py tests/test_role_gate_methodology.py",
+        "python3 scripts/platform_roles.py route /srv/bears/dev/platform/build/preflight-build-lane.py",
+        "python3 scripts/platform_roles.py audit /srv/bears/dev/platform/build/validate-build-files.py"
+      ],
+      "supporting_roles": [
+        "bears-platform-security-reviewer"
+      ],
+      "reviewer_triggers": [
+        "build validation root change",
+        "build execution or registry push wording change",
+        "CI-visible delivery evidence change"
+      ],
+      "decomposition_required": false
+    },
+    {
+      "name": "bears_platform_auth_static_validation_ledger_docs",
+      "aliases": [
+        "/srv/bears/dev/platform/auth/t101-static-validation-ledger.md",
+        "dev/platform/auth/t101-static-validation-ledger.md"
+      ],
+      "group": "platform",
+      "required_role": "bears-docs-maintainer",
+      "role_required": true,
+      "no_role_policy": "blocker",
+      "source": "/srv/bears/dev/platform/AGENTS.md",
+      "part_kind": "concrete",
+      "write_roots": [],
+      "concrete_scope": "Exact legacy auth T101 static validation ledger documentation in the Bears platform checkout.",
+      "allowed_write_boundary": "Only /srv/bears/dev/platform/auth/t101-static-validation-ledger.md as documentation; no auth source code, tests, runtime, deploy, CI activation, secrets, seller-default ownership, or broad auth/** fallback.",
+      "trust_boundary": "The legacy auth validation ledger records static evidence paths and can influence migration claims; it must not authorize runtime auth behavior, secret handling, or source/test ownership.",
+      "required_validations": [
+        "python3 scripts/platform_roles.py validate",
+        "python3 scripts/role_gate_methodology.py validate",
+        "python3 -m unittest tests/test_platform_roles.py tests/test_role_gate_methodology.py",
+        "python3 scripts/platform_roles.py route /srv/bears/dev/platform/auth/t101-static-validation-ledger.md",
+        "python3 scripts/platform_roles.py audit /srv/bears/dev/platform/auth/t101-static-validation-ledger.md"
+      ],
+      "supporting_roles": [
+        "bears-platform-security-reviewer"
+      ],
+      "reviewer_triggers": [
+        "auth validation evidence wording change",
+        "migration scope claim change",
+        "seller-default ownership wording change"
+      ],
+      "decomposition_required": false
+    },
+    {
+      "name": "leadgen_platform_research_migration",
+      "aliases": [
+        "/srv/bears/dev/platform/research/README.md",
+        "/srv/bears/dev/platform/research/sales/README.md",
+        "/srv/bears/dev/platform/research/sales/leadgen",
+        "dev/platform/research/README.md",
+        "dev/platform/research/sales/README.md",
+        "dev/platform/research/sales/leadgen"
+      ],
+      "group": "products",
+      "required_role": "bears-product-app-zone-engineer",
+      "role_required": true,
+      "no_role_policy": "blocker",
+      "source": "/srv/bears/dev/app/leadgen/AGENTS.md",
+      "part_kind": "concrete",
+      "write_roots": [
+        "/srv/bears/dev/platform/research/README.md",
+        "/srv/bears/dev/platform/research/sales/README.md",
+        "/srv/bears/dev/platform/research/sales/leadgen"
+      ],
+      "concrete_scope": "One-way cleanup of legacy platform lead-generation research references after moving the material into /srv/bears/dev/app/leadgen/research.",
+      "allowed_write_boundary": "Only remove or replace legacy platform leadgen research links and tree entries with pointers to /srv/bears/dev/app/leadgen/research; no new platform lead-generation implementation, no BearsTG changes, no runtime or deploy authority.",
+      "trust_boundary": "Lead-generation research ownership belongs to /srv/bears/dev/app/leadgen. The platform research tree may only keep migration pointers for discoverability.",
+      "required_validations": [
+        "python3 scripts/platform_roles.py validate",
+        "python3 scripts/platform_roles.py route /srv/bears/dev/platform/research/README.md",
+        "python3 scripts/platform_roles.py audit /srv/bears/dev/platform/research/README.md",
+        "python3 scripts/platform_roles.py route /srv/bears/dev/platform/research/sales/README.md",
+        "python3 scripts/platform_roles.py audit /srv/bears/dev/platform/research/sales/README.md",
+        "test ! -e /srv/bears/dev/platform/research/sales/leadgen"
+      ],
+      "supporting_roles": [
+        "bears-platform-security-reviewer"
+      ],
+      "reviewer_triggers": [
+        "Leadgen ownership pointer changes back into platform",
+        "new platform-owned lead-generation content",
+        "BearsTG or Telegram management boundary change"
       ],
       "decomposition_required": false
     },
@@ -13231,6 +13379,48 @@
       "target": "/srv/bears/specs/006-bears-platform-telegram/spec.md",
       "expected_status": "ROLE_COVERAGE_BLOCKER",
       "expected_why_blocked": "unmapped"
+    },
+    {
+      "target": "/srv/bears/dev/platform/.github/workflows/publish-ghcr.yml",
+      "expected_status": "matched",
+      "required_role": "bears-deploy-platform-engineer",
+      "required_route_id": "bears_platform_publish_ghcr_workflow_governance"
+    },
+    {
+      "target": "/srv/bears/dev/platform/build/preflight-build-lane.py",
+      "expected_status": "matched",
+      "required_role": "bears-deploy-platform-engineer",
+      "required_route_id": "bears_platform_build_validation_scripts"
+    },
+    {
+      "target": "/srv/bears/dev/platform/build/validate-build-files.py",
+      "expected_status": "matched",
+      "required_role": "bears-deploy-platform-engineer",
+      "required_route_id": "bears_platform_build_validation_scripts"
+    },
+    {
+      "target": "/srv/bears/dev/platform/auth/t101-static-validation-ledger.md",
+      "expected_status": "matched",
+      "required_role": "bears-docs-maintainer",
+      "required_route_id": "bears_platform_auth_static_validation_ledger_docs"
+    },
+    {
+      "target": "/srv/bears/dev/platform/research/README.md",
+      "expected_status": "matched",
+      "required_role": "bears-product-app-zone-engineer",
+      "required_route_id": "leadgen_platform_research_migration"
+    },
+    {
+      "target": "/srv/bears/dev/platform/research/sales/README.md",
+      "expected_status": "matched",
+      "required_role": "bears-product-app-zone-engineer",
+      "required_route_id": "leadgen_platform_research_migration"
+    },
+    {
+      "target": "/srv/bears/dev/platform/research/sales/leadgen",
+      "expected_status": "matched",
+      "required_role": "bears-product-app-zone-engineer",
+      "required_route_id": "leadgen_platform_research_migration"
     }
   ],
   "agent_profile_mappings": [

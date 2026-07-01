@@ -25,8 +25,8 @@ Kubernetes deploy-core policy is split into two machine-readable contracts owned
 
 1. Git policy: `assets/catalog/git-deploy-contract.v1.json` owns branch, merge-request, and target mapping.
 2. CD policy: `assets/catalog/cd-kube-deploy-contract.v1.json` owns what deploys, from where, and the ordered Kubernetes actions.
-3. Executor: `scripts/bears_auto_cd.py` runs only the fixed CD sequence from GitHub Actions.
-4. Production Kubernetes mutation is allowed only from the configured GitHub Actions push-to-`main` path after the Git contract resolves the target.
+3. Executor: `scripts/bears_auto_cd.py` runs only the fixed local `@Bears` CD sequence from `main`.
+4. Production Kubernetes mutation is allowed only from the local `@Bears` CD path after the Git contract resolves the `main` target.
 5. The CD contract must not contain merge policy, branch policy, pull-request policy, or manual approval gates.
 6. Human control for production promotion is the Git merge request from `dev` to `main`; it is not a CD contract field.
 

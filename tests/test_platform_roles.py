@@ -3629,7 +3629,7 @@ class PlatformRolesTest(unittest.TestCase):
         self.assertIn("bears-infra repo boundary", packet["allowed_write_boundary"])
         self.assertIn("working tree /srv/bears/kubernetes", packet["allowed_write_boundary"])
         self.assertIn("Git/CD contract", packet["allowed_write_boundary"])
-        self.assertIn("GitHub Actions on main", packet["allowed_write_boundary"])
+        self.assertIn("local @Bears CD from main", packet["allowed_write_boundary"])
         self.assertIn("branch-to-target mapping", packet["trust_boundary"])
         self.assertIn("ordered deploy logic", packet["trust_boundary"])
         self.assertIn("manual approval gates", packet["trust_boundary"])

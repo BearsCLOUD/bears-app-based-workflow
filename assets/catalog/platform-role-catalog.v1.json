@@ -485,7 +485,7 @@
         "rollback path",
         "@Bears Git deploy contract evidence for branch-to-target mapping",
         "@Bears CD Kubernetes contract evidence for ordered deploy logic",
-        "automatic GitHub Actions CD evidence for push-to-main production apply",
+        "local @Bears CD evidence for main-branch production apply",
         "manifest safety validation evidence for immutable image digest, no raw Secret, no stringData, and no latest tag",
         "static Traefik/YAML validation and GitFlow review evidence when dev/app/vpn/traefik is assigned",
         "private composite action command authority and caller checkout boundary evidence",
@@ -7404,7 +7404,7 @@
         "assets/catalog/cd-kube-deploy-contract.v1.json"
       ],
       "concrete_scope": "Kubernetes deploy-core repo boundary, @Bears Git/CD contracts, manifests, read-only evidence, safety checks, rollback runbooks, and automatic production CD for exact registered targets inside the /srv/bears/kubernetes submodule.",
-      "allowed_write_boundary": "Only the bears-infra repo boundary working tree /srv/bears/kubernetes plus exact @Bears Git/CD contract and validator files when assigned; production CD changes must flow through Bears infra desired state and @Bears contracts; live mutation is performed only by GitHub Actions on main, not by local agents.",
+      "allowed_write_boundary": "Only the bears-infra repo boundary working tree /srv/bears/kubernetes plus exact @Bears Git/CD contract and validator files when assigned; production CD changes must flow through Bears infra desired state and @Bears contracts; live mutation is performed only by local @Bears CD from main, not by ad-hoc local agents.",
       "trust_boundary": "Kubernetes deployment can change production runtime placement and rollback safety; branch-to-target mapping lives only in the @Bears Git contract, ordered deploy logic lives only in the @Bears CD contract, and the CD path must not add manual approval gates or branch policy fields.",
       "required_validations": [
         "python3 scripts/platform_roles.py validate",

@@ -86,7 +86,7 @@
       "source": {
         "branch_source": "git_contract",
         "manifest_path": "manifests/external-secrets-prod",
-        "image_repository": "external-secrets/external-secrets:local-0.18.2",
+        "image_repository": "ghcr.io/external-secrets/external-secrets:v0.18.2@sha256:87615c878c0528ea994538d2a6ed87931f8389b9e145f4422891b3ba06430cd7",
         "image_digest_required": false,
         "reject_latest_tag": true,
         "reject_placeholder_digest": true
@@ -115,7 +115,7 @@
         "kind: CustomResourceDefinition",
         "externalsecrets.external-secrets.io",
         "clustersecretstores.external-secrets.io",
-        "external-secrets/external-secrets:local-0.18.2",
+        "ghcr.io/external-secrets/external-secrets:v0.18.2@sha256:87615c878c0528ea994538d2a6ed87931f8389b9e145f4422891b3ba06430cd7",
         "readOnlyRootFilesystem: true",
         "allowPrivilegeEscalation: false",
         "external-secrets-webhook"

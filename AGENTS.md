@@ -24,6 +24,13 @@
 - `docs/reference/*.md` and `docs/runbooks/*` — human reference and operator runbooks for governance surfaces.
 - `runtime/` — local state only; do not use it as source policy, do not commit it, and avoid raw log or transcript reads.
 
+## Instruction ownership inside @Bears
+- `agents/*.toml` are role execution profiles. Use them only after `scripts/platform_roles.py route <path>` or a task packet selects that role.
+- Role profiles define specialist scope, allowed evidence, forbidden actions, handoff shape, and validation focus.
+- Role profiles do not own product registration, Git/CD policy, deployment policy, or secret exceptions.
+- `assets/catalog/*.v1.json` owns machine policy. `scripts/*.py` and `hooks/*.py` enforce it. `skills/*/SKILL.md` owns task workflow. `docs/reference/*.md` explains it.
+- After role profile changes, run `python3 scripts/opencode_agent_sync.py sync --target repo` and restart long-running OpenCode runtime before relying on generated `.opencode/agent/*.md`.
+
 ## External runtime boundary
 - `BearsCLOUD/codexdaemon` owns daemon source, Knowledge Orchestrator runtime code, Codex Exec job handling, issue-daemon implementation, daemon packaging, runtime schemas, and runtime tests.
 - This plugin may route, validate, or govern `codexdaemon`; it must not carry daemon runtime implementation.
@@ -33,6 +40,11 @@
 - Keep artifacts and contracts in English.
 - Keep `AGENTS.md` compact; put executable policy in plugin catalogs, scripts, skills, and tests.
 - `kubernetes_deployment` is valid only when backed by Kubernetes desired state and `local_cd`; local host or manual deploy paths are policy violations.
+- Git work branches are restricted to `main` or `dev` unless an explicit task packet names another branch.
+- `dev` is only for prod-deployed product repos; current prod-deployed products are `seller` and `platform`.
+- Prod-deployed product registration must define canonical repo, local path, `dev` work branch, `main` deploy branch, local `@Bears` CD selector, and GitHub Releases versioning.
+- Every completed task must end with commit plus push for the changed tracked repo, including instruction-only changes.
+- Keep Git clean after push; do not stage unrelated dirty files, and report any carried dirty paths.
 - Do not store secrets, raw logs, kubeconfigs, tokens, private chats, production data, `.env` values, or `.knowledge/**` artifacts.
 
 ## Entity terms

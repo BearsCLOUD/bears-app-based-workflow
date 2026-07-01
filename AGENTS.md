@@ -49,6 +49,10 @@
 - The infra/deploy/kube subagent uses `bears-deploy-platform-engineer` instructions with model `gpt-5.5`, reasoning `high`, and no parent/start context. Reuse the same infra/deploy/kube subagent for the entire parent work.
 - The parent sends start, scope-change, validation, and closeout packets to that subagent and does not wait for feedback on the critical path unless a hard blocker is already known.
 - The infra/deploy/kube subagent is an audit and governance lane only; it does not replace exact role gates, Kubernetes desired state, local `@Bears` CD, or branch/secret policies.
+- Instruction, `AGENTS.md`, role-prompt, developer-instruction routing, workflow prose, governance-doc, and instruction-ownership tasks must also start or reuse one long-lived parallel `instructions/AGENTS` subagent.
+- The instructions/AGENTS subagent uses `bears-docs-maintainer` instructions with model `gpt-5.5`, reasoning `high`, and no parent/start context. Reuse the same instructions/AGENTS subagent for the entire parent work.
+- The parent sends start, scope-change, validation, and closeout packets to that subagent and does not wait for feedback on the critical path unless a hard blocker is already known.
+- The instructions/AGENTS subagent is an audit and governance lane only; it does not replace nearest `AGENTS.md`, exact route gates, `@Bears` catalogs/scripts/skills, Git closeout, or generated-agent sync requirements.
 - Git work branches are restricted to `main` or `dev` unless an explicit task packet names another branch.
 - `dev` is only for prod-deployed product repos; current prod-deployed products are `seller` and `platform`.
 - Prod-deployed product registration must define canonical repo, local path, `dev` work branch, `main` deploy branch, local `@Bears` CD selector, and GitHub Releases versioning.

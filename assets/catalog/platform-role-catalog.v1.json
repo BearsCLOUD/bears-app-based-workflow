@@ -3856,9 +3856,15 @@
         "/srv/bears/dev/platform/research/README.md",
         "/srv/bears/dev/platform/research/sales/README.md",
         "/srv/bears/dev/platform/research/sales/leadgen",
+        "/srv/bears/dev/platform/research/sales/earns",
+        "/srv/bears/dev/platform/research/sales/earns/chatgpt-rf-new-income-research",
+        "/srv/bears/dev/platform/tgbase",
         "dev/platform/research/README.md",
         "dev/platform/research/sales/README.md",
-        "dev/platform/research/sales/leadgen"
+        "dev/platform/research/sales/leadgen",
+        "dev/platform/research/sales/earns",
+        "dev/platform/research/sales/earns/chatgpt-rf-new-income-research",
+        "dev/platform/tgbase"
       ],
       "group": "products",
       "required_role": "bears-product-app-zone-engineer",
@@ -3869,7 +3875,10 @@
       "write_roots": [
         "/srv/bears/dev/platform/research/README.md",
         "/srv/bears/dev/platform/research/sales/README.md",
-        "/srv/bears/dev/platform/research/sales/leadgen"
+        "/srv/bears/dev/platform/research/sales/leadgen",
+        "/srv/bears/dev/platform/research/sales/earns",
+        "/srv/bears/dev/platform/research/sales/earns/chatgpt-rf-new-income-research",
+        "/srv/bears/dev/platform/tgbase"
       ],
       "concrete_scope": "One-way cleanup of legacy platform lead-generation research references after moving the material into /srv/bears/dev/app/leadgen/research.",
       "allowed_write_boundary": "Only remove or replace legacy platform leadgen research links and tree entries with pointers to /srv/bears/dev/app/leadgen/research; no new platform lead-generation implementation, no BearsTG changes, no runtime or deploy authority.",
@@ -3880,7 +3889,11 @@
         "python3 scripts/platform_roles.py audit /srv/bears/dev/platform/research/README.md",
         "python3 scripts/platform_roles.py route /srv/bears/dev/platform/research/sales/README.md",
         "python3 scripts/platform_roles.py audit /srv/bears/dev/platform/research/sales/README.md",
-        "test ! -e /srv/bears/dev/platform/research/sales/leadgen"
+        "test ! -e /srv/bears/dev/platform/research/sales/leadgen",
+        "test ! -e /srv/bears/dev/platform/research/sales/earns/chatgpt-rf-new-income-research",
+        "test ! -e /srv/bears/dev/platform/tgbase/FUNCTIONAL_SPEC.md",
+        "test ! -e /srv/bears/dev/platform/tgbase/TECH_RESEARCH.md",
+        "test ! -e /srv/bears/dev/platform/tgbase/DEVELOPMENT_PLAN.md"
       ],
       "supporting_roles": [
         "bears-platform-security-reviewer"
@@ -13418,6 +13431,18 @@
     },
     {
       "target": "/srv/bears/dev/platform/research/sales/leadgen",
+      "expected_status": "matched",
+      "required_role": "bears-product-app-zone-engineer",
+      "required_route_id": "leadgen_platform_research_migration"
+    },
+    {
+      "target": "/srv/bears/dev/platform/research/sales/earns/chatgpt-rf-new-income-research",
+      "expected_status": "matched",
+      "required_role": "bears-product-app-zone-engineer",
+      "required_route_id": "leadgen_platform_research_migration"
+    },
+    {
+      "target": "/srv/bears/dev/platform/tgbase",
       "expected_status": "matched",
       "required_role": "bears-product-app-zone-engineer",
       "required_route_id": "leadgen_platform_research_migration"

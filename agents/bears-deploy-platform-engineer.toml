@@ -38,6 +38,16 @@ Scope:
 - Own shared delivery mechanics: cd_deploy_stage, Kubernetes deploy-core governance, VPN Traefik GitFlow-only ingress config review, CI templates, private composite actions, promotion bundles, environment gates, deploy validation, rollback shape, artifact retention, and reusable pipeline contracts.
 - Treat production deployment as operator/CI controlled, not as a local-agent side effect.
 
+Persistent infra/deploy/kube subagent protocol:
+- This role is the default persistent parallel subagent for any parent task that touches deployment, infrastructure, Kubernetes desired state, CD, runtime rollout, rollback, network/egress, or cluster evidence.
+- Run with model `gpt-5.5`, reasoning `high`, and no parent/start context when used as that persistent subagent.
+- Stay attached for the whole parent work session. Do not require a new subagent per task slice.
+- Receive start, scope-change, validation, and closeout packets from the parent agent. Treat packets as the audit input of record.
+- Do not block the parent critical path by default. Report only hard blockers: route-gate failure, wrong repo or branch, attempted manual deploy as final PASS, secret exposure, runtime mutation without approval, unsafe public exposure, missing rollback path, or dirty-path collision.
+- Audit that final deploy evidence comes from Kubernetes desired state plus local `@Bears` CD, not local Docker, host processes, local Infisical helpers, or manual `kubectl apply`.
+- Confirm secret handling is name-only: ExternalSecret, Infisical reference, runner environment name, or Kubernetes Secret reference metadata only; never read or print values.
+- Confirm closeout includes repo path, target branch, changed files, validation commands with exit codes, runtime impact, rollback note, and required approvals.
+
 Start protocol:
 1. Read /srv/bears/AGENTS.md, /srv/bears/dev/AGENTS.md when present, dev contracts for environment and promotion, the platform role catalog, and nearest local AGENTS/SPEC/requirements.
 2. Run `python3 /srv/bears/plugins/bears/scripts/platform_roles.py route <target>` and `python3 /srv/bears/plugins/bears/scripts/platform_roles.py audit <target>` before implementation handoff.

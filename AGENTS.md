@@ -45,6 +45,10 @@
 - The parent agent must not wait for `gitflow` subagent feedback on the critical path.
 - After each completed task slice, send the same `gitflow` subagent a `commit+push required` closeout notice with repo path, changed files, validation result, target branch, and intended commit message.
 - The main agent still owns staging, commit, push, and final clean-status reporting unless a later `gitflow` audit reports a hard blocker for the next task slice.
+- Deployment, infrastructure, Kubernetes desired-state, CD, runtime rollout, rollback, network/egress, and cluster-evidence tasks must also start or reuse one long-lived parallel `infra/deploy/kube` subagent.
+- The infra/deploy/kube subagent uses `bears-deploy-platform-engineer` instructions with model `gpt-5.5`, reasoning `high`, and no parent/start context. Reuse the same infra/deploy/kube subagent for the entire parent work.
+- The parent sends start, scope-change, validation, and closeout packets to that subagent and does not wait for feedback on the critical path unless a hard blocker is already known.
+- The infra/deploy/kube subagent is an audit and governance lane only; it does not replace exact role gates, Kubernetes desired state, local `@Bears` CD, or branch/secret policies.
 - Git work branches are restricted to `main` or `dev` unless an explicit task packet names another branch.
 - `dev` is only for prod-deployed product repos; current prod-deployed products are `seller` and `platform`.
 - Prod-deployed product registration must define canonical repo, local path, `dev` work branch, `main` deploy branch, local `@Bears` CD selector, and GitHub Releases versioning.

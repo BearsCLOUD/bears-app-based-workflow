@@ -1,0 +1,11 @@
+{
+  "schema": "bears-git-workflow-runner-packet.v1",
+  "version": "1",
+  "command_id": "git-good",
+  "repo_path": "/srv/bears/plugins/bears",
+  "expected_branch": "main",
+  "start_sha": "0000000",
+  "allowed_files": ["scripts/git_workflow_runner.py"],
+  "forbid_force_push": true,
+  "max_output_bytes": 12000
+}

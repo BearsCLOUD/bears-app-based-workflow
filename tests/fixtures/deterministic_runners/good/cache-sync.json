@@ -1,0 +1,10 @@
+{
+  "schema": "bears-cache-sync-runner-packet.v1",
+  "version": "1",
+  "command_id": "cache-good",
+  "commit_sha": "1111111111111111111111111111111111111111",
+  "cache_path": "/home/ai1/.codex/plugins/cache/bears-workflow-plugin/bears/0.1.0",
+  "require_validation_pass": true,
+  "verify_only": true,
+  "max_output_bytes": 12000
+}

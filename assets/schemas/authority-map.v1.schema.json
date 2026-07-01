@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://bears.local/schemas/authority-map.v1.schema.json",
+  "title": "Bears authority map",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "version", "updated", "owner_role", "topics"],
+  "properties": {
+    "schema": {"const": "bears-authority-map.v1"},
+    "version": {"type": "string"},
+    "updated": {"type": "string"},
+    "owner_role": {"type": "string", "minLength": 3},
+    "topics": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"$ref": "#/$defs/topic"}
+    }
+  },
+  "$defs": {
+    "topic": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["topic", "canonical_source", "validator", "owning_role", "secondary_docs", "generated_outputs", "deprecated_surfaces", "manifest_claims"],
+      "properties": {
+        "topic": {"type": "string", "minLength": 3},
+        "canonical_source": {"type": "string", "minLength": 1},
+        "validator": {"type": "string", "minLength": 1},
+        "owning_role": {"type": "string", "minLength": 3},
+        "secondary_docs": {"type": "array", "items": {"type": "string"}},
+        "generated_outputs": {"type": "array", "items": {"type": "string"}},
+        "deprecated_surfaces": {"type": "array", "items": {"type": "string"}},
+        "manifest_claims": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}}
+      }
+    }
+  }
+}

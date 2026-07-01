@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://bears.local/schemas/artifact-registry.v1.schema.json",
+  "title": "Bears artifact registry",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "version", "updated", "owner_role", "baseline", "records"],
+  "properties": {
+    "schema": {"const": "bears-artifact-registry.v1"},
+    "version": {"type": "string"},
+    "updated": {"type": "string"},
+    "owner_role": {"type": "string"},
+    "baseline": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["existing_files_exempt", "reason"],
+      "properties": {
+        "existing_files_exempt": {"type": "boolean"},
+        "reason": {"type": "string"}
+      }
+    },
+    "records": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["path", "artifact_type", "lifecycle", "git_tracked", "owner_role", "allowed_writers", "validation", "changelog_required", "decision_ref_required", "source_of_truth_status"],
+        "properties": {
+          "path": {"type": "string", "minLength": 1},
+          "artifact_type": {"enum": ["schema", "catalog", "script", "test", "fixture", "doc", "runtime", "cache", "local_proof"]},
+          "lifecycle": {"enum": ["durable", "generated_tracked", "fixture", "schema", "doc", "test", "script", "catalog", "runtime_ignored", "tmp", "cache", "local_proof"]},
+          "git_tracked": {"type": "boolean"},
+          "owner_issue": {"type": "string"},
+          "scope_id": {"type": "string"},
+          "owner_role": {"type": "string", "minLength": 3},
+          "allowed_writers": {"type": "array", "items": {"type": "string"}},
+          "validation": {"type": "array", "items": {"type": "string"}},
+          "changelog_required": {"type": "boolean"},
+          "decision_ref_required": {"type": "boolean"},
+          "decision_ref": {"type": "string"},
+          "source_of_truth_status": {"enum": ["canonical", "secondary", "generated", "deprecated"]},
+          "source_of_truth": {"type": "string"},
+          "ttl": {"type": "string"},
+          "cleanup_policy": {"type": "string"}
+        }
+      }
+    }
+  }
+}

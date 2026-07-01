@@ -1,0 +1,263 @@
+{
+  "schema": "bears.cd-kube-deploy-contract.v1",
+  "version": 1,
+  "owner_plugin": "bears",
+  "updated": "2026-06-27",
+  "purpose": "Machine-readable Kubernetes CD contract for Bears Codex workspace production runtimes.",
+  "application": "codex-telegram-mcp",
+  "repository": "BearsCLOUD/bears-infra",
+  "git_contract_ref": "assets/catalog/git-deploy-contract.v1.json",
+  "target_id": "fyuriserv-prod",
+  "source": {
+    "branch_source": "git_contract",
+    "manifest_path": "manifests/codex-telegram-prod",
+    "image_repository": "codex-telegram-mcp",
+    "image_digest_required": false,
+    "reject_latest_tag": true,
+    "reject_placeholder_digest": true,
+    "image_ref": "codex-telegram-mcp:local-2eb8efbcfebd",
+    "local_image_build": {
+      "enabled": true,
+      "source_repository": "BearsCLOUD/codex-telegram-mcp",
+      "source_ref": "2eb8efbcfebde61b509bd3b975ec71ab0f7fe41d",
+      "context_path": ".codex-telegram-source",
+      "dockerfile": "Dockerfile",
+      "load_to_k3d_nodes": true
+    }
+  },
+  "kubernetes": {
+    "server_alias": "fyuriserv",
+    "environment": "prod",
+    "namespace": "codex-telegram-prod",
+    "deployment": "codex-telegram-mcp",
+    "service": "codex-telegram-mcp",
+    "kubeconfig_source": "runner_environment",
+    "restart_after_apply": true
+  },
+  "ordered_steps": [
+    "validate_git_contract",
+    "resolve_target_from_git_contract",
+    "validate_cd_contract",
+    "validate_manifest_safety",
+    "build_kustomize",
+    "build_local_image",
+    "load_local_image_to_k3d",
+    "use_runner_kubeconfig",
+    "bootstrap_infisical_runtime_secret",
+    "preflight_kube_truth",
+    "kubectl_apply",
+    "rollout_restart_after_apply",
+    "rollout_status",
+    "write_sanitized_evidence"
+  ],
+  "forbidden_manifest_literals": [
+    "kind: Secret",
+    "stringData:",
+    ":latest",
+    "image: latest"
+  ],
+  "required_manifest_literals": [
+    "codex-telegram-mcp-runtime",
+    "readOnlyRootFilesystem: true",
+    "allowPrivilegeEscalation: false",
+    "codex_telegram_mcp.http_server",
+    "/readyz",
+    "/healthz"
+  ],
+  "evidence": {
+    "sanitized_only": true,
+    "forbidden": [
+      "raw_secret",
+      "kubeconfig",
+      "token",
+      "private_chat",
+      "production_data",
+      "raw_log"
+    ]
+  },
+  "rollback": {
+    "method": "commit_previous_image_digest_to_main",
+    "uses_same_git_contract": true,
+    "uses_same_cd_contract": true
+  },
+  "applications": [
+    {
+      "application": "external-secrets-operator",
+      "source": {
+        "branch_source": "git_contract",
+        "manifest_path": "manifests/external-secrets-prod",
+        "image_repository": "external-secrets/external-secrets:local-0.18.2",
+        "image_digest_required": false,
+        "reject_latest_tag": true,
+        "reject_placeholder_digest": true
+      },
+      "kubernetes": {
+        "server_alias": "fyuriserv",
+        "environment": "prod",
+        "namespace": "external-secrets",
+        "deployment": "external-secrets",
+        "deployments": [
+          "external-secrets-cert-controller",
+          "external-secrets-webhook",
+          "external-secrets"
+        ],
+        "service": "external-secrets-webhook",
+        "kubeconfig_source": "runner_environment",
+        "apply_mode": "server_side",
+        "rollout_timeout_seconds": 600
+      },
+      "forbidden_manifest_literals": [
+        "stringData:",
+        ":latest",
+        "image: latest"
+      ],
+      "required_manifest_literals": [
+        "kind: CustomResourceDefinition",
+        "externalsecrets.external-secrets.io",
+        "clustersecretstores.external-secrets.io",
+        "external-secrets/external-secrets:local-0.18.2",
+        "readOnlyRootFilesystem: true",
+        "allowPrivilegeEscalation: false",
+        "external-secrets-webhook"
+      ],
+      "preflight": {}
+    },
+    {
+      "application": "opencode-server",
+      "source": {
+        "branch_source": "git_contract",
+        "manifest_path": "manifests/opencode-server-prod",
+        "image_repository": "anomalyco/opencode:local-e29bba55b",
+        "image_digest_required": false,
+        "reject_latest_tag": true,
+        "reject_placeholder_digest": true
+      },
+      "kubernetes": {
+        "server_alias": "fyuriserv",
+        "environment": "prod",
+        "namespace": "opencode-server-prod",
+        "deployment": "opencode-server",
+        "service": "opencode-server",
+        "kubeconfig_source": "runner_environment",
+        "apply_mode": "server_side",
+        "restart_after_apply": true,
+        "rollout_timeout_seconds": 600
+      },
+      "required_manifest_literals": [
+        "readOnlyRootFilesystem: true",
+        "allowPrivilegeEscalation: false",
+        "anomalyco/opencode:local-e29bba55b",
+        "docker.io/curlimages/curl@sha256:",
+        "snip_0.19.0_linux_amd64.tar.gz",
+        "623b8616fea44af77570314ad979062841fb3105864609bc545b50cb1cab1962",
+        "/opt/opencode-tools"
+      ],
+      "preflight": {}
+    },
+    {
+      "application": "tgsearch-live-gate",
+      "source": {
+        "branch_source": "git_contract",
+        "manifest_path": "manifests/tgsearch",
+        "image_repository": "tgintel",
+        "image_digest_required": false,
+        "reject_latest_tag": true,
+        "reject_placeholder_digest": true,
+        "image_ref": "tgintel:0.1.0",
+        "local_image_build": {
+          "enabled": true,
+          "source_repository": "BearsCLOUD/tgsearch",
+          "source_ref": "local-dev-instance",
+          "context_path": ".tgsearch-source",
+          "dockerfile": "Dockerfile",
+          "load_to_k3d_nodes": true
+        }
+      },
+      "kubernetes": {
+        "server_alias": "fyuriserv",
+        "environment": "prod",
+        "namespace": "tgsearch-dev",
+        "job": "tgsearch-tgintel-live-gate",
+        "kubeconfig_source": "runner_environment",
+        "apply_mode": "server_side",
+        "rollout_timeout_seconds": 600
+      },
+      "forbidden_manifest_literals": [
+        "kind: Secret",
+        "stringData:",
+        ":latest",
+        "image: latest"
+      ],
+      "required_manifest_literals": [
+        "tgsearch-dev",
+        "tgsearch-tgintel-live-gate",
+        "tgsearch-tgintel-runtime",
+        "ClusterSecretStore",
+        "infisical-bears",
+        "readOnlyRootFilesystem: true",
+        "allowPrivilegeEscalation: false",
+        "tgintel:0.1.0"
+      ],
+      "preflight": {
+        "api_resources": [
+          {
+            "name": "externalsecrets.external-secrets.io",
+            "reason": "tgsearch runtime credentials are supplied through ExternalSecret"
+          }
+        ],
+        "cluster_resources": [
+          {
+            "kind": "ClusterSecretStore",
+            "name": "infisical-bears",
+            "reason": "tgsearch ExternalSecret uses the shared Infisical ClusterSecretStore"
+          }
+        ]
+      }
+    }
+  ],
+  "preflight": {
+    "api_resources": [
+      {
+        "name": "ingressroutes.traefik.io",
+        "reason": "codex-telegram prod endpoint is routed through Traefik IngressRoute"
+      }
+    ],
+    "cluster_resources": []
+  },
+  "bootstrap": {
+    "infisical_runtime_secret": {
+      "enabled": true,
+      "namespace": "codex-telegram-prod",
+      "secret_name": "codex-telegram-mcp-runtime",
+      "api_url_env": "INFISICAL_HOST_API",
+      "default_api_url": "http://127.0.0.1:58080/api",
+      "client_id_env": "INFISICAL_UNIVERSAL_AUTH_CLIENT_ID",
+      "client_secret_env": "INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET",
+      "project_id": "2812d08f-50f4-4d38-b43d-ac360b84e097",
+      "environment_slug": "prod",
+      "secret_path": "/prod/codex-telegram",
+      "mappings": [
+        {
+          "env_key": "CODEX_TELEGRAM_MCP_TOKEN",
+          "remote_key": "mcp-token"
+        },
+        {
+          "env_key": "TELEGRAM_BOT_TOKEN",
+          "remote_key": "bot-token"
+        },
+        {
+          "env_key": "TELEGRAM_ALLOWED_CHAT_IDS",
+          "remote_key": "allowed-chat-ids"
+        }
+      ],
+      "docker_fallback": true,
+      "docker_container": "bears-infisical-backend",
+      "docker_network_name_patterns": [
+        "selfhost_infisical",
+        "k3d-bears-platform-telegram-nonprod",
+        "k3d"
+      ],
+      "container_port": 8080
+    }
+  }
+}

@@ -1,0 +1,89 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "user-agreement.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "goal_id",
+    "goal",
+    "explicit_user_constraints",
+    "forbidden_surfaces",
+    "allowed_repositories",
+    "live_mutation_rules",
+    "secret_data_handling_rules",
+    "target_readiness_definition",
+    "review_rules",
+    "merge_rules",
+    "parallelization_permission",
+    "unresolved_questions",
+    "accepted_assumptions",
+    "restricted_data_taint",
+    "status"
+  ],
+  "properties": {
+    "goal_id": {
+      "type": "string"
+    },
+    "goal": {
+      "type": "string"
+    },
+    "explicit_user_constraints": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "forbidden_surfaces": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "allowed_repositories": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "live_mutation_rules": {
+      "type": "string"
+    },
+    "secret_data_handling_rules": {
+      "type": "string"
+    },
+    "target_readiness_definition": {
+      "type": "string"
+    },
+    "review_rules": {
+      "type": "string"
+    },
+    "merge_rules": {
+      "type": "string"
+    },
+    "parallelization_permission": {
+      "type": "boolean"
+    },
+    "unresolved_questions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "accepted_assumptions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "restricted_data_taint": {
+      "enum": [
+        "none",
+        "blocked"
+      ]
+    },
+    "status": {
+      "type": "string"
+    }
+  },
+  "description": "Forbidden data classes: raw secrets, .env values, raw logs, raw chats, raw VPN configs, credential files, and production data are not allowed."
+}

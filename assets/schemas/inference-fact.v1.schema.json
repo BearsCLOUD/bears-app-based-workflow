@@ -1,0 +1,17 @@
+{
+  "$id": "https://bears.local/schemas/inference-fact.v1.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Bears inference fact v1",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schema": {"const": "bears-inference-fact.v1"},
+    "fact_id": {"type": "string", "minLength": 1},
+    "predicate": {"type": "string", "minLength": 1},
+    "arguments": {"type": "array", "items": {"type": "string", "minLength": 1}},
+    "source": {"enum": ["semantic_graph", "file_context", "github_issue", "workflow_state", "runtime_evidence", "manual_review"]},
+    "confidence": {"enum": ["accepted", "candidate", "rejected"]},
+    "evidence_paths": {"type": "array", "items": {"type": "string", "minLength": 1}, "uniqueItems": true}
+  },
+  "required": ["schema", "fact_id", "predicate", "arguments", "source", "confidence", "evidence_paths"]
+}

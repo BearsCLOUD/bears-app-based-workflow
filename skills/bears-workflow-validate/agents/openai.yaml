@@ -1,0 +1,4 @@
+interface:
+  display_name: "Bears Workflow Validate"
+  short_description: "Validate Bears overlay workflow boundaries"
+  default_prompt: "Use $bears-workflow-validate to validate Bears overlay skills, boundaries, and JSON artifacts."

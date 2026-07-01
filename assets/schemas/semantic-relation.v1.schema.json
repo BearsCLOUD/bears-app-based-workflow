@@ -1,0 +1,76 @@
+{
+  "$id": "https://bears.local/schemas/semantic-relation.v1.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "authority_source": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "closed_world": {
+      "type": "boolean"
+    },
+    "description": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "direction": {
+      "enum": [
+        "forward"
+      ]
+    },
+    "id": {
+      "enum": [
+        "is_a",
+        "part_of",
+        "depends_on",
+        "requires",
+        "blocks",
+        "enables",
+        "implements",
+        "validates",
+        "owns",
+        "reads",
+        "writes",
+        "uses",
+        "produces",
+        "consumes",
+        "proves",
+        "supersedes",
+        "conflicts_with"
+      ]
+    },
+    "source_types": {
+      "items": {
+        "minLength": 1,
+        "type": "string"
+      },
+      "type": "array",
+      "uniqueItems": true
+    },
+    "target_types": {
+      "items": {
+        "minLength": 1,
+        "type": "string"
+      },
+      "type": "array",
+      "uniqueItems": true
+    },
+    "validator": {
+      "minLength": 1,
+      "type": "string"
+    }
+  },
+  "required": [
+    "id",
+    "description",
+    "source_types",
+    "target_types",
+    "direction",
+    "closed_world",
+    "authority_source",
+    "validator"
+  ],
+  "title": "Bears semantic relation v1",
+  "type": "object"
+}

@@ -1,0 +1,244 @@
+{
+  "schema": "bears-plugin-constitution.v1",
+  "version": "1",
+  "updated": "2026-06-23T00:00:00Z",
+  "owner_plugin": "bears",
+  "concrete_part": "plugin_constitution_governance",
+  "route_target": "/srv/bears/plugins/bears/assets/catalog/plugin-constitution.v1.json",
+  "reference_doc": "/srv/bears/plugins/bears/docs/reference/plugin-constitution.md",
+  "purpose": "Evaluate every Bears plugin change against agent simplification, token economy, deterministic validation, and future reuse.",
+  "principles": [
+    {
+      "id": "agent_simplification",
+      "rule": "A governance change must make future agent work simpler through a shorter decision path, fewer repeated reads, or a clearer handoff."
+    },
+    {
+      "id": "token_economy",
+      "rule": "A governance change must reduce repeated context load or justify any token-budget increase with a named payoff."
+    },
+    {
+      "id": "bounded_context",
+      "rule": "A governance change must name the files, packets, or summaries needed for the next worker and exclude broad content collection."
+    },
+    {
+      "id": "deterministic_validation",
+      "rule": "A governance change must add or update a deterministic validation path when it creates a durable rule."
+    },
+    {
+      "id": "future_reuse",
+      "rule": "A governance change must identify where future agents reuse the rule without reading the original issue or chat."
+    },
+    {
+      "id": "operator_boundary",
+      "rule": "A governance change must state which decisions remain operator-owned and which checks are agent-owned."
+    },
+    {
+      "id": "mode_explicitness",
+      "rule": "A governance change must state when normal, no-subagent, subagent, audit, or validation mode applies."
+    },
+    {
+      "id": "agent_handoff_compaction",
+      "rule": "A governance change must support compact handoff with status, scope, validation, and unresolved decision data."
+    },
+    {
+      "id": "no_process_weight_without_payoff",
+      "rule": "A governance change must not add a gate, document, role, or checklist unless the payoff is explicit."
+    }
+  ],
+  "required_change_fields": [
+    "schema",
+    "change_id",
+    "changed_surfaces",
+    "agent_simplification_impact",
+    "token_budget_impact",
+    "bounded_context_plan",
+    "future_reuse_path",
+    "deterministic_validation_added",
+    "deterministic_validation_evidence",
+    "operator_decision_boundary",
+    "cost_justification_if_any",
+    "status"
+  ],
+  "change_packet_schema": "bears-plugin-constitution-change-check.v1",
+  "decision_rules": {
+    "allowed_statuses": [
+      "pass",
+      "fail",
+      "needs-redesign"
+    ],
+    "pass_requires_deterministic_validation_added": true,
+    "pass_requires_deterministic_validation_evidence": true,
+    "fail_closed_on_missing_required_fields": true,
+    "fail_closed_on_unknown_status": true,
+    "lifecycle_order": [
+      "route_gate",
+      "constitution_gate",
+      "research_gate",
+      "prototype_gate",
+      "design_gate",
+      "spec_kit_gate",
+      "role_gate",
+      "subagent_execution",
+      "validation",
+      "stage_boundary_audit"
+    ],
+    "constitution_gate_position": "after route_gate and before research_gate"
+  },
+  "boundary_checks": {
+    "single_bears_plugin": "The Bears workflow governance model has one Codex plugin root at /srv/bears/plugins/bears.",
+    "no_runtime_surface": "This plugin must not add apps, connectors, MCP servers, runtime services, product behavior, or production mutation paths.",
+    "external_speckit_boundary": "Upstream Spec Kit remains external; this plugin may keep only Bears-owned governance skills, catalogs, validators, workflows, agents, capabilities, docs, templates, and tests.",
+    "exact_role_coverage": "Implementation may start only after the exact child target routes to one primary specialist or helper role at the same granularity as the write scope.",
+    "english_entity_bound_artifacts": "Artifacts and subagent messages must use English, strict concise wording, and exact entity names.",
+    "restricted_data_exclusion": "The change must not read, print, store, commit, or document secrets, credentials, private keys, .env values, production data, raw logs, shell history, or raw VPN configs.",
+    "inventory_sync": "Catalog, validator, README inventory, manifest, capability inventory, docs, and tests must stay synchronized when governance claims change.",
+    "capability_inventory_boundary": "The capabilities/ directory is executable governance inventory only: metadata, schemas, fixtures, wrappers, and validation evidence without apps, connectors, MCP servers, runtime services, product behavior, production mutation paths, or Codex environment mutation."
+  },
+  "blocked_patterns": [
+    {
+      "id": "standalone_bears_plugin",
+      "pattern": "Creating another Bears governance plugin or layer outside /srv/bears/plugins/bears."
+    },
+    {
+      "id": "runtime_surface_in_plugin",
+      "pattern": "Adding app, connector, MCP server, runtime service, product behavior, or production mutation behavior in this plugin."
+    },
+    {
+      "id": "upstream_speckit_vendoring",
+      "pattern": "Copying upstream Spec Kit skills into this plugin instead of calling the external source."
+    },
+    {
+      "id": "generic_deploy_wording",
+      "pattern": "Using generic deploy wording when the entity is local_cd or kubernetes_deployment."
+    },
+    {
+      "id": "illustrative_policy_sections",
+      "pattern": "Adding sample, example, or illustrative policy sections to governed policy surfaces."
+    },
+    {
+      "id": "restricted_data_access",
+      "pattern": "Reading, printing, storing, committing, or documenting restricted data or value-bearing credential material."
+    }
+  ],
+  "validation": {
+    "commands": [
+      "python3 scripts/plugin_constitution.py validate",
+      "python3 scripts/agentic_enterprise_workflow.py validate",
+      "python3 scripts/plugin_constitution.py inspect-change --packet <path>",
+      "python3 scripts/plugin_constitution.py inspect-final-report --packet <path>",
+      "python3 scripts/platform_roles.py validate",
+      "python3 scripts/platform_roles.py route /srv/bears/plugins/bears/assets/catalog/plugin-constitution.v1.json",
+      "python3 scripts/platform_roles.py audit /srv/bears/plugins/bears/assets/catalog/plugin-constitution.v1.json",
+      "python3 -m unittest tests/test_plugin_constitution.py tests/test_platform_roles.py",
+      "python3 scripts/validate_overlay.py --json validate --strict-overlay-skills"
+    ],
+    "validator": "/srv/bears/plugins/bears/scripts/plugin_constitution.py",
+    "tests": "/srv/bears/plugins/bears/tests/test_plugin_constitution.py",
+    "doc": "/srv/bears/plugins/bears/docs/reference/plugin-constitution.md",
+    "readme_inventory_required": true,
+    "manifest_prompt_required": true
+  },
+  "agentic_enterprise_constitution": {
+    "catalog": "/srv/bears/plugins/bears/assets/catalog/agentic-enterprise-constitution.v1.json",
+    "workflow_catalog": "/srv/bears/plugins/bears/assets/catalog/agentic-enterprise-workflow.v1.json",
+    "validator": "/srv/bears/plugins/bears/scripts/agentic_enterprise_workflow.py",
+    "rule": "Bears plugin changes that affect L1/L2/L3 orchestration, hooks, scope matrices, decision logs, owner lineage, or four-domain boundaries must satisfy the agentic enterprise constitution."
+  },
+  "surface_policy": {
+    "rule": "The plugin root may carry governance layers only. App, connector, MCP server, runtime service, service registration, and deploy registration surfaces are forbidden as paths or manifest keys.",
+    "path_match_only": true,
+    "fail_closed_on_forbidden_surface": true,
+    "allowed_plugin_layers": [
+      ".codex-plugin",
+      ".github",
+      "actions",
+      "agents",
+      "assets/catalog",
+      "capabilities",
+      "docs",
+      "hooks",
+      "schemas",
+      "scripts",
+      "skills",
+      "templates",
+      "tests",
+      "workflows"
+    ],
+    "forbidden_root_entries": [
+      "app",
+      "apps",
+      "connector",
+      "connectors",
+      "mcp",
+      "mcp-server",
+      "mcp-servers",
+      "server",
+      "servers",
+      "service",
+      "services",
+      "runtime-service",
+      "runtime-services",
+      "deploy",
+      "deployment",
+      "deployments"
+    ],
+    "forbidden_registration_files": [
+      "ai-plugin.json",
+      "app.json",
+      "apps.json",
+      "connector.json",
+      "connectors.json",
+      "docker-compose.yml",
+      "docker-compose.yaml",
+      "mcp.json",
+      "mcp-server.json",
+      "mcp-servers.json",
+      "procfile",
+      "runtime-service.json",
+      "server.json",
+      "service.json",
+      "services.json"
+    ],
+    "forbidden_registration_suffixes": [
+      ".service",
+      ".socket",
+      ".timer"
+    ],
+    "forbidden_path_patterns": [
+      ".codex-plugin/apps/**",
+      ".codex-plugin/connectors/**",
+      ".codex-plugin/mcp/**",
+      ".codex-plugin/servers/**",
+      ".codex-plugin/services/**",
+      ".well-known/ai-plugin.json",
+      "Dockerfile",
+      "Dockerfile.*",
+      "deploy/**",
+      "deployment/**",
+      "deployments/**",
+      "docker-compose.*",
+      "mcp.json",
+      "mcp-server.json",
+      "mcp-servers.json",
+      "runtime-services/**",
+      "services/**"
+    ],
+    "forbidden_manifest_keys": [
+      "apps",
+      "connectors",
+      "deploy",
+      "deployment",
+      "mcp",
+      "mcpServers",
+      "runtime",
+      "runtimeServices",
+      "server",
+      "servers",
+      "services"
+    ],
+    "scan_scope": [
+      "git_tracked_files",
+      "git_untracked_unignored_files"
+    ]
+  }
+}

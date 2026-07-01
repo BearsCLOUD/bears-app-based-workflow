@@ -1,0 +1,62 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://bears.example/schemas/plugin-constitution-capability-validation-result.v1.schema.json",
+  "title": "Plugin constitution capability validation result",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "status",
+    "phase",
+    "authority",
+    "legacy_authoritative_command",
+    "capability_command",
+    "plugin_root",
+    "catalog_path",
+    "restricted_data_status",
+    "errors",
+    "fixture_results"
+  ],
+  "properties": {
+    "schema": {"const": "bears-plugin-constitution-capability-validation.v1"},
+    "status": {"enum": ["pass", "fail"]},
+    "phase": {"const": "phase_1_dual"},
+    "authority": {"const": "legacy"},
+    "legacy_authoritative_command": {"const": "python3 scripts/plugin_constitution.py validate"},
+    "capability_command": {"const": "python3 capabilities/plugin_constitution/scripts/validate.py --json"},
+    "plugin_root": {"type": "string", "minLength": 1},
+    "catalog_path": {"type": "string", "minLength": 1},
+    "restricted_data_status": {"const": "clean"},
+    "errors": {"type": "array", "items": {"type": "string"}},
+    "fixture_results": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "fixture",
+          "expected_status",
+          "actual_status",
+          "rejection_codes",
+          "restricted_data_status",
+          "sanitized",
+          "error_count"
+        ],
+        "properties": {
+          "fixture": {"type": "string", "minLength": 1},
+          "expected_status": {"enum": ["pass", "fail"]},
+          "actual_status": {"enum": ["pass", "fail"]},
+          "rejection_codes": {
+            "type": "array",
+            "items": {
+              "enum": ["restricted_data_marker", "legacy_validation", "validator_exception"]
+            }
+          },
+          "restricted_data_status": {"const": "clean"},
+          "sanitized": {"const": true},
+          "error_count": {"type": "integer", "minimum": 0}
+        }
+      }
+    }
+  }
+}

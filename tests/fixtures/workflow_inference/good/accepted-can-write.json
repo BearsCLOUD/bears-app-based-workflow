@@ -1,0 +1,6 @@
+{
+  "schema": "bears-inference-facts.v1",
+  "facts": [
+    {"schema":"bears-inference-fact.v1","fact_id":"fixture-accepted-role-owns-file","predicate":"role_owns_file","arguments":["fixture-role","fixture-file.py"],"source":"file_context","confidence":"accepted","evidence_paths":["tests/fixtures/workflow_inference/good/accepted-can-write.json"]}
+  ]
+}

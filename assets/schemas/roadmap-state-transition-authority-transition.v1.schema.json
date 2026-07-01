@@ -1,0 +1,53 @@
+{
+  "$id": "https://bears.local/schemas/roadmap-state-transition-authority-transition.v1.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Bears roadmap state transition authority transition packet v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "status",
+    "node_id",
+    "from_state",
+    "to_state",
+    "source_hash",
+    "validator_command_result",
+    "required_gate_refs"
+  ],
+  "properties": {
+    "schema": {"const": "bears-roadmap-state-transition-authority-transition.v1"},
+    "status": {"const": "pass"},
+    "node_id": {"type": "string", "minLength": 3},
+    "issue_ref": {"type": "string", "pattern": "^(#[0-9]+|null)$"},
+    "from_state": {
+      "enum": [
+        "idea",
+        "researched",
+        "contracted",
+        "decomposed",
+        "queued",
+        "running",
+        "validated",
+        "closed",
+        "blocked",
+        "manual_review"
+      ]
+    },
+    "to_state": {"const": "validated"},
+    "source_hash": {"type": "string", "minLength": 8},
+    "validator_command_result": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["status"],
+      "properties": {
+        "status": {"const": "pass"}
+      }
+    },
+    "required_gate_refs": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"type": "string", "minLength": 1},
+      "uniqueItems": true
+    }
+  }
+}

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Bears Platform Role Governance"
+  short_description: "Enforce canonical Bears role coverage"
+  default_prompt: "Use $platform-role-governance to route this Bears platform task through the canonical plugins/bears role gate."

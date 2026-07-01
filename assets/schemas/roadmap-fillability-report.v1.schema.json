@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://bears.local/schemas/roadmap-fillability-report.v1.schema.json",
+  "title": "Bears roadmap fillability report",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "version", "status", "repo", "generated_at", "counts", "issues", "blockers"],
+  "properties": {
+    "schema": {"const": "bears-roadmap-fillability-report.v1"},
+    "version": {"type": "string"},
+    "status": {"enum": ["pass", "fail"]},
+    "repo": {"type": "string"},
+    "generated_at": {"type": "string"},
+    "source_scan": {"type": ["string", "null"]},
+    "counts": {"type": "object"},
+    "issues": {"type": "array", "items": {"type": "object"}},
+    "blockers": {"type": "array", "items": {"type": "object"}}
+  }
+}

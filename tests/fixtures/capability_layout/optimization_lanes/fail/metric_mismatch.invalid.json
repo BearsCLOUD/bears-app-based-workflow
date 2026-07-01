@@ -1,0 +1,20 @@
+{
+  "schema": "bears-plugin-optimization-plan.v1",
+  "version": "1",
+  "optimization_id": "opt-metric-mismatch",
+  "lane": "hot_path_context_reduction",
+  "source_owner": "bears-workflow-overlay-platform-engineer",
+  "environment_owner": "bears-workflow-overlay-platform-engineer",
+  "source_capability_id": "validation-hooks",
+  "affected_paths": ["scripts/capability_layout.py"],
+  "affected_environment_surfaces": [],
+  "baseline_metric": {"metric_field": "context_token_count", "value": 1000},
+  "target_metric": {"metric_field": "elapsed_seconds", "value": 1},
+  "measurement_command": "python3 scripts/capability_layout.py validate --json",
+  "validation_command": "python3 scripts/capability_layout.py validate --json",
+  "rollback_command": "git checkout -- scripts/capability_layout.py",
+  "operator_authorization_required": false,
+  "environment_operation_packet": null,
+  "status": "proposal_only",
+  "expected_code": "OPTIMIZATION_METRIC_MISMATCH"
+}

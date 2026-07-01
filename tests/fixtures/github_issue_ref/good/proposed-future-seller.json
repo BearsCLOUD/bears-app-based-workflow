@@ -1,0 +1,15 @@
+{
+  "schema": "bears-github-issue-ref.v1",
+  "version": "1",
+  "repo": "BearsCLOUD/future-seller",
+  "owner": "BearsCLOUD",
+  "repo_name": "future-seller",
+  "issue_number": null,
+  "canonical_ref": null,
+  "github_url": null,
+  "state": "proposed",
+  "source_snapshot_ref": "tests/fixtures/github_issue_ref/good/proposed-future-seller.json",
+  "source_snapshot_sha256": null,
+  "legacy_local_ref": null,
+  "status": "pass"
+}

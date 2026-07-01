@@ -1,0 +1,20 @@
+{
+  "$id": "https://bears.local/schemas/issue-progress-comment.v1.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Bears issue progress comment v1",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schema": {"const": "bears-issue-progress-comment.v1"},
+    "run_id": {"type": "string", "minLength": 1},
+    "repo": {"type": "string", "minLength": 1},
+    "issue": {"type": "integer"},
+    "branch": {"type": "string", "pattern": "^orchestrator/.+"},
+    "status": {"type": "string", "minLength": 1},
+    "body": {"type": "string", "minLength": 1},
+    "dry_run": {"type": "boolean"},
+    "comment_url": {"type": "string"},
+    "evidence_paths": {"type": "array", "items": {"type": "string", "minLength": 1}, "uniqueItems": true}
+  },
+  "required": ["schema", "run_id", "repo", "issue", "branch", "status", "body", "dry_run", "comment_url", "evidence_paths"]
+}

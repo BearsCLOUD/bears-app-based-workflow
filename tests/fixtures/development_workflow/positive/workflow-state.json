@@ -1,0 +1,153 @@
+{
+  "schema_version": "agent-workflow-state.v1",
+  "state_kind": "workflow_state_index",
+  "goal_id": "agent-workflow-dirty-triage",
+  "runtime_state_path": "runtime/agent-workflow/agent-workflow-dirty-triage/workflow-state.v1.json",
+  "generated_at": "2026-06-21T00:00:00Z",
+  "repo_boundary": "BearsCLOUD/bears-codex-workflow-plugin",
+  "index_role": "aggregate_only",
+  "worker_state_refs": [
+    {
+      "worker_id": "worker-pr-363",
+      "path": "runtime/agent-workflow/agent-workflow-dirty-triage/workers/worker-pr-363/worker-state.v1.json",
+      "status": "running",
+      "role": "bears-development-workflow-orchestrator",
+      "lane": "implementation",
+      "active_parallel_agent": true,
+      "requires_network": false,
+      "last_hook_event": "aggregate_index_refresh"
+    }
+  ],
+  "active_workers": [
+    {
+      "worker_id": "worker-pr-363",
+      "worker_state_ref": "runtime/agent-workflow/agent-workflow-dirty-triage/workers/worker-pr-363/worker-state.v1.json",
+      "role": "bears-development-workflow-orchestrator",
+      "status": "running",
+      "active_parallel_agent": true,
+      "cleanup_protected": true,
+      "protection_reason": "Per-worker state reports active heartbeat and open draft PR #363."
+    }
+  ],
+  "active_prs": [
+    {
+      "provider": "github",
+      "repository": "BearsCLOUD/bears-codex-workflow-plugin",
+      "number": 363,
+      "url": "https://github.com/BearsCLOUD/bears-codex-workflow-plugin/pull/363",
+      "state": "open",
+      "draft": true,
+      "head_branch": "codex/agent-workflow-dirty-triage",
+      "base_branch": "main",
+      "tracked_work": true,
+      "cleanup_protected": true,
+      "protection_reason": "Open draft PR #363 is active tracked work and is protected from cleanup.",
+      "proof_ref": {
+        "kind": "open_pr",
+        "ref": "github-pr:363",
+        "source": "metadata_only",
+        "path": "runtime/agent-workflow/agent-workflow-dirty-triage/workers/worker-pr-363/open-pr.json",
+        "digest": "not_recorded",
+        "requires_network": false,
+        "note": "PR metadata is local-only in this fixture."
+      },
+      "linked_worker_ids": [
+        "worker-pr-363"
+      ]
+    }
+  ],
+  "dirty_inventory": [
+    {
+      "item_id": "dirty-pr-363-worktree",
+      "owner_worker_id": "worker-pr-363",
+      "worker_state_ref": "runtime/agent-workflow/agent-workflow-dirty-triage/workers/worker-pr-363/worker-state.v1.json",
+      "category": "worktree",
+      "owner_status": "open_pr",
+      "cleanup_protected": true,
+      "protected_by": [
+        "heartbeat",
+        "scope_lock",
+        "open_pr",
+        "worker_closeout_missing",
+        "validation_evidence_missing",
+        "current_worktree",
+        "backup_branch"
+      ]
+    }
+  ],
+  "integration_tasks": [
+    {
+      "task_id": "integrate-pr-363-state",
+      "title": "Keep PR #363 active worker state indexed while validator support lands.",
+      "status": "pending",
+      "owner_role": "bears-development-workflow-orchestrator",
+      "worker_state_refs": [
+        "runtime/agent-workflow/agent-workflow-dirty-triage/workers/worker-pr-363/worker-state.v1.json"
+      ],
+      "depends_on": [],
+      "required_packet_refs": [
+        {
+          "kind": "worker_state",
+          "ref": "worker-state:worker-pr-363",
+          "source": "metadata_only",
+          "path": "runtime/agent-workflow/agent-workflow-dirty-triage/workers/worker-pr-363/worker-state.v1.json",
+          "digest": "not_recorded",
+          "requires_network": false,
+          "note": "Root index points to the per-worker state file."
+        }
+      ],
+      "validation_evidence_refs": [
+        {
+          "kind": "validation_evidence",
+          "ref": "validation:workflow-state-schema:json-parse",
+          "source": "fixture",
+          "path": "tests/fixtures/development_workflow/positive/workflow-state.json",
+          "digest": "pending",
+          "requires_network": false,
+          "note": "Local JSON/schema validation covers the aggregate fixture."
+        }
+      ]
+    }
+  ],
+  "cleanup_plan": {
+    "default_policy": "protect_until_owner_and_closeout_are_known",
+    "protected_items": [
+      "dirty-pr-363-worktree"
+    ],
+    "candidate_items": [],
+    "actions": [
+      {
+        "action_id": "preserve-pr-363-worktree",
+        "item_id": "dirty-pr-363-worktree",
+        "action": "preserve",
+        "authority": "no_cleanup_until_resolved",
+        "status": "blocked",
+        "blocked_by": [
+          "open_pr",
+          "worker_closeout_missing",
+          "validation_evidence_missing"
+        ]
+      }
+    ]
+  },
+  "closeout_gates": {
+    "decision": "close_blocked",
+    "active_prs_preserved": true,
+    "protected_work_has_owner_evidence": true,
+    "restricted_data_risk_reviewed": true,
+    "validation_evidence_present": false,
+    "worker_closeouts_required": true,
+    "closeout_packet_refs": [],
+    "validation_evidence_refs": [
+      {
+        "kind": "validation_evidence",
+        "ref": "validation:worker-state-schema:json-parse",
+        "source": "fixture",
+        "path": "tests/fixtures/development_workflow/positive/worker-state.json",
+        "digest": "pending",
+        "requires_network": false,
+        "note": "Worker fixture validation is local-only."
+      }
+    ]
+  }
+}

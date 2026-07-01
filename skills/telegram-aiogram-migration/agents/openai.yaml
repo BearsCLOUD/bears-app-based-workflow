@@ -1,0 +1,4 @@
+interface:
+  display_name: "Telegram Aiogram Migration"
+  short_description: "Plan safe Aiogram bot migrations."
+  default_prompt: "Use $telegram-aiogram-migration to validate backlog coverage and prepare an Aiogram migration packet."

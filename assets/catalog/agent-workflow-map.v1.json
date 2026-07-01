@@ -1,0 +1,805 @@
+{
+  "schema_version": "1.0",
+  "workflow_id": "codex-plugin-agent-workflow",
+  "authority": {
+    "primary_executable_process_authority": "assets/catalog/agent-workflow-map.v1.json",
+    "authority_scope": "Bears workflow plugin lifecycle order, transitions, review gates, state bindings, dirty triage, and subagent execution shape.",
+    "non_authority_surfaces": [
+      "docs/reference/agent-workflow-map.md",
+      "README.md",
+      ".codex-plugin/plugin.json"
+    ]
+  },
+  "canonical_order": [
+    "route_gate",
+    "constitution_gate",
+    "research_gate",
+    "prototype_gate",
+    "design_gate",
+    "spec_kit_gate",
+    "role_gate",
+    "subagent_execution",
+    "validation",
+    "global_review",
+    "stage_boundary_audit",
+    "closeout",
+    "merge_ready",
+    "cleanup"
+  ],
+  "process_graph": {
+    "spine": [
+      "route_gate",
+      "constitution_gate",
+      "research_gate",
+      "prototype_gate",
+      "design_gate",
+      "spec_kit_gate",
+      "role_gate",
+      "subagent_execution",
+      "validation",
+      "global_review",
+      "stage_boundary_audit",
+      "closeout",
+      "merge_ready",
+      "cleanup"
+    ],
+    "loop_edges": [
+      {
+        "from": "global_review",
+        "through": [
+          "fix_wave"
+        ],
+        "to": "validation",
+        "condition": "global_review_result requires fixes"
+      }
+    ],
+    "blocking_gates": [
+      "closeout",
+      "merge_ready",
+      "cleanup"
+    ],
+    "non_blocking_intermediate_stages": [
+      "route_gate",
+      "constitution_gate",
+      "research_gate",
+      "prototype_gate",
+      "design_gate",
+      "spec_kit_gate",
+      "role_gate",
+      "subagent_execution",
+      "validation",
+      "global_review",
+      "stage_boundary_audit",
+      "fix_wave"
+    ],
+    "edges": [
+      {
+        "from": "route_gate",
+        "to": "constitution_gate"
+      },
+      {
+        "from": "constitution_gate",
+        "to": "research_gate"
+      },
+      {
+        "from": "research_gate",
+        "to": "prototype_gate"
+      },
+      {
+        "from": "prototype_gate",
+        "to": "design_gate"
+      },
+      {
+        "from": "design_gate",
+        "to": "spec_kit_gate"
+      },
+      {
+        "from": "spec_kit_gate",
+        "to": "role_gate"
+      },
+      {
+        "from": "role_gate",
+        "to": "subagent_execution"
+      },
+      {
+        "from": "subagent_execution",
+        "to": "validation"
+      },
+      {
+        "from": "validation",
+        "to": "global_review"
+      },
+      {
+        "from": "global_review",
+        "to": "stage_boundary_audit"
+      },
+      {
+        "from": "global_review",
+        "to": "fix_wave"
+      },
+      {
+        "from": "fix_wave",
+        "to": "validation"
+      },
+      {
+        "from": "stage_boundary_audit",
+        "to": "closeout"
+      },
+      {
+        "from": "closeout",
+        "to": "merge_ready"
+      },
+      {
+        "from": "merge_ready",
+        "to": "cleanup"
+      }
+    ]
+  },
+  "stages": {
+    "route_gate": {
+      "purpose": "Select exact path, repository, owner, registry entry, and candidate role.",
+      "required_inputs": [
+        "task_context",
+        "target_path"
+      ],
+      "required_outputs": [
+        "route_decision"
+      ],
+      "allowed_next": [
+        "constitution_gate"
+      ],
+      "blocking": false,
+      "evidence_required": true
+    },
+    "constitution_gate": {
+      "purpose": "Check plugin constitution before research and implementation.",
+      "required_inputs": [
+        "plugin-constitution.v1.json",
+        "route_decision"
+      ],
+      "required_outputs": [
+        "constitution_decision"
+      ],
+      "allowed_next": [
+        "research_gate"
+      ],
+      "blocking": false,
+      "evidence_required": true
+    },
+    "research_gate": {
+      "purpose": "Capture prior art, best practices, and interface constraints when required.",
+      "required_inputs": [
+        "constitution_decision"
+      ],
+      "required_outputs": [
+        "research_evidence"
+      ],
+      "allowed_next": [
+        "prototype_gate"
+      ],
+      "blocking": false,
+      "evidence_required": true
+    },
+    "prototype_gate": {
+      "purpose": "Capture tested interaction or runtime shape for behavior path changes.",
+      "required_inputs": [
+        "research_evidence"
+      ],
+      "required_outputs": [
+        "prototype_evidence"
+      ],
+      "allowed_next": [
+        "design_gate"
+      ],
+      "blocking": false,
+      "evidence_required": true
+    },
+    "design_gate": {
+      "purpose": "Produce deterministic design artifact before Spec Kit planning.",
+      "required_inputs": [
+        "prototype_evidence"
+      ],
+      "required_outputs": [
+        "design_artifact"
+      ],
+      "allowed_next": [
+        "spec_kit_gate"
+      ],
+      "blocking": false,
+      "evidence_required": true
+    },
+    "spec_kit_gate": {
+      "purpose": "Require spec, plan, tasks, and analyze PASS before mutation.",
+      "required_inputs": [
+        "design_artifact"
+      ],
+      "required_outputs": [
+        "spec_kit_pass"
+      ],
+      "allowed_next": [
+        "role_gate"
+      ],
+      "blocking": false,
+      "evidence_required": true
+    },
+    "role_gate": {
+      "purpose": "Prove task scope matches exactly one primary specialist or helper role.",
+      "required_inputs": [
+        "tasks",
+        "platform-role-catalog.v1.json"
+      ],
+      "required_outputs": [
+        "role_assignment"
+      ],
+      "allowed_next": [
+        "subagent_execution"
+      ],
+      "blocking": false,
+      "evidence_required": true
+    },
+    "subagent_execution": {
+      "purpose": "Run assigned agent roles under the orchestration policy.",
+      "required_inputs": [
+        "role_assignment",
+        "task_contract"
+      ],
+      "required_outputs": [
+        "agent_outputs",
+        "execution_evidence"
+      ],
+      "allowed_next": [
+        "validation"
+      ],
+      "blocking": false,
+      "evidence_required": true
+    },
+    "validation": {
+      "purpose": "Run validators, tests, or E2E checks tied to changed surfaces.",
+      "required_inputs": [
+        "agent_outputs",
+        "execution_evidence"
+      ],
+      "required_outputs": [
+        "validation_evidence"
+      ],
+      "allowed_next": [
+        "global_review"
+      ],
+      "blocking": false,
+      "evidence_required": true
+    },
+    "global_review": {
+      "purpose": "Review integrated evidence once before closeout and merge-ready.",
+      "required_inputs": [
+        "validation_evidence",
+        "dirty_triage_status"
+      ],
+      "required_outputs": [
+        "global_review_result"
+      ],
+      "allowed_next": [
+        "stage_boundary_audit",
+        "fix_wave"
+      ],
+      "blocking": false,
+      "evidence_required": true
+    },
+    "stage_boundary_audit": {
+      "purpose": "Record route, Spec Kit, role, validation, docs, and restricted-data status at the stage boundary.",
+      "required_inputs": [
+        "global_review_result"
+      ],
+      "required_outputs": [
+        "stage_boundary_audit"
+      ],
+      "allowed_next": [
+        "closeout"
+      ],
+      "blocking": false,
+      "evidence_required": true
+    },
+    "closeout": {
+      "purpose": "Close the workflow only after evidence, global review, and dirty triage are resolved.",
+      "required_inputs": [
+        "stage_boundary_audit",
+        "global_review_result"
+      ],
+      "required_outputs": [
+        "closeout_packet"
+      ],
+      "allowed_next": [
+        "merge_ready"
+      ],
+      "blocking": true,
+      "evidence_required": true
+    },
+    "merge_ready": {
+      "purpose": "Mark merge-ready only after closeout, global review, and validation evidence are present.",
+      "required_inputs": [
+        "closeout_packet",
+        "global_review_result"
+      ],
+      "required_outputs": [
+        "merge_ready_packet"
+      ],
+      "allowed_next": [
+        "cleanup"
+      ],
+      "blocking": true,
+      "evidence_required": true
+    },
+    "cleanup": {
+      "purpose": "Remove obsolete or unsafe dirty work only after merge-ready or explicit cleanup decision.",
+      "required_inputs": [
+        "merge_ready_packet",
+        "dirty_triage_status"
+      ],
+      "required_outputs": [
+        "cleanup_packet"
+      ],
+      "allowed_next": [],
+      "blocking": true,
+      "evidence_required": true
+    },
+    "fix_wave": {
+      "purpose": "Apply assigned fixes from global review and return to validation.",
+      "required_inputs": [
+        "global_review_result",
+        "fix_assignment"
+      ],
+      "required_outputs": [
+        "fix_wave_output"
+      ],
+      "allowed_next": [
+        "validation"
+      ],
+      "blocking": false,
+      "evidence_required": true
+    }
+  },
+  "subagent_execution_tree": {
+    "root_orchestrator": "bears-development-workflow-orchestrator",
+    "domain_orchestrators": [
+      {
+        "domain": "workflow_catalog",
+        "role": "bears-development-workflow-orchestrator",
+        "scope": [
+          "assets/catalog/agent-workflow-map.v1.json"
+        ]
+      },
+      {
+        "domain": "workflow_schema",
+        "role": "bears-development-workflow-orchestrator",
+        "scope": [
+          "assets/schemas/agent-workflow-map.v1.schema.json"
+        ]
+      },
+      {
+        "domain": "workflow_reference",
+        "role": "bears-development-workflow-orchestrator",
+        "scope": [
+          "docs/reference/agent-workflow-map.md",
+          "README.md",
+          ".codex-plugin/plugin.json"
+        ]
+      },
+      {
+        "domain": "workflow_validation",
+        "role": "bears-development-workflow-orchestrator",
+        "scope": [
+          "scripts/agent_workflow_map.py",
+          "tests/test_agent_workflow_map.py"
+        ]
+      }
+    ],
+    "worker_waves": [
+      {
+        "wave": "map_authority_wave",
+        "stage": "subagent_execution",
+        "parallel_group": "map_contract_group",
+        "required_closeout": [
+          "catalog_update",
+          "schema_update"
+        ]
+      },
+      {
+        "wave": "reference_sync_wave",
+        "stage": "subagent_execution",
+        "parallel_group": "reference_group",
+        "required_closeout": [
+          "reference_doc_update",
+          "inventory_sync_if_needed"
+        ]
+      },
+      {
+        "wave": "validator_wave",
+        "stage": "validation",
+        "parallel_group": "validator_group",
+        "required_closeout": [
+          "validator_result",
+          "unit_test_result"
+        ]
+      },
+      {
+        "wave": "fix_wave",
+        "stage": "fix_wave",
+        "parallel_group": "fix_group",
+        "required_closeout": [
+          "fix_output",
+          "rerun_validation"
+        ]
+      }
+    ],
+    "parallel_groups": {
+      "map_contract_group": [
+        "workflow_catalog",
+        "workflow_schema"
+      ],
+      "reference_group": [
+        "workflow_reference"
+      ],
+      "validator_group": [
+        "workflow_validation"
+      ],
+      "fix_group": [
+        "assigned_fix_workers"
+      ]
+    }
+  },
+  "review_policy": {
+    "intermediate_review_blockers": false,
+    "global_review_required_before": [
+      "closeout",
+      "merge_ready"
+    ],
+    "blocking_gates": [
+      "closeout",
+      "merge_ready",
+      "cleanup"
+    ],
+    "global_review": {
+      "stage": "global_review",
+      "required_inputs": [
+        "validation_evidence",
+        "dirty_triage_status"
+      ],
+      "allowed_results": [
+        "accept",
+        "fix_required",
+        "unsafe_dirty_blocker"
+      ],
+      "fix_required_next": "fix_wave"
+    },
+    "orchestrator_policy": "Intermediate stages record evidence and continue; only closeout, merge_ready, and cleanup block on missing or unsafe evidence."
+  },
+  "state_bindings": {
+    "route_gate": {
+      "packet_kind": "route-decision",
+      "workflow_state_section": "workflow_state.route"
+    },
+    "constitution_gate": {
+      "packet_kind": "constitution-decision",
+      "workflow_state_section": "workflow_state.constitution"
+    },
+    "research_gate": {
+      "packet_kind": "research-evidence",
+      "workflow_state_section": "workflow_state.research"
+    },
+    "prototype_gate": {
+      "packet_kind": "prototype-evidence",
+      "workflow_state_section": "workflow_state.prototype"
+    },
+    "design_gate": {
+      "packet_kind": "design-artifact",
+      "workflow_state_section": "workflow_state.design"
+    },
+    "spec_kit_gate": {
+      "packet_kind": "spec-kit-status",
+      "workflow_state_section": "workflow_state.spec_kit"
+    },
+    "role_gate": {
+      "packet_kind": "role-coverage",
+      "workflow_state_section": "workflow_state.role_gate"
+    },
+    "subagent_execution": {
+      "packet_kind": "subagent-assignment-status",
+      "workflow_state_section": "workflow_state.execution"
+    },
+    "validation": {
+      "packet_kind": "validation-evidence",
+      "workflow_state_section": "workflow_state.validation"
+    },
+    "global_review": {
+      "packet_kind": "global-review-result",
+      "workflow_state_section": "workflow_state.review"
+    },
+    "fix_wave": {
+      "packet_kind": "fix-wave-output",
+      "workflow_state_section": "workflow_state.fix_wave"
+    },
+    "stage_boundary_audit": {
+      "packet_kind": "stage-boundary-audit",
+      "workflow_state_section": "workflow_state.stage_boundary"
+    },
+    "closeout": {
+      "packet_kind": "closeout-packet",
+      "workflow_state_section": "workflow_state.closeout"
+    },
+    "merge_ready": {
+      "packet_kind": "merge-ready-packet",
+      "workflow_state_section": "workflow_state.merge_ready"
+    },
+    "cleanup": {
+      "packet_kind": "cleanup-packet",
+      "workflow_state_section": "workflow_state.cleanup"
+    }
+  },
+  "dirty_triage_policy": {
+    "blocking_gates": [
+      "closeout",
+      "merge_ready",
+      "cleanup"
+    ],
+    "states": {
+      "active_parallel_agent": {
+        "meaning": "A parallel worker still owns the dirty files.",
+        "actions": [
+          "track_owner",
+          "preserve_scope",
+          "wait_for_closeout",
+          "integrate_evidence"
+        ],
+        "gate_effect": "does_not_block_intermediate_stages"
+      },
+      "completed_needs_integration": {
+        "meaning": "A worker completed and its files need integration.",
+        "actions": [
+          "review_changed_paths",
+          "integrate_claims",
+          "run_validation",
+          "record_state_update"
+        ],
+        "gate_effect": "blocks_closeout_until_integrated"
+      },
+      "abandoned_needs_review": {
+        "meaning": "A worker stopped with dirty files that still need review.",
+        "actions": [
+          "freeze_scope",
+          "review_changed_paths",
+          "classify_value",
+          "record_state_update"
+        ],
+        "gate_effect": "blocks_cleanup_until_classified"
+      },
+      "useful_abandoned_code": {
+        "meaning": "Abandoned files contain usable work.",
+        "actions": [
+          "assign_fix_owner",
+          "move_to_fix_wave",
+          "validate_after_fix",
+          "record_state_update"
+        ],
+        "gate_effect": "blocks_merge_ready_until_validated_or_removed"
+      },
+      "obsolete_cleanup_candidate": {
+        "meaning": "Dirty files have no retained workflow value.",
+        "actions": [
+          "mark_cleanup_candidate",
+          "wait_for_global_review",
+          "cleanup_after_gate",
+          "record_state_update"
+        ],
+        "gate_effect": "blocks_cleanup_until_reviewed"
+      },
+      "unsafe_dirty_blocker": {
+        "meaning": "Dirty files may widen authority, expose restricted data, or corrupt workflow state.",
+        "actions": [
+          "stop_affected_scope",
+          "isolate_files",
+          "request_operator_review",
+          "block_closeout_merge_ready_cleanup"
+        ],
+        "gate_effect": "blocks_closeout_merge_ready_cleanup"
+      }
+    }
+  },
+  "worker_state_policy": {
+    "global_workflow_state_role": "index_and_aggregate_only",
+    "worker_state_path_template": "runtime/agent-workflow/<goal_id>/workers/<worker_id>/worker-state.v1.json",
+    "worker_write_scope": "A worker writes only its own worker-state.v1.json file.",
+    "shared_aggregate_write_policy": "Workers must not write workflow-state directly; the aggregator refresh writes the shared aggregate from worker files.",
+    "required_worker_file_fields": [
+      "goal_id",
+      "worker_id",
+      "assigned_scope",
+      "scope_lock",
+      "current_stage",
+      "status",
+      "heartbeat_at",
+      "changed_paths",
+      "validation_evidence",
+      "integration_status"
+    ],
+    "contention_policy": "Per-worker files avoid shared-file write collisions because concurrent workers never write the same workflow-state aggregate.",
+    "orchestrator_non_blocking_policy": "Intermediate stages continue from worker heartbeats and aggregate index status; only closeout, merge_ready, and cleanup require resolved worker integration state.",
+    "blocking_gates": [
+      "closeout",
+      "merge_ready",
+      "cleanup"
+    ]
+  },
+  "hook_automation_policy": {
+    "status": "disabled_without_trust_proof",
+    "scope": "local_only",
+    "runtime_hook_registration": "not_changed_by_this_map",
+    "trust_gate": {
+      "required_proof": [
+        "hook_trust",
+        "effective_hooks"
+      ],
+      "default": "disabled",
+      "enforcement": "Hooks may run only after local hook trust and effective-hooks proof exists."
+    },
+    "hooks": {
+      "pre_task": {
+        "writes": [
+          "worker_state_file"
+        ],
+        "reads": [
+          "assignment_packet"
+        ],
+        "actions": [
+          "create_or_validate_worker_state",
+          "create_or_validate_scope_lock"
+        ],
+        "forbidden_writes": [
+          "workflow_state_aggregate"
+        ]
+      },
+      "heartbeat": {
+        "writes": [
+          "worker_state_file"
+        ],
+        "reads": [
+          "worker_state_file"
+        ],
+        "actions": [
+          "update_heartbeat",
+          "update_current_stage",
+          "update_status"
+        ],
+        "forbidden_writes": [
+          "workflow_state_aggregate",
+          "other_worker_state_files"
+        ]
+      },
+      "closeout": {
+        "writes": [
+          "worker_state_file"
+        ],
+        "reads": [
+          "worker_state_file",
+          "validation_evidence"
+        ],
+        "actions": [
+          "record_worker_closeout",
+          "record_validation_evidence",
+          "mark_integration_needed"
+        ],
+        "forbidden_writes": [
+          "workflow_state_aggregate"
+        ]
+      },
+      "aggregator_index_refresh": {
+        "writes": [
+          "workflow_state_aggregate"
+        ],
+        "reads": [
+          "worker_state_files"
+        ],
+        "actions": [
+          "read_worker_files",
+          "refresh_workflow_state_index",
+          "refresh_workflow_state_aggregate"
+        ],
+        "forbidden_writes": [
+          "worker_state_files"
+        ]
+      }
+    },
+    "contention_policy": "Workers write separate state files; the single aggregate refresh reads worker files and updates workflow-state without worker writes to the shared aggregate.",
+    "orchestrator_non_blocking_policy": "Hook automation records progress locally and refreshes an index, so intermediate stages do not wait on shared-state locks.",
+    "blocking_gates": [
+      "closeout",
+      "merge_ready",
+      "cleanup"
+    ]
+  },
+  "roles": {
+    "bears-development-workflow-orchestrator": {
+      "may_run_at": [
+        "route_gate",
+        "constitution_gate",
+        "research_gate",
+        "prototype_gate",
+        "design_gate",
+        "spec_kit_gate",
+        "role_gate",
+        "subagent_execution",
+        "validation",
+        "global_review",
+        "stage_boundary_audit",
+        "closeout",
+        "merge_ready",
+        "cleanup",
+        "fix_wave"
+      ],
+      "must_not_run_at": [],
+      "required_evidence": [
+        "user_agreement",
+        "workspace_bootstrap",
+        "task_graph",
+        "stage_boundary_audit"
+      ]
+    },
+    "domain_orchestrator": {
+      "may_run_at": [
+        "subagent_execution",
+        "validation",
+        "fix_wave"
+      ],
+      "must_not_run_at": [
+        "merge_ready",
+        "cleanup"
+      ],
+      "required_evidence": [
+        "domain_assignment",
+        "worker_closeout",
+        "review_request"
+      ]
+    },
+    "worker": {
+      "may_run_at": [
+        "subagent_execution",
+        "fix_wave"
+      ],
+      "must_not_run_at": [
+        "global_review",
+        "closeout",
+        "merge_ready",
+        "cleanup"
+      ],
+      "required_evidence": [
+        "assignment_packet",
+        "changed_paths",
+        "validation_target"
+      ]
+    },
+    "critic": {
+      "may_run_at": [
+        "validation",
+        "global_review",
+        "stage_boundary_audit"
+      ],
+      "must_not_run_at": [
+        "subagent_execution",
+        "fix_wave"
+      ],
+      "required_evidence": [
+        "checked_claims",
+        "rejected_claims"
+      ]
+    }
+  },
+  "invariants": [
+    "agent-workflow-map.v1.json is the primary executable process authority",
+    "constitution_gate must appear after route_gate and before research_gate",
+    "spec_kit_gate must not run before design_gate",
+    "validation must require evidence-bearing outputs",
+    "global_review must run before closeout and merge_ready",
+    "fix_wave must return to validation",
+    "only closeout, merge_ready, and cleanup are blocking gates",
+    "domain_orchestrator must not merge"
+  ],
+  "generated_mermaid": "flowchart TD\n  route_gate --> constitution_gate\n  constitution_gate --> research_gate\n  research_gate --> prototype_gate\n  prototype_gate --> design_gate\n  design_gate --> spec_kit_gate\n  spec_kit_gate --> role_gate\n  role_gate --> subagent_execution\n  subagent_execution --> validation\n  validation --> global_review\n  global_review --> stage_boundary_audit\n  stage_boundary_audit --> closeout\n  closeout --> merge_ready\n  merge_ready --> cleanup\n  global_review --> fix_wave\n  fix_wave --> validation"
+}

@@ -1,0 +1,6 @@
+{
+  "decision": "auto_close",
+  "reason": "stub schema validator passed and fixture marks auto_close",
+  "scenario_id": "l2_schema_only_stub_patch_auto_close",
+  "schema_version": "bears-closeout-decision.v1"
+}

@@ -1,0 +1,107 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "test-selection.v1",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "policy",
+    "slow_tests",
+    "always_fast_tests",
+    "mappings"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "test-selection.v1"
+    },
+    "policy": {
+      "type": "object",
+      "required": [
+        "fast_gate",
+        "slow_gate",
+        "full_suite",
+        "unknown_path"
+      ],
+      "properties": {
+        "fast_gate": {
+          "type": "string",
+          "minLength": 1
+        },
+        "slow_gate": {
+          "type": "string",
+          "minLength": 1
+        },
+        "full_suite": {
+          "type": "string",
+          "minLength": 1
+        },
+        "unknown_path": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "additionalProperties": false
+    },
+    "slow_tests": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^tests/test_.*\\.py$"
+      },
+      "uniqueItems": true
+    },
+    "always_fast_tests": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^tests/test_.*\\.py$"
+      },
+      "uniqueItems": true
+    },
+    "mappings": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "name",
+          "patterns",
+          "tests"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "patterns": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "uniqueItems": true
+          },
+          "tests": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "uniqueItems": true
+          },
+          "fast_required_tests": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "uniqueItems": true
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

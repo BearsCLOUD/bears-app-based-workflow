@@ -1,0 +1,310 @@
+{
+  "schema": "bears-ci-requirements.v1",
+  "version": "1",
+  "owner_plugin": "bears",
+  "purpose": "Operator-only GitHub diagnostics for Bears plugin runtime changes. Local commit validation is automatic through pre-commit and post-commit hooks and is plugin closeout authority.",
+  "trigger_policy": {
+    "automatic_on_pull_request": false,
+    "agent_manual_ci_dispatch_allowed": false,
+    "allowed_events": [
+      "workflow_dispatch"
+    ],
+    "push_branches": [],
+    "forbidden_agent_commands": [
+      "gh workflow run",
+      "gh run rerun",
+      "repository_dispatch",
+      "/dispatches"
+    ],
+    "changed_path_diff_policy": {
+      "local_post_commit": "HEAD^..HEAD",
+      "reason": "The local git pre-commit hook validates staged changes before commit; the post-commit hook validates the exact committed diff before plugin cache sync and closeout. GitHub workflow_dispatch is operator-only diagnostics."
+    },
+    "operator_emergency_dispatch_allowed": true,
+    "automatic_local_on_commit": true,
+    "automatic_github_on_commit": false,
+    "local_commit_hook": "post-commit",
+    "local_commit_hook_command": "python3 scripts/local_commit_validation.py install-hook",
+    "local_commit_hooks": [
+      "pre-commit",
+      "post-commit"
+    ],
+    "blocking_local_commit_hook": "pre-commit",
+    "proof_local_commit_hook": "post-commit"
+  },
+  "parallel_jobs": [
+    "changes",
+    "schema-catalog-validation",
+    "hook-policy-validation",
+    "role-workflow-validation",
+    "skill-inventory-validation",
+    "dirty-boundary-validation",
+    "ci-summary"
+  ],
+  "path_policy": {
+    "hooks_changed_runs": [
+      "hook-policy-validation"
+    ],
+    "schemas_or_catalogs_changed_runs": [
+      "schema-catalog-validation",
+      "role-workflow-validation"
+    ],
+    "skills_changed_runs": [
+      "skill-inventory-validation"
+    ],
+    "workflow_core_changed_runs": [
+      "schema-catalog-validation",
+      "role-workflow-validation",
+      "skill-inventory-validation",
+      "dirty-boundary-validation"
+    ],
+    "dirty_boundary_changed_runs": [
+      "dirty-boundary-validation"
+    ],
+    "docs_only_skips_automatic_tests": true
+  },
+  "test_policy": {
+    "single_runner": "local_commit_validation",
+    "forbidden_duplicate_runners": [
+      "python3 -m unittest discover -s tests",
+      "python3 -m pytest -q tests"
+    ],
+    "fast_command": "python3 scripts/local_commit_validation.py run --commit-sha HEAD",
+    "fast_timeout_minutes": 12,
+    "fast_target_minutes": 5,
+    "warning_after_minutes": 8,
+    "required_categories": [
+      "fast",
+      "integration",
+      "slow"
+    ],
+    "new_test_requires_catalog_or_marker": true,
+    "test_files": [
+      {
+        "path": "tests/test_agent_action_ledger.py",
+        "category": "fast"
+      },
+      {
+        "path": "tests/test_agent_github_dev_cd.py",
+        "category": "fast"
+      },
+      {
+        "path": "tests/test_agent_registration_sync.py",
+        "category": "fast"
+      },
+      {
+        "path": "tests/test_agent_workflow_map.py",
+        "category": "fast"
+      },
+      {
+        "path": "tests/test_agentic_enterprise_workflow.py",
+        "category": "fast"
+      },
+      {
+        "path": "tests/test_auth_gateway_deploy_readiness.py",
+        "category": "fast"
+      },
+      {
+        "path": "tests/test_capability_agent_registration.py",
+        "category": "fast"
+      },
+      {
+        "path": "tests/test_capability_effective_config.py",
+        "category": "fast"
+      },
+      {
+        "path": "tests/test_capability_environment_packets.py",
+        "category": "fast"
+      },
+      {
+        "path": "tests/test_capability_hook_claims.py",
+        "category": "fast"
+      },
+      {
+        "path": "tests/test_capability_layout.py",
+        "category": "fast"
+      },
+      {
+        "path": "tests/test_capability_offload_surfaces.py",
+        "category": "fast"
+      },
+      {
+        "path": "tests/test_capability_optimization_lanes.py",
+        "category": "fast"
+      },
+      {
+        "path": "tests/test_capability_performance_lanes.py",
+        "category": "fast"
+      },
+      {
+        "path": "tests/test_capability_programmatic_surfaces.py",
+        "category": "fast"
+      },
+      {
+        "path": "tests/test_capability_refactor_gate.py",
+        "category": "fast"
+      },
+      {
+        "path": "tests/test_capability_restricted_data.py",
+        "category": "fast"
+      },
+      {
+        "path": "tests/test_capability_reviewer_lanes.py",
+        "category": "fast"
+      },
+      {
+        "path": "tests/test_capability_rule_coverage.py",
+        "category": "fast"
+      },
+      {
+        "path": "tests/test_development_workflow_validate.py",
+        "category": "fast"
+      },
+      {
+        "path": "tests/test_function_test_loader.py",
+        "category": "fast"
+      },
+      {
+        "path": "tests/test_git_discipline.py",
+        "category": "fast"
+      },
+      {
+        "path": "tests/test_local_commit_validation.py",
+        "category": "fast"
+      },
+      {
+        "path": "tests/test_platform_role_gate_action.py",
+        "category": "fast"
+      },
+      {
+        "path": "tests/test_platform_roles.py",
+        "category": "fast"
+      },
+      {
+        "path": "tests/test_plugin_cache_sync.py",
+        "category": "fast"
+      },
+      {
+        "path": "tests/test_plugin_constitution.py",
+        "category": "fast"
+      },
+      {
+        "path": "tests/test_plugin_manifests.py",
+        "category": "fast"
+      },
+      {
+        "path": "tests/test_plugin_marketplace.py",
+        "category": "fast"
+      },
+      {
+        "path": "tests/test_plugin_validation_scripts.py",
+        "category": "fast"
+      },
+      {
+        "path": "tests/test_pr_pipeline.py",
+        "category": "fast"
+      },
+      {
+        "path": "tests/test_project_dirty_baseline.py",
+        "category": "fast"
+      },
+      {
+        "path": "tests/test_project_registry_gate.py",
+        "category": "fast"
+      },
+      {
+        "path": "tests/test_roadmap_control.py",
+        "category": "fast"
+      },
+      {
+        "path": "tests/test_role_gate_methodology.py",
+        "category": "fast"
+      },
+      {
+        "path": "tests/test_secret_factory.py",
+        "category": "fast"
+      },
+      {
+        "path": "tests/test_session_workers_runtime.py",
+        "category": "fast"
+      },
+      {
+        "path": "tests/test_skill_catalog.py",
+        "category": "fast"
+      },
+      {
+        "path": "tests/test_spec_governance_packets.py",
+        "category": "fast"
+      },
+      {
+        "path": "tests/test_subagent_orchestration_policy.py",
+        "category": "fast"
+      },
+      {
+        "path": "tests/test_tech_debt_matrix.py",
+        "category": "fast"
+      },
+      {
+        "path": "tests/test_telegram_catalog.py",
+        "category": "fast"
+      },
+      {
+        "path": "tests/test_telegram_runtime_readiness.py",
+        "category": "fast"
+      },
+      {
+        "path": "tests/test_telegram_skill_factory_policy.py",
+        "category": "fast"
+      },
+      {
+        "path": "tests/test_telegram_surface_inventory.py",
+        "category": "fast"
+      },
+      {
+        "path": "tests/test_test_selection.py",
+        "category": "fast"
+      },
+      {
+        "path": "tests/test_validate_overlay.py",
+        "category": "fast"
+      },
+      {
+        "path": "tests/test_worker_pool.py",
+        "category": "fast"
+      },
+      {
+        "path": "tests/test_workflow_governance_docs.py",
+        "category": "fast"
+      },
+      {
+        "path": "tests/test_yandex360_dns_setup.py",
+        "category": "fast"
+      }
+    ],
+    "selector_runner": "test_selection",
+    "impacted_fast_test_command": "python3 scripts/test_selection.py run --tier fast",
+    "local_hook_command": "python3 scripts/local_commit_validation.py install-hook",
+    "blocking_command": "python3 scripts/local_commit_validation.py run --staged"
+  },
+  "cd_gate": {
+    "runtime_apply_requires_degradation_continue": true,
+    "delivery_branch": "main",
+    "closeout_requires_cache_sync_done": true,
+    "closeout_requires_effective_hooks_proof": true,
+    "cache_sync_state_file": "runtime/plugin-cache-sync/plugin-cache-sync-state.v1.json",
+    "cache_sync_script": "scripts/plugin_cache_sync.py",
+    "diagnostic_summary_job": "ci-summary",
+    "runtime_apply_requires_exact_commit_local_validation_pass": true,
+    "local_validation_fail_creates_workflow_defect": true,
+    "cache_sync_requires_exact_commit_local_validation_pass": true,
+    "local_validation_proof_file": "runtime/local-commit-validation/<main_sha>.json",
+    "github_diagnostics_automatic_on_push": false,
+    "local_commit_hook": "post-commit",
+    "local_commit_hooks": [
+      "pre-commit",
+      "post-commit"
+    ],
+    "blocking_local_commit_hook": "pre-commit",
+    "proof_local_commit_hook": "post-commit"
+  }
+}

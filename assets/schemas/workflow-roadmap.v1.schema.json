@@ -1,0 +1,283 @@
+{
+  "$defs": {
+    "agent_role": {
+      "additionalProperties": false,
+      "properties": {
+        "authority": {
+          "minLength": 3,
+          "type": "string"
+        },
+        "role_id": {
+          "enum": [
+            "roadmap_researcher",
+            "roadmap_curator",
+            "roadmap_decomposer",
+            "roadmap_executor",
+            "roadmap_reconciler"
+          ]
+        }
+      },
+      "required": [
+        "role_id",
+        "authority"
+      ],
+      "type": "object"
+    },
+    "autostart_policy": {
+      "enum": [
+        "disabled",
+        "eligible",
+        "manual_review"
+      ]
+    },
+    "node": {
+      "additionalProperties": false,
+      "properties": {
+        "autostart_policy": {
+          "$ref": "#/$defs/autostart_policy"
+        },
+        "blocked_by": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "decomposes_to": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "depends_on": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "evidence_paths": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "inputs": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "issue": {
+          "pattern": "^(#[0-9]+|null)$",
+          "type": "string"
+        },
+        "node_id": {
+          "minLength": 3,
+          "pattern": "^[a-z0-9][a-z0-9._-]*$",
+          "type": "string"
+        },
+        "node_type": {
+          "$ref": "#/$defs/node_type"
+        },
+        "outputs": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "owner_role": {
+          "minLength": 3,
+          "type": "string"
+        },
+        "resource_conflict_status": {
+          "$ref": "#/$defs/resource_conflict_status"
+        },
+        "source_of_truth": {
+          "items": {
+            "$ref": "#/$defs/source"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "state": {
+          "$ref": "#/$defs/state"
+        }
+      },
+      "required": [
+        "node_id",
+        "issue",
+        "node_type",
+        "state",
+        "owner_role",
+        "source_of_truth",
+        "inputs",
+        "outputs",
+        "depends_on",
+        "decomposes_to",
+        "blocked_by",
+        "autostart_policy",
+        "evidence_paths"
+      ],
+      "type": "object"
+    },
+    "node_type": {
+      "enum": [
+        "research",
+        "contract",
+        "implementation",
+        "validator",
+        "migration",
+        "cleanup",
+        "closeout"
+      ]
+    },
+    "resource_conflict_status": {
+      "additionalProperties": false,
+      "properties": {
+        "active_elsewhere": {
+          "type": "boolean"
+        },
+        "approval_refs": {
+          "items": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "checked_ref": {
+          "minLength": 3,
+          "type": "string"
+        },
+        "evidence_refs": {
+          "items": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "gate_refs": {
+          "items": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "mode": {
+          "enum": [
+            "none",
+            "shared",
+            "exclusive"
+          ]
+        },
+        "status": {
+          "enum": [
+            "allow",
+            "blocked",
+            "stale"
+          ]
+        }
+      },
+      "required": [
+        "status",
+        "mode",
+        "checked_ref",
+        "gate_refs",
+        "active_elsewhere"
+      ],
+      "type": "object"
+    },
+    "source": {
+      "enum": [
+        "github_issue",
+        "catalog",
+        "schema",
+        "runtime_finding"
+      ]
+    },
+    "state": {
+      "enum": [
+        "idea",
+        "researched",
+        "contracted",
+        "decomposed",
+        "queued",
+        "running",
+        "validated",
+        "closed",
+        "blocked",
+        "manual_review"
+      ]
+    }
+  },
+  "$id": "https://bears.local/schemas/workflow-roadmap.v1.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "agent_roles": {
+      "items": {
+        "$ref": "#/$defs/agent_role"
+      },
+      "minItems": 5,
+      "type": "array"
+    },
+    "commands": {
+      "items": {
+        "minLength": 3,
+        "type": "string"
+      },
+      "minItems": 5,
+      "type": "array"
+    },
+    "delivery_id": {
+      "minLength": 3,
+      "type": "string"
+    },
+    "node_type_model": {
+      "items": {
+        "$ref": "#/$defs/node_type"
+      },
+      "minItems": 7,
+      "type": "array"
+    },
+    "nodes": {
+      "items": {
+        "$ref": "#/$defs/node"
+      },
+      "minItems": 1,
+      "type": "array"
+    },
+    "owner_role": {
+      "minLength": 3,
+      "type": "string"
+    },
+    "schema": {
+      "const": "bears-workflow-roadmap.v1"
+    },
+    "state_model": {
+      "items": {
+        "$ref": "#/$defs/state"
+      },
+      "minItems": 10,
+      "type": "array"
+    },
+    "updated": {
+      "type": "string"
+    },
+    "version": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "version",
+    "updated",
+    "delivery_id",
+    "owner_role",
+    "state_model",
+    "node_type_model",
+    "agent_roles",
+    "commands",
+    "nodes"
+  ],
+  "title": "Bears workflow roadmap graph",
+  "type": "object"
+}

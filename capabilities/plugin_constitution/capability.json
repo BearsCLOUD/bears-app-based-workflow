@@ -1,0 +1,70 @@
+{
+  "schema": "bears-plugin-capability.v1",
+  "id": "plugin-constitution",
+  "python_package": "plugin_constitution",
+  "version": "0.1.0",
+  "owner_role": "bears-plugin-constitution-governor",
+  "canonical_source_phase": "legacy",
+  "legacy_entrypoints": [
+    "python3 scripts/plugin_constitution.py validate"
+  ],
+  "compatibility_entrypoints": [
+    "python3 capabilities/plugin_constitution/scripts/validate.py --json"
+  ],
+  "validators": [
+    "python3 scripts/plugin_constitution.py validate",
+    "python3 capabilities/plugin_constitution/scripts/validate.py --json"
+  ],
+  "schemas": [
+    "capabilities/plugin_constitution/schemas/validation-result.schema.json"
+  ],
+  "fixtures": [
+    "capabilities/plugin_constitution/fixtures/pass/catalog.valid.json",
+    "capabilities/plugin_constitution/fixtures/fail/catalog.invalid.json"
+  ],
+  "tests": [
+    "capabilities/plugin_constitution/tests/test_validate.py"
+  ],
+  "allowed_actions": [
+    "read_checked_in_constitution_artifacts",
+    "run_legacy_constitution_validation",
+    "emit_deterministic_status"
+  ],
+  "forbidden_actions": [
+    "product_code_edit",
+    "runtime_mutation",
+    "deployment_mutation",
+    "app_connector_mcp_surface_change",
+    "secret_access",
+    "raw_log_read",
+    "raw_chat_read",
+    "raw_vpn_config_read",
+    "production_data_read",
+    "codex_environment_mutation"
+  ],
+  "forbidden_data": [
+    "secrets",
+    "tokens",
+    "private_keys",
+    "env_values",
+    "raw_logs",
+    "raw_chat",
+    "raw_vpn_configs",
+    "production_data",
+    "credentials",
+    "shell_history"
+  ],
+  "sanitized_evidence_schema": "bears-plugin-constitution-capability-validation.v1",
+  "context_budget": {
+    "hot_path_words": 120,
+    "fixture_bytes_max": 65536
+  },
+  "performance_claims": [],
+  "offload_surface_claims": [],
+  "programmatic_control_claims": [],
+  "cache_sync": {
+    "required": true,
+    "phase": "phase_1_dual"
+  },
+  "rollback": "remove capabilities/plugin_constitution and restore plugin-constitution inventory row to lifecycle_state=legacy"
+}

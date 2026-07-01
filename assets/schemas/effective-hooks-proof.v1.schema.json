@@ -1,0 +1,72 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://bears.local/schemas/effective-hooks-proof.v1.schema.json",
+  "title": "Bears effective git hooks proof",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "version",
+    "updated_at",
+    "status",
+    "workspace_root",
+    "repo_path",
+    "repo_id",
+    "plugin_reference",
+    "runner_script",
+    "hooks",
+    "runtime_paths",
+    "closeout_consumers"
+  ],
+  "properties": {
+    "schema": {"const": "bears-effective-hooks-proof.v1"},
+    "version": {"type": "string"},
+    "updated_at": {"type": "string", "minLength": 10},
+    "status": {"enum": ["pass", "fail"]},
+    "workspace_root": {"type": "string", "minLength": 1},
+    "repo_path": {"type": "string", "minLength": 1},
+    "repo_id": {"type": "string", "minLength": 1},
+    "plugin_reference": {"const": "@bears"},
+    "runner_script": {"type": "string", "minLength": 1},
+    "commit_sha": {"type": ["string", "null"]},
+    "hooks": {
+      "type": "array",
+      "minItems": 2,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "name",
+          "entrypoint_path",
+          "entrypoint_exists",
+          "entrypoint_executable",
+          "runner_match",
+          "mode"
+        ],
+        "properties": {
+          "name": {"enum": ["pre-commit", "post-commit"]},
+          "entrypoint_path": {"type": "string", "minLength": 1},
+          "entrypoint_exists": {"type": "boolean"},
+          "entrypoint_executable": {"type": "boolean"},
+          "runner_match": {"type": "boolean"},
+          "mode": {"enum": ["cheap_blocking_checks", "enqueue_validation"]}
+        }
+      }
+    },
+    "runtime_paths": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["effective_hooks", "validation_jobs", "validation_state"],
+      "properties": {
+        "effective_hooks": {"type": "string", "minLength": 1},
+        "validation_jobs": {"type": "string", "minLength": 1},
+        "validation_state": {"type": "string", "minLength": 1}
+      }
+    },
+    "closeout_consumers": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"type": "string", "minLength": 1}
+    }
+  }
+}

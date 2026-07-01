@@ -1,0 +1,43 @@
+{
+  "allowed_compact_state": [
+    "role_profile_id",
+    "context_ids",
+    "decision_ids",
+    "previous_result_packet_refs",
+    "usage_summary",
+    "last_validated_commit_or_ref"
+  ],
+  "commands": [
+    "python3 scripts/session_pool.py validate",
+    "python3 scripts/session_pool.py plan --file-plan <path> --json",
+    "python3 scripts/session_pool.py acquire --unit <path> --json",
+    "python3 scripts/session_pool.py release --session <id> --json",
+    "python3 scripts/session_pool.py gc --json"
+  ],
+  "deny_reuse_when": [
+    "executor mismatch",
+    "role profile mismatch",
+    "model tier mismatch",
+    "repo or worktree mismatch",
+    "authority topic mismatch for write scope",
+    "allowed write scope mismatch",
+    "context index version mismatch",
+    "stale context present",
+    "previous run failed or degraded",
+    "ttl expired",
+    "raw chat context requested"
+  ],
+  "owner_issue": "#430",
+  "owner_role": "bears-machine-first-execution-kernel-engineer",
+  "policy": {
+    "default_executor": "codex_exec",
+    "default_model_tier": "standard",
+    "default_session_policy": "reuse_allowed",
+    "max_pool_sessions": 8,
+    "ttl_seconds": 3600
+  },
+  "schema": "bears-session-reuse-policy.v1",
+  "state_path": "runtime/session-pool/session-pool-state.v1.json",
+  "updated": "2026-06-25",
+  "version": "1"
+}

@@ -1,0 +1,19 @@
+{
+  "schema": "bears-clarification-role-result.v1",
+  "goal_id": "goal-442-fixture",
+  "role_id": "clarification_architect",
+  "question_batch_id": "clarify-goal-442-empty",
+  "questions": [],
+  "no_questions_reason": "Goal packet and decision graph already prove all gate decisions.",
+  "source_context": {
+    "goal_packet_ref": "fixture:goal-442",
+    "decision_graph_ref": "fixture:decision-graph-442",
+    "operator_catalog_ref": "assets/catalog/question-calculus.v1.json",
+    "known_answer_refs": [
+      "fixture:known-answer-write-scope"
+    ],
+    "context_pack_ids": [
+      "ctx-442-clarification"
+    ]
+  }
+}

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Bears Goal Prompt"
+  short_description: "Generate bounded Codex /goal prompts"
+  default_prompt: "Use $bears-goal-prompt to turn my Bears task into a verifiable /goal prompt without starting it."

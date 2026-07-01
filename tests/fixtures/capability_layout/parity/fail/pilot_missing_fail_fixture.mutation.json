@@ -1,0 +1,7 @@
+{
+  "capability_id": "plugin-constitution",
+  "case": "pilot-missing-fail-fixture",
+  "expected_code": "PARITY_FAIL_FIXTURE_REQUIRED",
+  "mutation": "remove all /fail/ fixture registrations from the inventory row",
+  "schema": "bears-plugin-capability-layout-parity-fixture.v1"
+}

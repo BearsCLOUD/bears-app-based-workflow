@@ -1,0 +1,4 @@
+interface:
+  display_name: "Telegram Plugin Skill Factory"
+  short_description: "Create strict Telegram workflow skills and aggregation."
+  default_prompt: "Use $telegram-plugin-skill-factory to create or update Telegram workflow skills, role TOMLs, skill-bundle discovery metadata, catalog entries, and forward tests."

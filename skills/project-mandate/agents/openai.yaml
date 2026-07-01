@@ -1,0 +1,4 @@
+interface:
+  display_name: "Bears Project Mandate"
+  short_description: "Registry-gated project artifact checklist for Bears paths"
+  default_prompt: "Use $project-mandate only after the Bears project registry gate allows the target path."

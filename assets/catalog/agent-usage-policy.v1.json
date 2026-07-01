@@ -1,0 +1,18 @@
+{
+  "schema": "bears-agent-usage-policy.v1",
+  "version": "1",
+  "owner_issue": "#419",
+  "event_store": "runtime/agent-usage/events.jsonl",
+  "ledger_store": "runtime/commit-usage-ledger/<commit_sha>.json",
+  "token_warning_threshold": 50000,
+  "token_block_threshold": 100000,
+  "regression_ratio_warning": 1.25,
+  "forbidden_output_markers": ["BEGIN PRIVATE KEY", "raw_secret", ".env=", "credential=", "raw prompt", "raw chat", "raw log", "production data"],
+  "commands": [
+    "scripts/agent_usage.py record --event <path>",
+    "scripts/agent_usage.py summarize --delivery-id <id> --json",
+    "scripts/commit_usage_ledger.py build --commit <sha> --json",
+    "scripts/commit_usage_ledger.py diff --base <sha> --head <sha> --json",
+    "scripts/commit_usage_ledger.py doctor --json"
+  ]
+}

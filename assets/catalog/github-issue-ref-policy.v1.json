@@ -1,0 +1,60 @@
+{
+  "schema": "bears-github-issue-ref-policy.v1",
+  "version": "1",
+  "owner_role": "bears-machine-first-execution-kernel-engineer",
+  "contract": {
+    "schema_path": "assets/schemas/github-issue-ref.v1.schema.json",
+    "script_path": "scripts/github_issue_ref.py",
+    "doc_path": "docs/reference/github-issue-ref.md",
+    "packet_schema": "bears-github-issue-ref.v1",
+    "canonical_ref_format": "owner/repo#number",
+    "github_url_format": "https://github.com/{owner}/{repo_name}/issues/{issue_number}"
+  },
+  "allowed_states": [
+    "resolved",
+    "proposed",
+    "unresolved",
+    "blocked"
+  ],
+  "state_rules": {
+    "resolved": "Existing or externally supplied issue identity with explicit repo and positive issue number.",
+    "proposed": "Future issue packet with explicit repo and no GitHub issue number yet.",
+    "unresolved": "Node intentionally has no issue identity yet.",
+    "blocked": "Missing, invalid, or ambiguous repo or issue identity."
+  },
+  "local_ref_policy": {
+    "accepted_form": "#number",
+    "allowed_only_when_repo_is_explicit": true,
+    "forbidden_as_global_identity": true,
+    "compatibility_scope": "plugin_local_compat"
+  },
+  "normalization_rules": [
+    "Never derive repo from current checkout, chat text, default repo, or issue title.",
+    "Normalize every resolved issue identity to owner/repo#number.",
+    "Treat the same issue number in different repositories as different identities.",
+    "Represent future imported seller repository targets as proposed or blocked, never as local-only refs.",
+    "Default validation is static, local, read-only, and does not call GitHub."
+  ],
+  "validated_fields": [
+    "issue_ref",
+    "source_ref",
+    "target_issue_ref",
+    "supersedes_issue_refs",
+    "metrics.issue_refs",
+    "delivery_identity.source_ref",
+    "generated_issue_lineage.target_issue_ref"
+  ],
+  "validation": {
+    "mode": "static_local_read_only",
+    "commands": [
+      "python3 scripts/github_issue_ref.py validate",
+      "python3 scripts/github_issue_ref.py normalize --ref BearsCLOUD/bears-codex-workflow-plugin#424 --json",
+      "python3 scripts/github_issue_ref.py normalize --repo BearsCLOUD/bears-platform --issue 66 --json",
+      "python3 scripts/github_issue_ref.py compare --left BearsCLOUD/bears-platform#66 --right BearsCLOUD/bears-infra#66 --json"
+    ],
+    "fixtures": {
+      "good": "tests/fixtures/github_issue_ref/good",
+      "bad": "tests/fixtures/github_issue_ref/bad"
+    }
+  }
+}

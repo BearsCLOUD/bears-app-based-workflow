@@ -1,0 +1,38 @@
+{
+  "schema": "bears.git-deploy-contract.v1",
+  "version": 1,
+  "owner_plugin": "bears",
+  "updated": "2026-06-24",
+  "purpose": "Machine-readable Git branch to runtime target policy for Bears automatic CD.",
+  "repositories": [
+    {
+      "repository": "BearsCLOUD/bears-infra",
+      "development_branch": "dev",
+      "deployment_branch": "main",
+      "merge_request_required": true,
+      "deployment_targets": [
+        {
+          "branch": "main",
+          "target_id": "fyuriserv-prod",
+          "server_alias": "fyuriserv",
+          "environment": "prod",
+          "automatic_cd": true
+        }
+      ]
+    }
+  ],
+  "rules": {
+    "git_contract_owns_branch_target_mapping": true,
+    "cd_contract_must_not_define_merge_policy": true,
+    "production_cd_after_main_push_is_automatic": true
+  },
+  "forbidden_in_cd_contract": [
+    "development_branch",
+    "deployment_branch",
+    "merge_request_required",
+    "pull_request",
+    "operator_approval",
+    "approval_gate",
+    "manual_gate"
+  ]
+}

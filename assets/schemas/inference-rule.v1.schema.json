@@ -1,0 +1,41 @@
+{
+  "$id": "https://bears.local/schemas/inference-rule.v1.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Bears inference rule v1",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schema": {"const": "bears-inference-rule.v1"},
+    "rule_id": {"type": "string", "minLength": 1},
+    "group": {"enum": ["context_required", "can_read", "can_write", "execution_allowed", "research_required", "planning_required", "validator_required", "closeout_blocked", "roadmap_leaf_eligible", "parallel_unit_allowed", "manual_review_required"]},
+    "head": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "predicate": {"type": "string", "minLength": 1},
+        "arguments": {"type": "array", "items": {"type": "string", "minLength": 1}}
+      },
+      "required": ["predicate", "arguments"]
+    },
+    "body": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "predicate": {"type": "string", "minLength": 1},
+          "arguments": {"type": "array", "items": {"type": "string", "minLength": 1}},
+          "negated": {"type": "boolean", "default": false},
+          "requires_closed_world": {"type": "boolean", "default": false}
+        },
+        "required": ["predicate", "arguments"]
+      }
+    },
+    "confidence_policy": {"enum": ["accepted_only", "candidate_to_research", "candidate_to_manual_review"]},
+    "stratified": {"type": "boolean"},
+    "max_depth": {"type": "integer", "minimum": 1},
+    "proof_required": {"type": "boolean"}
+  },
+  "required": ["schema", "rule_id", "group", "head", "body", "confidence_policy", "stratified", "proof_required"]
+}

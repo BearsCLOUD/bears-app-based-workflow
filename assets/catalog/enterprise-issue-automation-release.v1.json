@@ -1,0 +1,59 @@
+{
+  "active_issue": 402,
+  "closeout_policy": {
+    "canonical_delivery_id_required": "bears-governance-kernel-v1",
+    "release_manifest_required": true
+  },
+  "completed_issues": [
+    394,
+    390,
+    384,
+    385,
+    395,
+    396,
+    397,
+    398,
+    399,
+    400,
+    401,
+    403
+  ],
+  "delivery_id": "bears-governance-kernel-v1",
+  "dependency_policy": {
+    "max_active": 1,
+    "one_release_manifest": true,
+    "order": "listed"
+  },
+  "hook_policy": {
+    "allowed_hook_actions": [
+      "enqueue validation",
+      "write proof"
+    ],
+    "no_issue_solving_from_hooks": true
+  },
+  "issue_order": [
+    394,
+    390,
+    384,
+    385,
+    395,
+    396,
+    397,
+    398,
+    399,
+    400,
+    401,
+    403,
+    402
+  ],
+  "owner_role": "bears-machine-first-execution-kernel-engineer",
+  "release_id": "bears-governance-kernel-v1",
+  "schema": "bears-enterprise-issue-automation-release.v1",
+  "service_policy": {
+    "auto_install": false,
+    "service_templates_allowed": true
+  },
+  "state": "running",
+  "updated": "2026-06-25",
+  "version": "1"
+}

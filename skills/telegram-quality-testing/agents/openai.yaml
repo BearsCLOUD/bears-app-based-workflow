@@ -1,0 +1,4 @@
+interface:
+  display_name: "Telegram Quality Testing"
+  short_description: "Test Telegram messages and callbacks."
+  default_prompt: "Use $telegram-quality-testing to build a Telegram UI test matrix."

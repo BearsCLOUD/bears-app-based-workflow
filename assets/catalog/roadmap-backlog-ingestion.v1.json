@@ -1,0 +1,39 @@
+{
+  "schema": "bears-roadmap-backlog-ingestion-contract.v1",
+  "version": "1",
+  "updated": "2026-06-25",
+  "owner_issue": "#423",
+  "owner_role": "bears-machine-first-execution-kernel-engineer",
+  "commands": [
+    "python3 scripts/roadmap_backlog_ingest.py scan --repo BearsCLOUD/bears-codex-workflow-plugin --json",
+    "python3 scripts/roadmap_backlog_ingest.py propose --repo BearsCLOUD/bears-codex-workflow-plugin --json",
+    "python3 scripts/roadmap_backlog_ingest.py apply --packet <path>",
+    "python3 scripts/roadmap_backlog_ingest.py fillability --json",
+    "python3 scripts/roadmap_backlog_ingest.py validate"
+  ],
+  "authoritative_artifacts": [
+    "assets/schemas/roadmap-backlog-ingestion.v1.schema.json",
+    "assets/schemas/roadmap-fillability-report.v1.schema.json",
+    "assets/catalog/roadmap-backlog-ingestion.v1.json",
+    "scripts/roadmap_backlog_ingest.py",
+    "docs/reference/roadmap-backlog-ingestion.md",
+    "tests/test_roadmap_backlog_ingest.py",
+    "tests/fixtures/roadmap_backlog_ingest/good/propose-10-issues.json",
+    "tests/fixtures/roadmap_backlog_ingest/bad/duplicate-node.invalid.json"
+  ],
+  "classifications": [
+    "already_in_roadmap",
+    "needs_roadmap_node",
+    "duplicate_of_existing_node",
+    "blocked_by_missing_contract",
+    "manual_review",
+    "closeout_candidate",
+    "unsafe_for_autostart"
+  ],
+  "mutation_policy": {
+    "scan": "read_only",
+    "propose": "read_only",
+    "fillability": "read_only",
+    "apply": "validated_packet_only"
+  }
+}

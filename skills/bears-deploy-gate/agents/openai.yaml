@@ -1,0 +1,4 @@
+interface:
+  display_name: "Bears Deploy Gate"
+  short_description: "Assess workflow deploy impact safely"
+  default_prompt: "Use $bears-deploy-gate to emit JSON-first deploy, rollback, runtime, and secret impact findings."

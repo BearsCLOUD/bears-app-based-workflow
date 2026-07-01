@@ -1,0 +1,13 @@
+{
+  "case": "safe-bounded-evidence",
+  "evidence_fields": [
+    "presence",
+    "counts",
+    "hashes",
+    "statuses",
+    "paths"
+  ],
+  "raw_value_included": false,
+  "schema": "bears-plugin-capability-layout-restricted-data-fixture.v1",
+  "status": "pass"
+}

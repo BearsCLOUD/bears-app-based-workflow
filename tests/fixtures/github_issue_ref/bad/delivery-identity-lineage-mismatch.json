@@ -1,0 +1,7 @@
+{
+  "schema": "bears-github-issue-ref-fixture.v1",
+  "fixture_kind": "delivery_identity_lineage_match",
+  "source_ref": "BearsCLOUD/bears-platform#66",
+  "target_issue_ref": "BearsCLOUD/bears-infra#66",
+  "expected_error": "source_ref: must equal normalized target_issue_ref"
+}

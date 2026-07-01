@@ -1,0 +1,44 @@
+{
+  "blocked_reasons": [
+    "manual_review_preserved",
+    "disabled_preserved",
+    "hazard_requires_manual_review",
+    "evidence_file_is_not_transition_authority",
+    "missing_validator_packet",
+    "stale_evidence_hash",
+    "missing_resource_conflict_status",
+    "stale_resource_conflict_status",
+    "blocked_resource_conflict_status",
+    "exclusive_resource_active_elsewhere"
+  ],
+  "component_issue": "#517",
+  "hazard_markers": [
+    "seller",
+    "cutover",
+    "migration",
+    "gitlab",
+    "production data",
+    "dns",
+    "deploy credentials",
+    "kubeconfig",
+    "rollback",
+    "destructive",
+    "imported repo"
+  ],
+  "preserved_autostart_policies": [
+    "disabled",
+    "manual_review"
+  ],
+  "required_transition_packet_schema": "bears-roadmap-state-transition-authority-transition.v1",
+  "resource_conflict_status": {
+    "allow_status": "allow",
+    "blocked_statuses": [
+      "blocked",
+      "stale"
+    ],
+    "exclusive_active_elsewhere_reason": "exclusive_resource_active_elsewhere",
+    "required_for": "validated_or_executable_ready_evidence_transitions"
+  },
+  "schema": "bears-roadmap-state-transition-authority.v1",
+  "version": "1"
+}

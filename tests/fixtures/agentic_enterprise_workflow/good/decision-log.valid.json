@@ -1,0 +1,27 @@
+{
+  "schema": "bears-decision-log.v1",
+  "schema_version": "1",
+  "scope_id": "scope-plugin-workflow-001",
+  "records": [
+    {
+      "id": "d-001",
+      "type": "user_directive",
+      "decision_key": "manual_tests",
+      "value": "forbidden",
+      "summary": "The operator forbids manual tests by agents; Local commit validation owns tests.",
+      "status": "active",
+      "source": "operator-message-2026-06-22",
+      "created_by_role": "l1_head_orchestrator"
+    },
+    {
+      "id": "d-002",
+      "type": "agent_decision",
+      "decision_key": "verification_mode",
+      "value": "syntax_only_before_commit",
+      "summary": "Before commit, use only JSON, YAML, and Python syntax parsing plus diff review.",
+      "status": "active",
+      "source": "agentic-enterprise-workflow.v1",
+      "created_by_role": "l2-platform-domain-orchestrator"
+    }
+  ]
+}

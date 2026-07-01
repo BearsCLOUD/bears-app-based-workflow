@@ -1,0 +1,14 @@
+{
+  "$id": "https://bears.local/schemas/inference-query.v1.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Bears inference query v1",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schema": {"const": "bears-inference-query.v1"},
+    "predicate": {"type": "string", "minLength": 1},
+    "arguments": {"type": "array", "items": {"type": "string", "minLength": 1}},
+    "require_confidence": {"enum": ["accepted", "candidate", "any"]}
+  },
+  "required": ["schema", "predicate", "arguments"]
+}

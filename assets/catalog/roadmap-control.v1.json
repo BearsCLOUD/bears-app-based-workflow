@@ -1,0 +1,572 @@
+{
+  "schema": "bears-roadmap-control.v1",
+  "version": "1",
+  "owner_plugin": "bears",
+  "updated": "2026-06-11",
+  "control_id": "bears-roadmap-control-v1",
+  "scope": "Deterministic roadmap control for Bears plugin goal-bound Spec Kit work and subagent orchestration.",
+  "entrypoint": {
+    "required_command": "/goal",
+    "roadmap_runs_only_through_goal": true,
+    "forbidden_entrypoints": [
+      "chat-only roadmap start",
+      "plans.md-only roadmap start",
+      "ad hoc worker spawn",
+      "subagent spawn before /goal authorization"
+    ],
+    "required_goal_fields": [
+      "goal_id",
+      "roadmap_id",
+      "objective",
+      "operator_authorization",
+      "active_spec_set",
+      "validation_targets"
+    ]
+  },
+  "limits": {
+    "max_active_subagents": 100,
+    "max_depth": 3,
+    "depth_count_rule": "main agent is depth 0; direct workers are depth 1; nested workers can run only through explicit controller roles and must not exceed depth 3"
+  },
+  "multi_spec_control": {
+    "enabled": true,
+    "purpose": "Control concurrent development of multiple Spec Kit specs without overlapping write scopes or stale snapshots.",
+    "spec_unit": "Spec Kit spec directory with spec.md, plan.md, tasks.md, and speckit-analyze PASS evidence when the lifecycle gate requires it.",
+    "required_spec_fields": [
+      "spec_id",
+      "spec_path",
+      "spec_snapshot_id",
+      "spec_snapshot_digest",
+      "tasks_snapshot_digest",
+      "lane",
+      "role",
+      "scope",
+      "validation_target"
+    ],
+    "concurrency_rules": [
+      {
+        "id": "one-slice-per-active-worker",
+        "rule": "Each active worker binds exactly one roadmap_id and roadmap_slice before task start."
+      },
+      {
+        "id": "multiple-specs-allowed-with-locks",
+        "rule": "Multiple Spec Kit specs may run concurrently only when each active slice has a current spec snapshot and non-overlapping write scope locks."
+      },
+      {
+        "id": "spec-snapshot-freezes-task-start",
+        "rule": "Task start freezes the spec snapshot for the assigned slice; snapshot drift requires hook refresh before spawn, resume, reuse, or close."
+      }
+    ],
+    "scope_lock_fields": [
+      "roadmap_id",
+      "roadmap_slice",
+      "spec_id",
+      "scope",
+      "owner_worker_id",
+      "repo_state",
+      "validation_target"
+    ]
+  },
+  "pre_task_hook": {
+    "required": true,
+    "runs_before": [
+      "spawn",
+      "resume",
+      "reuse",
+      "manage",
+      "close"
+    ],
+    "blocks_worker_spawn_until_answers": true,
+    "operator_answers_required_before_spawn": [
+      "missing_data_answers",
+      "drift_answers"
+    ],
+    "required_evidence_fields": [
+      "hook_id",
+      "goal_id",
+      "roadmap_id",
+      "roadmap_slice",
+      "spec_snapshot_id",
+      "assignment_packet_id",
+      "operator_missing_data_answers",
+      "operator_drift_answers",
+      "task_start_authorization"
+    ],
+    "spawn_blockers": [
+      "missing_data_answers_absent",
+      "drift_answers_absent",
+      "assignment_packet_absent",
+      "task_start_authorization_absent",
+      "spec_snapshot_absent_or_stale",
+      "scope_lock_overlap"
+    ]
+  },
+  "main_agent_policy": {
+    "mode": "orchestration_only",
+    "allowed_actions": [
+      "route",
+      "split",
+      "assign",
+      "wait",
+      "integrate_evidence",
+      "run_validators",
+      "close",
+      "report",
+      "pre_task_hook"
+    ],
+    "forbidden_actions": [
+      "file_read_as_content_collector",
+      "file_write",
+      "git_add",
+      "git_commit",
+      "git_push",
+      "pull_request_mutation",
+      "implementation_tool_use"
+    ]
+  },
+  "orchestrator_control": {
+    "multiple_orchestrators_allowed": true,
+    "allowed_only_for_explicit_controller_roles": true,
+    "controller_roles_source": "assets/catalog/subagent-orchestration-policy.v1.json#/orchestration_model/delegation_controller_roles",
+    "explicit_controller_roles": [
+      "bears-deploy-platform-engineer",
+      "bears-subagent-orchestration-engineer",
+      "bears-platform-role-governor"
+    ],
+    "rules": [
+      {
+        "id": "controller-role-only-spawn",
+        "rule": "Only explicit controller roles may spawn child subagents; other orchestrators may coordinate but cannot spawn."
+      },
+      {
+        "id": "controller-spawn-still-needs-hook",
+        "rule": "Every controller spawn requires the same pre-task hook, assignment packet, missing-data answers, drift answers, depth check, active-count check, and close evidence."
+      }
+    ]
+  },
+  "audit_policy": {
+    "fresh_subagent_required_every_audit": true,
+    "parent_context_allowed": false,
+    "reuse_allowed": false,
+    "resume_allowed": false,
+    "required_audit_fields": [
+      "audit_id",
+      "fresh_worker_id",
+      "context_policy=fresh_no_parent_context",
+      "parent_context_allowed=false",
+      "reuse_allowed=false",
+      "resume_allowed=false",
+      "validation_target",
+      "audit_closeout_evidence"
+    ],
+    "context_policy": "fresh_no_parent_context",
+    "context_policy_rule": "context_policy = fresh_no_parent_context"
+  },
+  "session_reuse": {
+    "allowed": true,
+    "reuse_key_algorithm": "sha256-json-v1",
+    "required_binding_fields": [
+      "goal_id",
+      "roadmap_id",
+      "roadmap_slice",
+      "spec_snapshot_id",
+      "spec_snapshot_digest",
+      "lane",
+      "role",
+      "scope_fingerprint",
+      "repo_state",
+      "validation_target"
+    ],
+    "compatibility_fields": [
+      "goal_id_compatible",
+      "roadmap_id_compatible",
+      "roadmap_slice_compatible",
+      "spec_snapshot_compatible",
+      "lane_compatible",
+      "role_compatible",
+      "scope_compatible",
+      "repo_state_compatible",
+      "validation_target_compatible"
+    ],
+    "rule": "Reuse is allowed only when every required binding and compatibility field matches the current goal, slice, spec snapshot, lane, role, scope, repo state, and validation target. Audit workers never reuse."
+  },
+  "roadmap_for_this_objective": {
+    "goal_id": "goal-roadmap-control-surface-2026-06-06",
+    "roadmap_id": "roadmap-control-v1-implementation",
+    "objective": "Create the deterministic roadmap control catalog, validator, unit tests, and reference documentation for the Bears plugin.",
+    "phases": [
+      {
+        "id": "phase-1-route-and-baseline",
+        "lane": "audit",
+        "role": "bears-workflow-overlay-platform-engineer",
+        "scope": [
+          "assets/catalog/roadmap-control.v1.json",
+          "scripts/roadmap_control.py",
+          "tests/test_roadmap_control.py",
+          "docs/reference/roadmap-control.md"
+        ],
+        "actions": [
+          "verify roadmap_control route and independent audit",
+          "read nearest AGENTS.md and existing validator style",
+          "confirm unrelated dirty files are not reverted"
+        ],
+        "validation_commands": [
+          "python3 scripts/platform_roles.py route assets/catalog/roadmap-control.v1.json",
+          "python3 scripts/platform_roles.py audit roadmap_control"
+        ]
+      },
+      {
+        "id": "phase-2-catalog-and-validator",
+        "lane": "implementation",
+        "role": "bears-workflow-overlay-platform-engineer",
+        "scope": [
+          "assets/catalog/roadmap-control.v1.json",
+          "scripts/roadmap_control.py"
+        ],
+        "actions": [
+          "write deterministic roadmap control catalog",
+          "implement validate command with stable errors"
+        ],
+        "validation_commands": [
+          "python3 scripts/roadmap_control.py validate"
+        ]
+      },
+      {
+        "id": "phase-3-tests-and-reference",
+        "lane": "validation",
+        "role": "bears-workflow-overlay-platform-engineer",
+        "scope": [
+          "tests/test_roadmap_control.py",
+          "docs/reference/roadmap-control.md"
+        ],
+        "actions": [
+          "add unit tests that fail when hard roadmap rules are weakened",
+          "document operator-facing control contract and commands"
+        ],
+        "validation_commands": [
+          "python3 -m unittest tests/test_roadmap_control.py"
+        ]
+      },
+      {
+        "id": "phase-4-closeout",
+        "lane": "review",
+        "role": "bears-workflow-overlay-platform-engineer",
+        "scope": [
+          "assets/catalog/roadmap-control.v1.json",
+          "scripts/roadmap_control.py",
+          "tests/test_roadmap_control.py",
+          "docs/reference/roadmap-control.md"
+        ],
+        "actions": [
+          "rerun required validation commands",
+          "report changed files, validation evidence, and unrelated dirty files left untouched"
+        ],
+        "validation_commands": [
+          "python3 scripts/platform_roles.py validate",
+          "python3 scripts/roadmap_control.py validate",
+          "python3 -m unittest tests/test_roadmap_control.py",
+          "python3 -m unittest tests/test_roadmap_control.py tests/test_platform_roles.py"
+        ]
+      }
+    ]
+  },
+  "validation": {
+    "validator": "scripts/roadmap_control.py",
+    "commands": [
+      "python3 scripts/platform_roles.py validate",
+      "python3 scripts/roadmap_control.py validate",
+      "python3 -m unittest tests/test_roadmap_control.py tests/test_platform_roles.py"
+    ]
+  },
+  "research_artifact_contract": {
+    "contract_id": "issue-20-research-gate",
+    "artifact_basenames": {
+      "research": "research.md",
+      "prior_art": "prior-art.md",
+      "ux_research": "ux-research.md"
+    },
+    "required_before": "spec.md, plan.md, tasks.md, speckit-analyze, and implementation when research gate conditions match",
+    "required_for": [
+      "broad",
+      "new",
+      "risky",
+      "drift-prone",
+      "workflow",
+      "workflow policy",
+      "runtime",
+      "runtime contract",
+      "integration",
+      "ui",
+      "ux",
+      "ui/ux flow",
+      "automation",
+      "plugin",
+      "infra",
+      "kubernetes",
+      "migration",
+      "boundary-sensitive",
+      "orchestration policy",
+      "subagent policy",
+      "hook behavior",
+      "roadmap control",
+      "role gate",
+      "validator behavior",
+      "operator interaction",
+      "developer interaction"
+    ],
+    "required_tracks": [
+      "github prior art/comparable implementations",
+      "external best practices/mature-project patterns",
+      "UI/UX-friendly interface research",
+      "risks/constraints/alternatives/validation implications"
+    ],
+    "ux_research_required_when_any_present": [
+      "operator-facing behavior",
+      "developer-facing behavior",
+      "user-facing behavior",
+      "CLI behavior",
+      "workflow behavior",
+      "status behavior",
+      "error behavior",
+      "recovery behavior",
+      "notification behavior",
+      "UI change",
+      "UX change"
+    ],
+    "required_sections": [
+      "Decision or Recommendation",
+      "Rationale",
+      "Alternatives considered",
+      "Risks and constraints",
+      "Validation implications",
+      "Sources"
+    ],
+    "durable_artifact": {
+      "with_spec_kit_packet": "Store research.md, prior-art.md, and ux-research.md in the active Spec Kit feature directory before specification or planning work continues.",
+      "without_spec_kit_packet": "Store a bounded section in README.md or the narrowest project docs path, then move it to the feature directory after Spec Kit creates one."
+    },
+    "skip_policy": {
+      "operator_skip": {
+        "required_fields": [
+          "type=operator_skip",
+          "approved_by",
+          "approval_reference",
+          "reason"
+        ]
+      },
+      "narrow_exact_file_skip": {
+        "required_fields": [
+          "type=narrow_exact_file_skip",
+          "exact_file_scope",
+          "no_boundary_change",
+          "no_runtime_change",
+          "no_deploy_change",
+          "no_restricted_data_change",
+          "no_public_behavior_change",
+          "no_workflow_change",
+          "no_ui_change",
+          "no_ux_change",
+          "no_automation_pattern_change"
+        ]
+      }
+    },
+    "bounded_source_policy": {
+      "bounded_summaries_only": true,
+      "reject_large_source_copy": true,
+      "reject_proprietary_copy_claim": true
+    },
+    "implementation_packet": {
+      "required_fields": [
+        "change_type",
+        "research_required",
+        "research_artifacts",
+        "research_skip",
+        "prototype_required",
+        "prototype_artifact",
+        "prototype_skip",
+        "prototype_review",
+        "design_required",
+        "design_artifact",
+        "design_skip",
+        "affected_artifacts",
+        "validator_impact",
+        "documentation_impact",
+        "test_plan",
+        "safety_boundaries"
+      ],
+      "rejection_status": "RESEARCH_ARTIFACT_REQUIRED"
+    }
+  },
+  "design_artifact_contract": {
+    "contract_id": "issue-22-design-artifact-contract",
+    "artifact_path": "README.md#issue-22-design-artifact-contract",
+    "required_before": "research_prototype_design_before_plan_tasks_analyze_implementation",
+    "required_for": [
+      "workflow policy",
+      "orchestration policy",
+      "subagent policy",
+      "hook behavior",
+      "roadmap control",
+      "role gate",
+      "runtime contract",
+      "validator behavior",
+      "operator interaction",
+      "developer interaction",
+      "ui/ux flow"
+    ],
+    "required_sections": [
+      "problem statement",
+      "current behavior",
+      "target behavior",
+      "decision table or policy matrix",
+      "affected artifacts and ownership",
+      "validator impact",
+      "documentation impact",
+      "test plan",
+      "compatibility notes",
+      "safety boundaries",
+      "open questions",
+      "review gate condition"
+    ],
+    "durable_artifact": {
+      "with_spec_kit_packet": "design.md in the feature or spec directory",
+      "without_spec_kit_packet": "bounded section in the narrowest plugin docs or planning issue until a feature directory exists"
+    },
+    "branch_behavior_requires_matrix_when_any_present": [
+      "behavior_branches",
+      "policy_branches",
+      "state_transitions",
+      "operator_paths"
+    ],
+    "skip_policy": {
+      "approved_skip": {
+        "required_fields": [
+          "approved_by",
+          "approval_reference",
+          "reason"
+        ],
+        "use": "Only explicit operator approval may skip a required design artifact."
+      },
+      "narrow_bugfix_skip": {
+        "required_fields": [
+          "exact_file_scope",
+          "no_boundary_change",
+          "no_runtime_change",
+          "no_deploy_change",
+          "no_restricted_data_change",
+          "no_public_behavior_change"
+        ],
+        "use": "Only one exact-file bugfix without boundary, runtime, deploy, restricted-data, or public behavior change may skip design."
+      }
+    },
+    "implementation_packet": {
+      "required_fields": [
+        "change_type",
+        "research_required",
+        "research_artifacts",
+        "research_skip",
+        "prototype_required",
+        "prototype_artifact",
+        "prototype_skip",
+        "prototype_review",
+        "design_required",
+        "design_artifact",
+        "design_skip",
+        "affected_artifacts",
+        "validator_impact",
+        "documentation_impact",
+        "test_plan",
+        "safety_boundaries"
+      ],
+      "rejection_status": "DESIGN_ARTIFACT_REQUIRED"
+    }
+  },
+  "prototype_artifact_contract": {
+    "contract_id": "issue-21-prototype-spike-gate",
+    "artifact_basenames": [
+      "prototype.md",
+      "spike.md"
+    ],
+    "required_when": {
+      "research_or_design_unresolved_high_risk_uncertainty": "true when research or design leaves an unresolved high-risk uncertainty",
+      "cheaply_testable_before_implementation": "true when a bounded check can reduce the uncertainty before implementation"
+    },
+    "required_sections": [
+      "hypothesis or uncertainty",
+      "prototype scope and non-goals",
+      "commands or checks run",
+      "findings and evidence summary",
+      "decision outcome",
+      "validation implications",
+      "cleanup or discard requirements"
+    ],
+    "skip_policy": {
+      "narrow_bugfix_skip": {
+        "required_fields": [
+          "exact_file_scope",
+          "no_boundary_change",
+          "no_runtime_change",
+          "no_deploy_change",
+          "no_restricted_data_change",
+          "no_public_behavior_change"
+        ],
+        "use": "Only one exact-file bugfix without boundary, runtime, deploy, restricted-data, or public behavior change may skip prototype."
+      },
+      "already_proven_pattern_skip": {
+        "required_fields": [
+          "pattern_reference",
+          "evidence"
+        ],
+        "use": "Only a previously proven implementation pattern with named evidence may skip prototype."
+      }
+    },
+    "safety_rejections": [
+      "production_mutation",
+      "restricted_data_reads",
+      "broad_implementation",
+      "durable_implementation"
+    ],
+    "allowed_decisions": [
+      "proceed",
+      "redesign",
+      "defer",
+      "kill"
+    ],
+    "review_gate": {
+      "operator_approval_required_when_any_remain": [
+        "material_behavior_change",
+        "runtime_change",
+        "boundary_change",
+        "ui_ux_change",
+        "architecture_change"
+      ],
+      "approval_fields": [
+        "operator_approved_to_implement",
+        "approved_by",
+        "approval_reference"
+      ]
+    },
+    "durable_boundary": "Prototype output is throwaway evidence. It becomes durable implementation only after review selects it for implementation scope.",
+    "implementation_packet": {
+      "required_fields": [
+        "change_type",
+        "research_required",
+        "research_artifacts",
+        "research_skip",
+        "prototype_required",
+        "prototype_artifact",
+        "prototype_skip",
+        "prototype_review",
+        "design_required",
+        "design_artifact",
+        "design_skip",
+        "affected_artifacts",
+        "validator_impact",
+        "documentation_impact",
+        "test_plan",
+        "safety_boundaries"
+      ],
+      "rejection_status": "PROTOTYPE_ARTIFACT_REQUIRED"
+    }
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "$id": "https://bears.local/schemas/capability-progress.v1.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Bears capability progress v1",
+  "type": "object",
+  "additionalProperties": true,
+  "properties": {
+    "schema": {"const": "bears-capability-progress.v1"},
+    "run_id": {"type": "string", "minLength": 1},
+    "repo": {"const": "BearsCLOUD/bears-codex-workflow-plugin"},
+    "head_sha": {"type": "string", "minLength": 1},
+    "task_id": {"type": "string", "minLength": 1},
+    "current_level": {"enum": ["L1", "L2", "L3", "L4", "L5", "L6", "L7"]},
+    "levels_completed": {"type": "array", "items": {"type": "string"}},
+    "next_level": {"type": ["string", "null"]},
+    "mode": {"type": "string", "minLength": 1},
+    "status": {"enum": ["pass", "blocked", "fail"]},
+    "governance_packets": {"type": "array", "items": {"type": "string"}},
+    "quality_score": {"type": "number"},
+    "validation_status": {"type": "string"},
+    "closeout_allowed": {"type": "boolean"},
+    "quality_score_basis": {"type": "string"}
+  },
+  "required": ["schema", "run_id", "repo", "head_sha", "task_id", "current_level", "levels_completed", "next_level", "mode", "status", "governance_packets", "quality_score", "validation_status", "closeout_allowed", "quality_score_basis"]
+}

@@ -1,0 +1,93 @@
+{
+  "schema": "bears-async-validation.v1",
+  "version": "1",
+  "updated": "2026-06-25",
+  "owner_role": "bears-machine-first-execution-kernel-engineer",
+  "state_values": [
+    "queued",
+    "running",
+    "pass",
+    "fail",
+    "timeout",
+    "infra_fail",
+    "selector_gap",
+    "cancelled",
+    "quarantined"
+  ],
+  "queue": {
+    "job_path": "runtime/validation-jobs/<commit_sha>/<job_id>.json",
+    "state_path": "runtime/validation-state/<commit_sha>/validation-state.v1.json",
+    "remediation_path": "runtime/validation-state/<commit_sha>/remediation.v1.json",
+    "service_status_path": "runtime/validation-worker/service-status.v1.json"
+  },
+  "allowlisted_commands": [
+    "python3 scripts/test_selection.py list --tier fast --format json",
+    "python3 scripts/test_selection.py run --tier fast",
+    "python3 scripts/test_selection.py run --tier fast --dry-run",
+    "python3 scripts/validation_worker.py tick",
+    "python3 scripts/validation_worker.py service-status",
+    "python3 scripts/validation_worker.py validate"
+  ],
+  "hook_contract": {
+    "pre_commit": "cheap_blocking_checks_only",
+    "post_commit": "enqueue_validation_and_exit",
+    "worker": "execute_validation_outside_agent_loop"
+  },
+  "cache_sync_gate": {
+    "required_state": "pass",
+    "exact_sha_only": true,
+    "fallback": "runtime/local-commit-validation/<commit_sha>.json remains accepted only when async state is missing"
+  },
+  "restricted_data": [
+    "secret",
+    "credential",
+    "env_value",
+    "private_chat",
+    "unrestricted_diagnostics",
+    "vpn_config",
+    "production_data"
+  ],
+  "worker_commands": [
+    "validate",
+    "tick",
+    "watch",
+    "retry --commit <sha>",
+    "quarantine --commit <sha>",
+    "status --commit <sha>",
+    "service-status",
+    "run-next",
+    "run-commit --commit-sha <sha>",
+    "create-fixer-step --remediation <path> --output <path>"
+  ],
+  "retry_policy": {
+    "max_retry_count": 2,
+    "duplicate_processing_policy": "deny_same_commit_running",
+    "quarantine_blocks_auto_retry": true,
+    "retry_command_requeues_existing_job": true,
+    "retry_exhaustion_status": "retry_exhausted"
+  },
+  "service_status": {
+    "path": "runtime/validation-worker/service-status.v1.json",
+    "schema": "bears-validation-worker-service-status.v1",
+    "bounded": true,
+    "exposes": [
+      "queue_counts",
+      "running_commits",
+      "blocking_remediation_count",
+      "blocking_remediation_paths",
+      "retry_policy"
+    ]
+  },
+  "watch": {
+    "default_enabled": false,
+    "auto_install": false,
+    "timer_tick_processes_one_job": true
+  },
+  "closeout_gate": {
+    "blocking_remediation_statuses": [
+      "open",
+      "blocked"
+    ],
+    "doctor_check": "unresolved_blockers"
+  }
+}

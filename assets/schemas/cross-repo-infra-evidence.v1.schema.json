@@ -1,0 +1,44 @@
+{
+  "$id": "https://bears.local/schemas/cross-repo-infra-evidence.v1.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Bears cross-repo infra evidence v1",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schema": {"const": "bears-cross-repo-infra-evidence.v1"},
+    "delivery_id": {"type": "string", "minLength": 1},
+    "source_repo": {"const": "BearsCLOUD/bears-infra"},
+    "source_commit_sha": {"type": ["string", "null"]},
+    "application": {"type": "string", "minLength": 1},
+    "evidence_packets": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "packet_type": {
+            "enum": [
+              "infra_validation_matrix",
+              "opencode_bundle_provenance",
+              "opencode_public_route_policy",
+              "opencode_rollout_diagnostics",
+              "opencode_runtime_egress_policy",
+              "opencode_runtime_health_policy"
+            ]
+          },
+          "source_issue": {"enum": ["#117", "#118", "#119", "#120", "#121", "#123"]},
+          "status": {"enum": ["pass", "fail", "missing", "stale", "manual_review"]},
+          "artifact_path": {"type": ["string", "null"]},
+          "artifact_sha256": {"type": ["string", "null"]},
+          "sanitized": {"type": "boolean"},
+          "errors": {"type": "array", "items": {"type": "string"}}
+        },
+        "required": ["packet_type", "source_issue", "status", "artifact_path", "artifact_sha256", "sanitized", "errors"]
+      }
+    },
+    "degradation_events": {"type": "array", "items": {"type": "object"}},
+    "safe_for_autostart": {"type": "boolean"}
+  },
+  "required": ["schema", "delivery_id", "source_repo", "source_commit_sha", "application", "evidence_packets", "degradation_events", "safe_for_autostart"]
+}

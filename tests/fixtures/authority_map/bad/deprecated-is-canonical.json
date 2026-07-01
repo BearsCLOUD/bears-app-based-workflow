@@ -1,0 +1,18 @@
+{
+  "schema": "bears-authority-map.v1",
+  "version": "1",
+  "updated": "2026-06-24",
+  "owner_role": "bears-machine-first-execution-kernel-engineer",
+  "topics": [
+    {
+      "topic": "bad_topic",
+      "canonical_source": "legacy/bad.md",
+      "validator": "python3 scripts/release_notes_gate.py validate",
+      "owning_role": "bears-machine-first-execution-kernel-engineer",
+      "secondary_docs": [],
+      "generated_outputs": [],
+      "deprecated_surfaces": ["legacy/bad.md"],
+      "manifest_claims": ["bad claim"]
+    }
+  ]
+}

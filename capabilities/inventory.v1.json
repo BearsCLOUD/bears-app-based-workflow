@@ -1,0 +1,1803 @@
+{
+  "schema": "bears-plugin-capability-inventory.v1",
+  "version": "1",
+  "updated": "2026-06-28",
+  "owner_plugin": "bears",
+  "source_repo": "BearsCLOUD/bears-codex-workflow-plugin",
+  "codex_environment_policy": {
+    "environment_surfaces_are_not_capability_sources": true,
+    "mutation_requires_operator_authorization": true,
+    "restricted_data": [
+      "secrets",
+      "tokens",
+      "private_keys",
+      "env_values",
+      "raw_logs",
+      "raw_chat",
+      "raw_vpn_configs",
+      "production_data",
+      "credentials",
+      "shell_history"
+    ]
+  },
+  "capabilities": [
+    {
+      "id": "role-gate",
+      "python_package": "role_gate",
+      "lifecycle_state": "legacy",
+      "canonical_source_phase": "legacy",
+      "owner_role": "bears-platform-role-governor",
+      "primary_legacy_sources": [
+        "assets/catalog/platform-role-catalog.v1.json",
+        "assets/catalog/role-gate-methodology.v1.json",
+        "scripts/platform_roles.py",
+        "scripts/role_gate_methodology.py",
+        "skills/bears-role-gate/SKILL.md",
+        "skills/platform-role-governance/SKILL.md"
+      ],
+      "capability_source_paths": [],
+      "active_skill_front_doors": [
+        "skills/bears-role-gate",
+        "skills/platform-role-governance"
+      ],
+      "internal_front_door": "",
+      "legacy_entrypoints": [
+        "python3 scripts/platform_roles.py validate",
+        "python3 scripts/role_gate_methodology.py validate"
+      ],
+      "compatibility_entrypoints": [],
+      "schemas": [],
+      "fixtures": [],
+      "tests": [
+        "tests/test_platform_roles.py",
+        "tests/test_role_gate_methodology.py"
+      ],
+      "validators": [
+        "python3 scripts/platform_roles.py validate",
+        "python3 scripts/role_gate_methodology.py validate"
+      ],
+      "forbidden_data": [
+        "secrets",
+        "tokens",
+        "private_keys",
+        "env_values",
+        "raw_logs",
+        "raw_chat",
+        "raw_vpn_configs",
+        "production_data",
+        "credentials",
+        "shell_history"
+      ],
+      "allowed_actions": [
+        "read_source",
+        "validate_checked_in_artifacts"
+      ],
+      "forbidden_actions": [
+        "product_code_edit",
+        "runtime_mutation",
+        "deployment_mutation",
+        "secret_access",
+        "raw_log_read",
+        "raw_chat_read",
+        "raw_vpn_config_read",
+        "production_data_read"
+      ],
+      "sanitized_evidence_schema": "status_only",
+      "context_budget": {
+        "hot_path_words": 160,
+        "skill_description_chars": 260
+      },
+      "cache_sync_required": true,
+      "environment_surface_claims": [],
+      "performance_claims": [],
+      "offload_surface_claims": [],
+      "programmatic_control_claims": [],
+      "hook_claims": [],
+      "reviewer_lane_policy": {},
+      "agent_profiles": [
+        "agents/bears-platform-role-governor.toml"
+      ],
+      "open_issues": [],
+      "cutover_blockers": [],
+      "rollback_command": ""
+    },
+    {
+      "id": "blocker-evaluation",
+      "python_package": "blocker_evaluation",
+      "lifecycle_state": "legacy",
+      "canonical_source_phase": "legacy",
+      "owner_role": "bears-workflow-overlay-platform-engineer",
+      "primary_legacy_sources": [
+        "skills/bears-blocker-eval/SKILL.md"
+      ],
+      "capability_source_paths": [],
+      "active_skill_front_doors": [
+        "skills/bears-blocker-eval"
+      ],
+      "internal_front_door": "",
+      "legacy_entrypoints": [],
+      "compatibility_entrypoints": [],
+      "schemas": [],
+      "fixtures": [],
+      "tests": [],
+      "validators": [],
+      "forbidden_data": [
+        "secrets",
+        "tokens",
+        "private_keys",
+        "env_values",
+        "raw_logs",
+        "raw_chat",
+        "raw_vpn_configs",
+        "production_data",
+        "credentials",
+        "shell_history"
+      ],
+      "allowed_actions": [
+        "read_source",
+        "validate_checked_in_artifacts"
+      ],
+      "forbidden_actions": [
+        "product_code_edit",
+        "runtime_mutation",
+        "deployment_mutation",
+        "secret_access",
+        "raw_log_read",
+        "raw_chat_read",
+        "raw_vpn_config_read",
+        "production_data_read"
+      ],
+      "sanitized_evidence_schema": "status_only",
+      "context_budget": {
+        "hot_path_words": 160,
+        "skill_description_chars": 260
+      },
+      "cache_sync_required": true,
+      "environment_surface_claims": [],
+      "performance_claims": [],
+      "offload_surface_claims": [],
+      "programmatic_control_claims": [],
+      "hook_claims": [],
+      "reviewer_lane_policy": {},
+      "agent_profiles": [],
+      "open_issues": [],
+      "cutover_blockers": [],
+      "rollback_command": ""
+    },
+    {
+      "id": "subagent-orchestration",
+      "python_package": "subagent_orchestration",
+      "lifecycle_state": "legacy",
+      "canonical_source_phase": "legacy",
+      "owner_role": "bears-subagent-orchestration-engineer",
+      "primary_legacy_sources": [
+        "assets/catalog/subagent-orchestration-policy.v1.json",
+        "scripts/subagent_orchestration_policy.py"
+      ],
+      "capability_source_paths": [],
+      "active_skill_front_doors": [],
+      "internal_front_door": "",
+      "legacy_entrypoints": [
+        "python3 scripts/subagent_orchestration_policy.py validate"
+      ],
+      "compatibility_entrypoints": [],
+      "schemas": [],
+      "fixtures": [],
+      "tests": [
+        "tests/test_subagent_orchestration_policy.py"
+      ],
+      "validators": [
+        "python3 scripts/subagent_orchestration_policy.py validate"
+      ],
+      "forbidden_data": [
+        "secrets",
+        "tokens",
+        "private_keys",
+        "env_values",
+        "raw_logs",
+        "raw_chat",
+        "raw_vpn_configs",
+        "production_data",
+        "credentials",
+        "shell_history"
+      ],
+      "allowed_actions": [
+        "read_source",
+        "validate_checked_in_artifacts"
+      ],
+      "forbidden_actions": [
+        "product_code_edit",
+        "runtime_mutation",
+        "deployment_mutation",
+        "secret_access",
+        "raw_log_read",
+        "raw_chat_read",
+        "raw_vpn_config_read",
+        "production_data_read"
+      ],
+      "sanitized_evidence_schema": "status_only",
+      "context_budget": {
+        "hot_path_words": 160,
+        "skill_description_chars": 260
+      },
+      "cache_sync_required": true,
+      "environment_surface_claims": [],
+      "performance_claims": [],
+      "offload_surface_claims": [],
+      "programmatic_control_claims": [],
+      "hook_claims": [],
+      "reviewer_lane_policy": {
+        "worker_lane_taxonomy": [
+          "read_only_research",
+          "advisory_review",
+          "blocking_gate_review",
+          "fix_worker",
+          "validator_worker",
+          "audit_worker",
+          "integration_worker"
+        ],
+        "allowed_lane_modes": [
+          "advisory_async",
+          "blocking_gate"
+        ],
+        "default_lane_mode": "advisory_async",
+        "hard_stop_reasons": [
+          "merge_authority",
+          "role_coverage",
+          "restricted_data",
+          "security",
+          "secret_handling",
+          "operator_stop",
+          "linked_contract_hard_stop"
+        ],
+        "blocking_timeout_seconds": 900,
+        "wait_budget_seconds": 120,
+        "max_same_turn_wait_seconds": 0,
+        "wait_poll_interval_seconds": 0,
+        "fallback_actions": [
+          "delayed_integration_checkpoint",
+          "operator_escalation"
+        ],
+        "closeout_artifact_schema": "bears-workflow-overlay.reviewer-closeout.v1",
+        "stale_result_rule": "reject_after_stale_after",
+        "checkpoint_integration": "required",
+        "deterministic_integration_order": [
+          "hard_stop_packets",
+          "blocking_gate_fail_packets",
+          "blocking_gate_pass_packets",
+          "fix_worker_validation_packets",
+          "validator_packets",
+          "advisory_review_packets"
+        ],
+        "reviewer_self_fix_rule": "forbidden_requires_fix_worker",
+        "advisory_async": {
+          "parent_same_turn_wait_required": false,
+          "write_authority": "none",
+          "timeout_seconds": 0,
+          "wait_budget_seconds": 0,
+          "max_same_turn_wait_seconds": 0,
+          "wait_poll_interval_seconds": 0,
+          "continue_unrelated_work_after_budget": true,
+          "integration_checkpoint": "delayed_integration_checkpoint",
+          "stale_after": "PT24H",
+          "result_packet_path": "docs/audits/capability-v2/<assignment_packet_id>.review.json",
+          "self_fix_allowed": false
+        },
+        "blocking_gate": {
+          "hard_stop_reason": "linked_contract_hard_stop",
+          "timeout_seconds": 900,
+          "wait_budget_seconds": 120,
+          "max_same_turn_wait_seconds": 120,
+          "wait_poll_interval_seconds": 10,
+          "fallback_action": "operator_escalation",
+          "expected_closeout_artifact": "bears-workflow-overlay.reviewer-closeout.v1",
+          "stale_after": "PT2H",
+          "stale_result_rejection": true
+        }
+      },
+      "agent_profiles": [
+        "agents/bears-subagent-orchestration-engineer.toml"
+      ],
+      "open_issues": [],
+      "cutover_blockers": [],
+      "rollback_command": ""
+    },
+    {
+      "id": "development-workflow",
+      "python_package": "development_workflow",
+      "lifecycle_state": "legacy",
+      "canonical_source_phase": "legacy",
+      "owner_role": "bears-workflow-overlay-platform-engineer",
+      "primary_legacy_sources": [
+        "AGENTS.md",
+        "README.md",
+        "SPEC.md",
+        "requirements.md",
+        "skills/bears-governance-check/SKILL.md",
+        "skills/speckit-bears-flow/SKILL.md",
+        "skills/speckit-bears-research/SKILL.md",
+        "skills/bears-codex-health/SKILL.md",
+        "skills/development-workflow-orchestration/SKILL.md",
+        "skills/python-codeflow/SKILL.md"
+      ],
+      "capability_source_paths": [],
+      "active_skill_front_doors": [
+        "skills/bears-governance-check",
+        "skills/speckit-bears-flow",
+        "skills/speckit-bears-research",
+        "skills/bears-codex-health",
+        "skills/development-workflow-orchestration",
+        "skills/python-codeflow"
+      ],
+      "internal_front_door": "",
+      "legacy_entrypoints": [
+        "python3 scripts/validate_overlay.py --json validate --strict-overlay-skills"
+      ],
+      "compatibility_entrypoints": [],
+      "schemas": [],
+      "fixtures": [],
+      "tests": [
+        "tests/test_validate_overlay.py",
+        "tests/test_development_workflow_validate.py",
+        "tests/test_agent_workflow_map.py",
+        "tests/test_agent_action_ledger.py"
+      ],
+      "validators": [
+        "python3 scripts/validate_overlay.py --json validate --strict-overlay-skills",
+        "python3 scripts/development_workflow_validate.py validate",
+        "python3 scripts/agent_workflow_map.py validate",
+        "python3 scripts/agent_action_ledger.py validate"
+      ],
+      "forbidden_data": [
+        "secrets",
+        "tokens",
+        "private_keys",
+        "env_values",
+        "raw_logs",
+        "raw_chat",
+        "raw_vpn_configs",
+        "production_data",
+        "credentials",
+        "shell_history"
+      ],
+      "allowed_actions": [
+        "read_source",
+        "validate_checked_in_artifacts"
+      ],
+      "forbidden_actions": [
+        "product_code_edit",
+        "runtime_mutation",
+        "deployment_mutation",
+        "secret_access",
+        "raw_log_read",
+        "raw_chat_read",
+        "raw_vpn_config_read",
+        "production_data_read"
+      ],
+      "sanitized_evidence_schema": "status_only",
+      "context_budget": {
+        "hot_path_words": 160,
+        "skill_description_chars": 260
+      },
+      "cache_sync_required": true,
+      "environment_surface_claims": [],
+      "performance_claims": [],
+      "offload_surface_claims": [],
+      "programmatic_control_claims": [],
+      "hook_claims": [],
+      "reviewer_lane_policy": {
+        "worker_lane_taxonomy": [
+          "read_only_research",
+          "advisory_review",
+          "blocking_gate_review",
+          "fix_worker",
+          "validator_worker",
+          "audit_worker",
+          "integration_worker"
+        ],
+        "allowed_lane_modes": [
+          "advisory_async",
+          "blocking_gate"
+        ],
+        "default_lane_mode": "advisory_async",
+        "hard_stop_reasons": [
+          "merge_authority",
+          "role_coverage",
+          "restricted_data",
+          "security",
+          "secret_handling",
+          "operator_stop",
+          "linked_contract_hard_stop"
+        ],
+        "blocking_timeout_seconds": 900,
+        "wait_budget_seconds": 120,
+        "max_same_turn_wait_seconds": 0,
+        "wait_poll_interval_seconds": 0,
+        "fallback_actions": [
+          "delayed_integration_checkpoint",
+          "operator_escalation"
+        ],
+        "closeout_artifact_schema": "bears-workflow-overlay.reviewer-closeout.v1",
+        "stale_result_rule": "reject_after_stale_after",
+        "checkpoint_integration": "required",
+        "deterministic_integration_order": [
+          "hard_stop_packets",
+          "blocking_gate_fail_packets",
+          "blocking_gate_pass_packets",
+          "fix_worker_validation_packets",
+          "validator_packets",
+          "advisory_review_packets"
+        ],
+        "reviewer_self_fix_rule": "forbidden_requires_fix_worker",
+        "advisory_async": {
+          "parent_same_turn_wait_required": false,
+          "write_authority": "none",
+          "timeout_seconds": 0,
+          "wait_budget_seconds": 0,
+          "max_same_turn_wait_seconds": 0,
+          "wait_poll_interval_seconds": 0,
+          "continue_unrelated_work_after_budget": true,
+          "integration_checkpoint": "delayed_integration_checkpoint",
+          "stale_after": "PT24H",
+          "result_packet_path": "docs/audits/capability-v2/<assignment_packet_id>.review.json",
+          "self_fix_allowed": false
+        },
+        "blocking_gate": {
+          "hard_stop_reason": "linked_contract_hard_stop",
+          "timeout_seconds": 900,
+          "wait_budget_seconds": 120,
+          "max_same_turn_wait_seconds": 120,
+          "wait_poll_interval_seconds": 10,
+          "fallback_action": "operator_escalation",
+          "expected_closeout_artifact": "bears-workflow-overlay.reviewer-closeout.v1",
+          "stale_after": "PT2H",
+          "stale_result_rejection": true
+        }
+      },
+      "agent_profiles": [
+        "agents/bears-workflow-overlay-platform-engineer.toml"
+      ],
+      "open_issues": [],
+      "cutover_blockers": [],
+      "rollback_command": ""
+    },
+    {
+      "id": "project-registry",
+      "python_package": "project_registry",
+      "lifecycle_state": "legacy",
+      "canonical_source_phase": "legacy",
+      "owner_role": "bears-workflow-overlay-platform-engineer",
+      "primary_legacy_sources": [
+        "scripts/project_registry_gate.py",
+        "skills/project-mandate/SKILL.md"
+      ],
+      "capability_source_paths": [],
+      "active_skill_front_doors": [
+        "skills/project-mandate"
+      ],
+      "internal_front_door": "",
+      "legacy_entrypoints": [
+        "python3 scripts/project_registry_gate.py validate-registry"
+      ],
+      "compatibility_entrypoints": [],
+      "schemas": [],
+      "fixtures": [],
+      "tests": [
+        "tests/test_project_registry_gate.py"
+      ],
+      "validators": [
+        "python3 scripts/project_registry_gate.py validate-registry"
+      ],
+      "forbidden_data": [
+        "secrets",
+        "tokens",
+        "private_keys",
+        "env_values",
+        "raw_logs",
+        "raw_chat",
+        "raw_vpn_configs",
+        "production_data",
+        "credentials",
+        "shell_history"
+      ],
+      "allowed_actions": [
+        "read_source",
+        "validate_checked_in_artifacts"
+      ],
+      "forbidden_actions": [
+        "product_code_edit",
+        "runtime_mutation",
+        "deployment_mutation",
+        "secret_access",
+        "raw_log_read",
+        "raw_chat_read",
+        "raw_vpn_config_read",
+        "production_data_read"
+      ],
+      "sanitized_evidence_schema": "status_only",
+      "context_budget": {
+        "hot_path_words": 160,
+        "skill_description_chars": 260
+      },
+      "cache_sync_required": true,
+      "environment_surface_claims": [],
+      "performance_claims": [],
+      "offload_surface_claims": [],
+      "programmatic_control_claims": [],
+      "hook_claims": [],
+      "reviewer_lane_policy": {},
+      "agent_profiles": [],
+      "open_issues": [],
+      "cutover_blockers": [],
+      "rollback_command": ""
+    },
+    {
+      "id": "secret-factory",
+      "python_package": "secret_factory",
+      "lifecycle_state": "legacy",
+      "canonical_source_phase": "legacy",
+      "owner_role": "bears-secret-factory-engineer",
+      "primary_legacy_sources": [
+        "assets/catalog/secret-factory.v1.json",
+        "scripts/secret_factory.py",
+        "skills/secret-factory/SKILL.md"
+      ],
+      "capability_source_paths": [],
+      "active_skill_front_doors": [
+        "skills/secret-factory",
+        "skills/bears-infisical-ops"
+      ],
+      "internal_front_door": "",
+      "legacy_entrypoints": [
+        "python3 scripts/secret_factory.py validate"
+      ],
+      "compatibility_entrypoints": [],
+      "schemas": [],
+      "fixtures": [],
+      "tests": [
+        "tests/test_secret_factory.py"
+      ],
+      "validators": [
+        "python3 scripts/secret_factory.py validate"
+      ],
+      "forbidden_data": [
+        "secrets",
+        "tokens",
+        "private_keys",
+        "env_values",
+        "raw_logs",
+        "raw_chat",
+        "raw_vpn_configs",
+        "production_data",
+        "credentials",
+        "shell_history"
+      ],
+      "allowed_actions": [
+        "read_source",
+        "validate_checked_in_artifacts"
+      ],
+      "forbidden_actions": [
+        "product_code_edit",
+        "runtime_mutation",
+        "deployment_mutation",
+        "secret_access",
+        "raw_log_read",
+        "raw_chat_read",
+        "raw_vpn_config_read",
+        "production_data_read"
+      ],
+      "sanitized_evidence_schema": "status_only",
+      "context_budget": {
+        "hot_path_words": 160,
+        "skill_description_chars": 260
+      },
+      "cache_sync_required": true,
+      "environment_surface_claims": [],
+      "performance_claims": [],
+      "offload_surface_claims": [],
+      "programmatic_control_claims": [],
+      "hook_claims": [],
+      "reviewer_lane_policy": {},
+      "agent_profiles": [
+        "agents/bears-secret-factory-engineer.toml"
+      ],
+      "open_issues": [],
+      "cutover_blockers": [],
+      "rollback_command": ""
+    },
+    {
+      "id": "deploy-readiness",
+      "python_package": "deploy_readiness",
+      "lifecycle_state": "legacy",
+      "canonical_source_phase": "legacy",
+      "owner_role": "bears-workflow-overlay-platform-engineer",
+      "primary_legacy_sources": [
+        "assets/catalog/auth-gateway-deploy-readiness.v1.json",
+        "scripts/auth_gateway_deploy_readiness.py",
+        "skills/bears-deploy-gate/SKILL.md",
+        "workflows/auth-gateway-deploy-core/workflow.yml"
+      ],
+      "capability_source_paths": [],
+      "active_skill_front_doors": [
+        "skills/bears-deploy-gate",
+        "skills/bears-kubernetes-ops"
+      ],
+      "internal_front_door": "",
+      "legacy_entrypoints": [
+        "python3 scripts/auth_gateway_deploy_readiness.py validate"
+      ],
+      "compatibility_entrypoints": [],
+      "schemas": [],
+      "fixtures": [],
+      "tests": [
+        "tests/test_auth_gateway_deploy_readiness.py"
+      ],
+      "validators": [
+        "python3 scripts/auth_gateway_deploy_readiness.py validate"
+      ],
+      "forbidden_data": [
+        "secrets",
+        "tokens",
+        "private_keys",
+        "env_values",
+        "raw_logs",
+        "raw_chat",
+        "raw_vpn_configs",
+        "production_data",
+        "credentials",
+        "shell_history"
+      ],
+      "allowed_actions": [
+        "read_source",
+        "validate_checked_in_artifacts"
+      ],
+      "forbidden_actions": [
+        "product_code_edit",
+        "runtime_mutation",
+        "deployment_mutation",
+        "secret_access",
+        "raw_log_read",
+        "raw_chat_read",
+        "raw_vpn_config_read",
+        "production_data_read"
+      ],
+      "sanitized_evidence_schema": "status_only",
+      "context_budget": {
+        "hot_path_words": 160,
+        "skill_description_chars": 260
+      },
+      "cache_sync_required": true,
+      "environment_surface_claims": [],
+      "performance_claims": [],
+      "offload_surface_claims": [],
+      "programmatic_control_claims": [],
+      "hook_claims": [],
+      "reviewer_lane_policy": {},
+      "agent_profiles": [],
+      "open_issues": [],
+      "cutover_blockers": [],
+      "rollback_command": ""
+    },
+    {
+      "id": "telegram-workflow",
+      "python_package": "telegram_workflow",
+      "lifecycle_state": "legacy",
+      "canonical_source_phase": "legacy",
+      "owner_role": "bears-telegram-platform-engineer",
+      "primary_legacy_sources": [
+        "assets/catalog/telegram-workflow-catalog.v1.json",
+        "assets/catalog/telegram-aiogram-migration-backlog.v1.json",
+        "assets/catalog/telegram-plugin-skill-factory-policy.v1.json",
+        "assets/catalog/telegram-runtime-readiness.v1.json",
+        "scripts/telegram_catalog.py",
+        "scripts/telegram_migration_backlog.py",
+        "scripts/telegram_runtime_readiness.py",
+        "scripts/telegram_skill_factory_policy.py",
+        "scripts/telegram_surface_inventory.py",
+        "skills/bears-telegram-workflow/SKILL.disabled.md",
+        "skills/telegram-aiogram-migration/SKILL.disabled.md",
+        "skills/telegram-plugin-skill-factory/SKILL.disabled.md",
+        "skills/telegram-quality-testing/SKILL.disabled.md"
+      ],
+      "capability_source_paths": [],
+      "active_skill_front_doors": [],
+      "internal_front_door": "",
+      "legacy_entrypoints": [
+        "python3 scripts/telegram_catalog.py validate",
+        "python3 scripts/telegram_runtime_readiness.py validate"
+      ],
+      "compatibility_entrypoints": [],
+      "schemas": [],
+      "fixtures": [],
+      "tests": [
+        "tests/test_telegram_catalog.py",
+        "tests/test_telegram_runtime_readiness.py",
+        "tests/test_telegram_skill_factory_policy.py",
+        "tests/test_telegram_surface_inventory.py"
+      ],
+      "validators": [
+        "python3 scripts/telegram_catalog.py validate",
+        "python3 scripts/telegram_runtime_readiness.py validate"
+      ],
+      "forbidden_data": [
+        "secrets",
+        "tokens",
+        "private_keys",
+        "env_values",
+        "raw_logs",
+        "raw_chat",
+        "raw_vpn_configs",
+        "production_data",
+        "credentials",
+        "shell_history"
+      ],
+      "allowed_actions": [
+        "read_source",
+        "validate_checked_in_artifacts"
+      ],
+      "forbidden_actions": [
+        "product_code_edit",
+        "runtime_mutation",
+        "deployment_mutation",
+        "secret_access",
+        "raw_log_read",
+        "raw_chat_read",
+        "raw_vpn_config_read",
+        "production_data_read"
+      ],
+      "sanitized_evidence_schema": "status_only",
+      "context_budget": {
+        "hot_path_words": 160,
+        "skill_description_chars": 260
+      },
+      "cache_sync_required": true,
+      "environment_surface_claims": [],
+      "performance_claims": [],
+      "offload_surface_claims": [],
+      "programmatic_control_claims": [],
+      "hook_claims": [],
+      "reviewer_lane_policy": {},
+      "agent_profiles": [
+        "agents/bears-telegram-platform-engineer.toml"
+      ],
+      "open_issues": [],
+      "cutover_blockers": [],
+      "rollback_command": ""
+    },
+    {
+      "id": "roadmap-control",
+      "python_package": "roadmap_control",
+      "lifecycle_state": "legacy",
+      "canonical_source_phase": "legacy",
+      "owner_role": "bears-workflow-overlay-platform-engineer",
+      "primary_legacy_sources": [
+        "assets/catalog/roadmap-control.v1.json",
+        "scripts/roadmap_control.py"
+      ],
+      "capability_source_paths": [],
+      "active_skill_front_doors": [],
+      "internal_front_door": "",
+      "legacy_entrypoints": [
+        "python3 scripts/roadmap_control.py validate"
+      ],
+      "compatibility_entrypoints": [],
+      "schemas": [],
+      "fixtures": [],
+      "tests": [
+        "tests/test_roadmap_control.py"
+      ],
+      "validators": [
+        "python3 scripts/roadmap_control.py validate"
+      ],
+      "forbidden_data": [
+        "secrets",
+        "tokens",
+        "private_keys",
+        "env_values",
+        "raw_logs",
+        "raw_chat",
+        "raw_vpn_configs",
+        "production_data",
+        "credentials",
+        "shell_history"
+      ],
+      "allowed_actions": [
+        "read_source",
+        "validate_checked_in_artifacts"
+      ],
+      "forbidden_actions": [
+        "product_code_edit",
+        "runtime_mutation",
+        "deployment_mutation",
+        "secret_access",
+        "raw_log_read",
+        "raw_chat_read",
+        "raw_vpn_config_read",
+        "production_data_read"
+      ],
+      "sanitized_evidence_schema": "status_only",
+      "context_budget": {
+        "hot_path_words": 160,
+        "skill_description_chars": 260
+      },
+      "cache_sync_required": true,
+      "environment_surface_claims": [],
+      "performance_claims": [],
+      "offload_surface_claims": [],
+      "programmatic_control_claims": [],
+      "hook_claims": [],
+      "reviewer_lane_policy": {},
+      "agent_profiles": [],
+      "open_issues": [],
+      "cutover_blockers": [],
+      "rollback_command": ""
+    },
+    {
+      "id": "goal-prompt-generation",
+      "python_package": "goal_prompt_generation",
+      "lifecycle_state": "legacy",
+      "canonical_source_phase": "legacy",
+      "owner_role": "bears-goal-prompt-generator",
+      "primary_legacy_sources": [
+        "skills/bears-goal-prompt/SKILL.md"
+      ],
+      "capability_source_paths": [],
+      "active_skill_front_doors": [
+        "skills/bears-goal-prompt"
+      ],
+      "internal_front_door": "",
+      "legacy_entrypoints": [],
+      "compatibility_entrypoints": [],
+      "schemas": [],
+      "fixtures": [],
+      "tests": [],
+      "validators": [],
+      "forbidden_data": [
+        "secrets",
+        "tokens",
+        "private_keys",
+        "env_values",
+        "raw_logs",
+        "raw_chat",
+        "raw_vpn_configs",
+        "production_data",
+        "credentials",
+        "shell_history"
+      ],
+      "allowed_actions": [
+        "read_source",
+        "validate_checked_in_artifacts"
+      ],
+      "forbidden_actions": [
+        "product_code_edit",
+        "runtime_mutation",
+        "deployment_mutation",
+        "secret_access",
+        "raw_log_read",
+        "raw_chat_read",
+        "raw_vpn_config_read",
+        "production_data_read"
+      ],
+      "sanitized_evidence_schema": "status_only",
+      "context_budget": {
+        "hot_path_words": 160,
+        "skill_description_chars": 260
+      },
+      "cache_sync_required": true,
+      "environment_surface_claims": [],
+      "performance_claims": [],
+      "offload_surface_claims": [],
+      "programmatic_control_claims": [],
+      "hook_claims": [],
+      "reviewer_lane_policy": {},
+      "agent_profiles": [
+        "agents/bears-goal-prompt-generator.toml"
+      ],
+      "open_issues": [],
+      "cutover_blockers": [],
+      "rollback_command": ""
+    },
+    {
+      "id": "git-discipline",
+      "python_package": "git_discipline",
+      "lifecycle_state": "legacy",
+      "canonical_source_phase": "legacy",
+      "owner_role": "bears-workflow-overlay-platform-engineer",
+      "primary_legacy_sources": [
+        "assets/catalog/git-discipline.v1.json",
+        "scripts/git_discipline.py"
+      ],
+      "capability_source_paths": [],
+      "active_skill_front_doors": [],
+      "internal_front_door": "",
+      "legacy_entrypoints": [
+        "python3 scripts/git_discipline.py validate"
+      ],
+      "compatibility_entrypoints": [],
+      "schemas": [],
+      "fixtures": [],
+      "tests": [
+        "tests/test_git_discipline.py"
+      ],
+      "validators": [
+        "python3 scripts/git_discipline.py validate"
+      ],
+      "forbidden_data": [
+        "secrets",
+        "tokens",
+        "private_keys",
+        "env_values",
+        "raw_logs",
+        "raw_chat",
+        "raw_vpn_configs",
+        "production_data",
+        "credentials",
+        "shell_history"
+      ],
+      "allowed_actions": [
+        "read_source",
+        "validate_checked_in_artifacts"
+      ],
+      "forbidden_actions": [
+        "product_code_edit",
+        "runtime_mutation",
+        "deployment_mutation",
+        "secret_access",
+        "raw_log_read",
+        "raw_chat_read",
+        "raw_vpn_config_read",
+        "production_data_read"
+      ],
+      "sanitized_evidence_schema": "status_only",
+      "context_budget": {
+        "hot_path_words": 160,
+        "skill_description_chars": 260
+      },
+      "cache_sync_required": true,
+      "environment_surface_claims": [],
+      "performance_claims": [],
+      "offload_surface_claims": [],
+      "programmatic_control_claims": [],
+      "hook_claims": [],
+      "reviewer_lane_policy": {},
+      "agent_profiles": [],
+      "open_issues": [],
+      "cutover_blockers": [],
+      "rollback_command": ""
+    },
+    {
+      "id": "plugin-constitution",
+      "python_package": "plugin_constitution",
+      "lifecycle_state": "dual",
+      "canonical_source_phase": "legacy",
+      "owner_role": "bears-plugin-constitution-governor",
+      "primary_legacy_sources": [
+        "assets/catalog/plugin-constitution.v1.json",
+        "scripts/plugin_constitution.py",
+        "docs/reference/plugin-constitution.md"
+      ],
+      "capability_source_paths": [
+        "capabilities/plugin_constitution/AGENTS.md",
+        "capabilities/plugin_constitution/README.md",
+        "capabilities/plugin_constitution/__init__.py",
+        "capabilities/plugin_constitution/capability.json",
+        "capabilities/plugin_constitution/schemas/validation-result.schema.json",
+        "capabilities/plugin_constitution/scripts/validate.py",
+        "capabilities/plugin_constitution/fixtures/pass/catalog.valid.json",
+        "capabilities/plugin_constitution/fixtures/fail/catalog.invalid.json",
+        "capabilities/plugin_constitution/tests/test_validate.py"
+      ],
+      "active_skill_front_doors": [],
+      "internal_front_door": "",
+      "legacy_entrypoints": [
+        "python3 scripts/plugin_constitution.py validate"
+      ],
+      "compatibility_entrypoints": [
+        "python3 capabilities/plugin_constitution/scripts/validate.py --json"
+      ],
+      "schemas": [
+        "capabilities/plugin_constitution/schemas/validation-result.schema.json"
+      ],
+      "fixtures": [
+        "capabilities/plugin_constitution/fixtures/pass/catalog.valid.json",
+        "capabilities/plugin_constitution/fixtures/fail/catalog.invalid.json"
+      ],
+      "tests": [
+        "tests/test_plugin_constitution.py",
+        "capabilities/plugin_constitution/tests/test_validate.py"
+      ],
+      "validators": [
+        "python3 scripts/plugin_constitution.py validate",
+        "python3 capabilities/plugin_constitution/scripts/validate.py --json"
+      ],
+      "forbidden_data": [
+        "secrets",
+        "tokens",
+        "private_keys",
+        "env_values",
+        "raw_logs",
+        "raw_chat",
+        "raw_vpn_configs",
+        "production_data",
+        "credentials",
+        "shell_history"
+      ],
+      "allowed_actions": [
+        "read_checked_in_constitution_artifacts",
+        "run_legacy_constitution_validation",
+        "emit_deterministic_status"
+      ],
+      "forbidden_actions": [
+        "product_code_edit",
+        "runtime_mutation",
+        "deployment_mutation",
+        "app_connector_mcp_surface_change",
+        "secret_access",
+        "raw_log_read",
+        "raw_chat_read",
+        "raw_vpn_config_read",
+        "production_data_read",
+        "codex_environment_mutation"
+      ],
+      "sanitized_evidence_schema": "bears-plugin-constitution-capability-validation.v1",
+      "context_budget": {
+        "hot_path_words": 120,
+        "fixture_bytes_max": 65536
+      },
+      "cache_sync_required": true,
+      "environment_surface_claims": [],
+      "performance_claims": [],
+      "offload_surface_claims": [],
+      "programmatic_control_claims": [],
+      "hook_claims": [],
+      "reviewer_lane_policy": {},
+      "agent_profiles": [
+        "agents/bears-plugin-constitution-governor.toml"
+      ],
+      "open_issues": [],
+      "cutover_blockers": [],
+      "rollback_command": "remove capabilities/plugin_constitution and restore plugin-constitution inventory row to lifecycle_state=legacy"
+    },
+    {
+      "id": "validation-hooks",
+      "python_package": "validation_hooks",
+      "lifecycle_state": "legacy",
+      "canonical_source_phase": "legacy",
+      "owner_role": "bears-workflow-overlay-platform-engineer",
+      "primary_legacy_sources": [
+        "scripts/validate_overlay.py",
+        "skills/bears-workflow-validate/SKILL.md"
+      ],
+      "capability_source_paths": [],
+      "active_skill_front_doors": [
+        "skills/bears-workflow-validate"
+      ],
+      "internal_front_door": "",
+      "legacy_entrypoints": [
+        "python3 scripts/validate_overlay.py --json validate --strict-overlay-skills"
+      ],
+      "compatibility_entrypoints": [],
+      "schemas": [],
+      "fixtures": [],
+      "tests": [
+        "tests/test_validate_overlay.py"
+      ],
+      "validators": [
+        "python3 scripts/validate_overlay.py --json validate --strict-overlay-skills"
+      ],
+      "forbidden_data": [
+        "secrets",
+        "tokens",
+        "private_keys",
+        "env_values",
+        "raw_logs",
+        "raw_chat",
+        "raw_vpn_configs",
+        "production_data",
+        "credentials",
+        "shell_history"
+      ],
+      "allowed_actions": [
+        "read_source",
+        "validate_checked_in_artifacts"
+      ],
+      "forbidden_actions": [
+        "product_code_edit",
+        "runtime_mutation",
+        "deployment_mutation",
+        "secret_access",
+        "raw_log_read",
+        "raw_chat_read",
+        "raw_vpn_config_read",
+        "production_data_read"
+      ],
+      "sanitized_evidence_schema": "status_only",
+      "context_budget": {
+        "hot_path_words": 160,
+        "skill_description_chars": 260
+      },
+      "cache_sync_required": true,
+      "environment_surface_claims": [],
+      "performance_claims": [],
+      "offload_surface_claims": [],
+      "programmatic_control_claims": [],
+      "hook_claims": [],
+      "reviewer_lane_policy": {},
+      "agent_profiles": [],
+      "open_issues": [],
+      "cutover_blockers": [],
+      "rollback_command": ""
+    },
+    {
+      "id": "agent-registration-sync",
+      "python_package": "agent_registration_sync",
+      "lifecycle_state": "legacy",
+      "canonical_source_phase": "legacy",
+      "owner_role": "bears-agent-registration-engineer",
+      "primary_legacy_sources": [
+        "scripts/agent_registration_sync.py"
+      ],
+      "capability_source_paths": [],
+      "active_skill_front_doors": [],
+      "internal_front_door": "",
+      "legacy_entrypoints": [
+        "python3 scripts/agent_registration_sync.py validate"
+      ],
+      "compatibility_entrypoints": [],
+      "schemas": [],
+      "fixtures": [],
+      "tests": [
+        "tests/test_agent_registration_sync.py"
+      ],
+      "validators": [
+        "python3 scripts/agent_registration_sync.py validate"
+      ],
+      "forbidden_data": [
+        "secrets",
+        "tokens",
+        "private_keys",
+        "env_values",
+        "raw_logs",
+        "raw_chat",
+        "raw_vpn_configs",
+        "production_data",
+        "credentials",
+        "shell_history"
+      ],
+      "allowed_actions": [
+        "read_source",
+        "validate_checked_in_artifacts"
+      ],
+      "forbidden_actions": [
+        "product_code_edit",
+        "runtime_mutation",
+        "deployment_mutation",
+        "secret_access",
+        "raw_log_read",
+        "raw_chat_read",
+        "raw_vpn_config_read",
+        "production_data_read"
+      ],
+      "sanitized_evidence_schema": "status_only",
+      "context_budget": {
+        "hot_path_words": 160,
+        "skill_description_chars": 260
+      },
+      "cache_sync_required": true,
+      "environment_surface_claims": [],
+      "performance_claims": [],
+      "offload_surface_claims": [],
+      "programmatic_control_claims": [],
+      "hook_claims": [],
+      "reviewer_lane_policy": {},
+      "agent_profiles": [],
+      "open_issues": [],
+      "cutover_blockers": [],
+      "rollback_command": ""
+    },
+    {
+      "id": "agent-github-dev-cd",
+      "python_package": "agent_github_dev_cd",
+      "lifecycle_state": "legacy",
+      "canonical_source_phase": "legacy",
+      "owner_role": "bears-agent-github-dev-cd-engineer",
+      "primary_legacy_sources": [
+        "assets/catalog/agent-github-dev-cd.v1.json",
+        "scripts/agent_github_dev_cd.py",
+        "workflows/agent-github-dev-cd/workflow.yml"
+      ],
+      "capability_source_paths": [],
+      "active_skill_front_doors": [],
+      "internal_front_door": "",
+      "legacy_entrypoints": [
+        "python3 scripts/agent_github_dev_cd.py validate"
+      ],
+      "compatibility_entrypoints": [],
+      "schemas": [],
+      "fixtures": [],
+      "tests": [
+        "tests/test_agent_github_dev_cd.py"
+      ],
+      "validators": [
+        "python3 scripts/agent_github_dev_cd.py validate"
+      ],
+      "forbidden_data": [
+        "secrets",
+        "tokens",
+        "private_keys",
+        "env_values",
+        "raw_logs",
+        "raw_chat",
+        "raw_vpn_configs",
+        "production_data",
+        "credentials",
+        "shell_history"
+      ],
+      "allowed_actions": [
+        "read_source",
+        "validate_checked_in_artifacts"
+      ],
+      "forbidden_actions": [
+        "product_code_edit",
+        "runtime_mutation",
+        "deployment_mutation",
+        "secret_access",
+        "raw_log_read",
+        "raw_chat_read",
+        "raw_vpn_config_read",
+        "production_data_read"
+      ],
+      "sanitized_evidence_schema": "status_only",
+      "context_budget": {
+        "hot_path_words": 160,
+        "skill_description_chars": 260
+      },
+      "cache_sync_required": true,
+      "environment_surface_claims": [],
+      "performance_claims": [],
+      "offload_surface_claims": [],
+      "programmatic_control_claims": [],
+      "hook_claims": [],
+      "reviewer_lane_policy": {
+        "worker_lane_taxonomy": [
+          "read_only_research",
+          "advisory_review",
+          "blocking_gate_review",
+          "fix_worker",
+          "validator_worker",
+          "audit_worker",
+          "integration_worker"
+        ],
+        "allowed_lane_modes": [
+          "advisory_async",
+          "blocking_gate"
+        ],
+        "default_lane_mode": "advisory_async",
+        "hard_stop_reasons": [
+          "merge_authority",
+          "role_coverage",
+          "restricted_data",
+          "security",
+          "secret_handling",
+          "operator_stop",
+          "linked_contract_hard_stop"
+        ],
+        "blocking_timeout_seconds": 900,
+        "wait_budget_seconds": 120,
+        "max_same_turn_wait_seconds": 0,
+        "wait_poll_interval_seconds": 0,
+        "fallback_actions": [
+          "delayed_integration_checkpoint",
+          "operator_escalation"
+        ],
+        "closeout_artifact_schema": "bears-workflow-overlay.reviewer-closeout.v1",
+        "stale_result_rule": "reject_after_stale_after",
+        "checkpoint_integration": "required",
+        "deterministic_integration_order": [
+          "hard_stop_packets",
+          "blocking_gate_fail_packets",
+          "blocking_gate_pass_packets",
+          "fix_worker_validation_packets",
+          "validator_packets",
+          "advisory_review_packets"
+        ],
+        "reviewer_self_fix_rule": "forbidden_requires_fix_worker",
+        "advisory_async": {
+          "parent_same_turn_wait_required": false,
+          "write_authority": "none",
+          "timeout_seconds": 0,
+          "wait_budget_seconds": 0,
+          "max_same_turn_wait_seconds": 0,
+          "wait_poll_interval_seconds": 0,
+          "continue_unrelated_work_after_budget": true,
+          "integration_checkpoint": "delayed_integration_checkpoint",
+          "stale_after": "PT24H",
+          "result_packet_path": "docs/audits/capability-v2/<assignment_packet_id>.review.json",
+          "self_fix_allowed": false
+        },
+        "blocking_gate": {
+          "hard_stop_reason": "linked_contract_hard_stop",
+          "timeout_seconds": 900,
+          "wait_budget_seconds": 120,
+          "max_same_turn_wait_seconds": 120,
+          "wait_poll_interval_seconds": 10,
+          "fallback_action": "operator_escalation",
+          "expected_closeout_artifact": "bears-workflow-overlay.reviewer-closeout.v1",
+          "stale_after": "PT2H",
+          "stale_result_rejection": true
+        }
+      },
+      "agent_profiles": [],
+      "open_issues": [],
+      "cutover_blockers": [],
+      "rollback_command": ""
+    },
+    {
+      "id": "yandex360-dns",
+      "python_package": "yandex360_dns",
+      "lifecycle_state": "legacy",
+      "canonical_source_phase": "legacy",
+      "owner_role": "bears-workflow-overlay-platform-engineer",
+      "primary_legacy_sources": [
+        "skills/yandex360-dns/SKILL.md"
+      ],
+      "capability_source_paths": [],
+      "active_skill_front_doors": [
+        "skills/yandex360-dns"
+      ],
+      "internal_front_door": "",
+      "legacy_entrypoints": [],
+      "compatibility_entrypoints": [],
+      "schemas": [],
+      "fixtures": [],
+      "tests": [],
+      "validators": [],
+      "forbidden_data": [
+        "secrets",
+        "tokens",
+        "private_keys",
+        "env_values",
+        "raw_logs",
+        "raw_chat",
+        "raw_vpn_configs",
+        "production_data",
+        "credentials",
+        "shell_history"
+      ],
+      "allowed_actions": [
+        "read_source",
+        "validate_checked_in_artifacts"
+      ],
+      "forbidden_actions": [
+        "product_code_edit",
+        "runtime_mutation",
+        "deployment_mutation",
+        "secret_access",
+        "raw_log_read",
+        "raw_chat_read",
+        "raw_vpn_config_read",
+        "production_data_read"
+      ],
+      "sanitized_evidence_schema": "status_only",
+      "context_budget": {
+        "hot_path_words": 160,
+        "skill_description_chars": 260
+      },
+      "cache_sync_required": true,
+      "environment_surface_claims": [],
+      "performance_claims": [],
+      "offload_surface_claims": [],
+      "programmatic_control_claims": [],
+      "hook_claims": [],
+      "reviewer_lane_policy": {},
+      "agent_profiles": [],
+      "open_issues": [],
+      "cutover_blockers": [],
+      "rollback_command": ""
+    },
+    {
+      "id": "sentry-runtime-governance",
+      "python_package": "sentry_runtime_governance",
+      "lifecycle_state": "planned",
+      "canonical_source_phase": "inventory",
+      "owner_role": "bears-sentry-observability-engineer",
+      "primary_legacy_sources": [],
+      "capability_source_paths": [],
+      "active_skill_front_doors": [],
+      "internal_front_door": "",
+      "legacy_entrypoints": [],
+      "compatibility_entrypoints": [],
+      "schemas": [],
+      "fixtures": [],
+      "tests": [],
+      "validators": [],
+      "forbidden_data": [
+        "secrets",
+        "tokens",
+        "private_keys",
+        "env_values",
+        "raw_logs",
+        "raw_chat",
+        "raw_vpn_configs",
+        "production_data",
+        "credentials",
+        "shell_history"
+      ],
+      "allowed_actions": [
+        "read_source",
+        "validate_checked_in_artifacts"
+      ],
+      "forbidden_actions": [
+        "product_code_edit",
+        "runtime_mutation",
+        "deployment_mutation",
+        "secret_access",
+        "raw_log_read",
+        "raw_chat_read",
+        "raw_vpn_config_read",
+        "production_data_read"
+      ],
+      "sanitized_evidence_schema": "status_only",
+      "context_budget": {
+        "hot_path_words": 160,
+        "skill_description_chars": 260
+      },
+      "cache_sync_required": true,
+      "environment_surface_claims": [],
+      "performance_claims": [],
+      "offload_surface_claims": [],
+      "programmatic_control_claims": [],
+      "hook_claims": [],
+      "reviewer_lane_policy": {},
+      "agent_profiles": [],
+      "open_issues": [
+        "planned inventory row; source migration not started"
+      ],
+      "cutover_blockers": [
+        "capability package not implemented"
+      ],
+      "rollback_command": ""
+    }
+  ],
+  "rule_coverage": [
+    {
+      "rule_id": "parity-restricted-data-validation",
+      "source_path": "docs/reference/capability-governance-rules.md",
+      "source_anchor": "P1-09 parity-and-restricted-data-validation",
+      "rule_class": "validator",
+      "owner_capability_id": "validation-hooks",
+      "router_allowed": false,
+      "schema_paths": [
+        "capabilities/inventory.v1.json"
+      ],
+      "validator_subcommands": [
+        "validate-parity",
+        "validate-restricted-data"
+      ],
+      "pass_fixture_ids": [
+        "parity/pass/pilot_fixture_presence.valid.json",
+        "restricted_data/pass/safe_evidence_packet.json"
+      ],
+      "fail_fixture_ids": [
+        "parity/fail/pilot_missing_fail_fixture.mutation.json",
+        "restricted_data/fail/synthetic-marker-mutation.json"
+      ],
+      "failure_class": "PARITY_FAIL_FIXTURE_REQUIRED|RESTRICTED_DATA_MARKER",
+      "status_packet_field": "restricted_data_status",
+      "legacy_exception_id": "",
+      "sunset_phase": "phase-1"
+    },
+    {
+      "rule_id": "environment-packet-validation",
+      "source_path": "docs/reference/capability-governance-rules.md",
+      "source_anchor": "P1-10 environment-packet-validation",
+      "rule_class": "validator",
+      "owner_capability_id": "validation-hooks",
+      "router_allowed": false,
+      "schema_paths": [
+        "tests/fixtures/capability_layout/environment_packets/pass/config_change_request.valid.json"
+      ],
+      "validator_subcommands": [
+        "snapshot-environment",
+        "plan-environment-operation",
+        "validate-environment-packet"
+      ],
+      "pass_fixture_ids": [
+        "environment_packets/pass/config_change_request.valid.json"
+      ],
+      "fail_fixture_ids": [
+        "environment_packets/fail/default_apply.invalid.json",
+        "environment_packets/fail/missing_rollback.invalid.json",
+        "environment_packets/fail/unknown_surface.invalid.json",
+        "environment_packets/fail/missing_authorization.invalid.json"
+      ],
+      "failure_class": "ENV_DEFAULT_APPLY|ENV_ROLLBACK_REQUIRED|ENV_TARGET_SURFACE_UNLISTED|ENV_AUTHORIZATION_ARTIFACT",
+      "status_packet_field": "environment_operation_packet_validation",
+      "legacy_exception_id": "",
+      "sunset_phase": "phase-1"
+    },
+    {
+      "rule_id": "optimization-lane-validation",
+      "source_path": "docs/reference/capability-governance-rules.md",
+      "source_anchor": "P1-11 optimization-lane-validation",
+      "rule_class": "validator",
+      "owner_capability_id": "validation-hooks",
+      "router_allowed": false,
+      "schema_paths": [
+        "tests/fixtures/capability_layout/optimization_lanes/pass/effective_config_resolution.valid.json"
+      ],
+      "validator_subcommands": [
+        "validate-optimization-plan"
+      ],
+      "pass_fixture_ids": [
+        "optimization_lanes/pass/effective_config_resolution.valid.json"
+      ],
+      "fail_fixture_ids": [
+        "optimization_lanes/fail/missing_env_packet.invalid.json",
+        "optimization_lanes/fail/metric_mismatch.invalid.json",
+        "optimization_lanes/fail/hooks_disabled.invalid.json",
+        "optimization_lanes/fail/raw_source.invalid.json",
+        "optimization_lanes/fail/effective_snapshot_missing.invalid.json",
+        "optimization_lanes/fail/fast_mode_without_cost.invalid.json",
+        "optimization_lanes/fail/offload_without_evidence.invalid.json",
+        "optimization_lanes/fail/performance_without_evidence.invalid.json",
+        "optimization_lanes/fail/plugin_cache_not_pass.invalid.json",
+        "optimization_lanes/fail/programmatic_without_evidence.invalid.json",
+        "optimization_lanes/fail/spawn_without_proof.invalid.json",
+        "optimization_lanes/fail/subagent_cap_without_explicit.invalid.json",
+        "optimization_lanes/fail/web_search_without_auth.invalid.json"
+      ],
+      "failure_class": "OPTIMIZATION_ENV_PACKET_REQUIRED|OPTIMIZATION_METRIC_MISMATCH|OPTIMIZATION_HOOKS_DISABLED|OPTIMIZATION_RAW_SOURCE|OPTIMIZATION_SPAWN_PROOF|OPTIMIZATION_PLUGIN_CACHE|OPTIMIZATION_EFFECTIVE_SNAPSHOT|OPTIMIZATION_PERFORMANCE_EVIDENCE|OPTIMIZATION_OFFLOAD_EVIDENCE|OPTIMIZATION_PROGRAMMATIC_EVIDENCE|OPTIMIZATION_WEB_SEARCH_AUTH|OPTIMIZATION_FAST_MODE_COST|OPTIMIZATION_SUBAGENT_CAP",
+      "status_packet_field": "optimization_lane_packet_validation",
+      "legacy_exception_id": "",
+      "sunset_phase": "phase-1"
+    },
+    {
+      "rule_id": "effective-config-resolution",
+      "source_path": "docs/reference/capability-governance-rules.md",
+      "source_anchor": "P1-12 effective-config-resolution",
+      "rule_class": "validator",
+      "owner_capability_id": "validation-hooks",
+      "router_allowed": false,
+      "schema_paths": [
+        "tests/fixtures/capability_layout/effective_config/pass/trusted_project_layer.valid.json"
+      ],
+      "validator_subcommands": [
+        "resolve-effective-environment",
+        "validate-effective-config",
+        "validate-managed-requirements"
+      ],
+      "pass_fixture_ids": [
+        "effective_config/pass/trusted_project_layer.valid.json"
+      ],
+      "fail_fixture_ids": [
+        "effective_config/fail/project_ignored_key.invalid.json",
+        "effective_config/fail/hooks_disabled_claim.invalid.json",
+        "effective_config/fail/custom_agent_missing_materialization.invalid.json",
+        "effective_config/fail/plugin_cache_not_pass.invalid.json",
+        "effective_config/fail/raw_config_values.invalid.json",
+        "effective_config/fail/mcp_endpoint_field.invalid.json",
+        "effective_config/fail/telemetry_endpoint_field.invalid.json",
+        "effective_config/fail/remote_without_trust.invalid.json",
+        "effective_config/fail/apps_without_permission.invalid.json",
+        "effective_config/fail/programmatic_missing_validation.invalid.json",
+        "effective_config/fail/missing_redacted_fields.invalid.json"
+      ],
+      "failure_class": "EFFECTIVE_PROJECT_IGNORED_KEY|EFFECTIVE_HOOKS_DISABLED|EFFECTIVE_CUSTOM_AGENT_MATERIALIZATION|EFFECTIVE_PLUGIN_CACHE|EFFECTIVE_RAW_FIELD|EFFECTIVE_REMOTE_HOST_TRUST|EFFECTIVE_APPS_PERMISSION_POLICY|EFFECTIVE_PROGRAMMATIC_VALIDATION|EFFECTIVE_REDACTED_FIELDS",
+      "status_packet_field": "effective_environment_resolution_validation",
+      "legacy_exception_id": "",
+      "sunset_phase": "phase-1"
+    },
+    {
+      "rule_id": "codex-performance-control",
+      "source_path": "docs/reference/capability-governance-rules.md",
+      "source_anchor": "P1-13 codex-performance-control",
+      "rule_class": "validator",
+      "owner_capability_id": "validation-hooks",
+      "router_allowed": false,
+      "schema_paths": [
+        "tests/fixtures/capability_layout/performance_lanes/pass/all_surfaces.valid.json"
+      ],
+      "validator_subcommands": [
+        "validate-performance-claims"
+      ],
+      "pass_fixture_ids": [
+        "performance_lanes/pass/all_surfaces.valid.json"
+      ],
+      "fail_fixture_ids": [
+        "performance_lanes/fail/fast_mode_without_cost.invalid.json",
+        "performance_lanes/fail/missing_rollback.invalid.json",
+        "performance_lanes/fail/permission_without_authorization.invalid.json",
+        "performance_lanes/fail/snapshot_mismatch.invalid.json",
+        "performance_lanes/fail/missing_surface.invalid.json"
+      ],
+      "failure_class": "PERFORMANCE_COST_ACK|PERFORMANCE_REQUIRED_COMMAND|PERFORMANCE_OPERATOR_AUTH|PERFORMANCE_EFFECTIVE_SNAPSHOT_ID|PERFORMANCE_SURFACE_COVERAGE",
+      "status_packet_field": "performance_claim_validation",
+      "legacy_exception_id": "",
+      "sunset_phase": "phase-1"
+    },
+    {
+      "rule_id": "codex-offload-control",
+      "source_path": "docs/reference/capability-governance-rules.md",
+      "source_anchor": "P1-14 codex-offload-control",
+      "rule_class": "validator",
+      "owner_capability_id": "validation-hooks",
+      "router_allowed": false,
+      "schema_paths": [
+        "tests/fixtures/capability_layout/offload_surfaces/pass/all_surfaces.valid.json"
+      ],
+      "validator_subcommands": [
+        "validate-offload-claims"
+      ],
+      "pass_fixture_ids": [
+        "offload_surfaces/pass/all_surfaces.valid.json"
+      ],
+      "fail_fixture_ids": [
+        "offload_surfaces/fail/missing_permission_policy.invalid.json",
+        "offload_surfaces/fail/missing_write_isolation.invalid.json",
+        "offload_surfaces/fail/missing_cleanup.invalid.json",
+        "offload_surfaces/fail/missing_env_packet.invalid.json",
+        "offload_surfaces/fail/snapshot_mismatch.invalid.json"
+      ],
+      "failure_class": "OFFLOAD_PERMISSION_POLICY|OFFLOAD_WRITE_ISOLATION|OFFLOAD_CLEANUP_COMMAND|OFFLOAD_ENV_PACKET_REQUIRED|OFFLOAD_EFFECTIVE_SNAPSHOT_ID",
+      "status_packet_field": "offload_surface_validation",
+      "legacy_exception_id": "",
+      "sunset_phase": "phase-1"
+    },
+    {
+      "rule_id": "codex-programmatic-surface-control",
+      "source_path": "docs/reference/capability-governance-rules.md",
+      "source_anchor": "P1-15 codex-programmatic-surface-control",
+      "rule_class": "validator",
+      "owner_capability_id": "validation-hooks",
+      "router_allowed": false,
+      "schema_paths": [
+        "tests/fixtures/capability_layout/programmatic_surfaces/pass/all_surfaces.valid.json"
+      ],
+      "validator_subcommands": [
+        "validate-programmatic-surfaces"
+      ],
+      "pass_fixture_ids": [
+        "programmatic_surfaces/pass/all_surfaces.valid.json"
+      ],
+      "fail_fixture_ids": [
+        "programmatic_surfaces/fail/missing_environment_owner.invalid.json",
+        "programmatic_surfaces/fail/missing_auth_policy.invalid.json",
+        "programmatic_surfaces/fail/missing_surface_policy.invalid.json",
+        "programmatic_surfaces/fail/missing_env_packet.invalid.json",
+        "programmatic_surfaces/fail/snapshot_mismatch.invalid.json"
+      ],
+      "failure_class": "PROGRAMMATIC_ENVIRONMENT_OWNER|PROGRAMMATIC_AUTH_POLICY|PROGRAMMATIC_SURFACE_POLICY|PROGRAMMATIC_ENV_PACKET_REQUIRED|PROGRAMMATIC_EFFECTIVE_SNAPSHOT_ID",
+      "status_packet_field": "programmatic_control_telemetry_surface_validation",
+      "legacy_exception_id": "",
+      "sunset_phase": "phase-1"
+    },
+    {
+      "rule_id": "automation-first-refactor-gate",
+      "source_path": "docs/reference/capability-governance-rules.md",
+      "source_anchor": "P1-16 automation-first-refactor-gate",
+      "rule_class": "refactor_closeout",
+      "owner_capability_id": "validation-hooks",
+      "router_allowed": false,
+      "schema_paths": [
+        "capabilities/inventory.v1.json",
+        "tests/fixtures/capability_layout/refactor_gate/pass/phase1_matrix.valid.json"
+      ],
+      "validator_subcommands": [
+        "validate-rule-coverage",
+        "validate-refactor-gate"
+      ],
+      "pass_fixture_ids": [
+        "pass/rule_coverage_matrix.valid.json",
+        "refactor_gate/pass/phase1_matrix.valid.json"
+      ],
+      "fail_fixture_ids": [
+        "fail/instruction_only_gate.invalid.json",
+        "refactor_gate/fail/policy_only_closeout.invalid.json"
+      ],
+      "failure_class": "missing_rule_coverage_row|instruction_only_rule_without_validator|policy_only_refactor_closeout|refactor_gate_invalid",
+      "status_packet_field": "refactor_gate_status",
+      "legacy_exception_id": "",
+      "sunset_phase": "phase-1"
+    },
+    {
+      "rule_id": "executable-logic-preference",
+      "source_path": "docs/reference/capability-governance-rules.md",
+      "source_anchor": "P1-17 executable-logic-preference",
+      "rule_class": "policy",
+      "owner_capability_id": "validation-hooks",
+      "router_allowed": false,
+      "schema_paths": [
+        "capabilities/inventory.v1.json",
+        "tests/fixtures/capability_layout/rule_coverage/pass/rule_coverage_matrix.valid.json"
+      ],
+      "validator_subcommands": [
+        "validate-rule-coverage"
+      ],
+      "pass_fixture_ids": [
+        "pass/rule_coverage_matrix.valid.json"
+      ],
+      "fail_fixture_ids": [
+        "fail/instruction_only_gate.invalid.json"
+      ],
+      "failure_class": "instruction_only_rule_without_validator|router_rule_claims_pass_fail_authority|rule_coverage_status_field_missing",
+      "status_packet_field": "rule_coverage_status",
+      "legacy_exception_id": "",
+      "sunset_phase": "phase-1"
+    }
+  ],
+  "hot_path_legacy_exceptions": [
+    {
+      "path": ".codex-plugin/plugin.json",
+      "field": "interface.defaultPrompt",
+      "observed_size": "857 words",
+      "budget": "160 words",
+      "owner_role": "bears-workflow-overlay-platform-engineer",
+      "shrink_deadline_phase": "Phase 1 close",
+      "blocking_rule": "blocks manifest/cache-visible claims until shrunk",
+      "validator_command": "python3 scripts/capability_layout.py validate",
+      "reviewer_signoff": "workflow-overlay-platform-engineer-audit-required"
+    },
+    {
+      "path": "skills/platform-role-governance/SKILL.md",
+      "field": "front_matter.description",
+      "observed_size": "277 chars",
+      "budget": "260 chars",
+      "owner_role": "bears-platform-role-governor",
+      "shrink_deadline_phase": "Phase 1 close",
+      "blocking_rule": "blocks touched skill or role-gate migration until shrunk",
+      "validator_command": "python3 scripts/capability_layout.py validate",
+      "reviewer_signoff": "platform-role-governor-audit-required"
+    },
+    {
+      "path": "skills/project-mandate/SKILL.md",
+      "field": "front_matter.description",
+      "observed_size": "276 chars",
+      "budget": "260 chars",
+      "owner_role": "bears-workflow-overlay-platform-engineer",
+      "shrink_deadline_phase": "Phase 1 close",
+      "blocking_rule": "blocks touched skill or project-registry migration until shrunk",
+      "validator_command": "python3 scripts/capability_layout.py validate",
+      "reviewer_signoff": "workflow-overlay-platform-engineer-audit-required"
+    },
+    {
+      "path": "skills/bears-goal-prompt/SKILL.md",
+      "field": "file_lines",
+      "observed_size": "257 lines",
+      "budget": "140 SKILL.md pre-reference body lines",
+      "owner_role": "bears-goal-prompt-generator",
+      "shrink_deadline_phase": "goal-prompt-generation migration start",
+      "blocking_rule": "blocks goal-prompt-generation capability migration until split or exception tightened",
+      "validator_command": "python3 scripts/capability_layout.py validate",
+      "reviewer_signoff": "goal-prompt-generator-audit-required"
+    }
+  ],
+  "cache_validation": {
+    "discovery_command": "python3 scripts/capability_layout.py discover-cache --json",
+    "source_vs_cache_command": "python3 scripts/capability_layout.py validate-cache --installed-cache <path> --json",
+    "unknown_status": "CACHE_PATH_UNKNOWN",
+    "sync_required_status": "CACHE_SYNC_REQUIRED"
+  },
+  "validation_commands": [
+    "python3 scripts/capability_layout.py validate-inventory --json",
+    "python3 scripts/capability_layout.py validate-hot-path --json",
+    "python3 scripts/capability_layout.py status --json",
+    "python3 scripts/capability_layout.py validate-hook-claims --json",
+    "python3 scripts/capability_layout.py validate-reviewer-lanes --json",
+    "python3 scripts/capability_layout.py validate-agent-registration --json",
+    "python3 scripts/capability_layout.py snapshot-environment --json",
+    "python3 scripts/capability_layout.py plan-environment-operation --operation config_change_request --json",
+    "python3 scripts/capability_layout.py validate-environment-packet --packet tests/fixtures/capability_layout/environment_packets/pass/config_change_request.valid.json --json",
+    "python3 scripts/capability_layout.py validate-parity --json",
+    "python3 scripts/capability_layout.py validate-restricted-data --json",
+    "python3 scripts/capability_layout.py validate-optimization-plan --packet tests/fixtures/capability_layout/optimization_lanes/pass/effective_config_resolution.valid.json --json",
+    "python3 scripts/capability_layout.py resolve-effective-environment --json",
+    "python3 scripts/capability_layout.py validate-effective-config --snapshot tests/fixtures/capability_layout/effective_config/pass/trusted_project_layer.valid.json --json",
+    "python3 scripts/capability_layout.py validate-managed-requirements --snapshot tests/fixtures/capability_layout/effective_config/pass/trusted_project_layer.valid.json --json",
+    "python3 scripts/capability_layout.py validate-performance-claims --packet tests/fixtures/capability_layout/performance_lanes/pass/all_surfaces.valid.json --snapshot tests/fixtures/capability_layout/effective_config/pass/trusted_project_layer.valid.json --json",
+    "python3 scripts/capability_layout.py validate-offload-claims --packet tests/fixtures/capability_layout/offload_surfaces/pass/all_surfaces.valid.json --snapshot tests/fixtures/capability_layout/effective_config/pass/trusted_project_layer.valid.json --json",
+    "python3 scripts/capability_layout.py validate-programmatic-surfaces --packet tests/fixtures/capability_layout/programmatic_surfaces/pass/all_surfaces.valid.json --snapshot tests/fixtures/capability_layout/effective_config/pass/trusted_project_layer.valid.json --json",
+    "python3 scripts/capability_layout.py validate-rule-coverage --json",
+    "python3 scripts/capability_layout.py validate-refactor-gate --json"
+  ]
+}

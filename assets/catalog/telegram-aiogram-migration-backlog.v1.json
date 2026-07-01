@@ -1,0 +1,737 @@
+{
+  "schema": "bears-telegram-aiogram-migration-backlog.v1",
+  "updated": "2026-06-24",
+  "policy": {
+    "goal": "Converge bot-like Telegram runtimes on one Aiogram 3-compatible platform pattern while preserving product behavior through adapters, characterization tests, and explicit exceptions for non-bot surfaces.",
+    "role_gate_status": "ROLE_COVERAGE_BLOCKER",
+    "role_gate": "Every item must route to a plugin-owned specialist role before product or platform implementation. Unknown parts block implementation until the role/catalog artifact is created and validated.",
+    "sequence": [
+      "inventory",
+      "mandatory project artifacts",
+      "characterization tests",
+      "adapter boundary",
+      "Aiogram 3 platform alignment",
+      "runtime-safe validation",
+      "promotion bundle after explicit approval"
+    ],
+    "live_runtime_policy": "No live Telegram sends, webhook changes, polling changes, production mutation, secrets, raw chats, raw logs, or production payloads without explicit operator approval.",
+    "deprecated_projects_refs": "Any retained projects/* item is legacy compatibility inventory only and is not canonical project authority; canonical project registry authority is /srv/bears/dev/registry/projects.v1.json."
+  },
+  "phases": [
+    "phase-0-inventory-and-role-routing",
+    "phase-1-project-artifacts-and-readiness-packets",
+    "phase-2-characterization-tests-and-ui-snapshots",
+    "phase-3-platform-core-adapter-seams",
+    "phase-4-aiogram3-upgrade-or-rewrite",
+    "phase-5-runtime-safe-smoke-and-promotion-prep"
+  ],
+  "items": [
+    {
+      "surface": "codex-telegram",
+      "path": "dev/app/codex-telegram",
+      "role_route_target": "/srv/bears/dev/app/codex-telegram",
+      "owner_group": "products",
+      "surface_class": "prod-only-mcp-product-service",
+      "current_framework": "python-jsonrpc-mcp",
+      "current_framework_version": "v1-contract",
+      "migration_status": "already-aiogram3-core-seed",
+      "aiogram_target": "platform-core-seed",
+      "primary_role": "bears-telegram-platform-engineer",
+      "supporting_roles": [
+        "bears-platform-security-reviewer"
+      ],
+      "required_skill": "telegram-aiogram-migration",
+      "readiness_gate": "Product MCP contract, auth tests, MCP smoke, and prod Kubernetes pinned-image rollout evidence required.",
+      "artifact_gate": {
+        "status": "open",
+        "present": [
+          "AGENTS.md",
+          "SPEC.md",
+          "requirements.md"
+        ],
+        "missing": []
+      },
+      "evidence_source": [
+        "dev/app/codex-telegram/docs/reference/mcp-interface-v1.md",
+        "dev/app/codex-telegram/src/codex_telegram_mcp/server.py",
+        "projects/codex-telegram legacy evidence only"
+      ],
+      "next_actions": [
+        "Keep Telegram MCP behavior in /srv/bears/dev/app/codex-telegram.",
+        "Use workspace-control only to register the production MCP endpoint.",
+        "Do not create a dev/workspace adapter or local product daemon."
+      ],
+      "validation_before_code": [
+        "Run /srv/bears/dev/app/codex-telegram pytest and MCP dry-run smoke.",
+        "Run platform role route/audit for /srv/bears/dev/app/codex-telegram."
+      ],
+      "live_runtime_policy": "No dev runtime, local product daemon, live Telegram sends, webhook changes, token access, or production mutation without explicit operator approval.",
+      "last_verified": "2026-06-24",
+      "legacy_compatibility": {
+        "deprecated_refs": [
+          "projects/codex-telegram",
+          "dev/workspace/codex-telegram"
+        ],
+        "decision": "moved_to_canonical_dev_app_prod_mcp_product"
+      }
+    },
+    {
+      "surface": "vpnbot",
+      "path": "dev/app/vpn/vpnbot",
+      "role_route_target": "/srv/bears/dev/app/vpn/vpnbot",
+      "owner_group": "products",
+      "surface_class": "aiogram3-product-bot-adapter",
+      "current_framework": "aiogram",
+      "current_framework_version": ">=3.26.0",
+      "migration_status": "already-aiogram3-hardening",
+      "aiogram_target": "platform-core-consumer",
+      "primary_role": "bears-vpn-bot-engineer",
+      "supporting_roles": [
+        "bears-platform-security-reviewer",
+        "bears-telegram-platform-engineer"
+      ],
+      "required_skill": "telegram-aiogram-migration",
+      "readiness_gate": "Readiness packet and test matrix required before shared primitive adoption.",
+      "artifact_gate": {
+        "status": "open",
+        "present": [
+          "AGENTS.md",
+          "SPEC.md",
+          "requirements.md"
+        ],
+        "missing": []
+      },
+      "evidence_source": [
+        "projects/vpn/vpnbot/requirements.txt",
+        "projects/vpn/vpnbot/app/bot/handlers",
+        "dev/docs/reference/telegram-surface-map.md"
+      ],
+      "next_actions": [
+        "Separate reusable Telegram primitives from VPN-only product behavior.",
+        "Define callback, RBAC, idempotency, and rendering tests for adapter seams."
+      ],
+      "validation_before_code": [
+        "Run nearest vpnbot bot/import and Telegram UI tests for touched flows.",
+        "Avoid live bot traffic unless approved."
+      ],
+      "live_runtime_policy": "Read-only/import checks only until operator approves any live Telegram mutation.",
+      "last_verified": "2026-06-03",
+      "legacy_compatibility": {
+        "deprecated_refs": [
+          "projects/vpn/vpnbot"
+        ],
+        "decision": "renamed_to_canonical_dev_app"
+      }
+    },
+    {
+      "surface": "seller-bot-admin",
+      "path": "projects/seller/apps/bot_admin",
+      "role_route_target": "projects/seller/apps/bot_admin",
+      "owner_group": "products",
+      "surface_class": "aiogram3-seller-admin-bot",
+      "current_framework": "aiogram",
+      "current_framework_version": "^3.2.0",
+      "migration_status": "already-aiogram3-hardening",
+      "aiogram_target": "platform-core-consumer",
+      "primary_role": "bears-telegram-platform-engineer",
+      "supporting_roles": [
+        "bears-auth-platform-engineer",
+        "bears-platform-security-reviewer"
+      ],
+      "required_skill": "telegram-aiogram-migration",
+      "readiness_gate": "Project SPEC and requirements plus behavior inventory required before implementation edits.",
+      "artifact_gate": {
+        "status": "blocked-before-code",
+        "present": [
+          "AGENTS.md",
+          "README.md",
+          ".gitlab-ci.yml"
+        ],
+        "missing": [
+          "SPEC.md",
+          "requirements.md"
+        ]
+      },
+      "evidence_source": [
+        "projects/seller/apps/bot_admin/pyproject.toml",
+        "projects/seller/apps/bot_admin/main.py",
+        "projects/seller/apps/bot_admin/src/handlers/main_router.py"
+      ],
+      "next_actions": [
+        "Create minimal project SPEC and requirements before code work.",
+        "Record command, callback, allowed-user, Redis FSM, and auth_core behavior inventory.",
+        "Add characterization tests around message rendering, callbacks, auth denial, and polling startup/import."
+      ],
+      "validation_before_code": [
+        "Validate project artifacts first.",
+        "Run local lint/import/tests from pyproject or documented local command after adding coverage."
+      ],
+      "live_runtime_policy": "No live admin bot sends, polling changes, or token access without explicit operator approval.",
+      "last_verified": "2026-06-03",
+      "legacy_compatibility": {
+        "deprecated_refs": [
+          "projects/seller/apps/bot_admin"
+        ],
+        "decision": "retained_legacy_backlog_inventory_only"
+      }
+    },
+    {
+      "surface": "seller-bot-find-pos",
+      "path": "projects/seller/apps/bot_find_pos",
+      "role_route_target": "projects/seller/apps/bot_find_pos",
+      "owner_group": "products",
+      "surface_class": "aiogram-beta-seller-product-bot",
+      "current_framework": "aiogram",
+      "current_framework_version": "3.0.0b7",
+      "migration_status": "target-aiogram3-upgrade",
+      "aiogram_target": "aiogram3-upgrade-required",
+      "primary_role": "bears-telegram-platform-engineer",
+      "supporting_roles": [
+        "bears-auth-platform-engineer"
+      ],
+      "required_skill": "telegram-aiogram-migration",
+      "readiness_gate": "Upgrade packet required because the current runtime uses a beta Aiogram 3 dependency.",
+      "artifact_gate": {
+        "status": "blocked-before-code",
+        "present": [
+          "AGENTS.md",
+          ".gitlab-ci.yml"
+        ],
+        "missing": [
+          "SPEC.md",
+          "requirements.md",
+          "README.md"
+        ]
+      },
+      "evidence_source": [
+        "projects/seller/apps/bot_find_pos/pyproject.toml",
+        "projects/seller/apps/bot_find_pos/main.py",
+        "projects/seller/apps/bot_find_pos/src/handlers/router.py"
+      ],
+      "next_actions": [
+        "Create minimal project SPEC and requirements before code work.",
+        "Inventory commands, FSM states, auth_core checks, Carrot integrations, callbacks, and retry behavior.",
+        "Plan beta-to-stable Aiogram upgrade with characterization tests first."
+      ],
+      "validation_before_code": [
+        "Validate artifacts, then run local bot import/startup-safe tests and callback/FSM characterization tests."
+      ],
+      "live_runtime_policy": "No live polling, sends, or external integration calls without explicit operator approval.",
+      "last_verified": "2026-06-03",
+      "legacy_compatibility": {
+        "deprecated_refs": [
+          "projects/seller/apps/bot_find_pos"
+        ],
+        "decision": "retained_legacy_backlog_inventory_only"
+      }
+    },
+    {
+      "surface": "seller-bot-marketplace-fbs",
+      "path": "projects/seller/apps/bot_marketplace_fbs",
+      "role_route_target": "projects/seller/apps/bot_marketplace_fbs",
+      "owner_group": "products",
+      "surface_class": "aiogram2-seller-marketplace-bot",
+      "current_framework": "aiogram",
+      "current_framework_version": "2.25.1",
+      "migration_status": "target-aiogram3-upgrade",
+      "aiogram_target": "aiogram3-upgrade-required",
+      "primary_role": "bears-telegram-platform-engineer",
+      "supporting_roles": [
+        "bears-platform-security-reviewer"
+      ],
+      "required_skill": "telegram-aiogram-migration",
+      "readiness_gate": "Aiogram 2 to Aiogram 3 migration packet and behavior tests are mandatory before runtime edits.",
+      "artifact_gate": {
+        "status": "blocked-before-code",
+        "present": [
+          "AGENTS.md",
+          "README.md",
+          ".gitlab-ci.yml"
+        ],
+        "missing": [
+          "SPEC.md",
+          "requirements.md"
+        ]
+      },
+      "evidence_source": [
+        "projects/seller/apps/bot_marketplace_fbs/pyproject.toml",
+        "projects/seller/apps/bot_marketplace_fbs/main.py"
+      ],
+      "next_actions": [
+        "Create minimal project SPEC and requirements before code work.",
+        "Inventory executor-based polling, handlers, marketplace tasks, files, keyboards, and WB-related side effects.",
+        "Build Aiogram 2 behavior characterization before Router/Dispatcher/FSM rewrite."
+      ],
+      "validation_before_code": [
+        "Validate artifacts, then run or add safe unit/import tests without real Telegram tokens or WB calls."
+      ],
+      "live_runtime_policy": "No live bot sends, polling changes, supplier payload access, or WB calls without explicit operator approval.",
+      "last_verified": "2026-06-03",
+      "legacy_compatibility": {
+        "deprecated_refs": [
+          "projects/seller/apps/bot_marketplace_fbs"
+        ],
+        "decision": "retained_legacy_backlog_inventory_only"
+      }
+    },
+    {
+      "surface": "seller-sticker-bot",
+      "path": "projects/seller/apps/sticker_bot",
+      "role_route_target": "projects/seller/apps/sticker_bot",
+      "owner_group": "products",
+      "surface_class": "aiogram3-seller-product-bot",
+      "current_framework": "aiogram",
+      "current_framework_version": ">=3.20.0.post0,<4.0.0",
+      "migration_status": "already-aiogram3-hardening",
+      "aiogram_target": "platform-core-consumer",
+      "primary_role": "bears-telegram-platform-engineer",
+      "supporting_roles": [
+        "bears-platform-security-reviewer"
+      ],
+      "required_skill": "telegram-aiogram-migration",
+      "readiness_gate": "Project SPEC and requirements plus behavior inventory required before implementation edits.",
+      "artifact_gate": {
+        "status": "blocked-before-code",
+        "present": [
+          "AGENTS.md",
+          ".gitlab-ci.yml"
+        ],
+        "missing": [
+          "SPEC.md",
+          "requirements.md",
+          "README.md"
+        ]
+      },
+      "evidence_source": [
+        "projects/seller/apps/sticker_bot/pyproject.toml",
+        "projects/seller/apps/sticker_bot/main.py"
+      ],
+      "next_actions": [
+        "Create minimal project SPEC and requirements before code work.",
+        "Inventory image/sticker generation flow, OpenAI boundary, callback/user input behavior, and async task handoff.",
+        "Add rendering and no-secret tests before adapter extraction."
+      ],
+      "validation_before_code": [
+        "Validate artifacts, then run local import/tests with mocked OpenAI, Telegram, database, and worker boundaries."
+      ],
+      "live_runtime_policy": "No live bot sends, model calls, or production media/payload access without explicit operator approval.",
+      "last_verified": "2026-06-03",
+      "legacy_compatibility": {
+        "deprecated_refs": [
+          "projects/seller/apps/sticker_bot"
+        ],
+        "decision": "retained_legacy_backlog_inventory_only"
+      }
+    },
+    {
+      "surface": "seller-telegram-bot-bears",
+      "path": "projects/seller/apps/telegram_bot_bears",
+      "role_route_target": "projects/seller/apps/telegram_bot_bears",
+      "owner_group": "products",
+      "surface_class": "aiogram3-seller-main-bot",
+      "current_framework": "aiogram",
+      "current_framework_version": "3.0.0",
+      "migration_status": "already-aiogram3-hardening",
+      "aiogram_target": "platform-core-consumer",
+      "primary_role": "bears-telegram-platform-engineer",
+      "supporting_roles": [
+        "bears-auth-platform-engineer",
+        "bears-platform-security-reviewer"
+      ],
+      "required_skill": "telegram-aiogram-migration",
+      "readiness_gate": "Stable Aiogram 3 hardening packet and project artifacts required before implementation edits.",
+      "artifact_gate": {
+        "status": "blocked-before-code",
+        "present": [
+          "AGENTS.md",
+          "README.md",
+          ".gitlab-ci.yml"
+        ],
+        "missing": [
+          "SPEC.md",
+          "requirements.md"
+        ]
+      },
+      "evidence_source": [
+        "projects/seller/apps/telegram_bot_bears/pyproject.toml",
+        "projects/seller/apps/telegram_bot_bears/main.py"
+      ],
+      "next_actions": [
+        "Create minimal project SPEC and requirements before code work.",
+        "Inventory auth binding, main menu, database bootstrap, proxy/session behavior, callbacks, and worker-delivered messages.",
+        "Add characterization tests before shared callback/rendering primitive adoption."
+      ],
+      "validation_before_code": [
+        "Validate artifacts, then run local bot import/startup-safe tests with mocked Telegram, Redis, DB, and worker boundaries."
+      ],
+      "live_runtime_policy": "No live main bot sends, polling changes, DB mutations, or token access without explicit operator approval.",
+      "last_verified": "2026-06-03",
+      "legacy_compatibility": {
+        "deprecated_refs": [
+          "projects/seller/apps/telegram_bot_bears"
+        ],
+        "decision": "retained_legacy_backlog_inventory_only"
+      }
+    },
+    {
+      "surface": "seller-telegram-notifications",
+      "path": "projects/seller/apps/telegram_notifications",
+      "role_route_target": "projects/seller/apps/telegram_notifications",
+      "owner_group": "platform",
+      "surface_class": "telegram-notification-delivery-service",
+      "current_framework": "fastapi-aiohttp-custom-telegram-api",
+      "current_framework_version": "not-a-bot-runtime",
+      "migration_status": "not-applicable-non-bot",
+      "aiogram_target": "no-aiogram-non-bot",
+      "primary_role": "bears-telegram-platform-engineer",
+      "supporting_roles": [
+        "bears-telegram-platform-engineer",
+        "bears-auth-platform-engineer"
+      ],
+      "required_skill": "telegram-quality-testing",
+      "readiness_gate": "Notification event and channel-adapter packet required before delivery-service changes.",
+      "artifact_gate": {
+        "status": "blocked-before-code",
+        "present": [
+          "AGENTS.md",
+          "README.md",
+          ".gitlab-ci.yml"
+        ],
+        "missing": [
+          "SPEC.md",
+          "requirements.md"
+        ]
+      },
+      "evidence_source": [
+        "projects/seller/apps/telegram_notifications/pyproject.toml",
+        "projects/seller/apps/telegram_notifications/main.py",
+        "projects/seller/apps/telegram_notifications/src/integrations/telegram_api.py"
+      ],
+      "next_actions": [
+        "Create minimal project SPEC and requirements before code work.",
+        "Map event producers, recipient identity lookup, template rendering, retry/idempotency, and audit fields.",
+        "Coordinate with Telegram role only for Telegram-channel formatting and delivery adapter tests."
+      ],
+      "validation_before_code": [
+        "Validate artifacts, then run notification handler/API tests with mocked Telegram API and auth responses."
+      ],
+      "live_runtime_policy": "No live sends, production recipients, or bot token access without explicit operator approval.",
+      "last_verified": "2026-06-03",
+      "legacy_compatibility": {
+        "deprecated_refs": [
+          "projects/seller/apps/telegram_notifications"
+        ],
+        "decision": "retained_legacy_backlog_inventory_only"
+      }
+    },
+    {
+      "surface": "metamask-telegram-bot",
+      "path": "projects/metamask/src/bot.mjs",
+      "role_route_target": "projects/metamask/src/bot.mjs",
+      "owner_group": "products",
+      "surface_class": "telegraf-product-bot-runtime",
+      "current_framework": "telegraf",
+      "current_framework_version": "file-level source evidence only",
+      "migration_status": "target-aiogram3-rewrite",
+      "aiogram_target": "aiogram3-rewrite-required",
+      "primary_role": "bears-telegram-platform-engineer",
+      "supporting_roles": [
+        "bears-platform-security-reviewer"
+      ],
+      "required_skill": "telegram-aiogram-migration",
+      "readiness_gate": "Inventory-only entry: owner artifacts, product role mapping, and behavior inventory are required before any rewrite planning becomes implementation work.",
+      "artifact_gate": {
+        "status": "blocked-before-code",
+        "present": [],
+        "missing": [
+          "project ownership packet",
+          "AGENTS.md",
+          "SPEC.md",
+          "requirements.md",
+          "behavior inventory"
+        ]
+      },
+      "evidence_source": [
+        "projects/metamask/src/bot.mjs"
+      ],
+      "next_actions": [
+        "Keep as inventory-only Telegram bot candidate until owning project artifacts and role mapping exist.",
+        "Document commands, admin checks, token boundary, and visible bot behavior before any framework rewrite proposal.",
+        "Do not infer Aiogram implementation readiness from a single Telegraf file."
+      ],
+      "validation_before_code": [
+        "Validate inventory coverage, then require product artifacts and characterization tests before any code work."
+      ],
+      "live_runtime_policy": "No live bot sends, token access, or runtime mutation without explicit operator approval.",
+      "last_verified": "2026-06-03",
+      "inventory_coverage_status": "deferred-runtime-candidate",
+      "legacy_compatibility": {
+        "deprecated_refs": [
+          "projects/metamask/src/bot.mjs"
+        ],
+        "decision": "retained_legacy_backlog_inventory_only"
+      }
+    },
+    {
+      "surface": "emu-ants-telegram-bridge",
+      "path": "projects/emu/ants/telegram_bridge.py",
+      "role_route_target": "projects/emu/ants/telegram_bridge.py",
+      "owner_group": "products",
+      "surface_class": "custom-telegram-api-bridge",
+      "current_framework": "raw Telegram Bot API bridge",
+      "current_framework_version": "file-level source evidence only",
+      "migration_status": "not-applicable-non-bot",
+      "aiogram_target": "no-aiogram-non-bot",
+      "primary_role": "bears-telegram-platform-engineer",
+      "supporting_roles": [],
+      "required_skill": "bears-telegram-workflow",
+      "readiness_gate": "Inventory-only non-bot bridge classification: owner artifacts and boundary proof are required before any implementation work.",
+      "artifact_gate": {
+        "status": "blocked-before-code",
+        "present": [],
+        "missing": [
+          "project ownership packet",
+          "AGENTS.md",
+          "SPEC.md",
+          "requirements.md",
+          "bridge boundary record"
+        ]
+      },
+      "evidence_source": [
+        "projects/emu/ants/telegram_bridge.py"
+      ],
+      "next_actions": [
+        "Keep as inventory-only non-bot bridge candidate until owner and artifact coverage are documented.",
+        "Verify whether update binding and send-message helpers stay bridge-only or hide a fuller product runtime.",
+        "Do not force Aiogram migration without stronger bot-runtime evidence."
+      ],
+      "validation_before_code": [
+        "Validate inventory coverage, then require owner artifacts and bridge-boundary tests before code work."
+      ],
+      "live_runtime_policy": "No token reads, update polling, or message sends without explicit operator approval.",
+      "last_verified": "2026-06-03",
+      "inventory_coverage_status": "non-bot-bridge",
+      "legacy_compatibility": {
+        "deprecated_refs": [
+          "projects/emu/ants/telegram_bridge.py"
+        ],
+        "decision": "retained_legacy_backlog_inventory_only"
+      }
+    },
+    {
+      "surface": "vpn-telegram-msp-notify",
+      "path": "projects/vpn/amnezia-split/auto_split/telegram_msp_notify.py",
+      "role_route_target": "projects/vpn/amnezia-split/auto_split/telegram_msp_notify.py",
+      "owner_group": "products",
+      "surface_class": "telegram-alert-notification-bridge",
+      "current_framework": "raw Telegram Bot API notifier",
+      "current_framework_version": "file-level source evidence only",
+      "migration_status": "not-applicable-non-bot",
+      "aiogram_target": "no-aiogram-non-bot",
+      "primary_role": "bears-telegram-platform-engineer",
+      "supporting_roles": [],
+      "required_skill": "bears-telegram-workflow",
+      "readiness_gate": "Inventory-only non-bot notification classification: owner artifacts and alert-boundary proof are required before implementation work.",
+      "artifact_gate": {
+        "status": "blocked-before-code",
+        "present": [],
+        "missing": [
+          "project ownership packet",
+          "AGENTS.md",
+          "SPEC.md",
+          "requirements.md",
+          "notification boundary record"
+        ]
+      },
+      "evidence_source": [
+        "projects/vpn/amnezia-split/auto_split/telegram_msp_notify.py"
+      ],
+      "next_actions": [
+        "Keep as inventory-only notification bridge candidate until owner artifacts and sanitized alert boundaries are documented.",
+        "Verify whether this helper remains notification-only or expands into a fuller Telegram runtime.",
+        "Do not force Aiogram migration for alert delivery helpers."
+      ],
+      "validation_before_code": [
+        "Validate inventory coverage, then require owner artifacts and non-live notification tests before code work."
+      ],
+      "live_runtime_policy": "No live token use, recipient sends, or runtime mutation without explicit operator approval.",
+      "last_verified": "2026-06-03",
+      "inventory_coverage_status": "non-bot-notifier",
+      "legacy_compatibility": {
+        "deprecated_refs": [
+          "projects/vpn/amnezia-split/auto_split/telegram_msp_notify.py"
+        ],
+        "decision": "retained_legacy_backlog_inventory_only"
+      }
+    },
+    {
+      "surface": "tgsearch",
+      "path": "projects/tgsearch",
+      "role_route_target": "projects/tgsearch",
+      "owner_group": "products",
+      "surface_class": "telegram-collector-cli",
+      "current_framework": "telethon",
+      "current_framework_version": "verified by local source scan, exact version not checked in this backlog pass",
+      "migration_status": "not-applicable-non-bot",
+      "aiogram_target": "no-aiogram-non-bot",
+      "primary_role": "bears-telegram-platform-engineer",
+      "supporting_roles": [
+        "bears-platform-security-reviewer"
+      ],
+      "required_skill": "bears-telegram-workflow",
+      "readiness_gate": "Collector exception record required before any forced bot-runtime abstraction.",
+      "artifact_gate": {
+        "status": "open",
+        "present": [
+          "AGENTS.md"
+        ],
+        "missing": []
+      },
+      "evidence_source": [
+        "projects/tgsearch/src/tgintel/telegram_client.py",
+        "dev/docs/reference/telegram-surface-map.md"
+      ],
+      "next_actions": [
+        "Keep as read-only collector adapter; do not force Aiogram bot callback abstractions.",
+        "Document session hygiene and read-only evidence boundaries if this surface joins the shared platform."
+      ],
+      "validation_before_code": [
+        "Run collector-local tests or import checks with mocked Telegram client/session when code changes."
+      ],
+      "live_runtime_policy": "No live account/session actions, collection, or message sends without explicit operator approval.",
+      "last_verified": "2026-06-03",
+      "legacy_compatibility": {
+        "deprecated_refs": [
+          "projects/tgsearch"
+        ],
+        "decision": "retained_legacy_backlog_inventory_only"
+      }
+    },
+    {
+      "surface": "theants",
+      "path": "dev/app/theants",
+      "role_route_target": "/srv/bears/dev/app/theants",
+      "owner_group": "products",
+      "surface_class": "custom-polling-product-bot",
+      "current_framework": "custom Bot API polling client",
+      "current_framework_version": "not-aiogram",
+      "migration_status": "target-aiogram3-rewrite",
+      "aiogram_target": "aiogram3-rewrite-required",
+      "primary_role": "bears-product-app-zone-engineer",
+      "supporting_roles": [
+        "bears-telegram-platform-engineer",
+        "bears-platform-security-reviewer"
+      ],
+      "required_skill": "telegram-aiogram-migration",
+      "readiness_gate": "Dev-core product layer, split proof, adapter seam, and behavior tests are required before any The Ants Telegram runtime rewrite.",
+      "artifact_gate": {
+        "status": "open",
+        "present": [
+          "AGENTS.md",
+          "SPEC.md",
+          "requirements.md"
+        ],
+        "missing": []
+      },
+      "evidence_source": [
+        "dev/app/theants/README.md",
+        "dev/contracts/theants_dev_layer_migration_contract.md",
+        "projects/theants/src/theants/entrypoints/bot.py",
+        "projects/theants/src/theants/adapters/telegram_api.py"
+      ],
+      "next_actions": [
+        "Keep /srv/bears/projects/theants as legacy compatibility input until explicit cutover approval.",
+        "Route product work through /srv/bears/dev/app/theants and bears-product-app-zone-engineer.",
+        "Use bears-telegram-platform-engineer only as a supporting Telegram pattern reviewer for Aiogram-specific adapter work.",
+        "Plan Aiogram 3 dispatcher/router migration only after product behavior is covered by deterministic tests."
+      ],
+      "validation_before_code": [
+        "Run Bears platform role route/audit for /srv/bears/dev/app/theants and /srv/bears/projects/theants.",
+        "Run The Ants product and split-proof tests before any Telegram adapter rewrite."
+      ],
+      "live_runtime_policy": "No live game/player messages, Telegram calls, Kubernetes migration, production process mutation, secrets, raw chats, raw logs, raw VPN configs, or production payloads without explicit operator approval.",
+      "last_verified": "2026-06-05",
+      "legacy_compatibility": {
+        "deprecated_refs": [
+          "projects/theants",
+          "dev/products/theants"
+        ],
+        "decision": "renamed_to_canonical_dev_app"
+      }
+    },
+    {
+      "surface": "proxybot",
+      "path": null,
+      "role_route_target": "proxybot",
+      "owner_group": "products",
+      "surface_class": "missing-or-historical-bot-source",
+      "current_framework": "unknown",
+      "current_framework_version": "missing-source",
+      "migration_status": "deferred-missing-source",
+      "aiogram_target": "deferred-source-required",
+      "primary_role": "bears-telegram-platform-engineer",
+      "supporting_roles": [],
+      "required_skill": "bears-telegram-workflow",
+      "readiness_gate": "Direct source recovery or canonical repository link required before migration planning.",
+      "artifact_gate": {
+        "status": "deferred-source-required",
+        "present": [],
+        "missing": [
+          "source checkout",
+          "AGENTS.md",
+          "SPEC.md",
+          "requirements.md"
+        ]
+      },
+      "evidence_source": [
+        "dev/docs/reference/telegram-surface-map.md"
+      ],
+      "next_actions": [
+        "Locate canonical source or remove the placeholder from active migration scope.",
+        "Do not infer current contracts from historical mentions."
+      ],
+      "validation_before_code": [
+        "No code validation available until source is recovered."
+      ],
+      "live_runtime_policy": "No runtime action without source, owner, role, and explicit approval.",
+      "last_verified": "2026-06-03"
+    },
+    {
+      "surface": "tg_oh_agent",
+      "path": null,
+      "role_route_target": "tg_oh_agent",
+      "owner_group": "products",
+      "surface_class": "missing-or-candidate-bot-source",
+      "current_framework": "unknown",
+      "current_framework_version": "missing-source",
+      "migration_status": "deferred-missing-source",
+      "aiogram_target": "deferred-source-required",
+      "primary_role": "bears-telegram-platform-engineer",
+      "supporting_roles": [],
+      "required_skill": "bears-telegram-workflow",
+      "readiness_gate": "Direct source recovery or canonical repository link required before migration planning.",
+      "artifact_gate": {
+        "status": "deferred-source-required",
+        "present": [],
+        "missing": [
+          "source checkout",
+          "AGENTS.md",
+          "SPEC.md",
+          "requirements.md"
+        ]
+      },
+      "evidence_source": [
+        "dev/docs/reference/telegram-surface-map.md"
+      ],
+      "next_actions": [
+        "Locate canonical source and verify whether this is a bot runtime, client, or non-active surface.",
+        "Do not start product/platform implementation from hypotheses."
+      ],
+      "validation_before_code": [
+        "No code validation available until source is recovered."
+      ],
+      "live_runtime_policy": "No runtime action without source, owner, role, and explicit approval.",
+      "last_verified": "2026-06-03"
+    }
+  ]
+}

@@ -1,0 +1,103 @@
+{
+  "$id": "https://bears.local/schemas/question-operator.v1.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "allowed_answers": {
+      "items": {
+        "minLength": 1,
+        "type": "string"
+      },
+      "type": "array",
+      "uniqueItems": true
+    },
+    "blocks_when": {
+      "items": {
+        "minLength": 1,
+        "type": "string"
+      },
+      "type": "array",
+      "uniqueItems": true
+    },
+    "description": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "input_types": {
+      "items": {
+        "minLength": 1,
+        "type": "string"
+      },
+      "type": "array",
+      "uniqueItems": true
+    },
+    "operator_id": {
+      "enum": [
+        "resolve_source_of_truth",
+        "classify_task_type",
+        "find_smallest_verifiable_goal",
+        "infer_required_research",
+        "infer_required_plan",
+        "select_semantic_context",
+        "select_role_profile",
+        "select_executor",
+        "select_model_tier",
+        "select_mcp_policy",
+        "select_file_scope",
+        "select_validation_gate",
+        "select_closeout_gate",
+        "select_roadmap_update",
+        "select_self_improvement_action"
+      ]
+    },
+    "output_type": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "required_evidence_types": {
+      "items": {
+        "minLength": 1,
+        "type": "string"
+      },
+      "type": "array",
+      "uniqueItems": true
+    },
+    "semantic_fact_refs": {
+      "items": {
+        "minLength": 1,
+        "type": "string"
+      },
+      "type": "array",
+      "uniqueItems": true
+    },
+    "unlocks": {
+      "items": {
+        "minLength": 1,
+        "type": "string"
+      },
+      "type": "array",
+      "uniqueItems": true
+    },
+    "validator": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "version": {
+      "minLength": 1,
+      "type": "string"
+    }
+  },
+  "required": [
+    "operator_id",
+    "version",
+    "input_types",
+    "output_type",
+    "allowed_answers",
+    "required_evidence_types",
+    "unlocks",
+    "blocks_when",
+    "validator"
+  ],
+  "title": "Bears question operator v1",
+  "type": "object"
+}

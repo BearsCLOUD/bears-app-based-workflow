@@ -1,0 +1,12 @@
+{
+  "schema": "bears-orchestrator-model.v1",
+  "model_id": "fixture-missing-prompt",
+  "goal_id": "fixture-missing-prompt",
+  "action": "execution",
+  "scope": "safe",
+  "manual_review": false,
+  "evidence": ["authority", "decision_proof", "fresh_context", "durable_json_source"],
+  "write_sets": [],
+  "blockers": [],
+  "evidence_paths": ["tests/fixtures/orchestrator_invariants/missing-prompt-packet.json"]
+}

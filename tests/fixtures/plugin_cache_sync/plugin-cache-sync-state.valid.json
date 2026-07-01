@@ -1,0 +1,45 @@
+{
+  "schema": "bears-plugin-cache-sync-state.v1",
+  "updated_at": "2026-06-22T00:00:00Z",
+  "repository": "BearsCLOUD/bears-codex-workflow-plugin",
+  "branch": "main",
+  "main_sha": "0000000000000000000000000000000000000000",
+  "local_commit_validation": {
+    "status": "pass",
+    "proof_path": "runtime/local-commit-validation/0000000000000000000000000000000000000000.json",
+    "commit_sha": "0000000000000000000000000000000000000000",
+    "selector_confidence": "high",
+    "tests": [
+      "tests/test_plugin_cache_sync.py",
+      "tests/test_test_selection.py"
+    ],
+    "slow_tests_deferred": []
+  },
+  "cache_sync": {
+    "status": "success",
+    "action": "cache_synced",
+    "verify": {
+      "installed_cache_sha": "0000000000000000000000000000000000000000",
+      "expected_sha": "0000000000000000000000000000000000000000",
+      "manifest_hooks": "./hooks.json",
+      "hooks_json_present": true,
+      "hooks_dir_present": true,
+      "status": "pass",
+      "errors": []
+    },
+    "attempts": []
+  },
+  "effective_hooks_proof": {
+    "status": "manifest_and_files_present",
+    "manifest_hooks": "./hooks.json",
+    "hooks_json_present": true,
+    "hooks_dir_present": true
+  },
+  "delivery_complete": true,
+  "workflow_defect": {
+    "status": "closed",
+    "action": "continue",
+    "reason": "fixture exact main SHA local commit validation PASS and cache hooks proof recorded"
+  },
+  "next_action": "Plugin workflow task may close."
+}

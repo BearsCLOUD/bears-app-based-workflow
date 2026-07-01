@@ -1,0 +1,61 @@
+{
+  "blocking_debt": [],
+  "cleanup_status": "clean",
+  "closeout": {
+    "closed_issues": [],
+    "issue_comment_url": "",
+    "status": "ready"
+  },
+  "commits": [
+    {
+      "role_step": "implement-delivery",
+      "sha": "1111111111111111111111111111111111111111",
+      "validation_proof": "runtime/local-commit-validation/1111111111111111111111111111111111111111.json"
+    }
+  ],
+  "covered_issues": [
+    {
+      "classification": "closed",
+      "github_state": "OPEN",
+      "number": 392,
+      "proof_commit": "1111111111111111111111111111111111111111",
+      "proof_path": "runtime/local-commit-validation/1111111111111111111111111111111111111111.json",
+      "reason": "fixture closeout classification",
+      "repo": "BearsCLOUD/bears-codex-workflow-plugin",
+      "url": "https://github.com/BearsCLOUD/bears-codex-workflow-plugin/issues/392"
+    }
+  ],
+  "delivery_id": "bears-governance-kernel-v1",
+  "doctor": {
+    "result_path": "runtime/bears-doctor/1111111111111111111111111111111111111111.closeout.json",
+    "status": "pass"
+  },
+  "issues": [
+    {
+      "number": 392,
+      "repo": "BearsCLOUD/bears-codex-workflow-plugin",
+      "state": "OPEN",
+      "url": "https://github.com/BearsCLOUD/bears-codex-workflow-plugin/issues/392"
+    }
+  ],
+  "release_gate": {
+    "delivery_id": "bears-governance-kernel-v1",
+    "issue_ref": "",
+    "reason": "",
+    "reference": "",
+    "status": "missing"
+  },
+  "repo": "BearsCLOUD/bears-codex-workflow-plugin",
+  "schema": "bears-delivery-manifest.v1",
+  "sequential_plan": "runtime/deliveries/bears-governance-kernel-v1/sequential-plan.v1.json",
+  "state": "ready_for_closeout",
+  "updated_at": "2026-06-24T00:00:00Z",
+  "validation": {
+    "async_state": "runtime/validation-state/1111111111111111111111111111111111111111/validation-state.v1.json",
+    "exact_proof": "runtime/local-commit-validation/1111111111111111111111111111111111111111.json",
+    "remediation_state": "none",
+    "status": "pass"
+  },
+  "version": "1",
+  "workflow_tree": "runtime/deliveries/bears-governance-kernel-v1/workflow-tree.v1.json"
+}

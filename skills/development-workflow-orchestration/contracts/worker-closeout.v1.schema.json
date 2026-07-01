@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "worker-closeout.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "goal_id",
+    "task_id",
+    "role",
+    "repo_boundary",
+    "changed_files",
+    "validation_results",
+    "head_sha",
+    "risk_notes",
+    "restricted_data_taint",
+    "worker_state",
+    "status"
+  ],
+  "properties": {
+    "goal_id": {
+      "type": "string"
+    },
+    "task_id": {
+      "type": "string"
+    },
+    "role": {
+      "type": "string"
+    },
+    "repo_boundary": {
+      "type": "string"
+    },
+    "changed_files": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "validation_results": {
+      "type": "string"
+    },
+    "head_sha": {
+      "type": "string"
+    },
+    "risk_notes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "restricted_data_taint": {
+      "enum": [
+        "none",
+        "blocked"
+      ]
+    },
+    "worker_state": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string"
+    }
+  },
+  "description": "Forbidden data classes: raw secrets, .env values, raw logs, raw chats, raw VPN configs, credential files, and production data are not allowed."
+}

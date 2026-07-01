@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://bears.local/schemas/workspace-semantic-node.v1.schema.json",
+  "title": "Bears workspace semantic node",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "node_id", "node_type", "name", "source_refs"],
+  "properties": {
+    "schema": {"const": "bears-workspace-semantic-node.v1"},
+    "node_id": {"type": "string", "minLength": 3},
+    "node_type": {"enum": ["repo", "worktree", "directory", "file", "symbol", "function", "class", "schema", "catalog", "script", "validator", "workflow_node", "roadmap_node", "decision", "changelog_entry", "principle", "goal", "standard", "technology", "agent_role", "skill", "context_surface", "execution_unit", "runtime_evidence", "issue", "commit"]},
+    "name": {"type": "string", "minLength": 1},
+    "path": {"type": ["string", "null"]},
+    "source_refs": {"type": "array", "items": {"type": "string"}},
+    "metadata": {"type": "object"}
+  }
+}

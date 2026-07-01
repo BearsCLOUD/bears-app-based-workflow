@@ -1,0 +1,75 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "review-result.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "goal_id",
+    "task_id",
+    "role",
+    "repo_boundary",
+    "decision",
+    "checked_claims",
+    "rejected_claims",
+    "validation_results",
+    "forbidden_surfaces_touched",
+    "head_sha",
+    "restricted_data_taint",
+    "status"
+  ],
+  "properties": {
+    "goal_id": {
+      "type": "string"
+    },
+    "task_id": {
+      "type": "string"
+    },
+    "role": {
+      "type": "string"
+    },
+    "repo_boundary": {
+      "type": "string"
+    },
+    "decision": {
+      "enum": [
+        "REVIEW_PASS",
+        "REVIEW_CHANGES_REQUESTED",
+        "REVIEW_BLOCKED",
+        "MERGE_ALLOWED",
+        "MERGE_BLOCKED",
+        "MERGE_NOT_REQUESTED"
+      ]
+    },
+    "checked_claims": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "rejected_claims": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "validation_results": {
+      "type": "string"
+    },
+    "forbidden_surfaces_touched": {
+      "type": "boolean"
+    },
+    "head_sha": {
+      "type": "string"
+    },
+    "restricted_data_taint": {
+      "enum": [
+        "none",
+        "blocked"
+      ]
+    },
+    "status": {
+      "type": "string"
+    }
+  },
+  "description": "Forbidden data classes: raw secrets, .env values, raw logs, raw chats, raw VPN configs, credential files, and production data are not allowed."
+}

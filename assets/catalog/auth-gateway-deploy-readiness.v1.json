@@ -1,0 +1,297 @@
+{
+  "schema": "bears-auth-gateway-deploy-readiness.v1",
+  "owner_plugin": "bears",
+  "workflow_id": "auth-gateway-deploy-core",
+  "updated": "2026-06-27",
+  "strict_order": true,
+  "ordered_spine": [
+    "auth_core",
+    "bears_gateway",
+    "cd_deploy_stage"
+  ],
+  "global_gate": {
+    "status": "blocked",
+    "reason": "Implementation and deployment changes stay blocked until every spine surface is ready in order: auth_core, then bears_gateway, then cd_deploy_stage.",
+    "next_allowed_changes": [
+      "plugin governance artifacts",
+      "repo-local baseline documents",
+      "read-only validators",
+      "operator-approved scoped unblock work"
+    ]
+  },
+  "promotion_rules": [
+    {
+      "id": "spine-order",
+      "rule": "bears_gateway cannot open for auth-dependent implementation before auth_core implementation_gate is open; cd_deploy_stage cannot open for CI behavior changes before auth_core and bears_gateway are open."
+    },
+    {
+      "id": "role-first",
+      "rule": "Every surface must route through the plugin-owned specialist role before product, platform, or deployment edits. Missing coverage is ROLE_COVERAGE_BLOCKER."
+    },
+    {
+      "id": "secret-safe",
+      "rule": "Secret values, production data, CI variables with values, tokens, keys, and raw private configs must never be read, printed, committed, or documented. Stable secret reference names are allowed."
+    }
+  ],
+  "surfaces": [
+    {
+      "surface": "auth_core",
+      "canonical_path": "/srv/bears/dev/platform/src/bears_platform/auth",
+      "route_target": "/srv/bears/dev/platform/src/bears_platform/auth",
+      "primary_role": "bears-auth-platform-engineer",
+      "supporting_roles": [
+        "bears-platform-security-reviewer",
+        "bears-platform-role-governor"
+      ],
+      "readiness_status": "blocked",
+      "artifact_gate": "open",
+      "implementation_gate": "blocked",
+      "repo_artifacts": {
+        "required": [
+          "AGENTS.md",
+          "SPEC.md",
+          "requirements.md"
+        ],
+        "present": [
+          "AGENTS.md",
+          "SPEC.md",
+          "requirements.md"
+        ],
+        "missing": [],
+        "repo_root": "/srv/bears/dev/platform"
+      },
+      "blocking_evidence": [
+        {
+          "id": "AUTH_CORE_KB_ACCESS_BLOCKER",
+          "kind": "access",
+          "detail": "Repo-local AGENTS requires docs MCP startup, readiness, and repo brief; current verified result is 401 Unauthorized, so auth_core repo work stays fail-closed until ready evidence or explicit scoped operator override exists."
+        },
+        {
+          "id": "AUTH_CORE_ENDPOINT_MATRIX_MISSING",
+          "kind": "contract",
+          "detail": "Endpoint boundary matrix is not documented for public-auth, authenticated-user, internal-service, and admin classes."
+        }
+      ],
+      "required_evidence_before_open": [
+        "KB startup contract and readiness status are accessible and ready, or an explicit scoped operator override is recorded.",
+        "Repo-root AGENTS.md, SPEC.md, and requirements.md stay present at /srv/bears/dev/platform while canonical_path remains the neutral auth package subtree.",
+        "Endpoint boundary matrix covers public-auth, authenticated-user, internal-service, and admin route classes.",
+        "Automated auth tests cover success, unauthorized, forbidden, and replay/invalid bootstrap paths without secret values."
+      ],
+      "safe_validation_commands": [
+        "python3 /srv/bears/plugins/bears/scripts/platform_roles.py route /srv/bears/dev/platform/src/bears_platform/auth",
+        "cd /srv/bears/plugins/bears && python3 scripts/platform_roles.py validate",
+        "cd /srv/bears/plugins/bears && python3 scripts/auth_gateway_deploy_readiness.py validate"
+      ],
+      "rollback_plan": {
+        "status": "not-applicable-until-implementation",
+        "required_shape": [
+          "previous auth contract reference",
+          "migration rollback or compatibility note",
+          "test evidence proving session/token compatibility"
+        ]
+      },
+      "deploy_impact": {
+        "runtime_mutation": false,
+        "ci_behavior_changed": false,
+        "production_approval_required": true
+      },
+      "last_verified": "2026-06-03",
+      "unblock_packet": "/srv/bears/dev/docs/reference/auth-core-baseline-unblock.md",
+      "evidence_refs": [
+        "/srv/bears/dev/contracts/auth_gateway_deploy_core_contract.md",
+        "/srv/bears/dev/docs/reference/auth-core-baseline-unblock.md"
+      ],
+      "legacy_source_refs": {
+        "allowed_use": "tenant legacy source, migration source, compatibility evidence, or test fixture only; never universal core default, namespace owner, required input, or required dependency",
+        "paths": [
+          "/srv/bears/legacy/seller/apps/auth_core"
+        ],
+        "validation_commands": [
+          "cd /srv/bears/legacy/seller/apps/auth_core && make check",
+          "cd /srv/bears/legacy/seller/apps/auth_core && python -m pytest tests -q"
+        ],
+        "evidence_refs": [
+          "/srv/bears/legacy/seller/apps/auth_core/AGENTS.md"
+        ],
+        "canonical_source_root": "/srv/bears/legacy/seller/apps",
+        "deprecated_projects_refs": "Legacy compatibility input only; not canonical source authority."
+      }
+    },
+    {
+      "surface": "bears_gateway",
+      "canonical_path": "/srv/bears/dev/platform/src/bears_platform/gateway",
+      "route_target": "/srv/bears/dev/platform/src/bears_platform/gateway",
+      "primary_role": "bears-gateway-platform-engineer",
+      "supporting_roles": [
+        "bears-auth-platform-engineer",
+        "bears-platform-security-reviewer",
+        "bears-platform-role-governor"
+      ],
+      "readiness_status": "documented-baseline",
+      "artifact_gate": "open",
+      "implementation_gate": "blocked",
+      "repo_artifacts": {
+        "required": [
+          "AGENTS.md",
+          "SPEC.md",
+          "requirements.md"
+        ],
+        "present": [
+          "AGENTS.md",
+          "SPEC.md",
+          "requirements.md"
+        ],
+        "missing": [],
+        "repo_root": "/srv/bears/dev/platform"
+      },
+      "blocking_evidence": [
+        {
+          "id": "GATEWAY_AUTH_BASELINE_DEPENDENCY",
+          "kind": "ordering",
+          "detail": "Auth-dependent gateway implementation is blocked until auth_core baseline evidence opens first."
+        },
+        {
+          "id": "GATEWAY_ROUTE_INVENTORY_MISSING",
+          "kind": "contract",
+          "detail": "Route-by-route class inventory is not yet proven against implementation."
+        },
+        {
+          "id": "GATEWAY_WEBSOCKET_AUTH_EVIDENCE_MISSING",
+          "kind": "test",
+          "detail": "WebSocket handshake auth expectation and rejection behavior are not yet proven by tests."
+        }
+      ],
+      "required_evidence_before_open": [
+        "auth_core implementation_gate is open or the operator records a scoped auth override.",
+        "Route-by-route inventory maps every exposed route to public, public-with-fake-unauth, bearer-auth, wb-token-derived, or websocket.",
+        "Authorization, X-Request-ID, X-Organization-Id, and X-Organization-Inn propagation rules are proven by tests.",
+        "Stable 401, 403, 504, and WebSocket auth rejection behavior is covered by automated tests."
+      ],
+      "safe_validation_commands": [
+        "python3 /srv/bears/plugins/bears/scripts/platform_roles.py route /srv/bears/dev/platform/src/bears_platform/gateway",
+        "cd /srv/bears/plugins/bears && python3 scripts/platform_roles.py validate",
+        "cd /srv/bears/plugins/bears && python3 scripts/auth_gateway_deploy_readiness.py validate",
+        "cd /srv/bears/plugins/bears && python3 -m unittest tests/test_auth_gateway_deploy_readiness.py tests/test_platform_roles.py"
+      ],
+      "rollback_plan": {
+        "status": "not-ready",
+        "required_shape": [
+          "previous route contract reference",
+          "gateway config or code rollback reference",
+          "smoke evidence for auth and tenant propagation"
+        ]
+      },
+      "deploy_impact": {
+        "runtime_mutation": false,
+        "ci_behavior_changed": false,
+        "production_approval_required": true
+      },
+      "last_verified": "2026-06-03",
+      "legacy_source_refs": {
+        "allowed_use": "tenant legacy source, migration source, compatibility evidence, or test fixture only; never universal core default, namespace owner, required input, or required dependency",
+        "paths": [
+          "/srv/bears/legacy/seller/apps/gateway",
+          "/srv/bears/legacy/seller/apps/bears_gateway"
+        ],
+        "validation_commands": [
+          "cd /srv/bears/legacy/seller/apps/gateway && make check",
+          "cd /srv/bears/legacy/seller/apps/gateway && poetry run pytest",
+          "cd /srv/bears/legacy/seller/apps/gateway && git diff --check"
+        ],
+        "evidence_refs": [
+          "/srv/bears/legacy/seller/apps/gateway/AGENTS.md"
+        ],
+        "canonical_source_root": "/srv/bears/legacy/seller/apps",
+        "deprecated_projects_refs": "Legacy compatibility input only; not canonical source authority."
+      }
+    },
+    {
+      "surface": "cd_deploy_stage",
+      "canonical_path": "/srv/bears/dev/platform/src/bears_platform/deploy",
+      "route_target": "/srv/bears/dev/platform/src/bears_platform/deploy",
+      "primary_role": "bears-deploy-platform-engineer",
+      "supporting_roles": [
+        "bears-platform-security-reviewer",
+        "bears-platform-role-governor"
+      ],
+      "readiness_status": "validated-read-only-baseline",
+      "artifact_gate": "open",
+      "implementation_gate": "blocked",
+      "repo_artifacts": {
+        "required": [
+          "AGENTS.md",
+          "SPEC.md",
+          "requirements.md"
+        ],
+        "present": [
+          "AGENTS.md",
+          "SPEC.md",
+          "requirements.md"
+        ],
+        "missing": [],
+        "repo_root": "/srv/bears/dev/platform"
+      },
+      "blocking_evidence": [
+        {
+          "id": "DEPLOY_CI_BEHAVIOR_GATE_BLOCKED",
+          "kind": "deploy",
+          "detail": "Shared CI behavior changes require explicit consumer graph, rollback execution path, and post-deploy evidence before opening."
+        },
+        {
+          "id": "DEPLOY_ROLLBACK_EXECUTION_PATH_MISSING",
+          "kind": "rollback",
+          "detail": "Rollback shape is documented, but no validated rollback job or execution path is implemented."
+        },
+        {
+          "id": "DEPLOY_POST_DEPLOY_EVIDENCE_WEAK",
+          "kind": "runtime-evidence",
+          "detail": "Current post-deploy evidence shape is documented but not proven as broad runtime readiness evidence."
+        }
+      ],
+      "required_evidence_before_open": [
+        "auth_core and bears_gateway implementation gates are open, or an explicit scoped operator override narrows the deploy-only task.",
+        "Every shared template has a current consumer graph or an explicit exclusion rationale.",
+        "Rollback execution path is validated with non-secret previous artifact or config reference.",
+        "Post-deploy evidence proves the promoted service state without exposing secrets or production data."
+      ],
+      "safe_validation_commands": [
+        "python3 /srv/bears/plugins/bears/scripts/platform_roles.py route /srv/bears/dev/platform/src/bears_platform/deploy",
+        "cd /srv/bears/plugins/bears && python3 scripts/platform_roles.py validate",
+        "cd /srv/bears/plugins/bears && python3 scripts/auth_gateway_deploy_readiness.py validate",
+        "cd /srv/bears/plugins/bears && python3 scripts/validate_overlay.py --json validate --strict-overlay-skills"
+      ],
+      "rollback_plan": {
+        "status": "shape-documented-not-executable",
+        "required_shape": [
+          "previous image tag or config commit",
+          "owning service name",
+          "rollback command or CI path",
+          "completion evidence"
+        ]
+      },
+      "deploy_impact": {
+        "runtime_mutation": false,
+        "ci_behavior_changed": false,
+        "production_approval_required": true
+      },
+      "last_verified": "2026-06-03",
+      "legacy_source_refs": {
+        "allowed_use": "tenant legacy source, migration source, compatibility evidence, or test fixture only; never universal core default, namespace owner, required input, or required dependency",
+        "paths": [
+          "/srv/bears/legacy/seller/apps/cd_deploy_stage"
+        ],
+        "validation_commands": [
+          "cd /srv/bears/legacy/seller/apps/cd_deploy_stage && python3 scripts/validate_deploy_contract.py",
+          "cd /srv/bears/legacy/seller/apps/cd_deploy_stage && python3 -m unittest tests/test_validate_deploy_contract.py",
+          "cd /srv/bears/legacy/seller && python3 scripts/validate_seller_workflow.py"
+        ],
+        "evidence_refs": [
+          "/srv/bears/legacy/seller/apps/cd_deploy_stage/AGENTS.md"
+        ],
+        "canonical_source_root": "/srv/bears/legacy/seller/apps",
+        "deprecated_projects_refs": "Legacy compatibility input only; not canonical source authority."
+      }
+    }
+  ]
+}

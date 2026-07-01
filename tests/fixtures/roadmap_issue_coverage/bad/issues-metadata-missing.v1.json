@@ -1,0 +1,24 @@
+{
+  "issues": [
+    {
+      "number": 1,
+      "issue_ref": "#1",
+      "title": "P0: Fixture roadmap coverage",
+      "state": "OPEN",
+      "url": "https://github.com/example/repo/issues/1",
+      "labels": ["P0", "scope:bears-plugin"],
+      "updated_at": "2026-06-27T00:00:00Z",
+      "priority": "P0"
+    },
+    {
+      "number": 3,
+      "issue_ref": "#3",
+      "title": "P0: Fixture missing coverage",
+      "state": "OPEN",
+      "url": "https://github.com/example/repo/issues/3",
+      "labels": ["P0", "scope:bears-plugin"],
+      "updated_at": "2026-06-27T00:00:00Z",
+      "priority": "P0"
+    }
+  ]
+}

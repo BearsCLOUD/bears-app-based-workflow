@@ -1,0 +1,247 @@
+{
+  "owner_role": "bears-machine-first-execution-kernel-engineer",
+  "schema": "bears-authority-map.v1",
+  "topics": [
+    {
+      "canonical_source": "assets/catalog/artifact-registry.v1.json",
+      "deprecated_surfaces": [],
+      "generated_outputs": [],
+      "manifest_claims": [
+        "new tracked artifacts require exact registry records"
+      ],
+      "owning_role": "bears-machine-first-execution-kernel-engineer",
+      "secondary_docs": [
+        "docs/reference/artifact-registry.md"
+      ],
+      "topic": "artifact_registry",
+      "validator": "python3 scripts/artifact_registry.py validate"
+    },
+    {
+      "canonical_source": "assets/catalog/decision-ledger.v1.json",
+      "deprecated_surfaces": [],
+      "generated_outputs": [],
+      "manifest_claims": [
+        "governance changes require accepted decisions"
+      ],
+      "owning_role": "bears-machine-first-execution-kernel-engineer",
+      "secondary_docs": [
+        "docs/reference/decision-ledger.md"
+      ],
+      "topic": "decision_ledger",
+      "validator": "python3 scripts/decision_ledger.py validate"
+    },
+    {
+      "canonical_source": "assets/catalog/release-notes-gate.v1.json",
+      "deprecated_surfaces": [],
+      "generated_outputs": [],
+      "manifest_claims": [
+        "behavior-changing changes require release notes coverage"
+      ],
+      "owning_role": "bears-machine-first-execution-kernel-engineer",
+      "secondary_docs": [
+        "docs/reference/release-notes-gate.md"
+      ],
+      "topic": "release_notes_gate",
+      "validator": "python3 scripts/release_notes_gate.py validate"
+    },
+    {
+      "canonical_source": "assets/catalog/workspace-hygiene.v1.json",
+      "deprecated_surfaces": [
+        "runtime/tmp/**"
+      ],
+      "generated_outputs": [],
+      "manifest_claims": [
+        "stale runtime and cache artifacts are ignored or cleaned by policy"
+      ],
+      "owning_role": "bears-machine-first-execution-kernel-engineer",
+      "secondary_docs": [
+        "docs/reference/workspace-hygiene.md"
+      ],
+      "topic": "workspace_hygiene",
+      "validator": "python3 scripts/workspace_hygiene.py validate"
+    },
+    {
+      "canonical_source": "assets/catalog/git-hook-bootstrap.v1.json",
+      "deprecated_surfaces": [],
+      "generated_outputs": [
+        "runtime/effective-hooks/<repo_id>/effective-hooks-proof.v1.json"
+      ],
+      "manifest_claims": [
+        "thin hooks enqueue validation and write bounded proof"
+      ],
+      "owning_role": "bears-machine-first-execution-kernel-engineer",
+      "secondary_docs": [
+        "docs/reference/git-hook-bootstrap.md"
+      ],
+      "topic": "git_hook_bootstrap",
+      "validator": "python3 scripts/bears_git_hook.py validate"
+    },
+    {
+      "canonical_source": "assets/catalog/delivery-manifest.v1.json",
+      "deprecated_surfaces": [
+        "issue-specific delivery ids for enterprise release"
+      ],
+      "generated_outputs": [
+        "runtime/deliveries/<delivery_id>/**"
+      ],
+      "manifest_claims": [
+        "closeout-ready delivery manifests use canonical delivery id",
+        "delivery manifests record issue autostart lease history",
+        "closeout blocks active, stale, recoverable, or blocked lease history"
+      ],
+      "owning_role": "bears-machine-first-execution-kernel-engineer",
+      "secondary_docs": [
+        "docs/reference/self-solving-issue-loop.md"
+      ],
+      "topic": "delivery_manifest",
+      "validator": "python3 scripts/delivery_manifest.py validate"
+    },
+    {
+      "canonical_source": "assets/catalog/enterprise-issue-automation-release.v1.json",
+      "deprecated_surfaces": [
+        "issue-local release manifests"
+      ],
+      "generated_outputs": [],
+      "manifest_claims": [
+        "one canonical release manifest controls dependency order and max_active=1"
+      ],
+      "owning_role": "bears-machine-first-execution-kernel-engineer",
+      "secondary_docs": [
+        "docs/reference/enterprise-issue-automation-release.md"
+      ],
+      "topic": "enterprise_issue_automation_release",
+      "validator": "python3 scripts/enterprise_issue_release.py validate"
+    },
+    {
+      "canonical_source": "assets/catalog/commit-closeout.v1.json",
+      "deprecated_surfaces": [],
+      "generated_outputs": [
+        "runtime/local-commit-validation/<commit_sha>.json",
+        "runtime/bears-doctor/<commit_sha>.closeout.json"
+      ],
+      "manifest_claims": [
+        "main commits carry issue, delivery id, evidence, changelog, and blocker metadata"
+      ],
+      "owning_role": "bears-machine-first-execution-kernel-engineer",
+      "secondary_docs": [
+        "docs/reference/commit-closeout.md"
+      ],
+      "topic": "commit_closeout",
+      "validator": "python3 scripts/commit_closeout.py validate"
+    },
+    {
+      "canonical_source": "assets/catalog/bears-doctor.v1.json",
+      "deprecated_surfaces": [],
+      "generated_outputs": [
+        "runtime/bears-doctor/<commit_sha>.closeout.json"
+      ],
+      "manifest_claims": [
+        "closeout summary is the final report source"
+      ],
+      "owning_role": "bears-machine-first-execution-kernel-engineer",
+      "secondary_docs": [
+        "docs/reference/bears-doctor.md"
+      ],
+      "topic": "bears_doctor",
+      "validator": "python3 scripts/bears_doctor.py validate"
+    },
+    {
+      "canonical_source": "assets/catalog/file-context-policy.v1.json",
+      "deprecated_surfaces": [],
+      "generated_outputs": [
+        "assets/file-context/index.v1.json"
+      ],
+      "manifest_claims": [
+        "file-context records provide bounded summary-first context before governed file reads",
+        "stale file-context records block write-scoped goal execution"
+      ],
+      "owning_role": "bears-machine-first-execution-kernel-engineer",
+      "secondary_docs": [
+        "docs/reference/file-context-index.md"
+      ],
+      "topic": "file_context_index",
+      "validator": "python3 scripts/file_context_index.py validate"
+    },
+    {
+      "canonical_source": "assets/catalog/test-selection.v1.json",
+      "deprecated_surfaces": [],
+      "generated_outputs": [],
+      "manifest_claims": [
+        "local commit validation runs impacted fast tests"
+      ],
+      "owning_role": "bears-machine-first-execution-kernel-engineer",
+      "secondary_docs": [],
+      "topic": "test_selection",
+      "validator": "python3 scripts/test_selection.py validate --json"
+    },
+    {
+      "canonical_source": "assets/catalog/async-validation.v1.json",
+      "deprecated_surfaces": [],
+      "generated_outputs": [
+        "runtime/validation-jobs/<commit_sha>/<job_id>.json",
+        "runtime/validation-state/<commit_sha>/validation-state.v1.json"
+      ],
+      "manifest_claims": [
+        "post-commit hooks enqueue async validation jobs"
+      ],
+      "owning_role": "bears-machine-first-execution-kernel-engineer",
+      "secondary_docs": [
+        "docs/reference/async-validation.md"
+      ],
+      "topic": "async_validation",
+      "validator": "python3 scripts/validation_worker.py validate"
+    },
+    {
+      "canonical_source": "assets/catalog/codex-exec-adapter.v1.json",
+      "deprecated_surfaces": [
+        "unbounded single-session issue solving"
+      ],
+      "generated_outputs": [
+        "runtime/codex-exec/**",
+        "runtime/codex-exec/jobs/<job_id>.json",
+        "runtime/codex-exec/steps/<job_id>/<step_id>.json",
+        "runtime/codex-exec/prompts/<job_id>/<step_id>.md"
+      ],
+      "manifest_claims": [
+        "issue work is split into finite role steps",
+        "sequential_codex_exec supervises prompt, job, step result, failure class, dirty scope, resume, and abort packets",
+        "codex exec command invocation goes through assets/catalog/codex-exec-adapter.v1.json"
+      ],
+      "owning_role": "bears-machine-first-execution-kernel-engineer",
+      "secondary_docs": [
+        "docs/reference/sequential-codex-exec.md"
+      ],
+      "topic": "sequential_codex_exec",
+      "validator": "python3 scripts/sequential_codex_exec.py validate"
+    },
+    {
+      "canonical_source": "assets/catalog/issue-autostart.v1.json",
+      "deprecated_surfaces": [
+        "runtime/issue-autostart/queue/*.json"
+      ],
+      "generated_outputs": [
+        "runtime/issue-autostart/jobs/<issue>.json",
+        "runtime/issue-autostart/leases/<issue>.json",
+        "runtime/issue-autostart/events/*.json",
+        "runtime/issue-autostart/control.json",
+        "runtime/issue-autostart/recovery-events/*.json"
+      ],
+      "manifest_claims": [
+        "enterprise autostart controls discover, enqueue, tick, run-next, watch, status, pause, resume, drain, and cancel",
+        "issue_autostart queues only safe_auto issues",
+        "issue_intake eligibility owns compact blocked reasons",
+        "issue_autostart requires a lease before codex exec issue work",
+        "issue_autostart detects stale leases and preserves evidence during recovery",
+        "worktree and file-scope locks are delegated to #375 until lock catalog lands"
+      ],
+      "owning_role": "bears-machine-first-execution-kernel-engineer",
+      "secondary_docs": [
+        "docs/reference/issue-autostart.md"
+      ],
+      "topic": "issue_autostart",
+      "validator": "python3 scripts/issue_autostart.py validate"
+    }
+  ],
+  "updated": "2026-06-25",
+  "version": "1"
+}

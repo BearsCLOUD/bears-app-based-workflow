@@ -1,0 +1,43 @@
+{
+  "schema": "bears-agent-action-ledger.v1",
+  "version": "1",
+  "required_packets": [
+    "heartbeat",
+    "assignment",
+    "evidence",
+    "validation",
+    "closeout"
+  ],
+  "forbidden_actions": [
+    "file_write_without_assignment",
+    "git_push_without_pr",
+    "secret_read",
+    "raw_log_read",
+    "raw_chat_read",
+    "raw_vpn_config_read",
+    "production_data_read"
+  ],
+  "markdown_sections": [
+    "Assignment",
+    "Evidence",
+    "Validation",
+    "Blockers"
+  ],
+  "restricted_data_policy": "metadata_only_no_secret_no_raw_log_no_raw_chat_no_raw_vpn_config_no_production_data",
+  "field_families": [
+    "goal",
+    "worker",
+    "role",
+    "assignment",
+    "allowed actions",
+    "forbidden actions",
+    "tool evidence",
+    "changed files",
+    "validation",
+    "closeout"
+  ],
+  "evidence_fields": [
+    "tool evidence",
+    "changed files"
+  ]
+}

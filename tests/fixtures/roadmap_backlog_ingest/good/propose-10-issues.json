@@ -1,0 +1,643 @@
+{
+  "blocked": [],
+  "duplicates": [],
+  "existing_nodes": [
+    {
+      "issue": "#413",
+      "node_id": "issue-413-research",
+      "node_type": "research",
+      "state": "validated"
+    },
+    {
+      "issue": "#413",
+      "node_id": "issue-413-contract",
+      "node_type": "contract",
+      "state": "validated"
+    },
+    {
+      "issue": "#413",
+      "node_id": "issue-413-implementation",
+      "node_type": "implementation",
+      "state": "queued"
+    },
+    {
+      "issue": "#413",
+      "node_id": "issue-413-validation",
+      "node_type": "validator",
+      "state": "manual_review"
+    },
+    {
+      "issue": "#413",
+      "node_id": "issue-413-closeout",
+      "node_type": "closeout",
+      "state": "manual_review"
+    }
+  ],
+  "fillability": {
+    "already_in_roadmap": 0,
+    "blocked_count": 0,
+    "manual_review_count": 0,
+    "needs_node": 10,
+    "open_issue_count": 10,
+    "safe_autostart_candidates": 0
+  },
+  "manual_review": [],
+  "proposed_nodes": [
+    {
+      "acceptance_criteria": [
+        "validates fixture 900"
+      ],
+      "autostart_policy": "manual_review",
+      "blocked_by": [],
+      "decomposes_to": [],
+      "depends_on": [],
+      "evidence_paths": [
+        "https://github.com/BearsCLOUD/bears-codex-workflow-plugin/issues/900"
+      ],
+      "inputs": [
+        "https://github.com/BearsCLOUD/bears-codex-workflow-plugin/issues/900"
+      ],
+      "issue": "#900",
+      "labels": [
+        "scope:bears-plugin"
+      ],
+      "node_id": "issue-900-backlog-ingest",
+      "node_type": "implementation",
+      "outputs": [
+        "scripts/fixture_900.py",
+        "tests/test_fixture_900.py"
+      ],
+      "owner_role": "roadmap_executor",
+      "required_files": [
+        "scripts/fixture_900.py",
+        "tests/test_fixture_900.py"
+      ],
+      "risk_class": "normal",
+      "source_issue_url": "https://github.com/BearsCLOUD/bears-codex-workflow-plugin/issues/900",
+      "source_of_truth": [
+        "github_issue",
+        "catalog"
+      ],
+      "state": "manual_review"
+    },
+    {
+      "acceptance_criteria": [
+        "validates fixture 901"
+      ],
+      "autostart_policy": "manual_review",
+      "blocked_by": [],
+      "decomposes_to": [],
+      "depends_on": [],
+      "evidence_paths": [
+        "https://github.com/BearsCLOUD/bears-codex-workflow-plugin/issues/901"
+      ],
+      "inputs": [
+        "https://github.com/BearsCLOUD/bears-codex-workflow-plugin/issues/901"
+      ],
+      "issue": "#901",
+      "labels": [
+        "scope:bears-plugin"
+      ],
+      "node_id": "issue-901-backlog-ingest",
+      "node_type": "implementation",
+      "outputs": [
+        "scripts/fixture_901.py",
+        "tests/test_fixture_901.py"
+      ],
+      "owner_role": "roadmap_executor",
+      "required_files": [
+        "scripts/fixture_901.py",
+        "tests/test_fixture_901.py"
+      ],
+      "risk_class": "normal",
+      "source_issue_url": "https://github.com/BearsCLOUD/bears-codex-workflow-plugin/issues/901",
+      "source_of_truth": [
+        "github_issue",
+        "catalog"
+      ],
+      "state": "manual_review"
+    },
+    {
+      "acceptance_criteria": [
+        "validates fixture 902"
+      ],
+      "autostart_policy": "manual_review",
+      "blocked_by": [],
+      "decomposes_to": [],
+      "depends_on": [],
+      "evidence_paths": [
+        "https://github.com/BearsCLOUD/bears-codex-workflow-plugin/issues/902"
+      ],
+      "inputs": [
+        "https://github.com/BearsCLOUD/bears-codex-workflow-plugin/issues/902"
+      ],
+      "issue": "#902",
+      "labels": [
+        "scope:bears-plugin"
+      ],
+      "node_id": "issue-902-backlog-ingest",
+      "node_type": "implementation",
+      "outputs": [
+        "scripts/fixture_902.py",
+        "tests/test_fixture_902.py"
+      ],
+      "owner_role": "roadmap_executor",
+      "required_files": [
+        "scripts/fixture_902.py",
+        "tests/test_fixture_902.py"
+      ],
+      "risk_class": "normal",
+      "source_issue_url": "https://github.com/BearsCLOUD/bears-codex-workflow-plugin/issues/902",
+      "source_of_truth": [
+        "github_issue",
+        "catalog"
+      ],
+      "state": "manual_review"
+    },
+    {
+      "acceptance_criteria": [
+        "validates fixture 903"
+      ],
+      "autostart_policy": "manual_review",
+      "blocked_by": [],
+      "decomposes_to": [],
+      "depends_on": [],
+      "evidence_paths": [
+        "https://github.com/BearsCLOUD/bears-codex-workflow-plugin/issues/903"
+      ],
+      "inputs": [
+        "https://github.com/BearsCLOUD/bears-codex-workflow-plugin/issues/903"
+      ],
+      "issue": "#903",
+      "labels": [
+        "scope:bears-plugin"
+      ],
+      "node_id": "issue-903-backlog-ingest",
+      "node_type": "implementation",
+      "outputs": [
+        "scripts/fixture_903.py",
+        "tests/test_fixture_903.py"
+      ],
+      "owner_role": "roadmap_executor",
+      "required_files": [
+        "scripts/fixture_903.py",
+        "tests/test_fixture_903.py"
+      ],
+      "risk_class": "normal",
+      "source_issue_url": "https://github.com/BearsCLOUD/bears-codex-workflow-plugin/issues/903",
+      "source_of_truth": [
+        "github_issue",
+        "catalog"
+      ],
+      "state": "manual_review"
+    },
+    {
+      "acceptance_criteria": [
+        "validates fixture 904"
+      ],
+      "autostart_policy": "manual_review",
+      "blocked_by": [],
+      "decomposes_to": [],
+      "depends_on": [],
+      "evidence_paths": [
+        "https://github.com/BearsCLOUD/bears-codex-workflow-plugin/issues/904"
+      ],
+      "inputs": [
+        "https://github.com/BearsCLOUD/bears-codex-workflow-plugin/issues/904"
+      ],
+      "issue": "#904",
+      "labels": [
+        "scope:bears-plugin"
+      ],
+      "node_id": "issue-904-backlog-ingest",
+      "node_type": "implementation",
+      "outputs": [
+        "scripts/fixture_904.py",
+        "tests/test_fixture_904.py"
+      ],
+      "owner_role": "roadmap_executor",
+      "required_files": [
+        "scripts/fixture_904.py",
+        "tests/test_fixture_904.py"
+      ],
+      "risk_class": "normal",
+      "source_issue_url": "https://github.com/BearsCLOUD/bears-codex-workflow-plugin/issues/904",
+      "source_of_truth": [
+        "github_issue",
+        "catalog"
+      ],
+      "state": "manual_review"
+    },
+    {
+      "acceptance_criteria": [
+        "validates fixture 905"
+      ],
+      "autostart_policy": "manual_review",
+      "blocked_by": [],
+      "decomposes_to": [],
+      "depends_on": [],
+      "evidence_paths": [
+        "https://github.com/BearsCLOUD/bears-codex-workflow-plugin/issues/905"
+      ],
+      "inputs": [
+        "https://github.com/BearsCLOUD/bears-codex-workflow-plugin/issues/905"
+      ],
+      "issue": "#905",
+      "labels": [
+        "scope:bears-plugin"
+      ],
+      "node_id": "issue-905-backlog-ingest",
+      "node_type": "implementation",
+      "outputs": [
+        "scripts/fixture_905.py",
+        "tests/test_fixture_905.py"
+      ],
+      "owner_role": "roadmap_executor",
+      "required_files": [
+        "scripts/fixture_905.py",
+        "tests/test_fixture_905.py"
+      ],
+      "risk_class": "normal",
+      "source_issue_url": "https://github.com/BearsCLOUD/bears-codex-workflow-plugin/issues/905",
+      "source_of_truth": [
+        "github_issue",
+        "catalog"
+      ],
+      "state": "manual_review"
+    },
+    {
+      "acceptance_criteria": [
+        "validates fixture 906"
+      ],
+      "autostart_policy": "manual_review",
+      "blocked_by": [],
+      "decomposes_to": [],
+      "depends_on": [],
+      "evidence_paths": [
+        "https://github.com/BearsCLOUD/bears-codex-workflow-plugin/issues/906"
+      ],
+      "inputs": [
+        "https://github.com/BearsCLOUD/bears-codex-workflow-plugin/issues/906"
+      ],
+      "issue": "#906",
+      "labels": [
+        "scope:bears-plugin"
+      ],
+      "node_id": "issue-906-backlog-ingest",
+      "node_type": "implementation",
+      "outputs": [
+        "scripts/fixture_906.py",
+        "tests/test_fixture_906.py"
+      ],
+      "owner_role": "roadmap_executor",
+      "required_files": [
+        "scripts/fixture_906.py",
+        "tests/test_fixture_906.py"
+      ],
+      "risk_class": "normal",
+      "source_issue_url": "https://github.com/BearsCLOUD/bears-codex-workflow-plugin/issues/906",
+      "source_of_truth": [
+        "github_issue",
+        "catalog"
+      ],
+      "state": "manual_review"
+    },
+    {
+      "acceptance_criteria": [
+        "validates fixture 907"
+      ],
+      "autostart_policy": "manual_review",
+      "blocked_by": [],
+      "decomposes_to": [],
+      "depends_on": [],
+      "evidence_paths": [
+        "https://github.com/BearsCLOUD/bears-codex-workflow-plugin/issues/907"
+      ],
+      "inputs": [
+        "https://github.com/BearsCLOUD/bears-codex-workflow-plugin/issues/907"
+      ],
+      "issue": "#907",
+      "labels": [
+        "scope:bears-plugin"
+      ],
+      "node_id": "issue-907-backlog-ingest",
+      "node_type": "implementation",
+      "outputs": [
+        "scripts/fixture_907.py",
+        "tests/test_fixture_907.py"
+      ],
+      "owner_role": "roadmap_executor",
+      "required_files": [
+        "scripts/fixture_907.py",
+        "tests/test_fixture_907.py"
+      ],
+      "risk_class": "normal",
+      "source_issue_url": "https://github.com/BearsCLOUD/bears-codex-workflow-plugin/issues/907",
+      "source_of_truth": [
+        "github_issue",
+        "catalog"
+      ],
+      "state": "manual_review"
+    },
+    {
+      "acceptance_criteria": [
+        "validates fixture 908"
+      ],
+      "autostart_policy": "manual_review",
+      "blocked_by": [],
+      "decomposes_to": [],
+      "depends_on": [],
+      "evidence_paths": [
+        "https://github.com/BearsCLOUD/bears-codex-workflow-plugin/issues/908"
+      ],
+      "inputs": [
+        "https://github.com/BearsCLOUD/bears-codex-workflow-plugin/issues/908"
+      ],
+      "issue": "#908",
+      "labels": [
+        "scope:bears-plugin"
+      ],
+      "node_id": "issue-908-backlog-ingest",
+      "node_type": "implementation",
+      "outputs": [
+        "scripts/fixture_908.py",
+        "tests/test_fixture_908.py"
+      ],
+      "owner_role": "roadmap_executor",
+      "required_files": [
+        "scripts/fixture_908.py",
+        "tests/test_fixture_908.py"
+      ],
+      "risk_class": "normal",
+      "source_issue_url": "https://github.com/BearsCLOUD/bears-codex-workflow-plugin/issues/908",
+      "source_of_truth": [
+        "github_issue",
+        "catalog"
+      ],
+      "state": "manual_review"
+    },
+    {
+      "acceptance_criteria": [
+        "validates fixture 909"
+      ],
+      "autostart_policy": "manual_review",
+      "blocked_by": [],
+      "decomposes_to": [],
+      "depends_on": [],
+      "evidence_paths": [
+        "https://github.com/BearsCLOUD/bears-codex-workflow-plugin/issues/909"
+      ],
+      "inputs": [
+        "https://github.com/BearsCLOUD/bears-codex-workflow-plugin/issues/909"
+      ],
+      "issue": "#909",
+      "labels": [
+        "scope:bears-plugin"
+      ],
+      "node_id": "issue-909-backlog-ingest",
+      "node_type": "implementation",
+      "outputs": [
+        "scripts/fixture_909.py",
+        "tests/test_fixture_909.py"
+      ],
+      "owner_role": "roadmap_executor",
+      "required_files": [
+        "scripts/fixture_909.py",
+        "tests/test_fixture_909.py"
+      ],
+      "risk_class": "normal",
+      "source_issue_url": "https://github.com/BearsCLOUD/bears-codex-workflow-plugin/issues/909",
+      "source_of_truth": [
+        "github_issue",
+        "catalog"
+      ],
+      "state": "manual_review"
+    }
+  ],
+  "repo": "BearsCLOUD/bears-codex-workflow-plugin",
+  "schema": "bears-roadmap-backlog-ingestion.v1",
+  "source_issues": [
+    {
+      "acceptance_criteria": [
+        "validates fixture 900"
+      ],
+      "classification": "needs_roadmap_node",
+      "issue_ref": "#900",
+      "labels": [
+        "scope:bears-plugin"
+      ],
+      "number": 900,
+      "repo": "BearsCLOUD/bears-codex-workflow-plugin",
+      "required_files": [
+        "scripts/fixture_900.py",
+        "tests/test_fixture_900.py"
+      ],
+      "risk_class": "normal",
+      "source": "github_issue_list",
+      "state": "OPEN",
+      "title": "Fixture bounded issue 900",
+      "updated_at": "2026-06-25T00:00:00Z",
+      "url": "https://github.com/BearsCLOUD/bears-codex-workflow-plugin/issues/900"
+    },
+    {
+      "acceptance_criteria": [
+        "validates fixture 901"
+      ],
+      "classification": "needs_roadmap_node",
+      "issue_ref": "#901",
+      "labels": [
+        "scope:bears-plugin"
+      ],
+      "number": 901,
+      "repo": "BearsCLOUD/bears-codex-workflow-plugin",
+      "required_files": [
+        "scripts/fixture_901.py",
+        "tests/test_fixture_901.py"
+      ],
+      "risk_class": "normal",
+      "source": "github_issue_list",
+      "state": "OPEN",
+      "title": "Fixture bounded issue 901",
+      "updated_at": "2026-06-25T00:00:00Z",
+      "url": "https://github.com/BearsCLOUD/bears-codex-workflow-plugin/issues/901"
+    },
+    {
+      "acceptance_criteria": [
+        "validates fixture 902"
+      ],
+      "classification": "needs_roadmap_node",
+      "issue_ref": "#902",
+      "labels": [
+        "scope:bears-plugin"
+      ],
+      "number": 902,
+      "repo": "BearsCLOUD/bears-codex-workflow-plugin",
+      "required_files": [
+        "scripts/fixture_902.py",
+        "tests/test_fixture_902.py"
+      ],
+      "risk_class": "normal",
+      "source": "github_issue_list",
+      "state": "OPEN",
+      "title": "Fixture bounded issue 902",
+      "updated_at": "2026-06-25T00:00:00Z",
+      "url": "https://github.com/BearsCLOUD/bears-codex-workflow-plugin/issues/902"
+    },
+    {
+      "acceptance_criteria": [
+        "validates fixture 903"
+      ],
+      "classification": "needs_roadmap_node",
+      "issue_ref": "#903",
+      "labels": [
+        "scope:bears-plugin"
+      ],
+      "number": 903,
+      "repo": "BearsCLOUD/bears-codex-workflow-plugin",
+      "required_files": [
+        "scripts/fixture_903.py",
+        "tests/test_fixture_903.py"
+      ],
+      "risk_class": "normal",
+      "source": "github_issue_list",
+      "state": "OPEN",
+      "title": "Fixture bounded issue 903",
+      "updated_at": "2026-06-25T00:00:00Z",
+      "url": "https://github.com/BearsCLOUD/bears-codex-workflow-plugin/issues/903"
+    },
+    {
+      "acceptance_criteria": [
+        "validates fixture 904"
+      ],
+      "classification": "needs_roadmap_node",
+      "issue_ref": "#904",
+      "labels": [
+        "scope:bears-plugin"
+      ],
+      "number": 904,
+      "repo": "BearsCLOUD/bears-codex-workflow-plugin",
+      "required_files": [
+        "scripts/fixture_904.py",
+        "tests/test_fixture_904.py"
+      ],
+      "risk_class": "normal",
+      "source": "github_issue_list",
+      "state": "OPEN",
+      "title": "Fixture bounded issue 904",
+      "updated_at": "2026-06-25T00:00:00Z",
+      "url": "https://github.com/BearsCLOUD/bears-codex-workflow-plugin/issues/904"
+    },
+    {
+      "acceptance_criteria": [
+        "validates fixture 905"
+      ],
+      "classification": "needs_roadmap_node",
+      "issue_ref": "#905",
+      "labels": [
+        "scope:bears-plugin"
+      ],
+      "number": 905,
+      "repo": "BearsCLOUD/bears-codex-workflow-plugin",
+      "required_files": [
+        "scripts/fixture_905.py",
+        "tests/test_fixture_905.py"
+      ],
+      "risk_class": "normal",
+      "source": "github_issue_list",
+      "state": "OPEN",
+      "title": "Fixture bounded issue 905",
+      "updated_at": "2026-06-25T00:00:00Z",
+      "url": "https://github.com/BearsCLOUD/bears-codex-workflow-plugin/issues/905"
+    },
+    {
+      "acceptance_criteria": [
+        "validates fixture 906"
+      ],
+      "classification": "needs_roadmap_node",
+      "issue_ref": "#906",
+      "labels": [
+        "scope:bears-plugin"
+      ],
+      "number": 906,
+      "repo": "BearsCLOUD/bears-codex-workflow-plugin",
+      "required_files": [
+        "scripts/fixture_906.py",
+        "tests/test_fixture_906.py"
+      ],
+      "risk_class": "normal",
+      "source": "github_issue_list",
+      "state": "OPEN",
+      "title": "Fixture bounded issue 906",
+      "updated_at": "2026-06-25T00:00:00Z",
+      "url": "https://github.com/BearsCLOUD/bears-codex-workflow-plugin/issues/906"
+    },
+    {
+      "acceptance_criteria": [
+        "validates fixture 907"
+      ],
+      "classification": "needs_roadmap_node",
+      "issue_ref": "#907",
+      "labels": [
+        "scope:bears-plugin"
+      ],
+      "number": 907,
+      "repo": "BearsCLOUD/bears-codex-workflow-plugin",
+      "required_files": [
+        "scripts/fixture_907.py",
+        "tests/test_fixture_907.py"
+      ],
+      "risk_class": "normal",
+      "source": "github_issue_list",
+      "state": "OPEN",
+      "title": "Fixture bounded issue 907",
+      "updated_at": "2026-06-25T00:00:00Z",
+      "url": "https://github.com/BearsCLOUD/bears-codex-workflow-plugin/issues/907"
+    },
+    {
+      "acceptance_criteria": [
+        "validates fixture 908"
+      ],
+      "classification": "needs_roadmap_node",
+      "issue_ref": "#908",
+      "labels": [
+        "scope:bears-plugin"
+      ],
+      "number": 908,
+      "repo": "BearsCLOUD/bears-codex-workflow-plugin",
+      "required_files": [
+        "scripts/fixture_908.py",
+        "tests/test_fixture_908.py"
+      ],
+      "risk_class": "normal",
+      "source": "github_issue_list",
+      "state": "OPEN",
+      "title": "Fixture bounded issue 908",
+      "updated_at": "2026-06-25T00:00:00Z",
+      "url": "https://github.com/BearsCLOUD/bears-codex-workflow-plugin/issues/908"
+    },
+    {
+      "acceptance_criteria": [
+        "validates fixture 909"
+      ],
+      "classification": "needs_roadmap_node",
+      "issue_ref": "#909",
+      "labels": [
+        "scope:bears-plugin"
+      ],
+      "number": 909,
+      "repo": "BearsCLOUD/bears-codex-workflow-plugin",
+      "required_files": [
+        "scripts/fixture_909.py",
+        "tests/test_fixture_909.py"
+      ],
+      "risk_class": "normal",
+      "source": "github_issue_list",
+      "state": "OPEN",
+      "title": "Fixture bounded issue 909",
+      "updated_at": "2026-06-25T00:00:00Z",
+      "url": "https://github.com/BearsCLOUD/bears-codex-workflow-plugin/issues/909"
+    }
+  ],
+  "updated_at": "2026-06-25T16:42:04Z",
+  "version": "1"
+}

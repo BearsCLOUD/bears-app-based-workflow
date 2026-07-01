@@ -1,0 +1,868 @@
+{
+  "schema": "bears-telegram-runtime-readiness.v1",
+  "updated": "2026-06-24",
+  "policy": {
+    "goal": "Store machine-validatable migration-readiness packets for Telegram runtimes before Aiogram 3 implementation gates open.",
+    "role_gate_status": "ROLE_COVERAGE_BLOCKER",
+    "packet_required_for": [
+      "Aiogram 3 platform-core seed extraction surfaces",
+      "Aiogram 3 product-runtime hardening surfaces",
+      "Aiogram 2 or beta runtime upgrades",
+      "broad Aiogram rewrite planning",
+      "shared Telegram primitive extraction from product runtimes"
+    ],
+    "implementation_open_requires": [
+      "matching backlog surface and primary role",
+      "matched role route target",
+      "open backlog artifact gate",
+      "complete characterization tests with evidence",
+      "complete behavior inventory",
+      "complete callback governance",
+      "complete security controls and secret classifications",
+      "approved implementation approval status",
+      "approved or not-required security signoff",
+      "recorded validation plan and rollback plan",
+      "empty missing_evidence list"
+    ],
+    "secret_policy": "Registry stores classifications only. Tokens, webhook secrets, chat IDs, supplier secrets, and raw payloads are forbidden.",
+    "deprecated_projects_refs": "Any retained projects/* packet path is legacy compatibility inventory only and is not canonical project authority; canonical project registry authority is /srv/bears/dev/registry/projects.v1.json."
+  },
+  "packets": {
+    "codex-telegram": {
+      "surface": "codex-telegram",
+      "backlog_item": "codex-telegram",
+      "backlog_link": {
+        "catalog": "assets/catalog/telegram-aiogram-migration-backlog.v1.json",
+        "surface": "codex-telegram"
+      },
+      "path": "dev/app/codex-telegram",
+      "backlog_status": "already-aiogram3-core-seed",
+      "backlog_artifact_gate_status": "open",
+      "role_route_target": "/srv/bears/dev/app/codex-telegram",
+      "primary_role": "bears-telegram-platform-engineer",
+      "supporting_roles": [
+        "bears-platform-security-reviewer"
+      ],
+      "readiness_status": "blocked",
+      "implementation_gate": "blocked",
+      "characterization_tests": {
+        "status": "blocked",
+        "command_flows": "blocked",
+        "callback_flows": "blocked",
+        "rendering_snapshots": "blocked",
+        "startup_import": "blocked",
+        "side_effect_baseline": "blocked",
+        "evidence": []
+      },
+      "behavior_inventory": {
+        "status": "blocked",
+        "commands": "blocked",
+        "message_flows": "blocked",
+        "fsm_states": "blocked",
+        "background_jobs": "blocked",
+        "side_effects": "blocked",
+        "evidence": []
+      },
+      "callback_governance": {
+        "status": "blocked",
+        "inventory": "blocked",
+        "schema": "blocked",
+        "privilege_model": "blocked",
+        "integrity": "blocked",
+        "replay_protection": "blocked",
+        "audit_binding": "blocked",
+        "evidence": []
+      },
+      "security_controls": {
+        "status": "blocked",
+        "trust_boundary": "blocked",
+        "rbac": "blocked",
+        "idempotency": "blocked",
+        "audit_redaction": "blocked",
+        "external_side_effects": "blocked",
+        "evidence": []
+      },
+      "secret_governance": {
+        "status": "blocked",
+        "telegram_bot_token_source_class": "unknown",
+        "webhook_secret_source_class": "not-applicable",
+        "wb_supplier_token_source_class": "not-applicable",
+        "chat_id_classification": "unknown",
+        "rotation_owner_classification": "unknown"
+      },
+      "approval_status": "not-requested",
+      "security_signoff": "required",
+      "validation_plan": [
+        "Run product unit tests and MCP stdio smoke from /srv/bears/dev/app/codex-telegram without live Telegram mutation.",
+        "Run platform role route/audit for /srv/bears/dev/app/codex-telegram before product changes.",
+        "Keep production registration pointed to the Kubernetes MCP endpoint only; do not register a dev runtime or local daemon."
+      ],
+      "rollback_plan": [
+        "Rollback production by reverting the pinned Kubernetes image digest to the previous digest.",
+        "Keep /srv/bears/projects/codex-telegram as evidence only; never promote it back to active source authority.",
+        "Remove workspace-control MCP registration if the production endpoint fails health or auth checks."
+      ],
+      "missing_evidence": [
+        "Production Kubernetes truth packet must be filled before any apply.",
+        "Production rollout evidence must be sanitized and uploaded by CD after apply.",
+        "Live Telegram send evidence is not required for local validation and needs explicit operator approval if requested."
+      ],
+      "last_verified": "2026-06-24",
+      "legacy_compatibility": {
+        "deprecated_refs": [
+          "projects/codex-telegram",
+          "dev/workspace/codex-telegram"
+        ],
+        "decision": "moved_to_canonical_dev_app_prod_mcp_product",
+        "allowed_use": "Evidence only; no active runtime or registry ownership."
+      }
+    },
+    "vpnbot": {
+      "surface": "vpnbot",
+      "backlog_item": "vpnbot",
+      "backlog_link": {
+        "catalog": "assets/catalog/telegram-aiogram-migration-backlog.v1.json",
+        "surface": "vpnbot"
+      },
+      "path": "dev/app/vpn/vpnbot",
+      "backlog_status": "already-aiogram3-hardening",
+      "backlog_artifact_gate_status": "open",
+      "role_route_target": "/srv/bears/dev/app/vpn/vpnbot",
+      "primary_role": "bears-vpn-bot-engineer",
+      "supporting_roles": [
+        "bears-platform-security-reviewer",
+        "bears-telegram-platform-engineer"
+      ],
+      "readiness_status": "blocked",
+      "implementation_gate": "blocked",
+      "characterization_tests": {
+        "status": "blocked",
+        "command_flows": "blocked",
+        "callback_flows": "blocked",
+        "rendering_snapshots": "blocked",
+        "startup_import": "blocked",
+        "side_effect_baseline": "blocked",
+        "evidence": []
+      },
+      "behavior_inventory": {
+        "status": "blocked",
+        "commands": "blocked",
+        "message_flows": "blocked",
+        "fsm_states": "blocked",
+        "background_jobs": "blocked",
+        "side_effects": "blocked",
+        "evidence": []
+      },
+      "callback_governance": {
+        "status": "blocked",
+        "inventory": "blocked",
+        "schema": "blocked",
+        "privilege_model": "blocked",
+        "integrity": "blocked",
+        "replay_protection": "blocked",
+        "audit_binding": "blocked",
+        "evidence": []
+      },
+      "security_controls": {
+        "status": "blocked",
+        "trust_boundary": "blocked",
+        "rbac": "blocked",
+        "idempotency": "blocked",
+        "audit_redaction": "blocked",
+        "external_side_effects": "blocked",
+        "evidence": []
+      },
+      "secret_governance": {
+        "status": "blocked",
+        "telegram_bot_token_source_class": "unknown",
+        "webhook_secret_source_class": "not-applicable",
+        "wb_supplier_token_source_class": "not-applicable",
+        "chat_id_classification": "unknown",
+        "rotation_owner_classification": "unknown"
+      },
+      "approval_status": "not-requested",
+      "security_signoff": "required",
+      "validation_plan": [
+        "Create or link project SPEC.md and requirements.md before shared primitive adoption or runtime hardening code work.",
+        "Run documented safe checks: `docker compose config`, `python3 -m compileall -q app`, and container pytest from the vpnbot runtime contour.",
+        "Record route/API and Telegram UI characterization with mocked or approved non-secret boundaries before adapter extraction."
+      ],
+      "rollback_plan": [
+        "Keep implementation_gate blocked until required project artifacts, current test outputs, and behavior evidence are recorded.",
+        "Preserve current VPN product behavior and pre-change container baseline before adopting shared Telegram primitives.",
+        "Limit validation to local/container non-secret checks until explicit operator approval opens live Telegram or issued-config smoke paths."
+      ],
+      "missing_evidence": [
+        "Project SPEC.md is missing for dev/app/vpn/vpnbot.",
+        "Project requirements.md is missing for dev/app/vpn/vpnbot.",
+        "Current container/process/network health evidence is not recorded and must be gathered only through approved non-secret checks.",
+        "Current container pytest or smoke output is not recorded for the exact Telegram UI surface.",
+        "Behavior inventory is incomplete for commands, message flows, FSM or state flows, background jobs, and VPN side effects.",
+        "Callback governance is incomplete for schema, privilege model, integrity, replay protection, and audit binding.",
+        "Security controls are incomplete for trust boundary, RBAC, idempotency, audit redaction, and issued-config side-effect guards.",
+        "Secret governance stores classifications only and still needs current source-class confirmation without reading secret values.",
+        "Implementation approval has not been requested.",
+        "Security signoff has not been approved."
+      ],
+      "last_verified": "2026-06-03",
+      "legacy_compatibility": {
+        "deprecated_refs": [
+          "projects/vpn/vpnbot"
+        ],
+        "decision": "renamed_to_canonical_dev_app"
+      }
+    },
+    "seller-bot-admin": {
+      "surface": "seller-bot-admin",
+      "backlog_item": "seller-bot-admin",
+      "backlog_link": {
+        "catalog": "assets/catalog/telegram-aiogram-migration-backlog.v1.json",
+        "surface": "seller-bot-admin"
+      },
+      "path": "projects/seller/apps/bot_admin",
+      "backlog_status": "already-aiogram3-hardening",
+      "backlog_artifact_gate_status": "blocked-before-code",
+      "role_route_target": "projects/seller/apps/bot_admin",
+      "primary_role": "bears-telegram-platform-engineer",
+      "supporting_roles": [
+        "bears-auth-platform-engineer",
+        "bears-platform-security-reviewer"
+      ],
+      "readiness_status": "blocked",
+      "implementation_gate": "blocked",
+      "characterization_tests": {
+        "status": "missing",
+        "command_flows": "missing",
+        "callback_flows": "missing",
+        "rendering_snapshots": "missing",
+        "startup_import": "missing",
+        "side_effect_baseline": "missing",
+        "evidence": []
+      },
+      "behavior_inventory": {
+        "status": "missing",
+        "commands": "missing",
+        "message_flows": "missing",
+        "fsm_states": "missing",
+        "background_jobs": "missing",
+        "side_effects": "missing",
+        "evidence": []
+      },
+      "callback_governance": {
+        "status": "missing",
+        "inventory": "missing",
+        "schema": "missing",
+        "privilege_model": "missing",
+        "integrity": "missing",
+        "replay_protection": "missing",
+        "audit_binding": "missing",
+        "evidence": []
+      },
+      "security_controls": {
+        "status": "missing",
+        "trust_boundary": "missing",
+        "rbac": "missing",
+        "idempotency": "missing",
+        "audit_redaction": "missing",
+        "external_side_effects": "missing",
+        "evidence": []
+      },
+      "secret_governance": {
+        "status": "missing",
+        "telegram_bot_token_source_class": "unknown",
+        "webhook_secret_source_class": "not-applicable",
+        "wb_supplier_token_source_class": "not-applicable",
+        "chat_id_classification": "unknown",
+        "rotation_owner_classification": "unknown"
+      },
+      "approval_status": "not-requested",
+      "security_signoff": "required",
+      "validation_plan": [
+        "Create minimal project SPEC.md and requirements.md before code work.",
+        "Run documented static validation from the app surface, including `ruff check .`, before runtime changes.",
+        "Record command, callback, allowed-user, Redis FSM, and auth_core characterization before shared primitive adoption."
+      ],
+      "rollback_plan": [
+        "Keep implementation_gate blocked until project artifacts, characterization tests, and missing_evidence are resolved.",
+        "Preserve current admin-bot behavior baseline before adopting shared Telegram primitives.",
+        "Limit validation to local non-secret checks until explicit operator approval opens live admin bot paths."
+      ],
+      "missing_evidence": [
+        "Project SPEC.md is missing for projects/seller/apps/bot_admin.",
+        "Project requirements.md is missing for projects/seller/apps/bot_admin.",
+        "App-specific local run/test documentation is missing or insufficient for runtime readiness.",
+        "Characterization tests are missing for command flows, callback flows, rendering snapshots, startup or import checks, and side-effect baselines.",
+        "Behavior inventory is missing for commands, message flows, FSM states, background jobs, and side effects.",
+        "Callback governance inventory is missing for schema, privilege model, integrity, replay protection, and audit binding.",
+        "Security control evidence is missing for trust boundary, RBAC, idempotency, audit redaction, and auth_core/admin side-effect guards.",
+        "Secret governance stores classifications only and still needs current source-class confirmation without reading secret values.",
+        "Implementation approval has not been requested.",
+        "Security signoff has not been approved."
+      ],
+      "last_verified": "2026-06-03",
+      "legacy_compatibility": {
+        "deprecated_refs": [
+          "projects/seller/apps/bot_admin"
+        ],
+        "decision": "retained_legacy_readiness_inventory_only"
+      }
+    },
+    "seller-bot-find-pos": {
+      "surface": "seller-bot-find-pos",
+      "backlog_item": "seller-bot-find-pos",
+      "backlog_link": {
+        "catalog": "assets/catalog/telegram-aiogram-migration-backlog.v1.json",
+        "surface": "seller-bot-find-pos"
+      },
+      "path": "projects/seller/apps/bot_find_pos",
+      "backlog_status": "target-aiogram3-upgrade",
+      "backlog_artifact_gate_status": "blocked-before-code",
+      "role_route_target": "projects/seller/apps/bot_find_pos",
+      "primary_role": "bears-telegram-platform-engineer",
+      "supporting_roles": [
+        "bears-auth-platform-engineer"
+      ],
+      "readiness_status": "blocked",
+      "implementation_gate": "blocked",
+      "characterization_tests": {
+        "status": "missing",
+        "command_flows": "missing",
+        "callback_flows": "missing",
+        "rendering_snapshots": "missing",
+        "startup_import": "missing",
+        "side_effect_baseline": "missing",
+        "evidence": []
+      },
+      "behavior_inventory": {
+        "status": "missing",
+        "commands": "missing",
+        "message_flows": "missing",
+        "fsm_states": "missing",
+        "background_jobs": "missing",
+        "side_effects": "missing",
+        "evidence": []
+      },
+      "callback_governance": {
+        "status": "missing",
+        "inventory": "missing",
+        "schema": "missing",
+        "privilege_model": "missing",
+        "integrity": "missing",
+        "replay_protection": "missing",
+        "audit_binding": "missing",
+        "evidence": []
+      },
+      "security_controls": {
+        "status": "missing",
+        "trust_boundary": "missing",
+        "rbac": "missing",
+        "idempotency": "missing",
+        "audit_redaction": "missing",
+        "external_side_effects": "missing",
+        "evidence": []
+      },
+      "secret_governance": {
+        "status": "missing",
+        "telegram_bot_token_source_class": "unknown",
+        "webhook_secret_source_class": "not-applicable",
+        "wb_supplier_token_source_class": "not-applicable",
+        "chat_id_classification": "unknown",
+        "rotation_owner_classification": "unknown"
+      },
+      "approval_status": "not-requested",
+      "security_signoff": "required",
+      "validation_plan": [
+        "Validate project artifacts before code work because SPEC.md, requirements.md, and README.md remain mandatory for this surface.",
+        "Run local bot import or startup-safe checks before runtime changes.",
+        "Record callback and FSM characterization coverage before the beta-to-stable Aiogram upgrade."
+      ],
+      "rollback_plan": [
+        "Keep implementation_gate blocked until artifacts, characterization tests, and missing_evidence are resolved.",
+        "Preserve a behavior baseline before upgrading from beta Aiogram to stable Aiogram 3.",
+        "Limit validation to local or staged non-secret checks until explicit operator approval opens live Telegram or external integration paths."
+      ],
+      "missing_evidence": [
+        "Project SPEC.md is missing for projects/seller/apps/bot_find_pos.",
+        "Project requirements.md is missing for projects/seller/apps/bot_find_pos.",
+        "Project README.md is missing for projects/seller/apps/bot_find_pos.",
+        "Characterization tests are missing for command flows, callback flows, rendering snapshots, startup or import checks, and side-effect baselines.",
+        "Behavior inventory is missing for commands, message flows, FSM states, background jobs, and side effects.",
+        "Callback governance inventory is missing for schema, privilege model, integrity, replay protection, and audit binding.",
+        "Security control evidence is missing for trust boundary, RBAC, idempotency, audit redaction, and external integration guards.",
+        "Implementation approval has not been requested.",
+        "Security signoff has not been approved."
+      ],
+      "last_verified": "2026-06-03",
+      "legacy_compatibility": {
+        "deprecated_refs": [
+          "projects/seller/apps/bot_find_pos"
+        ],
+        "decision": "retained_legacy_readiness_inventory_only"
+      }
+    },
+    "seller-bot-marketplace-fbs": {
+      "surface": "seller-bot-marketplace-fbs",
+      "backlog_item": "seller-bot-marketplace-fbs",
+      "backlog_link": {
+        "catalog": "assets/catalog/telegram-aiogram-migration-backlog.v1.json",
+        "surface": "seller-bot-marketplace-fbs"
+      },
+      "path": "projects/seller/apps/bot_marketplace_fbs",
+      "backlog_status": "target-aiogram3-upgrade",
+      "backlog_artifact_gate_status": "blocked-before-code",
+      "role_route_target": "projects/seller/apps/bot_marketplace_fbs",
+      "primary_role": "bears-telegram-platform-engineer",
+      "supporting_roles": [
+        "bears-platform-security-reviewer"
+      ],
+      "readiness_status": "blocked",
+      "implementation_gate": "blocked",
+      "characterization_tests": {
+        "status": "missing",
+        "command_flows": "missing",
+        "callback_flows": "missing",
+        "rendering_snapshots": "missing",
+        "startup_import": "missing",
+        "side_effect_baseline": "missing",
+        "evidence": []
+      },
+      "behavior_inventory": {
+        "status": "missing",
+        "commands": "missing",
+        "message_flows": "missing",
+        "fsm_states": "missing",
+        "background_jobs": "missing",
+        "side_effects": "missing",
+        "evidence": []
+      },
+      "callback_governance": {
+        "status": "missing",
+        "inventory": "missing",
+        "schema": "missing",
+        "privilege_model": "missing",
+        "integrity": "missing",
+        "replay_protection": "missing",
+        "audit_binding": "missing",
+        "evidence": []
+      },
+      "security_controls": {
+        "status": "missing",
+        "trust_boundary": "missing",
+        "rbac": "missing",
+        "idempotency": "missing",
+        "audit_redaction": "missing",
+        "external_side_effects": "missing",
+        "evidence": []
+      },
+      "secret_governance": {
+        "status": "missing",
+        "telegram_bot_token_source_class": "unknown",
+        "webhook_secret_source_class": "not-applicable",
+        "wb_supplier_token_source_class": "unknown",
+        "chat_id_classification": "unknown",
+        "rotation_owner_classification": "unknown"
+      },
+      "approval_status": "not-requested",
+      "security_signoff": "required",
+      "validation_plan": [
+        "Validate project artifacts before code work because SPEC.md and requirements.md remain mandatory for this surface.",
+        "Add local import or unit coverage for handler startup without real Telegram tokens or WB calls.",
+        "Record safe characterization checks for executor-based polling, handlers, keyboards, files, and marketplace side effects before Router or Dispatcher changes."
+      ],
+      "rollback_plan": [
+        "Keep implementation_gate blocked until the backlog artifact gate is open and missing_evidence is empty.",
+        "Preserve an Aiogram 2 behavior baseline so a future Aiogram 3 rewrite can revert before promotion if commands, callbacks, or marketplace side effects drift.",
+        "Limit future runtime-safe validation to local or staged non-secret checks until explicit operator approval opens live Telegram or WB mutation paths."
+      ],
+      "missing_evidence": [
+        "Project SPEC.md is missing for projects/seller/apps/bot_marketplace_fbs.",
+        "Project requirements.md is missing for projects/seller/apps/bot_marketplace_fbs.",
+        "Characterization tests are missing for command flows, callback flows, rendering snapshots, startup or import checks, and side-effect baselines.",
+        "Behavior inventory is missing for commands, message flows, FSM states, background jobs, and side effects.",
+        "Callback governance inventory is missing for schema, privilege model, integrity, replay protection, and audit binding.",
+        "Security control evidence is missing for trust boundary, RBAC, idempotency, audit redaction, and WB-related side-effect guards.",
+        "Implementation approval has not been requested.",
+        "Security signoff has not been approved."
+      ],
+      "last_verified": "2026-06-03",
+      "legacy_compatibility": {
+        "deprecated_refs": [
+          "projects/seller/apps/bot_marketplace_fbs"
+        ],
+        "decision": "retained_legacy_readiness_inventory_only"
+      }
+    },
+    "seller-sticker-bot": {
+      "surface": "seller-sticker-bot",
+      "backlog_item": "seller-sticker-bot",
+      "backlog_link": {
+        "catalog": "assets/catalog/telegram-aiogram-migration-backlog.v1.json",
+        "surface": "seller-sticker-bot"
+      },
+      "path": "projects/seller/apps/sticker_bot",
+      "backlog_status": "already-aiogram3-hardening",
+      "backlog_artifact_gate_status": "blocked-before-code",
+      "role_route_target": "projects/seller/apps/sticker_bot",
+      "primary_role": "bears-telegram-platform-engineer",
+      "supporting_roles": [
+        "bears-platform-security-reviewer"
+      ],
+      "readiness_status": "blocked",
+      "implementation_gate": "blocked",
+      "characterization_tests": {
+        "status": "missing",
+        "command_flows": "missing",
+        "callback_flows": "missing",
+        "rendering_snapshots": "missing",
+        "startup_import": "missing",
+        "side_effect_baseline": "missing",
+        "evidence": []
+      },
+      "behavior_inventory": {
+        "status": "missing",
+        "commands": "missing",
+        "message_flows": "missing",
+        "fsm_states": "missing",
+        "background_jobs": "missing",
+        "side_effects": "missing",
+        "evidence": []
+      },
+      "callback_governance": {
+        "status": "missing",
+        "inventory": "missing",
+        "schema": "missing",
+        "privilege_model": "missing",
+        "integrity": "missing",
+        "replay_protection": "missing",
+        "audit_binding": "missing",
+        "evidence": []
+      },
+      "security_controls": {
+        "status": "missing",
+        "trust_boundary": "missing",
+        "rbac": "missing",
+        "idempotency": "missing",
+        "audit_redaction": "missing",
+        "external_side_effects": "missing",
+        "evidence": []
+      },
+      "secret_governance": {
+        "status": "missing",
+        "telegram_bot_token_source_class": "unknown",
+        "webhook_secret_source_class": "not-applicable",
+        "wb_supplier_token_source_class": "not-applicable",
+        "chat_id_classification": "unknown",
+        "rotation_owner_classification": "unknown"
+      },
+      "approval_status": "not-requested",
+      "security_signoff": "required",
+      "validation_plan": [
+        "Create minimal project SPEC.md, requirements.md, and README.md before code work.",
+        "Run documented static validation from the app surface, including `ruff check .`, before runtime changes.",
+        "Record image or sticker generation behavior with mocked OpenAI, Telegram, database, and worker boundaries before adapter extraction."
+      ],
+      "rollback_plan": [
+        "Keep implementation_gate blocked until project artifacts, characterization tests, and missing_evidence are resolved.",
+        "Preserve current sticker-generation behavior baseline before adopting shared Telegram primitives.",
+        "Limit validation to local non-secret checks until explicit operator approval opens live bot, model-call, or media paths."
+      ],
+      "missing_evidence": [
+        "Project SPEC.md is missing for projects/seller/apps/sticker_bot.",
+        "Project requirements.md is missing for projects/seller/apps/sticker_bot.",
+        "Project README.md is missing for projects/seller/apps/sticker_bot.",
+        "App-specific local run/test documentation is missing or insufficient for runtime readiness.",
+        "Characterization tests are missing for command flows, callback flows, rendering snapshots, startup or import checks, and side-effect baselines.",
+        "Behavior inventory is missing for commands, message flows, FSM states, background jobs, and OpenAI/media side effects.",
+        "Callback governance inventory is missing for schema, privilege model, integrity, replay protection, and audit binding.",
+        "Security control evidence is missing for trust boundary, RBAC, idempotency, audit redaction, and model/media side-effect guards.",
+        "Secret governance stores classifications only and still needs current source-class confirmation without reading secret values.",
+        "Implementation approval has not been requested.",
+        "Security signoff has not been approved."
+      ],
+      "last_verified": "2026-06-03",
+      "legacy_compatibility": {
+        "deprecated_refs": [
+          "projects/seller/apps/sticker_bot"
+        ],
+        "decision": "retained_legacy_readiness_inventory_only"
+      }
+    },
+    "seller-telegram-bot-bears": {
+      "surface": "seller-telegram-bot-bears",
+      "backlog_item": "seller-telegram-bot-bears",
+      "backlog_link": {
+        "catalog": "assets/catalog/telegram-aiogram-migration-backlog.v1.json",
+        "surface": "seller-telegram-bot-bears"
+      },
+      "path": "projects/seller/apps/telegram_bot_bears",
+      "backlog_status": "already-aiogram3-hardening",
+      "backlog_artifact_gate_status": "blocked-before-code",
+      "role_route_target": "projects/seller/apps/telegram_bot_bears",
+      "primary_role": "bears-telegram-platform-engineer",
+      "supporting_roles": [
+        "bears-auth-platform-engineer",
+        "bears-platform-security-reviewer"
+      ],
+      "readiness_status": "blocked",
+      "implementation_gate": "blocked",
+      "characterization_tests": {
+        "status": "missing",
+        "command_flows": "missing",
+        "callback_flows": "missing",
+        "rendering_snapshots": "missing",
+        "startup_import": "missing",
+        "side_effect_baseline": "missing",
+        "evidence": []
+      },
+      "behavior_inventory": {
+        "status": "missing",
+        "commands": "missing",
+        "message_flows": "missing",
+        "fsm_states": "missing",
+        "background_jobs": "missing",
+        "side_effects": "missing",
+        "evidence": []
+      },
+      "callback_governance": {
+        "status": "missing",
+        "inventory": "missing",
+        "schema": "missing",
+        "privilege_model": "missing",
+        "integrity": "missing",
+        "replay_protection": "missing",
+        "audit_binding": "missing",
+        "evidence": []
+      },
+      "security_controls": {
+        "status": "missing",
+        "trust_boundary": "missing",
+        "rbac": "missing",
+        "idempotency": "missing",
+        "audit_redaction": "missing",
+        "external_side_effects": "missing",
+        "evidence": []
+      },
+      "secret_governance": {
+        "status": "missing",
+        "telegram_bot_token_source_class": "unknown",
+        "webhook_secret_source_class": "not-applicable",
+        "wb_supplier_token_source_class": "not-applicable",
+        "chat_id_classification": "unknown",
+        "rotation_owner_classification": "unknown"
+      },
+      "approval_status": "not-requested",
+      "security_signoff": "required",
+      "validation_plan": [
+        "Create minimal project SPEC.md and requirements.md before code work.",
+        "Run documented static validation from the app surface, including `flake8 .`, before runtime changes.",
+        "Record auth binding, main menu, database bootstrap, proxy/session behavior, callbacks, and worker-delivered message characterization before shared primitive adoption."
+      ],
+      "rollback_plan": [
+        "Keep implementation_gate blocked until project artifacts, characterization tests, and missing_evidence are resolved.",
+        "Preserve current main-bot behavior baseline before adopting shared Telegram primitives.",
+        "Limit validation to local non-secret checks until explicit operator approval opens live main bot, DB mutation, or worker paths."
+      ],
+      "missing_evidence": [
+        "Project SPEC.md is missing for projects/seller/apps/telegram_bot_bears.",
+        "Project requirements.md is missing for projects/seller/apps/telegram_bot_bears.",
+        "App-specific local run/test documentation is missing or insufficient for runtime readiness.",
+        "Characterization tests are missing for command flows, callback flows, rendering snapshots, startup or import checks, and side-effect baselines.",
+        "Behavior inventory is missing for commands, message flows, FSM states, background jobs, and DB or worker side effects.",
+        "Callback governance inventory is missing for schema, privilege model, integrity, replay protection, and audit binding.",
+        "Security control evidence is missing for trust boundary, RBAC, idempotency, audit redaction, and auth/session side-effect guards.",
+        "Secret governance stores classifications only and still needs current source-class confirmation without reading secret values.",
+        "Implementation approval has not been requested.",
+        "Security signoff has not been approved."
+      ],
+      "last_verified": "2026-06-03",
+      "legacy_compatibility": {
+        "deprecated_refs": [
+          "projects/seller/apps/telegram_bot_bears"
+        ],
+        "decision": "retained_legacy_readiness_inventory_only"
+      }
+    },
+    "metamask-telegram-bot": {
+      "surface": "metamask-telegram-bot",
+      "backlog_item": "metamask-telegram-bot",
+      "backlog_link": {
+        "catalog": "assets/catalog/telegram-aiogram-migration-backlog.v1.json",
+        "surface": "metamask-telegram-bot"
+      },
+      "path": "projects/metamask/src/bot.mjs",
+      "backlog_status": "target-aiogram3-rewrite",
+      "backlog_artifact_gate_status": "blocked-before-code",
+      "role_route_target": "projects/metamask/src/bot.mjs",
+      "primary_role": "bears-telegram-platform-engineer",
+      "supporting_roles": [
+        "bears-platform-security-reviewer"
+      ],
+      "readiness_status": "blocked",
+      "implementation_gate": "blocked",
+      "characterization_tests": {
+        "status": "missing",
+        "command_flows": "missing",
+        "callback_flows": "missing",
+        "rendering_snapshots": "missing",
+        "startup_import": "missing",
+        "side_effect_baseline": "missing",
+        "evidence": []
+      },
+      "behavior_inventory": {
+        "status": "missing",
+        "commands": "missing",
+        "message_flows": "missing",
+        "fsm_states": "missing",
+        "background_jobs": "missing",
+        "side_effects": "missing",
+        "evidence": []
+      },
+      "callback_governance": {
+        "status": "missing",
+        "inventory": "missing",
+        "schema": "missing",
+        "privilege_model": "missing",
+        "integrity": "missing",
+        "replay_protection": "missing",
+        "audit_binding": "missing",
+        "evidence": []
+      },
+      "security_controls": {
+        "status": "missing",
+        "trust_boundary": "missing",
+        "rbac": "missing",
+        "idempotency": "missing",
+        "audit_redaction": "missing",
+        "external_side_effects": "missing",
+        "evidence": []
+      },
+      "secret_governance": {
+        "status": "missing",
+        "telegram_bot_token_source_class": "unknown",
+        "webhook_secret_source_class": "not-applicable",
+        "wb_supplier_token_source_class": "not-applicable",
+        "chat_id_classification": "unknown",
+        "rotation_owner_classification": "unknown"
+      },
+      "approval_status": "not-requested",
+      "security_signoff": "required",
+      "validation_plan": [
+        "Keep owner and artifact discovery ahead of code work because project ownership packet, AGENTS.md, SPEC.md, requirements.md, and broader behavior inventory remain missing for this surface.",
+        "Record safe characterization coverage for command entrypoints, admin-only checks, callback paths if present, startup wiring, and side-effect boundaries before any Telegraf-to-Aiogram rewrite plan can open implementation work.",
+        "Limit validation to local non-secret evidence based on inventory, backlog, and future owner-approved artifacts; no live Telegram sends, token access, or runtime mutation without explicit operator approval."
+      ],
+      "rollback_plan": [
+        "Keep implementation_gate blocked until owner artifacts, behavior inventory, characterization tests, callback governance, security controls, approval status, and security signoff are complete and missing_evidence is empty.",
+        "Preserve this surface as an inventory-only runtime candidate until a future owner-approved baseline exists for commands, admin access rules, and side effects, so any later rewrite can be reverted before promotion if behavior drifts.",
+        "Require an owner-approved rollback packet before code work begins because current evidence is limited to file-level runtime classification only."
+      ],
+      "missing_evidence": [
+        "Project ownership packet is missing for projects/metamask/src/bot.mjs.",
+        "Project AGENTS.md is missing for the owning surface of projects/metamask/src/bot.mjs.",
+        "Project SPEC.md is missing for the owning surface of projects/metamask/src/bot.mjs.",
+        "Project requirements.md is missing for the owning surface of projects/metamask/src/bot.mjs.",
+        "Behavior inventory is missing for commands, admin-only access checks, visible message flows, background jobs, and side effects.",
+        "Characterization tests are missing for command flows, callback flows, rendering snapshots, startup or import checks, and side-effect baselines.",
+        "Callback governance evidence is missing for inventory, schema, privilege model, integrity, replay protection, and audit binding.",
+        "Security control evidence is missing for trust boundary, RBAC, idempotency, audit redaction, and external side-effect guards.",
+        "Rollback plan evidence is limited to an inventory-only placeholder and needs owner-approved implementation rollback detail before code work.",
+        "Implementation approval has not been requested.",
+        "Security signoff has not been approved."
+      ],
+      "last_verified": "2026-06-03",
+      "legacy_compatibility": {
+        "deprecated_refs": [
+          "projects/metamask/src/bot.mjs"
+        ],
+        "decision": "retained_legacy_readiness_inventory_only"
+      }
+    },
+    "theants": {
+      "surface": "theants",
+      "backlog_item": "theants",
+      "backlog_link": {
+        "catalog": "assets/catalog/telegram-aiogram-migration-backlog.v1.json",
+        "surface": "theants"
+      },
+      "path": "dev/app/theants",
+      "backlog_status": "target-aiogram3-rewrite",
+      "backlog_artifact_gate_status": "open",
+      "role_route_target": "/srv/bears/dev/app/theants",
+      "primary_role": "bears-product-app-zone-engineer",
+      "supporting_roles": [
+        "bears-telegram-platform-engineer",
+        "bears-platform-security-reviewer"
+      ],
+      "readiness_status": "blocked",
+      "implementation_gate": "blocked",
+      "characterization_tests": {
+        "status": "missing",
+        "command_flows": "missing",
+        "callback_flows": "missing",
+        "rendering_snapshots": "missing",
+        "startup_import": "missing",
+        "side_effect_baseline": "missing",
+        "evidence": []
+      },
+      "behavior_inventory": {
+        "status": "missing",
+        "commands": "missing",
+        "message_flows": "missing",
+        "fsm_states": "missing",
+        "background_jobs": "missing",
+        "side_effects": "missing",
+        "evidence": []
+      },
+      "callback_governance": {
+        "status": "missing",
+        "inventory": "missing",
+        "schema": "missing",
+        "privilege_model": "missing",
+        "integrity": "missing",
+        "replay_protection": "missing",
+        "audit_binding": "missing",
+        "evidence": []
+      },
+      "security_controls": {
+        "status": "missing",
+        "trust_boundary": "missing",
+        "rbac": "missing",
+        "idempotency": "missing",
+        "audit_redaction": "missing",
+        "external_side_effects": "missing",
+        "evidence": []
+      },
+      "secret_governance": {
+        "status": "missing",
+        "telegram_bot_token_source_class": "unknown",
+        "webhook_secret_source_class": "not-applicable",
+        "wb_supplier_token_source_class": "not-applicable",
+        "chat_id_classification": "unknown",
+        "rotation_owner_classification": "unknown"
+      },
+      "approval_status": "not-requested",
+      "security_signoff": "required",
+      "validation_plan": [
+        "Run Bears platform_roles.py validate plus route/audit for /srv/bears/dev/app/theants and /srv/bears/projects/theants.",
+        "Run The Ants split-proof and product behavior tests before Telegram adapter rewrite."
+      ],
+      "rollback_plan": [
+        "Keep /srv/bears/projects/theants unchanged as legacy compatibility input until explicit cutover approval.",
+        "Revert dev-core split-proof docs and tests if route validation fails."
+      ],
+      "missing_evidence": [
+        "dev-core split proof for The Ants layers",
+        "deterministic product behavior tests for adapter rewrite",
+        "explicit operator approval for any live runtime mutation"
+      ],
+      "last_verified": "2026-06-05",
+      "legacy_compatibility": {
+        "deprecated_refs": [
+          "projects/theants",
+          "dev/products/theants"
+        ],
+        "decision": "renamed_to_canonical_dev_app"
+      }
+    }
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "schema": "bears-plugin-constitution-change-check.v1",
+  "change_id": "p1-18-constitution-conformance-check",
+  "changed_surfaces": [
+    "docs/audits/capability-v2/constitution-change-check.json"
+  ],
+  "agent_simplification_impact": "Future Phase 1 closeout agents read one compact packet for constitution conformance instead of reconstructing P1-18 from v2.md and chat context.",
+  "token_budget_impact": "One short JSON packet replaces repeated broad V2 section reads during closeout and keeps evidence pointers in a bounded structure.",
+  "bounded_context_plan": "Use /srv/bears/AGENTS.md, /srv/bears/plugins/bears/AGENTS.md, v2.md P1-18 and section 14.20 status fields, /tmp/bears-p1-18-constitution-assignment.json, this packet, and the listed validator command outputs only.",
+  "future_reuse_path": "Phase 1 status and closeout tooling can reuse docs/audits/capability-v2/constitution-change-check.json as the current constitution conformance packet for constitution_change_status.",
+  "deterministic_validation_added": true,
+  "operator_decision_boundary": "Agents own route checks, bounded packet content, deterministic validator runs, and restricted-data exclusion. The operator owns any scope expansion, lifecycle reordering, or authorization outside the declared P1-18 audit packet.",
+  "cost_justification_if_any": "The packet is a small closeout proof that prevents repeated manual constitution review and gives status tooling a stable input.",
+  "status": "pass",
+  "route_target": "/srv/bears/plugins/bears/assets/catalog/plugin-constitution.v1.json",
+  "lifecycle_position_proof": "after route_gate and before research_gate",
+  "lifecycle_position": "P1-18 runs after route and role evidence is present and before Phase 1 closeout reads constitution_change_status.",
+  "route_audit_evidence": [
+    "python3 scripts/platform_roles.py route /srv/bears/plugins/bears/assets/catalog/plugin-constitution.v1.json",
+    "python3 scripts/platform_roles.py audit /srv/bears/plugins/bears/assets/catalog/plugin-constitution.v1.json",
+    "python3 scripts/platform_roles.py route docs/audits/capability-v2/constitution-change-check.json -> status: matched; concrete_part: platform_role_governance; primary_role: bears-platform-role-governor; exit: 0",
+    "python3 scripts/platform_roles.py audit docs/audits/capability-v2/constitution-change-check.json -> status: matched; concrete_part: platform_role_governance; primary_role: bears-platform-role-governor; implementation_handoff_allowed: true; exit: 0"
+  ],
+  "constitution_principle_coverage": {
+    "agent_simplification": "One closeout packet names the decision and evidence path.",
+    "token_economy": "Bounded evidence pointers replace repeated broad reads.",
+    "bounded_context": "The packet lists only the files and commands needed for closeout.",
+    "future_reuse": "Status tooling can read this file for constitution_change_status.",
+    "deterministic_validation": "python3 scripts/plugin_constitution.py inspect-change --packet docs/audits/capability-v2/constitution-change-check.json is the executable proof.",
+    "operator_boundary": "Agents verify the packet; the operator owns wider scope or lifecycle changes."
+  },
+  "changed_v2_surface_evidence": {
+    "surface": "docs/audits/capability-v2/constitution-change-check.json",
+    "route_status": "matched",
+    "audit_status": "matched",
+    "primary_role": "bears-platform-role-governor",
+    "supporting_roles": [
+      "bears-platform-security-reviewer"
+    ],
+    "trust_boundary": "Governed audit packet only; no product, runtime, repository-boundary, secret, or external exposure change."
+  },
+  "restricted_data_status": "clean"
+}

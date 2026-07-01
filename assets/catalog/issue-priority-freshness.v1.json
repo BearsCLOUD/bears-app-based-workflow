@@ -1,0 +1,45 @@
+{
+  "schema": "bears-issue-priority-freshness.v1",
+  "version": "1",
+  "status": "active",
+  "repo": "BearsCLOUD/bears-codex-workflow-plugin",
+  "updated_at": "2026-06-27",
+  "owner_role": "bears-workflow-overlay-platform-engineer",
+  "source_truth": {
+    "roadmap_catalog": "assets/catalog/workflow-roadmap.v1.json",
+    "priority_catalog": "assets/catalog/issue-execution-priority.v1.json"
+  },
+  "commands": [
+    "python3 scripts/roadmap_issue_coverage.py validate --json",
+    "python3 scripts/roadmap_issue_coverage.py check-roadmap --json",
+    "python3 scripts/roadmap_issue_coverage.py check-priority --json",
+    "python3 scripts/roadmap_issue_coverage.py doctor --json"
+  ],
+  "policy": {
+    "issue_metadata_only": true,
+    "raw_issue_bodies_allowed": false,
+    "raw_logs_allowed": false,
+    "priority_source": "title_or_label",
+    "required_priorities": ["P0"],
+    "missing_priority_status": "manual_review"
+  },
+  "tracked_open_issues": [
+    {"number": 501, "issue_ref": "#501", "title": "P0 Knowledge Orchestrator freshness issue 501", "state": "OPEN", "url": "https://github.com/BearsCLOUD/bears-codex-workflow-plugin/issues/501", "labels": ["P0", "scope:bears-plugin"], "updated_at": "2026-06-27", "priority": "P0"},
+    {"number": 502, "issue_ref": "#502", "title": "P0 Knowledge Orchestrator freshness issue 502", "state": "OPEN", "url": "https://github.com/BearsCLOUD/bears-codex-workflow-plugin/issues/502", "labels": ["P0", "scope:bears-plugin"], "updated_at": "2026-06-27", "priority": "P0"},
+    {"number": 503, "issue_ref": "#503", "title": "P0 Knowledge Orchestrator freshness issue 503", "state": "OPEN", "url": "https://github.com/BearsCLOUD/bears-codex-workflow-plugin/issues/503", "labels": ["P0", "scope:bears-plugin"], "updated_at": "2026-06-27", "priority": "P0"},
+    {"number": 506, "issue_ref": "#506", "title": "P0 Knowledge Orchestrator freshness issue 506", "state": "OPEN", "url": "https://github.com/BearsCLOUD/bears-codex-workflow-plugin/issues/506", "labels": ["P0", "scope:bears-plugin"], "updated_at": "2026-06-27", "priority": "P0"},
+    {"number": 507, "issue_ref": "#507", "title": "P0 Knowledge Orchestrator freshness issue 507", "state": "OPEN", "url": "https://github.com/BearsCLOUD/bears-codex-workflow-plugin/issues/507", "labels": ["P0", "scope:bears-plugin"], "updated_at": "2026-06-27", "priority": "P0"},
+    {"number": 509, "issue_ref": "#509", "title": "P0 Knowledge Orchestrator freshness issue 509", "state": "OPEN", "url": "https://github.com/BearsCLOUD/bears-codex-workflow-plugin/issues/509", "labels": ["P0", "scope:bears-plugin"], "updated_at": "2026-06-27", "priority": "P0"},
+    {"number": 511, "issue_ref": "#511", "title": "P0 Knowledge Orchestrator freshness issue 511", "state": "OPEN", "url": "https://github.com/BearsCLOUD/bears-codex-workflow-plugin/issues/511", "labels": ["P0", "scope:bears-plugin"], "updated_at": "2026-06-27", "priority": "P0"},
+    {"number": 512, "issue_ref": "#512", "title": "P0 Knowledge Orchestrator freshness issue 512", "state": "OPEN", "url": "https://github.com/BearsCLOUD/bears-codex-workflow-plugin/issues/512", "labels": ["P0", "scope:bears-plugin"], "updated_at": "2026-06-27", "priority": "P0"},
+    {"number": 513, "issue_ref": "#513", "title": "P0 Knowledge Orchestrator freshness issue 513", "state": "OPEN", "url": "https://github.com/BearsCLOUD/bears-codex-workflow-plugin/issues/513", "labels": ["P0", "scope:bears-plugin"], "updated_at": "2026-06-27", "priority": "P0"},
+    {"number": 515, "issue_ref": "#515", "title": "P0: Add workflow roadmap and issue-priority freshness gate", "state": "OPEN", "url": "https://github.com/BearsCLOUD/bears-codex-workflow-plugin/issues/515", "labels": ["bears:auto-start", "scope:bears-plugin"], "updated_at": "2026-06-27", "priority": "P0"}
+  ],
+  "exemptions": [],
+  "fixtures": {
+    "good_issue_metadata": "tests/fixtures/roadmap_issue_coverage/good/issues-metadata.v1.json",
+    "good_roadmap": "tests/fixtures/roadmap_issue_coverage/good/workflow-roadmap.v1.json",
+    "good_priority": "tests/fixtures/roadmap_issue_coverage/good/issue-execution-priority.v1.json",
+    "bad_issue_metadata": "tests/fixtures/roadmap_issue_coverage/bad/issues-metadata-missing.v1.json"
+  }
+}

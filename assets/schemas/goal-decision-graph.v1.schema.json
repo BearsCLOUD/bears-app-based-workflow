@@ -1,0 +1,96 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://bears.local/schemas/goal-decision-graph.v1.schema.json",
+  "title": "Bears goal decision graph",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "version",
+    "source",
+    "source_ref",
+    "decisions",
+    "json_only",
+    "required_json_commands",
+    "decision_sources"
+  ],
+  "properties": {
+    "schema": {
+      "const": "bears-goal-decision-graph.v1"
+    },
+    "version": {
+      "type": "string"
+    },
+    "source": {
+      "enum": [
+        "github_issue",
+        "workflow_roadmap",
+        "manual_packet"
+      ]
+    },
+    "source_ref": {
+      "type": "string",
+      "minLength": 1
+    },
+    "decisions": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/decision"
+      }
+    },
+    "json_only": {
+      "const": true
+    },
+    "required_json_commands": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string"
+      }
+    },
+    "decision_sources": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "$defs": {
+    "decision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "decision_id",
+        "question_id",
+        "answer",
+        "evidence_path",
+        "status"
+      ],
+      "properties": {
+        "decision_id": {
+          "type": "string",
+          "minLength": 3
+        },
+        "question_id": {
+          "type": "string",
+          "minLength": 3
+        },
+        "answer": {
+          "type": "string"
+        },
+        "evidence_path": {
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "pass",
+            "fail",
+            "blocked",
+            "manual_review"
+          ]
+        }
+      }
+    }
+  }
+}

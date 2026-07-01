@@ -1,0 +1,22 @@
+{
+  "schema": "bears-metadata-store-policy.v1",
+  "version": "1",
+  "updated": "2026-06-25",
+  "owner_role": "bears-machine-first-execution-kernel-engineer",
+  "commands": [
+    "python3 scripts/metadata_store.py validate-policy",
+    "python3 scripts/metadata_store.py export-json --json",
+    "python3 scripts/metadata_store.py doctor --json"
+  ],
+  "source_of_truth": "validated_json_in_git",
+  "materialized_stores": [
+    {"store": "postgresql", "status": "optional", "authority": "cache_only", "export_required": true},
+    {"store": "pgvector", "status": "optional", "authority": "cache_only", "export_required": true},
+    {"store": "graph_query_backend", "status": "future", "authority": "cache_only", "export_required": true}
+  ],
+  "forbidden": [
+    "external store as phase-1 authority",
+    "raw logs as metadata source of truth",
+    "store-specific technology requirement without separate issue"
+  ]
+}

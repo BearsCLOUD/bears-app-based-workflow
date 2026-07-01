@@ -1,0 +1,58 @@
+{
+  "decision_graph_template": {
+    "blocked_gates": [
+      "execution_allowed"
+    ],
+    "edges": [
+      {
+        "from": "node-source",
+        "relation": "enables",
+        "to": "node-executor"
+      }
+    ],
+    "evidence_paths": [
+      "assets/catalog/question-calculus.v1.json"
+    ],
+    "goal_id": "question-calculus-default",
+    "nodes": [
+      {
+        "node_id": "node-source",
+        "operator_id": "resolve_source_of_truth",
+        "proof_id": "proof-437-source-git-json",
+        "status": "accepted"
+      },
+      {
+        "node_id": "node-executor",
+        "operator_id": "select_executor",
+        "proof_id": "proof-437-select-executor-manual-review",
+        "status": "accepted"
+      }
+    ],
+    "schema": "bears-decision-graph.v1",
+    "semantic_fact_refs": [
+      "fact-435-implements-formal-semantics-kernel"
+    ],
+    "unlocked_gates": [
+      "source_of_truth_resolved"
+    ]
+  },
+  "owner_issue": "#437",
+  "owner_role": "bears-machine-first-execution-kernel-engineer",
+  "questions": [
+    {
+      "material": true,
+      "operator_id": "resolve_source_of_truth",
+      "prompt": "Which source is authoritative for this workflow decision?",
+      "question_id": "q-437-source"
+    },
+    {
+      "material": true,
+      "operator_id": "select_executor",
+      "prompt": "Which executor may run the next material step?",
+      "question_id": "q-437-executor"
+    }
+  ],
+  "schema": "bears-question-bank.v1",
+  "updated": "2026-06-25",
+  "version": "1"
+}

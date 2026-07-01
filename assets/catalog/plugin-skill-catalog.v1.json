@@ -1,0 +1,125 @@
+{
+  "schema": "bears-plugin-skill-catalog.v1",
+  "version": "1",
+  "updated": "2026-07-01",
+  "owner_plugin": "bears",
+  "discovery_policy": {
+    "active_skill_file": "SKILL.md",
+    "disabled_skill_file": "SKILL.disabled.md",
+    "disabled_skill_rule": "Disabled skill directories MUST NOT contain SKILL.md; preserved docs live only in SKILL.disabled.md.",
+    "manifest_skill_root": "./skills/"
+  },
+  "active_skills": [
+    {
+      "name": "bears-blocker-eval",
+      "path": "skills/bears-blocker-eval",
+      "description": "Classify Bears workflow-overlay risks, blockers, and unblock paths."
+    },
+    {
+      "name": "bears-deploy-gate",
+      "path": "skills/bears-deploy-gate",
+      "description": "Assess deploy, rollback, runtime, and secret impact for Bears workflow-overlay changes."
+    },
+    {
+      "name": "bears-goal-prompt",
+      "path": "skills/bears-goal-prompt",
+      "description": "Generate bounded and verifiable Codex goal prompts for Bears work."
+    },
+    {
+      "name": "bears-codex-health",
+      "path": "skills/bears-codex-health",
+      "description": "Diagnose Codex desktop/app-server freezes, MCP fan-out, session growth, and safe evidence-first remediation planning."
+    },
+    {
+      "name": "bears-governance-check",
+      "path": "skills/bears-governance-check",
+      "description": "Run Bears workflow-overlay governance routing checks before boundary edits."
+    },
+    {
+      "name": "bears-role-gate",
+      "path": "skills/bears-role-gate",
+      "description": "Validate or emit Bears role-coverage packets and ROLE_COVERAGE_BLOCKER results."
+    },
+    {
+      "name": "bears-workflow-validate",
+      "path": "skills/bears-workflow-validate",
+      "description": "Validate Bears workflow-overlay skill, README, schema-packet, and workflow boundaries."
+    },
+    {
+      "name": "development-workflow-orchestration",
+      "path": "skills/development-workflow-orchestration",
+      "description": "Coordinate broad Bears development workflow through validated packets and domain orchestrators."
+    },
+    {
+      "name": "platform-role-governance",
+      "path": "skills/platform-role-governance",
+      "description": "Enforce the canonical Bears plugin-owned platform role gate."
+    },
+    {
+      "name": "python-codeflow",
+      "path": "skills/python-codeflow",
+      "description": "Enforce Bears Python codeflow, src layout, Clean/Hexagonal boundaries, runtime module splitting, validation, docs, tests, and gitflow hygiene."
+    },
+    {
+      "name": "project-mandate",
+      "path": "skills/project-mandate",
+      "description": "Run the registry-gated project artifact checklist after project registry gate approval."
+    },
+    {
+      "name": "secret-factory",
+      "path": "skills/secret-factory",
+      "description": "Govern write-only local secret generation and Infisical creation with provider handoff refusals."
+    },
+    {
+      "name": "speckit-bears-flow",
+      "path": "skills/speckit-bears-flow",
+      "description": "Run the Bears opinionated Spec Kit orchestration flow."
+    },
+    {
+      "name": "speckit-bears-research",
+      "path": "skills/speckit-bears-research",
+      "description": "Produce Spec Kit-style research artifacts for Bears projects."
+    },
+    {
+      "name": "yandex360-dns",
+      "path": "skills/yandex360-dns",
+      "description": "DNS governance workflow for bears.ru through Yandex 360 using presence-only checks, dry-run plan review, and read-only governance evidence only."
+    },
+    {
+      "name": "bears-kubernetes-ops",
+      "path": "skills/bears-kubernetes-ops",
+      "description": "Perform Bears Kubernetes metadata checks, desired-state/local_cd deploy-boundary checks, secret-reference readiness, and dev-instance runtime placement guidance."
+    },
+    {
+      "name": "bears-infisical-ops",
+      "path": "skills/bears-infisical-ops",
+      "description": "Perform Bears Infisical names-only readiness, ExternalSecret provider handoff, and Telegram session custody checks without exposing secret values."
+    }
+  ],
+  "disabled_skills": [
+    {
+      "name": "bears-telegram-workflow",
+      "path": "skills/bears-telegram-workflow",
+      "reason": "Telegram workflow governance is preserved as an internal reference until active plugin discovery is re-enabled."
+    },
+    {
+      "name": "telegram-aiogram-migration",
+      "path": "skills/telegram-aiogram-migration",
+      "reason": "Aiogram migration governance is preserved as an internal reference until active plugin discovery is re-enabled."
+    },
+    {
+      "name": "telegram-plugin-skill-factory",
+      "path": "skills/telegram-plugin-skill-factory",
+      "reason": "Telegram skill-factory policy is preserved as an internal reference until active plugin discovery is re-enabled."
+    },
+    {
+      "name": "telegram-quality-testing",
+      "path": "skills/telegram-quality-testing",
+      "reason": "Telegram quality-testing guidance is preserved as an internal reference until active plugin discovery is re-enabled."
+    }
+  ],
+  "generated_fragments": {
+    "readme": "docs/generated/README.skill-inventory.md",
+    "spec": "docs/generated/SPEC.skill-inventory.md"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "authorized_to_push": true,
+  "checked_at": "2026-06-26T00:00:00Z",
+  "commit_sha": "ae3403672ab566452c67212c32307f2f7a15b4ce",
+  "doctor_status": "legacy_not_required",
+  "errors": [],
+  "evidence_paths": [
+    "runtime/local-commit-validation/ae3403672ab566452c67212c32307f2f7a15b4ce.json"
+  ],
+  "lcv_proof": "runtime/local-commit-validation/ae3403672ab566452c67212c32307f2f7a15b4ce.json",
+  "lcv_status": "pass",
+  "push_attempted_before_authority": false,
+  "push_requested": true,
+  "schema": "bears-orchestrator-live-execution-authority.v1",
+  "status": "pass"
+}

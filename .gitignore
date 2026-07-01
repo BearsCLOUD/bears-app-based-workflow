@@ -1,0 +1,21 @@
+# Python/runtime caches
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.venv/
+
+# Local runtime and secrets
+.knowledge/
+runtime/
+.env
+.env.*
+*.log
+
+# Generated Spec Kit workspace state
+.specify/
+
+# Temporary planning state
+.tmp/
+tmp/
+*.tmp

@@ -1,0 +1,46 @@
+{
+  "schema": "bears-dagger-delivery-pipeline.v1",
+  "version": "1",
+  "owner_issue": "#461",
+  "commands": [
+    "python3 scripts/dagger_delivery.py validate",
+    "python3 scripts/dagger_delivery.py run --delivery-id <id> --json"
+  ],
+  "gates": [
+    {
+      "id": "schema_catalog_validation",
+      "required": true,
+      "component_issue": "#461",
+      "command": "python3 scripts/dagger_delivery.py validate"
+    },
+    {
+      "id": "external_review_audit",
+      "required": true,
+      "component_issue": "#425",
+      "command": "python3 scripts/external_review_audit.py check-delivery --delivery-id <id> --json"
+    },
+    {
+      "id": "policy_invariants",
+      "required": true,
+      "component_issue": "#460",
+      "command": "python3 scripts/policy_invariants.py evaluate-closeout --from-git <range> --json"
+    },
+    {
+      "id": "impacted_runner",
+      "required": false,
+      "component_issue": "#459",
+      "when_available": true,
+      "command": "python3 scripts/local_commit_validation.py run --commit-sha <sha>"
+    },
+    {
+      "id": "bears_doctor_validate_closeout",
+      "required": true,
+      "component_issue": "#461",
+      "command": "python3 scripts/bears_doctor.py validate-closeout --from-git <range> --json"
+    }
+  ],
+  "missing_dagger": {
+    "status": "tool_missing",
+    "next_action": "manual_setup_required"
+  }
+}

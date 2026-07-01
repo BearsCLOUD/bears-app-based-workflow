@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "task-graph.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "goal_id",
+    "role",
+    "repo_boundary",
+    "tasks",
+    "dependencies",
+    "parallel_groups",
+    "restricted_data_taint",
+    "status"
+  ],
+  "properties": {
+    "goal_id": {
+      "type": "string"
+    },
+    "role": {
+      "type": "string"
+    },
+    "repo_boundary": {
+      "type": "string"
+    },
+    "tasks": {
+      "type": "string"
+    },
+    "dependencies": {
+      "type": "string"
+    },
+    "parallel_groups": {
+      "type": "string"
+    },
+    "restricted_data_taint": {
+      "enum": [
+        "none",
+        "blocked"
+      ]
+    },
+    "status": {
+      "type": "string"
+    }
+  },
+  "description": "Forbidden data classes: raw secrets, .env values, raw logs, raw chats, raw VPN configs, credential files, and production data are not allowed."
+}

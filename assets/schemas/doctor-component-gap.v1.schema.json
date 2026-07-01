@@ -1,0 +1,30 @@
+{
+  "$id": "https://bears.local/schemas/doctor-component-gap.v1.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Bears doctor component gap v1",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "gap_id": {"type": "string", "minLength": 1},
+    "issue": {"type": "string", "pattern": "^#[0-9]+$"},
+    "gap_type": {
+      "type": "string",
+      "enum": [
+        "missing_doctor_check",
+        "missing_validator_command",
+        "missing_test_selection",
+        "missing_doctor_summary",
+        "stale_component_issue",
+        "closed_issue_still_not_available",
+        "unsafe_autostart_without_doctor_gate"
+      ]
+    },
+    "severity": {"type": "string", "enum": ["blocking", "warning", "info"]},
+    "evidence_refs": {"type": "array", "items": {"type": "string", "minLength": 1}},
+    "recommended_next": {
+      "type": "string",
+      "enum": ["add_doctor_check", "add_test_selection", "manual_review", "mark_not_applicable", "close_duplicate"]
+    }
+  },
+  "required": ["gap_id", "issue", "gap_type", "severity", "evidence_refs", "recommended_next"]
+}

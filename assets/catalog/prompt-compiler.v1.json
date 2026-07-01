@@ -1,0 +1,51 @@
+{
+  "schema": "bears-prompt-compiler.v1",
+  "version": "1",
+  "updated": "2026-06-25",
+  "owner_role": "bears-machine-first-execution-kernel-engineer",
+  "component_issue": "#441",
+  "schemas": {
+    "request": "assets/schemas/prompt-compile-request.v1.schema.json",
+    "context_pack": "assets/schemas/context-pack.v1.schema.json",
+    "result": "assets/schemas/prompt-compile-result.v1.schema.json"
+  },
+  "commands": [
+    "python3 scripts/context_pack.py validate",
+    "python3 scripts/context_pack.py build --request <path> --json",
+    "python3 scripts/prompt_compiler.py compile --request <path> --json",
+    "python3 scripts/prompt_compiler.py diff --base <path> --head <path> --json",
+    "python3 scripts/prompt_compiler.py doctor --json"
+  ],
+  "context_levels": [
+    {"level": "L0", "content": "task and required output only"},
+    {"level": "L1", "content": "accepted semantic facts, accepted proofs, inference proofs, and gates"},
+    {"level": "L2", "content": "fresh file-context summaries"},
+    {"level": "L3", "content": "fresh selected symbols, sections, and public interfaces"},
+    {"level": "L4", "content": "full file content only with explicit accepted proof"}
+  ],
+  "fail_closed_rules": [
+    "decision graph must validate and every decision node must reference an accepted proof",
+    "semantic facts must be accepted before prompt inclusion",
+    "selected file context must be fresh before prompt inclusion",
+    "token estimate must not exceed request max_tokens",
+    "L4 full file content requires allow_full_file_read=true and an accepted full-file inference proof",
+    "role profile must come from assets/catalog/opencode-agent-profiles.v1.json"
+  ],
+  "required_output_schema": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["schema", "status", "changed_files", "validation_commands", "blockers"],
+    "properties": {
+      "schema": {"const": "bears-codex-exec-result.v1"},
+      "status": {"enum": ["pass", "blocked"]},
+      "changed_files": {"type": "array", "items": {"type": "string"}},
+      "validation_commands": {"type": "array", "items": {"type": "string"}},
+      "blockers": {"type": "array", "items": {"type": "string"}}
+    }
+  },
+  "determinism": {
+    "sort_keys": true,
+    "stable_hash": "sha256 of canonical JSON payload",
+    "external_sources": "disabled"
+  }
+}

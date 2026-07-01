@@ -1,0 +1,2888 @@
+{
+  "schema": "bears-subagent-orchestration-policy.v1",
+  "owner_plugin": "bears",
+  "updated": "2026-06-23",
+  "policy_id": "bears-platform-subagent-orchestration-v1",
+  "scope": "Bears platform, plugin, workflow, and Telegram governance work delegated through Codex subagents.",
+  "language_policy": {
+    "artifact_language": "en",
+    "assignment_packet_language": "en",
+    "task_template_language": "en",
+    "subagent_message_language": "en",
+    "wording_style": "strict_entity_bound_concise",
+    "required_entity_terms": [
+      "local_cd",
+      "kubernetes_deployment"
+    ],
+    "forbidden_token_rules": [
+      {
+        "token": "deploy",
+        "status": "forbidden",
+        "when_entity_is": [
+          "local_cd",
+          "kubernetes_deployment"
+        ]
+      }
+    ],
+    "section_mode": "policy_only",
+    "message_rule": "Assignment packets, subagent task text, and subagent messages must use English only."
+  },
+  "limits": {
+    "max_concurrent_subagents": 100,
+    "max_depth": 3,
+    "workspace_map_required": false,
+    "workspace_map_must_be_disabled": true,
+    "reasoning_escalation": "medium is the default for delegated Bears subagents; use higher effort only through an explicit operator-approved exception packet",
+    "hard_max_active_subagents": 100,
+    "default_active_executing_subagents": 16,
+    "active_executing_cap_applies_to": "active workers only; idle reusable workers do not count against this default cap",
+    "hard_max_rule": "100 is an absolute safety cap and must not be used as the normal active execution target"
+  },
+  "orchestration_model": {
+    "parent_role": "orchestrator",
+    "parent_responsibilities": [
+      "select the plugin-owned specialist role before delegation",
+      "run the pre-task hook and request missing data and drift answers from the operator before task start",
+      "split work into disjoint write scopes",
+      "prepare and maintain assignment packets for spawn and management actions before task start",
+      "integrate or reject subagent output",
+      "close subagents that are no longer needed",
+      "keep implementation blocked when ROLE_COVERAGE_BLOCKER or readiness gates apply",
+      "perform orchestration only when subagent mode is requested",
+      "keep roadmap runs only through /goal",
+      "choose lower reasoning than the main agent where appropriate, but keep child reasoning at medium or higher and escalate to high when the exact role requires it"
+    ],
+    "child_subagent_responsibilities": [
+      "stay inside the assigned role and write scope",
+      "run only non-secret targeted checks authorized by the assignment",
+      "report changed files, validation, blockers, and handoff risks",
+      "avoid reverting unrelated edits from other workers"
+    ],
+    "nested_subagents": {
+      "allowed": true,
+      "who_may_spawn": [
+        "bears-deploy-platform-engineer",
+        "bears-subagent-orchestration-engineer",
+        "bears-platform-role-governor",
+        "l2-platform-domain-orchestrator",
+        "l2-gitops-domain-orchestrator",
+        "l2-infra-domain-orchestrator",
+        "l2-product-infra-domain-orchestrator"
+      ],
+      "required_conditions": [
+        "the parent task already passed the canonical role gate",
+        "the parent role is listed in delegation_controller_roles",
+        "the child task has a disjoint scope or a narrow reviewer scope",
+        "the child task inherits the same runtime and restricted-data prohibitions",
+        "the total active descendant count remains within max_concurrent_subagents",
+        "the total depth remains within max_depth",
+        "the child task passed the pre-task hook and has an assignment packet before task start",
+        "multiple orchestrators may exist, but only explicit delegation_controller_roles may spawn children",
+        "worker nested delegation is blocked unless parent_authorization names allowed_role, scope, and max_nested_count",
+        "authorized nested subagents are tracked in goal_parallelization_worker_pool_ledger with parent_agent_id, depth, and parent_authorization_id",
+        "L2 domain orchestrators may spawn only helper roles listed in delegation_controller_roles",
+        "L2 helper subagents must use fork_context=false and parent_context=none"
+      ],
+      "forbidden_conditions": [
+        "missing specialist role coverage",
+        "ambiguous ownership or overlapping write scopes",
+        "attempts to bypass auth/gateway/deploy readiness gates",
+        "secret, production-data, raw-log, raw-chat, or raw-VPN access requests",
+        "worker-spawned subagent without parent_authorization is WORKFLOW_DRIFT",
+        "worker-spawned subagent exceeding parent_authorization.max_nested_count is WORKFLOW_DRIFT",
+        "L2 helper subagent parent context inheritance",
+        "helper stopping L2 without a real blocker"
+      ],
+      "worker_nested_delegation_default": "blocked_without_parent_authorization",
+      "parent_authorization_required_fields": [
+        "authorization_id",
+        "allowed_role",
+        "scope",
+        "max_nested_count"
+      ],
+      "unauthorized_spawn_classification": "WORKFLOW_DRIFT",
+      "authorized_tracking_ledger": "goal_parallelization_worker_pool_ledger",
+      "authorized_tracking_required_fields": [
+        "agent_id",
+        "parent_agent_id",
+        "depth",
+        "parent_authorization_id"
+      ]
+    },
+    "main_agent_action_policy": {
+      "mode": "orchestration_only_for_subagent_enabled_tasks",
+      "allowed_actions": [
+        "route",
+        "split",
+        "assign",
+        "wait",
+        "integrate_evidence",
+        "run_validators",
+        "close",
+        "report",
+        "pre_task_hook"
+      ],
+      "forbidden_actions": [
+        "file_read_as_content_collector",
+        "file_write",
+        "git_add",
+        "git_commit",
+        "git_push",
+        "pull_request_mutation",
+        "implementation_tool_use"
+      ]
+    },
+    "parent_control_lane": {
+      "enabled": true,
+      "lane_id": "parent_control_lane",
+      "mode": "orchestration_control_only",
+      "action_policy_reference": "main_agent_action_policy",
+      "implementation_authority": "forbidden",
+      "allowed_control_actions": [
+        "route_target_and_role_selection",
+        "split_assignment_packets",
+        "request_named_validation_hook",
+        "run_validators",
+        "run_status_checks",
+        "read_command_exit_codes",
+        "read_bounded_summaries",
+        "inspect_git_status_short",
+        "inspect_changed_file_names",
+        "create_github_planning_issue_when_operator_requested",
+        "update_github_planning_issue_when_operator_requested",
+        "integrate_subagent_evidence",
+        "close_stale_or_completed_subagents"
+      ],
+      "forbidden_control_actions": [
+        "file_write",
+        "implementation_command",
+        "git_add",
+        "git_commit",
+        "git_push",
+        "pull_request_mutation_without_explicit_operator_request",
+        "broad_file_content_collection",
+        "raw_secret_read",
+        "raw_log_read",
+        "raw_chat_read",
+        "raw_vpn_config_read",
+        "production_data_read",
+        "secret_read",
+        "env_file_read"
+      ],
+      "status_output_policy": {
+        "exit_codes_allowed": true,
+        "bounded_summaries_allowed": true,
+        "changed_file_names_allowed": true,
+        "file_content_collection": "forbidden"
+      },
+      "github_policy": {
+        "planning_issue_mutation": "operator_requested_only",
+        "pull_request_mutation": "forbidden_without_explicit_operator_request"
+      },
+      "restricted_data_policy": {
+        "blocked_reads": [
+          "raw_secret",
+          "raw_log",
+          "raw_chat",
+          "raw_vpn_config",
+          "production_data",
+          "secret",
+          "env_file"
+        ]
+      }
+    },
+    "no_subagent_mode": {
+      "enabled": true,
+      "purpose": "Bounded parent-agent handling before subagent workflow starts.",
+      "parent_instruction_rule": "nearest_role_instructions_still_apply",
+      "role_gate_rule": "required_role_gate_still_applies",
+      "mutation_upgrade_rule": "upgrade_to_normal_gated_mode_before_write",
+      "read_only_audit_rule": "do_not_run_non_product_audit_subagents",
+      "required_rules": [
+        "parent_applies_nearest_role_instructions",
+        "required_role_gate_still_applies",
+        "read_only_no_op_skips_non_product_audit_subagents",
+        "mutation_upgrades_to_normal_gated_mode",
+        "explicit_subagent_request_blocks_no_subagent_mode"
+      ],
+      "decision_table": [
+        {
+          "id": "side-conversation-answer",
+          "request_type": "side_conversation_answer",
+          "decision": "allowed_no_subagent_mode",
+          "scope": "answer_only",
+          "role_gate": "apply_when_required",
+          "mutation_handling": "forbidden",
+          "stage_boundary_audits": "not_run"
+        },
+        {
+          "id": "question-only-explanation",
+          "request_type": "question_only_explanation",
+          "decision": "allowed_no_subagent_mode",
+          "scope": "answer_only",
+          "role_gate": "apply_when_required",
+          "mutation_handling": "forbidden",
+          "stage_boundary_audits": "not_run"
+        },
+        {
+          "id": "single-command-read-only-status-check",
+          "request_type": "single_command_read_only_status_check",
+          "decision": "allowed_no_subagent_mode",
+          "scope": "one_read_only_command",
+          "role_gate": "apply_when_required",
+          "mutation_handling": "forbidden",
+          "stage_boundary_audits": "not_run"
+        },
+        {
+          "id": "bounded-repo-inspection-no-mutation",
+          "request_type": "bounded_repo_inspection_no_mutation",
+          "decision": "allowed_no_subagent_mode",
+          "scope": "bounded_read_only_repo_inspection",
+          "role_gate": "apply_when_required",
+          "mutation_handling": "forbidden",
+          "stage_boundary_audits": "not_run"
+        },
+        {
+          "id": "small-exact-file-bugfix-policy-exception",
+          "request_type": "small_exact_file_bugfix",
+          "decision": "allowed_no_subagent_mode",
+          "scope": "one_exact_file_when_existing_bugfix_exception_allows",
+          "required_existing_policy": "small exact-file bugfix exception",
+          "role_gate": "apply_when_required",
+          "mutation_handling": "upgrade_to_normal_gated_mode_before_write",
+          "stage_boundary_audits": "normal_gated_mode_decides"
+        },
+        {
+          "id": "repo-boundary-change",
+          "request_type": "repo_boundary_change",
+          "decision": "blocked_no_subagent_mode",
+          "required_result": "normal_gated_mode_required",
+          "role_gate": "apply_when_required"
+        },
+        {
+          "id": "plugin-policy-change",
+          "request_type": "plugin_policy_change",
+          "decision": "blocked_no_subagent_mode",
+          "required_result": "normal_gated_mode_required",
+          "role_gate": "apply_when_required"
+        },
+        {
+          "id": "runtime-deployment-migration-secret-change",
+          "request_type": "runtime_deployment_migration_secret_handling_change",
+          "decision": "blocked_no_subagent_mode",
+          "required_result": "normal_gated_mode_required",
+          "role_gate": "apply_when_required"
+        },
+        {
+          "id": "multi-file-implementation",
+          "request_type": "multi_file_implementation",
+          "decision": "blocked_no_subagent_mode",
+          "required_result": "normal_gated_mode_required",
+          "role_gate": "apply_when_required"
+        },
+        {
+          "id": "explicit-subagent-request",
+          "request_type": "operator_explicitly_requests_subagents",
+          "decision": "blocked_no_subagent_mode",
+          "required_result": "subagent_mode_required",
+          "role_gate": "apply_when_required"
+        }
+      ]
+    },
+    "delegation_controller_roles": [
+      {
+        "id": "devops-delegation-controller",
+        "role": "bears-deploy-platform-engineer",
+        "may_spawn_roles": [
+          "kubernetes-specialist",
+          "network-engineer",
+          "bears-runtime-verifier",
+          "bears-platform-security-reviewer"
+        ],
+        "lanes": [
+          "kubernetes repo boundary",
+          "Proxmox read-only evidence",
+          "network read-only evidence",
+          "runtime verification",
+          "rollback runbook review"
+        ],
+        "required_packet_fields": [
+          "parent role route",
+          "child role",
+          "child lane",
+          "write scope or read-only scope",
+          "validation command",
+          "assignment packet id",
+          "pre-task hook evidence",
+          "operator missing data answers",
+          "operator drift answers",
+          "task-start authorization",
+          "spawn evidence",
+          "closeout evidence",
+          "validation hook result"
+        ],
+        "forbidden": [
+          "production mutation",
+          "approval bypass",
+          "raw restricted-data access"
+        ]
+      },
+      {
+        "id": "workflow-delegation-controller",
+        "role": "bears-subagent-orchestration-engineer",
+        "may_spawn_roles": [
+          "bears-explorer",
+          "bears-docs-maintainer",
+          "bears-platform-role-governor",
+          "bears-platform-security-reviewer"
+        ],
+        "lanes": [
+          "plugin policy review",
+          "validator review",
+          "docs placement review",
+          "restricted-data safety review"
+        ],
+        "required_packet_fields": [
+          "parent role route",
+          "child role",
+          "child lane",
+          "write scope or read-only scope",
+          "validation command",
+          "assignment packet id",
+          "pre-task hook evidence",
+          "operator missing data answers",
+          "operator drift answers",
+          "task-start authorization",
+          "spawn evidence",
+          "closeout evidence",
+          "validation hook result"
+        ],
+        "forbidden": [
+          "product code edits",
+          "runtime mutation",
+          "raw restricted-data access"
+        ]
+      },
+      {
+        "id": "governance-delegation-controller",
+        "role": "bears-platform-role-governor",
+        "may_spawn_roles": [
+          "bears-explorer",
+          "bears-docs-maintainer",
+          "bears-platform-security-reviewer",
+          "reviewer"
+        ],
+        "lanes": [
+          "role route audit",
+          "registry consistency audit",
+          "project-mandate gate review",
+          "user information placement review"
+        ],
+        "required_packet_fields": [
+          "parent role route",
+          "child role",
+          "child lane",
+          "write scope or read-only scope",
+          "validation command",
+          "assignment packet id",
+          "pre-task hook evidence",
+          "operator missing data answers",
+          "operator drift answers",
+          "task-start authorization",
+          "spawn evidence",
+          "closeout evidence",
+          "validation hook result"
+        ],
+        "forbidden": [
+          "parent-scope implementation approval",
+          "product code edits without product role",
+          "raw restricted-data access"
+        ]
+      },
+      {
+        "id": "l2-platform-domain-delegation-controller",
+        "role": "l2-platform-domain-orchestrator",
+        "may_spawn_roles": [
+          "bears-token-budget-helper",
+          "bears-git-workflow-helper",
+          "bears-review-fix-helper"
+        ],
+        "lanes": [
+          "token economy support",
+          "git local-validation cache closeout support",
+          "review fix support"
+        ],
+        "required_packet_fields": [
+          "parent role route",
+          "child role",
+          "child lane",
+          "write scope or read-only scope",
+          "validation command",
+          "assignment packet id",
+          "pre-task hook evidence",
+          "operator missing data answers",
+          "operator drift answers",
+          "task-start authorization",
+          "spawn evidence",
+          "closeout evidence",
+          "validation hook result"
+        ],
+        "forbidden": [
+          "parent context inheritance",
+          "product code edits",
+          "runtime mutation",
+          "GitOps desired-state generation",
+          "infra payload generation",
+          "raw restricted-data access",
+          "helper stops L2 without real blocker"
+        ]
+      },
+      {
+        "id": "l2-gitops-domain-delegation-controller",
+        "role": "l2-gitops-domain-orchestrator",
+        "may_spawn_roles": [
+          "bears-token-budget-helper",
+          "bears-git-workflow-helper",
+          "bears-review-fix-helper"
+        ],
+        "lanes": [
+          "token economy support",
+          "git local-validation cache closeout support",
+          "review fix support"
+        ],
+        "required_packet_fields": [
+          "parent role route",
+          "child role",
+          "child lane",
+          "write scope or read-only scope",
+          "validation command",
+          "assignment packet id",
+          "pre-task hook evidence",
+          "operator missing data answers",
+          "operator drift answers",
+          "task-start authorization",
+          "spawn evidence",
+          "closeout evidence",
+          "validation hook result"
+        ],
+        "forbidden": [
+          "parent context inheritance",
+          "product code edits",
+          "runtime mutation",
+          "GitOps desired-state generation",
+          "infra payload generation",
+          "raw restricted-data access",
+          "helper stops L2 without real blocker"
+        ]
+      },
+      {
+        "id": "l2-infra-domain-delegation-controller",
+        "role": "l2-infra-domain-orchestrator",
+        "may_spawn_roles": [
+          "bears-token-budget-helper",
+          "bears-git-workflow-helper",
+          "bears-review-fix-helper"
+        ],
+        "lanes": [
+          "token economy support",
+          "git local-validation cache closeout support",
+          "review fix support"
+        ],
+        "required_packet_fields": [
+          "parent role route",
+          "child role",
+          "child lane",
+          "write scope or read-only scope",
+          "validation command",
+          "assignment packet id",
+          "pre-task hook evidence",
+          "operator missing data answers",
+          "operator drift answers",
+          "task-start authorization",
+          "spawn evidence",
+          "closeout evidence",
+          "validation hook result"
+        ],
+        "forbidden": [
+          "parent context inheritance",
+          "product code edits",
+          "runtime mutation",
+          "GitOps desired-state generation",
+          "infra payload generation",
+          "raw restricted-data access",
+          "helper stops L2 without real blocker"
+        ]
+      },
+      {
+        "id": "l2-product-infra-domain-delegation-controller",
+        "role": "l2-product-infra-domain-orchestrator",
+        "may_spawn_roles": [
+          "bears-token-budget-helper",
+          "bears-git-workflow-helper",
+          "bears-review-fix-helper"
+        ],
+        "lanes": [
+          "token economy support",
+          "git local-validation cache closeout support",
+          "review fix support"
+        ],
+        "required_packet_fields": [
+          "parent role route",
+          "child role",
+          "child lane",
+          "write scope or read-only scope",
+          "validation command",
+          "assignment packet id",
+          "pre-task hook evidence",
+          "operator missing data answers",
+          "operator drift answers",
+          "task-start authorization",
+          "spawn evidence",
+          "closeout evidence",
+          "validation hook result"
+        ],
+        "forbidden": [
+          "parent context inheritance",
+          "product code edits",
+          "runtime mutation",
+          "GitOps desired-state generation",
+          "infra payload generation",
+          "raw restricted-data access",
+          "helper stops L2 without real blocker"
+        ]
+      }
+    ],
+    "multiple_orchestrators_allowed": true,
+    "pre_task_hook": {
+      "required": true,
+      "runs_before_task_start": true,
+      "controls": [
+        "spawn",
+        "manage",
+        "close"
+      ],
+      "assignment_packet_required": true,
+      "must_request_operator_inputs": [
+        "missing data",
+        "drift answers"
+      ],
+      "must_block_until_operator_answers": true,
+      "roadmap_entrypoint": "/goal",
+      "evidence_fields": [
+        "assignment packet id",
+        "pre-task hook evidence",
+        "operator missing data answers",
+        "operator drift answers",
+        "task-start authorization"
+      ]
+    },
+    "validation_hook_runner": {
+      "required": true,
+      "request_model": "named_hook_only",
+      "controls": [
+        "run_validators",
+        "close"
+      ],
+      "cwd_policy": "plugin_root_only",
+      "allowed_output_modes": [
+        "bounded_json",
+        "concise_text"
+      ],
+      "forbidden_request_kinds": [
+        "arbitrary_shell",
+        "inline_command",
+        "env_file_read",
+        "credential_read",
+        "raw_log_read",
+        "production_data_read",
+        "raw_chat_read",
+        "raw_vpn_config_read"
+      ],
+      "result_schema": {
+        "required_fields": [
+          "hook_id",
+          "cwd",
+          "command_id",
+          "exit_code",
+          "sanitized_summary",
+          "validation_target"
+        ],
+        "forbidden_fields": [
+          "raw_stdout",
+          "raw_stderr",
+          "env",
+          "token",
+          "secret",
+          "password",
+          "private_key",
+          "api_key",
+          "authorization",
+          "credential",
+          "raw_log",
+          "raw_chat",
+          "raw_vpn_config",
+          "production_data"
+        ]
+      },
+      "allowed_hooks": [
+        {
+          "hook_id": "role_route",
+          "command_id": "platform_roles_route",
+          "script": "scripts/platform_roles.py",
+          "args": [
+            "route",
+            "{validation_target}"
+          ],
+          "target_required": true
+        },
+        {
+          "hook_id": "role_audit",
+          "command_id": "platform_roles_audit",
+          "script": "scripts/platform_roles.py",
+          "args": [
+            "audit",
+            "{validation_target}"
+          ],
+          "target_required": true
+        },
+        {
+          "hook_id": "project_registry_gate",
+          "command_id": "project_registry_gate",
+          "script": "scripts/project_registry_gate.py",
+          "args": [
+            "gate",
+            "{validation_target}"
+          ],
+          "target_required": true
+        },
+        {
+          "hook_id": "subagent_policy_validate",
+          "command_id": "subagent_policy_validate",
+          "script": "scripts/subagent_orchestration_policy.py",
+          "args": [
+            "validate"
+          ],
+          "target_required": false
+        },
+        {
+          "hook_id": "overlay_validate",
+          "command_id": "overlay_validate_strict",
+          "script": "scripts/validate_overlay.py",
+          "args": [
+            "--json",
+            "validate",
+            "--strict-overlay-skills"
+          ],
+          "target_required": false
+        },
+        {
+          "hook_id": "roadmap_validate",
+          "command_id": "roadmap_validate",
+          "script": "scripts/roadmap_control.py",
+          "args": [
+            "validate"
+          ],
+          "target_required": false
+        },
+        {
+          "hook_id": "git_discipline_validate",
+          "command_id": "git_discipline_validate",
+          "script": "scripts/git_discipline.py",
+          "args": [
+            "validate"
+          ],
+          "target_required": false
+        },
+        {
+          "hook_id": "platform_roles_validate",
+          "command_id": "platform_roles_validate",
+          "script": "scripts/platform_roles.py",
+          "args": [
+            "validate"
+          ],
+          "target_required": false
+        },
+        {
+          "hook_id": "plugin_constitution_validate",
+          "command_id": "plugin_constitution_validate",
+          "script": "scripts/plugin_constitution.py",
+          "args": [
+            "validate"
+          ],
+          "target_required": false
+        },
+        {
+          "hook_id": "role_gate_methodology_validate",
+          "command_id": "role_gate_methodology_validate",
+          "script": "scripts/role_gate_methodology.py",
+          "args": [
+            "validate"
+          ],
+          "target_required": false
+        },
+        {
+          "hook_id": "session_workers_runtime_validate",
+          "command_id": "session_workers_runtime_validate",
+          "script": "scripts/session_workers_runtime.py",
+          "args": [
+            "validate"
+          ],
+          "target_required": false
+        },
+        {
+          "hook_id": "agent_github_dev_cd_validate",
+          "command_id": "agent_github_dev_cd_validate",
+          "script": "scripts/agent_github_dev_cd.py",
+          "args": [
+            "validate"
+          ],
+          "target_required": false
+        },
+        {
+          "hook_id": "project_registry_validate",
+          "command_id": "project_registry_validate",
+          "script": "scripts/project_registry_gate.py",
+          "args": [
+            "validate-registry"
+          ],
+          "target_required": false
+        },
+        {
+          "hook_id": "skill_catalog_generate_check",
+          "command_id": "skill_catalog_generate_check",
+          "script": "scripts/skill_catalog.py",
+          "args": [
+            "generate",
+            "--check"
+          ],
+          "target_required": false
+        },
+        {
+          "hook_id": "secret_factory_validate",
+          "command_id": "secret_factory_validate",
+          "script": "scripts/secret_factory.py",
+          "args": [
+            "validate"
+          ],
+          "target_required": false
+        },
+        {
+          "hook_id": "full_tests_discover",
+          "command_id": "full_tests_discover",
+          "script": "python3",
+          "args": [
+            "-m",
+            "unittest",
+            "discover",
+            "-s",
+            "tests"
+          ],
+          "target_required": false
+        }
+      ]
+    },
+    "worker_pool_policy": {
+      "policy_id": "reusable-worker-pool-v1",
+      "hard_max_active_subagents": 100,
+      "default_active_executing_subagents": 16,
+      "default_cap_applies_to": "actively_executing_workers_only",
+      "warm_reusable_workers_count_against_default_active_cap": false,
+      "hard_max_semantics": "absolute safety cap across active, idle, reusable, and nested workers; never a normal active target",
+      "worker_states": [
+        {
+          "state": "active",
+          "meaning": "worker is executing an assigned task now and counts against default_active_executing_subagents"
+        },
+        {
+          "state": "idle",
+          "meaning": "worker is open but has no active task and does not count against default_active_executing_subagents"
+        },
+        {
+          "state": "reusable",
+          "meaning": "idle worker has a valid compact continuation packet and may be reused only after all reuse checks pass"
+        },
+        {
+          "state": "fresh-required",
+          "meaning": "lane must start a new worker and must not reuse parent context or old worker context"
+        },
+        {
+          "state": "stale",
+          "meaning": "worker is no longer valid for reuse and must be closed before final closeout"
+        }
+      ],
+      "reuse_required_all": [
+        "same_role",
+        "same_repo_boundary",
+        "compatible_write_scope",
+        "no_restricted_data_taint",
+        "compact_continuation_packet"
+      ],
+      "compatible_write_scope_rule": "requested write scope must be equal to or narrower than the worker bound scope; overlapping or broader scope is not compatible",
+      "compact_continuation_packet": {
+        "required": true,
+        "required_fields": [
+          "worker_id",
+          "role",
+          "repo_boundary",
+          "write_scope",
+          "last_assignment_packet_id",
+          "status_summary",
+          "validation_target",
+          "restricted_data_taint",
+          "changed_files"
+        ],
+        "forbidden_fields": [
+          "raw_secret",
+          "raw_log",
+          "raw_chat",
+          "raw_vpn_config",
+          "production_data",
+          "secret",
+          "env_file",
+          "env_value"
+        ]
+      },
+      "fresh_required_lanes": {
+        "when_inherit_parent_context_is_false": "fresh-required",
+        "reuse": "forbidden",
+        "parent_context": "forbidden",
+        "applies_to": [
+          "plugin-fit-audit",
+          "new-functionality-drift-audit",
+          "documentation-secret-safety-audit",
+          "user-information-capture-audit"
+        ]
+      },
+      "stale_worker_close_conditions": [
+        "role_mismatch",
+        "repo_boundary_mismatch",
+        "write_scope_incompatible",
+        "restricted_data_taint_present",
+        "missing_compact_continuation_packet",
+        "validation_target_changed",
+        "worker_branch_or_worktree_changed",
+        "assignment_scope_completed",
+        "pre_task_hook_rejected_reuse",
+        "operator_requested_close",
+        "audit_lane_completed"
+      ],
+      "reuse_or_fork_session_runtime_precondition": {
+        "command": "python3 scripts/session_workers_runtime.py validate-runtime --runtime-dir <dir>",
+        "required_before": [
+          "session reuse",
+          "session fork"
+        ],
+        "on_compatibility_failure": "spawn fresh session with bounded prior evidence"
+      }
+    },
+    "goal_parallelization_preflight": {
+      "enabled": true,
+      "preflight_id": "goal_parallelization_preflight",
+      "applies_to": "goal-driven workflow parallelization before each subagent wave",
+      "fixed_assignment_packet": {
+        "packet_shape": "fixed",
+        "required": true,
+        "required_fields": [
+          "assignment_packet_id",
+          "goal_id",
+          "tasks_md_item_id",
+          "role",
+          "target_path",
+          "repo_boundary",
+          "write_scope",
+          "validation_commands",
+          "pre_task_hook_evidence",
+          "backend_only_scope_lock",
+          "worker_pool_ledger_id"
+        ],
+        "forbidden_fields": [
+          "raw_secret",
+          "raw_log",
+          "raw_chat",
+          "raw_vpn_config",
+          "production_data",
+          "secret",
+          "env_file",
+          "env_value"
+        ]
+      },
+      "spawn_agent_argument_shape": {
+        "strict_args_only": true,
+        "assignment_packet_reference_required": true,
+        "required_args": [
+          "role",
+          "model",
+          "model_reasoning_effort",
+          "sandbox_mode",
+          "developer_instructions",
+          "assignment_packet_id",
+          "target_path",
+          "write_scope",
+          "validation_commands"
+        ],
+        "forbidden_args": [
+          "raw_secret",
+          "raw_log",
+          "raw_chat",
+          "raw_vpn_config",
+          "production_data",
+          "git_commit",
+          "git_push",
+          "pull_request_mutation"
+        ],
+        "content_path_policy": {
+          "exactly_one_of": [
+            "message",
+            "items"
+          ],
+          "reject_when_both_present": true,
+          "reject_when_neither_present": true,
+          "validation_timing": "before_spawn_agent_invocation"
+        },
+        "plugin_mention_canonical_form": {
+          "required_when_plugin_mention": true,
+          "content_path": "items",
+          "items_length": 1,
+          "item_type": "text",
+          "text_field": "text",
+          "required_text_markers": [
+            "@bears",
+            "PRE_TASK_HOOK",
+            "ASSIGNMENT_PACKET"
+          ],
+          "forbidden_top_level_fields": [
+            "message"
+          ]
+        },
+        "preinvoke_rejection": {
+          "reject_before_tool_invocation": true,
+          "rejection_error": "invalid_spawn_agent_arguments"
+        },
+        "retry_path_preservation": {
+          "required": true,
+          "drift_log_required": true,
+          "wrapper_only_change_required": true,
+          "preserve_sections_byte_for_byte": [
+            "PRE_TASK_HOOK",
+            "ASSIGNMENT_PACKET"
+          ]
+        }
+      },
+      "wait_agent_target_validation": {
+        "target_id_required": true,
+        "target_id_sources": [
+          "spawn_agent_return.agent_id",
+          "worker_pool_ledger.agent_id"
+        ],
+        "reject_missing_target_id": true,
+        "reject_unknown_target_id": true,
+        "reject_non_active_target_id": true
+      },
+      "wait_any_loop": {
+        "enabled": true,
+        "mode": "wait_any",
+        "target_set_source": "worker_pool_ledger.active_agent_ids",
+        "required_before_capacity_fallback": true,
+        "partial_state_reconciliation_required_before_capacity_fallback": true,
+        "terminal_events": [
+          "agent_completed",
+          "agent_failed",
+          "hard_stop_result"
+        ]
+      },
+      "worker_pool_ledger": {
+        "required": true,
+        "ledger_id": "goal_parallelization_worker_pool_ledger",
+        "required_fields": [
+          "agent_id",
+          "assignment_packet_id",
+          "role",
+          "target_path",
+          "write_scope",
+          "state",
+          "spawned_at",
+          "last_wait_result",
+          "closeout_evidence",
+          "reconciliation_status",
+          "parent_agent_id",
+          "depth",
+          "parent_authorization_id",
+          "reuse_reason"
+        ],
+        "allowed_states": [
+          "eligible",
+          "spawned",
+          "active",
+          "completed",
+          "closed",
+          "stale",
+          "partial"
+        ],
+        "completed_close_evidence_required_before_new_wave": true,
+        "partial_state_reconciliation_required_before_capacity_fallback": true,
+        "same_ledger_for_nested_subagents": true,
+        "nested_tracking_fields": [
+          "agent_id",
+          "parent_agent_id",
+          "depth",
+          "parent_authorization_id"
+        ],
+        "completed_not_closed_reuse_reason_required_before_new_wave": true
+      },
+      "backend_only_scope_lock": {
+        "required": true,
+        "scope": "backend_only",
+        "allowed_task_surfaces": [
+          "policy_catalog",
+          "validator_script",
+          "unit_tests"
+        ],
+        "forbidden_task_surfaces": [
+          "README",
+          "docs/reference",
+          "product",
+          "runtime",
+          "delivery_surface",
+          "gitlink_helper",
+          "credential_material",
+          "raw_log",
+          "raw_chat",
+          "raw_vpn_config",
+          "github_pr_issue_state",
+          "frontend",
+          "mobile",
+          "UI",
+          "web client",
+          "app screens",
+          "visual assets"
+        ],
+        "blocks_frontend_or_product_scope": true
+      },
+      "fanout_thread_limit_preflight": {
+        "required": true,
+        "hard_max_source": "limits.hard_max_active_subagents",
+        "active_cap_source": "limits.default_active_executing_subagents",
+        "active_open_count_required": true,
+        "active_open_count_sources": [
+          "worker_pool_ledger.active_agent_ids",
+          "worker_pool_ledger.open_agent_ids",
+          "worker_pool_ledger.completed_agent_ids"
+        ],
+        "active_states_counted": [
+          "spawned",
+          "active"
+        ],
+        "open_states_counted": [
+          "spawned",
+          "active",
+          "completed",
+          "stale",
+          "partial"
+        ],
+        "completed_no_longer_needed_close_before_spawn": true,
+        "close_completed_source": "worker_pool_ledger.closeout_evidence",
+        "critical_path_wait_slot_reservation": {
+          "required": true,
+          "reserved_slots_min": 1,
+          "applies_to": "critical-path wait_agent targets before each spawn wave"
+        },
+        "available_slots_formula": "min(limits.default_active_executing_subagents - active_open_count - reserved_critical_wait_slots, limits.hard_max_active_subagents - open_count)",
+        "bounded_batch_spawn_when_requested_exceeds_available": true,
+        "spawn_batch_rule": "When requested worker count exceeds available slots, parent must spawn at most available_slots, wait_any on active_agent_ids, reconcile the worker_pool_ledger, close completed no-longer-needed agents, then start the next bounded batch.",
+        "reject_when_requested_active_exceeds_cap": true,
+        "hard_max_is_safety_cap_only": true,
+        "thread_limit_failure_classification": "WORKFLOW_DRIFT",
+        "thread_limit_failure_normal_recovery_allowed": false,
+        "drift_evidence_required": true
+      },
+      "new_wave_gate": {
+        "completed_subagent_close_evidence_required": true,
+        "close_evidence_source": "worker_pool_ledger.closeout_evidence",
+        "forbid_new_wave_when_completed_worker_unclosed": true,
+        "block_completed_not_closed_without_reuse_reason": true,
+        "reuse_reason_source": "worker_pool_ledger.reuse_reason",
+        "checkpoint_count_fields": [
+          "active_workers",
+          "active_reviewers",
+          "completed_not_closed_agents"
+        ],
+        "completed_not_closed_state": "completed",
+        "explicit_reuse_reason_required_per_agent": true
+      },
+      "final_join_gate": {
+        "required": true,
+        "gate_id": "final_subagent_join_gate_before_parent_completion",
+        "scope_source": "worker_pool_ledger.all_spawned_agent_ids",
+        "identity_fields": [
+          "agent_id",
+          "assignment_packet_id"
+        ],
+        "blocks_parent_completion": true,
+        "requires_all_spawned_agents_terminal": true,
+        "requires_partial_state_reconciled": true,
+        "requires_worker_pool_ledger_closed": true,
+        "fail_closed_states": [
+          "eligible",
+          "queued",
+          "spawned",
+          "active",
+          "stale",
+          "partial",
+          "unknown"
+        ],
+        "conditional_terminal_states": [
+          "closed",
+          "completed",
+          "failed"
+        ],
+        "integrated_evidence_fields": [
+          "integrated_evidence",
+          "closeout_evidence"
+        ],
+        "close_decision_field": "close_decision",
+        "failed_disposition_field": "failure_disposition",
+        "dependent_wait_sources": [
+          "dependent_waits",
+          "worker_pool_ledger.dependent_wait_remaining"
+        ],
+        "fail_closed_conditions": [
+          "any_spawned_subagent_active",
+          "any_spawned_subagent_queued",
+          "any_spawned_subagent_unknown",
+          "any_spawned_subagent_missing_terminal_evidence",
+          "any_failed_subagent_without_disposition",
+          "any_completed_subagent_without_integrated_evidence",
+          "any_completed_subagent_without_close_decision",
+          "any_dependent_wait_remaining"
+        ],
+        "pass_conditions": [
+          "all_spawned_subagent_outcomes_integrated",
+          "all_spawned_subagents_have_close_decision",
+          "no_dependent_wait_remaining"
+        ]
+      },
+      "result_policy": {
+        "allowed_results": [
+          "ready",
+          "no_eligible_task",
+          "no_write",
+          "needs_parent_split",
+          "blocked"
+        ],
+        "non_blocking_results": [
+          "no_eligible_task",
+          "no_write",
+          "needs_parent_split"
+        ],
+        "no_eligible_task_status": "non_blocker",
+        "blocked_results": [
+          "ROLE_COVERAGE_BLOCKER",
+          "restricted_data_request",
+          "overlapping_write_scope",
+          "invalid_assignment_packet",
+          "invalid_spawn_agent_arguments",
+          "invalid_wait_agent_target_id",
+          "missing_final_join_gate",
+          "WORKFLOW_DRIFT"
+        ]
+      },
+      "issue_mapping": {
+        "BearsCLOUD/bears-codex-workflow-plugin#173": "central_goal_parallelization_preflight_lane",
+        "BearsCLOUD/bears-codex-workflow-plugin#103": "no_eligible_task_non_blocking",
+        "BearsCLOUD/bears-codex-workflow-plugin#154": "fanout_thread_limit_preflight",
+        "BearsCLOUD/bears-codex-workflow-plugin#153": "wait_agent_target_id_validation",
+        "BearsCLOUD/bears-codex-workflow-plugin#142": "spawn_agent_argument_shape_validation",
+        "BearsCLOUD/bears-codex-workflow-plugin#138": "completed_subagent_close_evidence_before_new_waves",
+        "BearsCLOUD/bears-codex-workflow-plugin#158": "final_join_gate_before_parent_completion",
+        "BearsCLOUD/bears-codex-workflow-plugin#157": "partial_state_reconciliation_before_capacity_fallback",
+        "BearsCLOUD/bears-codex-workflow-plugin#145": "parent_plan_status_evidence_gate",
+        "BearsCLOUD/bears-codex-workflow-plugin#155": "nested_worker_delegation_parent_authorization",
+        "BearsCLOUD/bears-codex-workflow-plugin#76": "backend_only_parallel_prompt_guard",
+        "BearsCLOUD/bears-codex-workflow-plugin#78": "task_ledger_role_gate_before_delegation",
+        "BearsCLOUD/bears-codex-workflow-plugin#83": "spawn_template_model_capability_preflight",
+        "BearsCLOUD/bears-codex-workflow-plugin#84": "fork_context_spawn_inheritance_guard",
+        "BearsCLOUD/bears-codex-workflow-plugin#87": "parallel_shared_worktree_isolation_guard",
+        "BearsCLOUD/bears-codex-workflow-plugin#89": "mixed_role_target_split_guard",
+        "BearsCLOUD/bears-codex-workflow-plugin#90": "pr_review_repo_scope_guard",
+        "BearsCLOUD/bears-codex-workflow-plugin#95": "credential_surface_output_guard",
+        "BearsCLOUD/bears-codex-workflow-plugin#99": "english_subagent_closeout_guard",
+        "BearsCLOUD/bears-codex-workflow-plugin#112": "leaf_pr_delivery_role_guard",
+        "BearsCLOUD/bears-codex-workflow-plugin#121": "slice_scoped_final_audit_verdict_guard",
+        "BearsCLOUD/bears-codex-workflow-plugin#129": "discovery_implementation_split_guard",
+        "BearsCLOUD/bears-codex-workflow-plugin#130": "parent_control_patch_content_guard",
+        "BearsCLOUD/bears-codex-workflow-plugin#131": "draft_pr_publication_merge_guard",
+        "BearsCLOUD/bears-codex-workflow-plugin#122": "current_day_checkpoint_collector_guard",
+        "BearsCLOUD/bears-codex-workflow-plugin#127": "current_state_source_authority_guard"
+      },
+      "parent_plan_status_gate": {
+        "required": true,
+        "applies_to_steps": [
+          "pull_request",
+          "merge",
+          "review"
+        ],
+        "completed_required_evidence_fields": [
+          "pr_url",
+          "check_status",
+          "reviewer_pass_evidence",
+          "worker_closeout_evidence"
+        ],
+        "merge_completed_extra_required_fields": [
+          "merge_sha"
+        ],
+        "pass_check_status_values": [
+          "PASS",
+          "success",
+          "passed"
+        ],
+        "reviewer_pass_marker": "PASS",
+        "in_progress_while_worker_active": true,
+        "active_worker_sources": [
+          "worker_pool_ledger.active_agent_ids",
+          "worker_pool_ledger.state=active"
+        ],
+        "blocked_requires_bears_blocker_artifact": true,
+        "blocker_artifact_required_fields": [
+          "artifact_id",
+          "artifact_type",
+          "status",
+          "owner",
+          "path_or_url"
+        ],
+        "allowed_blocker_artifact_types": [
+          "bears-blocker-review",
+          "bears-workflow-overlay.blocker-review"
+        ]
+      },
+      "batch_role_gate": {
+        "required": true,
+        "input": "target_paths",
+        "command": "python3 scripts/subagent_orchestration_policy.py batch-role-gate --paths-json <paths-json> --json",
+        "matched_result_fields": [
+          "path",
+          "status",
+          "primary_role",
+          "validation_required"
+        ],
+        "blocker_result": "ROLE_COVERAGE_BLOCKER",
+        "missing_mapping_task_fields": [
+          "path",
+          "missing_role",
+          "catalog_target",
+          "validator_command"
+        ],
+        "runs_before_worker_spawn": true
+      },
+      "handoff_guards": [
+        {
+          "guard_id": "backend_only_parallel_prompt_guard",
+          "required": true,
+          "issue": "BearsCLOUD/bears-codex-workflow-plugin#76",
+          "enforcement": "Backend-only parallel packets must front-load no frontend/mobile/UI/web client/app screens/visual assets scope, name one primary write owner per agent, name exactly one shared ledger merge owner, include route gate, role gate, diff hygiene, no-secret, and no-live validation checks, and reject launch when shared index ownership is missing.",
+          "required_packet_fields": [
+            "backend_only_scope_lock",
+            "primary_write_owner",
+            "shared_ledger_merge_owner",
+            "validation_commands"
+          ],
+          "reject_when": [
+            "frontend_scope_requested",
+            "missing_primary_write_owner",
+            "multiple_shared_ledger_writers_without_merge_owner"
+          ]
+        },
+        {
+          "guard_id": "task_ledger_role_gate_before_delegation",
+          "required": true,
+          "issue": "BearsCLOUD/bears-codex-workflow-plugin#78",
+          "enforcement": "Before a subagent edits specs/*/tasks.md or another task ledger, parent must record route/audit for that exact file; if no task row exists, parent edits locally or records a named planning-delegation exception with pre-delegation role gate evidence.",
+          "required_packet_fields": [
+            "ledger_path",
+            "route_audit_target",
+            "planning_delegation_exception",
+            "validation_commands"
+          ],
+          "reject_when": [
+            "tasks_md_delegation_without_route_audit",
+            "subagent_creates_authorizing_tasks_without_exception"
+          ]
+        },
+        {
+          "guard_id": "spawn_template_model_capability_preflight",
+          "required": true,
+          "issue": "BearsCLOUD/bears-codex-workflow-plugin#83",
+          "enforcement": "Spawn templates must pass model capability preflight before spawn_agent; unsupported fields such as reasoning.summary for gpt-5.3-codex-spark fail with profile, model, field, and corrective action.",
+          "required_packet_fields": [
+            "profile_path",
+            "model",
+            "checked_fields",
+            "capability_preflight_result"
+          ],
+          "reject_when": [
+            "unsupported_model_parameter",
+            "missing_capability_preflight"
+          ]
+        },
+        {
+          "guard_id": "fork_context_spawn_inheritance_guard",
+          "required": true,
+          "issue": "BearsCLOUD/bears-codex-workflow-plugin#84",
+          "enforcement": "If fork_context=true, do not pass agent_type, model, or reasoning_effort. If another specialist role is required, spawn without full-history fork and pass a compact task packet.",
+          "required_packet_fields": [
+            "fork_context",
+            "agent_type",
+            "model",
+            "reasoning_effort"
+          ],
+          "reject_when": [
+            "fork_context_true_with_agent_type",
+            "fork_context_true_with_model",
+            "fork_context_true_with_reasoning_effort"
+          ]
+        },
+        {
+          "guard_id": "parallel_shared_worktree_isolation_guard",
+          "required": true,
+          "issue": "BearsCLOUD/bears-codex-workflow-plugin#87",
+          "enforcement": "Parallel workers that may mutate the same checkout state must use separate clean worktrees or serialize; git checkout, merge --ff-only, submodule update, and repo-level generated sync are checkout mutations and closeout must report before/after branch and SHA.",
+          "required_packet_fields": [
+            "repo_boundary",
+            "worktree_path",
+            "checkout_mutation_owner",
+            "before_sha",
+            "after_sha"
+          ],
+          "reject_when": [
+            "parallel_shared_checkout_mutation",
+            "dirty_worktree_before_start",
+            "missing_checkout_owner"
+          ]
+        },
+        {
+          "guard_id": "mixed_role_target_split_guard",
+          "required": true,
+          "issue": "BearsCLOUD/bears-codex-workflow-plugin#89",
+          "enforcement": "Parent must route/audit every write target before specialist delegation; if targets map to different primary roles, split into role-specific tasks and do not include a path the assigned role cannot own.",
+          "required_packet_fields": [
+            "write_scope",
+            "route_audit_results",
+            "primary_role",
+            "split_decision"
+          ],
+          "reject_when": [
+            "mixed_primary_roles_in_one_worker",
+            "write_path_outside_assigned_role"
+          ]
+        },
+        {
+          "guard_id": "pr_review_repo_scope_guard",
+          "required": true,
+          "issue": "BearsCLOUD/bears-codex-workflow-plugin#90",
+          "enforcement": "PR reviewers must use the assigned owner/repo and bounded clean worktree; recursive /srv/bears discovery and wrong-repo gh pr view are rejected.",
+          "required_packet_fields": [
+            "owner_repo",
+            "pr_number",
+            "worktree_path",
+            "allowed_read_scope"
+          ],
+          "reject_when": [
+            "wrong_owner_repo_pr_query",
+            "recursive_workspace_discovery",
+            "pipeline_heredoc_repo_confusion"
+          ]
+        },
+        {
+          "guard_id": "credential_surface_output_guard",
+          "required": true,
+          "issue": "BearsCLOUD/bears-codex-workflow-plugin#95",
+          "enforcement": "Routine publish preflights must use no-token probes and must not emit gh auth status. If auth diagnosis is the blocker, token and scope lines must be redacted before output.",
+          "required_packet_fields": [
+            "github_probe_command",
+            "auth_diagnosis",
+            "redaction_applied"
+          ],
+          "reject_when": [
+            "routine_gh_auth_status",
+            "auth_status_without_redaction",
+            "credential_scope_output"
+          ]
+        },
+        {
+          "guard_id": "english_subagent_closeout_guard",
+          "required": true,
+          "issue": "BearsCLOUD/bears-codex-workflow-plugin#99",
+          "enforcement": "Subagent artifacts and closeout packets must be English-only and fail when Cyrillic or mixed-language artifact text appears.",
+          "required_packet_fields": [
+            "closeout_packet",
+            "artifact_language",
+            "changed_files",
+            "validation"
+          ],
+          "reject_when": [
+            "cyrillic_artifact_text",
+            "non_english_closeout"
+          ]
+        },
+        {
+          "guard_id": "leaf_pr_delivery_role_guard",
+          "required": true,
+          "issue": "BearsCLOUD/bears-codex-workflow-plugin#112",
+          "enforcement": "Leaf PR delivery must use a narrow delivery role. bears-orchestrator is reserved for route, split, assign, wait, integrate evidence, run validators, close, report, and child delegation tasks.",
+          "required_packet_fields": [
+            "agent_type",
+            "actions",
+            "leaf_delivery",
+            "child_delegation_actions"
+          ],
+          "reject_when": [
+            "bears_orchestrator_for_leaf_pr_delivery",
+            "missing_leaf_delivery_role"
+          ]
+        },
+        {
+          "guard_id": "slice_scoped_final_audit_verdict_guard",
+          "required": true,
+          "issue": "BearsCLOUD/bears-codex-workflow-plugin#121",
+          "enforcement": "Final audit verdicts must scope FAIL to evidence inside the assigned slice. Future unrelated task IDs are remaining_work and use PASS_WITH_REMAINING_WORK or PASS when the assigned slice passed.",
+          "required_packet_fields": [
+            "assigned_slice",
+            "verdict",
+            "remaining_work",
+            "evidence_scope"
+          ],
+          "reject_when": [
+            "fail_for_unrelated_future_tasks",
+            "missing_remaining_work_for_open_future_tasks"
+          ]
+        },
+        {
+          "guard_id": "discovery_implementation_split_guard",
+          "required": true,
+          "issue": "BearsCLOUD/bears-codex-workflow-plugin#129",
+          "enforcement": "Discovery/scout workers are read-only and return task id, task path, task line, repo, role, and validation only. Implementation starts only in a fresh worker after parent assigns one exact tasks.md item, allowed write paths, branch or worktree, and validation command.",
+          "required_packet_fields": [
+            "worker_mode",
+            "tasks_md_item_id",
+            "allowed_write_paths",
+            "validation_commands"
+          ],
+          "reject_when": [
+            "inspect_and_implement_if_found",
+            "reuse_scout_as_implementation_worker",
+            "implementation_without_exact_task_id"
+          ]
+        },
+        {
+          "guard_id": "parent_control_patch_content_guard",
+          "required": true,
+          "issue": "BearsCLOUD/bears-codex-workflow-plugin#130",
+          "enforcement": "Parent control lane may use git status --short, git diff --stat, git diff --name-status, validation outputs, exit codes, and bounded child evidence only; patch content requires a dedicated reviewer subagent or explicit operator-approved review.",
+          "required_packet_fields": [
+            "parent_control_command",
+            "operator_review_approval",
+            "reviewer_subagent_id"
+          ],
+          "reject_when": [
+            "git_diff_patch_content_read",
+            "git_diff_pipe_sed",
+            "patch_content_without_operator_review"
+          ]
+        },
+        {
+          "guard_id": "draft_pr_publication_merge_guard",
+          "required": true,
+          "issue": "BearsCLOUD/bears-codex-workflow-plugin#131",
+          "enforcement": "Subagent publish handoffs default to draft PR. Ready PR or merge requires reviewer PASS, successful required checks, or explicit operator instruction. Missing checks require NO_CHECKS_REPORTED and MERGE_NOT_AUTHORIZED.",
+          "required_packet_fields": [
+            "draft",
+            "reviewDecision",
+            "checks",
+            "closeout_markers"
+          ],
+          "reject_when": [
+            "non_draft_pr_without_review_or_checks",
+            "merge_without_authority",
+            "missing_NO_CHECKS_REPORTED",
+            "missing_MERGE_NOT_AUTHORIZED"
+          ]
+        },
+        {
+          "guard_id": "current_day_checkpoint_collector_guard",
+          "required": true,
+          "issue": "BearsCLOUD/bears-codex-workflow-plugin#122",
+          "enforcement": "Current-day checkpoint collectors require explicit session checkpoints, exact paths, line ranges, and evidence_scope. Memory reads and broad /home/ai1/.codex/sessions discovery are rejected unless the packet stops with SCOPE_EXPANSION_REQUIRED before reading.",
+          "required_packet_fields": [
+            "session_checkpoints",
+            "evidence_scope"
+          ],
+          "reject_when": [
+            "memory_read_without_explicit_memory_correlation",
+            "broad_session_scan_without_bounded_uuid_lookup",
+            "missing_evidence_scope"
+          ]
+        },
+        {
+          "guard_id": "current_state_source_authority_guard",
+          "required": true,
+          "issue": "BearsCLOUD/bears-codex-workflow-plugin#127",
+          "enforcement": "Current-state and final-audit packets require source_authority per claim, fresh command/API evidence, bounded read commands, explicit file/path allowlists, and output caps. MEMORY.md is rejected as evidence unless locator-only and followed by fresh source proof.",
+          "required_packet_fields": [
+            "source_authority",
+            "claims[].source_authority",
+            "fresh_source_proof",
+            "bounded_read_allowlist"
+          ],
+          "reject_when": [
+            "memory_read_as_current_state_evidence",
+            "broad_scan_without_allowlist",
+            "missing_source_authority_per_claim",
+            "top_level_authority_without_claim_authority"
+          ]
+        }
+      ]
+    },
+    "read_only_agent_safety_guard": {
+      "required": true,
+      "validator_command": "python3 scripts/subagent_orchestration_policy.py validate",
+      "sandbox_mode_is_not_authority_proof": true,
+      "read_only_sandbox_modes": [
+        "read-only"
+      ],
+      "forbidden_authority_tokens": [
+        "credential_access",
+        "deployment_mutation",
+        "env_file_read",
+        "file_write",
+        "git_add",
+        "git_commit",
+        "git_push",
+        "production_data_read",
+        "pull_request_mutation",
+        "raw_chat_read",
+        "raw_log_read",
+        "raw_secret_read",
+        "raw_vpn_config_read",
+        "runtime_mutation",
+        "secret_read"
+      ],
+      "mutable_assignment_fields": [
+        "write_scope",
+        "mutable_scope",
+        "changed_files",
+        "target_write_paths",
+        "implementation_scope"
+      ],
+      "parent_live_sandbox_override": {
+        "may_widen_child_read_only_assignment": false,
+        "explicit_policy_allowance_required": true,
+        "allowed_policy_allowances": []
+      },
+      "audit_subagent_reuse": {
+        "fresh_required": true,
+        "writable_task_reuse": "blocked"
+      },
+      "stage_boundary_audit_wording": "Stage-boundary audits must state that sandbox_mode is not sufficient proof by itself; read-only authority requires this validator coverage and assignment-packet checks.",
+      "documentation": {
+        "active_validation_command": "python3 scripts/subagent_orchestration_policy.py validate",
+        "guard_scope": "agents/*.toml plus assignment packets that target read-only agents"
+      }
+    },
+    "parallel_audit_lane": {
+      "enabled": true,
+      "lane_id": "parallel-audit-lane",
+      "mode": "non_blocking_parallel_monitoring",
+      "implementation_authority": "forbidden",
+      "blocks_main_workflow": "hard_stop_only",
+      "start_condition": "active workflow execution after route gate and before final closeout",
+      "stop_condition": "final stage-boundary audit closeout packet accepted or hard-stop condition emitted",
+      "required_event_fields": [
+        "event_id",
+        "occurred_at",
+        "actor_id",
+        "actor_role",
+        "lane_id",
+        "action",
+        "target_path",
+        "assignment_packet_id",
+        "evidence_ref",
+        "severity",
+        "deduplication_key",
+        "restricted_data_policy"
+      ],
+      "auditable_events": [
+        "route_gate_result",
+        "pre_task_hook_result",
+        "subagent_spawn_or_reuse_decision",
+        "wait_agent_checkpoint",
+        "validation_hook_result",
+        "evidence_integration_decision",
+        "github_issue_create_or_update",
+        "stage_boundary_closeout",
+        "restricted_data_safety_finding"
+      ],
+      "severity_levels": [
+        {
+          "level": "info",
+          "blocks_main_workflow": false,
+          "github_issue_required": false,
+          "meaning": "Recorded audit observation with no required operator or worker action."
+        },
+        {
+          "level": "warning",
+          "blocks_main_workflow": false,
+          "github_issue_required": true,
+          "meaning": "Recoverable governance drift that needs a deduplicated GitHub issue while main work continues."
+        },
+        {
+          "level": "material",
+          "blocks_main_workflow": false,
+          "github_issue_required": true,
+          "meaning": "Material policy or validation gap that needs a deduplicated GitHub issue and bounded evidence while non-overlapping work continues."
+        },
+        {
+          "level": "hard_stop",
+          "blocks_main_workflow": true,
+          "github_issue_required": true,
+          "meaning": "Condition that matches hard_stop_conditions and blocks dependent workflow steps until resolved or rescoped."
+        }
+      ],
+      "hard_stop_conditions": [
+        "ROLE_COVERAGE_BLOCKER from the canonical platform role gate",
+        "restricted data read, print, storage, or issue body exposure attempt",
+        "write outside the assigned allowed write scope",
+        "production mutation without explicit operator approval and owning deploy gate",
+        "public interface, repository-boundary, runtime, or deployment change without required gate evidence",
+        "overlapping active write scope lock for the same target path"
+      ],
+      "github_issue_policy": {
+        "owner_repo": "BearsCLOUD/bears-codex-workflow-plugin",
+        "create_or_update": "required_for_warning_material_and_hard_stop_findings",
+        "operator_request_required": false,
+        "deduplication_key_fields": [
+          "owner_repo",
+          "policy_id",
+          "finding_type",
+          "target_path",
+          "actor_role",
+          "spec_id",
+          "roadmap_id"
+        ],
+        "issue_body_required_fields": [
+          "finding_summary",
+          "severity",
+          "deduplication_key",
+          "bounded_evidence_refs",
+          "affected_target",
+          "required_next_action",
+          "hard_stop_condition"
+        ],
+        "issue_body_forbidden_fields": [
+          "raw_secret",
+          "raw_log",
+          "raw_chat",
+          "raw_vpn_config",
+          "production_data",
+          "environment_values",
+          "credential_material"
+        ],
+        "update_rule": "Search by deduplication_key before create; update the existing open issue when the key matches; create one new issue only when no open issue matches.",
+        "continue_monitoring_rule": "After issue create or update, the audit lane continues monitoring and the main workflow continues unless severity is hard_stop.",
+        "required_report_linkage_fields": [
+          "created_issue",
+          "updated_issue",
+          "existing_issue"
+        ],
+        "report_only_blockers_rejected": true,
+        "report_issue_link_rule": "Every warning, material, or hard_stop finding must include exactly one of created_issue, updated_issue, or existing_issue in the closeout packet."
+      }
+    },
+    "commit_local_validation_test_closeout_lane": {
+      "enabled": true,
+      "lane_id": "parallel-commit-local-validation-test-closeout-lane",
+      "mode": "non_blocking_parallel_delivery_closeout",
+      "start_condition": "immediately_after_governed_workflow_start",
+      "required_subagent_count": 1,
+      "parallel_with_parent_orchestrator": true,
+      "parent_wait_policy": "do_not_wait",
+      "model": "gpt-5.4-mini",
+      "reasoning_effort": "medium",
+      "prompt_prefix": "/goal",
+      "required_prompt_token": "/goal",
+      "assignment_packet_required": true,
+      "pre_task_hook_required": true,
+      "responsibilities": [
+        "commit",
+        "local_commit_validation_status",
+        "test_artifact_create_or_fix",
+        "closeout"
+      ],
+      "local_test_policy": {
+        "pytest_unittest_repo_validators": "local_commit_validation_owned_only",
+        "manual_local_execution": "forbidden_without_explicit_operator_lift",
+        "allowed_local_checks": [
+          "platform_roles_route_for_changed_targets",
+          "platform_roles_audit_for_changed_targets",
+          "json_toml_python_syntax",
+          "git_diff_check",
+          "git_status_log",
+          "local_commit_validation_proof_metadata"
+        ],
+        "forbidden_manual_checks": [
+          "pytest",
+          "unittest",
+          "repo_validator_suites",
+          "raw_ci_log_read"
+        ]
+      },
+      "hook_safety_policy": {
+        "fast_hooks_only": true,
+        "network_calls_in_hooks": "forbidden",
+        "raw_logs_in_hooks": "forbidden",
+        "secret_reads_in_hooks": "forbidden",
+        "impacted_fast_tests_in_hooks": "required",
+        "broad_tests_in_hooks": "forbidden"
+      },
+      "closeout_required_fields": [
+        "changed_files",
+        "final_sha",
+        "start_sha",
+        "commit_sha",
+        "push_status",
+        "local_commit_validation_status",
+        "local_commit_validation_proof_path",
+        "test_artifact_changes",
+        "local_test_policy_evidence",
+        "closeout_status"
+      ],
+      "required_role_profile": "bears-git-workflow-helper",
+      "concurrent_git_safety_policy": {
+        "one_file_one_owner_per_wave": true,
+        "git_fetch_before_commit": true,
+        "git_fetch_before_push": true,
+        "verify_head_origin_main_start_sha": true,
+        "fast_forward_only_push": true,
+        "force_push_forbidden": true,
+        "stale_file_change_policy": "stop_or_explicit_rebase_diff_review",
+        "changed_files_required": true,
+        "parent_closeout_head_status_check_required": true
+      }
+    },
+    "pr_task_role_action_guard": {
+      "required": true,
+      "validator_command": "python3 scripts/subagent_orchestration_policy.py validate",
+      "fail_closed_by_default": true,
+      "read_only_reviewer_roles": [
+        "bears-platform-security-reviewer"
+      ],
+      "governor_roles": [
+        "bears-platform-role-governor",
+        "bears-plugin-constitution-governor"
+      ],
+      "assignment_role_fields": [
+        "child_role",
+        "agent_role",
+        "role",
+        "requested_role"
+      ],
+      "assignment_action_fields": [
+        "pr_action",
+        "pr_actions",
+        "github_pr_action",
+        "github_pr_actions",
+        "requested_pr_actions",
+        "assignment_authority",
+        "requested_actions",
+        "allowed_actions",
+        "task_actions",
+        "actions",
+        "tools"
+      ],
+      "writable_pr_actions": [
+        "pr_publish",
+        "pr_label",
+        "pr_comment",
+        "pr_ready_for_review",
+        "pr_merge",
+        "pr_rebase",
+        "pr_branch_delete",
+        "git_push",
+        "pr_title_edit",
+        "pr_body_edit",
+        "pull_request_mutation"
+      ],
+      "read_only_pr_actions": [
+        "pr_read",
+        "pr_inspect",
+        "pr_summarize",
+        "pr_audit",
+        "pr_review_read_only",
+        "pr_status_read"
+      ],
+      "governor_writer_lanes": [],
+      "status_reasons": [
+        {
+          "status": "allowed",
+          "reason": "read_only_pr_review"
+        },
+        {
+          "status": "allowed",
+          "reason": "explicit_governor_pr_writer_lane"
+        },
+        {
+          "status": "REVIEWER_PR_MUTATION_BLOCKED",
+          "reason": "read_only_reviewer_pr_mutation"
+        },
+        {
+          "status": "GOVERNOR_WRITABLE_PR_TASK_BLOCKED",
+          "reason": "governor_pr_writer_lane_required"
+        }
+      ],
+      "documentation": {
+        "guard_scope": "Assignment packets and goal-parallelization tasks that carry GitHub PR actions.",
+        "active_validation_command": "python3 scripts/subagent_orchestration_policy.py validate"
+      }
+    },
+    "role_profile_fallback_guard": {
+      "required": true,
+      "validator_command": "python3 scripts/subagent_orchestration_policy.py validate",
+      "applies_to": "Bears implementation handoffs where a generic fallback worker is proposed for a Bears platform role.",
+      "fail_closed_by_default": true,
+      "model_fallback_definition": "Model fallback changes only model or reasoning capacity while the Bears role profile stays attached.",
+      "role_profile_fallback_definition": "Role-profile fallback changes the runtime worker profile from a Bears role to a generic role and is blocked without parity evidence.",
+      "generic_agent_types": [
+        "backend-developer",
+        "backend_developer",
+        "frontend-developer",
+        "frontend_developer",
+        "fullstack-developer",
+        "fullstack_developer",
+        "general-purpose",
+        "general_purpose",
+        "software-engineer",
+        "software_engineer",
+        "developer",
+        "code-writer",
+        "code_writer"
+      ],
+      "fallback_agent_type_fields": [
+        "agent_type",
+        "fallback_agent_type",
+        "fallback_role",
+        "child_agent_type",
+        "worker_profile"
+      ],
+      "domain_owner_fields": [
+        "domain_owner",
+        "domain_role",
+        "bears_domain_owner",
+        "requested_domain_owner",
+        "requested_role",
+        "owner_role",
+        "primary_role"
+      ],
+      "implementation_handoff_fields": [
+        "implementation_handoff",
+        "implementation_task",
+        "handoff_type",
+        "task_type",
+        "assignment_type",
+        "task_summary",
+        "assignment_summary",
+        "write_scope",
+        "target_write_paths"
+      ],
+      "required_downgrade_record": "ROLE_PROFILE_DOWNGRADE",
+      "approval_paths": [
+        "explicit_operator_approval",
+        "validated_role_parity_packet"
+      ],
+      "role_parity_packet_required_fields": [
+        "validated",
+        "domain_owner",
+        "fallback_agent_type",
+        "developer_instructions_packet_attached",
+        "exact_role_profile_attached",
+        "role_gate_result_attached"
+      ],
+      "operator_approval_required_fields": [
+        "approved",
+        "approval_reference"
+      ],
+      "parent_preference_order": [
+        "retry_same_bears_role",
+        "reduce_scope",
+        "split_task",
+        "request_role_profile_downgrade"
+      ],
+      "generic_fallback_forbidden_without_mutation_authority": [
+        "pr_publish",
+        "pr_ready_for_review",
+        "pr_merge",
+        "pull_request_mutation",
+        "git_push"
+      ],
+      "mutation_authority_lane_required": true,
+      "mutation_authority_lane_fields": [
+        "lane_id",
+        "approved",
+        "approved_actions",
+        "approval_reference"
+      ],
+      "final_report_required_fields": [
+        "fallback_role",
+        "domain_owner",
+        "profile_downgrade_status",
+        "parity_enforcement",
+        "mutation_authority_lane",
+        "safety_rationale"
+      ],
+      "status_reasons": [
+        {
+          "status": "allowed",
+          "reason": "not_role_profile_fallback"
+        },
+        {
+          "status": "allowed",
+          "reason": "role_profile_parity_enforced"
+        },
+        {
+          "status": "ROLE_PROFILE_DOWNGRADE_BLOCKED",
+          "reason": "role_profile_parity_required"
+        },
+        {
+          "status": "GENERIC_FALLBACK_PR_MUTATION_BLOCKED",
+          "reason": "mutation_authority_lane_required"
+        }
+      ],
+      "documentation": {
+        "guard_scope": "Assignment packets and spawn preflight packets for Bears implementation fallback.",
+        "active_validation_command": "python3 scripts/subagent_orchestration_policy.py validate"
+      }
+    }
+  },
+  "routing_order": [
+    "route gate and exact route classification",
+    "constitution gate before research for plugin governance changes",
+    "research gate for new, broad, risky, or drift-prone changes",
+    "prototype gate for new interaction or runtime behavior",
+    "design artifact gate before Spec Kit plan, tasks, analyze, and implementation",
+    "auth_gateway_deploy_readiness gate for shared spine work",
+    "Telegram workflow and runtime readiness gates for Telegram work",
+    "nearest local AGENTS/SPEC/requirements",
+    "bounded delegated execution",
+    "parent integration and closeout"
+  ],
+  "lifecycle": {
+    "stages": [
+      "route_gate",
+      "constitution_gate",
+      "research_gate",
+      "prototype_gate",
+      "design_gate",
+      "spec_kit_gate",
+      "role_gate",
+      "subagent_execution",
+      "validation",
+      "stage_boundary_audit"
+    ],
+    "spec_kit_gate": {
+      "required_artifacts": [
+        "spec.md",
+        "plan.md",
+        "tasks.md"
+      ],
+      "analyze_required": true,
+      "mandatory_for": [
+        "broad",
+        "non-product",
+        "repo-boundary",
+        "plugin",
+        "infra",
+        "kubernetes",
+        "migration"
+      ],
+      "exemptions": [
+        "small bugfix in one exact file scope with no boundary, runtime, deploy, restricted-data, or public behavior change"
+      ],
+      "route_binding": "tasks.md items must mention the owning route target or the selected primary role before role-gated execution",
+      "preceded_by": [
+        "constitution_gate",
+        "research_gate",
+        "prototype_gate",
+        "design_gate"
+      ]
+    },
+    "audit_policy": {
+      "cadence": "stage_boundary_only",
+      "required_audits": [
+        "plugin-fit-audit",
+        "new-functionality-drift-audit",
+        "documentation-secret-safety-audit",
+        "user-information-capture-audit"
+      ],
+      "speckit_analyze_stage": "speckit-analyze PASS is required before implementation for Spec Kit-gated work",
+      "read_only_safety_statement": "Stage-boundary audit wording must state that sandbox_mode is not sufficient proof by itself; the read-only guard validator must cover read-only agent claims.",
+      "parallel_lane": "parallel-audit-lane runs during active workflow and blocks only hard_stop findings; stage_boundary_only remains the closeout audit cadence."
+    },
+    "research_gate": {
+      "required_for": [
+        "broad",
+        "new",
+        "risky",
+        "drift-prone",
+        "workflow",
+        "workflow policy",
+        "runtime",
+        "runtime contract",
+        "integration",
+        "ui",
+        "ux",
+        "ui/ux flow",
+        "automation",
+        "plugin",
+        "infra",
+        "kubernetes",
+        "migration",
+        "boundary-sensitive",
+        "orchestration policy",
+        "subagent policy",
+        "hook behavior",
+        "roadmap control",
+        "role gate",
+        "validator behavior",
+        "operator interaction",
+        "developer interaction"
+      ],
+      "required_tracks": [
+        "github prior art/comparable implementations",
+        "external best practices/mature-project patterns",
+        "UI/UX-friendly interface research",
+        "risks/constraints/alternatives/validation implications"
+      ],
+      "artifact_basenames": {
+        "research": "research.md",
+        "prior_art": "prior-art.md",
+        "ux_research": "ux-research.md"
+      },
+      "required_sections": [
+        "Decision or Recommendation",
+        "Rationale",
+        "Alternatives considered",
+        "Risks and constraints",
+        "Validation implications",
+        "Sources"
+      ],
+      "ux_research_required_when_any_present": [
+        "operator-facing behavior",
+        "developer-facing behavior",
+        "user-facing behavior",
+        "CLI behavior",
+        "workflow behavior",
+        "status behavior",
+        "error behavior",
+        "recovery behavior",
+        "notification behavior",
+        "UI change",
+        "UX change"
+      ],
+      "skip_policy": [
+        "explicit operator skip",
+        "narrow exact-file skip"
+      ],
+      "narrow_skip_required_no_change_fields": [
+        "boundary",
+        "runtime",
+        "deploy",
+        "restricted-data",
+        "public behavior",
+        "workflow",
+        "UI",
+        "UX",
+        "automation pattern"
+      ],
+      "durable_artifact": {
+        "with_spec_kit_packet": "Store research.md, prior-art.md, and ux-research.md in the active Spec Kit feature directory before specification or planning work continues.",
+        "without_spec_kit_packet": "Store a bounded section in README.md or the narrowest project docs path, then move it to the feature directory after Spec Kit creates one."
+      },
+      "bounded_source_policy": {
+        "bounded_summaries_only": true,
+        "reject_large_source_copy": true,
+        "reject_proprietary_copy_claim": true
+      }
+    },
+    "prototype_gate": {
+      "contract_id": "issue-21-prototype-spike-gate",
+      "required_for": [
+        "unresolved high-risk uncertainty",
+        "cheaply tested"
+      ],
+      "skip_policy": [
+        "narrow exact-file bugfix",
+        "already-proven implementation pattern"
+      ],
+      "artifact_basenames": [
+        "prototype.md",
+        "spike.md"
+      ],
+      "required_sections": [
+        "hypothesis or uncertainty",
+        "prototype scope and non-goals",
+        "commands or checks run",
+        "findings and evidence summary",
+        "decision outcome",
+        "validation implications",
+        "cleanup or discard requirements"
+      ],
+      "distinguishes_durable_implementation": true,
+      "review_gate": "Operator approval is required before implementation when material behavior, runtime, boundary, UI/UX, or architecture changes remain."
+    },
+    "design_gate": {
+      "artifact_path": "README.md#issue-22-design-artifact-contract",
+      "required_before": [
+        "plan.md",
+        "tasks.md",
+        "speckit-analyze",
+        "implementation"
+      ],
+      "required_sections": [
+        "problem statement",
+        "current behavior",
+        "target behavior",
+        "decision table or policy matrix",
+        "affected artifacts and ownership",
+        "validator impact",
+        "documentation impact",
+        "test plan",
+        "compatibility notes",
+        "safety boundaries",
+        "open questions",
+        "review gate condition"
+      ],
+      "skip_policy": [
+        "approved_skip",
+        "narrow_bugfix_skip"
+      ]
+    }
+  },
+  "required_rule_ids": [
+    "role-gate-first",
+    "spec-kit-packet-before-broad-work",
+    "design-artifact-before-implementation",
+    "parent-orchestrates",
+    "pre-task-hook-before-task-start",
+    "roadmap-through-goal-only",
+    "parallel-tasks-use-parallel-subagents",
+    "nested-subagents-allowed-with-bounds",
+    "max-100-active-subagents",
+    "reusable-worker-pool-policy",
+    "max-depth-3",
+    "workspace-map-disabled",
+    "secret-safe-delegation",
+    "close-unused-subagents",
+    "readiness-gates-before-runtime",
+    "audit-subagents-fresh-no-parent-context",
+    "project-mandate-owned-by-bears",
+    "main-agent-orchestration-only",
+    "parent-control-lane-actions",
+    "no-subagent-mode-decision-table",
+    "read-only-agent-safety-guard",
+    "pr-task-role-action-guard",
+    "governed-validation-hook-runner",
+    "child-reasoning-floor-medium",
+    "explicit-nested-orchestrator-roles",
+    "multi-orchestrator-controller-only-spawn",
+    "stage-boundary-audits-only",
+    "cache-sync-with-plugin-metadata",
+    "transitional-tests-superseded-by-dev-core",
+    "goal-parallelization-preflight",
+    "parallel-audit-lane-non-blocking",
+    "parallel-commit-local-validation-test-closeout-lane",
+    "completed-subagent-close-evidence-before-new-waves",
+    "parent-plan-status-evidence-gate",
+    "nested-worker-delegation-parent-authorization",
+    "constitution-gate-before-research",
+    "plugin-fit-stage-boundary-audit",
+    "new-functionality-drift-stage-boundary-audit",
+    "documentation-secret-safety-stage-boundary-audit",
+    "user-information-capture-stage-boundary-audit",
+    "role-profile-fallback-parity-guard",
+    "current-day-checkpoint-collector-guard",
+    "current-state-source-authority-guard"
+  ],
+  "rules": [
+    {
+      "id": "role-gate-first",
+      "status": "mandatory",
+      "rule": "Run route gate first, then Spec Kit gate when required, then /srv/bears/plugins/bears/scripts/platform_roles.py route <target> before platform-part implementation or delegated subagent work. Missing coverage is ROLE_COVERAGE_BLOCKER."
+    },
+    {
+      "id": "spec-kit-packet-before-broad-work",
+      "status": "mandatory",
+      "rule": "Broad, non-product, repo-boundary, plugin, infra, Kubernetes, or migration work requires a Spec Kit packet before mutation with spec.md, plan.md, tasks.md, and speckit-analyze PASS. A small bugfix may skip the full packet only when it stays in one exact file scope and does not change boundaries, runtime, deploy, restricted-data handling, or public behavior."
+    },
+    {
+      "id": "design-artifact-before-implementation",
+      "status": "mandatory",
+      "rule": "Workflow policy, orchestration policy, subagent policy, hook behavior, roadmap control, role gate, runtime contract, validator behavior, operator interaction, developer interaction, and UI/UX flow changes require the issue-22 design artifact before Spec Kit plan, tasks, speckit-analyze, and implementation unless an approved skip or narrow bugfix skip validates."
+    },
+    {
+      "id": "parent-orchestrates",
+      "status": "mandatory",
+      "rule": "The parent agent owns route gate, Spec Kit gate, role gate, pre-task hook, task decomposition, subagent selection, assignment packet control, spawn evidence, integration, validation, close evidence, stage-boundary audit, and final report; subagents do not redefine the objective."
+    },
+    {
+      "id": "pre-task-hook-before-task-start",
+      "status": "mandatory",
+      "rule": "Every spawn or management action MUST pass a pre-task hook and assignment packet before task start. The pre-task hook MUST request missing data and drift answers from the operator and block work until those answers are recorded."
+    },
+    {
+      "id": "roadmap-through-goal-only",
+      "status": "mandatory",
+      "rule": "Roadmap runs only through /goal. Orchestrators and subagents MUST NOT open, update, or route roadmap state through any other lane."
+    },
+    {
+      "id": "parallel-tasks-use-parallel-subagents",
+      "status": "mandatory",
+      "rule": "Tasks marked [P] in tasks.md MUST maximize parallelism through parallel delegation when scopes are disjoint, exact role coverage exists, readiness gates pass, and the active subagent limit is not exceeded; overlapping, dependent, or blocking tasks stay sequential."
+    },
+    {
+      "id": "nested-subagents-allowed-with-bounds",
+      "status": "mandatory",
+      "rule": "Specialist subagents may create child subagents only when role coverage, scope isolation, pre-task-hook, max-depth, max-thread, and secret-safety conditions are satisfied."
+    },
+    {
+      "id": "max-100-active-subagents",
+      "status": "mandatory",
+      "rule": "Keep hard_max_active_subagents at 100 as an absolute safety cap only; do not use 100 as the normal active execution target."
+    },
+    {
+      "id": "reusable-worker-pool-policy",
+      "status": "mandatory",
+      "rule": "Reusable workers may stay warm only when idle or reusable; reuse requires the same role, same repo boundary, compatible write scope, no restricted-data taint, a compact continuation packet, and successful session runtime validation before session reuse or fork."
+    },
+    {
+      "id": "max-depth-3",
+      "status": "mandatory",
+      "rule": "Do not exceed depth 3: parent orchestrator, specialist subagent, and one nested child/reviewer layer."
+    },
+    {
+      "id": "workspace-map-disabled",
+      "status": "mandatory",
+      "rule": "workspace-map is operator-disabled and must not be required for startup context unless explicitly re-enabled by the operator."
+    },
+    {
+      "id": "secret-safe-delegation",
+      "status": "mandatory",
+      "rule": "Delegated tasks must not read, print, commit, or document raw secrets, tokens, .env values, production data, raw chats, raw logs, or raw VPN configs."
+    },
+    {
+      "id": "close-unused-subagents",
+      "status": "mandatory",
+      "rule": "Close stale workers when role, repo boundary, write scope, continuation packet, validation target, branch, worktree, restricted-data taint, operator decision, audit completion, or assignment completion invalidates reuse."
+    },
+    {
+      "id": "readiness-gates-before-runtime",
+      "status": "mandatory",
+      "rule": "Telegram runtime rewrites remain blocked until auth_core -> bears_gateway -> cd_deploy_stage and per-runtime readiness evidence gates allow the work."
+    },
+    {
+      "id": "audit-subagents-fresh-no-parent-context",
+      "status": "mandatory",
+      "rule": "Every audit subagent with inherit_parent_context=false MUST be fresh-required, MUST NOT reuse a worker, and MUST NOT receive parent context beyond the explicit audit packet."
+    },
+    {
+      "id": "project-mandate-owned-by-bears",
+      "status": "mandatory",
+      "rule": "The project-mandate checklist is owned by the Bears plugin and may run only after the project registry gate allows the target path."
+    },
+    {
+      "id": "main-agent-orchestration-only",
+      "status": "mandatory",
+      "rule": "When the operator requests subagent mode, the main or parent agent is orchestration-only. Allowed action tokens are exactly route, split, assign, wait, integrate_evidence, run_validators, close, report, and pre_task_hook. Forbidden action tokens are exactly file_read_as_content_collector, file_write, git_add, git_commit, git_push, pull_request_mutation, and implementation_tool_use."
+    },
+    {
+      "id": "parent-control-lane-actions",
+      "status": "mandatory",
+      "rule": "Parent control lane actions are limited to route and role selection, assignment packet split, named validation hooks and validators, status checks, exit codes, bounded summaries, git status and changed-file names, operator-requested GitHub planning issues, subagent evidence integration, and closing stale or completed subagents. The lane grants no implementation authority and forbids file writes, implementation commands, git add, git commit, git push, pull request mutation without explicit operator request, broad file-content collection, raw secrets, secret values, env-file reads, raw logs, raw chat, raw VPN configs, and production data."
+    },
+    {
+      "id": "no-subagent-mode-decision-table",
+      "status": "mandatory",
+      "rule": "No-subagent mode is allowed only for side conversation answers, question-only explanations, one read-only status command, bounded repo inspection without mutation, or small exact-file bugfix admission under the existing bugfix exception. Parent role instructions and required role gates still apply. Read-only and no-op turns do not run the four non-product audit subagents. Mutation upgrades to normal gated mode before write. Operator-requested subagents block no-subagent mode."
+    },
+    {
+      "id": "read-only-agent-safety-guard",
+      "status": "mandatory",
+      "rule": "Read-only agents cannot receive file-write, git, runtime mutation, deployment, credential, raw-secret, secret, env-file, raw-log, raw-chat, raw VPN config, or production-data authority. sandbox_mode is not sufficient proof by itself. Parent live sandbox overrides cannot widen a read-only child assignment without explicit Bears policy allowance. Audit subagents must be fresh and cannot be reused for writable tasks. The active guard validation command is python3 scripts/subagent_orchestration_policy.py validate."
+    },
+    {
+      "id": "pr-task-role-action-guard",
+      "status": "mandatory",
+      "rule": "PR mutation assignments for labels, comments, ready-for-review state, merge, rebase, branch deletion, push, title edits, or body edits are blocked for read-only reviewer roles. Bears governor roles are blocked from writable PR tasks unless an explicit policy writer lane names the role and action."
+    },
+    {
+      "id": "role-profile-fallback-parity-guard",
+      "status": "mandatory",
+      "rule": "Bears implementation handoffs MUST NOT replace a Bears platform role profile with a generic role profile unless ROLE_PROFILE_DOWNGRADE is recorded and explicit operator approval or a validated role-parity packet is attached. Model fallback may change model capacity only while the Bears role profile remains attached. Parent MUST prefer retry_same_bears_role, reduce_scope, or split_task before role-profile downgrade. Generic fallback workers cannot publish, ready, merge, push, or mutate PR state without a separate mutation-authority lane. Final reports must name fallback_role, profile_downgrade_status, parity_enforcement, mutation_authority_lane, and safety_rationale."
+    },
+    {
+      "id": "governed-validation-hook-runner",
+      "status": "mandatory",
+      "rule": "Validation hook execution is controlled by the run_validators and close actions. Parent agents and subagents request named hook_id values only. Each hook maps to an allowlisted repo-local script and fixed args, returns bounded_json or concise_text evidence with hook_id, cwd, command_id, exit_code, sanitized_summary, and validation_target, and rejects arbitrary shell, inline commands, raw output, env reads, credentials, raw logs, and production data."
+    },
+    {
+      "id": "child-reasoning-floor-medium",
+      "status": "mandatory",
+      "rule": "Agent reasoning matrix is fixed: main agent uses gpt-5.5 medium; audit, complex-task, and subagent-spawning agents use gpt-5.5 high; file, log, and evidence-gathering agents use gpt-5.4-mini medium; operator wording middle maps to Codex value medium."
+    },
+    {
+      "id": "explicit-nested-orchestrator-roles",
+      "status": "mandatory",
+      "rule": "Only explicit delegation-controller roles in this policy may create child subagents, and each child must have a narrow lane and role-safe packet."
+    },
+    {
+      "id": "multi-orchestrator-controller-only-spawn",
+      "status": "mandatory",
+      "rule": "Multiple orchestrators may exist in one workflow, but only the explicit delegation-controller roles in this policy may spawn child subagents."
+    },
+    {
+      "id": "stage-boundary-audits-only",
+      "status": "mandatory",
+      "rule": "Run the four non-product audit subagents at lifecycle stage boundaries, not after every small file edit, to avoid reactive fix-loop churn."
+    },
+    {
+      "id": "cache-sync-with-plugin-metadata",
+      "status": "mandatory",
+      "rule": "When a plugin skill, workflow, catalog path, role route, or manifest claim changes, sync .codex-plugin/plugin.json, README skill inventory, catalog aliases, validators, and tests in the same stage before closeout."
+    },
+    {
+      "id": "transitional-tests-superseded-by-dev-core",
+      "status": "mandatory",
+      "rule": "Superseded checks must name the active replacement validation command."
+    },
+    {
+      "id": "parallel-audit-lane-non-blocking",
+      "status": "mandatory",
+      "rule": "The parallel audit lane monitors orchestrator and subagent actions during active workflow execution, has no implementation authority, emits auditable events, creates or updates deduplicated GitHub issues for findings with bounded evidence, and must not block the main workflow except hard-stop conditions."
+    },
+    {
+      "id": "parallel-commit-local-validation-test-closeout-lane",
+      "status": "mandatory",
+      "rule": "Governed workflow MUST immediately start exactly one parallel commit/local-validation/test-closeout subagent through /goal with model gpt-5.4-mini and high reasoning. Parent orchestrator wait_policy is do_not_wait for this lane. The lane owns commit, local_commit_validation_status, test_artifact_create_or_fix, and closeout while local pre-commit and post-commit hooks run impacted fast tests and write exact-SHA proof."
+    },
+    {
+      "id": "goal-parallelization-preflight",
+      "status": "mandatory",
+      "rule": "Goal parallelization MUST run goal_parallelization_preflight before each wave: use the fixed assignment packet, validate spawn_agent arguments, validate wait_agent target ids, run wait_any_loop, update worker_pool_ledger, enforce backend_only_scope_lock, treat no_eligible_task as non-blocking, require completed-subagent close evidence before new waves, reconcile partial state before capacity fallback, and pass the final join gate before parent completion."
+    },
+    {
+      "id": "completed-subagent-close-evidence-before-new-waves",
+      "rule": "A parent MUST NOT start a new implementation or review wave while completed-not-closed agents exist unless each such agent has explicit reuse_reason evidence in worker_pool_ledger; every wave checkpoint records active_workers, active_reviewers, and completed_not_closed_agents counts.",
+      "status": "mandatory"
+    },
+    {
+      "id": "parent-plan-status-evidence-gate",
+      "rule": "Parent plan status completed for pull_request, merge, and review steps requires pr_url, check_status, reviewer_pass_evidence, worker_closeout_evidence, and merge_sha for merge steps; status stays in_progress while a prerequisite worker is active, and blocked requires a named Bears blocker artifact.",
+      "status": "mandatory"
+    },
+    {
+      "id": "nested-worker-delegation-parent-authorization",
+      "rule": "Worker nested delegation defaults to WORKFLOW_DRIFT blocked unless parent_authorization names allowed_role, scope, and max_nested_count; authorized nested agents are tracked in the same worker_pool_ledger as first-level agents.",
+      "status": "mandatory"
+    },
+    {
+      "id": "constitution-gate-before-research",
+      "rule": "Run route gate first, then plugin constitution gate before research, prototype, design, Spec Kit, role gate, bounded delegated execution, validation, or stage-boundary audit for plugin governance changes.",
+      "status": "mandatory"
+    },
+    {
+      "id": "plugin-fit-stage-boundary-audit",
+      "rule": "At each non-product lifecycle stage boundary, run the plugin-fit audit subagent before stage closeout.",
+      "status": "mandatory"
+    },
+    {
+      "id": "new-functionality-drift-stage-boundary-audit",
+      "rule": "At each non-product lifecycle stage boundary, run the new-functionality drift audit subagent before stage closeout.",
+      "status": "mandatory"
+    },
+    {
+      "id": "documentation-secret-safety-stage-boundary-audit",
+      "rule": "At each non-product lifecycle stage boundary, run the documentation and restricted-data safety audit subagent before stage closeout.",
+      "status": "mandatory"
+    },
+    {
+      "id": "user-information-capture-stage-boundary-audit",
+      "rule": "At each non-product lifecycle stage boundary, run the user-information capture audit subagent before stage closeout.",
+      "status": "mandatory"
+    },
+    {
+      "id": "role-profile-fallback-parity-guard",
+      "status": "mandatory",
+      "rule": "Bears implementation handoffs MUST NOT replace a Bears platform role profile with a generic role profile unless ROLE_PROFILE_DOWNGRADE is recorded and explicit operator approval or a validated role-parity packet is attached. Model fallback may change model capacity only while the Bears role profile remains attached. Parent MUST prefer retry_same_bears_role, reduce_scope, or split_task before role-profile downgrade. Generic fallback workers cannot publish, ready, merge, push, or mutate PR state without a separate mutation-authority lane. Final reports must name fallback_role, profile_downgrade_status, parity_enforcement, mutation_authority_lane, and safety_rationale."
+    },
+    {
+      "id": "current-day-checkpoint-collector-guard",
+      "rule": "Current-day checkpoint collectors MUST use assigned session ids, exact file paths, and line checkpoints only; memory reads and broad session scans require SCOPE_EXPANSION_REQUIRED before reading; final artifacts must include evidence_scope with file paths and line ranges.",
+      "status": "mandatory"
+    },
+    {
+      "id": "current-state-source-authority-guard",
+      "rule": "Current-state and final-audit agents MUST use PR API, exact repo path, exact commit, exact file list, or live endpoint authority per claim; MEMORY.md is locator-only when explicitly allowed and must be followed by fresh source proof; broad scans require explicit file or path allowlists and output caps.",
+      "status": "mandatory"
+    }
+  ],
+  "config_expectations": {
+    "codex_config": "/home/ai1/.codex/config.toml",
+    "agents.max_threads": 100,
+    "agents.max_depth": 3,
+    "mcp_servers.workspace-map.enabled": false
+  },
+  "non_product_post_task_audit": {
+    "applies_to": "non-product lifecycle stage boundary closeout for plugin, workflow, control, platform, quality, infrastructure, and ops work",
+    "excluded_scope_markers": [
+      "nearest product repo",
+      "product AGENTS/SPEC/requirements"
+    ],
+    "required_subagents": [
+      {
+        "id": "plugin-fit-audit",
+        "role": "bears-workflow-overlay-platform-engineer",
+        "purpose": "Decide whether the task result requires a Bears plugin change or only no-change evidence.",
+        "must_answer": [
+          "Does @bears need a catalog, skill, validator, or workflow update for this task result",
+          "If yes, which exact plugin path owns the update",
+          "If no, which evidence proves the plugin already covers the result"
+        ],
+        "allowed_writes": [
+          "plugin docs or workflow files only when exact role routing allows the path",
+          "no product, runtime, deploy, or integration writes"
+        ],
+        "closeout": [
+          "changed plugin paths or no-change evidence",
+          "validation command to run after accepted edits"
+        ],
+        "spawn_fresh": true,
+        "inherit_parent_context": false
+      },
+      {
+        "id": "new-functionality-drift-audit",
+        "role": "bears-platform-role-governor",
+        "purpose": "Check the new functionality against registered roles, route gates, registries, and boundary docs.",
+        "must_answer": [
+          "Does the new behavior have an exact registered route",
+          "Does any parent or deprecated path gain write authority",
+          "Which validator proves the route and drift state"
+        ],
+        "allowed_writes": [
+          "role catalog or governance docs only when exact role routing allows the path",
+          "no product, runtime, deploy, or integration writes"
+        ],
+        "closeout": [
+          "route or blocker packet",
+          "drift finding and required validator"
+        ],
+        "spawn_fresh": true,
+        "inherit_parent_context": false
+      },
+      {
+        "id": "documentation-secret-safety-audit",
+        "role": "bears-platform-security-reviewer",
+        "purpose": "Confirm required docs exist and restricted data was not read, printed, stored, or committed.",
+        "must_answer": [
+          "Which docs were required for this non-product task",
+          "Which docs are present or missing",
+          "Whether the task avoided raw secrets, raw logs, production data, and raw VPN configs"
+        ],
+        "allowed_writes": [
+          "read-only by default",
+          "docs-only writes require a separate exact writer role from the parent orchestrator"
+        ],
+        "closeout": [
+          "doc coverage finding",
+          "restricted-data safety finding"
+        ],
+        "spawn_fresh": true,
+        "inherit_parent_context": false
+      },
+      {
+        "id": "user-information-capture-audit",
+        "role": "bears-platform-role-governor",
+        "purpose": "Assess user-provided facts for drift and record stable facts in the narrowest durable owner.",
+        "must_answer": [
+          "Which user-provided facts were introduced in the task",
+          "Which facts passed current-state drift checks",
+          "Which plugin, dev-core, workspace, infra, or product doc should own each fact"
+        ],
+        "allowed_writes": [
+          "narrow governance docs only when exact role routing allows the path",
+          "no raw restricted data and no product behavior edits without product role"
+        ],
+        "closeout": [
+          "recorded facts and destination paths",
+          "facts rejected because evidence drifted or was missing"
+        ],
+        "spawn_fresh": true,
+        "inherit_parent_context": false
+      }
+    ],
+    "user_information_destinations": {
+      "plugin_workflow_rule": "plugins/bears skill, catalog, validator, or workflow doc",
+      "workspace_boundary_fact": "/srv/bears AGENTS, contracts, or dev-core registry docs",
+      "runtime_or_deploy_fact": "infra runbook or read-only evidence packet with Last verified",
+      "product_behavior_fact": "product repo docs after product role and local router allow it"
+    },
+    "closeout_requirements": [
+      "collect all four audit closeout packets at the stage boundary",
+      "spawn each audit subagent fresh with a new audit assignment packet and no parent context",
+      "apply accepted fixes through exact registered roles or record a blocker for the dependent fix",
+      "rerun plugin validators that cover accepted fixes",
+      "close subagents whose scopes ended before the final operator report",
+      "audit lanes with inherit_parent_context=false must use fresh-required workers and no parent context",
+      "close stale reusable workers when worker_pool_policy stale conditions match",
+      "run session worker runtime validation before session reuse or fork",
+      "state that sandbox_mode is not sufficient proof by itself when a read-only agent, audit agent, or safety claim is in scope"
+    ]
+  },
+  "agent_runtime_policy": {
+    "main_agent": {
+      "model": "gpt-5.5",
+      "reasoning_effort": "medium"
+    },
+    "delegated_subagents": {
+      "model": "gpt-5.4-mini",
+      "reasoning_effort": "medium",
+      "applies_to": [
+        "audit agents",
+        "complex-task agents",
+        "agents that can spawn subagents"
+      ]
+    },
+    "evidence_gathering_agents": {
+      "model": "gpt-5.4-mini",
+      "reasoning_effort": "medium",
+      "roles": [
+        "blocker-taxonomy-evaluator",
+        "deploy-impact-gate",
+        "governance-project-router",
+        "role-coverage-gate",
+        "workflow-artifact-validator"
+      ],
+      "applies_to": [
+        "file reading agents",
+        "log reading agents",
+        "information/evidence gathering agents"
+      ]
+    },
+    "codex_schema_value_aliases": {
+      "operator_wording_middle": "medium"
+    },
+    "commit_local_validation_test_closeout_lane": {
+      "model": "gpt-5.4-mini",
+      "reasoning_effort": "medium",
+      "applies_to": [
+        "parallel commit/local-validation/test-closeout subagent"
+      ],
+      "required_role_profile": "bears-git-workflow-helper"
+    }
+  },
+  "research_artifact_contract": {
+    "contract_id": "issue-20-research-gate",
+    "artifact_basenames": {
+      "research": "research.md",
+      "prior_art": "prior-art.md",
+      "ux_research": "ux-research.md"
+    },
+    "required_before": "spec.md, plan.md, tasks.md, speckit-analyze, and implementation when research gate conditions match",
+    "required_for": [
+      "broad",
+      "new",
+      "risky",
+      "drift-prone",
+      "workflow",
+      "workflow policy",
+      "runtime",
+      "runtime contract",
+      "integration",
+      "ui",
+      "ux",
+      "ui/ux flow",
+      "automation",
+      "plugin",
+      "infra",
+      "kubernetes",
+      "migration",
+      "boundary-sensitive",
+      "orchestration policy",
+      "subagent policy",
+      "hook behavior",
+      "roadmap control",
+      "role gate",
+      "validator behavior",
+      "operator interaction",
+      "developer interaction"
+    ],
+    "required_tracks": [
+      "github prior art/comparable implementations",
+      "external best practices/mature-project patterns",
+      "UI/UX-friendly interface research",
+      "risks/constraints/alternatives/validation implications"
+    ],
+    "ux_research_required_when_any_present": [
+      "operator-facing behavior",
+      "developer-facing behavior",
+      "user-facing behavior",
+      "CLI behavior",
+      "workflow behavior",
+      "status behavior",
+      "error behavior",
+      "recovery behavior",
+      "notification behavior",
+      "UI change",
+      "UX change"
+    ],
+    "required_sections": [
+      "Decision or Recommendation",
+      "Rationale",
+      "Alternatives considered",
+      "Risks and constraints",
+      "Validation implications",
+      "Sources"
+    ],
+    "durable_artifact": {
+      "with_spec_kit_packet": "Store research.md, prior-art.md, and ux-research.md in the active Spec Kit feature directory before specification or planning work continues.",
+      "without_spec_kit_packet": "Store a bounded section in README.md or the narrowest project docs path, then move it to the feature directory after Spec Kit creates one."
+    },
+    "skip_policy": {
+      "operator_skip": {
+        "required_fields": [
+          "type=operator_skip",
+          "approved_by",
+          "approval_reference",
+          "reason"
+        ]
+      },
+      "narrow_exact_file_skip": {
+        "required_fields": [
+          "type=narrow_exact_file_skip",
+          "exact_file_scope",
+          "no_boundary_change",
+          "no_runtime_change",
+          "no_deploy_change",
+          "no_restricted_data_change",
+          "no_public_behavior_change",
+          "no_workflow_change",
+          "no_ui_change",
+          "no_ux_change",
+          "no_automation_pattern_change"
+        ]
+      }
+    },
+    "bounded_source_policy": {
+      "bounded_summaries_only": true,
+      "reject_large_source_copy": true,
+      "reject_proprietary_copy_claim": true
+    },
+    "implementation_packet": {
+      "required_fields": [
+        "change_type",
+        "research_required",
+        "research_artifacts",
+        "research_skip",
+        "prototype_required",
+        "prototype_artifact",
+        "prototype_skip",
+        "prototype_review",
+        "design_required",
+        "design_artifact",
+        "design_skip",
+        "affected_artifacts",
+        "validator_impact",
+        "documentation_impact",
+        "test_plan",
+        "safety_boundaries"
+      ],
+      "rejection_status": "RESEARCH_ARTIFACT_REQUIRED"
+    }
+  },
+  "design_artifact_contract": {
+    "contract_id": "issue-22-design-artifact-contract",
+    "artifact_path": "README.md#issue-22-design-artifact-contract",
+    "required_before": "research_prototype_design_before_plan_tasks_analyze_implementation",
+    "required_for": [
+      "workflow policy",
+      "orchestration policy",
+      "subagent policy",
+      "hook behavior",
+      "roadmap control",
+      "role gate",
+      "runtime contract",
+      "validator behavior",
+      "operator interaction",
+      "developer interaction",
+      "ui/ux flow"
+    ],
+    "required_sections": [
+      "problem statement",
+      "current behavior",
+      "target behavior",
+      "decision table or policy matrix",
+      "affected artifacts and ownership",
+      "validator impact",
+      "documentation impact",
+      "test plan",
+      "compatibility notes",
+      "safety boundaries",
+      "open questions",
+      "review gate condition"
+    ],
+    "durable_artifact": {
+      "with_spec_kit_packet": "design.md in the feature or spec directory",
+      "without_spec_kit_packet": "bounded section in the narrowest plugin docs or planning issue until a feature directory exists"
+    },
+    "branch_behavior_requires_matrix_when_any_present": [
+      "behavior_branches",
+      "policy_branches",
+      "state_transitions",
+      "operator_paths"
+    ],
+    "skip_policy": {
+      "approved_skip": {
+        "required_fields": [
+          "approved_by",
+          "approval_reference",
+          "reason"
+        ],
+        "use": "Only explicit operator approval may skip a required design artifact."
+      },
+      "narrow_bugfix_skip": {
+        "required_fields": [
+          "exact_file_scope",
+          "no_boundary_change",
+          "no_runtime_change",
+          "no_deploy_change",
+          "no_restricted_data_change",
+          "no_public_behavior_change"
+        ],
+        "use": "Only one exact-file bugfix without boundary, runtime, deploy, restricted-data, or public behavior change may skip design."
+      }
+    },
+    "implementation_packet": {
+      "required_fields": [
+        "change_type",
+        "research_required",
+        "research_artifacts",
+        "research_skip",
+        "prototype_required",
+        "prototype_artifact",
+        "prototype_skip",
+        "prototype_review",
+        "design_required",
+        "design_artifact",
+        "design_skip",
+        "affected_artifacts",
+        "validator_impact",
+        "documentation_impact",
+        "test_plan",
+        "safety_boundaries"
+      ],
+      "rejection_status": "DESIGN_ARTIFACT_REQUIRED"
+    }
+  },
+  "prototype_artifact_contract": {
+    "contract_id": "issue-21-prototype-spike-gate",
+    "artifact_basenames": [
+      "prototype.md",
+      "spike.md"
+    ],
+    "required_when": {
+      "research_or_design_unresolved_high_risk_uncertainty": "true when research or design leaves an unresolved high-risk uncertainty",
+      "cheaply_testable_before_implementation": "true when a bounded check can reduce the uncertainty before implementation"
+    },
+    "required_sections": [
+      "hypothesis or uncertainty",
+      "prototype scope and non-goals",
+      "commands or checks run",
+      "findings and evidence summary",
+      "decision outcome",
+      "validation implications",
+      "cleanup or discard requirements"
+    ],
+    "skip_policy": {
+      "narrow_bugfix_skip": {
+        "required_fields": [
+          "exact_file_scope",
+          "no_boundary_change",
+          "no_runtime_change",
+          "no_deploy_change",
+          "no_restricted_data_change",
+          "no_public_behavior_change"
+        ],
+        "use": "Only one exact-file bugfix without boundary, runtime, deploy, restricted-data, or public behavior change may skip prototype."
+      },
+      "already_proven_pattern_skip": {
+        "required_fields": [
+          "pattern_reference",
+          "evidence"
+        ],
+        "use": "Only a previously proven implementation pattern with named evidence may skip prototype."
+      }
+    },
+    "safety_rejections": [
+      "production_mutation",
+      "restricted_data_reads",
+      "broad_implementation",
+      "durable_implementation"
+    ],
+    "allowed_decisions": [
+      "proceed",
+      "redesign",
+      "defer",
+      "kill"
+    ],
+    "review_gate": {
+      "operator_approval_required_when_any_remain": [
+        "material_behavior_change",
+        "runtime_change",
+        "boundary_change",
+        "ui_ux_change",
+        "architecture_change"
+      ],
+      "approval_fields": [
+        "operator_approved_to_implement",
+        "approved_by",
+        "approval_reference"
+      ]
+    },
+    "durable_boundary": "Prototype output is throwaway evidence. It becomes durable implementation only after review selects it for implementation scope.",
+    "implementation_packet": {
+      "required_fields": [
+        "change_type",
+        "research_required",
+        "research_artifacts",
+        "research_skip",
+        "prototype_required",
+        "prototype_artifact",
+        "prototype_skip",
+        "prototype_review",
+        "design_required",
+        "design_artifact",
+        "design_skip",
+        "affected_artifacts",
+        "validator_impact",
+        "documentation_impact",
+        "test_plan",
+        "safety_boundaries"
+      ],
+      "rejection_status": "PROTOTYPE_ARTIFACT_REQUIRED"
+    }
+  },
+  "legacy_aliases": {
+    "rule_ids": {
+      "non-product-post-task-audit-subagents": "stage-boundary-audits-only",
+      "plugin-fit-post-task-audit": "plugin-fit-stage-boundary-audit",
+      "new-functionality-drift-post-task-audit": "new-functionality-drift-stage-boundary-audit",
+      "documentation-secret-safety-post-task-audit": "documentation-secret-safety-stage-boundary-audit",
+      "user-information-capture-post-task-audit": "user-information-capture-stage-boundary-audit"
+    }
+  }
+}

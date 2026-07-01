@@ -1,0 +1,136 @@
+{
+  "blocked_patterns": [
+    {
+      "id": "standalone_bears_plugin",
+      "pattern": "Creating another Bears governance plugin or layer outside /srv/bears/plugins/bears."
+    },
+    {
+      "id": "runtime_surface_in_plugin",
+      "pattern": "Adding app, connector, MCP server, runtime service, product behavior, or production mutation behavior in this plugin."
+    },
+    {
+      "id": "upstream_speckit_vendoring",
+      "pattern": "Copying upstream Spec Kit skills into this plugin instead of calling the external source."
+    },
+    {
+      "id": "generic_deploy_wording",
+      "pattern": "Using generic deploy wording when the entity is local_cd or kubernetes_deployment."
+    },
+    {
+      "id": "illustrative_policy_sections",
+      "pattern": "Adding sample, example, or illustrative policy sections to governed policy surfaces."
+    },
+    {
+      "id": "restricted_data_access",
+      "pattern": "Reading, printing, storing, committing, or documenting restricted data or value-bearing credential material."
+    }
+  ],
+  "boundary_checks": {
+    "english_entity_bound_artifacts": "Artifacts and subagent messages must use English, strict concise wording, and exact entity names.",
+    "exact_role_coverage": "Implementation may start only after the exact child target routes to one primary specialist or helper role at the same granularity as the write scope.",
+    "external_speckit_boundary": "Upstream Spec Kit remains external; this plugin may keep only Bears-owned governance skills, catalogs, validators, workflows, agents, docs, templates, and tests.",
+    "inventory_sync": "Catalog, validator, README inventory, manifest, docs, and tests must stay synchronized when governance claims change.",
+    "no_runtime_surface": "This plugin must not add apps, connectors, MCP servers, runtime services, product behavior, or production mutation paths.",
+    "restricted_data_exclusion": "The change must not read, print, store, commit, or document secrets, credentials, private keys, .env values, production data, raw logs, shell history, or raw VPN configs.",
+    "single_bears_plugin": "The Bears workflow governance model has one Codex plugin root at /srv/bears/plugins/bears."
+  },
+  "change_packet_schema": "bears-plugin-constitution-change-check.v1",
+  "concrete_part": "plugin_constitution_governance",
+  "decision_rules": {
+    "allowed_statuses": [
+      "pass",
+      "fail",
+      "needs-redesign"
+    ],
+    "constitution_gate_position": "after route_gate and before research_gate",
+    "fail_closed_on_missing_required_fields": true,
+    "fail_closed_on_unknown_status": true,
+    "lifecycle_order": [
+      "route_gate",
+      "constitution_gate",
+      "research_gate",
+      "prototype_gate",
+      "design_gate",
+      "spec_kit_gate",
+      "role_gate",
+      "subagent_execution",
+      "validation",
+      "stage_boundary_audit"
+    ],
+    "pass_requires_deterministic_validation_added": true
+  },
+  "owner_plugin": "bears",
+  "principles": [
+    {
+      "id": "agent_simplification",
+      "rule": "A governance change must make future agent work simpler through a shorter decision path, fewer repeated reads, or a clearer handoff."
+    },
+    {
+      "id": "token_economy",
+      "rule": "A governance change must reduce repeated context load or justify any token-budget increase with a named payoff."
+    },
+    {
+      "id": "bounded_context",
+      "rule": "A governance change must name the files, packets, or summaries needed for the next worker and exclude broad content collection."
+    },
+    {
+      "id": "deterministic_validation",
+      "rule": "A governance change must add or update a deterministic validation path when it creates a durable rule."
+    },
+    {
+      "id": "future_reuse",
+      "rule": "A governance change must identify where future agents reuse the rule without reading the original issue or chat."
+    },
+    {
+      "id": "operator_boundary",
+      "rule": "A governance change must state which decisions remain operator-owned and which checks are agent-owned."
+    },
+    {
+      "id": "mode_explicitness",
+      "rule": "A governance change must state when normal, no-subagent, subagent, audit, or validation mode applies."
+    },
+    {
+      "id": "agent_handoff_compaction",
+      "rule": "A governance change must support compact handoff with status, scope, validation, and unresolved decision data."
+    },
+    {
+      "id": "no_process_weight_without_payoff",
+      "rule": "A governance change must not add a gate, document, role, or checklist unless the payoff is explicit."
+    }
+  ],
+  "purpose": "Evaluate every Bears plugin change against agent simplification, token economy, deterministic validation, and future reuse.",
+  "reference_doc": "/srv/bears/plugins/bears/docs/reference/plugin-constitution.md",
+  "required_change_fields": [
+    "schema",
+    "change_id",
+    "changed_surfaces",
+    "agent_simplification_impact",
+    "token_budget_impact",
+    "bounded_context_plan",
+    "future_reuse_path",
+    "deterministic_validation_added",
+    "operator_decision_boundary",
+    "cost_justification_if_any",
+    "status"
+  ],
+  "route_target": "/srv/bears/plugins/bears/assets/catalog/plugin-constitution.v1.json",
+  "schema": "bears-plugin-constitution.v1",
+  "updated": "2026-06-11T00:00:00Z",
+  "validation": {
+    "commands": [
+      "python3 scripts/plugin_constitution.py validate",
+      "python3 scripts/plugin_constitution.py inspect-change --packet <path>",
+      "python3 scripts/platform_roles.py validate",
+      "python3 scripts/platform_roles.py route /srv/bears/plugins/bears/assets/catalog/plugin-constitution.v1.json",
+      "python3 scripts/platform_roles.py audit /srv/bears/plugins/bears/assets/catalog/plugin-constitution.v1.json",
+      "python3 -m unittest tests/test_plugin_constitution.py tests/test_platform_roles.py",
+      "python3 scripts/validate_overlay.py --json validate --strict-overlay-skills"
+    ],
+    "doc": "/srv/bears/plugins/bears/docs/reference/plugin-constitution.md",
+    "manifest_prompt_required": true,
+    "readme_inventory_required": true,
+    "tests": "/srv/bears/plugins/bears/tests/test_plugin_constitution.py",
+    "validator": "/srv/bears/plugins/bears/scripts/plugin_constitution.py"
+  },
+  "version": "1"
+}

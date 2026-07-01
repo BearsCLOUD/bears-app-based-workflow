@@ -1,0 +1,20 @@
+{
+  "name": "bears-workflow-plugin",
+  "interface": {
+    "displayName": "Bears Workflow Plugin"
+  },
+  "plugins": [
+    {
+      "name": "bears",
+      "source": {
+        "source": "local",
+        "path": "."
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Development"
+    }
+  ]
+}

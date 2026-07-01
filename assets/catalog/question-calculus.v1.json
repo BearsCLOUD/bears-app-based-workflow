@@ -1,0 +1,546 @@
+{
+  "accepted_answer_proofs": [
+    {
+      "answer": "manual_review",
+      "answer_type": "manual_review",
+      "blocked_gates": [
+        "execution_allowed"
+      ],
+      "evidence_paths": [
+        "assets/catalog/question-calculus.v1.json"
+      ],
+      "evidence_types": [
+        "catalog",
+        "decision"
+      ],
+      "operator_id": "select_executor",
+      "proof_id": "proof-437-select-executor-manual-review",
+      "reason": "Ambiguous executor selection must not unlock execution.",
+      "schema": "bears-question-answer-proof.v1",
+      "semantic_fact_refs": [
+        "fact-435-implements-formal-semantics-kernel"
+      ],
+      "status": "accepted",
+      "unlocked_gates": [],
+      "validator": "scripts/question_calculus.py prove-answer --packet <path> --json"
+    },
+    {
+      "answer": "git_json",
+      "answer_type": "execution",
+      "blocked_gates": [],
+      "evidence_paths": [
+        "assets/catalog/formal-semantics-kernel.v1.json"
+      ],
+      "evidence_types": [
+        "catalog",
+        "contract"
+      ],
+      "operator_id": "resolve_source_of_truth",
+      "proof_id": "proof-437-source-git-json",
+      "schema": "bears-question-answer-proof.v1",
+      "semantic_fact_refs": [
+        "fact-435-implements-formal-semantics-kernel"
+      ],
+      "status": "accepted",
+      "unlocked_gates": [
+        "source_of_truth_resolved"
+      ],
+      "validator": "scripts/question_calculus.py prove-answer --packet <path> --json"
+    }
+  ],
+  "commands": [
+    "python3 scripts/question_calculus.py validate --json",
+    "python3 scripts/question_calculus.py ask --operator <id> --input <path> --json",
+    "python3 scripts/question_calculus.py prove-answer --packet <path> --json",
+    "python3 scripts/decision_graph.py build --goal-id <id> --json",
+    "python3 scripts/decision_graph.py check-gate --goal-id <id> --gate <id> --json",
+    "python3 scripts/decision_graph.py doctor --json"
+  ],
+  "operators": [
+    {
+      "allowed_answers": [
+        "git_json",
+        "github_issue",
+        "manual_review",
+        "research_required"
+      ],
+      "blocks_when": [
+        "manual_review",
+        "research_required"
+      ],
+      "description": "Select the authoritative source for a workflow decision.",
+      "input_types": [
+        "goal",
+        "issue",
+        "contract",
+        "evidence"
+      ],
+      "operator_id": "resolve_source_of_truth",
+      "output_type": "source_of_truth",
+      "required_evidence_types": [
+        "contract",
+        "catalog"
+      ],
+      "semantic_fact_refs": [
+        "fact-435-implements-formal-semantics-kernel"
+      ],
+      "unlocks": [
+        "source_of_truth_resolved"
+      ],
+      "validator": "scripts/question_calculus.py prove-answer --packet <path> --json",
+      "version": "1"
+    },
+    {
+      "allowed_answers": [
+        "schema",
+        "catalog",
+        "script",
+        "test",
+        "doc",
+        "workflow",
+        "manual_review"
+      ],
+      "blocks_when": [
+        "manual_review"
+      ],
+      "description": "Classify the material task type.",
+      "input_types": [
+        "goal",
+        "issue",
+        "contract",
+        "evidence"
+      ],
+      "operator_id": "classify_task_type",
+      "output_type": "task_type",
+      "required_evidence_types": [
+        "github_issue"
+      ],
+      "semantic_fact_refs": [
+        "fact-435-implements-formal-semantics-kernel"
+      ],
+      "unlocks": [
+        "task_type_classified"
+      ],
+      "validator": "scripts/question_calculus.py prove-answer --packet <path> --json",
+      "version": "1"
+    },
+    {
+      "allowed_answers": [
+        "single_issue",
+        "single_file",
+        "bounded_feature",
+        "manual_review"
+      ],
+      "blocks_when": [
+        "manual_review"
+      ],
+      "description": "Reduce work to the smallest verifiable goal.",
+      "input_types": [
+        "goal",
+        "issue",
+        "contract",
+        "evidence"
+      ],
+      "operator_id": "find_smallest_verifiable_goal",
+      "output_type": "goal_slice",
+      "required_evidence_types": [
+        "github_issue",
+        "contract"
+      ],
+      "semantic_fact_refs": [
+        "fact-435-implements-formal-semantics-kernel"
+      ],
+      "unlocks": [
+        "goal_slice_selected"
+      ],
+      "validator": "scripts/question_calculus.py prove-answer --packet <path> --json",
+      "version": "1"
+    },
+    {
+      "allowed_answers": [
+        "none",
+        "cheap_research",
+        "full_research",
+        "research_required"
+      ],
+      "blocks_when": [
+        "research_required"
+      ],
+      "description": "Infer required research before execution.",
+      "input_types": [
+        "goal",
+        "issue",
+        "contract",
+        "evidence"
+      ],
+      "operator_id": "infer_required_research",
+      "output_type": "research_policy",
+      "required_evidence_types": [
+        "contract"
+      ],
+      "semantic_fact_refs": [
+        "fact-435-implements-formal-semantics-kernel"
+      ],
+      "unlocks": [
+        "research_policy_selected"
+      ],
+      "validator": "scripts/question_calculus.py prove-answer --packet <path> --json",
+      "version": "1"
+    },
+    {
+      "allowed_answers": [
+        "none",
+        "compact_plan",
+        "speckit_plan",
+        "manual_review"
+      ],
+      "blocks_when": [
+        "manual_review"
+      ],
+      "description": "Infer required planning packet.",
+      "input_types": [
+        "goal",
+        "issue",
+        "contract",
+        "evidence"
+      ],
+      "operator_id": "infer_required_plan",
+      "output_type": "plan_policy",
+      "required_evidence_types": [
+        "contract"
+      ],
+      "semantic_fact_refs": [
+        "fact-435-implements-formal-semantics-kernel"
+      ],
+      "unlocks": [
+        "plan_policy_selected"
+      ],
+      "validator": "scripts/question_calculus.py prove-answer --packet <path> --json",
+      "version": "1"
+    },
+    {
+      "allowed_answers": [
+        "formal_semantics",
+        "file_context",
+        "semantic_graph",
+        "manual_review"
+      ],
+      "blocks_when": [
+        "manual_review"
+      ],
+      "description": "Select semantic context facts.",
+      "input_types": [
+        "goal",
+        "issue",
+        "contract",
+        "evidence"
+      ],
+      "operator_id": "select_semantic_context",
+      "output_type": "semantic_context",
+      "required_evidence_types": [
+        "catalog"
+      ],
+      "semantic_fact_refs": [
+        "fact-435-implements-formal-semantics-kernel"
+      ],
+      "unlocks": [
+        "semantic_context_selected"
+      ],
+      "validator": "scripts/question_calculus.py prove-answer --packet <path> --json",
+      "version": "1"
+    },
+    {
+      "allowed_answers": [
+        "machine_first_execution_kernel",
+        "docs_maintainer",
+        "security_reviewer",
+        "manual_review"
+      ],
+      "blocks_when": [
+        "manual_review"
+      ],
+      "description": "Select bounded role profile.",
+      "input_types": [
+        "goal",
+        "issue",
+        "contract",
+        "evidence"
+      ],
+      "operator_id": "select_role_profile",
+      "output_type": "role_profile",
+      "required_evidence_types": [
+        "catalog"
+      ],
+      "semantic_fact_refs": [
+        "fact-435-implements-formal-semantics-kernel"
+      ],
+      "unlocks": [
+        "role_profile_selected"
+      ],
+      "validator": "scripts/question_calculus.py prove-answer --packet <path> --json",
+      "version": "1"
+    },
+    {
+      "allowed_answers": [
+        "codex_main",
+        "codex_subagent",
+        "opencode_headless",
+        "manual_review"
+      ],
+      "blocks_when": [
+        "manual_review"
+      ],
+      "description": "Select executor; ambiguity routes to manual_review.",
+      "input_types": [
+        "goal",
+        "issue",
+        "contract",
+        "evidence"
+      ],
+      "operator_id": "select_executor",
+      "output_type": "executor",
+      "required_evidence_types": [
+        "catalog",
+        "decision"
+      ],
+      "semantic_fact_refs": [
+        "fact-435-implements-formal-semantics-kernel"
+      ],
+      "unlocks": [
+        "executor_selected"
+      ],
+      "validator": "scripts/question_calculus.py prove-answer --packet <path> --json",
+      "version": "1"
+    },
+    {
+      "allowed_answers": [
+        "low",
+        "medium",
+        "high",
+        "manual_review"
+      ],
+      "blocks_when": [
+        "manual_review"
+      ],
+      "description": "Select model tier from validated task class.",
+      "input_types": [
+        "goal",
+        "issue",
+        "contract",
+        "evidence"
+      ],
+      "operator_id": "select_model_tier",
+      "output_type": "model_tier",
+      "required_evidence_types": [
+        "catalog"
+      ],
+      "semantic_fact_refs": [
+        "fact-435-implements-formal-semantics-kernel"
+      ],
+      "unlocks": [
+        "model_tier_selected"
+      ],
+      "validator": "scripts/question_calculus.py prove-answer --packet <path> --json",
+      "version": "1"
+    },
+    {
+      "allowed_answers": [
+        "deny_by_default",
+        "read_only",
+        "scoped_write",
+        "manual_review"
+      ],
+      "blocks_when": [
+        "manual_review"
+      ],
+      "description": "Select MCP access policy.",
+      "input_types": [
+        "goal",
+        "issue",
+        "contract",
+        "evidence"
+      ],
+      "operator_id": "select_mcp_policy",
+      "output_type": "mcp_policy",
+      "required_evidence_types": [
+        "catalog"
+      ],
+      "semantic_fact_refs": [
+        "fact-435-implements-formal-semantics-kernel"
+      ],
+      "unlocks": [
+        "mcp_policy_selected"
+      ],
+      "validator": "scripts/question_calculus.py prove-answer --packet <path> --json",
+      "version": "1"
+    },
+    {
+      "allowed_answers": [
+        "exact_files",
+        "catalog_group",
+        "schema_script_test",
+        "manual_review"
+      ],
+      "blocks_when": [
+        "manual_review"
+      ],
+      "description": "Select bounded file write scope.",
+      "input_types": [
+        "goal",
+        "issue",
+        "contract",
+        "evidence"
+      ],
+      "operator_id": "select_file_scope",
+      "output_type": "file_scope",
+      "required_evidence_types": [
+        "catalog",
+        "git"
+      ],
+      "semantic_fact_refs": [
+        "fact-435-implements-formal-semantics-kernel"
+      ],
+      "unlocks": [
+        "file_scope_selected"
+      ],
+      "validator": "scripts/question_calculus.py prove-answer --packet <path> --json",
+      "version": "1"
+    },
+    {
+      "allowed_answers": [
+        "unit_tests",
+        "catalog_validate",
+        "local_commit_validation",
+        "manual_review"
+      ],
+      "blocks_when": [
+        "manual_review"
+      ],
+      "description": "Select validation gate.",
+      "input_types": [
+        "goal",
+        "issue",
+        "contract",
+        "evidence"
+      ],
+      "operator_id": "select_validation_gate",
+      "output_type": "validation_gate",
+      "required_evidence_types": [
+        "catalog"
+      ],
+      "semantic_fact_refs": [
+        "fact-435-implements-formal-semantics-kernel"
+      ],
+      "unlocks": [
+        "validation_gate_selected"
+      ],
+      "validator": "scripts/question_calculus.py prove-answer --packet <path> --json",
+      "version": "1"
+    },
+    {
+      "allowed_answers": [
+        "bears_doctor",
+        "issue_closeout",
+        "manual_review"
+      ],
+      "blocks_when": [
+        "manual_review"
+      ],
+      "description": "Select closeout gate.",
+      "input_types": [
+        "goal",
+        "issue",
+        "contract",
+        "evidence"
+      ],
+      "operator_id": "select_closeout_gate",
+      "output_type": "closeout_gate",
+      "required_evidence_types": [
+        "catalog"
+      ],
+      "semantic_fact_refs": [
+        "fact-435-implements-formal-semantics-kernel"
+      ],
+      "unlocks": [
+        "closeout_gate_selected"
+      ],
+      "validator": "scripts/question_calculus.py prove-answer --packet <path> --json",
+      "version": "1"
+    },
+    {
+      "allowed_answers": [
+        "none",
+        "update_catalog",
+        "manual_review"
+      ],
+      "blocks_when": [
+        "manual_review"
+      ],
+      "description": "Select roadmap update behavior.",
+      "input_types": [
+        "goal",
+        "issue",
+        "contract",
+        "evidence"
+      ],
+      "operator_id": "select_roadmap_update",
+      "output_type": "roadmap_update",
+      "required_evidence_types": [
+        "catalog"
+      ],
+      "semantic_fact_refs": [
+        "fact-435-implements-formal-semantics-kernel"
+      ],
+      "unlocks": [
+        "roadmap_update_selected"
+      ],
+      "validator": "scripts/question_calculus.py prove-answer --packet <path> --json",
+      "version": "1"
+    },
+    {
+      "allowed_answers": [
+        "none",
+        "record_process_trace",
+        "manual_review",
+        "research_required"
+      ],
+      "blocks_when": [
+        "manual_review",
+        "research_required"
+      ],
+      "description": "Select self-improvement action from validated traces.",
+      "input_types": [
+        "goal",
+        "issue",
+        "contract",
+        "evidence"
+      ],
+      "operator_id": "select_self_improvement_action",
+      "output_type": "self_improvement_action",
+      "required_evidence_types": [
+        "evidence"
+      ],
+      "semantic_fact_refs": [
+        "fact-435-implements-formal-semantics-kernel"
+      ],
+      "unlocks": [
+        "self_improvement_selected"
+      ],
+      "validator": "scripts/question_calculus.py prove-answer --packet <path> --json",
+      "version": "1"
+    }
+  ],
+  "owner_issue": "#437",
+  "owner_role": "bears-machine-first-execution-kernel-engineer",
+  "rules": [
+    "No material execution without decision graph.",
+    "No gate unlock without accepted answer proof.",
+    "Question operators are deterministic and versioned.",
+    "Ambiguous answers route to manual_review or research_required.",
+    "Decision graph must reference accepted #435 semantic facts.",
+    "LLM text is evidence only after conversion to a bounded validated packet."
+  ],
+  "schema": "bears-question-calculus.v1",
+  "updated": "2026-06-25",
+  "version": "1"
+}

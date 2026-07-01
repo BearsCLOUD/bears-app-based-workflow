@@ -1,0 +1,9 @@
+{
+  "schema": "bears-evidence-compaction-packet.v1",
+  "version": "1",
+  "command_id": "bad-secret",
+  "state_files": [".env"],
+  "max_files": 4,
+  "max_output_bytes": 12000,
+  "secret": "not-allowed"
+}

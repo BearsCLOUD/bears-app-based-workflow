@@ -1,0 +1,98 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "stage-boundary-audit.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "goal_id",
+    "role",
+    "repo_boundary",
+    "pr_urls",
+    "head_shas",
+    "merge_shas",
+    "changed_files",
+    "validation_results",
+    "blockers",
+    "pending_tasks",
+    "unresolved_user_decisions",
+    "forbidden_surfaces_untouched",
+    "claims_not_made",
+    "restricted_data_taint",
+    "status"
+  ],
+  "properties": {
+    "goal_id": {
+      "type": "string"
+    },
+    "role": {
+      "type": "string"
+    },
+    "repo_boundary": {
+      "type": "string"
+    },
+    "pr_urls": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "head_shas": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "merge_shas": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "changed_files": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "validation_results": {
+      "type": "string"
+    },
+    "blockers": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "pending_tasks": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "unresolved_user_decisions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "forbidden_surfaces_untouched": {
+      "type": "boolean"
+    },
+    "claims_not_made": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "restricted_data_taint": {
+      "enum": [
+        "none",
+        "blocked"
+      ]
+    },
+    "status": {
+      "type": "string"
+    }
+  },
+  "description": "Forbidden data classes: raw secrets, .env values, raw logs, raw chats, raw VPN configs, credential files, and production data are not allowed."
+}

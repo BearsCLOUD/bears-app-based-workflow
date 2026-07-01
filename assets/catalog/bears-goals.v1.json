@@ -1,0 +1,38 @@
+{
+  "schema": "bears-goals.v1",
+  "version": "1",
+  "updated": "2026-06-25",
+  "owner_role": "bears-machine-first-execution-kernel-engineer",
+  "goals": [
+    {
+      "goal_id": "kernel_decisions_are_explicit",
+      "horizon": "near",
+      "status": "active",
+      "priority": "P0",
+      "owner_surface": "catalog",
+      "success_metric": "Every material workflow decision packet names at least one active principle and one active goal.",
+      "linked_issues": ["#415", "#414"],
+      "blocked_by": []
+    },
+    {
+      "goal_id": "bounded_execution_before_closeout",
+      "horizon": "near",
+      "status": "active",
+      "priority": "P0",
+      "owner_surface": "script",
+      "success_metric": "Codex execution, validation, and closeout use machine-readable gates with exact evidence paths.",
+      "linked_issues": ["#415", "#413", "#405", "#406"],
+      "blocked_by": []
+    },
+    {
+      "goal_id": "operator_safe_autostart",
+      "horizon": "mid",
+      "status": "active",
+      "priority": "P1",
+      "owner_surface": "runtime",
+      "success_metric": "Autostart selects only eligible roadmap leaf nodes and never broadens scope without an explicit gate.",
+      "linked_issues": ["#415", "#404", "#388"],
+      "blocked_by": []
+    }
+  ]
+}

@@ -1,0 +1,79 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "workspace-bootstrap.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "goal_id",
+    "role",
+    "repo_boundary",
+    "branch_worktree_policy",
+    "local_agents_file",
+    "allowed_write_scope",
+    "forbidden_scope",
+    "validation_commands",
+    "closeout_format",
+    "owner_role",
+    "reviewer_role",
+    "rollback_path",
+    "restricted_data_taint",
+    "status"
+  ],
+  "properties": {
+    "goal_id": {
+      "type": "string"
+    },
+    "role": {
+      "type": "string"
+    },
+    "repo_boundary": {
+      "type": "string"
+    },
+    "branch_worktree_policy": {
+      "type": "string"
+    },
+    "local_agents_file": {
+      "type": "string"
+    },
+    "allowed_write_scope": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "forbidden_scope": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "validation_commands": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "closeout_format": {
+      "type": "string"
+    },
+    "owner_role": {
+      "type": "string"
+    },
+    "reviewer_role": {
+      "type": "string"
+    },
+    "rollback_path": {
+      "type": "string"
+    },
+    "restricted_data_taint": {
+      "enum": [
+        "none",
+        "blocked"
+      ]
+    },
+    "status": {
+      "type": "string"
+    }
+  },
+  "description": "Forbidden data classes: raw secrets, .env values, raw logs, raw chats, raw VPN configs, credential files, and production data are not allowed."
+}

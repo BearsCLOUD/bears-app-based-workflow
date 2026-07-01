@@ -1,0 +1,18 @@
+{
+  "$id": "https://bears.local/schemas/external-fact.v1.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Bears external fact v1",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schema": {"const": "bears-external-fact.v1"},
+    "fact_id": {"type": "string", "minLength": 1},
+    "fact_type": {"enum": ["github_issue", "github_pull_request", "git_commit", "repo_file_search", "mcp_research"]},
+    "source": {"type": "string", "minLength": 1},
+    "source_ref": {"type": "string", "minLength": 1},
+    "collected_at": {"type": "string", "minLength": 1},
+    "confidence": {"enum": ["high", "medium", "low"]},
+    "value": {}
+  },
+  "required": ["schema", "fact_id", "fact_type", "source", "source_ref", "collected_at", "confidence", "value"]
+}

@@ -1,0 +1,672 @@
+{
+  "schema": "bears-agent-github-dev-cd.v1",
+  "owner_plugin": "bears",
+  "concrete_part": "agent_github_dev_cd_flow",
+  "updated": "2026-06-23",
+  "purpose": "Archived, non-authoritative reference for the former agent GitHub dev-CD flow; active Bears plugin delivery is main-only through agentic-enterprise delivery_policy.",
+  "route_target": "/srv/bears/plugins/bears/.github/workflows/validate.yml",
+  "reference_doc": "/srv/bears/plugins/bears/docs/reference/agent-github-dev-cd.md",
+  "workflow": "/srv/bears/plugins/bears/workflows/agent-github-dev-cd/workflow.yml",
+  "validation": {
+    "commands": [
+      "python3 scripts/platform_roles.py validate",
+      "python3 scripts/platform_roles.py route /srv/bears/plugins/bears/assets/catalog/agent-github-dev-cd.v1.json",
+      "python3 scripts/agent_github_dev_cd.py validate",
+      "python3 scripts/ci_requirements.py validate-workflow --workflow .github/workflows/validate.yml --catalog assets/catalog/ci-requirements.v1.json",
+      "python3 scripts/test_selection.py validate",
+      "python3 scripts/local_commit_validation.py run --commit-sha HEAD"
+    ],
+    "requires_exact_role_route": true,
+    "route_target_must_match_concrete_part": "workflow_overlay_validation_ci_workflow"
+  },
+  "branch_model": {
+    "entrypoint": "/goal",
+    "main_branch": "main",
+    "dev_branch": "dev",
+    "goal_branch_pattern": "goal/<goal-id>",
+    "agent_branch_pattern": "agent/<goal-id>/<role>/<slice-id>",
+    "per_agent_remote_branch_required": true,
+    "direct_push_to_main_allowed": false,
+    "direct_push_to_dev_allowed": false,
+    "agent_pr_target": "goal/<goal-id>",
+    "goal_pr_target_for_dev": "dev",
+    "main_pr_target": "main"
+  },
+  "workflow_modes": {
+    "default_mode": "sequential",
+    "allowed_modes": [
+      "sequential",
+      "parallel"
+    ],
+    "sequential": {
+      "goal_branch_required": true,
+      "agent_branches_required": false,
+      "goal_to_dev_pr_allowed": true,
+      "direct_main_pr_allowed": false,
+      "stacked_branches_allowed_only_with_recorded_policy": true
+    },
+    "parallel": {
+      "goal_branch_required": true,
+      "agent_branches_required": true,
+      "agent_pr_target": "goal/<goal-id>",
+      "goal_pr_target_for_dev": "dev"
+    },
+    "mode_transition_rules": {
+      "sequential_to_parallel_requires_recorded_transition": true,
+      "parallel_to_sequential_blocked_while_agent_prs_open": true
+    }
+  },
+  "pull_request_policy": {
+    "agent_prs_are_draft_until_validation_passes": true,
+    "auto_merge_to_dev_after_green_ci_allowed": false,
+    "auto_merge_to_main_allowed": false,
+    "delete_agent_branch_after_merge": true,
+    "auto_merge_to_main_default_allowed": false,
+    "agent_pr_to_goal_requires_state_file_gate": true,
+    "goal_to_dev_pr_requires_state_file_gate": true,
+    "final_main_pr_requires_state_authority": false,
+    "merge_to_dev_after_state_file_gate_allowed": false,
+    "auto_merge_to_dev_after_state_file_gate_and_ci_required": false
+  },
+  "issue_type_policy": {
+    "issue_identifiers": {
+      "bugfix": "type:bugfix",
+      "idea": "type:idea",
+      "develop_ready": "type:develop-ready"
+    },
+    "develop_ready": {
+      "identifier": "type:develop-ready",
+      "produced_by": [
+        "repository_constitution_alignment",
+        "research",
+        "accepted_operator_decision"
+      ],
+      "required_evidence": [
+        "constitution_alignment",
+        "research",
+        "accepted_operator_decision"
+      ],
+      "required_body_fields": [
+        "concrete_problem",
+        "exact_targets_surfaces",
+        "required_change",
+        "acceptance_criteria",
+        "validation_commands",
+        "duplicate_guard",
+        "safety_boundary"
+      ],
+      "body_field_headings": {
+        "concrete_problem": "Concrete problem",
+        "exact_targets_surfaces": "Exact targets/surfaces",
+        "required_change": "Required change",
+        "acceptance_criteria": "Acceptance criteria",
+        "validation_commands": "Validation commands",
+        "duplicate_guard": "Duplicate guard",
+        "safety_boundary": "Safety boundary"
+      },
+      "empty_or_vague_body_fails_closed": true,
+      "comments_do_not_substitute_body_fields": true
+    },
+    "type_label_guard": {
+      "fixed_type_labels": [
+        "type:bugfix",
+        "type:idea",
+        "type:develop-ready"
+      ],
+      "open_governance_issue_exactly_one_type_label_required": true,
+      "api_and_automation_created_issues_in_scope": true,
+      "body_text_must_not_promote_to_type_develop_ready": true,
+      "zero_or_multiple_type_labels_fail_closed": true,
+      "verify_command": "python3 scripts/agent_github_dev_cd.py verify-issue-metadata --issue-packet <path>",
+      "packet_schema": "bears-agent-github-dev-cd-issue-metadata.v1"
+    },
+    "agent_pickup": {
+      "actor": "local_agent_runner",
+      "allowed_issue_type": "type:develop-ready",
+      "starts_bounded_development_without_user_goal_run": true,
+      "blocked_when_unlabeled": true,
+      "blocked_issue_types": [
+        "type:idea"
+      ],
+      "blocked_labels": [
+        "type:idea",
+        "blocked",
+        "needs-human",
+        "needs-design",
+        "security",
+        "security-review",
+        "secret",
+        "credentials",
+        "deploy",
+        "production",
+        "manual-only",
+        "agent:blocked"
+      ],
+      "bugfix_only_blocked": true,
+      "required_pre_dispatch_gates": [
+        "route_gate",
+        "constitution_evidence",
+        "research_evidence",
+        "accepted_operator_decision_evidence",
+        "owning_role",
+        "task_packet",
+        "duplicate_guard",
+        "dry_run"
+      ],
+      "structured_evidence_required": {
+        "route_gate": [
+          "status",
+          "target",
+          "concrete_part_or_route_result",
+          "owning_role_or_primary_role"
+        ],
+        "evidence_objects": [
+          "status",
+          "evidence_path_or_source_ref",
+          "result_or_decision"
+        ],
+        "task_packet": [
+          "issue",
+          "bounded_target",
+          "allowed_write_surfaces",
+          "allowed_read_surfaces",
+          "owning_role",
+          "validation_commands",
+          "safety_boundary"
+        ],
+        "duplicate_guard": [
+          "status",
+          "duplicates_found",
+          "repository",
+          "normalized_scope_key",
+          "search_query_or_checked_issues",
+          "checked_at",
+          "evidence_summary"
+        ],
+        "dry_run": [
+          "status",
+          "command",
+          "result_or_proof_path"
+        ]
+      },
+      "dry_run_required_before_dispatch": true,
+      "dispatch_allowed_after_dry_run": true
+    },
+    "issue_template": {
+      "path": ".github/ISSUE_TEMPLATE/01-governance-work.yml",
+      "default_label": "type:idea",
+      "promotion_label": "type:develop-ready",
+      "required_develop_ready_field_ids": [
+        "agent_pickup_promotion_checklist",
+        "route_gate_evidence",
+        "constitution_evidence",
+        "research_evidence",
+        "accepted_operator_decision_evidence",
+        "owning_role",
+        "task_packet",
+        "duplicate_guard",
+        "verify_agent_pickup_dry_run"
+      ],
+      "canonical_gate_options": [
+        "Route gate",
+        "Constitution gate",
+        "Research gate",
+        "Prototype gate",
+        "Design gate",
+        "Spec Kit gate",
+        "Role gate",
+        "Subagent execution",
+        "Validation",
+        "Stage-boundary audit"
+      ],
+      "blank_issues_allowed": false
+    }
+  },
+  "merge_authority_policy": {
+    "packet_schema": "bears-agent-github-dev-cd-merge-authority.v1",
+    "verify_command": "python3 scripts/agent_github_dev_cd.py merge-authority-check --packet <path> --expected-repository <owner/repo> --expected-pr-number <number> --expected-head-ref <head-ref> --expected-head-sha <head-sha> --expected-base-ref <base-ref>",
+    "parent_send_input_merge_directive_allowed": false,
+    "plain_parent_send_input_classification": "workflow_drift",
+    "required_fields": [
+      "pre_task_hook",
+      "assignment_packet",
+      "repository",
+      "pull_request",
+      "head_ref",
+      "head_sha",
+      "base_ref",
+      "action",
+      "check_policy",
+      "state_file_policy",
+      "title_policy",
+      "draft_policy",
+      "rollback_note",
+      "authority",
+      "conflict_policy"
+    ],
+    "allowed_actions": [
+      "mark_ready",
+      "merge"
+    ],
+    "exact_pr_and_head_required": true,
+    "expected_pr_head_args_required": true,
+    "pre_task_hook_required": true,
+    "assignment_packet_required": true,
+    "check_policy": {
+      "green_checks_required": true,
+      "empty_checks_require_named_no_ci_exception_or_operator_override": true
+    },
+    "title_policy": {
+      "validation_before_ready_required": true,
+      "validation_before_merge_required": true
+    },
+    "draft_policy": {
+      "draft_must_be_false_before_merge": true
+    },
+    "merge_eligibility_guards": {
+      "allowed_status": "MERGE_ALLOWED",
+      "blocked_status": "MERGE_BLOCKED",
+      "empty_check_rollup_reason": "MERGE_BLOCKED_EMPTY_CHECK_ROLLUP",
+      "draft_pr_reason": "MERGE_BLOCKED_DRAFT_PR",
+      "outdated_head_reason": "MERGE_BLOCKED_OUTDATED_HEAD",
+      "empty_check_rollup_fail_closed": true,
+      "no_ci_exception_allowed_for_merge": false,
+      "operator_override_allowed_for_empty_rollup": false,
+      "draft_pr_merge_allowed": false,
+      "expected_live_head_required": true,
+      "expected_live_base_required": true,
+      "packet_head_must_match_expected_head": true,
+      "packet_base_must_match_expected_base": true
+    },
+    "authority": {
+      "allowed_sources": [
+        "operator_request",
+        "contract_authority"
+      ],
+      "parent_send_input_is_authority": false
+    },
+    "conflict_policy": {
+      "mergeable_state_required": "CLEAN",
+      "unknown_or_conflicting_handoff": "integration-fix"
+    },
+    "state_file_policy": {
+      "state_files_required": true,
+      "authoritative_state_source": "machine_readable_state_files",
+      "authority_sources": [
+        "workflow_state",
+        "merge_authority_state"
+      ],
+      "required_state_refs": [
+        "workflow_state",
+        "merge_authority_state"
+      ],
+      "non_state_authority_allowed": false,
+      "state_file_gate_required_before_merge": true
+    }
+  },
+  "parent_agent_policy": {
+    "mode": "orchestration_only_in_subagent_mode",
+    "parent_context_allowed": false,
+    "parent_actions": [
+      "route",
+      "split",
+      "assign",
+      "wait",
+      "integrate_evidence",
+      "run_validators",
+      "close",
+      "report",
+      "pre_task_hook"
+    ],
+    "forbidden_actions": [
+      "file_read_as_content_collector",
+      "file_write",
+      "git_add",
+      "git_commit",
+      "git_push",
+      "pull_request_mutation",
+      "implementation_tool_use"
+    ]
+  },
+  "ci_policy": {
+    "required_on_agent_pr": false,
+    "required_on_goal_pr": false,
+    "required_on_dev_branch": false,
+    "required_pull_request_event": false,
+    "required_pull_request_targets": [],
+    "required_push_branches": [],
+    "validation_workflow": "/srv/bears/plugins/bears/.github/workflows/validate.yml",
+    "required_commands": [
+      "python3 scripts/ci_requirements.py validate-workflow",
+      "python3 scripts/platform_roles.py validate",
+      "python3 scripts/validate_overlay.py --json validate --strict-overlay-skills",
+      "python3 scripts/test_selection.py validate"
+    ],
+    "parallel_jobs": [
+      "changes",
+      "schema-catalog-validation",
+      "hook-policy-validation",
+      "role-workflow-validation",
+      "skill-inventory-validation",
+      "dirty-boundary-validation",
+      "ci-summary"
+    ],
+    "path_based_execution": {
+      "enabled": true,
+      "docs_only_skips_unit_suite": true,
+      "changed_path_classifier_job": "changes",
+      "summary_job": "ci-summary",
+      "automatic_tests": "local_post_commit",
+      "github_tests": "operator_emergency_workflow_dispatch_only"
+    },
+    "branch_based_dev_cd_gate_allowed": false
+  },
+  "cd_policy": {
+    "dev_environment": "dev",
+    "dev_branch": "dev",
+    "auto_deploy_to_dev_on_merge": false,
+    "deploy_source_of_truth": "/srv/bears/kubernetes",
+    "deploy_role": "bears-deploy-platform-engineer",
+    "kubernetes_holds_dev": false,
+    "dev_deploy_requires_green_ci": false,
+    "dev_deploy_requires_readonly_runtime_evidence": false,
+    "dev_cd_trigger_event": "none",
+    "dev_cd_trigger_branch": "none",
+    "production_deploy_allowed": false,
+    "production_requires_explicit_operator_request": true,
+    "secret_source": "Infisical runtime injection only; no repo-stored secrets",
+    "cluster_mutation_allowed_from_plugin": false,
+    "dispatch_plan_contract": {
+      "schema": "bears-agent-github-dev-cd-dispatch-gate.v1",
+      "mode": "deprecated_reference_only",
+      "artifact_path": "artifacts/dev-cd-dispatch-gate.json",
+      "artifact_name": "dev-cd-dispatch-gate",
+      "status": "DEPRECATED_REFERENCE_ONLY",
+      "required_commit_trailers": [
+        "Goal-Id",
+        "Workflow-State",
+        "Merge-Authority-State",
+        "Kubernetes-Dispatch-Plan: artifacts/dev-cd-dispatch-gate.json",
+        "Runtime-Evidence",
+        "Rollback-Note",
+        "Production-Deploy: false"
+      ],
+      "required_plan_fields": [
+        "schema",
+        "status",
+        "source_repo",
+        "source_branch",
+        "source_sha",
+        "deploy_source_of_truth",
+        "workflow_state_path",
+        "merge_authority_state_path",
+        "runtime_evidence_path",
+        "rollback_note_path",
+        "dispatch_plan_path",
+        "operator_approval_required",
+        "cluster_mutation_allowed_from_plugin",
+        "production_deploy_allowed",
+        "workflow_mode",
+        "mode_classification_status",
+        "topology_evidence_path",
+        "stacked_branches_allowed",
+        "mode_transition_recorded",
+        "development_scenario",
+        "scenario_policy_status",
+        "agent_current_runtime",
+        "scenario_auto_merge_to_main_allowed"
+      ],
+      "operator_approval_required": true,
+      "fail_closed_when_evidence_missing": true,
+      "evidence_path_contract": {
+        "repo_evidence_dir": "docs/evidence/dev-cd",
+        "repo_file_trailers": [
+          "Workflow-State",
+          "Merge-Authority-State",
+          "Runtime-Evidence",
+          "Rollback-Note"
+        ],
+        "generated_file_trailers": {
+          "Kubernetes-Dispatch-Plan": "artifacts/dev-cd-dispatch-gate.json"
+        }
+      },
+      "active_authority": false
+    },
+    "agent_current_runtime": "/srv/bears",
+    "plugin_root_production_mutation_policy": "Plugin root does not mutate production; this dev-CD flow is deprecated reference only.",
+    "dev_deploy_requires_state_file_gate": false,
+    "authority_status": "deprecated_reference_only",
+    "active_authority": false
+  },
+  "output_contract": {
+    "schema": "bears-agent-github-dev-cd-inspection.v1",
+    "top_level_required": [
+      "schema",
+      "status",
+      "goal_id",
+      "agent_branch",
+      "goal_branch",
+      "dev_branch",
+      "state_file_gate_passed",
+      "ci_required",
+      "cd_target",
+      "auto_dev_merge_allowed",
+      "auto_dev_deploy_allowed",
+      "production_deploy_allowed",
+      "workflow_mode",
+      "mode_classification_status",
+      "topology_evidence_path",
+      "stacked_branches_allowed",
+      "mode_transition_recorded",
+      "development_scenario",
+      "scenario_policy_status",
+      "agent_current_runtime",
+      "scenario_auto_merge_to_main_allowed"
+    ],
+    "ready_status": "AGENT_GITHUB_DEV_CD_READY"
+  },
+  "scenario_policy": {
+    "schema": "bears-agent-github-dev-cd-scenario-policy.v1",
+    "classifier": {
+      "schema": "bears-agent-github-dev-cd-task-classification.v1",
+      "command": "python3 scripts/agent_github_dev_cd.py classify-task --prompt-file <path>",
+      "development_scenarios": [
+        "dev",
+        "prod",
+        "bugfix",
+        "hot_bugfix",
+        "issue",
+        "goal"
+      ],
+      "markers": {
+        "dev": [
+          "dev",
+          "development"
+        ],
+        "prod": [
+          "prod",
+          "production"
+        ],
+        "bugfix": [
+          "bugfix",
+          "bug",
+          "fix"
+        ],
+        "hot_bugfix": [
+          "hot bugfix",
+          "hotfix",
+          "hot-fix",
+          "hot fix"
+        ],
+        "issue": [
+          "issue",
+          "#<number>"
+        ],
+        "goal": [
+          "/goal"
+        ]
+      },
+      "conflicting_markers_create_separate_tasks": true,
+      "separate_subagent_per_task_required": false,
+      "no_marker_status": "needs_scenario_marker"
+    },
+    "runtime": {
+      "agent_current_runtime": "/srv/bears",
+      "production_branch": "main",
+      "development_branch": "dev",
+      "plugin_root_production_mutation_allowed": false,
+      "production_mutation_authority": "external_emergency_authority_only"
+    },
+    "defaults": {
+      "auto_merge_to_main_allowed": false,
+      "plugin_root_production_mutation_allowed": false
+    },
+    "verify_command": "python3 scripts/agent_github_dev_cd.py verify-scenario-policy --packet <path>",
+    "scenarios": {
+      "dev": {
+        "merge_sequence": [
+          "work_branch",
+          "main"
+        ],
+        "target_branch": "main",
+        "runtime_target": "main_only_delivery",
+        "auto_cd_allowed": false,
+        "auto_merge_to_main_allowed": false,
+        "main_merge_actor": "operator_direct_main_commit",
+        "plugin_root_production_mutation_allowed": false,
+        "required_gates": [
+          "delivery_complete"
+        ]
+      },
+      "prod": {
+        "merge_sequence": [
+          "work_branch",
+          "main"
+        ],
+        "target_branch": "main",
+        "runtime_target": "ci_cd",
+        "auto_cd_allowed": false,
+        "auto_merge_to_main_allowed": false,
+        "main_merge_actor": "operator_direct_main_commit",
+        "plugin_root_production_mutation_allowed": false,
+        "required_gates": [
+          "delivery_complete"
+        ]
+      },
+      "bugfix": {
+        "merge_sequence": [
+          "work_branch",
+          "main"
+        ],
+        "target_branch": "main",
+        "runtime_target": "ci_cd",
+        "auto_cd_allowed": false,
+        "auto_merge_to_main_allowed": false,
+        "auto_merge_to_main_requires": [],
+        "main_merge_actor": "operator_direct_main_commit",
+        "plugin_root_production_mutation_allowed": false,
+        "required_gates": [
+          "delivery_complete"
+        ]
+      },
+      "hot_bugfix": {
+        "merge_sequence": [
+          "external_emergency_task",
+          "git_backfill",
+          "main"
+        ],
+        "target_branch": "emergency_then_git",
+        "runtime_target": "external_emergency_authority",
+        "auto_cd_allowed": false,
+        "auto_merge_to_main_allowed": false,
+        "emergency_task_first_required": true,
+        "git_backfill_required": true,
+        "external_emergency_authority_required": true,
+        "plugin_root_production_mutation_allowed": false,
+        "required_gates": [
+          "external_emergency_authority",
+          "git_backfill_packet",
+          "delivery_complete"
+        ]
+      },
+      "issue": {
+        "merge_sequence": [
+          "issue_metadata_gate",
+          "agent_pickup_gate",
+          "bounded_task"
+        ],
+        "target_branch": "issue_selected",
+        "runtime_target": "agent_current_runtime",
+        "auto_cd_allowed": false,
+        "auto_merge_to_main_allowed": false,
+        "plugin_root_production_mutation_allowed": false,
+        "required_gates": [
+          "verify_issue_metadata",
+          "verify_agent_pickup"
+        ]
+      },
+      "goal": {
+        "merge_sequence": [
+          "roadmap_control",
+          "tasks",
+          "scenario_reclassify"
+        ],
+        "target_branch": "goal/<goal-id>",
+        "runtime_target": "roadmap_control",
+        "auto_cd_allowed": false,
+        "auto_merge_to_main_allowed": false,
+        "plugin_root_production_mutation_allowed": false,
+        "required_gates": [
+          "roadmap_control"
+        ]
+      }
+    }
+  },
+  "dev_auto_merge_policy": {
+    "packet_schema": "bears-agent-github-dev-cd-dev-auto-merge.v1",
+    "verify_command": "python3 scripts/agent_github_dev_cd.py verify-dev-auto-merge --packet <path> --expected-repository <owner/repo> --expected-pr-number <number> --expected-head-ref <head-ref> --expected-head-sha <head-sha> --expected-base-ref dev",
+    "target_branch": "none",
+    "source_branch_pattern": "none",
+    "requires_merge_authority_packet": false,
+    "requires_green_ci": false,
+    "required_check_contexts": [],
+    "requires_draft_false": false,
+    "requires_clean_mergeable_state": false,
+    "requires_live_topology_verification": false,
+    "authority_source": "none",
+    "operator_request_required": true,
+    "auto_merge_to_main_allowed": false,
+    "production_deploy_allowed": false,
+    "requires_state_file_gate": false,
+    "requires_ci_summary": false,
+    "status": "deprecated_reference_only",
+    "active_authority": false,
+    "blocked_reason": "DEV_AUTO_MERGE_DEPRECATED_MAIN_ONLY_DELIVERY"
+  },
+  "state_file_policy": {
+    "authoritative_state_source": "machine_readable_state_files",
+    "authority_sources": [
+      "workflow_state",
+      "merge_authority_state"
+    ],
+    "required_state_refs": [
+      "workflow_state",
+      "merge_authority_state"
+    ],
+    "required_commit_trailers": [
+      "Workflow-State",
+      "Merge-Authority-State"
+    ],
+    "non_state_authority_allowed": false,
+    "raw_chat_or_comment_text_not_authority": true
+  },
+  "authority_status": {
+    "status": "deprecated_reference_only",
+    "active_authority": false,
+    "replacement_authority": "assets/catalog/agentic-enterprise-workflow.v1.json delivery_policy",
+    "main_only_delivery_required": true,
+    "branch_dependent_closeout_allowed": false,
+    "local_cd_allowed": false,
+    "dev_auto_merge_allowed": false
+  }
+}

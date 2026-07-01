@@ -1,0 +1,66 @@
+{
+  "$id": "https://bears.local/schemas/semantic-type.v1.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "allowed_relations": {
+      "items": {
+        "minLength": 1,
+        "type": "string"
+      },
+      "type": "array",
+      "uniqueItems": true
+    },
+    "authority_source": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "closed_world": {
+      "type": "boolean"
+    },
+    "description": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "id": {
+      "enum": [
+        "goal",
+        "issue",
+        "file",
+        "symbol",
+        "role",
+        "executor",
+        "workflow_node",
+        "decision",
+        "evidence",
+        "contract",
+        "validator",
+        "event",
+        "store",
+        "term"
+      ]
+    },
+    "parent_types": {
+      "items": {
+        "minLength": 1,
+        "type": "string"
+      },
+      "type": "array",
+      "uniqueItems": true
+    },
+    "validator": {
+      "minLength": 1,
+      "type": "string"
+    }
+  },
+  "required": [
+    "id",
+    "parent_types",
+    "allowed_relations",
+    "closed_world",
+    "authority_source",
+    "validator"
+  ],
+  "title": "Bears semantic type v1",
+  "type": "object"
+}

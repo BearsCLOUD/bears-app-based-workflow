@@ -1,0 +1,27 @@
+{
+  "schema": "bears-doctor-component-coverage.v1",
+  "repo": "BearsCLOUD/bears-codex-workflow-plugin",
+  "generated_at": "2026-06-25T00:00:00Z",
+  "source_refs": [
+    {"source": "fixture", "timestamp": "2026-06-25T00:00:00Z", "confidence": "high"}
+  ],
+  "doctor_catalog": "assets/catalog/bears-doctor.v1.json",
+  "components": [
+    {
+      "issue": "#999",
+      "title": "Not applicable fixture",
+      "status": "open",
+      "requires_doctor": false,
+      "requires_validator": false,
+      "required_commands": [],
+      "required_files": [],
+      "doctor_check_ids": [],
+      "test_selection_refs": [],
+      "coverage_status": "not_applicable",
+      "gap_ids": [],
+      "not_applicable_evidence": ["fixture says no doctor integration required"]
+    }
+  ],
+  "gaps": [],
+  "summary": {"open_issue_count": 1, "requires_doctor_count": 0, "covered_count": 0, "partial_count": 0, "missing_count": 0, "blocking_count": 0}
+}

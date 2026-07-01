@@ -1,0 +1,6 @@
+{
+  "failed_gate": "validator",
+  "scenario_id": "l3_failing_validator_blocks_closeout",
+  "schema_version": "bears-stub-validator-result.v1",
+  "status": "fail"
+}

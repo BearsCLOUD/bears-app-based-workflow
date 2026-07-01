@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "merge-decision.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "goal_id",
+    "task_id",
+    "role",
+    "repo_boundary",
+    "decision",
+    "review_decision",
+    "unchanged_head_evidence",
+    "validation_results",
+    "head_sha",
+    "restricted_data_taint",
+    "status"
+  ],
+  "properties": {
+    "goal_id": {
+      "type": "string"
+    },
+    "task_id": {
+      "type": "string"
+    },
+    "role": {
+      "type": "string"
+    },
+    "repo_boundary": {
+      "type": "string"
+    },
+    "decision": {
+      "enum": [
+        "REVIEW_PASS",
+        "REVIEW_CHANGES_REQUESTED",
+        "REVIEW_BLOCKED",
+        "MERGE_ALLOWED",
+        "MERGE_BLOCKED",
+        "MERGE_NOT_REQUESTED"
+      ]
+    },
+    "review_decision": {
+      "type": "string"
+    },
+    "unchanged_head_evidence": {
+      "type": "string"
+    },
+    "validation_results": {
+      "type": "string"
+    },
+    "head_sha": {
+      "type": "string"
+    },
+    "restricted_data_taint": {
+      "enum": [
+        "none",
+        "blocked"
+      ]
+    },
+    "status": {
+      "type": "string"
+    }
+  },
+  "description": "Forbidden data classes: raw secrets, .env values, raw logs, raw chats, raw VPN configs, credential files, and production data are not allowed."
+}

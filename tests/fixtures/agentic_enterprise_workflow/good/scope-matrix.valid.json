@@ -1,0 +1,31 @@
+{
+  "schema": "bears-scope-matrix.v1",
+  "schema_version": "1",
+  "operator_messages_count": 1,
+  "scopes": [
+    {
+      "scope_id": "scope-plugin-workflow-001",
+      "user_message_ref": "operator-message-001",
+      "repo_domain": "platform",
+      "measurable_output": "Agentic workflow validator and hook policy are present in the Bears plugin.",
+      "timebox_min": 30,
+      "token_budget": 8000,
+      "owner_lineage": {
+        "l2_owner_role": "l2-platform-domain-orchestrator",
+        "l2_owner_id": "l2-platform-001",
+        "scope_family": "plugin-agentic-workflow",
+        "l3_executor_role": "l3-workflow-executor",
+        "l3_doc_role": "l3-workflow-doc-agent",
+        "artifact_type": "workflow_catalog"
+      },
+      "stages": [
+        "research",
+        "clarification_gate",
+        "l1_task_decomposition",
+        "l2_governance_review"
+      ],
+      "status": "research",
+      "validation_command": "python3 scripts/agentic_enterprise_workflow.py validate-scope-matrix --packet <path>"
+    }
+  ]
+}

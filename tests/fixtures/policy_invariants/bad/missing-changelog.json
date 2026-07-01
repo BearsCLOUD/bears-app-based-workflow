@@ -1,0 +1,10 @@
+{
+  "schema": "bears-policy-invariant-input.v1",
+  "changed_files": [
+    "README.md"
+  ],
+  "release_note_status": "fail",
+  "release_note_covered_files": [],
+  "decision_status": "pass",
+  "covered_issues": []
+}

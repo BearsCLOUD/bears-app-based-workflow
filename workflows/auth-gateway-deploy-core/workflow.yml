@@ -1,0 +1,111 @@
+schema_version: "1.0"
+workflow:
+  id: "auth-gateway-deploy-core"
+  name: "Bears Auth Gateway Deploy Core"
+  version: "0.1.0"
+  author: "Bears Workspace"
+  description: "Debugs the Bears plugin role/workflow overlay on the universal auth_core -> bears_gateway -> cd_deploy_stage spine."
+
+requires:
+  plugin: "bears"
+  roles:
+    - "bears-auth-platform-engineer"
+    - "bears-gateway-platform-engineer"
+    - "bears-deploy-platform-engineer"
+  gate_mode: "strict-governance"
+  readiness_packet: "assets/catalog/auth-gateway-deploy-readiness.v1.json"
+  readiness_validator: "scripts/auth_gateway_deploy_readiness.py validate"
+
+inputs:
+  scope:
+    type: string
+    default: "docs-and-contracts"
+    enum: ["docs-and-contracts", "implementation-ready-review"]
+  auth_override:
+    type: string
+    default: "none"
+    enum: ["none", "explicit-scoped-operator-override"]
+
+ordered_spine:
+  # Required universal core inputs use neutral platform-core subtrees.
+  # legacy_source_path is compatibility evidence only: tenant legacy source,
+  # migration source, route-pack example, or test fixture.
+  - id: auth-core-baseline
+    surface: "auth_core"
+    path: "/srv/bears/dev/platform/src/bears_platform/auth"
+    legacy_source_path: "/srv/bears/projects/seller/apps/auth_core"
+    role: "bears-auth-platform-engineer"
+    gate: "kb-ready-or-explicit-scoped-override"
+    blocker: "AUTH_CORE_KB_ACCESS_BLOCKER"
+  - id: gateway-baseline
+    surface: "bears_gateway"
+    path: "/srv/bears/dev/platform/src/bears_platform/gateway"
+    legacy_source_path: "/srv/bears/projects/seller/apps/gateway"
+    role: "bears-gateway-platform-engineer"
+    gate: "auth-dependent changes must not bypass auth-core-baseline"
+  - id: deploy-core-baseline
+    surface: "cd_deploy_stage"
+    path: "/srv/bears/dev/platform/src/bears_platform/deploy"
+    legacy_source_path: "/srv/bears/projects/seller/apps/cd_deploy_stage"
+    role: "bears-deploy-platform-engineer"
+    gate: "consumer graph, rollback shape, and deploy evidence must be explicit before CI behavior changes"
+
+steps:
+  # Role-gate steps use the required neutral core targets.
+  # Legacy seller paths stay compatibility references only.
+  - id: governance-check
+    command: "bears.governance.check"
+    input:
+      args: "auth_core -> bears_gateway -> cd_deploy_stage"
+
+  - id: role-gate-auth
+    command: "bears.role.gate"
+    input:
+      route_target: "/srv/bears/dev/platform/src/bears_platform/auth"
+
+  - id: role-gate-gateway
+    command: "bears.role.gate"
+    input:
+      route_target: "/srv/bears/dev/platform/src/bears_platform/gateway"
+
+  - id: role-gate-deploy
+    command: "bears.role.gate"
+    input:
+      route_target: "/srv/bears/dev/platform/src/bears_platform/deploy"
+
+  - id: blocker-eval
+    command: "bears.blocker.eval"
+    input:
+      known_blockers:
+        - "AUTH_CORE_KB_ACCESS_BLOCKER"
+        - "GATEWAY_AUTH_BASELINE_DEPENDENCY"
+        - "DEPLOY_CI_BEHAVIOR_GATE_BLOCKED"
+
+  - id: readiness-gate
+    command: "bears.workflow.validate"
+    input:
+      readiness_packet: "/srv/bears/plugins/bears/assets/catalog/auth-gateway-deploy-readiness.v1.json"
+      validator: "/srv/bears/plugins/bears/scripts/auth_gateway_deploy_readiness.py validate"
+      expected_spine: "auth_core -> bears_gateway -> cd_deploy_stage"
+      implementation_gate: "blocked-until-all-surfaces-open-in-order"
+
+  - id: deploy-gate
+    command: "bears.deploy.gate"
+    input:
+      scope: "cross-project"
+      runtime_mutation: false
+      ci_behavior_changed: false
+
+  - id: workflow-validate
+    command: "bears.workflow.validate"
+    input:
+      plugin_root: "/srv/bears/plugins/bears"
+      feature_dir: null
+
+closeout:
+  status_values:
+    - "ready-for-operator-review"
+    - "blocked-by-auth-kb"
+    - "blocked-by-spine-readiness"
+    - "role-coverage-blocked"
+  success_condition: "Plugin roles route all three spine surfaces; readiness packet validates; auth_core remains blocked unless KB ready or operator override exists; gateway and deploy implementation gates stay closed until earlier spine surfaces open. Future file-backed readiness enforcement stays deferred until the root registry and neutral platform subtree are durable."

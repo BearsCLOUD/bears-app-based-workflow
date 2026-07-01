@@ -1,0 +1,138 @@
+{
+  "schema": "bears-project-dirty-baseline.v1",
+  "owner_plugin": "bears",
+  "concrete_part": "project_dirty_baseline",
+  "updated": "2026-06-04",
+  "purpose": "Read-only provenance gate for concrete project write-lane dirty-baseline capture under a bounded root.",
+  "route_target": "/srv/bears/plugins/bears/scripts/project_dirty_baseline.py",
+  "reference_doc": "/srv/bears/plugins/bears/docs/reference/project-dirty-baseline.md",
+  "validation": {
+    "commands": [
+      "python3 scripts/platform_roles.py validate",
+      "python3 scripts/platform_roles.py route /srv/bears/plugins/bears/scripts/project_dirty_baseline.py",
+      "python3 scripts/project_dirty_baseline.py validate",
+      "python3 -m unittest discover -s tests"
+    ],
+    "requires_exact_role_route": true
+  },
+  "status_contract": {
+    "clean": {
+      "status": "CLEAN_READ_ONLY_BASELINE",
+      "write_handoff_allowed": false
+    },
+    "dirty_unconfirmed": {
+      "status": "DIRTY_BASELINE_REQUIRES_OPERATOR_CONFIRMATION",
+      "write_handoff_allowed": false
+    },
+    "dirty_confirmed": {
+      "status": "BASELINE_ACCEPTED_READ_ONLY",
+      "write_handoff_allowed": false
+    },
+    "container_inventory": {
+      "status": "CONTAINER_INVENTORY_ONLY",
+      "write_handoff_allowed": false
+    }
+  },
+  "scope_policy": {
+    "projects_container_root": "/srv/bears/projects",
+    "projects_root_is_baseline": false,
+    "plugin_core_closeout_blocked_by_projects_dirty_state": false,
+    "project_write_lane_requires_concrete_root": true,
+    "container_inventory_scope_mode": "container-inventory",
+    "project_write_lane_scope_mode": "project-write-lane",
+    "future_project_migration": "Projects under /srv/bears/projects are migrated later through sequential exact role-gated project lanes.",
+    "rules": [
+      "/srv/bears/projects is a transitional project container, not the baseline for Bears plugin-core stabilization.",
+      "Global /srv/bears/projects capture is read-only inventory evidence and must not block plugin-core governance closeout.",
+      "Dirty-baseline confirmation is required only for a selected concrete project root before product/runtime/deploy/integration writes in that project lane.",
+      "A dirty baseline status blocks only the matching concrete project write lane.",
+      "Every later project migration still requires an exact platform role route and nearest local project gates."
+    ]
+  },
+  "read_only_policy": {
+    "git_global_flags": [
+      "--no-optional-locks"
+    ],
+    "forbidden_git_verbs": [
+      "add",
+      "am",
+      "apply",
+      "checkout",
+      "cherry-pick",
+      "clean",
+      "commit",
+      "merge",
+      "rebase",
+      "reset",
+      "restore",
+      "revert",
+      "rollback",
+      "stash",
+      "switch"
+    ],
+    "forbidden_shell_patterns": [
+      "git add",
+      "git commit",
+      "git stash",
+      "git reset",
+      "git clean",
+      "git checkout",
+      "git merge",
+      "git rebase",
+      "git revert",
+      "git restore",
+      "git switch"
+    ],
+    "diff_content_allowed": false,
+    "untracked_file_contents_allowed": false,
+    "write_handoff_allowed": false,
+    "operator_confirmation_only_changes_status": true,
+    "notes": [
+      "Operator confirmation acknowledges a dirty baseline only as provenance evidence.",
+      "This gate never authorizes product, runtime, deploy, integration, cleanup, or source-mutation writes.",
+      "Container inventory mode never acts as a write-lane baseline and never blocks plugin-core closeout.",
+      "Any later implementation still requires an exact platform role route and separate local project gates."
+    ]
+  },
+  "governance_scan": {
+    "container_inventory_root": "/srv/bears/projects",
+    "project_write_lane_root": "<concrete-project-root>",
+    "nearest_files": [
+      "AGENTS.md",
+      "SPEC.md",
+      "requirements.md"
+    ],
+    "repo_discovery": "Walk the bounded root, detect nested .git directories or files, skip .git internals, and inspect each repository with read-only git metadata commands only."
+  },
+  "output_contract": {
+    "top_level_required": [
+      "schema",
+      "root",
+      "scope_mode",
+      "container_inventory_only",
+      "repo_count",
+      "dirty_repo_count",
+      "generated_at",
+      "status",
+      "operator_confirmation_required",
+      "project_write_lane_allowed",
+      "project_write_lane_blocked_by_dirty_baseline",
+      "requires_exact_role_route",
+      "write_handoff_allowed",
+      "repositories"
+    ],
+    "repository_required": [
+      "repo_root",
+      "branch",
+      "head",
+      "status_short_branch",
+      "tracked_diff_summary",
+      "untracked_files",
+      "governance_files"
+    ],
+    "tracked_diff_summary_fields": [
+      "status",
+      "path"
+    ]
+  }
+}

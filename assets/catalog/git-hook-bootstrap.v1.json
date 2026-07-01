@@ -1,0 +1,160 @@
+{
+  "schema": "bears-git-hook-bootstrap.v1",
+  "version": "1",
+  "updated": "2026-06-24",
+  "owner_role": "bears-machine-first-execution-kernel-engineer",
+  "plugin_reference": "@bears",
+  "default_workspace_root": "/srv/bears",
+  "shared_runner": "scripts/bears_git_hook.py",
+  "thin_hooks": [
+    {
+      "name": "pre-commit",
+      "mode": "cheap_blocking_checks",
+      "allowed_actions": [
+        "detect_repo_boundary",
+        "detect_worktree_path",
+        "run_git_diff_check",
+        "write_effective_hook_proof"
+      ],
+      "forbidden_actions": [
+        "print_secret",
+        "print_unbounded_output",
+        "read_raw_chat",
+        "read_raw_log",
+        "read_secret",
+        "run_long_validator",
+        "run_test_suite",
+        "solve_github_issue"
+      ]
+    },
+    {
+      "name": "post-commit",
+      "mode": "enqueue_validation",
+      "allowed_actions": [
+        "detect_commit_sha",
+        "skip_worker_spawn_by_default",
+        "write_effective_hook_proof",
+        "write_validation_job",
+        "write_validation_state"
+      ],
+      "forbidden_actions": [
+        "print_secret",
+        "print_unbounded_output",
+        "read_raw_chat",
+        "read_raw_log",
+        "read_secret",
+        "run_long_validator",
+        "run_test_suite",
+        "solve_github_issue"
+      ]
+    }
+  ],
+  "runtime_paths": {
+    "effective_hooks": "runtime/effective-hooks/<repo_id>/effective-hooks-proof.v1.json",
+    "validation_jobs": "runtime/validation-jobs/<commit_sha>/<job_id>.json",
+    "validation_state": "runtime/validation-state/<commit_sha>/validation-state.v1.json"
+  },
+  "bounded_spawn": {
+    "enabled": false,
+    "auto_start": false,
+    "mode": "disabled_by_default",
+    "reason": "Hooks enqueue validation jobs and exit quickly; async workers start outside hook hot paths.",
+    "command_template": [
+      "python3",
+      "scripts/validation_worker.py",
+      "run-commit",
+      "--commit-sha",
+      "<commit_sha>"
+    ],
+    "timeout_seconds": 5
+  },
+  "stdout_policy": "single_bounded_json_event",
+  "proof_schema": "assets/schemas/effective-hooks-proof.v1.schema.json",
+  "component_issue": "#390",
+  "authoritative_artifacts": [
+    "assets/catalog/git-hook-bootstrap.v1.json",
+    "assets/schemas/effective-hooks-proof.v1.schema.json",
+    "scripts/bears_git_hook.py",
+    "tests/test_bears_git_hook.py",
+    "tests/fixtures/git_hook_bootstrap/good/effective-hooks-proof.json",
+    "tests/fixtures/git_hook_bootstrap/bad/missing-bears-reference.json",
+    "docs/reference/git-hook-bootstrap.md"
+  ],
+  "commands": [
+    {
+      "name": "install",
+      "argv": [
+        "python3",
+        "scripts/bears_git_hook.py",
+        "install",
+        "--repo-path",
+        "<repo_path>"
+      ],
+      "writes": [
+        "repo-local thin hooks",
+        "runtime/effective-hooks/<repo_id>/effective-hooks-proof.v1.json"
+      ]
+    },
+    {
+      "name": "run",
+      "argv": [
+        "python3",
+        "scripts/bears_git_hook.py",
+        "run",
+        "--hook",
+        "<hook>",
+        "--repo-path",
+        "<repo_path>"
+      ],
+      "writes": [
+        "runtime/effective-hooks/<repo_id>/effective-hooks-proof.v1.json",
+        "runtime/validation-jobs/<commit_sha>/<job_id>.json",
+        "runtime/validation-state/<commit_sha>/validation-state.v1.json"
+      ]
+    },
+    {
+      "name": "verify",
+      "argv": [
+        "python3",
+        "scripts/bears_git_hook.py",
+        "verify",
+        "--repo-path",
+        "<repo_path>"
+      ],
+      "writes": []
+    },
+    {
+      "name": "write-proof",
+      "argv": [
+        "python3",
+        "scripts/bears_git_hook.py",
+        "write-proof",
+        "--repo-path",
+        "<repo_path>"
+      ],
+      "writes": [
+        "runtime/effective-hooks/<repo_id>/effective-hooks-proof.v1.json"
+      ]
+    },
+    {
+      "name": "validate-proof",
+      "argv": [
+        "python3",
+        "scripts/bears_git_hook.py",
+        "validate-proof",
+        "--proof",
+        "<proof_path>"
+      ],
+      "writes": []
+    },
+    {
+      "name": "validate",
+      "argv": [
+        "python3",
+        "scripts/bears_git_hook.py",
+        "validate"
+      ],
+      "writes": []
+    }
+  ]
+}

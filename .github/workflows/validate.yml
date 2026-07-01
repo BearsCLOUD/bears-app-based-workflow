@@ -1,0 +1,313 @@
+name: validate
+
+permissions:
+  contents: read
+
+'on':
+  workflow_dispatch:
+    inputs:
+      emergency_full_suite:
+        description: Run operator-only full-suite diagnostic shards.
+        required: false
+        type: boolean
+        default: false
+
+concurrency:
+  group: validate-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  changes:
+    name: changed-path classifier
+    runs-on: ubuntu-latest
+    outputs:
+      docs_only: ${{ steps.flags.outputs.docs_only }}
+      schema_catalog: ${{ steps.flags.outputs.schema_catalog }}
+      hooks: ${{ steps.flags.outputs.hooks }}
+      skills: ${{ steps.flags.outputs.skills }}
+      workflow_core: ${{ steps.flags.outputs.workflow_core }}
+      dirty_boundary: ${{ steps.flags.outputs.dirty_boundary }}
+      unit_fast: ${{ steps.flags.outputs.unit_fast }}
+      full_fast: ${{ steps.flags.outputs.full_fast }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - id: files
+        name: Collect changed paths
+        shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          HEAD_SHA: ${{ github.sha }}
+          REF_NAME: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+          git fetch origin '+refs/heads/main:refs/remotes/origin/main' --prune || true
+          if git rev-parse --verify --quiet HEAD^ >/dev/null; then
+            git diff --name-only HEAD^ HEAD > changed-files.txt
+          else
+            git ls-files > changed-files.txt
+          fi
+          cat changed-files.txt
+      - id: flags
+        name: Emit operator diagnostics path flags
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/ci_requirements.py emit-path-flags --files changed-files.txt > ci-path-flags.json
+          python3 - <<'PY' >> "$GITHUB_OUTPUT"
+          import json
+          from pathlib import Path
+          flags = json.loads(Path('ci-path-flags.json').read_text())['flags']
+          for key, value in flags.items():
+              print(f"{key}={str(value).lower()}")
+          PY
+
+  schema-catalog-validation:
+    name: schema/catalog validation
+    needs: [changes]
+    if: needs.changes.outputs.schema_catalog == 'true' || needs.changes.outputs.workflow_core == 'true' || needs.changes.outputs.docs_only == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+          cache-dependency-path: requirements-dev.txt
+      - name: Install dependencies
+        run: python3 -m pip install -r requirements-dev.txt
+      - name: Validate operator diagnostics requirements
+        run: python3 scripts/ci_requirements.py validate-workflow --workflow .github/workflows/validate.yml --catalog assets/catalog/ci-requirements.v1.json
+      - name: Enforce test category catalog
+        run: python3 scripts/ci_requirements.py enforce-test-categories --catalog assets/catalog/ci-requirements.v1.json --root .
+      - name: Validate plugin constitution
+        run: python3 scripts/plugin_constitution.py validate
+      - name: Validate plugin cache sync fixture
+        run: python3 scripts/plugin_cache_sync.py validate-state --state tests/fixtures/plugin_cache_sync/plugin-cache-sync-state.valid.json
+      - name: Validate workflow technical debt matrix
+        run: python3 scripts/tech_debt_matrix.py validate
+      - name: Validate secret factory
+        run: python3 scripts/secret_factory.py validate
+
+  hook-policy-validation:
+    name: hook policy validation
+    needs: [changes]
+    if: needs.changes.outputs.hooks == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Validate hook manifest exists and is JSON
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f hooks.json
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          data = json.loads(Path('hooks.json').read_text())
+          if not isinstance(data, dict):
+              raise SystemExit('hooks.json must contain an object')
+          PY
+
+  role-workflow-validation:
+    name: role/workflow validation
+    needs: [changes]
+    if: needs.changes.outputs.workflow_core == 'true' || needs.changes.outputs.schema_catalog == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - id: fetch-refs
+        name: Fetch branch topology refs
+        run: git fetch origin '+refs/heads/*:refs/remotes/origin/*' --prune || true
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+          cache-dependency-path: requirements-dev.txt
+      - name: Install dependencies
+        run: python3 -m pip install -r requirements-dev.txt
+      - name: Validate role catalog
+        run: python3 scripts/platform_roles.py validate
+      - name: Validate agent workflow map
+        run: python3 scripts/agent_workflow_map.py validate
+      - name: Validate role-gate methodology
+        run: python3 scripts/role_gate_methodology.py validate
+      - name: Validate roadmap control
+        run: python3 scripts/roadmap_control.py validate
+      - name: Validate session worker runtime
+        run: python3 scripts/session_workers_runtime.py validate
+      - name: Validate development workflow orchestration
+        run: python3 scripts/development_workflow_validate.py validate
+      - name: Validate agent GitHub dev CD
+        run: python3 scripts/agent_github_dev_cd.py validate
+      - name: Validate agentic enterprise workflow
+        run: python3 scripts/agentic_enterprise_workflow.py validate
+      - name: Validate subagent orchestration
+        run: python3 scripts/subagent_orchestration_policy.py validate
+      - name: Validate test selection catalog
+        run: python3 scripts/test_selection.py validate
+      - id: classify-mode
+        name: Classify scenario and verify workflow mode
+        shell: bash
+        run: |
+          set -euo pipefail
+          BEARS_DEVELOPMENT_SCENARIO="goal"
+          BEARS_PROMPT_FILE="$(mktemp)"
+          printf '%s\n' '/goal dev scenario validation' > "$BEARS_PROMPT_FILE"
+          python3 scripts/agent_github_dev_cd.py classify-task --prompt-file "$BEARS_PROMPT_FILE"
+          BEARS_SCENARIO_PACKET="$(mktemp)"
+          cat > "$BEARS_SCENARIO_PACKET" <<'JSON'
+          {
+            "schema": "bears-agent-github-dev-cd-scenario-policy.v1",
+            "development_scenario": "goal",
+            "goal": {
+              "roadmap_control_gate_passed": true
+            },
+            "runtime": {
+              "plugin_root_production_mutation_requested": false
+            },
+            "merge": {
+              "auto_merge_to_main_requested": false
+            }
+          }
+          JSON
+          python3 scripts/agent_github_dev_cd.py verify-scenario-policy --packet "$BEARS_SCENARIO_PACKET"
+          BEARS_HEAD_REF="${GITHUB_HEAD_REF:-${GITHUB_REF_NAME}}"
+          BEARS_GOAL_ID=""
+          case "$BEARS_HEAD_REF" in
+            goal/*) BEARS_GOAL_ID="${BEARS_HEAD_REF#goal/}" ;;
+            agent/*) BEARS_GOAL_ID="$(printf '%s' "$BEARS_HEAD_REF" | cut -d/ -f2)" ;;
+          esac
+          if [ -n "$BEARS_GOAL_ID" ]; then
+            python3 scripts/agent_github_dev_cd.py classify-mode --goal-id "$BEARS_GOAL_ID" --declared-mode auto --development-scenario "$BEARS_DEVELOPMENT_SCENARIO" --repo-root .
+            python3 scripts/agent_github_dev_cd.py verify-live-topology --goal-id "$BEARS_GOAL_ID" --expected-mode auto --development-scenario "$BEARS_DEVELOPMENT_SCENARIO" --repo-root .
+          fi
+
+  skill-inventory-validation:
+    name: skill inventory validation
+    needs: [changes]
+    if: needs.changes.outputs.skills == 'true' || needs.changes.outputs.workflow_core == 'true' || needs.changes.outputs.docs_only == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+          cache-dependency-path: requirements-dev.txt
+      - name: Install dependencies
+        run: python3 -m pip install -r requirements-dev.txt
+      - name: Check skill catalog generation
+        run: python3 scripts/skill_catalog.py generate --check
+      - name: Validate overlay
+        run: python3 scripts/validate_overlay.py --json validate --strict-overlay-skills
+
+  dirty-boundary-validation:
+    name: dirty/boundary validation
+    needs: [changes]
+    if: needs.changes.outputs.dirty_boundary == 'true' || needs.changes.outputs.workflow_core == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+          cache-dependency-path: requirements-dev.txt
+      - name: Install dependencies
+        run: python3 -m pip install -r requirements-dev.txt
+      - name: Validate git discipline
+        run: python3 scripts/git_discipline.py validate
+      - name: Validate project registry gate
+        run: python3 scripts/project_registry_gate.py --allow-missing-external-registry validate-registry
+
+  ci-summary:
+    name: ci diagnostics summary (not plugin closeout authority)
+    if: always()
+    needs:
+      - changes
+      - dirty-boundary-validation
+      - hook-policy-validation
+      - role-workflow-validation
+      - schema-catalog-validation
+      - skill-inventory-validation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Emit optional operator diagnostics summary
+        shell: bash
+        env:
+          NEEDS_JSON: ${{ toJSON(needs) }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json
+          import os
+          import sys
+          needs = json.loads(os.environ['NEEDS_JSON'])
+          compact = {job: data.get('result') for job, data in sorted(needs.items())}
+          print(json.dumps({"schema": "bears-ci-diagnostics-summary.v1", "jobs": compact}, indent=2))
+          bad = {job: result for job, result in compact.items() if result in {"failure", "cancelled"}}
+          if bad:
+              print(json.dumps({"schema": "bears-ci-diagnostics-summary.v1", "status": "fail", "failed_jobs": bad}, indent=2), file=sys.stderr)
+              sys.exit(1)
+          PY
+
+  emergency-full-suite:
+    name: emergency full suite
+    if: github.event_name == 'workflow_dispatch' && inputs.emergency_full_suite == true
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [0, 1, 2, 3]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+          cache-dependency-path: requirements-dev.txt
+      - name: Install dependencies
+        run: python3 -m pip install -r requirements-dev.txt
+      - name: Run operator-only full-suite shard
+        run: >-
+          python3 scripts/test_selection.py run --suite full --tier full
+          --shard-index ${{ matrix.shard }} --shard-total 4

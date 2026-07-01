@@ -1,0 +1,8 @@
+{
+  "schema": "bears-github-issue-ref-fixture.v1",
+  "fixture_kind": "issue_ref",
+  "scope": "global_seller_migration",
+  "ref": "#66",
+  "state": "resolved",
+  "expected_error": "local ref requires plugin_local_compat scope and explicit repo"
+}

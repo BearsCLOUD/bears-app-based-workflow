@@ -383,6 +383,7 @@ def test_cd_contract_declares_callsaver_starter_app() -> None:
     build = app["source"]["local_image_build"]
     assert build["enabled"] is True
     assert build["source_repository"] == "BearsCLOUD/apps"
+    assert build["source_ref"] == "main"
     assert build["source_subpath"] == "callsaver"
     assert build["context_path"] == ".callsaver-source"
     assert build["clear_proxy_build_args"] is True

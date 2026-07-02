@@ -241,7 +241,7 @@
         "local_image_build": {
           "enabled": true,
           "source_repository": "BearsCLOUD/apps",
-          "source_ref": "local-dev-instance",
+          "source_ref": "main",
           "context_path": ".callsaver-source",
           "dockerfile": "Dockerfile",
           "clear_proxy_build_args": true,

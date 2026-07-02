@@ -1,7 +1,7 @@
 {
   "schema": "bears-platform-role-catalog.v1",
   "version": "1",
-  "updated": "2026-07-01",
+  "updated": "2026-07-02",
   "owner_plugin": "bears",
   "mandatory_policy": {
     "missing_role_status": "ROLE_COVERAGE_BLOCKER",
@@ -115,6 +115,7 @@
       "github_actions_access_setting_bears_codex_workflow_plugin",
       "github_actions_access_setting_codex_telegram_mcp",
       "github_actions_repo_secrets_bears_infra_infisical_prod_cd",
+      "infisical_control_plane_bridge",
       "github_actions_self_hosted_runner_codex_telegram_mcp_publish",
       "github_actions_workflow_permissions_codex_telegram_mcp",
       "github_branch_protection_settings_bears_platform",
@@ -1310,7 +1311,7 @@
     {
       "name": "bears-codex-workspace-config-engineer",
       "agent_file": "agents/bears-codex-workspace-config-engineer.toml",
-      "scope": "Bears Codex workspace configuration, model-instruction, worker-agent, workspace-root GitHub Actions check-generation, and plugin marketplace surfaces that control tools, plugins, hooks, subagents, checks, and worker execution under /srv/bears. It also covers the exact current local Codex runtime config file /home/ai1/.codex/config.toml when explicitly assigned.",
+      "scope": "Bears Codex workspace configuration, model-instruction, worker-agent, workspace-root GitHub Actions check-generation, local Infisical MCP/import bridge, and plugin marketplace surfaces that control tools, plugins, hooks, subagents, checks, and worker execution under /srv/bears. It also covers the exact current local Codex runtime config file /home/ai1/.codex/config.toml when explicitly assigned.",
       "model": "gpt-5.5",
       "sandbox_mode": "workspace-write",
       "developer_instructions_profile": "codex-workspace-config",
@@ -1318,6 +1319,7 @@
         "Only the exact /srv/bears/.codex and /srv/bears/.agents/plugins files declared by the role catalog",
         "Only /home/ai1/.codex/config.toml when the task explicitly targets current local Codex runtime MCP/config wiring; no raw secrets or token values.",
         "Only the exact /srv/bears/.github/workflows/workspace-gitlink-ci.yml workspace-root GitHub Actions check-generation workflow when routed by the role catalog",
+        "Only the exact /srv/bears/control-plane/infisical bridge docs, scripts, and self-host reference files mapped by the role catalog; no .env files, secret values, Infisical readback, Kubernetes desired state, local_cd, runtime rollout, or product code.",
         "plugins/bears role catalog, exact role artifact, tests, and assigned evidence docs when governance updates are required",
         "plugins/bears/scripts/agent_registration_sync.py when exact route targets agent_registration_sync",
         "plugins/bears/tests/test_agent_registration_sync.py when exact route targets agent_registration_sync",
@@ -1329,14 +1331,16 @@
         "product/runtime/deploy/integration mutation beyond the assigned Codex workspace configuration files",
         "recreating standalone Telegram plugin/app/MCP/runtime/connector",
         "GitHub Actions workflow edits outside the exact workspace-root check-generation route",
-        "branch protection changes, merge-authority bypass, provider mutation, Kubernetes mutation, Infisical mutation, product, frontend, mobile, or UI mutation"
+        "branch protection changes, merge-authority bypass, provider mutation, Kubernetes mutation, Infisical mutation, product, frontend, mobile, or UI mutation",
+        "Infisical secret readback, .env value access, provider credential generation, Kubernetes desired-state mutation, local_cd selector mutation, runtime rollout, or product code mutation from the local Infisical bridge route"
       ],
       "evidence_required": [
         "exact route packet for each target file",
         "tool/plugin/subagent/hook trust-boundary inventory",
         "validation evidence for config and marketplace ownership tests",
         "agent registration sync check/sync/validate evidence when changing custom-agent materialization rules",
-        "exact route and audit packet for workspace-root GitHub Actions workflow targets"
+        "exact route and audit packet for workspace-root GitHub Actions workflow targets",
+        "exact route and audit packet for /srv/bears/control-plane/infisical bridge targets when assigned"
       ],
       "handoff_contract": "/srv/bears/dev/contracts/subagent_start_packet.md",
       "role_kind": "specialist",
@@ -10966,6 +10970,53 @@
       "decomposition_required": false
     },
     {
+      "name": "infisical_control_plane_bridge",
+      "aliases": [
+        "/srv/bears/control-plane/infisical",
+        "/srv/bears/control-plane/infisical/README.md",
+        "/srv/bears/control-plane/infisical/infisical_mcp_stdio.sh",
+        "/srv/bears/control-plane/infisical/import_env_to_infisical.sh",
+        "/srv/bears/control-plane/infisical/setup_workspace_infisical.sh",
+        "/srv/bears/control-plane/infisical/selfhost/README.md",
+        "/srv/bears/control-plane/infisical/selfhost/docker-compose.prod.yml"
+      ],
+      "group": "platform",
+      "required_role": "bears-codex-workspace-config-engineer",
+      "role_required": true,
+      "no_role_policy": "blocker",
+      "source": "/srv/bears/control-plane/infisical/README.md",
+      "part_kind": "concrete",
+      "write_roots": [
+        "/srv/bears/control-plane/infisical/README.md",
+        "/srv/bears/control-plane/infisical/infisical_mcp_stdio.sh",
+        "/srv/bears/control-plane/infisical/import_env_to_infisical.sh",
+        "/srv/bears/control-plane/infisical/setup_workspace_infisical.sh",
+        "/srv/bears/control-plane/infisical/selfhost/README.md",
+        "/srv/bears/control-plane/infisical/selfhost/docker-compose.prod.yml"
+      ],
+      "concrete_scope": "Exact bootstrap/preflight-only local Infisical MCP/import bridge and self-host reference files for Codex workspace control-plane access.",
+      "allowed_write_boundary": "Only the listed /srv/bears/control-plane/infisical bridge docs, scripts, and self-host reference files; no .env files, bootstrap output JSON, project output JSON, token values, Infisical secret readback, provider credential generation, Kubernetes desired state, local_cd selectors, runtime rollout, public exposure, or product code.",
+      "trust_boundary": "These files can affect how Codex and local control-plane tools authenticate to Infisical and launch a bootstrap/preflight bridge. Deployed Bears software must still consume secrets through /srv/bears/kubernetes ExternalSecret/ClusterSecretStore refs and local_cd; this route is not secret custody and not a deployment path.",
+      "required_validations": [
+        "python3 scripts/platform_roles.py validate",
+        "python3 scripts/platform_roles.py route /srv/bears/control-plane/infisical",
+        "python3 scripts/platform_roles.py audit /srv/bears/control-plane/infisical",
+        "python3 scripts/platform_roles.py route /srv/bears/control-plane/infisical/README.md",
+        "python3 scripts/platform_roles.py audit /srv/bears/control-plane/infisical/README.md",
+        "python3 -m unittest tests/test_platform_roles.py"
+      ],
+      "supporting_roles": [
+        "bears-platform-security-reviewer"
+      ],
+      "reviewer_triggers": [
+        "Infisical auth bridge behavior change",
+        "MCP tool exposure change",
+        "self-host runtime reference change",
+        "secret-custody boundary change"
+      ],
+      "decomposition_required": false
+    },
+    {
       "name": "kubernetes_data_platform_role_metadata",
       "aliases": [
         "agents/bears-kubernetes-data-platform-engineer.toml",
@@ -14821,6 +14872,40 @@
       "expected_status": "matched",
       "required_role": "bears-github-project-issues-orchestrator",
       "required_route_id": "github_project_planning_skill_governance"
+    },
+    {
+      "target": "/srv/bears/control-plane/infisical",
+      "expected_status": "matched",
+      "required_role": "bears-codex-workspace-config-engineer",
+      "required_route_id": "infisical_control_plane_bridge"
+    },
+    {
+      "target": "/srv/bears/control-plane/infisical/README.md",
+      "expected_status": "matched",
+      "required_role": "bears-codex-workspace-config-engineer",
+      "required_route_id": "infisical_control_plane_bridge"
+    },
+    {
+      "target": "/srv/bears/control-plane/infisical/infisical_mcp_stdio.sh",
+      "expected_status": "matched",
+      "required_role": "bears-codex-workspace-config-engineer",
+      "required_route_id": "infisical_control_plane_bridge"
+    },
+    {
+      "target": "/srv/bears/control-plane/infisical/selfhost/docker-compose.prod.yml",
+      "expected_status": "matched",
+      "required_role": "bears-codex-workspace-config-engineer",
+      "required_route_id": "infisical_control_plane_bridge"
+    },
+    {
+      "target": "/srv/bears/control-plane/infisical/.env",
+      "expected_status": "ROLE_COVERAGE_BLOCKER",
+      "expected_why_blocked": "unmapped"
+    },
+    {
+      "target": "/srv/bears/control-plane/infisical/selfhost/bootstrap-output.json",
+      "expected_status": "ROLE_COVERAGE_BLOCKER",
+      "expected_why_blocked": "unmapped"
     }
   ],
   "agent_profile_mappings": [

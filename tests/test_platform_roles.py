@@ -2887,6 +2887,47 @@ class PlatformRolesTest(unittest.TestCase):
                 self.assertEqual(packet["primary_role"], "bears-codex-workspace-config-engineer")
                 self.assertIn("bears-platform-security-reviewer", packet["supporting_roles"])
 
+    def test_routes_infisical_control_plane_bridge_to_exact_specialist(self) -> None:
+        targets = [
+            "/srv/bears/control-plane/infisical",
+            "/srv/bears/control-plane/infisical/README.md",
+            "/srv/bears/control-plane/infisical/infisical_mcp_stdio.sh",
+            "/srv/bears/control-plane/infisical/import_env_to_infisical.sh",
+            "/srv/bears/control-plane/infisical/setup_workspace_infisical.sh",
+            "/srv/bears/control-plane/infisical/selfhost/README.md",
+            "/srv/bears/control-plane/infisical/selfhost/docker-compose.prod.yml",
+        ]
+        for target in targets:
+            for router in (platform_roles.route_target, platform_roles.audit_target):
+                with self.subTest(target=target, router=router.__name__):
+                    packet = router(self.catalog, target, plugin_root=PLUGIN_ROOT)
+                    self.assertEqual(packet["status"], "matched")
+                    self.assertEqual(packet["concrete_part"], "infisical_control_plane_bridge")
+                    self.assertEqual(packet["primary_role"], "bears-codex-workspace-config-engineer")
+                    self.assertEqual(packet["supporting_roles"], ["bears-platform-security-reviewer"])
+                    self.assertFalse(packet["decomposition_required"])
+                    self.assertIn("no .env files", packet["allowed_write_boundary"])
+                    self.assertIn("bootstrap/preflight", packet["trust_boundary"])
+                    self.assertIn("ExternalSecret/ClusterSecretStore", packet["trust_boundary"])
+                    self.assertIn("not secret custody", packet["trust_boundary"])
+                    self.assertIn("not a deployment path", packet["trust_boundary"])
+                    if router is platform_roles.audit_target:
+                        self.assertTrue(packet["implementation_handoff_allowed"])
+
+    def test_infisical_control_plane_bridge_secret_outputs_stay_unmapped(self) -> None:
+        blocked_targets = [
+            "/srv/bears/control-plane/infisical/.env",
+            "/srv/bears/control-plane/infisical/selfhost/.env",
+            "/srv/bears/control-plane/infisical/selfhost/bootstrap-output.json",
+            "/srv/bears/control-plane/infisical/selfhost/project-create-output.json",
+        ]
+        for target in blocked_targets:
+            with self.subTest(target=target):
+                packet = platform_roles.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
+                self.assertEqual(packet["status"], "ROLE_COVERAGE_BLOCKER")
+                self.assertEqual(packet["why_blocked"], "unmapped")
+                self.assertNotIn("primary_role", packet)
+
     def test_routes_agent_orchestrator_github_autoscan_to_exact_specialist(self) -> None:
         targets = [
             "/srv/bears/local-agent-runner",

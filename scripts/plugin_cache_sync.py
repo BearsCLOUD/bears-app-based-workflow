@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Main-only Bears plugin cache sync after exact local commit validation PASS."""
+"""Main-only Bears plugin cache sync after exact validation PASS."""
 from __future__ import annotations
 
 import argparse
@@ -284,14 +284,65 @@ def read_async_validation_state(state_root: Path, sha: str) -> tuple[dict[str, A
     return packet, None
 
 
-def read_validation_gate(state_root: Path, proof_root: Path, sha: str) -> tuple[dict[str, Any] | None, str | None]:
-    """Return a passing validation packet; queued async state may fall back to exact LCV."""
+
+def read_github_push_ci_gate(repo: str, sha: str) -> tuple[dict[str, Any] | None, str | None]:
+    """Return PASS when GitHub push diagnostics passed for the exact SHA."""
+
+    code, stdout, stderr = run_command(
+        [
+            "gh",
+            "run",
+            "list",
+            "--repo",
+            repo,
+            "--workflow",
+            "validate",
+            "--branch",
+            DEFAULT_BRANCH,
+            "--limit",
+            "20",
+            "--json",
+            "databaseId,headSha,status,conclusion,event,url",
+        ],
+        timeout=60,
+    )
+    if code != 0:
+        return None, compact_error(stderr, stdout) or "GitHub push CI status unavailable"
+    try:
+        runs = json.loads(stdout or "[]")
+    except json.JSONDecodeError as exc:
+        return None, f"GitHub push CI JSON parse failed: {exc}"
+    if not isinstance(runs, list):
+        return None, "GitHub push CI response must be a list"
+    exact_runs = [run for run in runs if isinstance(run, dict) and run.get("headSha") == sha and run.get("event") == "push"]
+    for run in exact_runs:
+        if run.get("status") == "completed" and run.get("conclusion") == "success":
+            return {
+                "schema": "bears-validation-state.v1",
+                "status": "pass",
+                "commit_sha": sha,
+                "source": "github_actions_push",
+                "run_id": run.get("databaseId"),
+                "run_url": run.get("url"),
+                "selected_tests": ["github_actions_validate"],
+                "local_commit_validation_proof": run.get("url"),
+            }, None
+    if exact_runs:
+        latest = exact_runs[0]
+        return latest, f"GitHub push CI is {latest.get('status')}:{latest.get('conclusion')}"
+    return None, "GitHub push CI pass missing for exact main SHA"
+
+def read_validation_gate(state_root: Path, proof_root: Path, sha: str, *, repo: str = DEFAULT_REPO) -> tuple[dict[str, Any] | None, str | None]:
+    """Return a passing local, async, or GitHub push validation packet."""
     async_packet, async_error = read_async_validation_state(state_root, sha)
     if async_packet is not None and async_error is None:
         return async_packet, None
     local_packet, local_error = read_local_validation_proof(proof_root, sha)
     if local_error is None:
         return local_packet, None
+    github_packet, github_error = read_github_push_ci_gate(repo, sha)
+    if github_packet is not None and github_error is None:
+        return github_packet, None
     if async_packet is not None or async_error:
         return async_packet, async_error
     return local_packet, local_error
@@ -373,7 +424,7 @@ def sync_once(args: argparse.Namespace) -> int:
             write_state(state_path, packet)
             print(json.dumps(packet, indent=2, sort_keys=True))
             return 2
-    proof_packet, proof_error = read_validation_gate(validation_state_root, proof_root, sha)
+    proof_packet, proof_error = read_validation_gate(validation_state_root, proof_root, sha, repo=args.repo)
     if proof_error:
         packet = build_defect_state(
             state_path=state_path,
@@ -407,7 +458,7 @@ def sync_once(args: argparse.Namespace) -> int:
             "workflow_defect": {
                 "status": "open",
                 "action": "block_workflow",
-                "reason": "Local commit validation passed but local plugin cache did not sync to exact SHA with hooks proof.",
+                "reason": "Exact validation passed but local plugin cache did not sync to exact SHA with hooks proof.",
                 "tech_debt_matrix_ref": "assets/catalog/tech-debt-matrix.v1.json",
             },
             "next_action": "L1 may create only a plugin-cache remediation scope.",
@@ -434,7 +485,7 @@ def sync_once(args: argparse.Namespace) -> int:
         "workflow_defect": {
             "status": "closed",
             "action": "continue",
-            "reason": "exact main SHA local commit validation PASS and cache hooks proof recorded",
+            "reason": "exact main SHA validation PASS and cache hooks proof recorded",
         },
         "next_action": "Plugin workflow task may close.",
     }

@@ -110,14 +110,15 @@ L2 forbidden actions:
 - During decomposition, postpone optional Project field fills and avoid broad Project field work in the same wave.
 - Returning `DECOMPOSED_ONLY` or `PARTIAL_DECOMPOSED_ONLY` before timeout has priority over complete metadata cleanup.
 - If required child metadata already exists before assignment, L2 may proceed child-by-child after verifying each child is visible and dependency-ready.
-- For a tiny child-only slice, use the direct subagent worker path when it is available; do not wrap that launch in nested codex exec.
-- If the direct worker path is unavailable, use the prewritten patch-template path for a one-file slice; do not invent a new edit flow.
+- For a tiny child-only slice, check direct worker and fallback availability within the first minute; if neither path is confirmed, return `FAST_BLOCKER` immediately and do not start a slow implementation attempt.
+- If the direct worker path is available, use it for the tiny child-only slice; do not wrap that launch in nested codex exec.
+- If the direct worker path is unavailable but the prewritten patch-template fallback is confirmed, use that one-file slice path; do not invent a new edit flow.
 - Before any L3 spawn, compare remaining budget against runner startup plus edit validation; if the budget cannot cover both, stop and return a blocker instead of starting L3.
 - These decomposition limits do not widen metadata mutation authority; parent/operator authorization is still required.
 - The first child execution is a separate parent assignment after the child Issue and Project metadata are visible.
 - Do not combine decomposition and first L3 execution in one five-minute wave.
 - After a tiny-slice timeout, retry only that child slice with a child-only packet; skip broad discovery.
-- Keep issue #65's codex exec 60s timeout before edits and issue #59's parent >5min cleanup rule; these guardrails do not widen authority.
+- Keep issue #65's codex exec 60s timeout before edits and issue #59's parent >5min cleanup rule; these guardrails do not widen authority. If issue #65 timeout repeats after issue #16, treat it as repeated timeout drift and return `FAST_BLOCKER` instead of starting a slow implementation attempt.
 - `RESET` and `CLEANUP` packets are terminal; do not continue or start L3 after either packet.
 - When the parent sends timeout `RESET` or `CLEANUP`, L2 must stop waiting on L3 at once, ignore any late L3 `READY` or `PASS`, and return `DRIFT_CLEANED`.
 - After timeout `RESET` or `CLEANUP`, post-timeout evidence must be comments only; do not change Project fields, issue state, or closeout state from late output.

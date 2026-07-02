@@ -1,0 +1,18 @@
+{
+  "schema": "bears-codex-exec-adapter.v1",
+  "version": "1",
+  "updated": "2026-07-02",
+  "owner_role": "bears-machine-first-execution-kernel-engineer",
+  "commands": ["validate", "execute"],
+  "runtime_outputs": [
+    "runtime/codex-exec/jobs/<job_id>.json",
+    "runtime/codex-exec/steps/<job_id>/<step_id>.json",
+    "runtime/codex-exec/prompts/<job_id>/<step_id>.md"
+  ],
+  "policy": {
+    "sequential_steps_required": true,
+    "bounded_prompt_required": true,
+    "dirty_scope_check_required": true,
+    "resume_packet_required_after_failure": true
+  }
+}

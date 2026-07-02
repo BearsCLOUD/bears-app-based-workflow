@@ -6540,6 +6540,380 @@
       "validation": [
         "python3 scripts/artifact_registry.py validate"
       ]
+    },
+    {
+      "allowed_writers": [
+        "bears-github-project-issues-orchestrator"
+      ],
+      "artifact_type": "schema",
+      "changelog_required": false,
+      "decision_ref_required": false,
+      "git_tracked": true,
+      "lifecycle": "schema",
+      "owner_issue": "#8",
+      "owner_role": "bears-github-project-issues-orchestrator",
+      "path": "assets/schemas/github-project-subagents.v1.schema.json",
+      "source_of_truth_status": "canonical",
+      "validation": [
+        "python3 scripts/artifact_registry.py validate"
+      ]
+    },
+    {
+      "allowed_writers": [
+        "bears-github-project-issues-orchestrator"
+      ],
+      "artifact_type": "catalog",
+      "changelog_required": false,
+      "decision_ref_required": false,
+      "git_tracked": true,
+      "lifecycle": "catalog",
+      "owner_issue": "#8",
+      "owner_role": "bears-github-project-issues-orchestrator",
+      "path": "assets/catalog/github-project-subagents.v1.json",
+      "source_of_truth_status": "canonical",
+      "validation": [
+        "python3 scripts/artifact_registry.py validate"
+      ]
+    },
+    {
+      "allowed_writers": [
+        "bears-github-project-issues-orchestrator"
+      ],
+      "artifact_type": "script",
+      "changelog_required": false,
+      "decision_ref_required": false,
+      "git_tracked": true,
+      "lifecycle": "script",
+      "owner_issue": "#8",
+      "owner_role": "bears-github-project-issues-orchestrator",
+      "path": "scripts/github_project_subagents.py",
+      "source_of_truth_status": "canonical",
+      "validation": [
+        "python3 scripts/artifact_registry.py validate"
+      ]
+    },
+    {
+      "allowed_writers": [
+        "bears-github-project-issues-orchestrator"
+      ],
+      "artifact_type": "doc",
+      "changelog_required": false,
+      "decision_ref_required": false,
+      "git_tracked": true,
+      "lifecycle": "doc",
+      "owner_issue": "#8",
+      "owner_role": "bears-github-project-issues-orchestrator",
+      "path": "docs/reference/github-project-subagents.md",
+      "source_of_truth_status": "canonical",
+      "validation": [
+        "python3 scripts/artifact_registry.py validate"
+      ]
+    },
+    {
+      "allowed_writers": [
+        "bears-machine-first-execution-kernel-engineer"
+      ],
+      "artifact_type": "script",
+      "changelog_required": false,
+      "decision_ref_required": false,
+      "git_tracked": true,
+      "lifecycle": "script",
+      "owner_issue": "#8",
+      "owner_role": "bears-machine-first-execution-kernel-engineer",
+      "path": "scripts/goal_orchestrator.py",
+      "source_of_truth_status": "canonical",
+      "validation": [
+        "python3 scripts/artifact_registry.py validate"
+      ]
+    },
+    {
+      "allowed_writers": [
+        "bears-machine-first-execution-kernel-engineer"
+      ],
+      "artifact_type": "script",
+      "changelog_required": false,
+      "decision_ref_required": false,
+      "git_tracked": true,
+      "lifecycle": "script",
+      "owner_issue": "#8",
+      "owner_role": "bears-machine-first-execution-kernel-engineer",
+      "path": "scripts/validation_worker.py",
+      "source_of_truth_status": "canonical",
+      "validation": [
+        "python3 scripts/artifact_registry.py validate"
+      ]
+    },
+    {
+      "allowed_writers": [
+        "bears-machine-first-execution-kernel-engineer"
+      ],
+      "artifact_type": "script",
+      "changelog_required": false,
+      "decision_ref_required": false,
+      "git_tracked": true,
+      "lifecycle": "script",
+      "owner_issue": "#8",
+      "owner_role": "bears-machine-first-execution-kernel-engineer",
+      "path": "scripts/sequential_codex_exec.py",
+      "source_of_truth_status": "canonical",
+      "validation": [
+        "python3 scripts/artifact_registry.py validate"
+      ]
+    },
+    {
+      "allowed_writers": [
+        "bears-machine-first-execution-kernel-engineer"
+      ],
+      "artifact_type": "script",
+      "changelog_required": false,
+      "decision_ref_required": false,
+      "git_tracked": true,
+      "lifecycle": "script",
+      "owner_issue": "#8",
+      "owner_role": "bears-machine-first-execution-kernel-engineer",
+      "path": "scripts/issue_autostart.py",
+      "source_of_truth_status": "canonical",
+      "validation": [
+        "python3 scripts/artifact_registry.py validate"
+      ]
+    },
+    {
+      "allowed_writers": [
+        "bears-machine-first-execution-kernel-engineer"
+      ],
+      "artifact_type": "catalog",
+      "changelog_required": false,
+      "decision_ref_required": false,
+      "git_tracked": true,
+      "lifecycle": "catalog",
+      "owner_issue": "#8",
+      "owner_role": "bears-machine-first-execution-kernel-engineer",
+      "path": "assets/catalog/codex-exec-adapter.v1.json",
+      "source_of_truth_status": "canonical",
+      "validation": [
+        "python3 scripts/artifact_registry.py validate"
+      ]
+    },
+    {
+      "allowed_writers": [
+        "bears-machine-first-execution-kernel-engineer"
+      ],
+      "artifact_type": "catalog",
+      "changelog_required": false,
+      "decision_ref_required": false,
+      "git_tracked": true,
+      "lifecycle": "catalog",
+      "owner_issue": "#8",
+      "owner_role": "bears-machine-first-execution-kernel-engineer",
+      "path": "assets/catalog/issue-autostart.v1.json",
+      "source_of_truth_status": "canonical",
+      "validation": [
+        "python3 scripts/artifact_registry.py validate"
+      ]
+    },
+    {
+      "allowed_writers": [
+        "bears-machine-first-execution-kernel-engineer"
+      ],
+      "artifact_type": "doc",
+      "changelog_required": false,
+      "decision_ref_required": false,
+      "git_tracked": true,
+      "lifecycle": "doc",
+      "owner_issue": "#8",
+      "owner_role": "bears-machine-first-execution-kernel-engineer",
+      "path": "docs/reference/async-validation.md",
+      "source_of_truth_status": "canonical",
+      "validation": [
+        "python3 scripts/artifact_registry.py validate"
+      ]
+    },
+    {
+      "allowed_writers": [
+        "bears-machine-first-execution-kernel-engineer"
+      ],
+      "artifact_type": "doc",
+      "changelog_required": false,
+      "decision_ref_required": false,
+      "git_tracked": true,
+      "lifecycle": "doc",
+      "owner_issue": "#8",
+      "owner_role": "bears-machine-first-execution-kernel-engineer",
+      "path": "docs/reference/sequential-codex-exec.md",
+      "source_of_truth_status": "canonical",
+      "validation": [
+        "python3 scripts/artifact_registry.py validate"
+      ]
+    },
+    {
+      "allowed_writers": [
+        "bears-machine-first-execution-kernel-engineer"
+      ],
+      "artifact_type": "doc",
+      "changelog_required": false,
+      "decision_ref_required": false,
+      "git_tracked": true,
+      "lifecycle": "doc",
+      "owner_issue": "#8",
+      "owner_role": "bears-machine-first-execution-kernel-engineer",
+      "path": "docs/reference/issue-autostart.md",
+      "source_of_truth_status": "canonical",
+      "validation": [
+        "python3 scripts/artifact_registry.py validate"
+      ]
+    },
+    {
+      "allowed_writers": [
+        "bears-machine-first-execution-kernel-engineer"
+      ],
+      "artifact_type": "doc",
+      "changelog_required": false,
+      "decision_ref_required": false,
+      "git_tracked": true,
+      "lifecycle": "doc",
+      "owner_issue": "#8",
+      "owner_role": "bears-machine-first-execution-kernel-engineer",
+      "path": "docs/reference/self-solving-issue-loop.md",
+      "source_of_truth_status": "canonical",
+      "validation": [
+        "python3 scripts/artifact_registry.py validate"
+      ]
+    },
+    {
+      "allowed_writers": [
+        "bears-machine-first-execution-kernel-engineer"
+      ],
+      "artifact_type": "script",
+      "changelog_required": false,
+      "decision_ref_required": false,
+      "git_tracked": true,
+      "lifecycle": "script",
+      "owner_issue": "#8",
+      "owner_role": "bears-machine-first-execution-kernel-engineer",
+      "path": "scripts/issue_state_reconciler.py",
+      "source_of_truth_status": "canonical",
+      "validation": [
+        "python3 scripts/artifact_registry.py validate"
+      ]
+    },
+    {
+      "allowed_writers": [
+        "bears-machine-first-execution-kernel-engineer"
+      ],
+      "artifact_type": "script",
+      "changelog_required": false,
+      "decision_ref_required": false,
+      "git_tracked": true,
+      "lifecycle": "script",
+      "owner_issue": "#8",
+      "owner_role": "bears-machine-first-execution-kernel-engineer",
+      "path": "scripts/opencode_executor.py",
+      "source_of_truth_status": "canonical",
+      "validation": [
+        "python3 scripts/artifact_registry.py validate"
+      ]
+    },
+    {
+      "allowed_writers": [
+        "bears-machine-first-execution-kernel-engineer"
+      ],
+      "artifact_type": "script",
+      "changelog_required": false,
+      "decision_ref_required": false,
+      "git_tracked": true,
+      "lifecycle": "script",
+      "owner_issue": "#8",
+      "owner_role": "bears-machine-first-execution-kernel-engineer",
+      "path": "scripts/workflow_tree.py",
+      "source_of_truth_status": "canonical",
+      "validation": [
+        "python3 scripts/artifact_registry.py validate"
+      ]
+    },
+    {
+      "allowed_writers": [
+        "bears-machine-first-execution-kernel-engineer"
+      ],
+      "artifact_type": "script",
+      "changelog_required": false,
+      "decision_ref_required": false,
+      "git_tracked": true,
+      "lifecycle": "script",
+      "owner_issue": "#8",
+      "owner_role": "bears-machine-first-execution-kernel-engineer",
+      "path": "scripts/issue_intake.py",
+      "source_of_truth_status": "canonical",
+      "validation": [
+        "python3 scripts/artifact_registry.py validate"
+      ]
+    },
+    {
+      "allowed_writers": [
+        "bears-machine-first-execution-kernel-engineer"
+      ],
+      "artifact_type": "script",
+      "changelog_required": false,
+      "decision_ref_required": false,
+      "git_tracked": true,
+      "lifecycle": "script",
+      "owner_issue": "#8",
+      "owner_role": "bears-machine-first-execution-kernel-engineer",
+      "path": "scripts/issue_closeout.py",
+      "source_of_truth_status": "canonical",
+      "validation": [
+        "python3 scripts/artifact_registry.py validate"
+      ]
+    },
+    {
+      "allowed_writers": [
+        "bears-machine-first-execution-kernel-engineer"
+      ],
+      "artifact_type": "script",
+      "changelog_required": false,
+      "decision_ref_required": false,
+      "git_tracked": true,
+      "lifecycle": "script",
+      "owner_issue": "#8",
+      "owner_role": "bears-machine-first-execution-kernel-engineer",
+      "path": "scripts/file_execution_join.py",
+      "source_of_truth_status": "canonical",
+      "validation": [
+        "python3 scripts/artifact_registry.py validate"
+      ]
+    },
+    {
+      "allowed_writers": [
+        "bears-machine-first-execution-kernel-engineer"
+      ],
+      "artifact_type": "script",
+      "changelog_required": false,
+      "decision_ref_required": false,
+      "git_tracked": true,
+      "lifecycle": "script",
+      "owner_issue": "#8",
+      "owner_role": "bears-machine-first-execution-kernel-engineer",
+      "path": "scripts/model_check_orchestrator.py",
+      "source_of_truth_status": "canonical",
+      "validation": [
+        "python3 scripts/artifact_registry.py validate"
+      ]
+    },
+    {
+      "allowed_writers": [
+        "bears-machine-first-execution-kernel-engineer"
+      ],
+      "artifact_type": "script",
+      "changelog_required": false,
+      "decision_ref_required": false,
+      "git_tracked": true,
+      "lifecycle": "script",
+      "owner_issue": "#8",
+      "owner_role": "bears-machine-first-execution-kernel-engineer",
+      "path": "scripts/orchestrator_closeout_manifest_authority.py",
+      "source_of_truth_status": "canonical",
+      "validation": [
+        "python3 scripts/artifact_registry.py validate"
+      ]
     }
   ],
   "schema": "bears-artifact-registry.v1",

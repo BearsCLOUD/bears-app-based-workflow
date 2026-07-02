@@ -207,7 +207,8 @@
       "workspace_root_submodule_gitlinks",
       "yandex360_dns_skill_bundle",
       "subagents_skill_governance",
-      "projectdevsubagents_skill_governance"
+      "projectdevsubagents_skill_governance",
+      "execution_kernel_authority_map_support"
     ],
     "no_role_policy": "blocker",
     "unknown_child_policy": "ROLE_COVERAGE_BLOCKER",
@@ -11128,9 +11129,17 @@
         "/srv/bears/plugins/bears/skills/projectdevsubagents/references/github-project-issue-flow.md",
         "agents/bears-github-project-issues-orchestrator.toml",
         "plugins/bears/agents/bears-github-project-issues-orchestrator.toml",
-        "/srv/bears/plugins/bears/agents/bears-github-project-issues-orchestrator.toml"
+        "/srv/bears/plugins/bears/agents/bears-github-project-issues-orchestrator.toml",
+        "assets/catalog/github-project-subagents.v1.json",
+        "assets/schemas/github-project-subagents.v1.schema.json",
+        "scripts/github_project_subagents.py",
+        "docs/reference/github-project-subagents.md",
+        "/srv/bears/plugins/bears/assets/catalog/github-project-subagents.v1.json",
+        "/srv/bears/plugins/bears/assets/schemas/github-project-subagents.v1.schema.json",
+        "/srv/bears/plugins/bears/scripts/github_project_subagents.py",
+        "/srv/bears/plugins/bears/docs/reference/github-project-subagents.md"
       ],
-      "allowed_write_boundary": "Only /srv/bears/plugins/bears/skills/projectdevsubagents/** and /srv/bears/plugins/bears/agents/bears-github-project-issues-orchestrator.toml; no product, runtime, deploy, app, MCP, connector, provider, repository settings, branch protection, secrets, production data, raw logs, raw chats, or raw VPN configs.",
+      "allowed_write_boundary": "Only /srv/bears/plugins/bears/skills/projectdevsubagents/**, /srv/bears/plugins/bears/agents/bears-github-project-issues-orchestrator.toml, /srv/bears/plugins/bears/assets/catalog/github-project-subagents.v1.json, /srv/bears/plugins/bears/assets/schemas/github-project-subagents.v1.schema.json, /srv/bears/plugins/bears/scripts/github_project_subagents.py, and /srv/bears/plugins/bears/docs/reference/github-project-subagents.md; no product, runtime, deploy, app, MCP, connector, provider, repository settings, branch protection, secrets, production data, raw logs, raw chats, or raw VPN configs.",
       "concrete_scope": "Exact Project Dev Subagents skill, GitHub project/issue flow reference, and GitHub Projects/Issues orchestrator role artifact for project-driven L2/L3 development orchestration.",
       "decomposition_required": false,
       "group": "workflow",
@@ -11139,6 +11148,7 @@
       "part_kind": "concrete",
       "required_role": "bears-github-project-issues-orchestrator",
       "required_validations": [
+        "python3 scripts/github_project_subagents.py validate",
         "python3 scripts/platform_roles.py route skills/projectdevsubagents",
         "python3 scripts/platform_roles.py audit skills/projectdevsubagents",
         "python3 scripts/platform_roles.py route agents/bears-github-project-issues-orchestrator.toml",
@@ -11163,7 +11173,112 @@
         "/srv/bears/plugins/bears/skills/projectdevsubagents",
         "skills/projectdevsubagents",
         "/srv/bears/plugins/bears/agents/bears-github-project-issues-orchestrator.toml",
-        "agents/bears-github-project-issues-orchestrator.toml"
+        "agents/bears-github-project-issues-orchestrator.toml",
+        "/srv/bears/plugins/bears/assets/catalog/github-project-subagents.v1.json",
+        "assets/catalog/github-project-subagents.v1.json",
+        "/srv/bears/plugins/bears/assets/schemas/github-project-subagents.v1.schema.json",
+        "assets/schemas/github-project-subagents.v1.schema.json",
+        "/srv/bears/plugins/bears/scripts/github_project_subagents.py",
+        "scripts/github_project_subagents.py",
+        "/srv/bears/plugins/bears/docs/reference/github-project-subagents.md",
+        "docs/reference/github-project-subagents.md"
+      ]
+    },
+    {
+      "aliases": [
+        "scripts/goal_orchestrator.py",
+        "scripts/validation_worker.py",
+        "scripts/sequential_codex_exec.py",
+        "scripts/issue_autostart.py",
+        "assets/catalog/codex-exec-adapter.v1.json",
+        "assets/catalog/issue-autostart.v1.json",
+        "docs/reference/async-validation.md",
+        "docs/reference/sequential-codex-exec.md",
+        "docs/reference/issue-autostart.md",
+        "docs/reference/self-solving-issue-loop.md",
+        "/srv/bears/plugins/bears/scripts/goal_orchestrator.py",
+        "/srv/bears/plugins/bears/scripts/validation_worker.py",
+        "/srv/bears/plugins/bears/scripts/sequential_codex_exec.py",
+        "/srv/bears/plugins/bears/scripts/issue_autostart.py",
+        "/srv/bears/plugins/bears/assets/catalog/codex-exec-adapter.v1.json",
+        "/srv/bears/plugins/bears/assets/catalog/issue-autostart.v1.json",
+        "/srv/bears/plugins/bears/docs/reference/async-validation.md",
+        "/srv/bears/plugins/bears/docs/reference/sequential-codex-exec.md",
+        "/srv/bears/plugins/bears/docs/reference/issue-autostart.md",
+        "/srv/bears/plugins/bears/docs/reference/self-solving-issue-loop.md",
+        "scripts/issue_state_reconciler.py",
+        "/srv/bears/plugins/bears/scripts/issue_state_reconciler.py",
+        "scripts/opencode_executor.py",
+        "/srv/bears/plugins/bears/scripts/opencode_executor.py",
+        "scripts/workflow_tree.py",
+        "/srv/bears/plugins/bears/scripts/workflow_tree.py",
+        "scripts/issue_intake.py",
+        "/srv/bears/plugins/bears/scripts/issue_intake.py",
+        "scripts/issue_closeout.py",
+        "/srv/bears/plugins/bears/scripts/issue_closeout.py",
+        "scripts/file_execution_join.py",
+        "/srv/bears/plugins/bears/scripts/file_execution_join.py",
+        "scripts/model_check_orchestrator.py",
+        "/srv/bears/plugins/bears/scripts/model_check_orchestrator.py",
+        "scripts/orchestrator_closeout_manifest_authority.py",
+        "/srv/bears/plugins/bears/scripts/orchestrator_closeout_manifest_authority.py"
+      ],
+      "allowed_write_boundary": "Only execution-kernel authority support scripts, catalogs, and reference docs named by authority-map topics; no product, runtime, deploy, app, MCP, connector, provider, secret, production-data, raw-log, raw-chat, or raw-VPN-config authority.",
+      "concrete_scope": "Exact authority-map support artifacts for goal orchestrator, async validation, sequential Codex Exec, issue autostart, and self-solving issue loop validation.",
+      "decomposition_required": false,
+      "group": "workflow",
+      "name": "execution_kernel_authority_map_support",
+      "no_role_policy": "blocker",
+      "part_kind": "concrete",
+      "required_role": "bears-machine-first-execution-kernel-engineer",
+      "required_validations": [
+        "python3 scripts/authority_map.py validate",
+        "python3 scripts/validation_worker.py validate",
+        "python3 scripts/sequential_codex_exec.py validate",
+        "python3 scripts/issue_autostart.py validate",
+        "python3 scripts/goal_orchestrator.py validate",
+        "python3 scripts/platform_roles.py validate",
+        "python3 scripts/issue_state_reconciler.py validate",
+        "python3 scripts/opencode_executor.py validate",
+        "python3 scripts/workflow_tree.py validate",
+        "python3 scripts/issue_intake.py validate",
+        "python3 scripts/issue_closeout.py validate",
+        "python3 scripts/file_execution_join.py validate",
+        "python3 scripts/model_check_orchestrator.py validate",
+        "python3 scripts/orchestrator_closeout_manifest_authority.py validate"
+      ],
+      "reviewer_triggers": [
+        "authority-map topic change",
+        "Codex Exec adapter policy change",
+        "issue autostart policy change",
+        "async validation worker policy change",
+        "goal state validation change"
+      ],
+      "role_required": true,
+      "source": "assets/catalog/authority-map.v1.json",
+      "supporting_roles": [
+        "bears-platform-security-reviewer"
+      ],
+      "trust_boundary": "These files restore authority-map and local-commit validation coverage for execution-kernel automation surfaces.",
+      "write_roots": [
+        "scripts/goal_orchestrator.py",
+        "scripts/validation_worker.py",
+        "scripts/sequential_codex_exec.py",
+        "scripts/issue_autostart.py",
+        "assets/catalog/codex-exec-adapter.v1.json",
+        "assets/catalog/issue-autostart.v1.json",
+        "docs/reference/async-validation.md",
+        "docs/reference/sequential-codex-exec.md",
+        "docs/reference/issue-autostart.md",
+        "docs/reference/self-solving-issue-loop.md",
+        "scripts/issue_state_reconciler.py",
+        "scripts/opencode_executor.py",
+        "scripts/workflow_tree.py",
+        "scripts/issue_intake.py",
+        "scripts/issue_closeout.py",
+        "scripts/file_execution_join.py",
+        "scripts/model_check_orchestrator.py",
+        "scripts/orchestrator_closeout_manifest_authority.py"
       ]
     }
   ],
@@ -13997,6 +14112,90 @@
       "required_role": "bears-github-project-issues-orchestrator",
       "required_route_id": "projectdevsubagents_skill_governance",
       "target": "/srv/bears/plugins/bears/agents/bears-github-project-issues-orchestrator.toml"
+    },
+    {
+      "target": "scripts/github_project_subagents.py",
+      "expected_status": "matched",
+      "required_route_id": "projectdevsubagents_skill_governance",
+      "required_role": "bears-github-project-issues-orchestrator"
+    },
+    {
+      "target": "assets/catalog/github-project-subagents.v1.json",
+      "expected_status": "matched",
+      "required_route_id": "projectdevsubagents_skill_governance",
+      "required_role": "bears-github-project-issues-orchestrator"
+    },
+    {
+      "target": "scripts/goal_orchestrator.py",
+      "expected_status": "matched",
+      "required_route_id": "execution_kernel_authority_map_support",
+      "required_role": "bears-machine-first-execution-kernel-engineer"
+    },
+    {
+      "target": "scripts/validation_worker.py",
+      "expected_status": "matched",
+      "required_route_id": "execution_kernel_authority_map_support",
+      "required_role": "bears-machine-first-execution-kernel-engineer"
+    },
+    {
+      "target": "scripts/sequential_codex_exec.py",
+      "expected_status": "matched",
+      "required_route_id": "execution_kernel_authority_map_support",
+      "required_role": "bears-machine-first-execution-kernel-engineer"
+    },
+    {
+      "target": "scripts/issue_autostart.py",
+      "expected_status": "matched",
+      "required_route_id": "execution_kernel_authority_map_support",
+      "required_role": "bears-machine-first-execution-kernel-engineer"
+    },
+    {
+      "target": "scripts/issue_state_reconciler.py",
+      "expected_status": "matched",
+      "required_route_id": "execution_kernel_authority_map_support",
+      "required_role": "bears-machine-first-execution-kernel-engineer"
+    },
+    {
+      "target": "scripts/opencode_executor.py",
+      "expected_status": "matched",
+      "required_route_id": "execution_kernel_authority_map_support",
+      "required_role": "bears-machine-first-execution-kernel-engineer"
+    },
+    {
+      "target": "scripts/workflow_tree.py",
+      "expected_status": "matched",
+      "required_route_id": "execution_kernel_authority_map_support",
+      "required_role": "bears-machine-first-execution-kernel-engineer"
+    },
+    {
+      "target": "scripts/issue_intake.py",
+      "expected_status": "matched",
+      "required_route_id": "execution_kernel_authority_map_support",
+      "required_role": "bears-machine-first-execution-kernel-engineer"
+    },
+    {
+      "target": "scripts/issue_closeout.py",
+      "expected_status": "matched",
+      "required_route_id": "execution_kernel_authority_map_support",
+      "required_role": "bears-machine-first-execution-kernel-engineer"
+    },
+    {
+      "target": "scripts/file_execution_join.py",
+      "expected_status": "matched",
+      "required_route_id": "execution_kernel_authority_map_support",
+      "required_role": "bears-machine-first-execution-kernel-engineer"
+    },
+    {
+      "target": "scripts/model_check_orchestrator.py",
+      "expected_status": "matched",
+      "required_route_id": "execution_kernel_authority_map_support",
+      "required_role": "bears-machine-first-execution-kernel-engineer"
+    },
+    {
+      "target": "scripts/orchestrator_closeout_manifest_authority.py",
+      "expected_status": "matched",
+      "required_route_id": "execution_kernel_authority_map_support",
+      "required_role": "bears-machine-first-execution-kernel-engineer"
     }
   ],
   "agent_profile_mappings": [

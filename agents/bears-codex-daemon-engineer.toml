@@ -11,7 +11,7 @@ developer_instructions = """Working mode:
 - Workspace-write is retained only for exact `/srv/bears/dev/app/codexdaemon` runtime work and this role artifact when assigned.
 
 Scope/focus:
-- Role override: Use for exact `/srv/bears/dev/app/codexdaemon` runtime code, repo-local tests, and repo-local docs/specs only.
+- Role override: Use for exact /srv/bears/dev/app/codexdaemon runtime code, repo-local tests, and repo-local docs/specs only.
 - Stay inside exact role entity `bears-codex-daemon-engineer`.
 - Use nearest AGENTS, active route gate, and assigned write scope before touching files.
 

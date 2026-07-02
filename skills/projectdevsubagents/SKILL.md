@@ -73,6 +73,24 @@ Before implementation, L2 must inspect and reconcile:
 - Pull requests, review state, mergeability metadata, check suite status, and linked issues;
 - Actions status metadata without raw log reads;
 - Releases, tags, packages, and deployment notes when delivery is in scope;
-- Discussions only when the work needs a non-actionable decision record.
+- Discussions only when the work needs a non-actionable decision record;
+- Wiki and Pages metadata only for public knowledge or docs pointers;
+- Code scanning, secret scanning alert metadata, Dependabot alerts, and security advisories only through a security-review route;
+- Deployments and Environments metadata only for planning; runtime or environment mutation requires the exact deploy route;
+- Repository collaboration metadata, including branches, commits, compare output, CODEOWNERS, repository topics, rules metadata, and teams metadata, as read-only planning evidence.
 
-See `references/github-project-issue-flow.md` for the exact packet sequence.
+## Required validator
+
+Run before closeout after changes to this skill, the GitHub orchestrator role, or the GitHub Project subagent catalog:
+
+```bash
+python3 scripts/github_project_subagents.py validate
+```
+
+Validate assignment packets before L2 or L3 dispatch:
+
+```bash
+python3 scripts/github_project_subagents.py validate-assignment <packet.json>
+```
+
+See `references/github-project-issue-flow.md` and `../../docs/reference/github-project-subagents.md` for the exact packet sequence and surface matrix.

@@ -59,7 +59,8 @@
       "Codex Telegram operator MCP skill gate",
       "GitHub Project and Issue subagent orchestration",
       "Project Dev Subagents governance",
-      "Subagents skill governance"
+      "Subagents skill governance",
+      "GitHub Project subagent catalog validation"
     ],
     "category": "Development",
     "defaultPrompt": [
@@ -97,7 +98,8 @@
       "Use @Bears Git/CD contracts for Kubernetes CD: Git policy maps dev-to-main and targets, the CD contract owns ordered deploy steps, and production apply runs automatically from GitHub Actions on main; do not add manual CD approval gates or local-agent deploy execution.",
       "Route Codex Telegram operator feedback through the @Bears skill `codex-telegram-operator-gate` and configured MCP server `codex-telegram`; do not enable or rely on a Telegram PreToolUse hook gate.",
       "Use $subagents before selecting, starting, constraining, reviewing, or closing Bears subagents; keep parent agents control-only and assign implementation to exact route-selected @Bears roles.",
-      "Use $projectdevsubagents for GitHub Projects and Issues development planning; keep the L2 GitHub orchestrator metadata-only and split implementation into L3 @Bears worker packets."
+      "Use $projectdevsubagents for GitHub Projects and Issues development planning; keep the L2 GitHub orchestrator metadata-only and split implementation into L3 @Bears worker packets.",
+      "Validate GitHub Project subagent governance with `python3 scripts/github_project_subagents.py validate`; validate dispatch packets with `python3 scripts/github_project_subagents.py validate-assignment <packet.json>` before L2 or L3 assignment."
     ],
     "developerName": "Bears Workspace",
     "displayName": "Bears",
@@ -201,7 +203,8 @@
     "projectdevsubagents",
     "subagents-skill",
     "github-project-orchestrator",
-    "l3-bears-workers"
+    "l3-bears-workers",
+    "github-project-subagents-validator"
   ],
   "license": "UNLICENSED",
   "metadata": {

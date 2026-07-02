@@ -31,6 +31,11 @@ delivery_field=<field name>
 9. Read Actions metadata only; do not read raw logs unless a role and operator packet allow it.
 10. Use Releases or tags only when the delivery surface requires versioned evidence.
 
+11. Classify repository collaboration metadata: branches, commits, CODEOWNERS, repository topics, rules metadata, and team metadata. Keep settings mutation forbidden.
+12. Classify security metadata: code scanning alerts, secret scanning alert metadata, Dependabot alerts, and security advisories. Route security action to a security reviewer.
+13. Classify Discussions, Wiki, and Pages as non-actionable decision or knowledge records. Do not use them as implementation tracking surfaces.
+14. Validate the catalog with `python3 scripts/github_project_subagents.py validate` and validate each dispatch packet with `python3 scripts/github_project_subagents.py validate-assignment <packet.json>`.
+
 ## L3 assignment from GitHub item
 
 ```text

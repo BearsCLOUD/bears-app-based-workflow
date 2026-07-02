@@ -10,7 +10,7 @@
 - Role catalog: `assets/catalog/platform-role-catalog.v1.json`.
 - Git/CD contracts: `assets/catalog/git-deploy-contract.v1.json` and `assets/catalog/cd-kube-deploy-contract.v1.json`.
 - Canonical plugin constitution: `assets/catalog/plugin-constitution.v1.json`.
-- Canonical role gate: `scripts/platform_roles.py`.
+- Canonical role gate: `/srv/bears/plugins/bears/scripts/platform_roles.py`.
 
 ## Functional map
 - `agents/*.toml` — canonical Bears role profiles; sync generated OpenCode agents with `scripts/opencode_agent_sync.py`.

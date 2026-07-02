@@ -1,0 +1,141 @@
+{
+  "schema": "bears-github-project-subagents.v1",
+  "version": "1",
+  "updated": "2026-07-02",
+  "owner_role": "bears-github-project-issues-orchestrator",
+  "parent_lane": {
+    "role": "parent-control-lane",
+    "model": "surface_default",
+    "reasoning": "surface_default",
+    "allowed_actions": [
+      "select GitHub Project, repositories, issues, and L2 orchestrator lanes",
+      "start or reuse L2 orchestrator subagents",
+      "pass GitHub metadata packets and route/audit targets",
+      "wait for L2 evidence and integrate closeout packets",
+      "request gitflow closeout from bears-git-workflow-helper"
+    ],
+    "forbidden_actions": [
+      "implementation file writes",
+      "implementation shell commands",
+      "git add, git commit, git push, merge, or force push",
+      "runtime, deploy, provider, secret, repository settings, or production mutation",
+      "raw logs, secrets, credentials, private chats, raw VPN configs, or production data reads"
+    ]
+  },
+  "l2_orchestrator": {
+    "role": "bears-github-project-issues-orchestrator",
+    "model": "gpt-5.4-mini",
+    "reasoning": "high",
+    "allowed_actions": [
+      "read assigned GitHub Project, Issue, Pull Request, Actions, Release, Discussion, Wiki, Package, Deployment, label, milestone, branch, commit, and code scanning metadata",
+      "mutate Issues, sub-issues, Project items, Project fields, labels, milestones, assignees, links, and issue comments only when the parent packet authorizes mutation",
+      "prepare L3 /goal packets for route-selected @Bears roles",
+      "prepare role-improvement L3 packets when route/audit or role text is unsafe",
+      "write evidence-backed Project and Issue closeout metadata after L3 evidence"
+    ],
+    "forbidden_actions": [
+      "implementation file writes",
+      "implementation shell commands",
+      "git add, git commit, git push, merge, or force push",
+      "repository settings, branch protection, secrets, variables, webhooks, environments, deploy keys, Apps, organization settings, billing, or production mutation",
+      "raw GitHub Actions log reads unless a separate exact role and operator packet authorize them"
+    ]
+  },
+  "l3_worker": {
+    "role": "route-selected @Bears specialist or helper",
+    "model": "gpt-5.4-mini",
+    "reasoning": "high",
+    "allowed_actions": [
+      "execute one issue or Project item slice inside one repo boundary and one allowed write scope",
+      "run only assignment-authorized validations",
+      "return changed files, validation evidence, blockers, and GitHub closeout data"
+    ],
+    "forbidden_actions": [
+      "scope expansion beyond the route/audit packet",
+      "unassigned GitHub metadata mutation",
+      "secret, raw log, private chat, raw VPN config, or production data reads",
+      "deploy or runtime mutation unless the exact route and operator packet authorize it"
+    ]
+  },
+  "github_surfaces": [
+    {
+      "name": "projects_v2",
+      "coverage": ["Project owner", "number", "items", "views", "fields", "field options", "workflows", "charts", "draft issues", "linked issues", "linked pull requests"],
+      "allowed_lanes": ["parent-control", "l2-orchestrator"],
+      "mutation_policy": "L2 may mutate Project items and fields only with parent packet authorization and after evidence exists."
+    },
+    {
+      "name": "issues",
+      "coverage": ["issue type", "state", "body", "comments", "labels", "milestone", "assignees", "timeline", "linked branch", "linked pull request", "dependencies"],
+      "allowed_lanes": ["l2-orchestrator", "l3-worker-closeout"],
+      "mutation_policy": "L2 owns planning metadata; L3 returns closeout text for L2 to apply."
+    },
+    {
+      "name": "sub_issues",
+      "coverage": ["parent issue", "child issue", "priority", "progress", "multi-level decomposition"],
+      "allowed_lanes": ["l2-orchestrator"],
+      "mutation_policy": "L2 may create, attach, detach, or reprioritize sub-issues only for the assigned parent objective."
+    },
+    {
+      "name": "pull_requests",
+      "coverage": ["review state", "mergeability", "linked issues", "check suites", "review comments metadata", "base/head refs"],
+      "allowed_lanes": ["l2-orchestrator", "gitflow-closeout"],
+      "mutation_policy": "L2 may link and summarize PR metadata; gitflow owns commit/push and PR closeout when assigned."
+    },
+    {
+      "name": "actions_checks",
+      "coverage": ["workflow runs", "check suites", "check runs", "conclusions", "artifacts metadata", "rerun eligibility"],
+      "allowed_lanes": ["l2-orchestrator", "route-selected ci reviewer"],
+      "mutation_policy": "Metadata-only by default; raw logs and reruns require exact role plus operator authorization."
+    },
+    {
+      "name": "releases_tags_packages",
+      "coverage": ["tags", "releases", "release notes", "assets metadata", "packages metadata", "container package refs"],
+      "allowed_lanes": ["l2-orchestrator", "gitflow-closeout", "release role"],
+      "mutation_policy": "Versioned delivery mutation requires exact delivery route and parent packet."
+    },
+    {
+      "name": "discussions_wiki_pages",
+      "coverage": ["decision discussions", "Q&A", "announcements", "wiki pages", "non-actionable planning records"],
+      "allowed_lanes": ["l2-orchestrator"],
+      "mutation_policy": "Use for non-actionable decisions and public knowledge; do not replace Issues for work tracking."
+    },
+    {
+      "name": "code_security_metadata",
+      "coverage": ["code scanning alerts", "secret scanning alert metadata", "dependabot alerts", "security advisories"],
+      "allowed_lanes": ["route-selected security reviewer"],
+      "mutation_policy": "Read metadata only; no raw secret values, private payloads, dismissals, or settings mutation without exact security packet."
+    },
+    {
+      "name": "deployments_environments",
+      "coverage": ["deployment records", "environment names", "deployment status metadata", "protection rule metadata"],
+      "allowed_lanes": ["l2-orchestrator", "infra/deploy/kube audit lane"],
+      "mutation_policy": "Metadata-only for planning; runtime or environment mutation is forbidden outside exact deploy route."
+    },
+    {
+      "name": "repository_collaboration_metadata",
+      "coverage": ["branches", "commits", "compare", "code owners", "repository topics", "repository rules metadata", "teams metadata"],
+      "allowed_lanes": ["l2-orchestrator", "gitflow-closeout"],
+      "mutation_policy": "Read-only by default; repository settings, branch protection, teams, Apps, and webhooks are forbidden."
+    }
+  ],
+  "forbidden_mutations": [
+    "repository settings",
+    "branch protection",
+    "organization settings",
+    "secrets or variables",
+    "webhooks",
+    "deploy keys",
+    "GitHub Apps installation settings",
+    "billing",
+    "environment protection rules",
+    "raw secret, raw log, private chat, raw VPN config, or production data access"
+  ],
+  "required_validations": [
+    "python3 scripts/github_project_subagents.py validate",
+    "python3 scripts/platform_roles.py route skills/projectdevsubagents",
+    "python3 scripts/platform_roles.py audit skills/projectdevsubagents",
+    "python3 scripts/platform_roles.py route agents/bears-github-project-issues-orchestrator.toml",
+    "python3 scripts/platform_roles.py audit agents/bears-github-project-issues-orchestrator.toml"
+  ]
+}

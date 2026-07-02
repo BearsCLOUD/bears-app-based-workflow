@@ -1507,6 +1507,38 @@
       "scope_id": "product-apps-monorepo-policy",
       "status": "accepted",
       "unresolved_inputs": []
+    },
+    {
+      "affected_paths": [
+        ".codex-plugin/plugin.json",
+        "README.md",
+        "SPEC.md",
+        "agents/README.md",
+        "agents/bears-github-project-issues-orchestrator.toml",
+        "assets/catalog/artifact-registry.v1.json",
+        "assets/catalog/decision-ledger.v1.json",
+        "assets/catalog/platform-role-catalog.v1.json",
+        "assets/catalog/plugin-skill-catalog.v1.json",
+        "assets/catalog/release-notes.v1.json",
+        "docs/generated/README.skill-inventory.md",
+        "docs/generated/SPEC.skill-inventory.md",
+        "scripts/validate_overlay.py",
+        "skills/subagents/SKILL.md",
+        "skills/subagents/references/role-lanes.md",
+        "skills/projectdevsubagents/SKILL.md",
+        "skills/projectdevsubagents/references/github-project-issue-flow.md"
+      ],
+      "change_type": "workflow",
+      "contradictions": [],
+      "decision": "Add GitHub Project and Issue driven subagent governance with parent-control-only Project Dev Subagents, Subagents role-lane rules, and a GitHub Projects/Issues orchestrator role.",
+      "decision_id": "D-2026-07-02-github-project-subagents",
+      "owner_issue": "operator-goal-github-project-subagents",
+      "owner_role": "bears-subagent-orchestration-engineer",
+      "rationale": "The operator goal requires GitHub Projects, Issues, PR metadata, Actions metadata, Releases metadata, and @Bears L2/L3 subagent roles to be first-class workflow surfaces while preventing parent and L2 implementation authority.",
+      "redaction": "safe",
+      "scope_id": "github-project-subagent-orchestration",
+      "status": "accepted",
+      "unresolved_inputs": []
     }
   ],
   "schema": "bears-decision-ledger.v1",

@@ -323,7 +323,7 @@ The gate checks `/srv/bears/dev/registry/projects.v1.json`, then routes the targ
 
 `assets/catalog/plugin-skill-catalog.v1.json` is the single source of truth for active and disabled Bears plugin skills.
 
-Active discoverable skills: `bears-blocker-eval`, `bears-deploy-gate`, `bears-goal-prompt`, `bears-codex-health`, `bears-governance-check`, `bears-role-gate`, `bears-workflow-validate`, `development-workflow-orchestration`, `platform-role-governance`, `python-codeflow`, `project-mandate`, `secret-factory`, `speckit-bears-flow`, `speckit-bears-research`, `yandex360-dns`, `bears-kubernetes-ops`, `bears-infisical-ops`.
+Active discoverable skills: `bears-blocker-eval`, `bears-deploy-gate`, `bears-goal-prompt`, `bears-codex-health`, `bears-governance-check`, `bears-role-gate`, `bears-workflow-validate`, `development-workflow-orchestration`, `platform-role-governance`, `python-codeflow`, `project-mandate`, `secret-factory`, `speckit-bears-flow`, `speckit-bears-research`, `yandex360-dns`, `bears-kubernetes-ops`, `bears-infisical-ops`, `subagents`, `projectdevsubagents`, `codex-telegram-operator-gate`.
 
 Disabled preserved skill docs: `bears-telegram-workflow`, `telegram-aiogram-migration`, `telegram-plugin-skill-factory`, `telegram-quality-testing`.
 

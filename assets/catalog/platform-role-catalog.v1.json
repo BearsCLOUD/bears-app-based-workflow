@@ -205,7 +205,9 @@
       "workspace_network_map_docs",
       "workspace_root_github_actions_check_workflow",
       "workspace_root_submodule_gitlinks",
-      "yandex360_dns_skill_bundle"
+      "yandex360_dns_skill_bundle",
+      "subagents_skill_governance",
+      "projectdevsubagents_skill_governance"
     ],
     "no_role_policy": "blocker",
     "unknown_child_policy": "ROLE_COVERAGE_BLOCKER",
@@ -2026,6 +2028,54 @@
       "role_kind": "specialist",
       "primary_eligible": true,
       "execution_class": "specialist"
+    },
+    {
+      "agent_file": "agents/bears-github-project-issues-orchestrator.toml",
+      "allowed_write_zones": [
+        "assigned GitHub Project and Issue metadata when the parent packet authorizes mutation",
+        "assigned planning packet artifacts under skills/projectdevsubagents or exact workflow-governance route",
+        "L3 assignment packets and role-improvement packets that name exact @Bears roles"
+      ],
+      "developer_instructions_profile": "github-project-issues-orchestration",
+      "evidence_required": [
+        "GitHub Project item ids and field ids",
+        "Issue or sub-issue ids and linked PR ids",
+        "route/audit evidence for every L3 role assignment",
+        "Actions status metadata without raw logs",
+        "parent authorization packet for every GitHub metadata mutation"
+      ],
+      "execution_class": "helper",
+      "forbidden_actions": [
+        "product implementation",
+        "platform implementation",
+        "runtime mutation",
+        "deployment mutation",
+        "kubernetes_deployment mutation",
+        "local_cd mutation",
+        "provider mutation",
+        "repository settings mutation",
+        "branch protection mutation",
+        "secret access",
+        "env file read",
+        "raw log read",
+        "raw CI log read",
+        "raw chat read",
+        "raw VPN config read",
+        "production data read",
+        "shell history read",
+        "credential access",
+        "git add",
+        "git commit",
+        "git push",
+        "merge"
+      ],
+      "handoff_contract": "/srv/bears/dev/contracts/subagent_start_packet.md",
+      "model": "gpt-5.4-mini",
+      "name": "bears-github-project-issues-orchestrator",
+      "primary_eligible": true,
+      "role_kind": "helper",
+      "sandbox_mode": "workspace-write",
+      "scope": "GitHub Projects, Issues, sub-issues, PR metadata, Actions metadata, Releases metadata, and L3 @Bears assignment packets for project-driven development orchestration."
     }
   ],
   "platform_parts": [
@@ -11023,6 +11073,98 @@
         "read-only boundary change"
       ],
       "decomposition_required": false
+    },
+    {
+      "aliases": [
+        "subagents",
+        "skills/subagents",
+        "skills/subagents/SKILL.md",
+        "skills/subagents/references/role-lanes.md",
+        "/srv/bears/plugins/bears/skills/subagents",
+        "/srv/bears/plugins/bears/skills/subagents/SKILL.md",
+        "/srv/bears/plugins/bears/skills/subagents/references/role-lanes.md"
+      ],
+      "allowed_write_boundary": "Only /srv/bears/plugins/bears/skills/subagents/** for subagent usage instructions and references; no product, runtime, deployment, app, MCP, connector, provider, secret, production-data, raw-log, raw-chat, or raw-VPN-config authority.",
+      "concrete_scope": "Exact Subagents skill and direct references for parent control lanes, L2/L3 delegation, reusable workers, gitflow closeout, and subagent evidence packets.",
+      "decomposition_required": false,
+      "group": "workflow",
+      "name": "subagents_skill_governance",
+      "no_role_policy": "blocker",
+      "part_kind": "concrete",
+      "required_role": "bears-subagent-orchestration-engineer",
+      "required_validations": [
+        "python3 scripts/platform_roles.py route skills/subagents",
+        "python3 scripts/platform_roles.py audit skills/subagents",
+        "python3 scripts/platform_roles.py validate",
+        "python3 scripts/skill_catalog.py validate"
+      ],
+      "reviewer_triggers": [
+        "parent control lane authority change",
+        "L2 or L3 model matrix change",
+        "gitflow closeout authority change",
+        "restricted-data boundary change"
+      ],
+      "role_required": true,
+      "source": "skills/subagents/SKILL.md",
+      "supporting_roles": [
+        "bears-platform-security-reviewer"
+      ],
+      "trust_boundary": "This skill can widen future parent and worker authority if parent-control, L2, L3, or gitflow rules drift.",
+      "write_roots": [
+        "/srv/bears/plugins/bears/skills/subagents",
+        "skills/subagents"
+      ]
+    },
+    {
+      "aliases": [
+        "projectdevsubagents",
+        "project-dev-subagents",
+        "github-project-issues-orchestration",
+        "skills/projectdevsubagents",
+        "skills/projectdevsubagents/SKILL.md",
+        "skills/projectdevsubagents/references/github-project-issue-flow.md",
+        "/srv/bears/plugins/bears/skills/projectdevsubagents",
+        "/srv/bears/plugins/bears/skills/projectdevsubagents/SKILL.md",
+        "/srv/bears/plugins/bears/skills/projectdevsubagents/references/github-project-issue-flow.md",
+        "agents/bears-github-project-issues-orchestrator.toml",
+        "plugins/bears/agents/bears-github-project-issues-orchestrator.toml",
+        "/srv/bears/plugins/bears/agents/bears-github-project-issues-orchestrator.toml"
+      ],
+      "allowed_write_boundary": "Only /srv/bears/plugins/bears/skills/projectdevsubagents/** and /srv/bears/plugins/bears/agents/bears-github-project-issues-orchestrator.toml; no product, runtime, deploy, app, MCP, connector, provider, repository settings, branch protection, secrets, production data, raw logs, raw chats, or raw VPN configs.",
+      "concrete_scope": "Exact Project Dev Subagents skill, GitHub project/issue flow reference, and GitHub Projects/Issues orchestrator role artifact for project-driven L2/L3 development orchestration.",
+      "decomposition_required": false,
+      "group": "workflow",
+      "name": "projectdevsubagents_skill_governance",
+      "no_role_policy": "blocker",
+      "part_kind": "concrete",
+      "required_role": "bears-github-project-issues-orchestrator",
+      "required_validations": [
+        "python3 scripts/platform_roles.py route skills/projectdevsubagents",
+        "python3 scripts/platform_roles.py audit skills/projectdevsubagents",
+        "python3 scripts/platform_roles.py route agents/bears-github-project-issues-orchestrator.toml",
+        "python3 scripts/platform_roles.py audit agents/bears-github-project-issues-orchestrator.toml",
+        "python3 scripts/platform_roles.py validate",
+        "python3 scripts/skill_catalog.py validate"
+      ],
+      "reviewer_triggers": [
+        "GitHub Project mutation authority change",
+        "Issue closeout authority change",
+        "L2 or L3 delegation authority change",
+        "role-improvement spawn authority change",
+        "restricted-data boundary change"
+      ],
+      "role_required": true,
+      "source": "skills/projectdevsubagents/SKILL.md",
+      "supporting_roles": [
+        "bears-platform-security-reviewer"
+      ],
+      "trust_boundary": "This surface controls GitHub Project/Issue planning, metadata mutation, L3 assignment, and role-improvement delegation for future project-driven work.",
+      "write_roots": [
+        "/srv/bears/plugins/bears/skills/projectdevsubagents",
+        "skills/projectdevsubagents",
+        "/srv/bears/plugins/bears/agents/bears-github-project-issues-orchestrator.toml",
+        "agents/bears-github-project-issues-orchestrator.toml"
+      ]
     }
   ],
   "workflow_routes": [
@@ -13831,6 +13973,30 @@
       "expected_status": "matched",
       "required_role": "bears-telegram-platform-engineer",
       "required_route_id": "bears_telegram_workflow_skill_bundle"
+    },
+    {
+      "expected_status": "matched",
+      "required_role": "bears-subagent-orchestration-engineer",
+      "required_route_id": "subagents_skill_governance",
+      "target": "skills/subagents"
+    },
+    {
+      "expected_status": "matched",
+      "required_role": "bears-subagent-orchestration-engineer",
+      "required_route_id": "subagents_skill_governance",
+      "target": "/srv/bears/plugins/bears/skills/subagents"
+    },
+    {
+      "expected_status": "matched",
+      "required_role": "bears-github-project-issues-orchestrator",
+      "required_route_id": "projectdevsubagents_skill_governance",
+      "target": "skills/projectdevsubagents"
+    },
+    {
+      "expected_status": "matched",
+      "required_role": "bears-github-project-issues-orchestrator",
+      "required_route_id": "projectdevsubagents_skill_governance",
+      "target": "/srv/bears/plugins/bears/agents/bears-github-project-issues-orchestrator.toml"
     }
   ],
   "agent_profile_mappings": [

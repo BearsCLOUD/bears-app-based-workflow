@@ -536,7 +536,6 @@ Disabled skills expose only `SKILL.disabled.md`; they MUST NOT keep `SKILL.md`.
 - `skills/bears-deploy-gate` — Assess deploy, rollback, runtime, and secret impact for Bears workflow-overlay changes.
 - `skills/bears-goal-prompt` — Generate bounded and verifiable Codex goal prompts for Bears work.
 - `skills/bears-codex-health` — Diagnose Codex desktop/app-server freezes, MCP fan-out, session growth, and safe evidence-first remediation planning.
-- `skills/codex-telegram-operator-gate` — Route operator decisions, inline choices, feedback waits, and safe file exchange through the configured `codex-telegram` MCP server without a Telegram PreToolUse hook.
 - `skills/bears-governance-check` — Run Bears workflow-overlay governance routing checks before boundary edits.
 - `skills/bears-role-gate` — Validate or emit Bears role-coverage packets and ROLE_COVERAGE_BLOCKER results.
 - `skills/bears-workflow-validate` — Validate Bears workflow-overlay skill, README, schema-packet, and workflow boundaries.
@@ -550,6 +549,9 @@ Disabled skills expose only `SKILL.disabled.md`; they MUST NOT keep `SKILL.md`.
 - `skills/yandex360-dns` — DNS governance workflow for bears.ru through Yandex 360 using presence-only checks, dry-run plan review, and read-only governance evidence only.
 - `skills/bears-kubernetes-ops` — Perform Bears Kubernetes metadata checks, desired-state/local_cd deploy-boundary checks, secret-reference readiness, and dev-instance runtime placement guidance.
 - `skills/bears-infisical-ops` — Perform Bears Infisical names-only readiness, ExternalSecret provider handoff, and Telegram session custody checks without exposing secret values.
+- `skills/subagents` — Govern Bears subagent selection, L2/L3 delegation, parent-control-only mode, gitflow closeout lanes, and evidence packets.
+- `skills/projectdevsubagents` — Drive development from GitHub Projects and Issues through parent-control-only L2 orchestrators and gpt-5.4-mini high L3 @Bears workers.
+- `skills/codex-telegram-operator-gate` — Request bounded operator decisions, feedback waits, and safe file exchange through the configured codex-telegram MCP server without a Telegram PreToolUse hook.
 
 ## Disabled preserved skill docs
 - `skills/bears-telegram-workflow/SKILL.disabled.md` — Telegram workflow governance is preserved as an internal reference until active plugin discovery is re-enabled.

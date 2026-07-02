@@ -6455,6 +6455,91 @@
       "validation": [
         "python3 scripts/artifact_registry.py validate"
       ]
+    },
+    {
+      "allowed_writers": [
+        "bears-github-project-issues-orchestrator"
+      ],
+      "artifact_type": "doc",
+      "changelog_required": false,
+      "decision_ref_required": false,
+      "git_tracked": true,
+      "lifecycle": "doc",
+      "owner_issue": "operator-goal-github-project-subagents",
+      "owner_role": "bears-github-project-issues-orchestrator",
+      "path": "agents/bears-github-project-issues-orchestrator.toml",
+      "source_of_truth_status": "canonical",
+      "validation": [
+        "python3 scripts/artifact_registry.py validate"
+      ]
+    },
+    {
+      "allowed_writers": [
+        "bears-subagent-orchestration-engineer"
+      ],
+      "artifact_type": "doc",
+      "changelog_required": false,
+      "decision_ref_required": false,
+      "git_tracked": true,
+      "lifecycle": "doc",
+      "owner_issue": "operator-goal-github-project-subagents",
+      "owner_role": "bears-subagent-orchestration-engineer",
+      "path": "skills/subagents/SKILL.md",
+      "source_of_truth_status": "canonical",
+      "validation": [
+        "python3 scripts/artifact_registry.py validate"
+      ]
+    },
+    {
+      "allowed_writers": [
+        "bears-subagent-orchestration-engineer"
+      ],
+      "artifact_type": "doc",
+      "changelog_required": false,
+      "decision_ref_required": false,
+      "git_tracked": true,
+      "lifecycle": "doc",
+      "owner_issue": "operator-goal-github-project-subagents",
+      "owner_role": "bears-subagent-orchestration-engineer",
+      "path": "skills/subagents/references/role-lanes.md",
+      "source_of_truth_status": "canonical",
+      "validation": [
+        "python3 scripts/artifact_registry.py validate"
+      ]
+    },
+    {
+      "allowed_writers": [
+        "bears-github-project-issues-orchestrator"
+      ],
+      "artifact_type": "doc",
+      "changelog_required": false,
+      "decision_ref_required": false,
+      "git_tracked": true,
+      "lifecycle": "doc",
+      "owner_issue": "operator-goal-github-project-subagents",
+      "owner_role": "bears-github-project-issues-orchestrator",
+      "path": "skills/projectdevsubagents/SKILL.md",
+      "source_of_truth_status": "canonical",
+      "validation": [
+        "python3 scripts/artifact_registry.py validate"
+      ]
+    },
+    {
+      "allowed_writers": [
+        "bears-github-project-issues-orchestrator"
+      ],
+      "artifact_type": "doc",
+      "changelog_required": false,
+      "decision_ref_required": false,
+      "git_tracked": true,
+      "lifecycle": "doc",
+      "owner_issue": "operator-goal-github-project-subagents",
+      "owner_role": "bears-github-project-issues-orchestrator",
+      "path": "skills/projectdevsubagents/references/github-project-issue-flow.md",
+      "source_of_truth_status": "canonical",
+      "validation": [
+        "python3 scripts/artifact_registry.py validate"
+      ]
     }
   ],
   "schema": "bears-artifact-registry.v1",

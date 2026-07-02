@@ -66,6 +66,7 @@ AGENT_SANDBOX_MODE_MATRIX = {
     "bears-github-actions-access-settings-governor.toml": "workspace-write",
     "bears-github-actions-secrets-governor.toml": "workspace-write",
     "bears-github-branch-protection-settings-governor.toml": "workspace-write",
+    "bears-github-project-issues-orchestrator.toml": "workspace-write",
     "bears-git-workflow-helper.toml": "workspace-write",
     "bears-kubernetes-data-platform-engineer.toml": "workspace-write",
     "bears-goal-prompt-generator.toml": "workspace-write",

@@ -550,6 +550,70 @@
           "raw restricted-data access",
           "helper stops L2 without real blocker"
         ]
+      },
+      {
+        "id": "github-project-issues-product-app-l3-delegation-controller",
+        "role": "bears-github-project-issues-orchestrator",
+        "may_spawn_roles": [
+          "bears-product-app-zone-engineer"
+        ],
+        "lanes": [
+          "validated product app L3 assignment"
+        ],
+        "child_runtime": {
+          "model": "gpt-5.4-mini",
+          "reasoning_effort": "high",
+          "fork_context": false,
+          "parent_context": "none"
+        },
+        "required_packet_fields": [
+          "parent role route",
+          "child role",
+          "child lane",
+          "write scope or read-only scope",
+          "validation command",
+          "assignment packet id",
+          "validated assignment packet evidence",
+          "exact owner repo",
+          "exact local path",
+          "exact target path",
+          "exact write scope",
+          "route audit evidence",
+          "model",
+          "reasoning effort",
+          "fork_context",
+          "parent_context",
+          "pre-task hook evidence",
+          "operator missing data answers",
+          "operator drift answers",
+          "task-start authorization",
+          "spawn evidence",
+          "closeout evidence",
+          "validation hook result"
+        ],
+        "constraints": [
+          "use only after projectdevsubagents first-minute proof names this controller",
+          "use only with python3 scripts/github_project_subagents.py validate-assignment evidence or local-commit-owned equivalent",
+          "child role must be bears-product-app-zone-engineer and route-selected for the exact product app repo or app directory target",
+          "write scope must be equal to or narrower than the validated assignment packet",
+          "validation command must be exact and target-local or CI-owned by the assigned repo",
+          "fork_context must be false",
+          "parent_context must be none",
+          "parent remains control-only and may not implement product code"
+        ],
+        "forbidden": [
+          "parent context inheritance",
+          "parent product implementation",
+          "non-product role product implementation",
+          "unvalidated assignment packet",
+          "broad repo write scope",
+          "runtime mutation",
+          "deploy mutation",
+          "Kubernetes desired-state mutation",
+          "local_cd mutation",
+          "provider credential access",
+          "raw restricted-data access"
+        ]
       }
     ],
     "multiple_orchestrators_allowed": true,

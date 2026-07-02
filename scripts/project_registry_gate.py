@@ -22,7 +22,6 @@ ALLOWED_PROFILES = {
     "module_service",
     "plugin_repo",
     "infra_repo",
-    "transitional_container",
 }
 ALLOWED_MATCH_POLICIES = {"exact", "self_or_child"}
 REQUIRED_ENTRY_FIELDS = {
@@ -62,6 +61,17 @@ APPROVAL_MARKERS = (
     "approved by operator",
     "approval evidence",
     "approval required",
+)
+FORBIDDEN_SCAN_ROOTS = (
+    ".git",
+    ".knowledge",
+    "runtime",
+    ".worktrees",
+    ".tmp",
+    "deprecated",
+    "legacy",
+    "node_modules",
+    "__pycache__",
 )
 SPEC_KIT_ANALYZE_ARTIFACT = "speckit-analyze.json"
 SPEC_KIT_ANALYZE_SCHEMA = "bears.speckit-analyze.v1"
@@ -419,10 +429,123 @@ def gate_project_mandate(
         "role_target": role_target,
         "primary_role": route_packet.get("primary_role"),
         "concrete_part": route_packet.get("concrete_part"),
+        "supporting_roles": route_packet.get("supporting_roles", []),
         "project_mandate_allowed": True,
         "next_action": "run project-mandate checklist for this registered target",
         **_spec_packet_fields(entry),
     }
+
+
+def _is_within(path: Path, root: Path) -> bool:
+    try:
+        path.resolve().relative_to(root.resolve())
+    except ValueError:
+        return False
+    return True
+
+
+def _existing_parent_for_router(target: str) -> Path:
+    path = Path(normalize_path(target))
+    if path.exists() and path.is_file():
+        return path.parent
+    if path.suffix and not path.exists():
+        return path.parent
+    return path
+
+
+def find_nearest_router(target: str) -> str | None:
+    """Return the nearest AGENTS.md by walking parents only."""
+    start = _existing_parent_for_router(target)
+    workspace_root = Path("/srv/bears")
+    for candidate in (start, *start.parents):
+        if not _is_within(candidate, workspace_root) and candidate != workspace_root:
+            break
+        router = candidate / "AGENTS.md"
+        if router.is_file():
+            return str(router)
+        if candidate == workspace_root:
+            break
+    return None
+
+
+def _listed_read_paths(*, target: str, registry_path: Path, nearest_router: str | None) -> list[str]:
+    """Return the small read list for one project-mandate target."""
+    paths = {str(registry_path), "/srv/bears/dev/PROJECTS.md"}
+    target_path = Path(normalize_path(target))
+    if target_path.exists():
+        paths.add(str(target_path))
+    if nearest_router:
+        paths.add(nearest_router)
+    return sorted(paths)
+
+
+def build_mandate_packet(
+    target: str,
+    *,
+    registry: dict[str, Any],
+    registry_path: Path = DEFAULT_REGISTRY,
+    role_catalog_path: Path = DEFAULT_ROLE_CATALOG,
+    plugin_root: Path = PLUGIN_ROOT,
+) -> dict[str, Any]:
+    """Build the smallest project-mandate packet for one target."""
+    gate_packet = gate_project_mandate(
+        target,
+        registry=registry,
+        role_catalog_path=role_catalog_path,
+        plugin_root=plugin_root,
+    )
+    if gate_packet.get("status") != "matched":
+        return gate_packet
+
+    nearest_router = find_nearest_router(target)
+    entry = find_registered_entry(registry, target)
+    configured_validation = entry.get("validation_commands") if entry else None
+    validation_commands = (
+        configured_validation if isinstance(configured_validation, list) else []
+    )
+    packet = dict(gate_packet)
+    packet.update(
+        {
+            "packet_type": "project_mandate_packet",
+            "nearest_router": nearest_router,
+            "role_route_source": "project_registry_gate.py gate",
+            "read_paths": _listed_read_paths(
+                target=target,
+                registry_path=registry_path,
+                nearest_router=nearest_router,
+            ),
+            "forbidden_scan_roots": list(FORBIDDEN_SCAN_ROOTS),
+            "validation_commands": validation_commands,
+            "next_action": "read only read_paths, then answer the requested target check",
+        }
+    )
+    return packet
+
+
+def render_mandate_packet(packet: dict[str, Any]) -> str:
+    """Render the bounded mandate packet without artifact inventory."""
+    if packet.get("status") != "matched":
+        return render_packet(packet)
+    lines = [
+        "status: matched",
+        "packet_type: project_mandate_packet",
+        f"target: {packet.get('target')}",
+        f"project_id: {packet.get('project_id')}",
+        f"artifact_profile: {packet.get('artifact_profile')}",
+        f"primary_role: {packet.get('primary_role')}",
+        f"concrete_part: {packet.get('concrete_part')}",
+        f"nearest_router: {_render_value(packet.get('nearest_router'))}",
+        "workspace_scan: forbidden",
+        "read_paths:",
+    ]
+    lines.extend(f"  - {item}" for item in packet.get("read_paths", []))
+    lines.append("forbidden_scan_roots:")
+    lines.extend(f"  - {item}" for item in FORBIDDEN_SCAN_ROOTS)
+    lines.append("validation_commands:")
+    validations = packet.get("validation_commands", [])
+    lines.extend(f"  - {item}" for item in validations) if validations else lines.append("  - none")
+    lines.append(f"next_action: {packet.get('next_action')}")
+    return "\n".join(lines)
 
 
 def _render_value(value: Any) -> str:
@@ -484,6 +607,8 @@ def build_parser() -> argparse.ArgumentParser:
     sub.add_parser("validate-registry", help="validate the machine project registry")
     gate = sub.add_parser("gate", help="check whether project-mandate may run for a target")
     gate.add_argument("target")
+    mandate = sub.add_parser("mandate-packet", help="print the bounded project-mandate checklist packet")
+    mandate.add_argument("target")
     return parser
 
 
@@ -528,16 +653,26 @@ def main(argv: list[str] | None = None) -> int:
         platform_roles = load_platform_roles_module()
         load_role_catalog(Path(args.role_catalog), platform_roles_module=platform_roles)
         registry = load_json(Path(args.registry))
-        packet = gate_project_mandate(
-            args.target,
-            registry=registry,
-            role_catalog_path=Path(args.role_catalog),
-        )
+        if args.command == "mandate-packet":
+            packet = build_mandate_packet(
+                args.target,
+                registry=registry,
+                registry_path=Path(args.registry),
+                role_catalog_path=Path(args.role_catalog),
+            )
+        else:
+            packet = gate_project_mandate(
+                args.target,
+                registry=registry,
+                role_catalog_path=Path(args.role_catalog),
+            )
     except ValueError as exc:
         print(f"ERROR: {exc}", file=sys.stderr)
         return 1
     if args.json:
         print(json.dumps(packet, indent=2, ensure_ascii=False))
+    elif args.command == "mandate-packet":
+        print(render_mandate_packet(packet))
     else:
         print(render_packet(packet))
     return 0 if packet.get("status") == "matched" else 2

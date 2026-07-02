@@ -1,4 +1,4 @@
 interface:
   display_name: "Bears Project Mandate"
-  short_description: "Registry-gated project artifact checklist for Bears paths"
-  default_prompt: "Use $project-mandate only after the Bears project registry gate allows the target path."
+  short_description: "Bounded project packet for one registered Bears target"
+  default_prompt: "Run project_registry_gate.py mandate-packet for the exact target. Read only packet read_paths and the exact target if needed. Do not scan /srv/bears or build an artifact inventory."

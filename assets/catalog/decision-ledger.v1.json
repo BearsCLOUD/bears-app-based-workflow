@@ -1659,6 +1659,25 @@
       "scope_id": "instruction-drift-cleanup",
       "status": "accepted",
       "unresolved_inputs": []
+    },
+    {
+      "affected_paths": [
+        "scripts/project_registry_gate.py",
+        "skills/project-mandate/SKILL.md",
+        "skills/project-mandate/agents/openai.yaml",
+        "tests/test_project_registry_gate.py"
+      ],
+      "change_type": "workflow",
+      "contradictions": [],
+      "decision": "Project mandate uses a small registry-gated mandate-packet for one target and must not build a workspace artifact inventory.",
+      "decision_id": "D-2026-07-02-011-project-mandate-bounded-packet",
+      "owner_issue": "#11",
+      "owner_role": "bears-platform-role-governor",
+      "rationale": "Agents were getting stuck because the skill asked for broad checks; the packet now gives exact read_paths and forbids workspace scans.",
+      "redaction": "safe",
+      "scope_id": "project-mandate-bounded-packet",
+      "status": "accepted",
+      "unresolved_inputs": []
     }
   ],
   "schema": "bears-decision-ledger.v1",

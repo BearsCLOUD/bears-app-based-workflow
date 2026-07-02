@@ -670,6 +670,48 @@ class ProjectRegistryGateTest(unittest.TestCase):
         self.assertEqual(packet["status"], "matched")
         self.assertEqual(packet["primary_role"], "bears-platform-role-governor")
 
+
+    def test_mandate_packet_is_target_bound_and_forbids_workspace_scan(self) -> None:
+        packet = project_registry_gate.build_mandate_packet(
+            "/srv/bears/plugins/bears/skills/project-mandate/SKILL.md",
+            registry=self.registry,
+            registry_path=PLUGIN_ROOT / "tests" / "fixtures" / "projects.v1.json",
+            plugin_root=PLUGIN_ROOT,
+        )
+
+        self.assertEqual(packet["status"], "matched")
+        self.assertEqual(packet["packet_type"], "project_mandate_packet")
+        self.assertEqual(packet["nearest_router"], "/srv/bears/plugins/bears/AGENTS.md")
+        self.assertIn(".worktrees", packet["forbidden_scan_roots"])
+        self.assertIn("runtime", packet["forbidden_scan_roots"])
+        self.assertNotIn("required_artifacts", packet)
+        self.assertIn("/srv/bears/plugins/bears/skills/project-mandate/SKILL.md", packet["read_paths"])
+        self.assertNotIn("/srv/bears", packet["read_paths"])
+
+    def test_mandate_packet_cli_renders_bounded_checklist(self) -> None:
+        with tempfile.NamedTemporaryFile("w", encoding="utf-8", suffix=".json") as handle:
+            json.dump(self.registry, handle)
+            handle.flush()
+
+            result = subprocess.run(
+                [
+                    sys.executable,
+                    str(SCRIPT_PATH),
+                    "--registry",
+                    handle.name,
+                    "mandate-packet",
+                    "/srv/bears/plugins/bears/skills/project-mandate/SKILL.md",
+                ],
+                check=False,
+                text=True,
+                capture_output=True,
+            )
+
+        self.assertEqual(result.returncode, 0, result.stderr + result.stdout)
+        self.assertIn("packet_type: project_mandate_packet", result.stdout)
+        self.assertIn("workspace_scan: forbidden", result.stdout)
+        self.assertNotIn("required_artifacts", result.stdout)
+
     def test_registered_workspace_control_speckit_surfaces_route_to_governor(self) -> None:
         cases = {
             "/srv/bears": "bears-workspace-control-root",

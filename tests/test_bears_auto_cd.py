@@ -364,6 +364,34 @@ def test_auto_cd_supports_local_image_build_and_k3d_load() -> None:
     text = SCRIPT.read_text(encoding="utf-8")
     assert "def build_local_image" in text
     assert '"docker", "build", "--pull"' in text
+    assert '"--build-arg", f"{name}="' in text
+    assert '"clear_proxy_build_args"' in text
     assert "def load_local_image_to_k3d" in text
     assert '"ctr", "-n", "k8s.io", "images", "import", "-"' in text
     assert "load_local_image_to_k3d(cd_contract, local_image_ref, env)" in text
+
+
+def test_cd_contract_declares_callsaver_starter_app() -> None:
+    contract = json.loads(CD_CONTRACT.read_text(encoding="utf-8"))
+    apps = {item["application"]: item for item in contract["applications"]}
+    app = apps["callsaver-starter"]
+    assert app["source"]["manifest_path"] == "manifests/callsaver-starter"
+    assert app["source"]["image_repository"] == "callsaver-starter"
+    assert app["source"]["image_digest_required"] is False
+    assert app["source"]["reject_latest_tag"] is True
+    assert app["source"]["image_ref"] == "callsaver-starter:0.1.0"
+    build = app["source"]["local_image_build"]
+    assert build["enabled"] is True
+    assert build["source_repository"] == "BearsCLOUD/apps"
+    assert build["source_subpath"] == "callsaver"
+    assert build["context_path"] == ".callsaver-source"
+    assert build["clear_proxy_build_args"] is True
+    assert app["kubernetes"]["namespace"] == "callsaver-dev"
+    assert app["kubernetes"]["deployment"] == "callsaver-starter"
+    assert app["kubernetes"]["kubeconfig_source"] == "runner_environment"
+    assert app["kubernetes"]["apply_mode"] == "server_side"
+    assert "callsaver-yandex-ai-studio-runtime" in app["required_manifest_literals"]
+    assert "YC_API_KEY" in app["required_manifest_literals"]
+    assert "YANDEX_AI_STUDIO_KEY_ID" in app["required_manifest_literals"]
+    assert "kind: Secret" in app["forbidden_manifest_literals"]
+    assert "stringData:" in app["forbidden_manifest_literals"]

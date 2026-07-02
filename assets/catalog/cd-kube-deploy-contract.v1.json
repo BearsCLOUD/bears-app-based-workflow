@@ -2,7 +2,7 @@
   "schema": "bears.cd-kube-deploy-contract.v1",
   "version": 1,
   "owner_plugin": "bears",
-  "updated": "2026-06-27",
+  "updated": "2026-07-02",
   "purpose": "Machine-readable Kubernetes CD contract for Bears Codex workspace production runtimes.",
   "application": "codex-telegram-mcp",
   "repository": "BearsCLOUD/bears-infra",
@@ -224,6 +224,73 @@
             "kind": "ClusterSecretStore",
             "name": "infisical-bears",
             "reason": "tgsearch ExternalSecret uses the shared Infisical ClusterSecretStore"
+          }
+        ]
+      }
+    },
+    {
+      "application": "callsaver-starter",
+      "source": {
+        "branch_source": "git_contract",
+        "manifest_path": "manifests/callsaver-starter",
+        "image_repository": "callsaver-starter",
+        "image_digest_required": false,
+        "reject_latest_tag": true,
+        "reject_placeholder_digest": true,
+        "image_ref": "callsaver-starter:0.1.0",
+        "local_image_build": {
+          "enabled": true,
+          "source_repository": "BearsCLOUD/apps",
+          "source_ref": "local-dev-instance",
+          "context_path": ".callsaver-source",
+          "dockerfile": "Dockerfile",
+          "clear_proxy_build_args": true,
+          "load_to_k3d_nodes": true,
+          "source_subpath": "callsaver"
+        }
+      },
+      "kubernetes": {
+        "server_alias": "fyuriserv",
+        "environment": "prod",
+        "namespace": "callsaver-dev",
+        "deployment": "callsaver-starter",
+        "service": "callsaver-starter",
+        "kubeconfig_source": "runner_environment",
+        "apply_mode": "server_side",
+        "restart_after_apply": true,
+        "rollout_timeout_seconds": 600
+      },
+      "forbidden_manifest_literals": [
+        "kind: Secret",
+        "stringData:",
+        ":latest",
+        "image: latest"
+      ],
+      "required_manifest_literals": [
+        "callsaver-dev",
+        "callsaver-starter",
+        "callsaver-yandex-ai-studio-runtime",
+        "ClusterSecretStore",
+        "infisical-bears",
+        "readOnlyRootFilesystem: true",
+        "allowPrivilegeEscalation: false",
+        "callsaver-starter:0.1.0",
+        "YC_API_KEY",
+        "YANDEX_AI_STUDIO_KEY_ID",
+        "/health"
+      ],
+      "preflight": {
+        "api_resources": [
+          {
+            "name": "externalsecrets.external-secrets.io",
+            "reason": "CallSaver Yandex AI Studio credentials are supplied through ExternalSecret"
+          }
+        ],
+        "cluster_resources": [
+          {
+            "kind": "ClusterSecretStore",
+            "name": "infisical-bears",
+            "reason": "CallSaver ExternalSecret uses the shared Infisical ClusterSecretStore"
           }
         ]
       }

@@ -685,6 +685,9 @@ def build_local_image(repo_root: Path, contract: dict[str, Any]) -> str:
     if not context_path.is_dir():
         raise ContractError("local image build context path is missing")
     command = ["docker", "build", "--pull", "-t", image_ref]
+    if config.get("clear_proxy_build_args") is True:
+        for name in ("HTTP_PROXY", "HTTPS_PROXY", "ALL_PROXY", "http_proxy", "https_proxy", "all_proxy"):
+            command.extend(["--build-arg", f"{name}="])
     dockerfile = str(config.get("dockerfile", ""))
     if dockerfile:
         dockerfile_path = safe_repo_relative_path(context_path, dockerfile, "source.local_image_build.dockerfile")

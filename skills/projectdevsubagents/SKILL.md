@@ -99,6 +99,20 @@ L2 forbidden actions:
 - repository settings, branch protection, secret, variable, webhook, GitHub App, billing, or environment mutation;
 - reading secrets, raw logs, raw chats, raw VPN configs, credentials, or production data.
 
+## Decomposition and retry rules
+
+- Parent talks to L2 only; L2 talks to L3 only.
+- When decomposition is needed, L2 must create and link child Issues, add each child to the GitHub Project, and then return `DECOMPOSED_ONLY`.
+- `DECOMPOSED_ONLY` means no L3 dispatch in the same five-minute wave.
+- The first child execution is a separate parent assignment after the child Issue and Project metadata are visible.
+- Do not combine decomposition and first L3 execution in one five-minute wave.
+- After a tiny-slice timeout, retry only that child slice with a child-only packet; skip broad discovery.
+- `RESET` and `CLEANUP` packets are terminal; do not continue or start L3 after either packet.
+- A timeout `READY` result is rejected; close uncommitted work and do not commit or push.
+- Parallel L2 fan-out is allowed only for dependency-ready disjoint scopes.
+- Parent timeout after combined decomposition + execution is workflow drift, even when no files changed.
+- Regression example: `BearsCLOUD/apps#38` -> `#45` and `#46`; L2 started L3 `019f2437-d47a-7590-b8fe-37c02d7a49d5`; parent wait exceeded five minutes; the worker was interrupted; no files changed in `/srv/bears/dev/app/callsaver`.
+
 ## L2 execution loop
 
 For each assigned Project item or Issue:
@@ -108,13 +122,14 @@ For each assigned Project item or Issue:
 3. Run route/audit for the target path.
 4. If route/audit returns `ROLE_COVERAGE_BLOCKER`, create a role-improvement L3 packet and keep the implementation item blocked.
 5. Split work when repo boundary, @Bears role, write scope, validation path, or deploy/runtime boundary differs.
-6. Build one L3 packet per split.
-7. Validate every materialized L3 packet only through local-commit-owned or operator-approved `python3 scripts/github_project_subagents.py validate-assignment <packet.json>` evidence.
-8. Dispatch L3 workers.
-9. Collect L3 closeout packets.
-10. Update Project/Issue state only from L3 evidence, validation proof, commit SHA, PR metadata, Release metadata, or blocker proof.
-11. Request gitflow closeout when files changed.
-12. Report item status to the parent.
+6. If decomposition is needed, create and link child Issues, add each child to the GitHub Project, and return `DECOMPOSED_ONLY`; do not dispatch L3 in the same wave.
+7. Build one L3 packet per split only after the child metadata is visible.
+8. Validate every materialized L3 packet only through local-commit-owned or operator-approved `python3 scripts/github_project_subagents.py validate-assignment <packet.json>` evidence.
+9. Dispatch L3 workers.
+10. Collect L3 closeout packets.
+11. Update Project/Issue state only from L3 evidence, validation proof, commit SHA, PR metadata, Release metadata, or blocker proof.
+12. Request gitflow closeout when files changed.
+13. Report item status to the parent.
 
 ## L3 worker lane
 

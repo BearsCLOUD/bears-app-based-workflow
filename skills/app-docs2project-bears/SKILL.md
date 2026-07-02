@@ -96,10 +96,15 @@ Hard micro-decomposition rules:
 - Docs and implementation mixing is forbidden except exact command docs or contract docs that are required to explain the same changed artifact.
 - Reject or split any planned execution Issue before Project handoff when any micro-slice check answer is `no`.
 - A one-file or atomic slice that misses the parent 5-minute wait budget is workflow drift. Abort or clean up the worker attempt, record workflow/skill drift, and require either a low-overhead L2/L3 packet path or explicit operator approval before relaxing the wait budget.
+- When an item needs decomposition, L2 creates or links the child Issues, records dependencies, and returns `DECOMPOSED_ONLY` without L3 dispatch.
+- L2 must not combine decomposition and first L3 execution in the same five-minute wave.
+- Any combined decomposition+execution attempt that exceeds the 5-minute wave is workflow drift, even when the L3 worker changes no files.
 
-Regression example:
+Regression examples:
 
 - `STT interface + Yandex adapter + OpenAI adapter + metrics + docs` is the CallSaver #23 broad-pattern failure. It must split into separate execution Issues before Project handoff.
+- #38, #45, and #46 are regression examples for decomposition that must stop at `DECOMPOSED_ONLY` until child Issues are ready.
+- #52, #54, #55, #56, and #53 are later tiny-slice timeout evidence: do not use L3 dispatch to test a newly decomposed child in the same five-minute wave.
 
 Block broad work instead of creating an execution Issue when the docs do not make the task decision-complete. Forbidden broad titles include `implement backend`, `make UI`, `finish MVP`, `integrate platform`, and any equivalent title without exact files, behavior, acceptance, validation, and role.
 

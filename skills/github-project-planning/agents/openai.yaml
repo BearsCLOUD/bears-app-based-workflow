@@ -1,0 +1,4 @@
+interface:
+  display_name: "GitHub Project Planning"
+  short_description: "Plan Bears GitHub Projects and Issues"
+  default_prompt: "Use $github-project-planning to plan a Bears GitHub Project with fields, views, Issues, metadata gates, and projectdevsubagents handoff."

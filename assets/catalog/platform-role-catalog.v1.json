@@ -208,6 +208,7 @@
       "yandex360_dns_skill_bundle",
       "subagents_skill_governance",
       "projectdevsubagents_skill_governance",
+      "github_project_planning_skill_governance",
       "execution_kernel_authority_map_support",
       "bears_ru_brand_site_archive_source",
       "bearsapk_android_app_archive_source",
@@ -2079,7 +2080,7 @@
         "merge"
       ],
       "handoff_contract": "/srv/bears/dev/contracts/subagent_start_packet.md",
-      "model": "gpt-5.4-mini",
+      "model": "gpt-5.5",
       "name": "bears-github-project-issues-orchestrator",
       "primary_eligible": true,
       "role_kind": "helper",
@@ -4398,7 +4399,35 @@
         "docs/reference/capability-governance-rules.md",
         "plugins/bears/docs/reference/spec-kit-source-boundary.md",
         "/srv/bears/plugins/bears/docs/reference/spec-kit-source-boundary.md",
-        "docs/reference/spec-kit-source-boundary.md"
+        "docs/reference/spec-kit-source-boundary.md",
+        "bears-project-constitution",
+        "skills/bears-project-constitution",
+        "skills/bears-project-constitution/SKILL.md",
+        "plugins/bears/skills/bears-project-constitution",
+        "plugins/bears/skills/bears-project-constitution/SKILL.md",
+        "/srv/bears/plugins/bears/skills/bears-project-constitution",
+        "/srv/bears/plugins/bears/skills/bears-project-constitution/SKILL.md",
+        "bears-project-specify",
+        "skills/bears-project-specify",
+        "skills/bears-project-specify/SKILL.md",
+        "plugins/bears/skills/bears-project-specify",
+        "plugins/bears/skills/bears-project-specify/SKILL.md",
+        "/srv/bears/plugins/bears/skills/bears-project-specify",
+        "/srv/bears/plugins/bears/skills/bears-project-specify/SKILL.md",
+        "bears-project-plan",
+        "skills/bears-project-plan",
+        "skills/bears-project-plan/SKILL.md",
+        "plugins/bears/skills/bears-project-plan",
+        "plugins/bears/skills/bears-project-plan/SKILL.md",
+        "/srv/bears/plugins/bears/skills/bears-project-plan",
+        "/srv/bears/plugins/bears/skills/bears-project-plan/SKILL.md",
+        "bears-project-analyze",
+        "skills/bears-project-analyze",
+        "skills/bears-project-analyze/SKILL.md",
+        "plugins/bears/skills/bears-project-analyze",
+        "plugins/bears/skills/bears-project-analyze/SKILL.md",
+        "/srv/bears/plugins/bears/skills/bears-project-analyze",
+        "/srv/bears/plugins/bears/skills/bears-project-analyze/SKILL.md"
       ],
       "group": "workflow",
       "required_role": "bears-workflow-overlay-platform-engineer",
@@ -4424,7 +4453,15 @@
         "/srv/bears/plugins/bears/docs/reference/capability-governance-rules.md",
         "docs/reference/capability-governance-rules.md",
         "/srv/bears/plugins/bears/docs/reference/spec-kit-source-boundary.md",
-        "docs/reference/spec-kit-source-boundary.md"
+        "docs/reference/spec-kit-source-boundary.md",
+        "/srv/bears/plugins/bears/skills/bears-project-constitution",
+        "skills/bears-project-constitution",
+        "/srv/bears/plugins/bears/skills/bears-project-specify",
+        "skills/bears-project-specify",
+        "/srv/bears/plugins/bears/skills/bears-project-plan",
+        "skills/bears-project-plan",
+        "/srv/bears/plugins/bears/skills/bears-project-analyze",
+        "skills/bears-project-analyze"
       ],
       "concrete_scope": "Canonical workflow-overlay core plugin packaging, Spec Kit initialization policy, ignored generated Spec Kit workspace boundary, capability governance rules reference, Bears-owned overlay skills, workflows, templates, and core governance agent TOML files.",
       "allowed_write_boundary": "Only listed canonical plugin core manifest, Spec Kit initialization policy, ignored generated Spec Kit workspace boundary, capability governance rules reference, Bears-owned overlay skills, workflows, templates, and core governance agent TOML files; no product/runtime/local_cd/kubernetes_deployment/integration edits, no standalone Telegram plugin restoration, no tracked .specify generated files, no upstream-speckit workflow authority, and no upstream speckit-* skill vendoring.",
@@ -11276,8 +11313,8 @@
         "/srv/bears/plugins/bears/scripts/github_project_subagents.py",
         "/srv/bears/plugins/bears/docs/reference/github-project-subagents.md"
       ],
-      "allowed_write_boundary": "Only /srv/bears/plugins/bears/skills/projectdevsubagents/**, /srv/bears/plugins/bears/agents/bears-github-project-issues-orchestrator.toml, /srv/bears/plugins/bears/assets/catalog/github-project-subagents.v1.json, /srv/bears/plugins/bears/assets/schemas/github-project-subagents.v1.schema.json, /srv/bears/plugins/bears/scripts/github_project_subagents.py, and /srv/bears/plugins/bears/docs/reference/github-project-subagents.md; no product, runtime, deploy, app, MCP, connector, provider, repository settings, branch protection, secrets, production data, raw logs, raw chats, or raw VPN configs.",
-      "concrete_scope": "Exact Project Dev Subagents skill, GitHub project/issue flow reference, and GitHub Projects/Issues orchestrator role artifact for project-driven L2/L3 development orchestration.",
+      "allowed_write_boundary": "Only /srv/bears/plugins/bears/skills/projectdevsubagents/**, /srv/bears/plugins/bears/agents/bears-github-project-issues-orchestrator.toml, /srv/bears/plugins/bears/assets/catalog/github-project-subagents.v1.json, /srv/bears/plugins/bears/assets/schemas/github-project-subagents.v1.schema.json, /srv/bears/plugins/bears/scripts/github_project_subagents.py, and /srv/bears/plugins/bears/docs/reference/github-project-subagents.md; no GitHub Project field-model planning/admin skill edits, product, runtime, deploy, app, MCP, connector, provider, repository settings, branch protection, secrets, production data, raw logs, raw chats, or raw VPN configs.",
+      "concrete_scope": "Exact Project Dev Subagents skill, GitHub project/issue flow reference, and GitHub Projects/Issues orchestrator role artifact for project-driven L2/L3 development orchestration from already prepared Project/Issue state.",
       "decomposition_required": false,
       "group": "workflow",
       "name": "projectdevsubagents_skill_governance",
@@ -11305,7 +11342,7 @@
       "supporting_roles": [
         "bears-platform-security-reviewer"
       ],
-      "trust_boundary": "This surface controls GitHub Project/Issue planning, metadata mutation, L3 assignment, and role-improvement delegation for future project-driven work.",
+      "trust_boundary": "This surface consumes prepared GitHub Project/Issue state for metadata-backed L2/L3 development orchestration. GitHub Project planning/admin policy belongs to github_project_planning_skill_governance.",
       "write_roots": [
         "/srv/bears/plugins/bears/skills/projectdevsubagents",
         "skills/projectdevsubagents",
@@ -11320,6 +11357,63 @@
         "/srv/bears/plugins/bears/docs/reference/github-project-subagents.md",
         "docs/reference/github-project-subagents.md"
       ]
+    },
+    {
+      "name": "github_project_planning_skill_governance",
+      "aliases": [
+        "github-project-planning",
+        "github project planning",
+        "github project administration",
+        "github project roadmap planning",
+        "skills/github-project-planning",
+        "skills/github-project-planning/SKILL.md",
+        "skills/github-project-planning/references/planning-flow.md",
+        "skills/github-project-planning/references/field-model.md",
+        "skills/github-project-planning/references/item-and-issue-rules.md",
+        "skills/github-project-planning/references/views-and-roadmap.md",
+        "skills/github-project-planning/references/apps-migration-project.md",
+        "/srv/bears/plugins/bears/skills/github-project-planning",
+        "/srv/bears/plugins/bears/skills/github-project-planning/SKILL.md",
+        "/srv/bears/plugins/bears/skills/github-project-planning/references/planning-flow.md",
+        "/srv/bears/plugins/bears/skills/github-project-planning/references/field-model.md",
+        "/srv/bears/plugins/bears/skills/github-project-planning/references/item-and-issue-rules.md",
+        "/srv/bears/plugins/bears/skills/github-project-planning/references/views-and-roadmap.md",
+        "/srv/bears/plugins/bears/skills/github-project-planning/references/apps-migration-project.md"
+      ],
+      "group": "workflow",
+      "required_role": "bears-github-project-issues-orchestrator",
+      "role_required": true,
+      "no_role_policy": "blocker",
+      "source": "skills/github-project-planning/SKILL.md",
+      "part_kind": "concrete",
+      "write_roots": [
+        "/srv/bears/plugins/bears/skills/github-project-planning",
+        "skills/github-project-planning"
+      ],
+      "concrete_scope": "Exact GitHub Project planning/admin skill and references for Project selection or creation packets, field models, views, issue and sub-issue structure, item hygiene, roadmap planning, and planning PASS handoff before development orchestration.",
+      "allowed_write_boundary": "Only /srv/bears/plugins/bears/skills/github-project-planning/**; no product, platform, runtime, deploy, app, MCP, connector, provider, repository settings, branch protection, secrets, production data, raw logs, raw chats, or raw VPN configs.",
+      "trust_boundary": "This surface controls planning/admin guidance for GitHub Projects and Issues before development execution. It may prepare or validate operator-authorized metadata packets but must not execute L2/L3 dev orchestration, implementation, repository settings mutation, runtime/deploy mutation, or secret access.",
+      "required_validations": [
+        "python3 scripts/platform_roles.py route skills/github-project-planning",
+        "python3 scripts/platform_roles.py audit skills/github-project-planning",
+        "python3 scripts/platform_roles.py route assets/catalog/plugin-skill-catalog.v1.json",
+        "python3 scripts/skill_catalog.py validate",
+        "python3 scripts/skill_catalog.py generate --check",
+        "python3 scripts/platform_roles.py validate",
+        "python3 /home/ai1/.codex/skills/.system/skill-creator/scripts/quick_validate.py skills/github-project-planning",
+        "python3 scripts/validate_overlay.py --json validate --strict-overlay-skills"
+      ],
+      "supporting_roles": [
+        "bears-platform-security-reviewer"
+      ],
+      "reviewer_triggers": [
+        "GitHub Project creation authority change",
+        "GitHub Project field model authority change",
+        "Issue or sub-issue metadata mutation authority change",
+        "projectdevsubagents handoff boundary change",
+        "repository settings or secret boundary wording change"
+      ],
+      "decomposition_required": false
     },
     {
       "aliases": [
@@ -14499,6 +14593,12 @@
       "required_role": "bears-github-project-issues-orchestrator"
     },
     {
+      "target": "skills/github-project-planning/references/field-model.md",
+      "expected_status": "matched",
+      "required_role": "bears-github-project-issues-orchestrator",
+      "required_route_id": "github_project_planning_skill_governance"
+    },
+    {
       "target": "scripts/goal_orchestrator.py",
       "expected_status": "matched",
       "required_route_id": "execution_kernel_authority_map_support",
@@ -14605,6 +14705,66 @@
       "expected_status": "matched",
       "required_role": "bears-product-app-zone-engineer",
       "required_route_id": "zovu_archive_source"
+    },
+    {
+      "target": "/srv/bears/plugins/bears/skills/bears-project-constitution/SKILL.md",
+      "expected_status": "matched",
+      "required_role": "bears-workflow-overlay-platform-engineer",
+      "concrete_part": "workflow_overlay_core_plugin_surface"
+    },
+    {
+      "target": "skills/bears-project-constitution/SKILL.md",
+      "expected_status": "matched",
+      "required_role": "bears-workflow-overlay-platform-engineer",
+      "concrete_part": "workflow_overlay_core_plugin_surface"
+    },
+    {
+      "target": "/srv/bears/plugins/bears/skills/bears-project-specify/SKILL.md",
+      "expected_status": "matched",
+      "required_role": "bears-workflow-overlay-platform-engineer",
+      "concrete_part": "workflow_overlay_core_plugin_surface"
+    },
+    {
+      "target": "skills/bears-project-specify/SKILL.md",
+      "expected_status": "matched",
+      "required_role": "bears-workflow-overlay-platform-engineer",
+      "concrete_part": "workflow_overlay_core_plugin_surface"
+    },
+    {
+      "target": "/srv/bears/plugins/bears/skills/bears-project-plan/SKILL.md",
+      "expected_status": "matched",
+      "required_role": "bears-workflow-overlay-platform-engineer",
+      "concrete_part": "workflow_overlay_core_plugin_surface"
+    },
+    {
+      "target": "skills/bears-project-plan/SKILL.md",
+      "expected_status": "matched",
+      "required_role": "bears-workflow-overlay-platform-engineer",
+      "concrete_part": "workflow_overlay_core_plugin_surface"
+    },
+    {
+      "target": "/srv/bears/plugins/bears/skills/bears-project-analyze/SKILL.md",
+      "expected_status": "matched",
+      "required_role": "bears-workflow-overlay-platform-engineer",
+      "concrete_part": "workflow_overlay_core_plugin_surface"
+    },
+    {
+      "target": "skills/bears-project-analyze/SKILL.md",
+      "expected_status": "matched",
+      "required_role": "bears-workflow-overlay-platform-engineer",
+      "concrete_part": "workflow_overlay_core_plugin_surface"
+    },
+    {
+      "target": "/srv/bears/plugins/bears/skills/github-project-planning/SKILL.md",
+      "expected_status": "matched",
+      "required_role": "bears-github-project-issues-orchestrator",
+      "required_route_id": "github_project_planning_skill_governance"
+    },
+    {
+      "target": "skills/github-project-planning/SKILL.md",
+      "expected_status": "matched",
+      "required_role": "bears-github-project-issues-orchestrator",
+      "required_route_id": "github_project_planning_skill_governance"
     }
   ],
   "agent_profile_mappings": [

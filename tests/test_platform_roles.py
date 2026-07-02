@@ -421,6 +421,10 @@ class PlatformRolesTest(unittest.TestCase):
                 "platform_role_governance",
                 "bears-platform-role-governor",
             ),
+            "bears-github-project-issues-orchestrator.toml": (
+                "projectdevsubagents_skill_governance",
+                "bears-github-project-issues-orchestrator",
+            ),
             "bears-payments-platform-engineer.toml": (
                 "bears_platform_billing_surface",
                 "bears-payments-platform-engineer",

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Bears Project Analyze"
+  short_description: "Check project artifacts before execution"
+  default_prompt: "Use $bears-project-analyze to check Bears constitution, spec, docs, GitHub Project plan, Issues, roles, validation, and execution handoff for drift."

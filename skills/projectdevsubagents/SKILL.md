@@ -7,7 +7,7 @@ description: "Use for Bears development orchestration from GitHub Projects and I
 
 Use this skill for **development orchestration from GitHub Project work items**.
 
-This skill does not define GitHub Project administration. Project administration means creating Projects, choosing fields, designing views, building roadmap structure, and setting long-lived planning policy. That belongs to the owning repo/workstream governance. This skill starts after a Project or issue set exists and uses that state to orchestrate development.
+This skill does not define GitHub Project administration. Project administration means creating Projects, choosing fields, designing views, building roadmap structure, and setting long-lived planning policy. That belongs to `$bears-project-plan` or the owning repo/workstream governance. This skill starts after a Project or issue set exists, `$bears-project-analyze` has returned `pass` or an operator-approved advisory handoff, and the parent provides ready Project/Issue state for orchestration.
 
 ## Boundary
 
@@ -35,6 +35,15 @@ For `BearsCLOUD/apps`, `apps` is the repository name and `/srv/bears/dev/app` is
 
 Project-management policy may choose one canonical Project for `BearsCLOUD/apps` or another approved structure. This skill consumes that Project/Issue state and treats app directories or legacy source repos as work items, Issues, or sub-issues according to that policy.
 
+## Required upstream artifacts
+
+Before execution, the parent must provide one of these:
+
+- `bears-project.github-plan-packet` plus `bears-project.analysis-packet` with `execution_handoff=ready`;
+- existing GitHub Project/Issue state plus explicit operator approval that replaces those packets.
+
+The plan must define owner repo, target paths, route-selected roles, dependencies, validation, and closeout fields for every item.
+
 ## Required topology
 
 ```text
@@ -49,7 +58,7 @@ Parent agent
 
 The parent agent is orchestration-only. Parent allowed actions:
 
-- select the existing Project, repository set, issue query, and L2 lanes;
+- select the existing Project, repository set, issue query, L2 lanes, and ready analysis packet;
 - start or reuse L2 orchestrators;
 - pass Project item ids, Issue ids, PR ids, Actions metadata ids, Release ids, and route/audit targets;
 - wait for L2 evidence packets;
@@ -94,7 +103,7 @@ L2 forbidden actions:
 
 For each assigned Project item or Issue:
 
-1. Load current Project item, linked Issue, sub-issues, linked PRs, Actions/check metadata, and existing field values.
+1. Load the ready plan/analysis packet, current Project item, linked Issue, sub-issues, linked PRs, Actions/check metadata, and existing field values.
 2. Identify the canonical owner repo, local path, target paths, issue type, acceptance criteria, and blocker notes.
 3. Run route/audit for the target path.
 4. If route/audit returns `ROLE_COVERAGE_BLOCKER`, create a role-improvement L3 packet and keep the implementation item blocked.

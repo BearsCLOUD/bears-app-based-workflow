@@ -7,6 +7,8 @@ description: Run the Bears opinionated Spec Kit flow with research, deterministi
 
 Use this `@bears` workflow skill as the Bears planning core for broad, non-product, repo-boundary, plugin, infra, Kubernetes, or migration work. It is not a deprecated standalone `bears-speckit` plugin or layer. Small exact-file bugfixes may skip the full packet only when there is no boundary, runtime, deploy, restricted-data, or public behavior change.
 
+For Bears project-native work that needs durable project rules, functional documentation, GitHub Projects planning, or execution from Project items, use the Bears project skill chain: `$bears-project-constitution` -> `$bears-project-specify` -> `$github-project-planning` when Project fields/views are needed -> `$bears-project-plan` -> `$bears-project-analyze` -> `$projectdevsubagents`.
+
 Upstream Spec Kit command skills (`speckit-specify`, `speckit-checklist`, `speckit-plan`, `speckit-tasks`, `speckit-analyze`, and `speckit-implement`) resolve from `/srv/bears/.agents/skills`, not from this plugin.
 
 ## Flow
@@ -21,13 +23,26 @@ Upstream Spec Kit command skills (`speckit-specify`, `speckit-checklist`, `speck
 8. `$speckit-plan` from `/srv/bears/.agents/skills` to create or update design and implementation plan artifacts.
 9. **Review gate**: stop for operator approval before task generation when architecture, runtime, or project boundaries changed materially.
 10. `$speckit-tasks` from `/srv/bears/.agents/skills` to generate dependency-ordered implementation tasks.
-11. `$speckit-analyze` from `/srv/bears/.agents/skills` to detect cross-artifact drift; implementation stays blocked until it passes or the operator explicitly rescope-fixes the packet.
-12. **Spec Kit gate**: require `spec.md`, `plan.md`, `tasks.md`, and analyze PASS.
-13. **Role gate**: prove each selected `tasks.md` item matches the exact Bears specialist role.
-14. **Subagent execution**: the main agent orchestrates; subagents execute concrete tasks from `tasks.md`. Tasks marked `[P]` should run in parallel when paths are disjoint and role coverage exists.
-15. `$speckit-implement` from `/srv/bears/.agents/skills` only after the implementation scope is approved.
+11. `$speckit-analyze` from `/srv/bears/.agents/skills` to detect cross-artifact drift; implementation stays blocked until it passes or the operator explicitly rescope-fixes the packet. For GitHub Project-backed Bears plans, run `$bears-project-analyze` on the constitution, spec, docs, Project items, Issues, route/audit roles, validation, dependencies, and `$projectdevsubagents` handoff.
+12. **Spec Kit gate**: require `spec.md`, `plan.md`, `tasks.md`, and analyze PASS, or for Bears project-native flow require constitution packet, specification packet, GitHub Project plan packet, and `$bears-project-analyze` PASS.
+13. **Role gate**: prove each selected `tasks.md` item or GitHub Project item matches the exact Bears specialist role.
+14. **Subagent execution**: the main agent orchestrates; subagents execute concrete tasks from `tasks.md` or `$projectdevsubagents` executes ready GitHub Project items. Tasks marked `[P]` or disjoint Project items should run in parallel when paths are disjoint and role coverage exists.
+15. `$speckit-implement` from `/srv/bears/.agents/skills` or `$projectdevsubagents` only after the implementation scope is approved.
 16. Run narrow validation and report all failures.
 17. Run the four non-product audits once at the stage boundary, not after each small file edit.
+
+## Bears project-native chain
+
+Use this chain when the requested output is project governance, functional documentation, GitHub Project planning, or execution from Issues rather than upstream Spec Kit feature artifacts:
+
+1. `$bears-project-constitution` records project rules, artifact owners, forbidden actions, validation duties, and amendment rules.
+2. `$bears-project-specify` creates or updates functional requirements and user/operator/developer documentation from the constitution and repo evidence.
+3. `$github-project-planning` defines or verifies GitHub Project fields, views, issue hygiene, and metadata mutation gates when the planning surface is missing or stale.
+4. `$bears-project-plan` maps requirements into GitHub Project items, Issues, dependencies, route-selected roles, validation, and L2/L3 handoff packets.
+5. `$bears-project-analyze` checks constitution, spec, docs, Project plan, Issues, route/audit roles, validation, dependencies, and execution handoff for drift.
+6. `$projectdevsubagents` executes only after analysis returns `pass` or the operator explicitly approves a scoped execution with listed advisory findings.
+
+Do not let `$projectdevsubagents` create the Project planning model. It consumes the Project/Issue state created or approved by `$bears-project-plan`.
 
 ## Review gate definition
 

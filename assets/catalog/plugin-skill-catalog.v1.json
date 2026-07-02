@@ -71,6 +71,31 @@
       "path": "skills/speckit-bears-research"
     },
     {
+      "description": "Create or update Bears project constitutions with ownership, artifact maps, validation duties, and dependent-doc sync.",
+      "name": "bears-project-constitution",
+      "path": "skills/bears-project-constitution"
+    },
+    {
+      "description": "Create or update Bears project specifications and functional documentation from operator intent, constitution rules, and repo evidence.",
+      "name": "bears-project-specify",
+      "path": "skills/bears-project-specify"
+    },
+    {
+      "description": "Plan Bears implementation through GitHub Projects and Issues with route-selected roles, dependencies, validation, and projectdevsubagents handoff.",
+      "name": "bears-project-plan",
+      "path": "skills/bears-project-plan"
+    },
+    {
+      "description": "Plan and administer Bears GitHub Projects, fields, views, issues, sub-issues, item hygiene, and planning PASS handoffs before projectdevsubagents development execution.",
+      "name": "github-project-planning",
+      "path": "skills/github-project-planning"
+    },
+    {
+      "description": "Analyze Bears constitutions, specs, docs, GitHub Project plans, Issues, routes, validation, dependencies, and projectdevsubagents handoff for drift.",
+      "name": "bears-project-analyze",
+      "path": "skills/bears-project-analyze"
+    },
+    {
       "description": "DNS governance workflow for bears.ru through Yandex 360 using presence-only checks, dry-run plan review, and read-only governance evidence only.",
       "name": "yandex360-dns",
       "path": "skills/yandex360-dns"

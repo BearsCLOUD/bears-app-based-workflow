@@ -81,17 +81,25 @@ Each L2 orchestrator must use `bears-github-project-issues-orchestrator`. L2 is 
 
 ## First-minute parent gate
 
-Immediately after assignment receipt, before route/audit, issue enrichment, Project field reads beyond the assigned item, or file reads beyond the issue title/body, L2 must answer the parent inside 60 seconds with exactly one of these packets:
+Immediately after assignment receipt, before route/audit, issue enrichment, Project field reads beyond the assigned item, environment/profile loading, local file reads beyond the fixed proof path below, execution planning, or L3 dispatch, L2 must answer the parent inside 60 seconds with exactly one of these packets:
 
 - `FAST_BLOCKER`: no writes, no metadata mutation, no L3 dispatch. Use this when deterministic completion inside the parent wait gate is not already proven, or when the active L2 controller profile cannot launch L3 and cannot write or apply a preapproved patch-template.
 - `FIRST_MINUTE_PASS`: deterministic proof that the child-only execution path can finish inside the parent wait gate, including the preexisting child Issue or approved issue template, exact repo/path boundary, route target, role target, write scope, validation path, authorized execution mechanism, closeout path, and remaining time budget.
 
-`FIRST_MINUTE_PASS` is forbidden until L2 has verified an actual authorized execution mechanism available in the active lane. Valid proof is only one of these:
+The first packet uses this fixed checklist in this hard order:
+
+1. Read only the assigned Issue identifier, title, and body with one assigned-Issue read. If this cannot finish inside 15 seconds, return `FAST_BLOCKER`.
+2. Verify only the named controller proof for `github-project-issues-product-app-l3-delegation-controller` in `assets/catalog/subagent-orchestration-policy.v1.json` with one 10-second grep/read command or one 40-line file slice around the controller entry: exact controller id, role `bears-github-project-issues-orchestrator`, and allowed child role `bears-product-app-zone-engineer`.
+3. Return `FAST_BLOCKER` or `FIRST_MINUTE_PASS` immediately. Do not run route/audit, spawn L3, plan execution, enrich GitHub Project fields, read broad local files, or load role/profile trees before this packet.
+
+If the controller proof cannot be read and verified within that one command or one 40-line file slice, return `FAST_BLOCKER` immediately.
+
+`FIRST_MINUTE_PASS` is forbidden until L2 has verified an actual authorized execution mechanism available in the active lane. For product-app L3 lanes, valid proof is only the named controller proof above. Other valid proof is only one of these:
 
 - named L3 dispatch capability allowed by the active L2 role/profile for this lane; or
 - concrete preapproved patch-template path for a one-file slice with exact write scope, validation, and rollback instructions.
 
-A nominal `worker_path` string, planned worker name, or assumed runner availability is not proof. The first-minute packet must name the exact capability proof checked, the source role/profile or template path, and the action it authorizes. A later `PASS`, `READY`, closeout, or `DRIFT` caused by missing worker authority after `FIRST_MINUTE_PASS` is workflow drift, not success.
+A nominal `worker_path` string, planned worker name, assumed runner availability, environment load, or planned route/audit is not proof. The first-minute packet must name the exact capability proof checked, the source policy path or template path, and the action it authorizes. For product-app L3 lanes it must cite `assets/catalog/subagent-orchestration-policy.v1.json` and `github-project-issues-product-app-l3-delegation-controller`. A later `PASS`, `READY`, closeout, or `DRIFT` caused by missing worker authority after `FIRST_MINUTE_PASS` is workflow drift, not success.
 
 For tiny child-only slices, L2 may dispatch L3 or use a patch-template only when the first-minute packet cites one of these precomputed paths:
 
@@ -158,7 +166,7 @@ L2 forbidden actions:
 
 For each assigned Project item or Issue:
 
-1. Read only the assigned item identifier, issue title/body, and active L2 role/profile capability text needed to prove execution authority, then return `FAST_BLOCKER` or `FIRST_MINUTE_PASS` to the parent inside 60 seconds.
+1. Read only the assigned item identifier, issue title/body, and the fixed named controller proof path required by the first-minute gate, then return `FAST_BLOCKER` or `FIRST_MINUTE_PASS` to the parent inside 60 seconds.
 2. If `FIRST_MINUTE_PASS` was returned, load only the ready plan/analysis packet, current Project item, linked Issue, sub-issues, linked PRs, Actions/check metadata, and existing field values required by that pass proof; if the named capability proof is later absent or unauthorized, stop and report workflow drift.
 3. Identify the canonical owner repo, local path, target paths, issue type, acceptance criteria, and blocker notes.
 4. Run route/audit for the target path.

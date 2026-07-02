@@ -79,6 +79,24 @@ Parent forbidden actions:
 
 Each L2 orchestrator must use `bears-github-project-issues-orchestrator`. L2 is not a developer. L2 turns Project work into bounded L3 tasks.
 
+## First-minute parent gate
+
+Immediately after assignment receipt, before route/audit, issue enrichment, Project field reads beyond the assigned item, or file reads beyond the issue title/body, L2 must answer the parent inside 60 seconds with exactly one of these packets:
+
+- `FAST_BLOCKER`: no writes, no metadata mutation, no L3 dispatch. Use this when deterministic completion inside the parent wait gate is not already proven.
+- `FIRST_MINUTE_PASS`: deterministic proof that the child-only execution path can finish inside the parent wait gate, including the preexisting child Issue or approved issue template, exact repo/path boundary, route target, role target, write scope, validation path, worker path, closeout path, and remaining time budget.
+
+A later `PASS`, `READY`, or closeout after the first 60 seconds does not satisfy this gate. Classify it as workflow drift, not success.
+
+For tiny child-only slices, L2 may dispatch L3 only when the first-minute packet cites one of these precomputed paths:
+
+- a precomputed child-Issue template that already defines repo, target files, role, allowed writes, validation, and closeout fields; or
+- a deterministic patch-template path for a one-file slice with exact validation and rollback instructions.
+
+If neither path exists, L2 must return `FAST_BLOCKER` or decompose to a smaller child-only Issue instead of attempting implementation.
+
+Repeated first-minute gate misses after issue #17 or issue #18 are active workflow drift. Before retrying the product child, open or fix a new drift issue in the owning repository and link the missed run evidence.
+
 L2 allowed actions:
 
 - read assigned Project items and linked Issues, sub-issues, PR metadata, Actions metadata, Releases, labels, milestones, blockers, and dependency notes;
@@ -102,6 +120,7 @@ L2 forbidden actions:
 ## Decomposition and retry rules
 
 - Parent talks to L2 only; L2 talks to L3 only.
+- The first-minute parent gate is mandatory before all decomposition, route/audit, metadata enrichment, file reads, or L3 dispatch.
 - When decomposition is needed, L2 must create and link child Issues, add each child to the GitHub Project, and then return `DECOMPOSED_ONLY`.
 - `DECOMPOSED_ONLY` means no L3 dispatch in the same five-minute wave.
 - One decomposition wave may create at most two child Issues unless a precomputed child-Issue template has explicit operator approval.
@@ -110,7 +129,7 @@ L2 forbidden actions:
 - During decomposition, postpone optional Project field fills and avoid broad Project field work in the same wave.
 - Returning `DECOMPOSED_ONLY` or `PARTIAL_DECOMPOSED_ONLY` before timeout has priority over complete metadata cleanup.
 - If required child metadata already exists before assignment, L2 may proceed child-by-child after verifying each child is visible and dependency-ready.
-- For a tiny child-only slice, check direct worker and fallback availability within the first minute; if neither path is confirmed, return `FAST_BLOCKER` immediately and do not start a slow implementation attempt.
+- For a tiny child-only slice, check direct worker, precomputed child-Issue template, and deterministic patch-template availability within the first minute; if none is confirmed, return `FAST_BLOCKER` immediately and do not start a slow implementation attempt.
 - If the direct worker path is available, use it for the tiny child-only slice; do not wrap that launch in nested codex exec.
 - If the direct worker path is unavailable but the prewritten patch-template fallback is confirmed, use that one-file slice path; do not invent a new edit flow.
 - Before any L3 spawn, compare remaining budget against runner startup plus edit validation; if the budget cannot cover both, stop and return a blocker instead of starting L3.
@@ -126,26 +145,27 @@ L2 forbidden actions:
 - Late `READY` or `PASS` after timeout `RESET` or `CLEANUP` is rejected, even if the child work finished.
 - Parallel L2 fan-out is allowed only for dependency-ready disjoint scopes.
 - Parent timeout after combined decomposition + execution is workflow drift, even when no files changed.
-- If the same timeout drift repeats after the fix, open a new active drift issue and link it to the original evidence.
+- If the same timeout or first-minute drift repeats after issue #17 or issue #18, open a new active drift issue, link it to the original evidence, and do not retry the product child until that drift is fixed.
 - Regression example: `BearsCLOUD/apps#38` -> `#45` and `#46`; L2 started L3 `019f2437-d47a-7590-b8fe-37c02d7a49d5`; parent wait exceeded five minutes; the worker was interrupted; no files changed in `/srv/bears/dev/app/callsaver`.
 
 ## L2 execution loop
 
 For each assigned Project item or Issue:
 
-1. Load the ready plan/analysis packet, current Project item, linked Issue, sub-issues, linked PRs, Actions/check metadata, and existing field values.
-2. Identify the canonical owner repo, local path, target paths, issue type, acceptance criteria, and blocker notes.
-3. Run route/audit for the target path.
-4. If route/audit returns `ROLE_COVERAGE_BLOCKER`, create a role-improvement L3 packet and keep the implementation item blocked.
-5. Split work when repo boundary, @Bears role, write scope, validation path, or deploy/runtime boundary differs.
-6. If decomposition is needed, create and link at most two child Issues per wave, add only required Project status/linkage metadata, and return `DECOMPOSED_ONLY` or `PARTIAL_DECOMPOSED_ONLY`; do not dispatch L3 in the same wave.
-7. Build one L3 packet per split only after the child metadata is visible, dependency-ready, and either preexisted or came from a prior parent assignment.
-8. Validate every materialized L3 packet only through local-commit-owned or operator-approved `python3 scripts/github_project_subagents.py validate-assignment <packet.json>` evidence.
-9. Dispatch L3 workers.
-10. Collect L3 closeout packets.
-11. Update Project/Issue state only from L3 evidence, validation proof, commit SHA, PR metadata, Release metadata, or blocker proof.
-12. Request gitflow closeout when files changed.
-13. Report item status to the parent.
+1. Read only the assigned item identifier and issue title/body, then return `FAST_BLOCKER` or `FIRST_MINUTE_PASS` to the parent inside 60 seconds.
+2. If `FIRST_MINUTE_PASS` was returned, load only the ready plan/analysis packet, current Project item, linked Issue, sub-issues, linked PRs, Actions/check metadata, and existing field values required by that pass proof.
+3. Identify the canonical owner repo, local path, target paths, issue type, acceptance criteria, and blocker notes.
+4. Run route/audit for the target path.
+5. If route/audit returns `ROLE_COVERAGE_BLOCKER`, create a role-improvement L3 packet and keep the implementation item blocked.
+6. Split work when repo boundary, @Bears role, write scope, validation path, or deploy/runtime boundary differs.
+7. If decomposition is needed, create and link at most two child Issues per wave, add only required Project status/linkage metadata, and return `DECOMPOSED_ONLY` or `PARTIAL_DECOMPOSED_ONLY`; do not dispatch L3 in the same wave.
+8. Build one L3 packet per split only after the child metadata is visible, dependency-ready, and either preexisted or came from a prior parent assignment.
+9. Validate every materialized L3 packet only through local-commit-owned or operator-approved `python3 scripts/github_project_subagents.py validate-assignment <packet.json>` evidence.
+10. Dispatch L3 workers only when the first-minute proof remains true after route/audit and required metadata checks.
+11. Collect L3 closeout packets.
+12. Update Project/Issue state only from L3 evidence, validation proof, commit SHA, PR metadata, Release metadata, or blocker proof.
+13. Request gitflow closeout when files changed.
+14. Report item status to the parent.
 
 ## L3 worker lane
 

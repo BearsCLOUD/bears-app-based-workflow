@@ -51,13 +51,15 @@ class TelegramCatalogTests(unittest.TestCase):
         self.assertIn("input_packet:", summary)
         self.assertIn("output_packet:", summary)
 
-    def test_theants_surface_points_to_dev_core_product_layer(self):
+    def test_theants_surface_points_to_apps_monorepo_module(self):
         surface = next(item for item in self.catalog["surfaces"] if item["name"] == "theants")
 
-        self.assertEqual(surface["path"], "dev/products/theants")
+        self.assertEqual(surface["path"], "dev/app/theants")
         self.assertEqual(surface["owner_group"], "products")
-        self.assertIn("legacy source preserved", surface["current_framework_status"])
-        self.assertIn("dev/products/theants/README.md", surface["evidence_source"])
+        self.assertIn("legacy sources preserved", surface["current_framework_status"])
+        self.assertIn("canonical BearsCLOUD/apps", surface["target_state"])
+        self.assertIn("dev/app/theants/README.md", surface["evidence_source"])
+        self.assertIn("BearsCLOUD/apps", surface["next_action"])
 
 
 if __name__ == "__main__":

@@ -1456,9 +1456,27 @@
       "scope_id": "machine-first-execution-kernel",
       "status": "accepted",
       "unresolved_inputs": []
+    },
+    {
+      "affected_paths": [
+        "assets/catalog/telegram-aiogram-migration-backlog.v1.json",
+        "assets/catalog/telegram-runtime-readiness.v1.json",
+        "assets/catalog/telegram-workflow-catalog.v1.json"
+      ],
+      "change_type": "policy",
+      "contradictions": [],
+      "decision": "Route Telegram app migration catalogs through the canonical BearsCLOUD/apps product-app repository and treat old The Ants catalog references as migration/archive evidence.",
+      "decision_id": "D-2026-07-02-apps-monorepo-telegram-catalogs",
+      "owner_issue": "operator-goal-apps-monorepo-policy",
+      "owner_role": "bears-platform-role-governor",
+      "rationale": "The apps monorepo policy requires old product app repositories and catalog issue routing to link to BearsCLOUD/apps instead of preserving separate canonical app repositories.",
+      "redaction": "safe",
+      "scope_id": "product-apps-monorepo-policy",
+      "status": "accepted",
+      "unresolved_inputs": []
     }
   ],
   "schema": "bears-decision-ledger.v1",
-  "updated": "2026-06-28",
+  "updated": "2026-07-02",
   "version": "1"
 }

@@ -209,7 +209,9 @@
         "deprecated_refs": [
           "projects/vpn/vpnbot"
         ],
-        "decision": "renamed_to_canonical_dev_app"
+        "decision": "deprecated_archive_candidate_for_bearscloud_apps",
+        "active_replacement": "BearsCLOUD/apps",
+        "issue_link_invariant": "Old repository issues and migration issues must link to BearsCLOUD/apps before archive."
       }
     },
     "seller-bot-admin": {
@@ -843,11 +845,11 @@
       "approval_status": "not-requested",
       "security_signoff": "required",
       "validation_plan": [
-        "Run Bears platform_roles.py validate plus route/audit for /srv/bears/dev/app/theants and /srv/bears/projects/theants.",
+        "Run Bears platform_roles.py validate plus route/audit for /srv/bears/dev/app, BearsCLOUD/apps, /srv/bears/dev/app/theants, and /srv/bears/projects/theants.",
         "Run The Ants split-proof and product behavior tests before Telegram adapter rewrite."
       ],
       "rollback_plan": [
-        "Keep /srv/bears/projects/theants unchanged as legacy compatibility input until explicit cutover approval.",
+        "Keep /srv/bears/projects/theants as deprecated migration/archive evidence and link migration issues to BearsCLOUD/apps before archive.",
         "Revert dev-core split-proof docs and tests if route validation fails."
       ],
       "missing_evidence": [
@@ -861,7 +863,9 @@
           "projects/theants",
           "dev/products/theants"
         ],
-        "decision": "renamed_to_canonical_dev_app"
+        "decision": "deprecated_archive_candidate_for_bearscloud_apps",
+        "active_replacement": "BearsCLOUD/apps",
+        "issue_link_invariant": "Old repository issues and migration issues must link to BearsCLOUD/apps before archive."
       }
     }
   }

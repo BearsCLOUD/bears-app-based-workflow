@@ -138,7 +138,7 @@ The catalog must route these targets without fallback:
 - `kube`, `kubernetes`, `bears-infra`, and `/srv/bears/kubernetes` -> `bears-deploy-platform-engineer`;
 - `android-emulator` and `/srv/bears/dev/platform/android-emulator` -> `bears-android-emulator-platform-engineer`;
 - `sentry` and `/srv/bears/dev/quality/sentry-observability` -> `bears-observability-platform-engineer`;
-- `/srv/bears/dev/app/theants` is the canonical The Ants registered app route; `/srv/bears/projects/theants` is a legacy compatibility input only -> `bears-product-app-zone-engineer`;
+- `/srv/bears/dev/app` and `BearsCLOUD/apps` are the canonical product-app monorepo route -> `bears-product-app-zone-engineer`; `/srv/bears/dev/app/theants`, `/srv/bears/dev/products/theants`, and `/srv/bears/projects/theants` are product module or deprecated migration/archive routes, not separate canonical repositories;
 - `/srv/bears/dev/quality/e2e` -> `bears-analytics-quality-engineer`;
 - `/srv/bears/dev/ops/runbooks` -> `bears-ops-runbook-engineer`;
 - `/srv/bears/dev/control/provenance` -> `bears-platform-role-governor`.

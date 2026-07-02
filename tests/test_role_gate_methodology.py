@@ -96,6 +96,7 @@ def test_apps_monorepo_alignment_targets_are_enforced() -> None:
         "/srv/bears/plugins/bears",
         "android-emulator",
         "sentry",
+        "/srv/bears/dev/app/theants",
         "/srv/bears/dev/products/theants",
         "/srv/bears/projects/theants",
         "/srv/bears/dev/app",
@@ -1052,6 +1053,20 @@ def test_product_apps_monorepo_root_alignment_is_matched() -> None:
     assert check["expected_status"] == "matched"
     assert check["required_route_id"] == "product_apps_monorepo_root"
     assert check["required_role"] == "bears-product-app-zone-engineer"
+
+    errors = module.validate_catalog_alignment(methodology, catalog, plugin_root=PLUGIN_ROOT)
+    assert errors == []
+
+
+def test_theants_module_and_legacy_paths_align_to_apps_policy() -> None:
+    methodology = _methodology()
+    catalog = _catalog()
+    checks = {item["target"]: item for item in methodology["catalog_alignment_checks"]}
+    for target in ("/srv/bears/dev/app/theants", "/srv/bears/dev/products/theants"):
+        check = checks[target]
+        assert check["expected_status"] == "matched"
+        assert check["required_route_id"] == "theants_product_dev_layer"
+        assert check["required_role"] == "bears-product-app-zone-engineer"
 
     errors = module.validate_catalog_alignment(methodology, catalog, plugin_root=PLUGIN_ROOT)
     assert errors == []

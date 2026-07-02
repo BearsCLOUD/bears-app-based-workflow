@@ -36,7 +36,7 @@ It adds Bears-specific orchestration for:
 - infrastructure network map placement in `/srv/bears/docs`, /srv/bears/dev/infrastructure/network planning boundaries, and DNS workflow governance.
 - unified machine-first closeout validation through `assets/catalog/bears-doctor.v1.json` and `scripts/bears_doctor.py`.
 - workspace hygiene classification and safe cleanup planning through `assets/catalog/workspace-hygiene.v1.json` and `scripts/workspace_hygiene.py`.
-- codexdaemon governance routing while daemon runtime implementation, issue-daemon execution, Codex Exec job handling, runtime schemas, and runtime tests live in `BearsCLOUD/codexdaemon`.
+- codexdaemon governance routing while daemon runtime implementation, issue-daemon execution, Codex Exec job handling, runtime schemas, and runtime tests consolidate into canonical `BearsCLOUD/apps`; `BearsCLOUD/codexdaemon` is deprecated/archive-candidate migration input only.
 
 
 ## Canonical platform role governance
@@ -297,7 +297,7 @@ Compatibility migration routing is exact:
 - `kube`, `kubernetes`, `bears-infra`, and `/srv/bears/kubernetes` route to Kubernetes repo-boundary governance.
 - `android-emulator` routes to the The Ants Android emulator platform `.225` lane.
 - `sentry` routes to the `.226` Sentry/observability future lane and governed Sentry runtime-plugin capability design.
-- `/srv/bears/dev/app/theants` is the canonical The Ants app lane and must resolve to the The Ants product app-zone lane.
+- `/srv/bears/dev/app` is the canonical product-app repo root for `BearsCLOUD/apps`; `/srv/bears/dev/app/theants` is a product module or migration/archive route, not a separate canonical repository.
 - `/srv/bears/dev/app/vpn` routes to `bears-vpn-project-governance-engineer` for VPN project governance/specs; `/srv/bears/dev/app/vpn/androidapp` and `winapp` route to `bears-vpn-client-app-engineer`; `vpnbot` and exact VPN Telegram notifier files route to `bears-vpn-bot-engineer`; `amnezia-split` and `wireguard-amnezia` route to `bears-vpn-runtime-engineer`; disabled/offline `proxy` routes to `bears-vpn-proxy-engineer`; `traefik` routes to `bears-vpn-ingress-engineer` for GitFlow-only ingress config review.
 - Feature 006 `spec.md`, `plan.md`, and `governance/` route to `bears-telegram-platform-engineer`; `/srv/bears/control-plane/workspace-control/tests` routes to `bears-platform-role-governor` for agent reviewer role test governance.
 
@@ -536,6 +536,7 @@ Disabled skills expose only `SKILL.disabled.md`; they MUST NOT keep `SKILL.md`.
 - `skills/bears-deploy-gate` — Assess deploy, rollback, runtime, and secret impact for Bears workflow-overlay changes.
 - `skills/bears-goal-prompt` — Generate bounded and verifiable Codex goal prompts for Bears work.
 - `skills/bears-codex-health` — Diagnose Codex desktop/app-server freezes, MCP fan-out, session growth, and safe evidence-first remediation planning.
+- `skills/codex-telegram-operator-gate` — Route operator decisions, inline choices, feedback waits, and safe file exchange through the configured `codex-telegram` MCP server without a Telegram PreToolUse hook.
 - `skills/bears-governance-check` — Run Bears workflow-overlay governance routing checks before boundary edits.
 - `skills/bears-role-gate` — Validate or emit Bears role-coverage packets and ROLE_COVERAGE_BLOCKER results.
 - `skills/bears-workflow-validate` — Validate Bears workflow-overlay skill, README, schema-packet, and workflow boundaries.

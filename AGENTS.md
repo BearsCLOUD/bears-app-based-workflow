@@ -3,7 +3,7 @@
 ## Scope
 - This directory is the source checkout for the `@Bears` Codex governance plugin.
 - It owns Bears action rules, roles, contracts, validators, workflow policy, hooks, and CD policy.
-- Codex daemon / Knowledge Orchestrator runtime implementation belongs to `/srv/bears/dev/app/codexdaemon` and `BearsCLOUD/codexdaemon`.
+- Codex daemon / Knowledge Orchestrator runtime routes through `/srv/bears/dev/app/codexdaemon`; the canonical product-app repository is `BearsCLOUD/apps`. `BearsCLOUD/codexdaemon` is a deprecated/archive-candidate source only.
 
 ## Required refs
 - Plugin manifest: `.codex-plugin/plugin.json`.
@@ -32,7 +32,7 @@
 - After role profile changes, run `python3 scripts/opencode_agent_sync.py sync --target repo` and restart long-running OpenCode runtime before relying on generated `.opencode/agent/*.md`.
 
 ## External runtime boundary
-- `BearsCLOUD/codexdaemon` owns daemon source, Knowledge Orchestrator runtime code, Codex Exec job handling, issue-daemon implementation, daemon packaging, runtime schemas, and runtime tests.
+- `BearsCLOUD/apps` is the canonical product-app repository for codexdaemon source after consolidation. `BearsCLOUD/codexdaemon` may be routed only as a deprecated/archive-candidate migration source until archived.
 - This plugin may route, validate, or govern `codexdaemon`; it must not carry daemon runtime implementation.
 - Route `/srv/bears/dev/app/codexdaemon` through `bears-codex-daemon-engineer` before codexdaemon implementation.
 
@@ -40,11 +40,12 @@
 - Keep artifacts and contracts in English.
 - Keep `AGENTS.md` compact; put executable policy in plugin catalogs, scripts, skills, and tests.
 - `kubernetes_deployment` is valid only when backed by Kubernetes desired state and `local_cd`; local host or manual deploy paths are policy violations.
-- For every Bears parent work session, start or reuse one long-lived parallel `gitflow` subagent with model `gpt-5.4-mini`, reasoning `high`, and no parent/start context.
+- For every Bears parent work session, start or reuse one long-lived parallel `gitflow` subagent using `bears-git-workflow-helper` instructions with model `gpt-5.4-mini`, reasoning `high`, and no parent/start context.
 - Reuse the same `gitflow` subagent for the entire parent work; do not spawn a new `gitflow` subagent for each step.
+- The `gitflow` subagent is a closeout lane only. It must not run general read-only audits, review unrelated repos, or replace owner-role validation.
 - The parent agent must not wait for `gitflow` subagent feedback on the critical path.
 - After each completed task slice, send the same `gitflow` subagent a `commit+push required` closeout notice with repo path, changed files, validation result, target branch, and intended commit message.
-- The main agent still owns staging, commit, push, and final clean-status reporting unless a later `gitflow` audit reports a hard blocker for the next task slice.
+- The `gitflow` subagent closes only explicit assigned Git tasks. The main agent owns final clean-status reporting and must not treat `gitflow` as a general auditor.
 - Deployment, infrastructure, Kubernetes desired-state, CD, runtime rollout, rollback, network/egress, and cluster-evidence tasks must also start or reuse one long-lived parallel `infra/deploy/kube` subagent.
 - The infra/deploy/kube subagent uses `bears-deploy-platform-engineer` instructions with model `gpt-5.5`, reasoning `high`, and no parent/start context. Reuse the same infra/deploy/kube subagent for the entire parent work.
 - The parent sends start, scope-change, validation, and closeout packets to that subagent and does not wait for feedback on the critical path unless a hard blocker is already known.
@@ -78,6 +79,8 @@
 - There is exactly one Codex plugin for this governance model: `/srv/bears/plugins/bears`.
 - Keep lifecycle order: route gate -> constitution gate -> research gate.
 - Telegram workflow governance stays here as a skill/catalog/script bundle owned by `bears-telegram-platform-engineer`.
+- Codex Telegram operator feedback is skill-driven by `skills/codex-telegram-operator-gate` and the configured `codex-telegram` MCP server; do not register or enable a Telegram `PreToolUse` hook gate.
+- Legacy `/srv/bears/plugins/codex-telegram-operator` is a migration source only; it must not own Bears governance, Telegram runtime, MCP runtime, or hook authority.
 - Do not recreate a standalone Telegram plugin, app, connector, MCP server, or runtime surface except the exact cataloged `/srv/bears/plugins/bearstg` read-only MCP plugin.
 
 ## Validation

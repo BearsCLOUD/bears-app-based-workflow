@@ -370,14 +370,12 @@
         "issue_link_invariant",
         "umbrella_issue_invariant",
         "source_migration_issue_invariant",
-        "source_project_link_invariant",
+        "canonical_planning_project_invariant",
         "infra_local_cd_safety_invariant",
         "platform_boundary_exclusion_invariant"
       ],
       "issue_link_invariant": "Old repository issues and migration issues must link to BearsCLOUD/apps and must not create a new canonical app repository.",
-      "archive_readiness_invariant": "Archive readiness for every old source repository requires a BearsCLOUD/apps umbrella issue, a source migration issue, a source-specific GitHub Project link, infra/local_cd safety proof, and platform boundary exclusion proof before archive.",
-      "source_project_name_template": "Migrate <source-repo> into apps",
-      "source_project_link_invariant": "Each old source repository must have a dedicated GitHub Project named `Migrate <source-repo> into apps` in BearsCLOUD/apps or BearsCLOUD org, linked to the BearsCLOUD/apps umbrella issue and the source migration issue before archive.",
+      "archive_readiness_invariant": "Archive readiness for every old source repository requires a BearsCLOUD/apps umbrella issue, a source migration issue linked to the umbrella issue, membership in the one canonical BearsCLOUD/apps planning Project `Apps Migration & Planning` with required fields populated once GitHub Project API proof is available, infra/local_cd safety proof, and platform boundary exclusion proof before archive.",
       "infra_local_cd_archive_readiness_invariant": "Archive readiness requires proof that Kubernetes desired state and local_cd selectors no longer depend on the old source repository, or that the dependency is explicitly classified as a temporary migration source by the owning infra/local_cd policy.",
       "platform_boundary_exclusion_invariant": "Platform repositories and temporary platform checkouts, including /srv/bears/dev/platform and /srv/bears/dev/workspace platform worktrees, are excluded from the app archive workflow unless a platform auditor explicitly classifies the checkout as an app migration source.",
       "platform_temp_checkout_exclusion": {
@@ -387,7 +385,29 @@
         ],
         "classification_required_by": "platform auditor",
         "allowed_classification": "app_migration_source"
-      }
+      },
+      "canonical_planning_project": {
+        "owner_repository": "BearsCLOUD/apps",
+        "name": "Apps Migration & Planning",
+        "scope": "One canonical BearsCLOUD/apps planning Project contains the umbrella issue and every source migration issue; existing per-source Projects may exist only as legacy evidence and must not be required, created, or used for PASS.",
+        "required_issue_fields": [
+          "source_repo/app_module",
+          "migration_stage",
+          "infra_local_cd_status",
+          "platform_boundary_status",
+          "archive_readiness",
+          "owner_role",
+          "blocker_status"
+        ],
+        "required_views": [
+          "source_repo_app_module_migration_stage",
+          "archive_readiness_by_status",
+          "infra_platform_blockers_by_owner_role"
+        ],
+        "api_proof_required_for_archive_pass": true,
+        "per_source_projects_policy": "legacy_evidence_only_not_required_not_created_not_pass"
+      },
+      "canonical_planning_project_invariant": "The BearsCLOUD/apps umbrella issue and every source migration issue must be in the one canonical BearsCLOUD/apps planning Project named `Apps Migration & Planning` once GitHub Project API proof is available; required fields source_repo/app_module, migration_stage, infra_local_cd_status, platform_boundary_status, archive_readiness, owner_role, and blocker_status must be populated before archive. Existing per-source Projects may exist only as legacy evidence and must not be required, created, or used for PASS."
     }
   },
   "roles": [
@@ -5706,9 +5726,10 @@
         "issue_link_invariant": "Old repository issues and migration issues must link to BearsCLOUD/apps before closeout.",
         "umbrella_issue_invariant": "Archive readiness requires a BearsCLOUD/apps umbrella migration issue before archive.",
         "source_migration_issue_invariant": "Archive readiness requires a source repository migration issue linked to the BearsCLOUD/apps umbrella issue before archive.",
-        "source_project_link_invariant": "Archive readiness requires a dedicated GitHub Project named `Migrate <source-repo> into apps` in BearsCLOUD/apps or BearsCLOUD org, linked to the BearsCLOUD/apps umbrella issue and the source migration issue before archive.",
         "infra_local_cd_safety_invariant": "Archive readiness requires infra/local_cd safety proof: Kubernetes desired state and local_cd selectors must not depend on this old source repository unless the owning infra/local_cd policy classifies it as a temporary migration source.",
-        "platform_boundary_exclusion_invariant": "Archive readiness excludes /srv/bears/dev/platform and temporary platform checkouts from app migration unless a platform auditor explicitly classifies the checkout as an app migration source."
+        "platform_boundary_exclusion_invariant": "Archive readiness excludes /srv/bears/dev/platform and temporary platform checkouts from app migration unless a platform auditor explicitly classifies the checkout as an app migration source.",
+        "canonical_planning_project_invariant": "The BearsCLOUD/apps umbrella issue and every source migration issue must be in the one canonical BearsCLOUD/apps planning Project named `Apps Migration & Planning` once GitHub Project API proof is available; required fields source_repo/app_module, migration_stage, infra_local_cd_status, platform_boundary_status, archive_readiness, owner_role, and blocker_status must be populated before archive. Existing per-source Projects may exist only as legacy evidence and must not be required, created, or used for PASS.",
+        "per_source_projects_policy": "legacy_evidence_only_not_required_not_created_not_pass"
       }
     },
     {
@@ -5966,7 +5987,17 @@
         "plugins/bears/skills/codex-telegram-operator-gate",
         "plugins/bears/skills/codex-telegram-operator-gate/SKILL.md",
         "/srv/bears/plugins/bears/skills/codex-telegram-operator-gate",
-        "/srv/bears/plugins/bears/skills/codex-telegram-operator-gate/SKILL.md"
+        "/srv/bears/plugins/bears/skills/codex-telegram-operator-gate/SKILL.md",
+        "telegram-workflow-catalog",
+        "telegram_workflow_catalog",
+        "assets/catalog/telegram-workflow-catalog.v1.json",
+        "plugins/bears/assets/catalog/telegram-workflow-catalog.v1.json",
+        "/srv/bears/plugins/bears/assets/catalog/telegram-workflow-catalog.v1.json",
+        "scripts/telegram_catalog.py",
+        "/srv/bears/plugins/bears/scripts/telegram_catalog.py",
+        "tests/test_telegram_catalog.py",
+        "plugins/bears/tests/test_telegram_catalog.py",
+        "/srv/bears/plugins/bears/tests/test_telegram_catalog.py"
       ],
       "group": "workflow",
       "required_role": "bears-telegram-platform-engineer",
@@ -5985,7 +6016,8 @@
         "/srv/bears/plugins/bears/agents/bears-telegram-platform-engineer.toml",
         "/srv/bears/plugins/bears/skills/codex-telegram-operator-gate",
         "plugins/bears/skills/codex-telegram-operator-gate",
-        "skills/codex-telegram-operator-gate"
+        "skills/codex-telegram-operator-gate",
+        "/srv/bears/plugins/bears/tests/test_telegram_catalog.py"
       ],
       "concrete_scope": "Telegram workflow skill bundle inside the canonical Bears plugin.",
       "allowed_write_boundary": "/srv/bears/plugins/bears Telegram skill/catalog/script surfaces only when the Telegram specialist role is selected.",
@@ -5994,7 +6026,9 @@
         "canonical role route packet",
         "Bears plugin overlay validator suite",
         "Telegram skill bundle validators",
-        "route compatibility checks"
+        "route compatibility checks",
+        "python3 scripts/telegram_catalog.py validate",
+        "python3 -m unittest tests/test_telegram_catalog.py"
       ],
       "supporting_roles": [
         "bears-platform-security-reviewer"
@@ -6688,9 +6722,13 @@
         "forbidden_use": "Canonical product app repository authority or new standalone app repository registration.",
         "umbrella_issue_invariant": "Archive readiness requires a BearsCLOUD/apps umbrella migration issue before archive.",
         "source_migration_issue_invariant": "Archive readiness requires a source repository migration issue linked to the BearsCLOUD/apps umbrella issue before archive.",
-        "source_project_link_invariant": "Archive readiness requires a dedicated GitHub Project named `Migrate <source-repo> into apps` in BearsCLOUD/apps or BearsCLOUD org, linked to the BearsCLOUD/apps umbrella issue and the source migration issue before archive.",
         "infra_local_cd_safety_invariant": "Archive readiness requires infra/local_cd safety proof: Kubernetes desired state and local_cd selectors must not depend on this old source repository unless the owning infra/local_cd policy classifies it as a temporary migration source.",
-        "platform_boundary_exclusion_invariant": "Archive readiness excludes /srv/bears/dev/platform and temporary platform checkouts from app migration unless a platform auditor explicitly classifies the checkout as an app migration source."
+        "platform_boundary_exclusion_invariant": "Archive readiness excludes /srv/bears/dev/platform and temporary platform checkouts from app migration unless a platform auditor explicitly classifies the checkout as an app migration source.",
+        "canonical_planning_project_invariant": "The BearsCLOUD/apps umbrella issue and every source migration issue must be in the one canonical BearsCLOUD/apps planning Project named `Apps Migration & Planning` once GitHub Project API proof is available; required fields source_repo/app_module, migration_stage, infra_local_cd_status, platform_boundary_status, archive_readiness, owner_role, and blocker_status must be populated before archive. Existing per-source Projects may exist only as legacy evidence and must not be required, created, or used for PASS.",
+        "per_source_projects_policy": "legacy_evidence_only_not_required_not_created_not_pass",
+        "deprecated_refs": [
+          "BearsCLOUD/leadgen"
+        ]
       }
     },
     {
@@ -6741,9 +6779,13 @@
         "forbidden_use": "Canonical product app repository authority or new standalone app repository registration.",
         "umbrella_issue_invariant": "Archive readiness requires a BearsCLOUD/apps umbrella migration issue before archive.",
         "source_migration_issue_invariant": "Archive readiness requires a source repository migration issue linked to the BearsCLOUD/apps umbrella issue before archive.",
-        "source_project_link_invariant": "Archive readiness requires a dedicated GitHub Project named `Migrate <source-repo> into apps` in BearsCLOUD/apps or BearsCLOUD org, linked to the BearsCLOUD/apps umbrella issue and the source migration issue before archive.",
         "infra_local_cd_safety_invariant": "Archive readiness requires infra/local_cd safety proof: Kubernetes desired state and local_cd selectors must not depend on this old source repository unless the owning infra/local_cd policy classifies it as a temporary migration source.",
-        "platform_boundary_exclusion_invariant": "Archive readiness excludes /srv/bears/dev/platform and temporary platform checkouts from app migration unless a platform auditor explicitly classifies the checkout as an app migration source."
+        "platform_boundary_exclusion_invariant": "Archive readiness excludes /srv/bears/dev/platform and temporary platform checkouts from app migration unless a platform auditor explicitly classifies the checkout as an app migration source.",
+        "canonical_planning_project_invariant": "The BearsCLOUD/apps umbrella issue and every source migration issue must be in the one canonical BearsCLOUD/apps planning Project named `Apps Migration & Planning` once GitHub Project API proof is available; required fields source_repo/app_module, migration_stage, infra_local_cd_status, platform_boundary_status, archive_readiness, owner_role, and blocker_status must be populated before archive. Existing per-source Projects may exist only as legacy evidence and must not be required, created, or used for PASS.",
+        "per_source_projects_policy": "legacy_evidence_only_not_required_not_created_not_pass",
+        "deprecated_refs": [
+          "BearsCLOUD/tgbase"
+        ]
       }
     },
     {
@@ -6796,9 +6838,10 @@
         "issue_link_invariant": "Old repository issues and migration issues must link to BearsCLOUD/apps before closeout.",
         "umbrella_issue_invariant": "Archive readiness requires a BearsCLOUD/apps umbrella migration issue before archive.",
         "source_migration_issue_invariant": "Archive readiness requires a source repository migration issue linked to the BearsCLOUD/apps umbrella issue before archive.",
-        "source_project_link_invariant": "Archive readiness requires a dedicated GitHub Project named `Migrate <source-repo> into apps` in BearsCLOUD/apps or BearsCLOUD org, linked to the BearsCLOUD/apps umbrella issue and the source migration issue before archive.",
         "infra_local_cd_safety_invariant": "Archive readiness requires infra/local_cd safety proof: Kubernetes desired state and local_cd selectors must not depend on this old source repository unless the owning infra/local_cd policy classifies it as a temporary migration source.",
-        "platform_boundary_exclusion_invariant": "Archive readiness excludes /srv/bears/dev/platform and temporary platform checkouts from app migration unless a platform auditor explicitly classifies the checkout as an app migration source."
+        "platform_boundary_exclusion_invariant": "Archive readiness excludes /srv/bears/dev/platform and temporary platform checkouts from app migration unless a platform auditor explicitly classifies the checkout as an app migration source.",
+        "canonical_planning_project_invariant": "The BearsCLOUD/apps umbrella issue and every source migration issue must be in the one canonical BearsCLOUD/apps planning Project named `Apps Migration & Planning` once GitHub Project API proof is available; required fields source_repo/app_module, migration_stage, infra_local_cd_status, platform_boundary_status, archive_readiness, owner_role, and blocker_status must be populated before archive. Existing per-source Projects may exist only as legacy evidence and must not be required, created, or used for PASS.",
+        "per_source_projects_policy": "legacy_evidence_only_not_required_not_created_not_pass"
       }
     },
     {
@@ -7846,9 +7889,10 @@
         "issue_link_invariant": "Old repository issues and migration issues must link to BearsCLOUD/apps before closeout.",
         "umbrella_issue_invariant": "Archive readiness requires a BearsCLOUD/apps umbrella migration issue before archive.",
         "source_migration_issue_invariant": "Archive readiness requires a source repository migration issue linked to the BearsCLOUD/apps umbrella issue before archive.",
-        "source_project_link_invariant": "Archive readiness requires a dedicated GitHub Project named `Migrate <source-repo> into apps` in BearsCLOUD/apps or BearsCLOUD org, linked to the BearsCLOUD/apps umbrella issue and the source migration issue before archive.",
         "infra_local_cd_safety_invariant": "Archive readiness requires infra/local_cd safety proof: Kubernetes desired state and local_cd selectors must not depend on this old source repository unless the owning infra/local_cd policy classifies it as a temporary migration source.",
-        "platform_boundary_exclusion_invariant": "Archive readiness excludes /srv/bears/dev/platform and temporary platform checkouts from app migration unless a platform auditor explicitly classifies the checkout as an app migration source."
+        "platform_boundary_exclusion_invariant": "Archive readiness excludes /srv/bears/dev/platform and temporary platform checkouts from app migration unless a platform auditor explicitly classifies the checkout as an app migration source.",
+        "canonical_planning_project_invariant": "The BearsCLOUD/apps umbrella issue and every source migration issue must be in the one canonical BearsCLOUD/apps planning Project named `Apps Migration & Planning` once GitHub Project API proof is available; required fields source_repo/app_module, migration_stage, infra_local_cd_status, platform_boundary_status, archive_readiness, owner_role, and blocker_status must be populated before archive. Existing per-source Projects may exist only as legacy evidence and must not be required, created, or used for PASS.",
+        "per_source_projects_policy": "legacy_evidence_only_not_required_not_created_not_pass"
       }
     },
     {
@@ -8467,7 +8511,8 @@
           "projects/vpn/AGENTS.md",
           "projects/vpn/SPEC.md",
           "projects/vpn/requirements.md",
-          "projects/vpn/plans.md"
+          "projects/vpn/plans.md",
+          "BearsCLOUD/vpn"
         ],
         "canonical_ref": "/srv/bears/dev/app/vpn",
         "decision": "renamed_to_canonical_dev_app_with_legacy_exact_aliases",
@@ -8479,9 +8524,10 @@
         "issue_link_invariant": "Old repository issues and migration issues must link to BearsCLOUD/apps before closeout.",
         "umbrella_issue_invariant": "Archive readiness requires a BearsCLOUD/apps umbrella migration issue before archive.",
         "source_migration_issue_invariant": "Archive readiness requires a source repository migration issue linked to the BearsCLOUD/apps umbrella issue before archive.",
-        "source_project_link_invariant": "Archive readiness requires a dedicated GitHub Project named `Migrate <source-repo> into apps` in BearsCLOUD/apps or BearsCLOUD org, linked to the BearsCLOUD/apps umbrella issue and the source migration issue before archive.",
         "infra_local_cd_safety_invariant": "Archive readiness requires infra/local_cd safety proof: Kubernetes desired state and local_cd selectors must not depend on this old source repository unless the owning infra/local_cd policy classifies it as a temporary migration source.",
-        "platform_boundary_exclusion_invariant": "Archive readiness excludes /srv/bears/dev/platform and temporary platform checkouts from app migration unless a platform auditor explicitly classifies the checkout as an app migration source."
+        "platform_boundary_exclusion_invariant": "Archive readiness excludes /srv/bears/dev/platform and temporary platform checkouts from app migration unless a platform auditor explicitly classifies the checkout as an app migration source.",
+        "canonical_planning_project_invariant": "The BearsCLOUD/apps umbrella issue and every source migration issue must be in the one canonical BearsCLOUD/apps planning Project named `Apps Migration & Planning` once GitHub Project API proof is available; required fields source_repo/app_module, migration_stage, infra_local_cd_status, platform_boundary_status, archive_readiness, owner_role, and blocker_status must be populated before archive. Existing per-source Projects may exist only as legacy evidence and must not be required, created, or used for PASS.",
+        "per_source_projects_policy": "legacy_evidence_only_not_required_not_created_not_pass"
       }
     },
     {
@@ -8545,9 +8591,10 @@
         "issue_link_invariant": "Old repository issues and migration issues must link to BearsCLOUD/apps before closeout.",
         "umbrella_issue_invariant": "Archive readiness requires a BearsCLOUD/apps umbrella migration issue before archive.",
         "source_migration_issue_invariant": "Archive readiness requires a source repository migration issue linked to the BearsCLOUD/apps umbrella issue before archive.",
-        "source_project_link_invariant": "Archive readiness requires a dedicated GitHub Project named `Migrate <source-repo> into apps` in BearsCLOUD/apps or BearsCLOUD org, linked to the BearsCLOUD/apps umbrella issue and the source migration issue before archive.",
         "infra_local_cd_safety_invariant": "Archive readiness requires infra/local_cd safety proof: Kubernetes desired state and local_cd selectors must not depend on this old source repository unless the owning infra/local_cd policy classifies it as a temporary migration source.",
-        "platform_boundary_exclusion_invariant": "Archive readiness excludes /srv/bears/dev/platform and temporary platform checkouts from app migration unless a platform auditor explicitly classifies the checkout as an app migration source."
+        "platform_boundary_exclusion_invariant": "Archive readiness excludes /srv/bears/dev/platform and temporary platform checkouts from app migration unless a platform auditor explicitly classifies the checkout as an app migration source.",
+        "canonical_planning_project_invariant": "The BearsCLOUD/apps umbrella issue and every source migration issue must be in the one canonical BearsCLOUD/apps planning Project named `Apps Migration & Planning` once GitHub Project API proof is available; required fields source_repo/app_module, migration_stage, infra_local_cd_status, platform_boundary_status, archive_readiness, owner_role, and blocker_status must be populated before archive. Existing per-source Projects may exist only as legacy evidence and must not be required, created, or used for PASS.",
+        "per_source_projects_policy": "legacy_evidence_only_not_required_not_created_not_pass"
       }
     },
     {
@@ -8612,9 +8659,10 @@
         "issue_link_invariant": "Old repository issues and migration issues must link to BearsCLOUD/apps before closeout.",
         "umbrella_issue_invariant": "Archive readiness requires a BearsCLOUD/apps umbrella migration issue before archive.",
         "source_migration_issue_invariant": "Archive readiness requires a source repository migration issue linked to the BearsCLOUD/apps umbrella issue before archive.",
-        "source_project_link_invariant": "Archive readiness requires a dedicated GitHub Project named `Migrate <source-repo> into apps` in BearsCLOUD/apps or BearsCLOUD org, linked to the BearsCLOUD/apps umbrella issue and the source migration issue before archive.",
         "infra_local_cd_safety_invariant": "Archive readiness requires infra/local_cd safety proof: Kubernetes desired state and local_cd selectors must not depend on this old source repository unless the owning infra/local_cd policy classifies it as a temporary migration source.",
-        "platform_boundary_exclusion_invariant": "Archive readiness excludes /srv/bears/dev/platform and temporary platform checkouts from app migration unless a platform auditor explicitly classifies the checkout as an app migration source."
+        "platform_boundary_exclusion_invariant": "Archive readiness excludes /srv/bears/dev/platform and temporary platform checkouts from app migration unless a platform auditor explicitly classifies the checkout as an app migration source.",
+        "canonical_planning_project_invariant": "The BearsCLOUD/apps umbrella issue and every source migration issue must be in the one canonical BearsCLOUD/apps planning Project named `Apps Migration & Planning` once GitHub Project API proof is available; required fields source_repo/app_module, migration_stage, infra_local_cd_status, platform_boundary_status, archive_readiness, owner_role, and blocker_status must be populated before archive. Existing per-source Projects may exist only as legacy evidence and must not be required, created, or used for PASS.",
+        "per_source_projects_policy": "legacy_evidence_only_not_required_not_created_not_pass"
       }
     },
     {
@@ -8663,9 +8711,10 @@
         "forbidden_use": "Canonical product app repository authority or new standalone app repository registration.",
         "umbrella_issue_invariant": "Archive readiness requires a BearsCLOUD/apps umbrella migration issue before archive.",
         "source_migration_issue_invariant": "Archive readiness requires a source repository migration issue linked to the BearsCLOUD/apps umbrella issue before archive.",
-        "source_project_link_invariant": "Archive readiness requires a dedicated GitHub Project named `Migrate <source-repo> into apps` in BearsCLOUD/apps or BearsCLOUD org, linked to the BearsCLOUD/apps umbrella issue and the source migration issue before archive.",
         "infra_local_cd_safety_invariant": "Archive readiness requires infra/local_cd safety proof: Kubernetes desired state and local_cd selectors must not depend on this old source repository unless the owning infra/local_cd policy classifies it as a temporary migration source.",
-        "platform_boundary_exclusion_invariant": "Archive readiness excludes /srv/bears/dev/platform and temporary platform checkouts from app migration unless a platform auditor explicitly classifies the checkout as an app migration source."
+        "platform_boundary_exclusion_invariant": "Archive readiness excludes /srv/bears/dev/platform and temporary platform checkouts from app migration unless a platform auditor explicitly classifies the checkout as an app migration source.",
+        "canonical_planning_project_invariant": "The BearsCLOUD/apps umbrella issue and every source migration issue must be in the one canonical BearsCLOUD/apps planning Project named `Apps Migration & Planning` once GitHub Project API proof is available; required fields source_repo/app_module, migration_stage, infra_local_cd_status, platform_boundary_status, archive_readiness, owner_role, and blocker_status must be populated before archive. Existing per-source Projects may exist only as legacy evidence and must not be required, created, or used for PASS.",
+        "per_source_projects_policy": "legacy_evidence_only_not_required_not_created_not_pass"
       }
     },
     {
@@ -8712,9 +8761,10 @@
         "forbidden_use": "Canonical product app repository authority or new standalone app repository registration.",
         "umbrella_issue_invariant": "Archive readiness requires a BearsCLOUD/apps umbrella migration issue before archive.",
         "source_migration_issue_invariant": "Archive readiness requires a source repository migration issue linked to the BearsCLOUD/apps umbrella issue before archive.",
-        "source_project_link_invariant": "Archive readiness requires a dedicated GitHub Project named `Migrate <source-repo> into apps` in BearsCLOUD/apps or BearsCLOUD org, linked to the BearsCLOUD/apps umbrella issue and the source migration issue before archive.",
         "infra_local_cd_safety_invariant": "Archive readiness requires infra/local_cd safety proof: Kubernetes desired state and local_cd selectors must not depend on this old source repository unless the owning infra/local_cd policy classifies it as a temporary migration source.",
-        "platform_boundary_exclusion_invariant": "Archive readiness excludes /srv/bears/dev/platform and temporary platform checkouts from app migration unless a platform auditor explicitly classifies the checkout as an app migration source."
+        "platform_boundary_exclusion_invariant": "Archive readiness excludes /srv/bears/dev/platform and temporary platform checkouts from app migration unless a platform auditor explicitly classifies the checkout as an app migration source.",
+        "canonical_planning_project_invariant": "The BearsCLOUD/apps umbrella issue and every source migration issue must be in the one canonical BearsCLOUD/apps planning Project named `Apps Migration & Planning` once GitHub Project API proof is available; required fields source_repo/app_module, migration_stage, infra_local_cd_status, platform_boundary_status, archive_readiness, owner_role, and blocker_status must be populated before archive. Existing per-source Projects may exist only as legacy evidence and must not be required, created, or used for PASS.",
+        "per_source_projects_policy": "legacy_evidence_only_not_required_not_created_not_pass"
       }
     },
     {
@@ -8762,9 +8812,10 @@
         "forbidden_use": "Canonical product app repository authority or new standalone app repository registration.",
         "umbrella_issue_invariant": "Archive readiness requires a BearsCLOUD/apps umbrella migration issue before archive.",
         "source_migration_issue_invariant": "Archive readiness requires a source repository migration issue linked to the BearsCLOUD/apps umbrella issue before archive.",
-        "source_project_link_invariant": "Archive readiness requires a dedicated GitHub Project named `Migrate <source-repo> into apps` in BearsCLOUD/apps or BearsCLOUD org, linked to the BearsCLOUD/apps umbrella issue and the source migration issue before archive.",
         "infra_local_cd_safety_invariant": "Archive readiness requires infra/local_cd safety proof: Kubernetes desired state and local_cd selectors must not depend on this old source repository unless the owning infra/local_cd policy classifies it as a temporary migration source.",
-        "platform_boundary_exclusion_invariant": "Archive readiness excludes /srv/bears/dev/platform and temporary platform checkouts from app migration unless a platform auditor explicitly classifies the checkout as an app migration source."
+        "platform_boundary_exclusion_invariant": "Archive readiness excludes /srv/bears/dev/platform and temporary platform checkouts from app migration unless a platform auditor explicitly classifies the checkout as an app migration source.",
+        "canonical_planning_project_invariant": "The BearsCLOUD/apps umbrella issue and every source migration issue must be in the one canonical BearsCLOUD/apps planning Project named `Apps Migration & Planning` once GitHub Project API proof is available; required fields source_repo/app_module, migration_stage, infra_local_cd_status, platform_boundary_status, archive_readiness, owner_role, and blocker_status must be populated before archive. Existing per-source Projects may exist only as legacy evidence and must not be required, created, or used for PASS.",
+        "per_source_projects_policy": "legacy_evidence_only_not_required_not_created_not_pass"
       }
     },
     {
@@ -8938,13 +8989,23 @@
         "active_replacement": "BearsCLOUD/apps",
         "canonical_local_root": "/srv/bears/dev/app",
         "issue_link_invariant": "Old repository issues and migration issues must link to BearsCLOUD/apps before closeout.",
-        "allowed_use": "Migration source, archive evidence, or temporary migration worktree only.",
+        "allowed_use": "Migration source, archive evidence, or temporary migration worktree only; active source is BearsCLOUD/apps source_subpath=codexdaemon.",
         "forbidden_use": "Canonical product app repository authority or new standalone app repository registration.",
         "umbrella_issue_invariant": "Archive readiness requires a BearsCLOUD/apps umbrella migration issue before archive.",
         "source_migration_issue_invariant": "Archive readiness requires a source repository migration issue linked to the BearsCLOUD/apps umbrella issue before archive.",
-        "source_project_link_invariant": "Archive readiness requires a dedicated GitHub Project named `Migrate <source-repo> into apps` in BearsCLOUD/apps or BearsCLOUD org, linked to the BearsCLOUD/apps umbrella issue and the source migration issue before archive.",
         "infra_local_cd_safety_invariant": "Archive readiness requires infra/local_cd safety proof: Kubernetes desired state and local_cd selectors must not depend on this old source repository unless the owning infra/local_cd policy classifies it as a temporary migration source.",
-        "platform_boundary_exclusion_invariant": "Archive readiness excludes /srv/bears/dev/platform and temporary platform checkouts from app migration unless a platform auditor explicitly classifies the checkout as an app migration source."
+        "platform_boundary_exclusion_invariant": "Archive readiness excludes /srv/bears/dev/platform and temporary platform checkouts from app migration unless a platform auditor explicitly classifies the checkout as an app migration source.",
+        "canonical_planning_project_invariant": "The BearsCLOUD/apps umbrella issue and every source migration issue must be in the one canonical BearsCLOUD/apps planning Project named `Apps Migration & Planning` once GitHub Project API proof is available; required fields source_repo/app_module, migration_stage, infra_local_cd_status, platform_boundary_status, archive_readiness, owner_role, and blocker_status must be populated before archive. Existing per-source Projects may exist only as legacy evidence and must not be required, created, or used for PASS.",
+        "per_source_projects_policy": "legacy_evidence_only_not_required_not_created_not_pass",
+        "active_replacement_source_subpath": "codexdaemon",
+        "old_repository": "BearsCLOUD/codexdaemon",
+        "deprecated_refs": [
+          "BearsCLOUD/codexdaemon"
+        ]
+      },
+      "canonical_source": {
+        "repository": "BearsCLOUD/apps",
+        "source_subpath": "codexdaemon"
       }
     },
     {
@@ -8992,9 +9053,13 @@
         "forbidden_use": "Canonical product app repository authority or new standalone app repository registration.",
         "umbrella_issue_invariant": "Archive readiness requires a BearsCLOUD/apps umbrella migration issue before archive.",
         "source_migration_issue_invariant": "Archive readiness requires a source repository migration issue linked to the BearsCLOUD/apps umbrella issue before archive.",
-        "source_project_link_invariant": "Archive readiness requires a dedicated GitHub Project named `Migrate <source-repo> into apps` in BearsCLOUD/apps or BearsCLOUD org, linked to the BearsCLOUD/apps umbrella issue and the source migration issue before archive.",
         "infra_local_cd_safety_invariant": "Archive readiness requires infra/local_cd safety proof: Kubernetes desired state and local_cd selectors must not depend on this old source repository unless the owning infra/local_cd policy classifies it as a temporary migration source.",
-        "platform_boundary_exclusion_invariant": "Archive readiness excludes /srv/bears/dev/platform and temporary platform checkouts from app migration unless a platform auditor explicitly classifies the checkout as an app migration source."
+        "platform_boundary_exclusion_invariant": "Archive readiness excludes /srv/bears/dev/platform and temporary platform checkouts from app migration unless a platform auditor explicitly classifies the checkout as an app migration source.",
+        "canonical_planning_project_invariant": "The BearsCLOUD/apps umbrella issue and every source migration issue must be in the one canonical BearsCLOUD/apps planning Project named `Apps Migration & Planning` once GitHub Project API proof is available; required fields source_repo/app_module, migration_stage, infra_local_cd_status, platform_boundary_status, archive_readiness, owner_role, and blocker_status must be populated before archive. Existing per-source Projects may exist only as legacy evidence and must not be required, created, or used for PASS.",
+        "per_source_projects_policy": "legacy_evidence_only_not_required_not_created_not_pass",
+        "deprecated_refs": [
+          "BearsCLOUD/desk"
+        ]
       }
     },
     {
@@ -13754,6 +13819,18 @@
       "target": "/srv/bears/dev/app/newapp",
       "expected_status": "ROLE_COVERAGE_BLOCKER",
       "expected_why_blocked": "unmapped"
+    },
+    {
+      "target": "assets/catalog/telegram-workflow-catalog.v1.json",
+      "expected_status": "matched",
+      "required_role": "bears-telegram-platform-engineer",
+      "required_route_id": "bears_telegram_workflow_skill_bundle"
+    },
+    {
+      "target": "tests/test_telegram_catalog.py",
+      "expected_status": "matched",
+      "required_role": "bears-telegram-platform-engineer",
+      "required_route_id": "bears_telegram_workflow_skill_bundle"
     }
   ],
   "agent_profile_mappings": [

@@ -3902,14 +3902,34 @@ class PlatformRolesTest(unittest.TestCase):
             )
         )
 
+    def test_product_apps_old_remote_aliases_must_be_deprecated_refs(self) -> None:
+        catalog = copy.deepcopy(self.catalog)
+        part = next(item for item in catalog["platform_parts"] if item["name"] == "desk_product_dev_layer")
+        part["legacy_compatibility"]["deprecated_refs"] = []
+
+        errors = platform_roles.validate_catalog(catalog, plugin_root=PLUGIN_ROOT)
+
+        self.assertTrue(
+            any(
+                "desk_product_dev_layer.legacy_compatibility.deprecated_refs must include old repository aliases ['BearsCLOUD/desk']"
+                in error
+                for error in errors
+            )
+        )
+
     def test_product_apps_archive_readiness_requires_project_infra_and_platform_guards(self) -> None:
         policy = self.catalog["mandatory_policy"]["product_apps_monorepo_policy"]
         self.assertIn("infra_local_cd_safety_invariant", policy["required_legacy_fields"])
         self.assertIn("platform_boundary_exclusion_invariant", policy["required_legacy_fields"])
-        self.assertIn("source-specific GitHub Project", policy["archive_readiness_invariant"])
+        self.assertIn("canonical BearsCLOUD/apps planning Project", policy["archive_readiness_invariant"])
         self.assertIn("local_cd", policy["archive_readiness_invariant"])
         self.assertIn("platform boundary exclusion", policy["archive_readiness_invariant"])
-        self.assertEqual(policy["source_project_name_template"], "Migrate <source-repo> into apps")
+        self.assertNotIn("source_project_name_template", policy)
+        planning_project = policy["canonical_planning_project"]
+        self.assertEqual(planning_project["owner_repository"], "BearsCLOUD/apps")
+        self.assertIn("source_repo/app_module", planning_project["required_issue_fields"])
+        self.assertIn("archive_readiness", planning_project["required_issue_fields"])
+        self.assertIn("existing per-source Projects may exist only as legacy evidence and must not be required, created, or used for PASS", planning_project["scope"])
         self.assertEqual(
             policy["platform_temp_checkout_exclusion"]["classification_required_by"],
             "platform auditor",
@@ -3945,6 +3965,33 @@ class PlatformRolesTest(unittest.TestCase):
         self.assertFalse(
             any("bears_platform_repo_root old app route must declare legacy_compatibility" in error for error in errors)
         )
+
+    def test_plugin_docs_do_not_assign_canonical_authority_to_old_app_repos(self) -> None:
+        docs = {
+            rel: (PLUGIN_ROOT / rel).read_text(encoding="utf-8")
+            for rel in (
+                "AGENTS.md",
+                "README.md",
+                "SPEC.md",
+                "requirements.md",
+                "skills/platform-role-governance/SKILL.md",
+                "skills/bears-role-gate/SKILL.md",
+                "agents/bears-product-app-zone-engineer.toml",
+            )
+        }
+        joined = "\n".join(docs.values())
+
+        self.assertIn("BearsCLOUD/apps", joined)
+        self.assertIn("/srv/bears/dev/app", joined)
+        self.assertNotIn("canonical The Ants", joined)
+        self.assertNotIn("BearsCLOUD/codexdaemon` owns daemon source", joined)
+        self.assertNotIn("live in `BearsCLOUD/codexdaemon`", joined)
+
+        for rel, text in docs.items():
+            if "BearsCLOUD/codexdaemon" in text:
+                with self.subTest(rel=rel):
+                    self.assertIn("deprecated", text)
+                    self.assertIn("archive", text)
 
     def test_dev_registry_root_routes_to_exact_workspace_governance_docs(self) -> None:
         for router in (platform_roles.route_target, platform_roles.audit_target):

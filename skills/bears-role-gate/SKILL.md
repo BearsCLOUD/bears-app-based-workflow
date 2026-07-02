@@ -7,7 +7,7 @@ description: "Use before Bears workflow-overlay edits that require platform role
 
 Canonical owner: `/srv/bears/plugins/bears`. `bears-telegram-workflow` is a Telegram workflow skill bundle inside this plugin, not a standalone plugin.
 
-Use this skill before platform-facing Bears workflow-overlay work to prove that the requested platform part has a registered role and bounded write scope. It also checks compatibility routes under `/srv/bears/dev`, deprecated transitional sources under `/srv/bears/projects`, Kubernetes deploy-core work, Android emulator `.225`, Sentry/observability `.226`, and The Ants migration surfaces.
+Use this skill before platform-facing Bears workflow-overlay work to prove that the requested platform part has a registered role and bounded write scope. It also checks compatibility routes under `/srv/bears/dev`, the canonical apps monorepo route `/srv/bears/dev/app` plus `BearsCLOUD/apps`, deprecated transitional sources under `/srv/bears/projects`, Kubernetes deploy-core work, Android emulator `.225`, Sentry/observability `.226`, and old app migration/archive surfaces.
 
 This is the only MVP governance skill that can create a hard workflow stop by returning `ROLE_COVERAGE_BLOCKER`. If coverage exists, report advisory guidance and continue to the next gate.
 
@@ -37,13 +37,19 @@ python3 scripts/platform_roles.py route android-emulator
 python3 scripts/platform_roles.py audit android-emulator
 python3 scripts/platform_roles.py route sentry
 python3 scripts/platform_roles.py audit sentry
+python3 scripts/platform_roles.py route /srv/bears/dev/app
+python3 scripts/platform_roles.py audit /srv/bears/dev/app
+python3 scripts/platform_roles.py route BearsCLOUD/apps
+python3 scripts/platform_roles.py audit BearsCLOUD/apps
+python3 scripts/platform_roles.py route /srv/bears/dev/app/apps
+python3 scripts/platform_roles.py route /srv/bears/dev/apps
 python3 scripts/platform_roles.py route /srv/bears/dev/products/theants
 python3 scripts/platform_roles.py audit /srv/bears/dev/products/theants
 python3 scripts/platform_roles.py route /srv/bears/projects/theants
 python3 scripts/platform_roles.py audit /srv/bears/projects/theants
 ```
 
-`/srv/bears/projects` is a deprecated transitional source. Parent/group coverage from it is not valid implementation coverage. The old `/srv/bears/projects/theants` path must route to the The Ants product app-zone role, not to Telegram runtime fallback.
+`/srv/bears/dev/app` plus `BearsCLOUD/apps` is the canonical product-app repo route. `/srv/bears/projects`, `/srv/bears/dev/products/*`, and old child app repositories are deprecated transitional or migration/archive sources. Parent/group coverage from them is not valid implementation coverage. The old `/srv/bears/projects/theants` path must route as legacy app-zone evidence, not as a separate canonical repository or Telegram runtime fallback.
 
 ## JSON artifact
 

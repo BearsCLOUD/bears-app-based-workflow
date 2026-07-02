@@ -929,7 +929,7 @@ def _validate_product_apps_monorepo_catalog(catalog: dict[str, Any], errors: lis
         "issue_link_invariant",
         "umbrella_issue_invariant",
         "source_migration_issue_invariant",
-        "source_project_link_invariant",
+        "canonical_planning_project_invariant",
         "infra_local_cd_safety_invariant",
         "platform_boundary_exclusion_invariant",
     }
@@ -943,15 +943,43 @@ def _validate_product_apps_monorepo_catalog(catalog: dict[str, Any], errors: lis
     archive_readiness = apps_policy.get("archive_readiness_invariant")
     if not isinstance(archive_readiness, str) or not all(
         token in archive_readiness
-        for token in ("umbrella issue", "source migration issue", "Project", "local_cd", "platform")
+        for token in ("umbrella issue", "source migration issue", "canonical", "Project", "local_cd", "platform")
     ):
         errors.append(
             "product-apps-monorepo: archive_readiness_invariant must require umbrella issue, "
-            "source migration issue, source-specific Project, infra/local_cd safety, and platform exclusion"
+            "source migration issue, canonical Apps planning Project, infra/local_cd safety, and platform exclusion"
         )
-    project_template = apps_policy.get("source_project_name_template")
-    if project_template != "Migrate <source-repo> into apps":
-        errors.append("product-apps-monorepo: source_project_name_template must be Migrate <source-repo> into apps")
+    planning_project = apps_policy.get("canonical_planning_project")
+    required_project_fields = {
+        "source_repo/app_module",
+        "migration_stage",
+        "infra_local_cd_status",
+        "platform_boundary_status",
+        "archive_readiness",
+        "owner_role",
+        "blocker_status",
+    }
+    if not isinstance(planning_project, dict):
+        errors.append("product-apps-monorepo: canonical_planning_project must be declared")
+    else:
+        if planning_project.get("owner_repository") != canonical_remote:
+            errors.append("product-apps-monorepo: canonical_planning_project.owner_repository must be BearsCLOUD/apps")
+        if planning_project.get("name") != "Apps Migration & Planning":
+            errors.append("product-apps-monorepo: canonical_planning_project.name must be Apps Migration & Planning")
+        fields = {item for item in planning_project.get("required_issue_fields", []) if isinstance(item, str)}
+        missing_fields = sorted(required_project_fields - fields)
+        if missing_fields:
+            errors.append(
+                "product-apps-monorepo: canonical_planning_project.required_issue_fields "
+                f"missing {missing_fields}"
+            )
+        scope = planning_project.get("scope")
+        if not isinstance(scope, str) or not all(token in scope for token in ("per-source Projects", "legacy evidence", "must not be required", "used for PASS")):
+            errors.append(
+                "product-apps-monorepo: canonical_planning_project.scope must allow per-source Projects only as legacy evidence, not as required/PASS evidence"
+            )
+        if planning_project.get("api_proof_required_for_archive_pass") is not True:
+            errors.append("product-apps-monorepo: canonical_planning_project.api_proof_required_for_archive_pass must be true")
     infra_invariant = apps_policy.get("infra_local_cd_archive_readiness_invariant")
     if not isinstance(infra_invariant, str) or not all(
         token in infra_invariant for token in ("Kubernetes", "local_cd", "old source repository")
@@ -1030,17 +1058,49 @@ def _validate_product_apps_monorepo_catalog(catalog: dict[str, Any], errors: lis
             errors.append(f"product-apps-monorepo: {part_name}.legacy_compatibility missing {missing}")
         if legacy.get("active_replacement") != canonical_remote:
             errors.append(f"product-apps-monorepo: {part_name}.legacy_compatibility.active_replacement must be {canonical_remote}")
+        deprecated_refs = {
+            item for item in legacy.get("deprecated_refs", []) if isinstance(item, str)
+        }
+        old_remote_repos = sorted(
+            {
+                repo
+                for repo in (_is_bearscloud_repo_value(value) for value in values)
+                if repo is not None and repo != canonical_remote
+            }
+        )
+        missing_deprecated_remote_refs = [
+            repo for repo in old_remote_repos if repo not in deprecated_refs
+        ]
+        if missing_deprecated_remote_refs:
+            errors.append(
+                f"product-apps-monorepo: {part_name}.legacy_compatibility.deprecated_refs "
+                f"must include old repository aliases {missing_deprecated_remote_refs}"
+            )
         status = legacy.get("status")
         if status not in allowed_nested_statuses:
             errors.append(f"product-apps-monorepo: {part_name}.legacy_compatibility.status must be one of {sorted(allowed_nested_statuses)}")
         issue_link = legacy.get("issue_link_invariant")
         if not isinstance(issue_link, str) or canonical_remote not in issue_link:
             errors.append(f"product-apps-monorepo: {part_name}.legacy_compatibility.issue_link_invariant must name {canonical_remote}")
-        project_link = legacy.get("source_project_link_invariant")
-        if not isinstance(project_link, str) or "Migrate <source-repo> into apps" not in project_link:
+        planning_link = legacy.get("canonical_planning_project_invariant")
+        if not isinstance(planning_link, str) or not all(
+            token in planning_link
+            for token in (canonical_remote, "Apps Migration & Planning", "canonical", "Project", "source_repo/app_module", "archive_readiness", "API proof")
+        ):
             errors.append(
-                f"product-apps-monorepo: {part_name}.legacy_compatibility.source_project_link_invariant "
-                "must require a source-specific Project"
+                f"product-apps-monorepo: {part_name}.legacy_compatibility.canonical_planning_project_invariant "
+                "must require canonical Apps planning Project membership with populated migration fields"
+            )
+        if "Migrate " in planning_link and " into apps" in planning_link:
+            errors.append(
+                f"product-apps-monorepo: {part_name}.legacy_compatibility.canonical_planning_project_invariant "
+                "must not require a separate per-source Project"
+            )
+        per_source_policy = legacy.get("per_source_projects_policy")
+        if per_source_policy != "legacy_evidence_only_not_required_not_created_not_pass":
+            errors.append(
+                f"product-apps-monorepo: {part_name}.legacy_compatibility.per_source_projects_policy "
+                "must mark per-source Projects as legacy evidence only"
             )
         infra_safety = legacy.get("infra_local_cd_safety_invariant")
         if not isinstance(infra_safety, str) or not all(

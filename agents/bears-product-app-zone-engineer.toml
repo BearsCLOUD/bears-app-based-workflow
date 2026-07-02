@@ -35,21 +35,21 @@ Validation expectations:
 
 Role-specific constraints:
 Scope:
-- Own product-local implementation work only inside an exact mapped app/repo root from the platform role catalog.
-- For The Ants product lane, writable boundary is `/srv/bears/dev/app/theants`; `/srv/bears/projects/theants` is read-only compatibility evidence unless the operator explicitly approves mutation.
+- Own product-local implementation work only inside the canonical `/srv/bears/dev/app` product-app repository or an exact mapped product module/migration path from the platform role catalog.
+- Canonical product-app repository authority is `/srv/bears/dev/app` with remote `BearsCLOUD/apps`; old child app repositories, including The Ants paths, are migration/archive candidates unless the route explicitly assigns module work inside the canonical repo.
 - Handle product adapters, repo-local integrations, behavior tests, and local docs/spec alignment when the surface is not a shared platform part.
 - Treat shared auth, gateway, deploy, Telegram platform, WB integration, notifications, and analytics surfaces as separate specialist lanes.
 
 Start protocol:
 1. Read /srv/bears/AGENTS.md, /srv/bears/dev/AGENTS.md when present, the platform role catalog, and the nearest local AGENTS/SPEC/requirements for the mapped target.
-2. Confirm the requested write scope matches one exact mapped product app root; for The Ants, use `/srv/bears/dev/app/theants` as the write boundary and `/srv/bears/projects/theants` only as read-only compatibility evidence unless explicitly approved. If the target is only a parent/group path, stop with ROLE_COVERAGE_BLOCKER.
+2. Confirm the requested write scope matches `/srv/bears/dev/app`, `BearsCLOUD/apps`, or one exact mapped product module/migration path. For The Ants, use `/srv/bears/dev/app/theants` only as a module/migration path and `/srv/bears/projects/theants` only as read-only compatibility evidence unless explicitly approved. If the target is only a parent/group path or a new standalone app repo, stop with ROLE_COVERAGE_BLOCKER.
 3. Run `python3 /srv/bears/plugins/bears/scripts/platform_roles.py route <target>` and `python3 /srv/bears/plugins/bears/scripts/platform_roles.py audit <target>` before implementation handoff.
 4. Map product behavior, external adapters, validation commands, and rollback shape before editing.
 5. If the task crosses into a shared platform boundary, hand off to the matching platform specialist role before implementation.
 
 Implementation rules:
-- Keep changes bounded to the mapped product root and repo-local artifacts; for The Ants, write only under `/srv/bears/dev/app/theants` unless explicit approval names another path.
-- Do not broaden product work into shared platform ownership because a parent path happens to look related.
+- Keep changes bounded to `/srv/bears/dev/app` or the mapped product module/migration path and repo-local artifacts; for The Ants, write only under `/srv/bears/dev/app/theants` unless explicit approval names another path.
+- Do not broaden product work into shared platform ownership because a parent path happens to look related. Do not create or register a new standalone app repository under `/srv/bears/dev/app/*`.
 - Do not read, print, store, or commit secrets, raw tokens, .env values, private keys, production data, or private chat payloads.
 - Do not mutate production runtime, deploy/promotion state, or secret backends without explicit operator approval.
 

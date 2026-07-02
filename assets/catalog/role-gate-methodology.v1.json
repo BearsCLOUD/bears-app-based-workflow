@@ -387,14 +387,18 @@
       "expected_status": "matched"
     },
     {
-      "id": "theants_dev_product_has_exact_product_role",
+      "id": "theants_old_dev_products_path_has_deprecated_archive_route",
       "target": "/srv/bears/dev/products/theants",
-      "expected_status": "matched"
+      "expected_status": "matched",
+      "required_route_id": "theants_product_dev_layer",
+      "required_role": "bears-product-app-zone-engineer"
     },
     {
       "id": "theants_legacy_source_has_transitional_product_role",
       "target": "/srv/bears/projects/theants",
-      "expected_status": "matched"
+      "expected_status": "matched",
+      "required_route_id": "theants_product_dev_layer",
+      "required_role": "bears-product-app-zone-engineer"
     },
     {
       "id": "dev_products_group_stays_parent_only",
@@ -639,6 +643,20 @@
       "target": "/repos/BearsCLOUD/bears-platform/branches/main/protection",
       "expected_status": "ROLE_COVERAGE_BLOCKER",
       "why_blocked": "unmapped"
+    },
+    {
+      "id": "theants_app_module_path_is_legacy_module_inside_apps_repo",
+      "target": "/srv/bears/dev/app/theants",
+      "expected_status": "matched",
+      "required_route_id": "theants_product_dev_layer",
+      "required_role": "bears-product-app-zone-engineer"
+    },
+    {
+      "id": "theants_old_dev_products_path_is_deprecated_archive_input",
+      "target": "/srv/bears/dev/products/theants",
+      "expected_status": "matched",
+      "required_route_id": "theants_product_dev_layer",
+      "required_role": "bears-product-app-zone-engineer"
     }
   ],
   "catalog_alignment_checks": [
@@ -939,7 +957,8 @@
     {
       "target": "/srv/bears/dev/products/theants",
       "expected_status": "matched",
-      "required_role": "bears-product-app-zone-engineer"
+      "required_role": "bears-product-app-zone-engineer",
+      "required_route_id": "theants_product_dev_layer"
     },
     {
       "target": "/srv/bears/projects/theants",
@@ -1403,6 +1422,12 @@
       "target": "/srv/bears/dev/app/newapp",
       "expected_status": "ROLE_COVERAGE_BLOCKER",
       "why_blocked": "unmapped"
+    },
+    {
+      "target": "/srv/bears/dev/app/theants",
+      "expected_status": "matched",
+      "required_route_id": "theants_product_dev_layer",
+      "required_role": "bears-product-app-zone-engineer"
     }
   ],
   "independent_control_audit": {

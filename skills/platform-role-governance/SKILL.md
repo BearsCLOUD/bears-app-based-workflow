@@ -21,6 +21,10 @@ This is the canonical Bears plugin-owned platform role gate. Use it before compa
    - `kube`
    - `android-emulator`
    - `sentry`
+   - `/srv/bears/dev/app`
+   - `BearsCLOUD/apps`
+   - `/srv/bears/dev/app/apps`
+   - `/srv/bears/dev/apps`
    - `/srv/bears/dev/products/theants`
    - `/srv/bears/projects/theants`
 6. If the route/audit matches, use the returned primary specialist or helper role and keep writes inside its allowed scope.
@@ -35,7 +39,7 @@ This is the canonical Bears plugin-owned platform role gate. Use it before compa
 - `kube`, `kubernetes`, `bears-infra`, and `/srv/bears/kubernetes` route to the Kubernetes repo boundary.
 - `android-emulator` routes to The Ants emulator platform `.225` lane.
 - `sentry` routes to the `.226` Sentry/observability future lane.
-- `/srv/bears/dev/products/theants` and `/srv/bears/projects/theants` route to the The Ants product app-zone lane.
+- `/srv/bears/dev/app` and `BearsCLOUD/apps` route to the canonical product-app monorepo root. `/srv/bears/dev/products/theants` and `/srv/bears/projects/theants` are legacy migration/archive inputs only. `/srv/bears/dev/app/apps` and `/srv/bears/dev/apps` must stay unmapped.
 - `/srv/bears/dev/registry/projects.v1.json` routes to workspace governance and is the machine registry for `project-mandate`.
 - `project-mandate` and `/srv/bears/plugins/bears/skills/project-mandate` route to the registry-gated project checklist skill.
 - `subagent-orchestration-policy` routes to the non-product stage-boundary audit policy; legacy post-task wording is alias-only.

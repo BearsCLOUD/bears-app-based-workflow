@@ -419,24 +419,24 @@
     },
     {
       "name": "theants",
-      "path": "dev/products/theants",
+      "path": "dev/app/theants",
       "owner_group": "products",
       "surface_type": "dev-core-product-bot-source",
-      "current_framework_status": "custom Bot API polling client / not-aiogram / legacy source preserved at projects/theants",
-      "target_state": "product-owned dev-core layer with adapter seam and tests before any Aiogram 3 runtime rewrite",
+      "current_framework_status": "custom Bot API polling client / not-aiogram / legacy sources preserved at projects/theants and dev/products/theants",
+      "target_state": "product module under canonical BearsCLOUD/apps with adapter seam and tests before any Aiogram 3 runtime rewrite",
       "migration_status": "target-aiogram3-rewrite-after-dev-core-split-proof",
       "test_status": "dev-core split proof plus product tests required before code work",
       "exception_status": "none",
       "trust_status": "candidate",
       "last_verified": "2026-06-05",
       "evidence_source": [
-        "dev/products/theants/README.md",
+        "dev/app/theants/README.md",
         "dev/contracts/theants_dev_layer_migration_contract.md",
         "projects/theants/src/theants/entrypoints/bot.py",
         "projects/theants/src/theants/adapters/telegram_api.py",
         "plugins/bears/assets/catalog/telegram-aiogram-migration-backlog.v1.json"
       ],
-      "next_action": "Preserve the legacy source, route product work through bears-product-app-zone-engineer, and use Telegram platform review only for adapter-pattern changes after tests."
+      "next_action": "Preserve legacy sources as migration/archive evidence, route canonical product work through BearsCLOUD/apps and bears-product-app-zone-engineer, and use Telegram platform review only for adapter-pattern changes after tests."
     },
     {
       "name": "proxybot",

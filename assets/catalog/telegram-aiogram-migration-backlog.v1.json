@@ -120,7 +120,9 @@
         "deprecated_refs": [
           "projects/vpn/vpnbot"
         ],
-        "decision": "renamed_to_canonical_dev_app"
+        "decision": "deprecated_archive_candidate_for_bearscloud_apps",
+        "active_replacement": "BearsCLOUD/apps",
+        "issue_link_invariant": "Old repository issues and migration issues must link to BearsCLOUD/apps before archive."
       }
     },
     {
@@ -640,13 +642,13 @@
         "projects/theants/src/theants/adapters/telegram_api.py"
       ],
       "next_actions": [
-        "Keep /srv/bears/projects/theants as legacy compatibility input until explicit cutover approval.",
-        "Route product work through /srv/bears/dev/app/theants and bears-product-app-zone-engineer.",
+        "Keep /srv/bears/projects/theants as deprecated migration/archive evidence and link migration issues to BearsCLOUD/apps before archive.",
+        "Route canonical product work through /srv/bears/dev/app plus BearsCLOUD/apps; use /srv/bears/dev/app/theants only as a product module or migration/archive path.",
         "Use bears-telegram-platform-engineer only as a supporting Telegram pattern reviewer for Aiogram-specific adapter work.",
         "Plan Aiogram 3 dispatcher/router migration only after product behavior is covered by deterministic tests."
       ],
       "validation_before_code": [
-        "Run Bears platform role route/audit for /srv/bears/dev/app/theants and /srv/bears/projects/theants.",
+        "Run Bears platform role route/audit for /srv/bears/dev/app, BearsCLOUD/apps, /srv/bears/dev/app/theants, and /srv/bears/projects/theants.",
         "Run The Ants product and split-proof tests before any Telegram adapter rewrite."
       ],
       "live_runtime_policy": "No live game/player messages, Telegram calls, Kubernetes migration, production process mutation, secrets, raw chats, raw logs, raw VPN configs, or production payloads without explicit operator approval.",
@@ -656,7 +658,9 @@
           "projects/theants",
           "dev/products/theants"
         ],
-        "decision": "renamed_to_canonical_dev_app"
+        "decision": "deprecated_archive_candidate_for_bearscloud_apps",
+        "active_replacement": "BearsCLOUD/apps",
+        "issue_link_invariant": "Old repository issues and migration issues must link to BearsCLOUD/apps before archive."
       }
     },
     {

@@ -3843,11 +3843,13 @@ class PlatformRolesTest(unittest.TestCase):
                 self.assertEqual(packet["primary_role"], "bears-telegram-platform-engineer")
 
     def test_product_apps_monorepo_root_routes_to_exact_product_role(self) -> None:
-        packet = platform_roles.route_target(self.catalog, "/srv/bears/dev/app", plugin_root=PLUGIN_ROOT)
-        self.assertEqual(packet["status"], "matched")
-        self.assertEqual(packet["concrete_part"], "product_apps_monorepo_root")
-        self.assertEqual(packet["primary_role"], "bears-product-app-zone-engineer")
-        self.assertEqual(packet["supporting_roles"], ["bears-platform-security-reviewer"])
+        for target in ("/srv/bears/dev/app", "BearsCLOUD/apps"):
+            with self.subTest(target=target):
+                packet = platform_roles.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
+                self.assertEqual(packet["status"], "matched")
+                self.assertEqual(packet["concrete_part"], "product_apps_monorepo_root")
+                self.assertEqual(packet["primary_role"], "bears-product-app-zone-engineer")
+                self.assertEqual(packet["supporting_roles"], ["bears-platform-security-reviewer"])
 
     def test_invalid_apps_monorepo_paths_stay_blocked(self) -> None:
         for target in ("/srv/bears/dev/app/apps", "/srv/bears/dev/apps", "/srv/bears/dev/app/newapp"):
@@ -3874,6 +3876,74 @@ class PlatformRolesTest(unittest.TestCase):
                 in error
                 for error in errors
             )
+        )
+
+    def test_product_apps_monorepo_policy_rejects_new_canonical_app_remote(self) -> None:
+        catalog = copy.deepcopy(self.catalog)
+        part = copy.deepcopy(next(item for item in catalog["platform_parts"] if item["name"] == "product_apps_monorepo_root"))
+        part["name"] = "future_canonical_product_app"
+        part["aliases"] = ["/srv/bears/dev/app/future", "dev/app/future", "BearsCLOUD/future"]
+        part["write_roots"] = ["/srv/bears/dev/app/future"]
+        part["canonical_repository"] = {
+            "local_root": "/srv/bears/dev/app/future",
+            "remote": "BearsCLOUD/future",
+            "github_repo": "BearsCLOUD/future",
+        }
+        catalog["platform_parts"].append(part)
+        catalog["mandatory_policy"]["role_required_for"].append("future_canonical_product_app")
+
+        errors = platform_roles.validate_catalog(catalog, plugin_root=PLUGIN_ROOT)
+
+        self.assertTrue(
+            any(
+                "product-apps-monorepo: future_canonical_product_app.canonical_repository.remote must be BearsCLOUD/apps"
+                in error
+                for error in errors
+            )
+        )
+
+    def test_product_apps_archive_readiness_requires_project_infra_and_platform_guards(self) -> None:
+        policy = self.catalog["mandatory_policy"]["product_apps_monorepo_policy"]
+        self.assertIn("infra_local_cd_safety_invariant", policy["required_legacy_fields"])
+        self.assertIn("platform_boundary_exclusion_invariant", policy["required_legacy_fields"])
+        self.assertIn("source-specific GitHub Project", policy["archive_readiness_invariant"])
+        self.assertIn("local_cd", policy["archive_readiness_invariant"])
+        self.assertIn("platform boundary exclusion", policy["archive_readiness_invariant"])
+        self.assertEqual(policy["source_project_name_template"], "Migrate <source-repo> into apps")
+        self.assertEqual(
+            policy["platform_temp_checkout_exclusion"]["classification_required_by"],
+            "platform auditor",
+        )
+        self.assertIn("/srv/bears/dev/platform", policy["platform_temp_checkout_exclusion"]["excluded_roots"])
+
+        catalog = copy.deepcopy(self.catalog)
+        part = next(item for item in catalog["platform_parts"] if item["name"] == "desk_product_dev_layer")
+        part["legacy_compatibility"].pop("infra_local_cd_safety_invariant", None)
+
+        errors = platform_roles.validate_catalog(catalog, plugin_root=PLUGIN_ROOT)
+
+        self.assertTrue(
+            any(
+                "desk_product_dev_layer.legacy_compatibility missing ['infra_local_cd_safety_invariant']"
+                in error
+                for error in errors
+            )
+        )
+
+    def test_platform_repo_root_stays_outside_apps_archive_workflow(self) -> None:
+        packet = platform_roles.route_target(self.catalog, "/srv/bears/dev/platform", plugin_root=PLUGIN_ROOT)
+        self.assertEqual(packet["status"], "matched")
+        self.assertEqual(packet["concrete_part"], "bears_platform_repo_root")
+        self.assertEqual(packet["primary_role"], "bears-platform-role-governor")
+
+        catalog = copy.deepcopy(self.catalog)
+        platform_part = next(item for item in catalog["platform_parts"] if item["name"] == "bears_platform_repo_root")
+        platform_part["aliases"].append("BearsCLOUD/platform-temp")
+
+        errors = platform_roles.validate_catalog(catalog, plugin_root=PLUGIN_ROOT)
+
+        self.assertFalse(
+            any("bears_platform_repo_root old app route must declare legacy_compatibility" in error for error in errors)
         )
 
     def test_dev_registry_root_routes_to_exact_workspace_governance_docs(self) -> None:

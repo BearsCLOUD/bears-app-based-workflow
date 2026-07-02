@@ -370,12 +370,24 @@
         "issue_link_invariant",
         "umbrella_issue_invariant",
         "source_migration_issue_invariant",
-        "source_project_link_invariant"
+        "source_project_link_invariant",
+        "infra_local_cd_safety_invariant",
+        "platform_boundary_exclusion_invariant"
       ],
       "issue_link_invariant": "Old repository issues and migration issues must link to BearsCLOUD/apps and must not create a new canonical app repository.",
-      "archive_readiness_invariant": "Archive readiness for every old source repository requires an umbrella issue, a source migration issue, and a source-specific GitHub Project link in BearsCLOUD/apps or BearsCLOUD org before archive.",
+      "archive_readiness_invariant": "Archive readiness for every old source repository requires a BearsCLOUD/apps umbrella issue, a source migration issue, a source-specific GitHub Project link, infra/local_cd safety proof, and platform boundary exclusion proof before archive.",
       "source_project_name_template": "Migrate <source-repo> into apps",
-      "source_project_link_invariant": "Each old source repository must have a dedicated GitHub Project named `Migrate <source-repo> into apps` in BearsCLOUD/apps or BearsCLOUD org, linked to the umbrella issue and the source migration issue before archive."
+      "source_project_link_invariant": "Each old source repository must have a dedicated GitHub Project named `Migrate <source-repo> into apps` in BearsCLOUD/apps or BearsCLOUD org, linked to the BearsCLOUD/apps umbrella issue and the source migration issue before archive.",
+      "infra_local_cd_archive_readiness_invariant": "Archive readiness requires proof that Kubernetes desired state and local_cd selectors no longer depend on the old source repository, or that the dependency is explicitly classified as a temporary migration source by the owning infra/local_cd policy.",
+      "platform_boundary_exclusion_invariant": "Platform repositories and temporary platform checkouts, including /srv/bears/dev/platform and /srv/bears/dev/workspace platform worktrees, are excluded from the app archive workflow unless a platform auditor explicitly classifies the checkout as an app migration source.",
+      "platform_temp_checkout_exclusion": {
+        "excluded_roots": [
+          "/srv/bears/dev/platform",
+          "/srv/bears/dev/workspace"
+        ],
+        "classification_required_by": "platform auditor",
+        "allowed_classification": "app_migration_source"
+      }
     }
   },
   "roles": [
@@ -5694,7 +5706,9 @@
         "issue_link_invariant": "Old repository issues and migration issues must link to BearsCLOUD/apps before closeout.",
         "umbrella_issue_invariant": "Archive readiness requires a BearsCLOUD/apps umbrella migration issue before archive.",
         "source_migration_issue_invariant": "Archive readiness requires a source repository migration issue linked to the BearsCLOUD/apps umbrella issue before archive.",
-        "source_project_link_invariant": "Archive readiness requires a dedicated GitHub Project named `Migrate <source-repo> into apps` in BearsCLOUD/apps or BearsCLOUD org, linked to the umbrella issue and the source migration issue before archive."
+        "source_project_link_invariant": "Archive readiness requires a dedicated GitHub Project named `Migrate <source-repo> into apps` in BearsCLOUD/apps or BearsCLOUD org, linked to the BearsCLOUD/apps umbrella issue and the source migration issue before archive.",
+        "infra_local_cd_safety_invariant": "Archive readiness requires infra/local_cd safety proof: Kubernetes desired state and local_cd selectors must not depend on this old source repository unless the owning infra/local_cd policy classifies it as a temporary migration source.",
+        "platform_boundary_exclusion_invariant": "Archive readiness excludes /srv/bears/dev/platform and temporary platform checkouts from app migration unless a platform auditor explicitly classifies the checkout as an app migration source."
       }
     },
     {
@@ -6674,7 +6688,9 @@
         "forbidden_use": "Canonical product app repository authority or new standalone app repository registration.",
         "umbrella_issue_invariant": "Archive readiness requires a BearsCLOUD/apps umbrella migration issue before archive.",
         "source_migration_issue_invariant": "Archive readiness requires a source repository migration issue linked to the BearsCLOUD/apps umbrella issue before archive.",
-        "source_project_link_invariant": "Archive readiness requires a dedicated GitHub Project named `Migrate <source-repo> into apps` in BearsCLOUD/apps or BearsCLOUD org, linked to the umbrella issue and the source migration issue before archive."
+        "source_project_link_invariant": "Archive readiness requires a dedicated GitHub Project named `Migrate <source-repo> into apps` in BearsCLOUD/apps or BearsCLOUD org, linked to the BearsCLOUD/apps umbrella issue and the source migration issue before archive.",
+        "infra_local_cd_safety_invariant": "Archive readiness requires infra/local_cd safety proof: Kubernetes desired state and local_cd selectors must not depend on this old source repository unless the owning infra/local_cd policy classifies it as a temporary migration source.",
+        "platform_boundary_exclusion_invariant": "Archive readiness excludes /srv/bears/dev/platform and temporary platform checkouts from app migration unless a platform auditor explicitly classifies the checkout as an app migration source."
       }
     },
     {
@@ -6725,7 +6741,9 @@
         "forbidden_use": "Canonical product app repository authority or new standalone app repository registration.",
         "umbrella_issue_invariant": "Archive readiness requires a BearsCLOUD/apps umbrella migration issue before archive.",
         "source_migration_issue_invariant": "Archive readiness requires a source repository migration issue linked to the BearsCLOUD/apps umbrella issue before archive.",
-        "source_project_link_invariant": "Archive readiness requires a dedicated GitHub Project named `Migrate <source-repo> into apps` in BearsCLOUD/apps or BearsCLOUD org, linked to the umbrella issue and the source migration issue before archive."
+        "source_project_link_invariant": "Archive readiness requires a dedicated GitHub Project named `Migrate <source-repo> into apps` in BearsCLOUD/apps or BearsCLOUD org, linked to the BearsCLOUD/apps umbrella issue and the source migration issue before archive.",
+        "infra_local_cd_safety_invariant": "Archive readiness requires infra/local_cd safety proof: Kubernetes desired state and local_cd selectors must not depend on this old source repository unless the owning infra/local_cd policy classifies it as a temporary migration source.",
+        "platform_boundary_exclusion_invariant": "Archive readiness excludes /srv/bears/dev/platform and temporary platform checkouts from app migration unless a platform auditor explicitly classifies the checkout as an app migration source."
       }
     },
     {
@@ -6778,7 +6796,9 @@
         "issue_link_invariant": "Old repository issues and migration issues must link to BearsCLOUD/apps before closeout.",
         "umbrella_issue_invariant": "Archive readiness requires a BearsCLOUD/apps umbrella migration issue before archive.",
         "source_migration_issue_invariant": "Archive readiness requires a source repository migration issue linked to the BearsCLOUD/apps umbrella issue before archive.",
-        "source_project_link_invariant": "Archive readiness requires a dedicated GitHub Project named `Migrate <source-repo> into apps` in BearsCLOUD/apps or BearsCLOUD org, linked to the umbrella issue and the source migration issue before archive."
+        "source_project_link_invariant": "Archive readiness requires a dedicated GitHub Project named `Migrate <source-repo> into apps` in BearsCLOUD/apps or BearsCLOUD org, linked to the BearsCLOUD/apps umbrella issue and the source migration issue before archive.",
+        "infra_local_cd_safety_invariant": "Archive readiness requires infra/local_cd safety proof: Kubernetes desired state and local_cd selectors must not depend on this old source repository unless the owning infra/local_cd policy classifies it as a temporary migration source.",
+        "platform_boundary_exclusion_invariant": "Archive readiness excludes /srv/bears/dev/platform and temporary platform checkouts from app migration unless a platform auditor explicitly classifies the checkout as an app migration source."
       }
     },
     {
@@ -7826,7 +7846,9 @@
         "issue_link_invariant": "Old repository issues and migration issues must link to BearsCLOUD/apps before closeout.",
         "umbrella_issue_invariant": "Archive readiness requires a BearsCLOUD/apps umbrella migration issue before archive.",
         "source_migration_issue_invariant": "Archive readiness requires a source repository migration issue linked to the BearsCLOUD/apps umbrella issue before archive.",
-        "source_project_link_invariant": "Archive readiness requires a dedicated GitHub Project named `Migrate <source-repo> into apps` in BearsCLOUD/apps or BearsCLOUD org, linked to the umbrella issue and the source migration issue before archive."
+        "source_project_link_invariant": "Archive readiness requires a dedicated GitHub Project named `Migrate <source-repo> into apps` in BearsCLOUD/apps or BearsCLOUD org, linked to the BearsCLOUD/apps umbrella issue and the source migration issue before archive.",
+        "infra_local_cd_safety_invariant": "Archive readiness requires infra/local_cd safety proof: Kubernetes desired state and local_cd selectors must not depend on this old source repository unless the owning infra/local_cd policy classifies it as a temporary migration source.",
+        "platform_boundary_exclusion_invariant": "Archive readiness excludes /srv/bears/dev/platform and temporary platform checkouts from app migration unless a platform auditor explicitly classifies the checkout as an app migration source."
       }
     },
     {
@@ -8457,7 +8479,9 @@
         "issue_link_invariant": "Old repository issues and migration issues must link to BearsCLOUD/apps before closeout.",
         "umbrella_issue_invariant": "Archive readiness requires a BearsCLOUD/apps umbrella migration issue before archive.",
         "source_migration_issue_invariant": "Archive readiness requires a source repository migration issue linked to the BearsCLOUD/apps umbrella issue before archive.",
-        "source_project_link_invariant": "Archive readiness requires a dedicated GitHub Project named `Migrate <source-repo> into apps` in BearsCLOUD/apps or BearsCLOUD org, linked to the umbrella issue and the source migration issue before archive."
+        "source_project_link_invariant": "Archive readiness requires a dedicated GitHub Project named `Migrate <source-repo> into apps` in BearsCLOUD/apps or BearsCLOUD org, linked to the BearsCLOUD/apps umbrella issue and the source migration issue before archive.",
+        "infra_local_cd_safety_invariant": "Archive readiness requires infra/local_cd safety proof: Kubernetes desired state and local_cd selectors must not depend on this old source repository unless the owning infra/local_cd policy classifies it as a temporary migration source.",
+        "platform_boundary_exclusion_invariant": "Archive readiness excludes /srv/bears/dev/platform and temporary platform checkouts from app migration unless a platform auditor explicitly classifies the checkout as an app migration source."
       }
     },
     {
@@ -8521,7 +8545,9 @@
         "issue_link_invariant": "Old repository issues and migration issues must link to BearsCLOUD/apps before closeout.",
         "umbrella_issue_invariant": "Archive readiness requires a BearsCLOUD/apps umbrella migration issue before archive.",
         "source_migration_issue_invariant": "Archive readiness requires a source repository migration issue linked to the BearsCLOUD/apps umbrella issue before archive.",
-        "source_project_link_invariant": "Archive readiness requires a dedicated GitHub Project named `Migrate <source-repo> into apps` in BearsCLOUD/apps or BearsCLOUD org, linked to the umbrella issue and the source migration issue before archive."
+        "source_project_link_invariant": "Archive readiness requires a dedicated GitHub Project named `Migrate <source-repo> into apps` in BearsCLOUD/apps or BearsCLOUD org, linked to the BearsCLOUD/apps umbrella issue and the source migration issue before archive.",
+        "infra_local_cd_safety_invariant": "Archive readiness requires infra/local_cd safety proof: Kubernetes desired state and local_cd selectors must not depend on this old source repository unless the owning infra/local_cd policy classifies it as a temporary migration source.",
+        "platform_boundary_exclusion_invariant": "Archive readiness excludes /srv/bears/dev/platform and temporary platform checkouts from app migration unless a platform auditor explicitly classifies the checkout as an app migration source."
       }
     },
     {
@@ -8586,7 +8612,9 @@
         "issue_link_invariant": "Old repository issues and migration issues must link to BearsCLOUD/apps before closeout.",
         "umbrella_issue_invariant": "Archive readiness requires a BearsCLOUD/apps umbrella migration issue before archive.",
         "source_migration_issue_invariant": "Archive readiness requires a source repository migration issue linked to the BearsCLOUD/apps umbrella issue before archive.",
-        "source_project_link_invariant": "Archive readiness requires a dedicated GitHub Project named `Migrate <source-repo> into apps` in BearsCLOUD/apps or BearsCLOUD org, linked to the umbrella issue and the source migration issue before archive."
+        "source_project_link_invariant": "Archive readiness requires a dedicated GitHub Project named `Migrate <source-repo> into apps` in BearsCLOUD/apps or BearsCLOUD org, linked to the BearsCLOUD/apps umbrella issue and the source migration issue before archive.",
+        "infra_local_cd_safety_invariant": "Archive readiness requires infra/local_cd safety proof: Kubernetes desired state and local_cd selectors must not depend on this old source repository unless the owning infra/local_cd policy classifies it as a temporary migration source.",
+        "platform_boundary_exclusion_invariant": "Archive readiness excludes /srv/bears/dev/platform and temporary platform checkouts from app migration unless a platform auditor explicitly classifies the checkout as an app migration source."
       }
     },
     {
@@ -8635,7 +8663,9 @@
         "forbidden_use": "Canonical product app repository authority or new standalone app repository registration.",
         "umbrella_issue_invariant": "Archive readiness requires a BearsCLOUD/apps umbrella migration issue before archive.",
         "source_migration_issue_invariant": "Archive readiness requires a source repository migration issue linked to the BearsCLOUD/apps umbrella issue before archive.",
-        "source_project_link_invariant": "Archive readiness requires a dedicated GitHub Project named `Migrate <source-repo> into apps` in BearsCLOUD/apps or BearsCLOUD org, linked to the umbrella issue and the source migration issue before archive."
+        "source_project_link_invariant": "Archive readiness requires a dedicated GitHub Project named `Migrate <source-repo> into apps` in BearsCLOUD/apps or BearsCLOUD org, linked to the BearsCLOUD/apps umbrella issue and the source migration issue before archive.",
+        "infra_local_cd_safety_invariant": "Archive readiness requires infra/local_cd safety proof: Kubernetes desired state and local_cd selectors must not depend on this old source repository unless the owning infra/local_cd policy classifies it as a temporary migration source.",
+        "platform_boundary_exclusion_invariant": "Archive readiness excludes /srv/bears/dev/platform and temporary platform checkouts from app migration unless a platform auditor explicitly classifies the checkout as an app migration source."
       }
     },
     {
@@ -8682,7 +8712,9 @@
         "forbidden_use": "Canonical product app repository authority or new standalone app repository registration.",
         "umbrella_issue_invariant": "Archive readiness requires a BearsCLOUD/apps umbrella migration issue before archive.",
         "source_migration_issue_invariant": "Archive readiness requires a source repository migration issue linked to the BearsCLOUD/apps umbrella issue before archive.",
-        "source_project_link_invariant": "Archive readiness requires a dedicated GitHub Project named `Migrate <source-repo> into apps` in BearsCLOUD/apps or BearsCLOUD org, linked to the umbrella issue and the source migration issue before archive."
+        "source_project_link_invariant": "Archive readiness requires a dedicated GitHub Project named `Migrate <source-repo> into apps` in BearsCLOUD/apps or BearsCLOUD org, linked to the BearsCLOUD/apps umbrella issue and the source migration issue before archive.",
+        "infra_local_cd_safety_invariant": "Archive readiness requires infra/local_cd safety proof: Kubernetes desired state and local_cd selectors must not depend on this old source repository unless the owning infra/local_cd policy classifies it as a temporary migration source.",
+        "platform_boundary_exclusion_invariant": "Archive readiness excludes /srv/bears/dev/platform and temporary platform checkouts from app migration unless a platform auditor explicitly classifies the checkout as an app migration source."
       }
     },
     {
@@ -8730,7 +8762,9 @@
         "forbidden_use": "Canonical product app repository authority or new standalone app repository registration.",
         "umbrella_issue_invariant": "Archive readiness requires a BearsCLOUD/apps umbrella migration issue before archive.",
         "source_migration_issue_invariant": "Archive readiness requires a source repository migration issue linked to the BearsCLOUD/apps umbrella issue before archive.",
-        "source_project_link_invariant": "Archive readiness requires a dedicated GitHub Project named `Migrate <source-repo> into apps` in BearsCLOUD/apps or BearsCLOUD org, linked to the umbrella issue and the source migration issue before archive."
+        "source_project_link_invariant": "Archive readiness requires a dedicated GitHub Project named `Migrate <source-repo> into apps` in BearsCLOUD/apps or BearsCLOUD org, linked to the BearsCLOUD/apps umbrella issue and the source migration issue before archive.",
+        "infra_local_cd_safety_invariant": "Archive readiness requires infra/local_cd safety proof: Kubernetes desired state and local_cd selectors must not depend on this old source repository unless the owning infra/local_cd policy classifies it as a temporary migration source.",
+        "platform_boundary_exclusion_invariant": "Archive readiness excludes /srv/bears/dev/platform and temporary platform checkouts from app migration unless a platform auditor explicitly classifies the checkout as an app migration source."
       }
     },
     {
@@ -8908,7 +8942,9 @@
         "forbidden_use": "Canonical product app repository authority or new standalone app repository registration.",
         "umbrella_issue_invariant": "Archive readiness requires a BearsCLOUD/apps umbrella migration issue before archive.",
         "source_migration_issue_invariant": "Archive readiness requires a source repository migration issue linked to the BearsCLOUD/apps umbrella issue before archive.",
-        "source_project_link_invariant": "Archive readiness requires a dedicated GitHub Project named `Migrate <source-repo> into apps` in BearsCLOUD/apps or BearsCLOUD org, linked to the umbrella issue and the source migration issue before archive."
+        "source_project_link_invariant": "Archive readiness requires a dedicated GitHub Project named `Migrate <source-repo> into apps` in BearsCLOUD/apps or BearsCLOUD org, linked to the BearsCLOUD/apps umbrella issue and the source migration issue before archive.",
+        "infra_local_cd_safety_invariant": "Archive readiness requires infra/local_cd safety proof: Kubernetes desired state and local_cd selectors must not depend on this old source repository unless the owning infra/local_cd policy classifies it as a temporary migration source.",
+        "platform_boundary_exclusion_invariant": "Archive readiness excludes /srv/bears/dev/platform and temporary platform checkouts from app migration unless a platform auditor explicitly classifies the checkout as an app migration source."
       }
     },
     {
@@ -8956,7 +8992,9 @@
         "forbidden_use": "Canonical product app repository authority or new standalone app repository registration.",
         "umbrella_issue_invariant": "Archive readiness requires a BearsCLOUD/apps umbrella migration issue before archive.",
         "source_migration_issue_invariant": "Archive readiness requires a source repository migration issue linked to the BearsCLOUD/apps umbrella issue before archive.",
-        "source_project_link_invariant": "Archive readiness requires a dedicated GitHub Project named `Migrate <source-repo> into apps` in BearsCLOUD/apps or BearsCLOUD org, linked to the umbrella issue and the source migration issue before archive."
+        "source_project_link_invariant": "Archive readiness requires a dedicated GitHub Project named `Migrate <source-repo> into apps` in BearsCLOUD/apps or BearsCLOUD org, linked to the BearsCLOUD/apps umbrella issue and the source migration issue before archive.",
+        "infra_local_cd_safety_invariant": "Archive readiness requires infra/local_cd safety proof: Kubernetes desired state and local_cd selectors must not depend on this old source repository unless the owning infra/local_cd policy classifies it as a temporary migration source.",
+        "platform_boundary_exclusion_invariant": "Archive readiness excludes /srv/bears/dev/platform and temporary platform checkouts from app migration unless a platform auditor explicitly classifies the checkout as an app migration source."
       }
     },
     {

@@ -923,6 +923,64 @@ def _validate_product_apps_monorepo_catalog(catalog: dict[str, Any], errors: lis
         for item in apps_policy.get("required_legacy_fields", [])
         if isinstance(item, str)
     }
+    expected_legacy_fields = {
+        "status",
+        "active_replacement",
+        "issue_link_invariant",
+        "umbrella_issue_invariant",
+        "source_migration_issue_invariant",
+        "source_project_link_invariant",
+        "infra_local_cd_safety_invariant",
+        "platform_boundary_exclusion_invariant",
+    }
+    missing_policy_fields = sorted(expected_legacy_fields - required_legacy_fields)
+    if missing_policy_fields:
+        errors.append(
+            "product-apps-monorepo: product_apps_monorepo_policy.required_legacy_fields "
+            f"missing {missing_policy_fields}"
+        )
+
+    archive_readiness = apps_policy.get("archive_readiness_invariant")
+    if not isinstance(archive_readiness, str) or not all(
+        token in archive_readiness
+        for token in ("umbrella issue", "source migration issue", "Project", "local_cd", "platform")
+    ):
+        errors.append(
+            "product-apps-monorepo: archive_readiness_invariant must require umbrella issue, "
+            "source migration issue, source-specific Project, infra/local_cd safety, and platform exclusion"
+        )
+    project_template = apps_policy.get("source_project_name_template")
+    if project_template != "Migrate <source-repo> into apps":
+        errors.append("product-apps-monorepo: source_project_name_template must be Migrate <source-repo> into apps")
+    infra_invariant = apps_policy.get("infra_local_cd_archive_readiness_invariant")
+    if not isinstance(infra_invariant, str) or not all(
+        token in infra_invariant for token in ("Kubernetes", "local_cd", "old source repository")
+    ):
+        errors.append(
+            "product-apps-monorepo: infra_local_cd_archive_readiness_invariant must require "
+            "Kubernetes desired-state and local_cd safety proof"
+        )
+    platform_invariant = apps_policy.get("platform_boundary_exclusion_invariant")
+    if not isinstance(platform_invariant, str) or not all(
+        token in platform_invariant for token in ("/srv/bears/dev/platform", "/srv/bears/dev/workspace", "platform auditor")
+    ):
+        errors.append(
+            "product-apps-monorepo: platform_boundary_exclusion_invariant must exclude platform temp checkouts "
+            "unless classified by a platform auditor"
+        )
+    platform_exclusion = apps_policy.get("platform_temp_checkout_exclusion")
+    if not isinstance(platform_exclusion, dict):
+        errors.append("product-apps-monorepo: platform_temp_checkout_exclusion must be declared")
+    else:
+        excluded_roots = platform_exclusion.get("excluded_roots")
+        if not isinstance(excluded_roots, list) or not {
+            "/srv/bears/dev/platform",
+            "/srv/bears/dev/workspace",
+        }.issubset({item for item in excluded_roots if isinstance(item, str)}):
+            errors.append("product-apps-monorepo: platform_temp_checkout_exclusion.excluded_roots must include platform roots")
+        if platform_exclusion.get("classification_required_by") != "platform auditor":
+            errors.append("product-apps-monorepo: platform_temp_checkout_exclusion.classification_required_by must be platform auditor")
+
     for part in catalog.get("platform_parts", []):
         if not isinstance(part, dict):
             continue
@@ -978,6 +1036,28 @@ def _validate_product_apps_monorepo_catalog(catalog: dict[str, Any], errors: lis
         issue_link = legacy.get("issue_link_invariant")
         if not isinstance(issue_link, str) or canonical_remote not in issue_link:
             errors.append(f"product-apps-monorepo: {part_name}.legacy_compatibility.issue_link_invariant must name {canonical_remote}")
+        project_link = legacy.get("source_project_link_invariant")
+        if not isinstance(project_link, str) or "Migrate <source-repo> into apps" not in project_link:
+            errors.append(
+                f"product-apps-monorepo: {part_name}.legacy_compatibility.source_project_link_invariant "
+                "must require a source-specific Project"
+            )
+        infra_safety = legacy.get("infra_local_cd_safety_invariant")
+        if not isinstance(infra_safety, str) or not all(
+            token in infra_safety for token in ("Kubernetes", "local_cd", "old source repository")
+        ):
+            errors.append(
+                f"product-apps-monorepo: {part_name}.legacy_compatibility.infra_local_cd_safety_invariant "
+                "must require infra/local_cd safety proof"
+            )
+        platform_exclusion_text = legacy.get("platform_boundary_exclusion_invariant")
+        if not isinstance(platform_exclusion_text, str) or not all(
+            token in platform_exclusion_text for token in ("/srv/bears/dev/platform", "platform auditor")
+        ):
+            errors.append(
+                f"product-apps-monorepo: {part_name}.legacy_compatibility.platform_boundary_exclusion_invariant "
+                "must exclude platform temp checkouts unless classified by a platform auditor"
+            )
 
     if canonical_parts != ["product_apps_monorepo_root"]:
         errors.append(

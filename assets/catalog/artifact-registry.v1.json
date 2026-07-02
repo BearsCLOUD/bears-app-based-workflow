@@ -6438,9 +6438,26 @@
       "validation": [
         "python3 scripts/artifact_registry.py validate"
       ]
+    },
+    {
+      "allowed_writers": [
+        "bears-telegram-platform-engineer"
+      ],
+      "artifact_type": "doc",
+      "changelog_required": false,
+      "decision_ref_required": false,
+      "git_tracked": true,
+      "lifecycle": "doc",
+      "owner_issue": "operator-goal-apps-monorepo-policy",
+      "owner_role": "bears-telegram-platform-engineer",
+      "path": "skills/codex-telegram-operator-gate/SKILL.md",
+      "source_of_truth_status": "canonical",
+      "validation": [
+        "python3 scripts/artifact_registry.py validate"
+      ]
     }
   ],
   "schema": "bears-artifact-registry.v1",
-  "updated": "2026-07-01",
+  "updated": "2026-07-02",
   "version": "1"
 }

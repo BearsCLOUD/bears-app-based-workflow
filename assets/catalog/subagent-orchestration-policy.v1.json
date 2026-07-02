@@ -1698,14 +1698,14 @@
     },
     "commit_local_validation_test_closeout_lane": {
       "enabled": true,
-      "lane_id": "parallel-commit-local-validation-test-closeout-lane",
+      "lane_id": "parallel-gitflow-closeout-lane",
       "mode": "non_blocking_parallel_delivery_closeout",
       "start_condition": "immediately_after_governed_workflow_start",
       "required_subagent_count": 1,
       "parallel_with_parent_orchestrator": true,
       "parent_wait_policy": "do_not_wait",
       "model": "gpt-5.4-mini",
-      "reasoning_effort": "medium",
+      "reasoning_effort": "high",
       "prompt_prefix": "/goal",
       "required_prompt_token": "/goal",
       "assignment_packet_required": true,
@@ -1713,8 +1713,8 @@
       "responsibilities": [
         "commit",
         "local_commit_validation_status",
-        "test_artifact_create_or_fix",
-        "closeout"
+        "closeout",
+        "explicit_closeout_packet_handling"
       ],
       "local_test_policy": {
         "pytest_unittest_repo_validators": "local_commit_validation_owned_only",
@@ -1750,7 +1750,6 @@
         "push_status",
         "local_commit_validation_status",
         "local_commit_validation_proof_path",
-        "test_artifact_changes",
         "local_test_policy_evidence",
         "closeout_status"
       ],
@@ -1765,6 +1764,33 @@
         "stale_file_change_policy": "stop_or_explicit_rebase_diff_review",
         "changed_files_required": true,
         "parent_closeout_head_status_check_required": true
+      },
+      "persistence_policy": {
+        "one_agent_per_parent_work": true,
+        "reuse_until_parent_closeout": true,
+        "spawn_with_parent_context": false,
+        "prompt_prefix": "/goal",
+        "idle_without_closeout_packet": true
+      },
+      "assignment_boundary": {
+        "allowed_packet_types": [
+          "commit+push required",
+          "local-validation closeout"
+        ],
+        "required_fields": [
+          "repo_path",
+          "changed_files",
+          "validation_result",
+          "target_branch",
+          "intended_commit_message"
+        ],
+        "forbidden_work": [
+          "general_read_only_audit",
+          "unrelated_repo_inventory",
+          "owner_role_validation",
+          "runtime_review",
+          "deployment_review"
+        ]
       }
     },
     "pr_task_role_action_guard": {
@@ -2196,7 +2222,7 @@
     "transitional-tests-superseded-by-dev-core",
     "goal-parallelization-preflight",
     "parallel-audit-lane-non-blocking",
-    "parallel-commit-local-validation-test-closeout-lane",
+    "parallel-gitflow-closeout-lane",
     "completed-subagent-close-evidence-before-new-waves",
     "parent-plan-status-evidence-gate",
     "nested-worker-delegation-parent-authorization",
@@ -2366,9 +2392,9 @@
       "rule": "The parallel audit lane monitors orchestrator and subagent actions during active workflow execution, has no implementation authority, emits auditable events, creates or updates deduplicated GitHub issues for findings with bounded evidence, and must not block the main workflow except hard-stop conditions."
     },
     {
-      "id": "parallel-commit-local-validation-test-closeout-lane",
+      "id": "parallel-gitflow-closeout-lane",
       "status": "mandatory",
-      "rule": "Governed workflow MUST immediately start exactly one parallel commit/local-validation/test-closeout subagent through /goal with model gpt-5.4-mini and high reasoning. Parent orchestrator wait_policy is do_not_wait for this lane. The lane owns commit, local_commit_validation_status, test_artifact_create_or_fix, and closeout while local pre-commit and post-commit hooks run impacted fast tests and write exact-SHA proof."
+      "rule": "Governed workflow MUST immediately start or reuse exactly one persistent gitflow closeout subagent through /goal with the bears-git-workflow-helper role, model gpt-5.4-mini, high reasoning, and no parent/start context. Parent orchestrator wait_policy is do_not_wait for this lane. The lane handles only explicit commit+push and local-validation closeout packets; it is not a read-only audit lane and must stay idle without an assigned closeout packet."
     },
     {
       "id": "goal-parallelization-preflight",
@@ -2578,9 +2604,9 @@
     },
     "commit_local_validation_test_closeout_lane": {
       "model": "gpt-5.4-mini",
-      "reasoning_effort": "medium",
+      "reasoning_effort": "high",
       "applies_to": [
-        "parallel commit/local-validation/test-closeout subagent"
+        "persistent gitflow closeout subagent"
       ],
       "required_role_profile": "bears-git-workflow-helper"
     }

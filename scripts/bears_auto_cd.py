@@ -36,6 +36,18 @@ FORBIDDEN_CD_KEYS = {
     "manual_gate",
 }
 DIGEST_RE = re.compile(r"@sha256:([0-9a-f]{64})(?:\b|$)")
+APPS_MONOREPO_REPOSITORY = "BearsCLOUD/apps"
+APPS_MONOREPO_ARCHIVE_SOURCE_REPOS = {
+    "BearsCLOUD/codex-telegram-mcp": "codex-telegram",
+    "BearsCLOUD/tgsearch": "tgsearch",
+}
+APPS_MONOREPO_ARCHIVE_SCAN_SURFACES = {
+    "cd_contracts",
+    "workflows",
+    "kubernetes_runbooks",
+    "manifests_readme",
+    "secret_custody_docs",
+}
 
 
 class ContractError(ValueError):
@@ -161,6 +173,112 @@ def validate_cd_contract(contract: dict[str, Any], git_contract: dict[str, Any])
             errors.append(f"cd contract ordered_steps missing {step}")
     if "configure_kubeconfig_from_env_ref" not in ordered_steps and "use_runner_kubeconfig" not in ordered_steps:
         errors.append("cd contract ordered_steps missing kubeconfig source step")
+    errors.extend(validate_apps_monorepo_archive_gate(contract))
+    return errors
+
+
+def _contract_local_image_builds(contract: dict[str, Any]) -> list[tuple[str, dict[str, Any]]]:
+    builds: list[tuple[str, dict[str, Any]]] = []
+    top_build = contract.get("source", {}).get("local_image_build")
+    if isinstance(top_build, dict):
+        builds.append(("source.local_image_build", top_build))
+    for index, item in enumerate(contract.get("applications", [])):
+        if not isinstance(item, dict):
+            continue
+        build = item.get("source", {}).get("local_image_build")
+        if isinstance(build, dict):
+            builds.append((f"applications[{index}].source.local_image_build", build))
+    return builds
+
+
+def validate_apps_monorepo_archive_gate(contract: dict[str, Any]) -> list[str]:
+    """Validate apps-monorepo source and archive-readiness metadata."""
+    errors: list[str] = []
+    gate = contract.get("apps_monorepo_archive_gate")
+    if not isinstance(gate, dict):
+        errors.append("apps_monorepo_archive_gate missing")
+        return errors
+    if gate.get("canonical_repository") != APPS_MONOREPO_REPOSITORY:
+        errors.append("apps_monorepo_archive_gate.canonical_repository must be BearsCLOUD/apps")
+    if gate.get("archive_allowed_default") is not False:
+        errors.append("apps_monorepo_archive_gate.archive_allowed_default must be false")
+    required_before_archive = gate.get("required_before_archive")
+    required_tokens = ("umbrella issue", "source migration issue", "canonical", "Project", "infra/local_cd", "platform boundary")
+    if not isinstance(required_before_archive, list) or not all(
+        any(token in str(item) for item in required_before_archive) for token in required_tokens
+    ):
+        errors.append(
+            "apps_monorepo_archive_gate.required_before_archive must require issue membership in the "
+            "canonical Apps planning Project, infra/local_cd, and platform-boundary proof"
+        )
+    planning_project = gate.get("canonical_planning_project")
+    required_fields = {
+        "source_repo/app_module",
+        "migration_stage",
+        "infra_local_cd_status",
+        "platform_boundary_status",
+        "archive_readiness",
+        "owner_role",
+        "blocker_status",
+    }
+    if not isinstance(planning_project, dict):
+        errors.append("apps_monorepo_archive_gate.canonical_planning_project missing")
+    else:
+        if planning_project.get("owner_repository") != APPS_MONOREPO_REPOSITORY:
+            errors.append("apps_monorepo_archive_gate.canonical_planning_project.owner_repository must be BearsCLOUD/apps")
+        if planning_project.get("name") != "Apps Migration & Planning":
+            errors.append("apps_monorepo_archive_gate.canonical_planning_project.name must be Apps Migration & Planning")
+        fields = {item for item in planning_project.get("required_issue_fields", []) if isinstance(item, str)}
+        missing_fields = sorted(required_fields - fields)
+        if missing_fields:
+            errors.append(
+                "apps_monorepo_archive_gate.canonical_planning_project.required_issue_fields "
+                f"missing {missing_fields}"
+            )
+        scope = planning_project.get("scope")
+        if not isinstance(scope, str) or not all(token in scope for token in ("per-source Projects", "legacy evidence", "must not be required", "used for PASS")):
+            errors.append(
+                "apps_monorepo_archive_gate.canonical_planning_project.scope must allow per-source Projects only as legacy evidence, not as required/PASS evidence"
+            )
+        if planning_project.get("api_proof_required_for_archive_pass") is not True:
+            errors.append("apps_monorepo_archive_gate.canonical_planning_project.api_proof_required_for_archive_pass must be true")
+    scan_surfaces = gate.get("scan_surfaces")
+    if not isinstance(scan_surfaces, list):
+        errors.append("apps_monorepo_archive_gate.scan_surfaces must be a list")
+    else:
+        actual = {item.get("surface") for item in scan_surfaces if isinstance(item, dict)}
+        missing = sorted(APPS_MONOREPO_ARCHIVE_SCAN_SURFACES - actual)
+        if missing:
+            errors.append(f"apps_monorepo_archive_gate.scan_surfaces missing {missing}")
+
+    for path, build in _contract_local_image_builds(contract):
+        source_repository = build.get("source_repository")
+        if source_repository in APPS_MONOREPO_ARCHIVE_SOURCE_REPOS:
+            errors.append(f"{path}.source_repository must be BearsCLOUD/apps, not {source_repository}")
+        archive_source = build.get("archive_source_repo")
+        if archive_source not in APPS_MONOREPO_ARCHIVE_SOURCE_REPOS:
+            continue
+        expected_subpath = APPS_MONOREPO_ARCHIVE_SOURCE_REPOS[archive_source]
+        if source_repository != APPS_MONOREPO_REPOSITORY:
+            errors.append(f"{path}.source_repository must be BearsCLOUD/apps for archived source {archive_source}")
+        if build.get("source_subpath") != expected_subpath:
+            errors.append(f"{path}.source_subpath must be {expected_subpath}")
+        if build.get("archive_allowed") is not False:
+            errors.append(f"{path}.archive_allowed must stay false until infra/local_cd archive checks pass")
+        archive_blocker = build.get("archive_blocker")
+        if not isinstance(archive_blocker, str) or not all(
+            token in archive_blocker for token in ("infra/local_cd", "workflows", "Kubernetes", "secret-custody")
+        ):
+            errors.append(f"{path}.archive_blocker must name infra/local_cd, workflows, Kubernetes docs, and secret-custody scans")
+        planning_project = build.get("canonical_planning_project_invariant")
+        if not isinstance(planning_project, str) or not all(
+            token in planning_project for token in ("Apps Migration & Planning", "canonical", "Project", "required migration fields", "API proof")
+        ):
+            errors.append(f"{path}.canonical_planning_project_invariant must require the canonical Apps planning Project with populated fields")
+        if "Migrate " in planning_project and " into apps" in planning_project:
+            errors.append(f"{path}.canonical_planning_project_invariant must not require a separate per-source Project")
+        if build.get("per_source_projects_policy") != "legacy_evidence_only_not_required_not_created_not_pass":
+            errors.append(f"{path}.per_source_projects_policy must mark per-source Projects as legacy evidence only")
     return errors
 
 
@@ -188,6 +306,7 @@ def application_contract(contract: dict[str, Any], application: str | None) -> d
             selected.setdefault("forbidden_manifest_literals", contract.get("forbidden_manifest_literals"))
             selected.setdefault("evidence", contract.get("evidence"))
             selected.setdefault("rollback", contract.get("rollback"))
+            selected.setdefault("apps_monorepo_archive_gate", contract.get("apps_monorepo_archive_gate"))
             return selected
     raise ContractError(f"unknown CD application: {application}")
 
@@ -658,14 +777,20 @@ def bootstrap_infisical_runtime_secret(contract: dict[str, Any], env: dict[str, 
         remote_key = str(mapping.get("remote_key", ""))
         if not env_key or not remote_key:
             raise ContractError("infisical_runtime_secret mapping requires env_key and remote_key")
-        value = infisical_get_secret_value(
-            api_url,
-            access_token,
-            project_id=project_id,
-            environment=environment,
-            secret_path=secret_path,
-            secret_name=remote_key,
-        )
+        required = mapping.get("required", True) is not False
+        try:
+            value = infisical_get_secret_value(
+                api_url,
+                access_token,
+                project_id=project_id,
+                environment=environment,
+                secret_path=secret_path,
+                secret_name=remote_key,
+            )
+        except ContractError:
+            if required:
+                raise
+            continue
         data_lines.append(f"  {env_key}: {yaml_scalar(value)}")
     run_apply_yaml(
         "\n".join([

@@ -14,6 +14,9 @@ Use this skill for Kubernetes metadata checks and kube-backed live-gate discover
 - Never print `.data`, `stringData`, token, kubeconfig, session, private chat, or production-data values.
 - Never run mutating commands (`apply`, `patch`, `delete`, `scale`, `rollout restart`, `exec` with writes) unless a higher-priority task explicitly authorizes the exact mutation.
 - All Bears live software deploys must be Kubernetes desired-state backed and promoted through `local_cd`; local host runs, `docker run`, local Infisical helpers, and manual `kubectl apply` are not deploy paths.
+- Local image build is strict: the CD contract `source.local_image_build` defines `build_local_image` -> `load_local_image_to_k3d` -> `local_cd` apply -> rollout evidence.
+- Agents must not hunt for `kubectl`, kubeconfigs, or cluster access to decide a build path. The fixed `local_cd` executor owns runner toolchain paths.
+- Agent-run `kubectl` is read-only metadata proof only after `local_cd` evidence or exact operator-approved runtime inspection; it is not source/build truth and not a final deploy path.
 - Local dev-instance Kubernetes may prove manifest shape, image wiring, and read-only readiness only; it is not final live PASS evidence.
 - Operator-approved live mutation may be incident break-glass only; it must not become deployment source of truth.
 - Do not use Kubernetes as a bypass around Infisical or Secret Factory policy.
@@ -45,13 +48,7 @@ kubectl get secret -A
 
 `kubectl get secret` default table output is allowed because it shows names, types, data counts, and ages, not values. Do not add `-o yaml` or `-o json` for Secret resources.
 
-When the host uses a Bears local kube toolchain, prefer the explicit binary
-and context from the task evidence instead of assuming global `kubectl`:
-
-```bash
-export KUBECONFIG=/srv/bears/runtime/kube/<context>/kubeconfig.yaml
-kubectl --context <context> get ns
-```
+When exact task evidence names a Bears local kube toolchain, use that exact binary and context for read-only metadata only. If it is absent, do not search the host for `kubectl` or kubeconfigs; report `KUBE_TOOLCHAIN_EVIDENCE_MISSING` for the dependent metadata proof.
 
 Do not commit kubeconfig paths or generated kubeconfig files.
 

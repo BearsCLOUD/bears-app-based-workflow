@@ -154,10 +154,20 @@ def test_cd_contract_declares_kube_preflight_before_apply() -> None:
     assert contract["source"]["image_ref"] == "codex-telegram-mcp:local-4fc9499822ee"
     local_build = contract["source"]["local_image_build"]
     assert local_build["enabled"] is True
-    assert local_build["source_repository"] == "BearsCLOUD/codex-telegram-mcp"
+    assert local_build["source_repository"] == "BearsCLOUD/apps"
+    assert local_build["source_subpath"] == "codex-telegram"
+    assert local_build["archive_source_repo"] == "BearsCLOUD/codex-telegram-mcp"
+    assert local_build["archive_allowed"] is False
+    assert local_build["canonical_planning_project"] == "Apps Migration & Planning"
+    assert "separate per-source" in local_build["canonical_planning_project_invariant"]
     assert local_build["source_ref"] == "4fc9499822eec427da3d9f2254ba93fc5e9e58c1"
     assert local_build["context_path"] == ".codex-telegram-source"
     assert local_build["load_to_k3d_nodes"] is True
+    gate = contract["apps_monorepo_archive_gate"]
+    assert gate["canonical_repository"] == "BearsCLOUD/apps"
+    assert gate["canonical_planning_project"]["owner_repository"] == "BearsCLOUD/apps"
+    assert "source_repo/app_module" in gate["canonical_planning_project"]["required_issue_fields"]
+    assert "archive_readiness" in gate["canonical_planning_project"]["required_issue_fields"]
     runtime_secret = contract["bootstrap"]["infisical_runtime_secret"]
     assert runtime_secret["secret_name"] == "codex-telegram-mcp-runtime"
     assert runtime_secret["secret_path"] == "/prod/codex-telegram"
@@ -167,7 +177,11 @@ def test_cd_contract_declares_kube_preflight_before_apply() -> None:
         "CODEX_TELEGRAM_MCP_TOKEN",
         "TELEGRAM_BOT_TOKEN",
         "TELEGRAM_ALLOWED_CHAT_IDS",
+        "TELEGRAM_ALLOWED_USER_IDS",
     }
+    user_mapping = next(item for item in runtime_secret["mappings"] if item["env_key"] == "TELEGRAM_ALLOWED_USER_IDS")
+    assert user_mapping["remote_key"] == "allowed-user-ids"
+    assert user_mapping["required"] is False
     assert sorted(contract["bootstrap"]) == ["infisical_runtime_secret"]
 
 
@@ -180,6 +194,72 @@ def test_auto_cd_reads_infisical_runtime_secrets_without_store_manifest() -> Non
     assert "Infisical API URL must be http or https" in text
     assert "ProxyHandler({})" in text
     assert "def resolve_infisical_runner_docker_api_url" in text
+    assert 'mapping.get("required", True) is not False' in text
+
+
+def test_auto_cd_skips_absent_optional_infisical_runtime_secret(monkeypatch) -> None:
+    import importlib.util
+
+    spec = importlib.util.spec_from_file_location("bears_auto_cd", SCRIPT)
+    assert spec and spec.loader
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    applied: list[str] = []
+    contract = {
+        "kubernetes": {"namespace": "codex-telegram-prod"},
+        "bootstrap": {
+            "infisical_runtime_secret": {
+                "enabled": True,
+                "namespace": "codex-telegram-prod",
+                "secret_name": "codex-telegram-mcp-runtime",
+                "project_id": "project-id",
+                "environment_slug": "prod",
+                "secret_path": "/prod/codex-telegram",
+                "mappings": [
+                    {"env_key": "CODEX_TELEGRAM_MCP_TOKEN", "remote_key": "mcp-token"},
+                    {
+                        "env_key": "TELEGRAM_ALLOWED_USER_IDS",
+                        "remote_key": "allowed-user-ids",
+                        "required": False,
+                    },
+                ],
+            }
+        },
+    }
+
+    def fake_secret_value(
+        _api_url: str,
+        _access_token: str,
+        *,
+        project_id: str,
+        environment: str,
+        secret_path: str,
+        secret_name: str,
+    ) -> str:
+        assert project_id == "project-id"
+        assert environment == "prod"
+        assert secret_path == "/prod/codex-telegram"
+        if secret_name == "allowed-user-ids":
+            raise module.ContractError("Infisical secret is missing or empty: /prod/codex-telegram/allowed-user-ids")
+        return "redacted-test-value"
+
+    monkeypatch.setattr(module, "resolve_infisical_api_url", lambda _config: "http://infisical/api")
+    monkeypatch.setattr(module, "infisical_login", lambda *_args: "access-token")
+    monkeypatch.setattr(module, "infisical_get_secret_value", fake_secret_value)
+    monkeypatch.setattr(module, "run_apply_yaml", lambda text, env: applied.append(text))
+
+    module.bootstrap_infisical_runtime_secret(
+        contract,
+        {
+            "INFISICAL_UNIVERSAL_AUTH_CLIENT_ID": "client-id",
+            "INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET": "client-secret",
+        },
+    )
+
+    assert len(applied) == 2
+    assert "CODEX_TELEGRAM_MCP_TOKEN" in applied[1]
+    assert "TELEGRAM_ALLOWED_USER_IDS" not in applied[1]
+
 
 def test_auto_cd_writes_started_failed_and_succeeded_evidence() -> None:
     text = SCRIPT.read_text(encoding="utf-8")
@@ -224,8 +304,14 @@ def test_cd_contract_declares_tgsearch_live_gate_app() -> None:
     assert app["source"]["image_digest_required"] is False
     assert app["source"]["reject_latest_tag"] is True
     assert app["source"]["reject_placeholder_digest"] is True
-    assert app["source"]["local_image_build"]["enabled"] is True
-    assert app["source"]["local_image_build"]["context_path"] == ".tgsearch-source"
+    build = app["source"]["local_image_build"]
+    assert build["enabled"] is True
+    assert build["source_repository"] == "BearsCLOUD/apps"
+    assert build["source_subpath"] == "tgsearch"
+    assert build["archive_source_repo"] == "BearsCLOUD/tgsearch"
+    assert build["archive_allowed"] is False
+    assert build["canonical_planning_project"] == "Apps Migration & Planning"
+    assert build["context_path"] == ".tgsearch-source"
     assert app["kubernetes"]["namespace"] == "tgsearch-dev"
     assert app["kubernetes"]["job"] == "tgsearch-tgintel-live-gate"
     assert app["kubernetes"]["kubeconfig_source"] == "runner_environment"

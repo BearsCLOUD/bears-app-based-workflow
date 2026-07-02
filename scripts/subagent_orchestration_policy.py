@@ -53,7 +53,7 @@ REQUIRED_RULE_IDS = {
     "multi-orchestrator-controller-only-spawn",
     "stage-boundary-audits-only",
     "parallel-audit-lane-non-blocking",
-    "parallel-commit-local-validation-test-closeout-lane",
+    "parallel-gitflow-closeout-lane",
     "goal-parallelization-preflight",
     "completed-subagent-close-evidence-before-new-waves",
     "parent-plan-status-evidence-gate",
@@ -93,8 +93,8 @@ EXPECTED_AGENT_RUNTIME_POLICY = {
     },
     "commit_local_validation_test_closeout_lane": {
         "model": "gpt-5.4-mini",
-        "reasoning_effort": "medium",
-        "applies_to": {"parallel commit/local-validation/test-closeout subagent"},
+        "reasoning_effort": "high",
+        "applies_to": {"persistent gitflow closeout subagent"},
         "required_role_profile": "bears-git-workflow-helper",
     },
 }
@@ -1436,8 +1436,8 @@ REQUIRED_PARALLEL_AUDIT_ISSUE_LINK_FIELDS = {"created_issue", "updated_issue", "
 REQUIRED_COMMIT_LOCAL_VALIDATION_TEST_CLOSEOUT_RESPONSIBILITIES = {
     "commit",
     "local_commit_validation_status",
-    "test_artifact_create_or_fix",
     "closeout",
+    "explicit_closeout_packet_handling",
 }
 REQUIRED_COMMIT_LOCAL_VALIDATION_TEST_CLOSEOUT_ALLOWED_CHECKS = {
     "platform_roles_route_for_changed_targets",
@@ -1461,8 +1461,7 @@ REQUIRED_COMMIT_LOCAL_VALIDATION_TEST_CLOSEOUT_CLOSEOUT_FIELDS = {
     "push_status",
     "local_commit_validation_status",
     "local_commit_validation_proof_path",
-    "test_artifact_changes",
-    "local_test_policy_evidence",
+        "local_test_policy_evidence",
     "closeout_status",
 }
 REQUIRED_CONCURRENT_GIT_SAFETY_POLICY = {
@@ -2827,7 +2826,7 @@ def _validate_agent_runtime_policy(policy: dict[str, Any]) -> list[str]:
         if commit_local_validation.get("model") != expected_commit_local_validation["model"]:
             errors.append("agent_runtime_policy.commit_local_validation_test_closeout_lane.model must be gpt-5.4-mini")
         if commit_local_validation.get("reasoning_effort") != expected_commit_local_validation["reasoning_effort"]:
-            errors.append("agent_runtime_policy.commit_local_validation_test_closeout_lane.reasoning_effort must be medium")
+            errors.append("agent_runtime_policy.commit_local_validation_test_closeout_lane.reasoning_effort must be high")
         if commit_local_validation.get("required_role_profile") != expected_commit_local_validation["required_role_profile"]:
             errors.append(
                 "agent_runtime_policy.commit_local_validation_test_closeout_lane.required_role_profile "
@@ -4495,14 +4494,14 @@ def _validate_commit_local_validation_test_closeout_lane(orchestration: dict[str
 
     exact_fields = {
         "enabled": True,
-        "lane_id": "parallel-commit-local-validation-test-closeout-lane",
+        "lane_id": "parallel-gitflow-closeout-lane",
         "mode": "non_blocking_parallel_delivery_closeout",
         "start_condition": "immediately_after_governed_workflow_start",
         "required_subagent_count": 1,
         "parallel_with_parent_orchestrator": True,
         "parent_wait_policy": "do_not_wait",
         "model": "gpt-5.4-mini",
-        "reasoning_effort": "medium",
+        "reasoning_effort": "high",
         "required_prompt_token": "/goal",
         "assignment_packet_required": True,
         "pre_task_hook_required": True,

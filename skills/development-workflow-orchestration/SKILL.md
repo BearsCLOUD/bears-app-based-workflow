@@ -15,6 +15,7 @@ Use this skill for broad Bears development work. The parent agent routes here an
 4. Delegate domain slices to domain orchestrators.
 5. Require smart reusable worker selection before worker spawn.
 6. Collect worker closeout packets.
+   Keep exactly one persistent `gitflow` closeout subagent for the parent work: `bears-git-workflow-helper`, model `gpt-5.4-mini`, reasoning `high`, `/goal` prompt, no parent/start context. It receives only explicit commit/push/local-validation closeout packets and is not a read-only audit lane.
 7. Request read-only review.
 8. Record merge decision only after `REVIEW_PASS` and unchanged head.
 9. Emit stage-boundary audit.

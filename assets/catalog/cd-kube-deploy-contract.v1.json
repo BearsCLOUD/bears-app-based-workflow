@@ -18,11 +18,18 @@
     "image_ref": "codex-telegram-mcp:local-4fc9499822ee",
     "local_image_build": {
       "enabled": true,
-      "source_repository": "BearsCLOUD/codex-telegram-mcp",
+      "source_repository": "BearsCLOUD/apps",
       "source_ref": "4fc9499822eec427da3d9f2254ba93fc5e9e58c1",
       "context_path": ".codex-telegram-source",
       "dockerfile": "Dockerfile",
-      "load_to_k3d_nodes": true
+      "load_to_k3d_nodes": true,
+      "source_subpath": "codex-telegram",
+      "archive_source_repo": "BearsCLOUD/codex-telegram-mcp",
+      "archive_allowed": false,
+      "archive_blocker": "archive_allowed stays false until infra/local_cd refs, workflows, Kubernetes runbooks, manifests README, and secret-custody docs are migrated to BearsCLOUD/apps or classified as temporary migration sources.",
+      "canonical_planning_project": "Apps Migration & Planning",
+      "canonical_planning_project_invariant": "Issue must be in the one canonical BearsCLOUD/apps planning Project named `Apps Migration & Planning` with required migration fields populated once GitHub Project API proof is available; no separate per-source GitHub Project is required, created, or used for PASS.",
+      "per_source_projects_policy": "legacy_evidence_only_not_required_not_created_not_pass"
     }
   },
   "kubernetes": {
@@ -166,11 +173,18 @@
         "image_ref": "tgintel:0.1.0",
         "local_image_build": {
           "enabled": true,
-          "source_repository": "BearsCLOUD/tgsearch",
+          "source_repository": "BearsCLOUD/apps",
           "source_ref": "local-dev-instance",
           "context_path": ".tgsearch-source",
           "dockerfile": "Dockerfile",
-          "load_to_k3d_nodes": true
+          "load_to_k3d_nodes": true,
+          "source_subpath": "tgsearch",
+          "archive_source_repo": "BearsCLOUD/tgsearch",
+          "archive_allowed": false,
+          "archive_blocker": "archive_allowed stays false until infra/local_cd refs, workflows, Kubernetes runbooks, manifests README, and secret-custody docs are migrated to BearsCLOUD/apps or classified as temporary migration sources.",
+          "canonical_planning_project": "Apps Migration & Planning",
+          "canonical_planning_project_invariant": "Issue must be in the one canonical BearsCLOUD/apps planning Project named `Apps Migration & Planning` with required migration fields populated once GitHub Project API proof is available; no separate per-source GitHub Project is required, created, or used for PASS.",
+          "per_source_projects_policy": "legacy_evidence_only_not_required_not_created_not_pass"
         }
       },
       "kubernetes": {
@@ -321,6 +335,11 @@
         {
           "env_key": "TELEGRAM_ALLOWED_CHAT_IDS",
           "remote_key": "allowed-chat-ids"
+        },
+        {
+          "env_key": "TELEGRAM_ALLOWED_USER_IDS",
+          "remote_key": "allowed-user-ids",
+          "required": false
         }
       ],
       "docker_fallback": true,
@@ -331,6 +350,81 @@
         "k3d"
       ],
       "container_port": 8080
+    }
+  },
+  "apps_monorepo_archive_gate": {
+    "canonical_repository": "BearsCLOUD/apps",
+    "archive_allowed_default": false,
+    "required_before_archive": [
+      "BearsCLOUD/apps umbrella issue",
+      "source migration issue linked to the umbrella issue",
+      "issue membership in the one canonical BearsCLOUD/apps planning Project `Apps Migration & Planning` with required fields populated once GitHub Project API proof is available",
+      "infra/local_cd safe proof",
+      "platform boundary exclusion proof"
+    ],
+    "scan_surfaces": [
+      {
+        "surface": "cd_contracts",
+        "paths": [
+          "assets/catalog/cd-kube-deploy-contract.v1.json",
+          "assets/catalog/git-deploy-contract.v1.json"
+        ],
+        "required_check": "old source repository references must be replaced by BearsCLOUD/apps plus archive metadata before archive"
+      },
+      {
+        "surface": "workflows",
+        "paths": [
+          ".github/workflows",
+          "workflows"
+        ],
+        "required_check": "workflow image-build and local_cd selectors must not depend on old source repositories before archive"
+      },
+      {
+        "surface": "kubernetes_runbooks",
+        "paths": [
+          "docs/runbooks",
+          "/srv/bears/kubernetes/docs/runbooks"
+        ],
+        "required_check": "runbooks must route app source references to BearsCLOUD/apps or mark a temporary migration source"
+      },
+      {
+        "surface": "manifests_readme",
+        "paths": [
+          "/srv/bears/kubernetes/manifests",
+          "/srv/bears/kubernetes/README.md"
+        ],
+        "required_check": "manifest README references must not point at old app source repos before archive"
+      },
+      {
+        "surface": "secret_custody_docs",
+        "paths": [
+          "skills/bears-infisical-ops",
+          "skills/bears-kubernetes-ops",
+          "/srv/bears/kubernetes"
+        ],
+        "required_check": "secret custody docs must keep Infisical-backed refs and must not store secret values during archive migration"
+      }
+    ],
+    "canonical_planning_project": {
+      "owner_repository": "BearsCLOUD/apps",
+      "name": "Apps Migration & Planning",
+      "scope": "One canonical BearsCLOUD/apps planning Project contains the umbrella issue and every source migration issue; existing per-source Projects may exist only as legacy evidence and must not be required, created, or used for PASS.",
+      "required_issue_fields": [
+        "source_repo/app_module",
+        "migration_stage",
+        "infra_local_cd_status",
+        "platform_boundary_status",
+        "archive_readiness",
+        "owner_role",
+        "blocker_status"
+      ],
+      "required_views": [
+        "source_repo_app_module_migration_stage",
+        "archive_readiness_by_status",
+        "infra_platform_blockers_by_owner_role"
+      ],
+      "api_proof_required_for_archive_pass": true,
+      "per_source_projects_policy": "legacy_evidence_only_not_required_not_created_not_pass"
     }
   }
 }

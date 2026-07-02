@@ -117,7 +117,7 @@ class SubagentOrchestrationPolicyTest(unittest.TestCase):
         "workflow-artifact-validator.toml",
     }
     HELPER_AGENT_RUNTIME = {
-        "bears-git-workflow-helper.toml": {"model": "gpt-5.4-mini", "reasoning_effort": "medium"},
+        "bears-git-workflow-helper.toml": {"model": "gpt-5.4-mini", "reasoning_effort": "high"},
         "bears-review-fix-helper.toml": {"model": "gpt-5.4-mini", "reasoning_effort": "medium"},
         "bears-token-budget-helper.toml": {"model": "gpt-5.4-mini", "reasoning_effort": "medium"},
     }
@@ -146,8 +146,8 @@ class SubagentOrchestrationPolicyTest(unittest.TestCase):
     EXPECTED_COMMIT_LOCAL_VALIDATION_TEST_CLOSEOUT_RESPONSIBILITIES = {
         "commit",
         "local_commit_validation_status",
-        "test_artifact_create_or_fix",
         "closeout",
+        "explicit_closeout_packet_handling",
     }
     EXPECTED_COMMIT_LOCAL_VALIDATION_TEST_CLOSEOUT_ALLOWED_CHECKS = {
         "platform_roles_route_for_changed_targets",
@@ -171,8 +171,7 @@ class SubagentOrchestrationPolicyTest(unittest.TestCase):
         "push_status",
         "local_commit_validation_status",
         "local_commit_validation_proof_path",
-        "test_artifact_changes",
-        "local_test_policy_evidence",
+                "local_test_policy_evidence",
         "closeout_status",
     }
     EXPECTED_CONCURRENT_GIT_SAFETY_POLICY = {
@@ -1182,18 +1181,18 @@ class SubagentOrchestrationPolicyTest(unittest.TestCase):
 
     def test_records_parallel_commit_local_validation_test_closeout_lane(self) -> None:
         self.assertIn(
-            "parallel-commit-local-validation-test-closeout-lane",
+            "parallel-gitflow-closeout-lane",
             self.policy["required_rule_ids"],
         )
         lane = self.policy["orchestration_model"]["commit_local_validation_test_closeout_lane"]
         self.assertTrue(lane["enabled"])
-        self.assertEqual(lane["lane_id"], "parallel-commit-local-validation-test-closeout-lane")
+        self.assertEqual(lane["lane_id"], "parallel-gitflow-closeout-lane")
         self.assertEqual(lane["start_condition"], "immediately_after_governed_workflow_start")
         self.assertEqual(lane["required_subagent_count"], 1)
         self.assertTrue(lane["parallel_with_parent_orchestrator"])
         self.assertEqual(lane["parent_wait_policy"], "do_not_wait")
         self.assertEqual(lane["model"], "gpt-5.4-mini")
-        self.assertEqual(lane["reasoning_effort"], "medium")
+        self.assertEqual(lane["reasoning_effort"], "high")
         self.assertEqual(lane["prompt_prefix"], "/goal")
         self.assertEqual(lane["required_prompt_token"], "/goal")
         self.assertEqual(lane["required_role_profile"], "bears-git-workflow-helper")
@@ -2586,14 +2585,14 @@ class SubagentOrchestrationPolicyTest(unittest.TestCase):
             "medium",
         )
         self.assertEqual(runtime_policy["commit_local_validation_test_closeout_lane"]["model"], "gpt-5.4-mini")
-        self.assertEqual(runtime_policy["commit_local_validation_test_closeout_lane"]["reasoning_effort"], "medium")
+        self.assertEqual(runtime_policy["commit_local_validation_test_closeout_lane"]["reasoning_effort"], "high")
         self.assertEqual(
             runtime_policy["commit_local_validation_test_closeout_lane"]["required_role_profile"],
             "bears-git-workflow-helper",
         )
         self.assertEqual(
             runtime_policy["commit_local_validation_test_closeout_lane"]["applies_to"],
-            ["parallel commit/local-validation/test-closeout subagent"],
+            ["persistent gitflow closeout subagent"],
         )
 
     def test_rejects_wrong_subagent_limit(self) -> None:

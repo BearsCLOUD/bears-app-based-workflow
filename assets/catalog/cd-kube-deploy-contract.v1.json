@@ -271,7 +271,7 @@
         "callsaver-starter",
         "callsaver-yandex-ai-studio-runtime",
         "ClusterSecretStore",
-        "infisical-bears",
+        "infisical-bears-prod",
         "readOnlyRootFilesystem: true",
         "allowPrivilegeEscalation: false",
         "callsaver-starter:0.1.0",
@@ -289,7 +289,7 @@
         "cluster_resources": [
           {
             "kind": "ClusterSecretStore",
-            "name": "infisical-bears",
+            "name": "infisical-bears-prod",
             "reason": "CallSaver ExternalSecret uses the shared Infisical ClusterSecretStore"
           }
         ]

@@ -1,6 +1,6 @@
-# GitHub Project and Issue flow
+# GitHub Project development orchestration flow
 
-GitHub Projects are planning boards with items, views, fields, automation, and charts. Issues track actionable work and can have sub-issues. Pull requests carry code-review state. Actions carry check metadata. Releases and tags carry versioned delivery state.
+This file defines how L2 orchestrators execute development from existing GitHub Project and Issue state. It does not define how to administer a Project, choose long-lived fields, or design roadmap views.
 
 ## L2 intake packet
 
@@ -9,37 +9,35 @@ project_owner=<user-or-org>
 project_number=<number>
 project_url=<url>
 repositories=<owner/repo list>
+items=<project item ids or query>
 issues=<issue numbers or query>
-views=<required views>
-fields=<required field names>
-status_field=<field name>
-blocked_field=<field name>
-role_field=<field name>
-delivery_field=<field name>
+metadata_mutation=<none|authorized>
+route_targets=<paths requiring route/audit>
+closeout_policy=<commit/push/proof requirements>
 ```
 
-## Planning sequence
+## Item execution sequence
 
-1. Load Project metadata: item ids, issue or PR content ids, field ids, views, workflows, and current field values.
-2. Load Issues: title, body, state, type, labels, milestone, assignees, parent/sub-issue links, linked PRs, blockers, and acceptance criteria.
-3. Normalize every Project item to an owner repo, @Bears role, status, blocker state, validation path, and next L3 assignment.
-4. Create missing Issues only for actionable implementation, validation, role drift, deploy evidence, or closeout debt.
-5. Use sub-issues for decomposed work under the parent issue when the parent remains the durable objective.
-6. Add or update Project fields after L3 closeout, not before evidence exists.
-7. Keep draft issues only for planning placeholders that are not ready for L3 assignment.
-8. Link PRs to Issues and Project items before closeout.
-9. Read Actions metadata only; do not read raw logs unless a role and operator packet allow it.
-10. Use Releases or tags only when the delivery surface requires versioned evidence.
+1. Load Project item metadata and linked Issue or PR content.
+2. Load linked Issues, sub-issues, labels, milestones, assignees, blockers, dependencies, and acceptance criteria.
+3. Load linked PR metadata, check suite status, Release/tag/package metadata, and deployment metadata only when the item needs it.
+4. Resolve the canonical owner repo and local checkout path.
+5. Run route/audit for every target path.
+6. Classify the item as implementation, review, validation, role-improvement, infra/deploy metadata, security metadata, docs, or closeout.
+7. Split the item when repo boundary, role, write scope, validation path, or deploy/runtime boundary differs.
+8. Create or update Issues and sub-issues only when `metadata_mutation=authorized`.
+9. Generate one L3 `/goal` packet per split.
+10. Dispatch L3 workers.
+11. Collect L3 closeout packets.
+12. Request gitflow closeout when any L3 worker changed files.
+13. Update Project/Issue state from evidence only.
+14. Report final item state to the parent.
 
-11. Classify repository collaboration metadata: branches, commits, CODEOWNERS, repository topics, rules metadata, and team metadata. Keep settings mutation forbidden.
-12. Classify security metadata: code scanning alerts, secret scanning alert metadata, Dependabot alerts, and security advisories. Route security action to a security reviewer.
-13. Classify Discussions, Wiki, and Pages as non-actionable decision or knowledge records. Do not use them as implementation tracking surfaces.
-14. Validate the catalog with `python3 scripts/github_project_subagents.py validate` and validate each dispatch packet with `python3 scripts/github_project_subagents.py validate-assignment <packet.json>`.
-
-## L3 assignment from GitHub item
+## L3 assignment from Project item
 
 ```text
 /goal
+lane=l3
 role=<route-selected @Bears role>
 model=gpt-5.4-mini
 reasoning=high
@@ -49,11 +47,36 @@ repo=<local path and owner/repo>
 target=<exact files/paths>
 allowed_actions=<bounded list>
 forbidden_actions=<bounded list>
-acceptance_criteria=<issue checklist or project field target>
+acceptance_criteria=<issue checklist or Project item requirement>
 validation=<exact commands or metadata checks>
-closeout_updates=<project fields and issue comment requested from L2>
+completion_criteria=<closeout proof required by L2>
+closeout_updates=<Project fields and Issue comment requested from L2>
 ```
 
 ## Role-improvement assignment
 
-Spawn a role-improvement L3 worker when route/audit returns `ROLE_COVERAGE_BLOCKER`, a selected role lacks exact write scope, or the role text permits forbidden implementation authority. The worker may edit only role/profile/catalog/validator files allowed by the role-development packet.
+Spawn a role-improvement L3 worker when route/audit returns `ROLE_COVERAGE_BLOCKER`, a selected role lacks exact write scope, or role text permits forbidden implementation authority. The worker may edit only role/profile/catalog/validator files allowed by the role-development packet.
+
+## Project state update rule
+
+L2 may update Project fields or Issue comments only from these evidence types:
+
+- route/audit packet;
+- L3 closeout packet;
+- validation result;
+- commit SHA and push proof;
+- PR metadata;
+- Release/tag/package metadata;
+- explicit blocker proof.
+
+Do not update Project state from chat-only agreement, guessed status, or unvalidated implementation claims.
+
+## Out-of-scope Project management
+
+Do not use this flow to choose the organization's Project field model, create one Project per app, design roadmap views, configure Project automation, mutate repository settings, or replace issue-type governance. Use the owning Project-management governance for those actions.
+
+## Apps repo boundary
+
+For `BearsCLOUD/apps`, `apps` is the repository name and `/srv/bears/dev/app` is the local repo root. Do not create or route `/srv/bears/dev/app/apps`.
+
+A Project-management policy may choose a canonical Project for `BearsCLOUD/apps`. This flow consumes that Project/Issue state and treats app directories or legacy source repos as work items, Issues, or sub-issues according to that policy.

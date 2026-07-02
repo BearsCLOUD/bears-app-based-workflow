@@ -1,11 +1,39 @@
 ---
 name: projectdevsubagents
-description: "Use for Bears development driven by GitHub Projects and Issues where the parent may only control orchestrator subagents, L2 orchestrators may only manage project/issue state and L3 assignments, and all implementation work is executed by @Bears L3 subagents with gpt-5.4-mini high."
+description: "Use for Bears development orchestration from GitHub Projects and Issues where the parent controls only L2 orchestrators, L2 orchestrators control only Project/Issue state and L3 assignments, and all implementation is executed by @Bears L3 subagents with gpt-5.4-mini high."
 ---
 
 # Project Dev Subagents
 
-Use this skill when development must be planned and executed from GitHub Projects and Issues.
+Use this skill for **development orchestration from GitHub Project work items**.
+
+This skill does not define GitHub Project administration. Project administration means creating Projects, choosing fields, designing views, building roadmap structure, and setting long-lived planning policy. That belongs to the owning repo/workstream governance. This skill starts after a Project or issue set exists and uses that state to orchestrate development.
+
+## Boundary
+
+In scope:
+
+- consume GitHub Project items, linked Issues, sub-issues, PR metadata, Actions metadata, Release metadata, and route/audit results;
+- split Project work into L3 assignment packets;
+- coordinate L2 orchestrators and L3 workers;
+- update Project/Issue state only from evidence;
+- request gitflow closeout;
+- report exact Project/Issue execution status.
+
+Out of scope:
+
+- creating a new Project unless an explicit operator packet says so;
+- deciding the organization's Project field model;
+- replacing roadmap governance;
+- replacing issue-type policy;
+- replacing repo-local specs, acceptance criteria, or product ownership;
+- doing implementation in the parent or L2 lane.
+
+## Apps repo boundary
+
+For `BearsCLOUD/apps`, `apps` is the repository name and `/srv/bears/dev/app` is the local repo root. Do not create or route `/srv/bears/dev/app/apps`.
+
+Project-management policy may choose one canonical Project for `BearsCLOUD/apps` or another approved structure. This skill consumes that Project/Issue state and treats app directories or legacy source repos as work items, Issues, or sub-issues according to that policy.
 
 ## Required topology
 
@@ -19,56 +47,110 @@ Parent agent
 
 ## Parent control lane
 
-The parent agent must not do implementation work. Parent allowed actions:
+The parent agent is orchestration-only. Parent allowed actions:
 
-- select project and repositories;
+- select the existing Project, repository set, issue query, and L2 lanes;
 - start or reuse L2 orchestrators;
-- pass project, issue, PR, Actions, Release, and role-gate packets;
-- wait for L2 evidence;
-- integrate L2 closeouts;
+- pass Project item ids, Issue ids, PR ids, Actions metadata ids, Release ids, and route/audit targets;
+- wait for L2 evidence packets;
+- integrate L2 closeout packets;
 - request commit/push closeout through `bears-git-workflow-helper`;
-- report exact status.
+- report exact Project/Issue status.
 
 Parent forbidden actions:
 
 - file writes;
 - implementation commands;
-- `git add`, `git commit`, `git push`;
+- direct Project administration except explicit operator-requested metadata action;
+- `git add`, `git commit`, `git push`, merge, or force push;
 - direct PR mutation except explicit operator-requested metadata action;
-- runtime, deploy, provider, secret, or production mutation.
+- runtime, deploy, provider, secret, repository settings, branch protection, or production mutation.
 
-## L2 orchestrator rules
+## L2 orchestrator lane
 
-Each L2 orchestrator must use `bears-github-project-issues-orchestrator` or an exact domain orchestrator role. L2 allowed actions:
+Each L2 orchestrator must use `bears-github-project-issues-orchestrator` or an exact domain orchestrator role. L2 is not a developer. L2 turns Project work into bounded L3 tasks.
 
-- read and update GitHub Project planning metadata when authorized;
-- create or update Issues, sub-issues, labels, milestones, assignees, links, and project fields;
-- link PRs, project items, Actions status, Releases, and dependency notes;
-- split work into L3 packets;
-- spawn L3 workers with @Bears role names;
+L2 allowed actions:
+
+- read assigned Project items and linked Issues, sub-issues, PR metadata, Actions metadata, Releases, labels, milestones, blockers, and dependency notes;
+- verify repo/path ownership through route/audit;
+- classify each item by repo boundary, @Bears role, write scope, validation path, and blocker state;
+- create or update Issues, sub-issues, links, labels, milestones, assignees, and Project fields only when the parent packet authorizes metadata mutation;
+- split work into L3 `/goal` packets;
+- spawn L3 workers with route-selected @Bears role names;
 - spawn one role-improvement L3 worker when route/audit exposes role drift;
-- integrate L3 closeouts into Project and Issue state.
+- integrate L3 closeout into Project and Issue state from evidence.
 
 L2 forbidden actions:
 
 - implementation file writes;
 - shell implementation commands;
-- commit, push, merge;
+- commit, push, merge, or force push;
 - deploy or runtime mutation;
+- repository settings, branch protection, secret, variable, webhook, GitHub App, billing, or environment mutation;
 - reading secrets, raw logs, raw chats, raw VPN configs, credentials, or production data.
 
-## L3 worker rules
+## L2 execution loop
+
+For each assigned Project item or Issue:
+
+1. Load current Project item, linked Issue, sub-issues, linked PRs, Actions/check metadata, and existing field values.
+2. Identify the canonical owner repo, local path, target paths, issue type, acceptance criteria, and blocker notes.
+3. Run route/audit for the target path.
+4. If route/audit returns `ROLE_COVERAGE_BLOCKER`, create a role-improvement L3 packet and keep the implementation item blocked.
+5. Split work when repo boundary, @Bears role, write scope, validation path, or deploy/runtime boundary differs.
+6. Build one L3 packet per split.
+7. Validate every L3 packet with `python3 scripts/github_project_subagents.py validate-assignment <packet.json>` when packet files are materialized.
+8. Dispatch L3 workers.
+9. Collect L3 closeout packets.
+10. Update Project/Issue state only from L3 evidence, validation proof, commit SHA, PR metadata, Release metadata, or blocker proof.
+11. Request gitflow closeout when files changed.
+12. Report item status to the parent.
+
+## L3 worker lane
 
 - Use the exact @Bears role returned by route/audit.
 - Use `model=gpt-5.4-mini` and `reasoning=high`.
-- One L3 assignment covers one issue or project item slice, one repo boundary, one allowed write scope, and one validation path.
-- L3 must return changed files, issue/project item ids, validation evidence, blockers, and forbidden surfaces untouched.
+- One L3 assignment covers one issue or Project item slice, one repo boundary, one allowed write scope, and one validation path.
+- L3 must return changed files, validation evidence, blockers, issue/project item ids, requested Project field updates, and forbidden surfaces untouched.
+- L3 must not directly mutate Project fields unless the L2 packet explicitly asks for a closeout comment or metadata update.
+
+## L3 assignment packet
+
+```text
+/goal
+lane=l3
+role=<route-selected @Bears role>
+model=gpt-5.4-mini
+reasoning=high
+github_project_item=<item id/url>
+github_issue=<owner/repo#number>
+repo=<local path and owner/repo>
+target=<exact files/paths>
+allowed_actions=<bounded list>
+forbidden_actions=<bounded list>
+acceptance_criteria=<issue checklist or Project item requirement>
+validation=<exact commands or metadata checks>
+completion_criteria=<closeout proof required by L2>
+closeout_updates=<Project fields and Issue comment requested from L2>
+```
+
+## Done rule
+
+L2 may mark the work done only when the closeout packet contains:
+
+- L3 result for every split;
+- validation PASS or explicit blocker issue;
+- commit SHA and push proof when files changed;
+- linked PR, Release, or deployment metadata when required by the item;
+- Issue closeout comment text;
+- Project/Issue state updates derived from evidence.
 
 ## GitHub surface coverage
 
-Before implementation, L2 must inspect and reconcile:
+Before L3 dispatch, L2 must inspect and reconcile only the metadata needed for the assigned item:
 
-- Project purpose, views, fields, status values, automation, and item ids;
+- Project item ids, linked content ids, field values, status, and blockers;
 - Issues, issue types, sub-issues, labels, milestones, assignees, linked branches, linked PRs, and dependencies;
 - Pull requests, review state, mergeability metadata, check suite status, and linked issues;
 - Actions status metadata without raw log reads;
@@ -87,10 +169,10 @@ Run before closeout after changes to this skill, the GitHub orchestrator role, o
 python3 scripts/github_project_subagents.py validate
 ```
 
-Validate assignment packets before L2 or L3 dispatch:
+Validate assignment packets before L2 or L3 dispatch when packet files are materialized:
 
 ```bash
 python3 scripts/github_project_subagents.py validate-assignment <packet.json>
 ```
 
-See `references/github-project-issue-flow.md` and `../../docs/reference/github-project-subagents.md` for the exact packet sequence and surface matrix.
+See `references/github-project-issue-flow.md` and `../../docs/reference/github-project-subagents.md` for the exact orchestration sequence and surface matrix.

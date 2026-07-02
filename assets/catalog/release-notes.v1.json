@@ -9,7 +9,9 @@
         "platform_role_catalog",
         "artifact_registry",
         "decision_ledger",
-        "release_notes"
+        "release_notes",
+        "test_selection",
+        "pants_test_graph"
       ],
       "date": "2026-07-02",
       "files": [
@@ -43,9 +45,12 @@
         "scripts/issue_closeout.py",
         "scripts/file_execution_join.py",
         "scripts/model_check_orchestrator.py",
-        "scripts/orchestrator_closeout_manifest_authority.py"
+        "scripts/orchestrator_closeout_manifest_authority.py",
+        "assets/catalog/pants-test-graph.v1.json",
+        "assets/catalog/test-selection.v1.json",
+        "tests/test_test_selection.py"
       ],
-      "impact": "GitHub Project subagent governance now has a machine-readable catalog and validator covering Projects, Issues, sub-issues, PRs, Actions, Releases, Discussions, Wiki, Packages, Deployments, security metadata, and repository collaboration metadata; local validation drift is reduced by restoring authority-map and bears_doctor support artifacts.",
+      "impact": "GitHub Project subagent governance now has a machine-readable catalog and validator covering Projects, Issues, sub-issues, PRs, Actions, Releases, Discussions, Wiki, Packages, Deployments, security metadata, and repository collaboration metadata; local validation drift is reduced by restoring authority-map and bears_doctor support artifacts and registering their test-routing coverage.",
       "issue_ref": "#8",
       "validation": [
         "python3 scripts/github_project_subagents.py validate",
@@ -66,7 +71,12 @@
         "python3 scripts/issue_closeout.py validate",
         "python3 scripts/file_execution_join.py validate",
         "python3 scripts/model_check_orchestrator.py validate",
-        "python3 scripts/orchestrator_closeout_manifest_authority.py validate"
+        "python3 scripts/orchestrator_closeout_manifest_authority.py validate",
+        "python3 scripts/pants_test_graph.py validate",
+        "python3 scripts/pants_test_graph.py impacted --json --from-git <previous>..<head>",
+        "python3 scripts/test_selection.py validate",
+        "python3 scripts/test_selection.py list --format json --from-git <previous>..<head>",
+        "python3 -m unittest tests/test_pants_test_graph.py tests/test_test_selection.py tests/test_release_notes_gate.py tests/test_decision_ledger.py"
       ]
     },
     {

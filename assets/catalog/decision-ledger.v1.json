@@ -1617,6 +1617,26 @@
       "scope_id": "execution_kernel_authority_map_support",
       "status": "accepted",
       "unresolved_inputs": []
+    },
+    {
+      "affected_paths": [
+        "assets/catalog/pants-test-graph.v1.json",
+        "assets/catalog/test-selection.v1.json",
+        "assets/catalog/decision-ledger.v1.json",
+        "assets/catalog/release-notes.v1.json",
+        "tests/test_test_selection.py"
+      ],
+      "change_type": "validation",
+      "contradictions": [],
+      "decision": "Register GitHub Project subagent and execution-kernel support files in test-selection and Pants graph routing.",
+      "decision_id": "D-2026-07-02-github-project-subagents-test-routing",
+      "owner_issue": "#8",
+      "owner_role": "bears-deploy-platform-engineer",
+      "rationale": "Local commit validation uses the test-selection catalog and Pants graph catalog; newly restored governance docs and scripts must not remain unmatched paths.",
+      "redaction": "safe",
+      "scope_id": "workflow_overlay_validation_ci_workflow",
+      "status": "accepted",
+      "unresolved_inputs": []
     }
   ],
   "schema": "bears-decision-ledger.v1",

@@ -211,7 +211,7 @@ class TestSelectionPolicyTest(unittest.TestCase):
 
     def test_unittest_loader_preserves_class_tests_in_mixed_modules(self) -> None:
         suite = unittest.defaultTestLoader.discover("tests", pattern="test_role_gate_methodology.py")
-        self.assertEqual(suite.countTestCases(), 80)
+        self.assertEqual(suite.countTestCases(), 82)
 
     def test_every_function_loader_importer_is_mapped(self) -> None:
         importers = sorted(

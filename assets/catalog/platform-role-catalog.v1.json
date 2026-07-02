@@ -4434,7 +4434,10 @@
         "plugins/bears/skills/bears-project-analyze",
         "plugins/bears/skills/bears-project-analyze/SKILL.md",
         "/srv/bears/plugins/bears/skills/bears-project-analyze",
-        "/srv/bears/plugins/bears/skills/bears-project-analyze/SKILL.md"
+        "/srv/bears/plugins/bears/skills/bears-project-analyze/SKILL.md",
+        "skills/bears-blocker-eval/SKILL.md",
+        "skills/bears-deploy-gate/SKILL.md",
+        "skills/bears-governance-check/SKILL.md"
       ],
       "group": "workflow",
       "required_role": "bears-workflow-overlay-platform-engineer",
@@ -5761,7 +5764,8 @@
         "/srv/bears/plugins/bears/skills/bears-goal-prompt",
         "/srv/bears/plugins/bears/agents/bears-goal-prompt-generator.toml",
         "agents/bears-goal-prompt-generator.toml",
-        "plugins/bears/agents/bears-goal-prompt-generator.toml"
+        "plugins/bears/agents/bears-goal-prompt-generator.toml",
+        "skills/bears-goal-prompt/SKILL.md"
       ],
       "group": "workflow",
       "required_role": "bears-goal-prompt-generator",

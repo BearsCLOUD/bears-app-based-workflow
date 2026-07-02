@@ -97,6 +97,10 @@
         "category": "fast"
       },
       {
+        "path": "tests/test_agent_usage.py",
+        "category": "fast"
+      },
+      {
         "path": "tests/test_agent_workflow_map.py",
         "category": "fast"
       },
@@ -105,7 +109,35 @@
         "category": "fast"
       },
       {
+        "path": "tests/test_artifact_registry.py",
+        "category": "fast"
+      },
+      {
         "path": "tests/test_auth_gateway_deploy_readiness.py",
+        "category": "fast"
+      },
+      {
+        "path": "tests/test_authority_map.py",
+        "category": "fast"
+      },
+      {
+        "path": "tests/test_bears_auto_cd.py",
+        "category": "fast"
+      },
+      {
+        "path": "tests/test_bears_commit.py",
+        "category": "fast"
+      },
+      {
+        "path": "tests/test_bears_doctor.py",
+        "category": "fast"
+      },
+      {
+        "path": "tests/test_bears_git_hook.py",
+        "category": "fast"
+      },
+      {
+        "path": "tests/test_bears_goals_principles.py",
         "category": "fast"
       },
       {
@@ -118,6 +150,10 @@
       },
       {
         "path": "tests/test_capability_environment_packets.py",
+        "category": "fast"
+      },
+      {
+        "path": "tests/test_capability_harness.py",
         "category": "fast"
       },
       {
@@ -161,7 +197,67 @@
         "category": "fast"
       },
       {
+        "path": "tests/test_clarification_architect_role.py",
+        "category": "fast"
+      },
+      {
+        "path": "tests/test_code_property_graph.py",
+        "category": "fast"
+      },
+      {
+        "path": "tests/test_commit_closeout.py",
+        "category": "fast"
+      },
+      {
+        "path": "tests/test_context_budget.py",
+        "category": "fast"
+      },
+      {
+        "path": "tests/test_cross_repo_infra_evidence.py",
+        "category": "fast"
+      },
+      {
+        "path": "tests/test_dagger_delivery.py",
+        "category": "fast"
+      },
+      {
+        "path": "tests/test_decision_ledger.py",
+        "category": "fast"
+      },
+      {
+        "path": "tests/test_delivery_manifest.py",
+        "category": "fast"
+      },
+      {
+        "path": "tests/test_deterministic_runners.py",
+        "category": "fast"
+      },
+      {
         "path": "tests/test_development_workflow_validate.py",
+        "category": "fast"
+      },
+      {
+        "path": "tests/test_doctor_component_coverage.py",
+        "category": "fast"
+      },
+      {
+        "path": "tests/test_enterprise_issue_release.py",
+        "category": "fast"
+      },
+      {
+        "path": "tests/test_external_review_audit.py",
+        "category": "fast"
+      },
+      {
+        "path": "tests/test_external_review_contract.py",
+        "category": "fast"
+      },
+      {
+        "path": "tests/test_file_context_index.py",
+        "category": "fast"
+      },
+      {
+        "path": "tests/test_formal_semantics.py",
         "category": "fast"
       },
       {
@@ -173,7 +269,27 @@
         "category": "fast"
       },
       {
+        "path": "tests/test_github_issue_ref.py",
+        "category": "fast"
+      },
+      {
+        "path": "tests/test_gitops_workflow.py",
+        "category": "fast"
+      },
+      {
         "path": "tests/test_local_commit_validation.py",
+        "category": "fast"
+      },
+      {
+        "path": "tests/test_mcp_agent_policy.py",
+        "category": "fast"
+      },
+      {
+        "path": "tests/test_old_backlog_reconciliation.py",
+        "category": "fast"
+      },
+      {
+        "path": "tests/test_pants_test_graph.py",
         "category": "fast"
       },
       {
@@ -205,7 +321,15 @@
         "category": "fast"
       },
       {
+        "path": "tests/test_policy_invariants.py",
+        "category": "fast"
+      },
+      {
         "path": "tests/test_pr_pipeline.py",
+        "category": "fast"
+      },
+      {
+        "path": "tests/test_process_mining.py",
         "category": "fast"
       },
       {
@@ -217,7 +341,39 @@
         "category": "fast"
       },
       {
+        "path": "tests/test_prompt_compiler.py",
+        "category": "fast"
+      },
+      {
+        "path": "tests/test_question_calculus.py",
+        "category": "fast"
+      },
+      {
+        "path": "tests/test_release_notes_gate.py",
+        "category": "fast"
+      },
+      {
+        "path": "tests/test_repo_onboarding.py",
+        "category": "fast"
+      },
+      {
+        "path": "tests/test_roadmap_backlog_ingest.py",
+        "category": "fast"
+      },
+      {
         "path": "tests/test_roadmap_control.py",
+        "category": "fast"
+      },
+      {
+        "path": "tests/test_roadmap_issue_coverage.py",
+        "category": "fast"
+      },
+      {
+        "path": "tests/test_roadmap_state_transition_authority.py",
+        "category": "fast"
+      },
+      {
+        "path": "tests/test_role_degradation.py",
         "category": "fast"
       },
       {
@@ -265,6 +421,10 @@
         "category": "fast"
       },
       {
+        "path": "tests/test_temporal_evaluation.py",
+        "category": "fast"
+      },
+      {
         "path": "tests/test_test_selection.py",
         "category": "fast"
       },
@@ -278,6 +438,30 @@
       },
       {
         "path": "tests/test_workflow_governance_docs.py",
+        "category": "fast"
+      },
+      {
+        "path": "tests/test_workflow_inference.py",
+        "category": "fast"
+      },
+      {
+        "path": "tests/test_workflow_roadmap.py",
+        "category": "fast"
+      },
+      {
+        "path": "tests/test_workflow_state_machine.py",
+        "category": "fast"
+      },
+      {
+        "path": "tests/test_workflow_tree.py",
+        "category": "fast"
+      },
+      {
+        "path": "tests/test_workspace_hygiene.py",
+        "category": "fast"
+      },
+      {
+        "path": "tests/test_workspace_semantic_graph.py",
         "category": "fast"
       },
       {

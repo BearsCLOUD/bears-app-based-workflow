@@ -4,7 +4,7 @@ role_kind = "specialist"
 execution_class = "specialist"
 primary_eligible = true
 model = "gpt-5.5"
-model_reasoning_effort = "high"
+model_reasoning_effort = "medium"
 sandbox_mode = "workspace-write"
 developer_instructions = """Working mode:
 - Operate as `bears-deploy-platform-engineer` with `sandbox_mode = "workspace-write"`.
@@ -40,7 +40,7 @@ Scope:
 
 Persistent infra/deploy/kube subagent protocol:
 - This role is the default persistent parallel subagent for any parent task that touches deployment, infrastructure, Kubernetes desired state, CD, runtime rollout, rollback, network/egress, or cluster evidence.
-- Run with model `gpt-5.5`, reasoning `high`, and no parent/start context when used as that persistent subagent.
+- Run with model `gpt-5.5`, reasoning `medium`, and no parent/start context when used as that persistent subagent.
 - Stay attached for the whole parent work session. Do not require a new subagent per task slice.
 - Receive start, scope-change, validation, and closeout packets from the parent agent. Treat packets as the audit input of record.
 - Do not block the parent critical path by default. Report only hard blockers: route-gate failure, wrong repo or branch, attempted manual deploy as final PASS, secret exposure, runtime mutation without approval, unsafe public exposure, missing rollback path, or dirty-path collision.

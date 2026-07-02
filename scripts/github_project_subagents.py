@@ -24,6 +24,25 @@ REQUIRED_SURFACES = {
     "deployments_environments",
     "repository_collaboration_metadata",
 }
+ALLOWED_ASSIGNMENT_LANES = {"l2", "l3"}
+ASSIGNMENT_REQUIRED_FIELDS = {
+    "lane",
+    "role",
+    "model",
+    "reasoning",
+    "github_project_item",
+    "github_issue",
+    "repo",
+    "target",
+    "route_audit_evidence",
+    "metadata_mutation_authorized",
+    "allowed_actions",
+    "forbidden_actions",
+    "acceptance_criteria",
+    "validation",
+    "completion_criteria",
+    "closeout_updates",
+}
 
 if str(PLUGIN_ROOT) not in sys.path:
     sys.path.insert(0, str(PLUGIN_ROOT))
@@ -59,10 +78,10 @@ def validate_catalog(path: Path = CATALOG) -> list[str]:
         errors.append("owner_role must be bears-github-project-issues-orchestrator")
     if packet.get("l2_orchestrator", {}).get("role") != "bears-github-project-issues-orchestrator":
         errors.append("l2_orchestrator role mismatch")
-    if packet.get("l2_orchestrator", {}).get("model") != "gpt-5.4-mini":
-        errors.append("l2_orchestrator model must be gpt-5.4-mini")
-    if packet.get("l2_orchestrator", {}).get("reasoning") != "high":
-        errors.append("l2_orchestrator reasoning must be high")
+    if packet.get("l2_orchestrator", {}).get("model") != "gpt-5.5":
+        errors.append("l2_orchestrator model must be gpt-5.5")
+    if packet.get("l2_orchestrator", {}).get("reasoning") != "medium":
+        errors.append("l2_orchestrator reasoning must be medium")
     if packet.get("l3_worker", {}).get("model") != "gpt-5.4-mini":
         errors.append("l3_worker model must be gpt-5.4-mini")
     if packet.get("l3_worker", {}).get("reasoning") != "high":
@@ -92,18 +111,36 @@ def validate_assignment(path: Path) -> list[str]:
     lane = str(packet.get("lane", ""))
     model = str(packet.get("model", ""))
     reasoning = str(packet.get("reasoning", ""))
+    missing = sorted(field for field in ASSIGNMENT_REQUIRED_FIELDS if field not in packet or packet.get(field) in ("", [], {}))
+    if missing:
+        errors.append(f"assignment missing required fields: {', '.join(missing)}")
+    if lane not in ALLOWED_ASSIGNMENT_LANES:
+        errors.append(f"assignment lane must be one of: {', '.join(sorted(ALLOWED_ASSIGNMENT_LANES))}")
+    if lane == "l2" and model != "gpt-5.5":
+        errors.append("L2 packet model must be gpt-5.5")
     if lane == "l3" and model != "gpt-5.4-mini":
         errors.append("L3 packet model must be gpt-5.4-mini")
-    if lane in {"l2", "l3"} and reasoning != "high":
-        errors.append(f"{lane.upper()} packet reasoning must be high")
+    if lane == "l2" and reasoning != "medium":
+        errors.append("L2 packet reasoning must be medium")
+    if lane == "l3" and reasoning != "high":
+        errors.append("L3 packet reasoning must be high")
     if lane == "l2" and role != "bears-github-project-issues-orchestrator":
         errors.append("L2 packet role must be bears-github-project-issues-orchestrator")
-    for field in ("github_project_item", "github_issue", "repo", "target", "allowed_actions", "forbidden_actions", "validation", "completion_criteria"):
-        if not packet.get(field):
-            errors.append(f"assignment missing {field}")
+    if not isinstance(packet.get("metadata_mutation_authorized"), bool):
+        errors.append("assignment metadata_mutation_authorized must be boolean")
+    for field in ("allowed_actions", "forbidden_actions"):
+        if packet.get(field) and not isinstance(packet.get(field), list):
+            errors.append(f"assignment {field} must be a list")
     forbidden_text = "\n".join(strings(packet.get("forbidden_actions", []))).casefold()
-    if lane in {"parent", "l2"} and "implementation" not in forbidden_text:
+    if lane == "l2" and "implementation" not in forbidden_text:
         errors.append(f"{lane} packet must forbid implementation")
+    if "secret" not in forbidden_text:
+        errors.append("assignment forbidden_actions must mention secret boundaries")
+    allowed_text = "\n".join(strings(packet.get("allowed_actions", []))).casefold()
+    forbidden_mutations = ("branch protection", "repository settings", "secret", "webhook", "environment protection")
+    for marker in forbidden_mutations:
+        if marker in allowed_text:
+            errors.append(f"assignment allowed_actions must not include forbidden mutation: {marker}")
     if has_forbidden(packet):
         errors.append("assignment contains forbidden data marker")
     return errors

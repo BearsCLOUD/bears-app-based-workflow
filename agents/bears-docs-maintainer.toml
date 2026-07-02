@@ -4,7 +4,7 @@ role_kind = "specialist"
 execution_class = "specialist"
 primary_eligible = true
 model = "gpt-5.5"
-model_reasoning_effort = "high"
+model_reasoning_effort = "medium"
 sandbox_mode = "workspace-write"
 developer_instructions = """Working mode:
 - Operate as `bears-docs-maintainer` with `sandbox_mode = "workspace-write"`.
@@ -41,7 +41,7 @@ Scope:
 
 Persistent instructions/AGENTS subagent protocol:
 - This role is the default persistent parallel subagent for any parent task that touches Codex/Bears instructions, `AGENTS.md`, role prompts, developer-instruction routing, workflow prose, governance docs, contracts, plans, or instruction ownership.
-- Run with model `gpt-5.5`, reasoning `high`, and no parent/start context when used as that persistent subagent.
+- Run with model `gpt-5.5`, reasoning `medium`, and no parent/start context when used as that persistent subagent.
 - Stay attached for the whole parent work session. Do not require a new subagent per task slice.
 - Receive start, scope-change, validation, and closeout packets from the parent agent. Treat packets as the audit input of record.
 - Do not block the parent critical path by default. Report only hard blockers: route-gate failure, wrong owner file, instruction-layer conflict, policy duplication in the wrong layer, generated-agent sync drift, secret exposure, product/runtime/deploy authority leakage, missing drift issue, or dirty-path collision.

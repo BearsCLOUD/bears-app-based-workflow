@@ -61,14 +61,14 @@ Parent forbidden actions:
 
 - file writes;
 - implementation commands;
-- direct Project administration except explicit operator-requested metadata action;
+- direct Project administration; pass explicit operator-authorized metadata requests to L2 instead;
 - `git add`, `git commit`, `git push`, merge, or force push;
-- direct PR mutation except explicit operator-requested metadata action;
+- direct PR mutation; pass explicit operator-authorized metadata requests to L2 instead;
 - runtime, deploy, provider, secret, repository settings, branch protection, or production mutation.
 
 ## L2 orchestrator lane
 
-Each L2 orchestrator must use `bears-github-project-issues-orchestrator` or an exact domain orchestrator role. L2 is not a developer. L2 turns Project work into bounded L3 tasks.
+Each L2 orchestrator must use `bears-github-project-issues-orchestrator`. L2 is not a developer. L2 turns Project work into bounded L3 tasks.
 
 L2 allowed actions:
 
@@ -100,7 +100,7 @@ For each assigned Project item or Issue:
 4. If route/audit returns `ROLE_COVERAGE_BLOCKER`, create a role-improvement L3 packet and keep the implementation item blocked.
 5. Split work when repo boundary, @Bears role, write scope, validation path, or deploy/runtime boundary differs.
 6. Build one L3 packet per split.
-7. Validate every L3 packet with `python3 scripts/github_project_subagents.py validate-assignment <packet.json>` when packet files are materialized.
+7. Validate every materialized L3 packet only through local-commit-owned or operator-approved `python3 scripts/github_project_subagents.py validate-assignment <packet.json>` evidence.
 8. Dispatch L3 workers.
 9. Collect L3 closeout packets.
 10. Update Project/Issue state only from L3 evidence, validation proof, commit SHA, PR metadata, Release metadata, or blocker proof.
@@ -127,6 +127,8 @@ github_project_item=<item id/url>
 github_issue=<owner/repo#number>
 repo=<local path and owner/repo>
 target=<exact files/paths>
+route_audit_evidence=<route/audit command result or packet id>
+metadata_mutation_authorized=<true|false>
 allowed_actions=<bounded list>
 forbidden_actions=<bounded list>
 acceptance_criteria=<issue checklist or Project item requirement>
@@ -161,18 +163,25 @@ Before L3 dispatch, L2 must inspect and reconcile only the metadata needed for t
 - Deployments and Environments metadata only for planning; runtime or environment mutation requires the exact deploy route;
 - Repository collaboration metadata, including branches, commits, compare output, CODEOWNERS, repository topics, rules metadata, and teams metadata, as read-only planning evidence.
 
-## Required validator
+## Required gates
 
-Run before closeout after changes to this skill, the GitHub orchestrator role, or the GitHub Project subagent catalog:
+Agent-local route gates before L2 or L3 dispatch:
 
 ```bash
-python3 scripts/github_project_subagents.py validate
+python3 scripts/platform_roles.py route <target-path>
+python3 scripts/platform_roles.py audit <target-path>
 ```
 
-Validate assignment packets before L2 or L3 dispatch when packet files are materialized:
+CI/local-commit-owned or operator-approved validator before closeout after changes to this skill, the GitHub orchestrator role, or the GitHub Project subagent catalog:
 
 ```bash
-python3 scripts/github_project_subagents.py validate-assignment <packet.json>
+python3 scripts/github_project_subagents.py validate  # local-commit-owned
+```
+
+CI/local-commit-owned or operator-approved assignment-packet validator before L2 or L3 dispatch when packet files are materialized:
+
+```bash
+python3 scripts/github_project_subagents.py validate-assignment <packet.json>  # local-commit-owned
 ```
 
 See `references/github-project-issue-flow.md` and `../../docs/reference/github-project-subagents.md` for the exact orchestration sequence and surface matrix.

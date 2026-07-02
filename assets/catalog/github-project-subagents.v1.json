@@ -24,8 +24,8 @@
   },
   "l2_orchestrator": {
     "role": "bears-github-project-issues-orchestrator",
-    "model": "gpt-5.4-mini",
-    "reasoning": "high",
+    "model": "gpt-5.5",
+    "reasoning": "medium",
     "allowed_actions": [
       "read assigned GitHub Project, Issue, Pull Request, Actions, Release, Discussion, Wiki, Package, Deployment, label, milestone, branch, commit, and code scanning metadata",
       "mutate Issues, sub-issues, Project items, Project fields, labels, milestones, assignees, links, and issue comments only when the parent packet authorizes mutation",

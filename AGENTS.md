@@ -50,11 +50,11 @@
 - If a hard safety hold prevents commit or push, the slice is not complete; report the exact blocker, owner, and GitHub issue, and keep gitflow hold active.
 - The `gitflow` subagent closes only explicit assigned Git tasks. It must reject completion claims without commit/push evidence or an explicit blocker. The main agent owns final clean-status reporting and must not treat `gitflow` as a general auditor.
 - Deployment, infrastructure, Kubernetes desired-state, CD, runtime rollout, rollback, network/egress, and cluster-evidence tasks must also start or reuse one long-lived parallel `infra/deploy/kube` subagent.
-- The infra/deploy/kube subagent uses `bears-deploy-platform-engineer` instructions with model `gpt-5.5`, reasoning `high`, and no parent/start context. Reuse the same infra/deploy/kube subagent for the entire parent work.
+- The infra/deploy/kube subagent uses `bears-deploy-platform-engineer` instructions with model `gpt-5.5`, reasoning `medium`, and no parent/start context. Reuse the same infra/deploy/kube subagent for the entire parent work.
 - The parent sends start, scope-change, validation, and closeout packets to that subagent and does not wait for feedback on the critical path unless a hard blocker is already known.
 - The infra/deploy/kube subagent is an audit and governance lane only; it does not replace exact role gates, Kubernetes desired state, local `@Bears` CD, or branch/secret policies.
 - Instruction, `AGENTS.md`, role-prompt, developer-instruction routing, workflow prose, governance-doc, and instruction-ownership tasks must also start or reuse one long-lived parallel `instructions/AGENTS` subagent.
-- The instructions/AGENTS subagent uses `bears-docs-maintainer` instructions with model `gpt-5.5`, reasoning `high`, and no parent/start context. Reuse the same instructions/AGENTS subagent for the entire parent work.
+- The instructions/AGENTS subagent uses `bears-docs-maintainer` instructions with model `gpt-5.5`, reasoning `medium`, and no parent/start context. Reuse the same instructions/AGENTS subagent for the entire parent work.
 - The parent sends start, scope-change, validation, and closeout packets to that subagent and does not wait for feedback on the critical path unless a hard blocker is already known.
 - The instructions/AGENTS subagent is an audit and governance lane only; it does not replace nearest `AGENTS.md`, exact route gates, `@Bears` catalogs/scripts/skills, Git closeout, or generated-agent sync requirements.
 - Git work branches are restricted to `main` or `dev` unless an explicit task packet names another branch.

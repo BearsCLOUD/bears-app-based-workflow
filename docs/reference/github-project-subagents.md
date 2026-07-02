@@ -19,22 +19,29 @@ This reference binds GitHub planning surfaces to Bears parent, L2, and L3 lanes.
 
 ## Lane rules
 
-Parent lane selects Projects, repositories, Issues, and L2 orchestrators. It does not implement, write files, mutate Git, mutate runtime, or mutate repository settings.
+Parent lane selects Projects, repositories, Issues, and L2 orchestrators. It does not implement, write files, mutate Git, mutate Project or PR metadata directly, mutate runtime, or mutate repository settings. It passes explicit operator-authorized metadata requests to L2.
 
-L2 lane uses `bears-github-project-issues-orchestrator`. It may mutate GitHub planning metadata only when the parent packet authorizes mutation. It does not implement or run implementation commands.
+L2 lane uses `bears-github-project-issues-orchestrator` with `gpt-5.5` and `reasoning=medium`. It may mutate GitHub planning metadata only when the parent packet authorizes mutation. It does not implement or run implementation commands.
 
 L3 lane uses the exact route-selected @Bears role with `gpt-5.4-mini` and `reasoning=high`. It owns one issue or Project item slice inside one repo boundary and one allowed write scope.
 
-## Required validator
+## Required gates
 
-Run:
+Agent-local route gates:
 
 ```bash
-python3 scripts/github_project_subagents.py validate
+python3 scripts/platform_roles.py route <target-path>
+python3 scripts/platform_roles.py audit <target-path>
 ```
 
-For assignment packets, run:
+CI/local-commit-owned or operator-approved catalog validator:
 
 ```bash
-python3 scripts/github_project_subagents.py validate-assignment <packet.json>
+python3 scripts/github_project_subagents.py validate  # local-commit-owned
+```
+
+CI/local-commit-owned or operator-approved assignment-packet validator:
+
+```bash
+python3 scripts/github_project_subagents.py validate-assignment <packet.json>  # local-commit-owned
 ```

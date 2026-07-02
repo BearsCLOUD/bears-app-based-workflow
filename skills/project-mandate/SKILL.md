@@ -56,6 +56,7 @@ Do not build a full artifact inventory. If evidence is missing, record the exact
 - Put unresolved work in the narrowest existing `plans.md` only when the route allows it.
 - Never create files for an unregistered target.
 - Never read, print, store, or commit secrets, tokens, private keys, `.env` values, production data, raw logs, raw chats, or raw VPN configs.
+- After validation, commit and push the completed tracked slice immediately; completed means validated, committed, and pushed.
 
 ## Output
 

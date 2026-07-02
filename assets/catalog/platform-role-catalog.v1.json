@@ -96,6 +96,7 @@
       "codex_health_diagnostics",
       "codex_workspace_configuration",
       "codexdaemon_runtime",
+      "callsaver_product_app",
       "current_infra_runtime_future_kube_lane",
       "deprecated_local_git_remote_hygiene",
       "desk_product_dev_layer",
@@ -369,6 +370,7 @@
       ],
       "nested_repo_policy": "Former per-app Git repositories under or migrated from /srv/bears/dev/app/* are deprecated migration/archive sources only; they must not be registered as new canonical product app repositories after consolidation.",
       "allowed_nested_statuses": [
+        "active_app_directory",
         "migration_source",
         "archive_candidate",
         "deprecated_archive_candidate",
@@ -9001,6 +9003,60 @@
         "runtime mutation approval wording change"
       ],
       "decomposition_required": false
+    },
+    {
+      "name": "callsaver_product_app",
+      "aliases": [
+        "/srv/bears/dev/app/callsaver",
+        "dev/app/callsaver",
+        "callsaver"
+      ],
+      "group": "products",
+      "required_role": "bears-product-app-zone-engineer",
+      "role_required": true,
+      "no_role_policy": "blocker",
+      "source": "/srv/bears/dev/registry/projects.v1.json",
+      "part_kind": "concrete",
+      "write_roots": [
+        "/srv/bears/dev/app/callsaver"
+      ],
+      "concrete_scope": "Direct callsaver app directory in the BearsCLOUD/apps monorepo for app-local work only.",
+      "allowed_write_boundary": "Only app-local files under /srv/bears/dev/app/callsaver when the nearest router and exact route allow them; no standalone repository, shared platform, Kubernetes desired-state, local_cd, runtime rollout, or secret-custody authority.",
+      "trust_boundary": "CallSaver app work stays inside BearsCLOUD/apps. Shared platform behavior, deployment, runtime proof, and secret custody require separate exact routes.",
+      "required_validations": [
+        "python3 /srv/bears/plugins/bears/scripts/project_registry_gate.py gate /srv/bears/dev/app/callsaver",
+        "python3 scripts/platform_roles.py validate",
+        "python3 scripts/platform_roles.py route /srv/bears/dev/app/callsaver",
+        "python3 scripts/platform_roles.py audit /srv/bears/dev/app/callsaver"
+      ],
+      "supporting_roles": [
+        "bears-platform-security-reviewer"
+      ],
+      "reviewer_triggers": [
+        "CallSaver repo-local versus shared-platform boundary change",
+        "restricted-data, call-data, external exposure, or production workflow boundary change"
+      ],
+      "decomposition_required": false,
+      "legacy_compatibility": {
+        "status": "active_app_directory",
+        "active_replacement": "BearsCLOUD/apps",
+        "canonical_local_root": "/srv/bears/dev/app",
+        "issue_link_invariant": "Old repository issues and migration issues must link to BearsCLOUD/apps before closeout.",
+        "allowed_use": "Canonical app directory inside BearsCLOUD/apps for app-local source, docs, fixtures, and tests.",
+        "forbidden_use": "New standalone app repository authority, deploy authority, shared platform ownership, or secret custody.",
+        "umbrella_issue_invariant": "Archive readiness requires a BearsCLOUD/apps umbrella migration issue before archive.",
+        "source_migration_issue_invariant": "Archive readiness requires a source repository migration issue linked to the BearsCLOUD/apps umbrella issue before archive.",
+        "infra_local_cd_safety_invariant": "Archive readiness requires infra/local_cd safety proof: Kubernetes desired state and local_cd selectors must not depend on this old source repository unless the owning infra/local_cd policy classifies it as a temporary migration source.",
+        "platform_boundary_exclusion_invariant": "Archive readiness excludes /srv/bears/dev/platform and temporary platform checkouts from app migration unless a platform auditor explicitly classifies the checkout as an app migration source.",
+        "canonical_planning_project_invariant": "The BearsCLOUD/apps umbrella issue and every source migration issue must be in the one canonical BearsCLOUD/apps planning Project named `Apps Migration & Planning` once GitHub Project API proof is available; required fields source_repo/app_directory, migration_stage, infra_local_cd_status, platform_boundary_status, archive_readiness, owner_role, and blocker_status must be populated before archive. Existing per-source Projects may exist only as legacy evidence and must not be required, created, or used for PASS.",
+        "per_source_projects_policy": "legacy_evidence_only_not_required_not_created_not_pass",
+        "deprecated_refs": [],
+        "active_replacement_app_directory": "callsaver"
+      },
+      "canonical_source": {
+        "repository": "BearsCLOUD/apps",
+        "app_directory": "callsaver"
+      }
     },
     {
       "name": "product_apps_monorepo_root",

@@ -859,14 +859,14 @@ class AgentGithubDevCdValidationTests(unittest.TestCase):
             errors,
         )
 
-    def test_validate_workflow_is_operator_only_and_defers_fast_tests_to_local_commit_hooks(self) -> None:
+    def test_validate_workflow_runs_on_push_main_and_keeps_pr_events_out(self) -> None:
         workflow = yaml.safe_load((PLUGIN_ROOT / ".github/workflows/validate.yml").read_text(encoding="utf-8"))
         on_data = workflow.get("on") or workflow.get(True)
-        self.assertEqual(set(on_data), {"workflow_dispatch"})
+        self.assertEqual(set(on_data), {"push", "workflow_dispatch"})
+        self.assertEqual(on_data["push"].get("branches"), ["main"])
         self.assertIn("emergency_full_suite", on_data["workflow_dispatch"]["inputs"])
         self.assertNotIn("pull_request", on_data)
         self.assertNotIn("merge_group", on_data)
-        self.assertNotIn("push", on_data)
         self.assertNotIn("plugin-validation", workflow["jobs"])
         self.assertEqual(sorted(workflow["jobs"]["ci-summary"]["needs"]), sorted(job for job in agent_cd.REQUIRED_PARALLEL_CI_JOBS if job != "ci-summary"))
         self.assertNotIn("unit-fast", workflow["jobs"])
@@ -960,20 +960,17 @@ jobs:
             errors = agent_cd.validate_catalog(broken_catalog, role_catalog=self.role_catalog, check_files=True, strict_route=False)
         self.assertIn("validate workflow must not include pull_request or merge_group in main-only delivery", errors)
 
-    def test_validate_catalog_fails_when_github_push_trigger_is_added(self) -> None:
+    def test_validate_catalog_fails_when_github_push_trigger_is_not_main_only(self) -> None:
         broken_catalog = deepcopy(self.catalog)
         with tempfile.TemporaryDirectory() as tmpdir:
             workflow_path = Path(tmpdir) / "validate.yml"
             text = (PLUGIN_ROOT / ".github/workflows/validate.yml").read_text(encoding="utf-8")
-            workflow_path.write_text(text.replace("'on':\n  workflow_dispatch:", "'on':\n  push:\n    branches:\n      - main\n  workflow_dispatch:"), encoding="utf-8")
+            workflow_path.write_text(text.replace("branches:\n      - main", "branches:\n      - dev"), encoding="utf-8")
             broken_catalog["route_target"] = str(workflow_path)
             broken_catalog["ci_policy"]["validation_workflow"] = str(workflow_path)
             broken_catalog["cd_policy"]["dev_cd_validation_workflow"] = str(workflow_path)
             errors = agent_cd.validate_catalog(broken_catalog, role_catalog=self.role_catalog, check_files=True, strict_route=False)
-        self.assertIn(
-            "validate workflow must expose only operator workflow_dispatch; local commit hooks own automatic tests",
-            errors,
-        )
+        self.assertIn("validate workflow push trigger must be limited to main", errors)
 
     def test_validate_catalog_fails_when_branch_dev_cd_gate_is_added(self) -> None:
         broken_catalog = deepcopy(self.catalog)

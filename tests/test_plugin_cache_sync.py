@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import importlib.util
 import json
+import subprocess
 import tempfile
 import unittest
 from pathlib import Path
@@ -115,6 +116,38 @@ class PluginCacheSyncTests(unittest.TestCase):
             )
         self.assertIsNone(error)
         self.assertEqual(packet["status"], "pass")
+
+    def test_source_commit_fallback_replaces_cache_from_exact_commit(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            source = root / "source"
+            cache = root / "cache"
+            source.mkdir()
+            (source / ".codex-plugin").mkdir()
+            (source / ".codex-plugin/plugin.json").write_text(
+                json.dumps({"hooks": "./hooks.json"}), encoding="utf-8"
+            )
+            (source / "hooks.json").write_text("{}", encoding="utf-8")
+            (source / "hooks").mkdir()
+            (source / "hooks/.keep").write_text("", encoding="utf-8")
+            subprocess.run(["git", "init", "-q"], cwd=source, check=True)
+            subprocess.run(["git", "config", "user.email", "test@example.invalid"], cwd=source, check=True)
+            subprocess.run(["git", "config", "user.name", "Test User"], cwd=source, check=True)
+            subprocess.run(["git", "add", "."], cwd=source, check=True)
+            subprocess.run(["git", "commit", "-q", "-m", "fixture"], cwd=source, check=True)
+            sha = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=source, text=True).strip()
+
+            original_root = plugin_cache_sync.PLUGIN_ROOT
+            plugin_cache_sync.PLUGIN_ROOT = source
+            try:
+                record = plugin_cache_sync.copy_source_commit_to_cache(sha, cache)
+                verify = plugin_cache_sync.verify_cache(cache, sha)
+            finally:
+                plugin_cache_sync.PLUGIN_ROOT = original_root
+
+        self.assertEqual(record["status"], "ok")
+        self.assertEqual(verify["status"], "pass")
+        self.assertEqual(verify["installed_cache_sha"], sha)
 
 
 if __name__ == "__main__":

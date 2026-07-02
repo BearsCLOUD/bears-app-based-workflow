@@ -2,14 +2,17 @@
   "schema": "bears-ci-requirements.v1",
   "version": "1",
   "owner_plugin": "bears",
-  "purpose": "Operator-only GitHub diagnostics for Bears plugin runtime changes. Local commit validation is automatic through pre-commit and post-commit hooks and is plugin closeout authority.",
+  "purpose": "GitHub push diagnostics for Bears plugin main commits plus operator emergency dispatch. Local commit validation remains plugin closeout authority, and local Codex cache sync runs only on this host after exact-SHA validation PASS.",
   "trigger_policy": {
     "automatic_on_pull_request": false,
     "agent_manual_ci_dispatch_allowed": false,
     "allowed_events": [
+      "push",
       "workflow_dispatch"
     ],
-    "push_branches": [],
+    "push_branches": [
+      "main"
+    ],
     "forbidden_agent_commands": [
       "gh workflow run",
       "gh run rerun",
@@ -18,11 +21,12 @@
     ],
     "changed_path_diff_policy": {
       "local_post_commit": "HEAD^..HEAD",
-      "reason": "The local git pre-commit hook validates staged changes before commit; the post-commit hook validates the exact committed diff before plugin cache sync and closeout. GitHub workflow_dispatch is operator-only diagnostics."
+      "reason": "The local git pre-commit hook validates staged changes before commit; the post-commit hook records exact-SHA validation proof for plugin cache sync and closeout. GitHub push on main runs diagnostics for the pushed commit.",
+      "github_push": "HEAD^..HEAD"
     },
     "operator_emergency_dispatch_allowed": true,
     "automatic_local_on_commit": true,
-    "automatic_github_on_commit": false,
+    "automatic_github_on_commit": true,
     "local_commit_hook": "post-commit",
     "local_commit_hook_command": "python3 scripts/local_commit_validation.py install-hook",
     "local_commit_hooks": [
@@ -298,13 +302,16 @@
     "local_validation_fail_creates_workflow_defect": true,
     "cache_sync_requires_exact_commit_local_validation_pass": true,
     "local_validation_proof_file": "runtime/local-commit-validation/<main_sha>.json",
-    "github_diagnostics_automatic_on_push": false,
+    "github_diagnostics_automatic_on_push": true,
     "local_commit_hook": "post-commit",
     "local_commit_hooks": [
       "pre-commit",
       "post-commit"
     ],
     "blocking_local_commit_hook": "pre-commit",
-    "proof_local_commit_hook": "post-commit"
+    "proof_local_commit_hook": "post-commit",
+    "github_push_ci_required_before_cache_sync": true,
+    "github_push_ci_workflow": ".github/workflows/validate.yml",
+    "cache_sync_runtime_scope": "local_codex_cache_on_this_host"
   }
 }

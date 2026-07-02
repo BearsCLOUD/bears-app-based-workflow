@@ -41,7 +41,7 @@ Technical terms:
 - Required closeout gates: `commit_to_main`, `local_commit_validation_pass`, `cache_sync_done`, and `effective_hooks_proof`.
 - `.github/workflows/validate.yml` must not define `pull_request`, `merge_group`, or `jobs.dev-cd-gate` for this plugin delivery lane.
 - The only active GitHub Actions diagnostics trigger for plugin delivery is operator `workflow_dispatch`.
-- Automatic plugin tests run locally through git `pre-commit` and `post-commit` hooks, not through GitHub push.
+- Automatic plugin closeout proof runs locally through git `pre-commit` and `post-commit` hooks; GitHub push on `main` runs diagnostics for the pushed commit.
 - Allowed parent actions: `route`, `split`, `assign`, `wait`, `integrate_evidence`, `run_validators`, `close`, `report`, `pre_task_hook`.
 - Parent agent must not run `file_read_as_content_collector`, `file_write`, `git_add`, `git_commit`, `git_push`, `pull_request_mutation`, or `implementation_tool_use`.
 

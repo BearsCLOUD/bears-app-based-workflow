@@ -49,7 +49,7 @@ Risks and constraints:
 Validation implications:
 
 - Run `python3 scripts/platform_roles.py route <target>` and `python3 scripts/platform_roles.py audit <target>` before governed writes.
-- Local commit validation owns plugin repo validators and tests after plugin governance changes. GitHub Actions is operator-dispatched diagnostics only.
+- Local commit validation owns plugin closeout proof after plugin governance changes. GitHub Actions runs diagnostics on `main` push and operator emergency dispatch.
 - `scripts/validate_overlay.py` fails in CI when Git tracks `.specify/**` as plugin source.
 
 Sources inspected:

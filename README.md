@@ -248,7 +248,7 @@ Reference: `docs/reference/agent-registration-sync.md`.
 - Watcher: `scripts/plugin_cache_sync.py watch --interval-seconds 15 --timeout-seconds 1200`; local commit hook installer: `python3 scripts/local_commit_validation.py install-hook`.
 - Plugin workflow task commits land on `main`; PR/review/branch-dependent closeout is not a workflow authority.
 - The git `pre-commit` hook runs `python3 scripts/local_commit_validation.py run --staged` to block failing staged changes. The git `post-commit` hook runs `python3 scripts/local_commit_validation.py run --commit-sha HEAD` and writes `runtime/local-commit-validation/<commit_sha>.json` for exact-SHA proof.
-- `.github/workflows/validate.yml` is operator-dispatched diagnostics only; it must not run automatic push tests. `workflow_dispatch` with `emergency_full_suite=true` is operator-only full-suite diagnostics.
+- `.github/workflows/validate.yml` runs diagnostics on `main` push. `workflow_dispatch` with `emergency_full_suite=true` remains operator-only full-suite diagnostics.
 - Local Codex cache sync starts only after exact `main` commit has local commit validation `status=pass`. The watcher runs `codex plugin marketplace upgrade bears-workflow-plugin --json` and `codex plugin add bears@bears-workflow-plugin --json`.
 - Closeout requires `runtime/local-commit-validation/<main_sha>.json` with `status=pass`, plus `runtime/plugin-cache-sync/plugin-cache-sync-state.v1.json` with `delivery_complete=true`, exact installed cache SHA equal to `main_sha`, and effective hooks proof for `hooks.json` plus `hooks/`. The `Stop` hook blocks only explicit closeout intent when delivery is incomplete; it does not commit, push, run tests, or run validators.
 - Local validation failure, sync failure, missing hooks, workflow defect, deferred dirty, or runtime degradation creates a row in `assets/catalog/tech-debt-matrix.v1.json`; closure requires exact local validation proof and plugin cache sync state evidence.
@@ -468,7 +468,7 @@ Validation for this surface uses the full chain:
 - `python3 scripts/secret_factory.py validate`
 - `python3 scripts/validate_overlay.py --json validate --strict-overlay-skills`
 
-Local commit validation owns blocking test execution for this surface through `scripts/local_commit_validation.py` and `scripts/test_selection.py`; pre-commit blocks staged failures, post-commit records exact-SHA proof, and GitHub Actions is operator-dispatched diagnostics only.
+Local commit validation owns blocking closeout proof for this surface through `scripts/local_commit_validation.py` and `scripts/test_selection.py`; pre-commit blocks staged failures, post-commit records exact-SHA proof, and GitHub Actions runs diagnostics on `main` push.
 
 ## Skill inventory
 
@@ -592,4 +592,4 @@ The Bears plugin owns a compact agentic enterprise workflow surface:
 
 Required L1 flow: user message -> `scope_row` -> `research` -> clarification gate when allowed -> `l1_task_decomposition` -> `l2_governance_review`. L1 owns task decomposition and task matrix writing; L2 owns governance review, not task splitting. Do not spawn a subagent for each task; spawn only from a validated assignment packet after L2 governance review. L3 owns exact tasks, docs, schemas, and fixtures.
 
-Test selection authority: `assets/catalog/test-selection.v1.json`. The local git `pre-commit` hook blocks failing staged changes; the local git `post-commit` hook runs impacted fast tests for the commit diff and writes exact-SHA proof under `runtime/local-commit-validation/`. GitHub Actions must not run automatic push tests for plugin closeout. `workflow_dispatch` with `emergency_full_suite=true` is operator-only. Interactive agents must not run test-selection, pytest, unittest, or repo validator suites unless the operator explicitly lifts the ban.
+Test selection authority: `assets/catalog/test-selection.v1.json`. The local git `pre-commit` hook blocks failing staged changes; the local git `post-commit` hook runs impacted fast tests for the commit diff and writes exact-SHA proof under `runtime/local-commit-validation/`. GitHub Actions runs `main` push diagnostics but does not update the local Codex cache. `workflow_dispatch` with `emergency_full_suite=true` is operator-only. Interactive agents must not run test-selection, pytest, unittest, or repo validator suites unless the operator explicitly lifts the ban.

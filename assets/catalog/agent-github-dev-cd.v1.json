@@ -334,7 +334,9 @@
     "required_on_dev_branch": false,
     "required_pull_request_event": false,
     "required_pull_request_targets": [],
-    "required_push_branches": [],
+    "required_push_branches": [
+      "main"
+    ],
     "validation_workflow": "/srv/bears/plugins/bears/.github/workflows/validate.yml",
     "required_commands": [
       "python3 scripts/ci_requirements.py validate-workflow",
@@ -356,8 +358,8 @@
       "docs_only_skips_unit_suite": true,
       "changed_path_classifier_job": "changes",
       "summary_job": "ci-summary",
-      "automatic_tests": "local_post_commit",
-      "github_tests": "operator_emergency_workflow_dispatch_only"
+      "automatic_tests": "local_post_commit_and_github_push_main",
+      "github_tests": "push_main_and_operator_emergency_workflow_dispatch"
     },
     "branch_based_dev_cd_gate_allowed": false
   },

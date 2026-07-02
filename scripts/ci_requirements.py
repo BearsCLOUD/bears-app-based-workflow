@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate Bears plugin operator-only GitHub diagnostics."""
+"""Validate Bears plugin GitHub push diagnostics."""
 from __future__ import annotations
 
 import argparse
@@ -83,16 +83,16 @@ def validate_catalog(catalog: dict[str, Any]) -> list[str]:
     else:
         if trigger_policy.get("automatic_local_on_commit") is not True:
             errors.append("trigger_policy.automatic_local_on_commit must be true")
-        if trigger_policy.get("automatic_github_on_commit") is not False:
-            errors.append("trigger_policy.automatic_github_on_commit must be false")
+        if trigger_policy.get("automatic_github_on_commit") is not True:
+            errors.append("trigger_policy.automatic_github_on_commit must be true")
         if trigger_policy.get("automatic_on_pull_request") is not False:
             errors.append("trigger_policy.automatic_on_pull_request must be false for main-only delivery")
         if trigger_policy.get("agent_manual_ci_dispatch_allowed") is not False:
             errors.append("trigger_policy.agent_manual_ci_dispatch_allowed must be false")
-        if set(trigger_policy.get("allowed_events", [])) != {"workflow_dispatch"}:
-            errors.append("trigger_policy.allowed_events must be workflow_dispatch only")
-        if trigger_policy.get("push_branches") != []:
-            errors.append("trigger_policy.push_branches must be []")
+        if set(trigger_policy.get("allowed_events", [])) != {"push", "workflow_dispatch"}:
+            errors.append("trigger_policy.allowed_events must be push and workflow_dispatch only")
+        if trigger_policy.get("push_branches") != ["main"]:
+            errors.append("trigger_policy.push_branches must be [main]")
         if trigger_policy.get("operator_emergency_dispatch_allowed") is not True:
             errors.append("trigger_policy.operator_emergency_dispatch_allowed must be true")
         if trigger_policy.get("local_commit_hooks") != REQUIRED_LOCAL_COMMIT_HOOKS:
@@ -111,6 +111,7 @@ def validate_catalog(catalog: dict[str, Any]) -> list[str]:
         else:
             expected = {
                 "local_post_commit": "HEAD^..HEAD",
+                "github_push": "HEAD^..HEAD",
             }
             for key, value in expected.items():
                 if diff_policy.get(key) != value:
@@ -173,12 +174,13 @@ def validate_workflow(workflow: dict[str, Any], catalog: dict[str, Any]) -> list
     events = set(str(event) for event in on_data)
     if events & FORBIDDEN_AGENT_MANUAL_TRIGGER_EVENTS:
         errors.append("workflow must not expose repository dispatch trigger events")
-    if events != {"workflow_dispatch"}:
-        errors.append("workflow must expose only operator emergency workflow_dispatch")
+    if events != {"push", "workflow_dispatch"}:
+        errors.append("workflow must expose only push and operator emergency workflow_dispatch")
+    push = on_data.get("push")
+    if not isinstance(push, dict) or push.get("branches") != ["main"]:
+        errors.append("workflow push trigger must be limited to main")
     if "pull_request" in events or "merge_group" in events:
         errors.append("workflow must not include pull_request or merge_group in main-only delivery")
-    if "push" in events:
-        errors.append("workflow must not run automatically on GitHub push; local commit hooks own automatic tests")
     dispatch = on_data.get("workflow_dispatch")
     if not isinstance(dispatch, dict) or not isinstance(dispatch.get("inputs"), dict) or "emergency_full_suite" not in dispatch["inputs"]:
         errors.append("workflow_dispatch must be limited to operator emergency_full_suite input")

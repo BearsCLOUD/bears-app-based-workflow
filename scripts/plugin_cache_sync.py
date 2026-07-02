@@ -150,6 +150,63 @@ def copy_marketplace_snapshot_to_cache(expected_sha: str, cache_path: Path) -> d
     return record
 
 
+def copy_source_commit_to_cache(expected_sha: str, cache_path: Path) -> dict[str, Any]:
+    """Replace installed cache from the canonical local source commit only."""
+
+    record: dict[str, Any] = {
+        "method": "source_commit_cache_replace",
+        "source_root": str(PLUGIN_ROOT),
+        "expected_sha": expected_sha,
+    }
+    code, stdout, stderr = run_command(
+        ["git", "-C", str(PLUGIN_ROOT), "cat-file", "-e", f"{expected_sha}^{{commit}}"],
+        timeout=30,
+    )
+    if code != 0:
+        record["status"] = "skipped"
+        record["summary"] = compact_error(stderr, stdout) or "expected commit missing from canonical source checkout"
+        return record
+
+    tmp_path = cache_path.parent / f".{cache_path.name}.tmp-source-sync"
+    backup_path = cache_path.parent / f".{cache_path.name}.backup"
+    try:
+        if tmp_path.exists():
+            shutil.rmtree(tmp_path)
+        code, stdout, stderr = run_command(
+            ["git", "clone", "--quiet", "--no-checkout", str(PLUGIN_ROOT), str(tmp_path)],
+            timeout=120,
+        )
+        if code != 0:
+            record["status"] = "fail"
+            record["summary"] = compact_error(stderr, stdout)
+            return record
+        code, stdout, stderr = run_command(
+            ["git", "-C", str(tmp_path), "checkout", "--quiet", "--detach", expected_sha],
+            timeout=120,
+        )
+        if code != 0:
+            record["status"] = "fail"
+            record["summary"] = compact_error(stderr, stdout)
+            return record
+        if backup_path.exists():
+            shutil.rmtree(backup_path)
+        if cache_path.exists():
+            cache_path.rename(backup_path)
+        tmp_path.rename(cache_path)
+        if backup_path.exists():
+            shutil.rmtree(backup_path)
+        record["status"] = "ok"
+        record["summary"] = "installed cache replaced from canonical local source commit"
+    except Exception as exc:  # pragma: no cover - defensive runtime branch
+        record["status"] = "fail"
+        record["summary"] = str(exc)[:800]
+        if tmp_path.exists():
+            shutil.rmtree(tmp_path, ignore_errors=True)
+        if backup_path.exists() and not cache_path.exists():
+            backup_path.rename(cache_path)
+    return record
+
+
 def sync_cache(expected_sha: str, cache_path: Path, *, max_attempts: int) -> tuple[dict[str, Any], list[dict[str, Any]]]:
     attempts: list[dict[str, Any]] = []
     commands = [
@@ -170,6 +227,10 @@ def sync_cache(expected_sha: str, cache_path: Path, *, max_attempts: int) -> tup
             if code != 0:
                 break
         verify = verify_cache(cache_path, expected_sha)
+        if verify["status"] != "pass":
+            source_fallback = copy_source_commit_to_cache(expected_sha, cache_path)
+            attempt_record["source_fallback"] = source_fallback
+            verify = verify_cache(cache_path, expected_sha)
         if verify["status"] != "pass":
             attempt_record["fallback"] = copy_marketplace_snapshot_to_cache(expected_sha, cache_path)
             verify = verify_cache(cache_path, expected_sha)

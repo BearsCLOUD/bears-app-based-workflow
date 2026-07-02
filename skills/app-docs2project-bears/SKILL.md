@@ -86,6 +86,21 @@ Split an Issue whenever any of these differ:
 - deploy boundary;
 - secret or restricted-data boundary.
 
+Hard micro-decomposition rules:
+
+- One execution Issue must cover exactly one concern: interface, provider adapter, app logic, validation, metrics, error handling, billing, docs, or custody.
+- One execution Issue must cover exactly one primary artifact class: source code, test code, contract/schema, workflow metadata, operator docs, or custody docs.
+- One execution Issue must use one validation command family: route/audit, unit test, contract/schema check, lint/type check, CI/check metadata, or commit-validation expectation.
+- One execution Issue must use one route-selected role. Split helper, reviewer, platform, deploy, provider, and docs work into separate Issues.
+- Provider mixing is forbidden. Separate Yandex, OpenAI, Telegram, billing, storage, and other external-provider adapters into separate Issues.
+- Docs and implementation mixing is forbidden except exact command docs or contract docs that are required to explain the same changed artifact.
+- Reject or split any planned execution Issue before Project handoff when any micro-slice check answer is `no`.
+- A one-file or atomic slice that misses the parent 5-minute wait budget is workflow drift. Abort or clean up the worker attempt, record workflow/skill drift, and require either a low-overhead L2/L3 packet path or explicit operator approval before relaxing the wait budget.
+
+Regression example:
+
+- `STT interface + Yandex adapter + OpenAI adapter + metrics + docs` is the CallSaver #23 broad-pattern failure. It must split into separate execution Issues before Project handoff.
+
 Block broad work instead of creating an execution Issue when the docs do not make the task decision-complete. Forbidden broad titles include `implement backend`, `make UI`, `finish MVP`, `integrate platform`, and any equivalent title without exact files, behavior, acceptance, validation, and role.
 
 ## Issue body template
@@ -111,6 +126,14 @@ Each created or updated execution Issue must contain this structure:
 
 ## Validation source
 - <CI/check metadata or commit-validation expectation>
+
+## Micro-slice check
+- One concern: yes|no - <interface|provider adapter|app logic|validation|metrics|error handling|billing|docs|custody>
+- One artifact class: yes|no - <source code|test code|contract/schema|workflow metadata|operator docs|custody docs>
+- One validation command family: yes|no - <route/audit|unit test|contract/schema check|lint/type check|CI/check metadata|commit-validation expectation>
+- One role: yes|no - <route-selected @Bears role>
+- No provider mixing: yes|no - <provider or none>
+- No docs+implementation mixing except exact command/contract docs: yes|no - <exception or none>
 
 ## L3 goal
 /goal
@@ -138,11 +161,13 @@ If any field cannot be filled exactly, create a blocker Issue instead of an exec
 4. Run route/audit for every planned target path.
 5. Extract requirements, product slices, docs slices, platform-boundary checks, validation slices, and blockers from app docs.
 6. Split all work by the drift-safe decomposition rules.
-7. Create or update GitHub Issues and sub-issues in `BearsCLOUD/apps`.
-8. Add every Issue to Project #20 and fill required fields: `source_repo`, `app_directory`, `migration_stage`, `infra_local_cd_safety`, `platform_boundary`, and `archive_readiness`.
-9. Link dependencies with Issue URLs and Project metadata.
-10. Emit `app-docs2project-bears.project-task-packet` with applied mutation proof.
-11. Run `$bears-project-analyze` before handing execution to `$projectdevsubagents`.
+7. Fill the Micro-slice check for every planned execution Issue.
+8. Reject or split broad execution Issues before Project handoff when any Micro-slice check answer is `no`.
+9. Create or update GitHub Issues and sub-issues in `BearsCLOUD/apps`.
+10. Add every Issue to Project #20 and fill required fields: `source_repo`, `app_directory`, `migration_stage`, `infra_local_cd_safety`, `platform_boundary`, and `archive_readiness`.
+11. Link dependencies with Issue URLs and Project metadata.
+12. Emit `app-docs2project-bears.project-task-packet` with applied mutation proof.
+13. Run `$bears-project-analyze` before handing execution to `$projectdevsubagents`.
 
 ## Block rules
 
@@ -153,6 +178,8 @@ Use `blocked` only for:
 - owner repo not resolved to `BearsCLOUD/apps`;
 - route/audit `ROLE_COVERAGE_BLOCKER`;
 - requirement that cannot be decomposed into no-choice mini-model tasks;
+- any execution Issue with a Micro-slice check answer of `no`;
+- one-file or atomic slice overhead drift without low-overhead L2/L3 packet path or explicit operator approval to relax the parent 5-minute wait budget;
 - impossible dependency order.
 
 ## Project task packet

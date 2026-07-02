@@ -2,7 +2,7 @@
   "schema": "bears-git-discipline.v1",
   "owner_plugin": "bears",
   "concrete_part": "git_discipline",
-  "updated": "2026-06-25",
+  "updated": "2026-07-02",
   "purpose": "Deterministic Git closeout gate for status capture, validation evidence, staging, commit, post-commit cleanliness checks, and read-only branch cleanup classification.",
   "route_target": "/srv/bears/plugins/bears/scripts/git_discipline.py",
   "reference_doc": "/srv/bears/plugins/bears/docs/reference/git-discipline.md",
@@ -91,7 +91,11 @@
         "worker_git_identity_configured",
         "worker_git_identity_label"
       ]
-    }
+    },
+    "push_required_after_validation_for_completed_slice": true,
+    "completion_claim_requires_commit_push_evidence_or_blocker": true,
+    "unrelated_dirty_paths_must_be_carried_and_reported": true,
+    "completed_dirty_work_forbidden": true
   },
   "path_safety": {
     "secret_path_fragments_block_commit": [
@@ -460,5 +464,23 @@
     },
     "local_delete_requires_cleanup_plan_proof": true,
     "unknown_ownership_delete_blocked": true
+  },
+  "mandatory_completed_slice_policy": {
+    "completed_task_slice_definition": "validated_committed_pushed",
+    "leaving_completed_dirty_work_forbidden": true,
+    "immediate_commit_push_after_validation_required": true,
+    "unrelated_dirty_paths_policy": "carry_and_report_do_not_stage",
+    "commit_scope": "explicit_allowlisted_files_only",
+    "safety_hold_effect": "slice_not_complete",
+    "safety_hold_required_report_fields": [
+      "blocker",
+      "owner",
+      "github_issue"
+    ],
+    "gitflow_rejects_completion_without": [
+      "commit_sha",
+      "push_evidence"
+    ],
+    "allowed_alternative": "explicit_blocker_with_owner_and_issue"
   }
 }

@@ -44,8 +44,11 @@
 - Reuse the same `gitflow` subagent for the entire parent work; do not spawn a new `gitflow` subagent for each step.
 - The `gitflow` subagent is a closeout lane only. It must not run general read-only audits, review unrelated repos, or replace owner-role validation.
 - The parent agent must not wait for `gitflow` subagent feedback on the critical path.
-- After each completed task slice, send the same `gitflow` subagent a `commit+push required` closeout notice with repo path, changed files, validation result, target branch, and intended commit message.
-- The `gitflow` subagent closes only explicit assigned Git tasks. The main agent owns final clean-status reporting and must not treat `gitflow` as a general auditor.
+- Completed task slice means validated, committed, and pushed. Leaving completed dirty work is forbidden.
+- After validation, immediately send the same `gitflow` subagent a `commit+push required` closeout notice with repo path, explicit allowlisted changed files, validation result, target branch, and intended commit message.
+- If unrelated dirty files exist, commit only the completed slice's explicit allowlisted files and report carried dirty paths.
+- If a hard safety hold prevents commit or push, the slice is not complete; report the exact blocker, owner, and GitHub issue, and keep gitflow hold active.
+- The `gitflow` subagent closes only explicit assigned Git tasks. It must reject completion claims without commit/push evidence or an explicit blocker. The main agent owns final clean-status reporting and must not treat `gitflow` as a general auditor.
 - Deployment, infrastructure, Kubernetes desired-state, CD, runtime rollout, rollback, network/egress, and cluster-evidence tasks must also start or reuse one long-lived parallel `infra/deploy/kube` subagent.
 - The infra/deploy/kube subagent uses `bears-deploy-platform-engineer` instructions with model `gpt-5.5`, reasoning `high`, and no parent/start context. Reuse the same infra/deploy/kube subagent for the entire parent work.
 - The parent sends start, scope-change, validation, and closeout packets to that subagent and does not wait for feedback on the critical path unless a hard blocker is already known.

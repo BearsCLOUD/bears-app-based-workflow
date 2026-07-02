@@ -54,8 +54,12 @@ git status --short --branch
 
 ## Hard rules
 
+- Completed task slice means validated, committed, and pushed. Leaving completed dirty work is forbidden.
+- Commit and push every completed task slice immediately after validation, including small docs-only edits.
+- If unrelated dirty files exist, stage and commit only the completed slice's explicit allowlisted files and report carried dirty paths.
+- If a hard safety hold prevents commit or push, the slice is not complete; report the exact blocker, owner, and GitHub issue, and keep gitflow hold active.
+- Gitflow must reject completion claims without commit/push evidence or an explicit blocker with owner and issue.
 - Do not stage or commit secrets, credentials, private keys, `.env` files, raw production data, raw logs, shell history, or raw VPN configs.
-- Do not push unless the operator explicitly asks for push.
 - Do not use `git reset`, `git clean`, `git checkout`, `git switch`, `git stash`, `git merge`, `git rebase`, `git revert`, or `git config --global` as automatic cleanup.
 - Do not allow commit authority until local Git config has `Bears Codex Worker <codex-worker@bears.local>`.
 - Do not query GitHub or provider account profile fields to recover commit identity.

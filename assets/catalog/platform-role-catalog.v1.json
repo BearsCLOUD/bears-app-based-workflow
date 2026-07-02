@@ -4421,13 +4421,13 @@
         "plugins/bears/skills/bears-project-specify/SKILL.md",
         "/srv/bears/plugins/bears/skills/bears-project-specify",
         "/srv/bears/plugins/bears/skills/bears-project-specify/SKILL.md",
-        "bears-project-plan",
-        "skills/bears-project-plan",
-        "skills/bears-project-plan/SKILL.md",
-        "plugins/bears/skills/bears-project-plan",
-        "plugins/bears/skills/bears-project-plan/SKILL.md",
-        "/srv/bears/plugins/bears/skills/bears-project-plan",
-        "/srv/bears/plugins/bears/skills/bears-project-plan/SKILL.md",
+        "app-docs2project-bears",
+        "skills/app-docs2project-bears",
+        "skills/app-docs2project-bears/SKILL.md",
+        "plugins/bears/skills/app-docs2project-bears",
+        "plugins/bears/skills/app-docs2project-bears/SKILL.md",
+        "/srv/bears/plugins/bears/skills/app-docs2project-bears",
+        "/srv/bears/plugins/bears/skills/app-docs2project-bears/SKILL.md",
         "bears-project-analyze",
         "skills/bears-project-analyze",
         "skills/bears-project-analyze/SKILL.md",
@@ -4465,8 +4465,8 @@
         "skills/bears-project-constitution",
         "/srv/bears/plugins/bears/skills/bears-project-specify",
         "skills/bears-project-specify",
-        "/srv/bears/plugins/bears/skills/bears-project-plan",
-        "skills/bears-project-plan",
+        "/srv/bears/plugins/bears/skills/app-docs2project-bears",
+        "skills/app-docs2project-bears",
         "/srv/bears/plugins/bears/skills/bears-project-analyze",
         "skills/bears-project-analyze"
       ],
@@ -14916,13 +14916,13 @@
       "concrete_part": "workflow_overlay_core_plugin_surface"
     },
     {
-      "target": "/srv/bears/plugins/bears/skills/bears-project-plan/SKILL.md",
+      "target": "/srv/bears/plugins/bears/skills/app-docs2project-bears/SKILL.md",
       "expected_status": "matched",
       "required_role": "bears-workflow-overlay-platform-engineer",
       "concrete_part": "workflow_overlay_core_plugin_surface"
     },
     {
-      "target": "skills/bears-project-plan/SKILL.md",
+      "target": "skills/app-docs2project-bears/SKILL.md",
       "expected_status": "matched",
       "required_role": "bears-workflow-overlay-platform-engineer",
       "concrete_part": "workflow_overlay_core_plugin_surface"

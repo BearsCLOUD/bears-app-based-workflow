@@ -7113,7 +7113,7 @@
       "lifecycle": "doc",
       "owner_issue": "operator-goal-github-project-planning",
       "owner_role": "bears-github-project-issues-orchestrator",
-      "path": "skills/bears-project-plan/SKILL.md",
+      "path": "skills/app-docs2project-bears/SKILL.md",
       "source_of_truth_status": "canonical",
       "validation": [
         "python3 scripts/artifact_registry.py validate"
@@ -7130,7 +7130,7 @@
       "lifecycle": "doc",
       "owner_issue": "operator-goal-github-project-planning",
       "owner_role": "bears-github-project-issues-orchestrator",
-      "path": "skills/bears-project-plan/agents/openai.yaml",
+      "path": "skills/app-docs2project-bears/agents/openai.yaml",
       "source_of_truth_status": "canonical",
       "validation": [
         "python3 scripts/artifact_registry.py validate"

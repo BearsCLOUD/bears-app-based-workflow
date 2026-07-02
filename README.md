@@ -559,7 +559,7 @@ Disabled skills expose only `SKILL.disabled.md`; they MUST NOT keep `SKILL.md`.
 - `skills/speckit-bears-research` — Produce Spec Kit-style research artifacts for Bears targets.
 - `skills/bears-project-constitution` — Create or update Bears target constitutions with ownership, artifact maps, validation duties, and dependent-doc sync.
 - `skills/bears-project-specify` — Create or update Bears target specifications and functional documentation from operator intent, constitution rules, and repo evidence.
-- `skills/bears-project-plan` — Plan Bears implementation through GitHub Projects and Issues with route-selected roles, dependencies, validation, and projectdevsubagents handoff.
+- `skills/app-docs2project-bears` — Convert Bears app docs into concrete, drift-safe GitHub Issues and Apps Project #20 items for mini-model projectdevsubagents execution.
 - `skills/github-project-planning` — Plan and administer Bears GitHub Projects, fields, views, issues, sub-issues, item hygiene, and planning PASS handoffs before projectdevsubagents development execution.
 - `skills/bears-project-analyze` — Analyze Bears constitutions, specs, docs, GitHub Project plans, Issues, routes, validation, dependencies, and projectdevsubagents handoff for drift.
 - `skills/yandex360-dns` — DNS governance workflow for bears.ru through Yandex 360 using presence-only checks, dry-run plan review, and read-only governance evidence only.

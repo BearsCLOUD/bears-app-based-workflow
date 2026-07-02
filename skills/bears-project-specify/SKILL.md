@@ -53,7 +53,7 @@ Use the narrowest owner path:
    - Validation plan;
    - Dependencies and open questions.
 6. Update user/operator/developer docs only when the spec changes visible behavior or workflow use.
-7. Emit a `bears-project.specification-packet` and hand it to `$bears-project-plan`.
+7. Emit a `bears-project.specification-packet` and hand it to `$app-docs2project-bears`.
 
 ## Specification packet
 

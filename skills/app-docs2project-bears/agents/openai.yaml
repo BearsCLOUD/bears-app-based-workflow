@@ -1,0 +1,4 @@
+interface:
+  display_name: "App Docs to Project Bears"
+  short_description: "Convert app docs into GitHub Project tasks"
+  default_prompt: "Use $app-docs2project-bears to convert Bears app docs into concrete, drift-safe GitHub Issues and Apps Project #20 items for mini-model projectdevsubagents execution."

@@ -1,4 +1,0 @@
-interface:
-  display_name: "Bears Project Plan"
-  short_description: "Plan work through GitHub Projects"
-  default_prompt: "Use $bears-project-plan to map a Bears specification into GitHub Project items, Issues, dependencies, roles, validation, and execution handoff."

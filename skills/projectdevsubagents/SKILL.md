@@ -7,7 +7,7 @@ description: "Use for Bears development orchestration from GitHub Projects and I
 
 Use this skill for **development orchestration from GitHub Project work items**.
 
-This skill does not define GitHub Project administration. Project administration means creating Projects, choosing fields, designing views, building roadmap structure, and setting long-lived planning policy. That belongs to `$bears-project-plan` or the owning repo/workstream governance. This skill starts after a Project or issue set exists, `$bears-project-analyze` has returned `pass` or an operator-approved advisory handoff, and the parent provides ready Project/Issue state for orchestration.
+This skill does not define GitHub Project administration. Project administration means creating Projects, choosing fields, designing views, building roadmap structure, and setting long-lived planning policy. That belongs to `$app-docs2project-bears` or the owning repo/workstream governance. This skill starts after a Project or issue set exists, `$bears-project-analyze` has returned `pass` or an operator-approved advisory handoff, and the parent provides ready Project/Issue state for orchestration.
 
 ## Boundary
 
@@ -39,7 +39,7 @@ Project-management policy may choose one canonical Project for `BearsCLOUD/apps`
 
 Before execution, the parent must provide one of these:
 
-- `bears-project.github-plan-packet` plus `bears-project.analysis-packet` with `execution_handoff=ready`;
+- `app-docs2project-bears.project-task-packet` plus `bears-project.analysis-packet` with `execution_handoff=ready`;
 - existing GitHub Project/Issue state plus explicit operator approval that replaces those packets.
 
 The plan must define owner repo, target paths, route-selected roles, dependencies, validation, and closeout fields for every item.

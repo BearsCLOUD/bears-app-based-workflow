@@ -81,9 +81,9 @@
       "path": "skills/bears-project-specify"
     },
     {
-      "description": "Plan Bears implementation through GitHub Projects and Issues with route-selected roles, dependencies, validation, and projectdevsubagents handoff.",
-      "name": "bears-project-plan",
-      "path": "skills/bears-project-plan"
+      "description": "Convert Bears app docs into concrete, drift-safe GitHub Issues and Apps Project #20 items for mini-model projectdevsubagents execution.",
+      "name": "app-docs2project-bears",
+      "path": "skills/app-docs2project-bears"
     },
     {
       "description": "Plan and administer Bears GitHub Projects, fields, views, issues, sub-issues, item hygiene, and planning PASS handoffs before projectdevsubagents development execution.",

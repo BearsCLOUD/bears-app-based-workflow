@@ -101,6 +101,11 @@ def _event_metadata(event: dict[str, Any]) -> dict[str, Any]:
     nested = event.get("metadata")
     if isinstance(nested, dict):
         metadata.update(nested)
+    tool_inputs: list[dict[str, Any]] = []
+    for input_key in ("tool_input", "toolInput", "input", "arguments"):
+        input_value = event.get(input_key)
+        if isinstance(input_value, dict):
+            tool_inputs.append(input_value)
     for key in (
         "duration_min",
         "durationMin",
@@ -123,6 +128,13 @@ def _event_metadata(event: dict[str, Any]) -> dict[str, Any]:
     ):
         if key in event:
             metadata[key] = event[key]
+    for source in (event, *tool_inputs):
+        command = _event_field(source, "cmd", "command", "script")
+        cwd = _event_field(source, "cwd", "workdir", "working_directory", "workingDirectory")
+        if command and "command_text" not in metadata:
+            metadata["command_text"] = command
+        if cwd and "cwd" not in metadata:
+            metadata["cwd"] = cwd
     aliases = {
         "durationMin": "duration_min",
         "elapsedMin": "elapsed_min",

@@ -258,6 +258,89 @@ class AgenticEnterpriseWorkflowHookTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0)
         self.assertEqual(packet["decision"], "allow")
 
+    def test_pretool_denies_local_test_commands(self) -> None:
+        commands = (
+            "pytest",
+            "python -m unittest",
+            "npm test",
+            "pnpm test",
+            "go test ./...",
+            "cargo test",
+            "./gradlew test",
+        )
+        for command in commands:
+            with self.subTest(command=command):
+                result, packet = self.decision(
+                    "--event",
+                    "PreToolUse",
+                    "--agent-layer",
+                    "l1",
+                    "--tool-name",
+                    "Bash",
+                    "--duration-min",
+                    "1",
+                    "--command-text",
+                    command,
+                )
+                self.assertEqual(result.returncode, 2)
+                self.assertEqual(packet["decision"], "deny")
+                self.assertIn("local test execution is CI-owned", packet["reason"])
+
+    def test_pretool_denies_kubernetes_history_archaeology(self) -> None:
+        commands = (
+            "git log --all --oneline",
+            "git -C /srv/bears/kubernetes log --all --oneline",
+            "git reflog",
+            "git branch -av",
+            "grep -R callsaver /srv/bears/kubernetes/.git/logs",
+            "cat /srv/bears/kubernetes/.git/logs/HEAD",
+            "git show abcdef1234567890",
+        )
+        for command in commands:
+            with self.subTest(command=command):
+                result, packet = self.decision(
+                    "--event",
+                    "PreToolUse",
+                    "--agent-layer",
+                    "l1",
+                    "--tool-name",
+                    "Bash",
+                    "--duration-min",
+                    "1",
+                    "--cwd",
+                    "/srv/bears/kubernetes",
+                    "--command-text",
+                    command,
+                )
+                self.assertEqual(result.returncode, 2)
+                self.assertEqual(packet["decision"], "deny")
+                self.assertIn("Kubernetes history read denied", packet["reason"])
+
+    def test_pretool_allows_current_state_and_ci_lookup_commands(self) -> None:
+        commands = (
+            ("git status --short", "/srv/bears/kubernetes"),
+            ("grep -R callsaver manifests", "/srv/bears/kubernetes"),
+            ("gh run view --commit HEAD --log", "/srv/bears/plugins/bears"),
+        )
+        for command, cwd in commands:
+            with self.subTest(command=command):
+                result, packet = self.decision(
+                    "--event",
+                    "PreToolUse",
+                    "--agent-layer",
+                    "l1",
+                    "--tool-name",
+                    "Bash",
+                    "--duration-min",
+                    "1",
+                    "--cwd",
+                    cwd,
+                    "--command-text",
+                    command,
+                )
+                self.assertEqual(result.returncode, 0)
+                self.assertEqual(packet["decision"], "allow")
+
     def test_l2_l3_without_scope_id_denied(self) -> None:
         for layer in ("l2", "l3"):
             with self.subTest(layer=layer):

@@ -1465,7 +1465,7 @@
       ],
       "change_type": "policy",
       "contradictions": [],
-      "decision": "Route Telegram app migration catalogs through the canonical BearsCLOUD/apps product-app repository and treat old The Ants catalog references as migration/archive evidence.",
+      "decision": "Route Telegram product-app migration catalogs through the canonical BearsCLOUD/apps product-app repository and treat old The Ants catalog references as migration/archive evidence.",
       "decision_id": "D-2026-07-02-apps-monorepo-telegram-catalogs",
       "owner_issue": "operator-goal-apps-monorepo-policy",
       "owner_role": "bears-platform-role-governor",
@@ -1676,6 +1676,24 @@
       "rationale": "Agents were getting stuck because the skill asked for broad checks; the packet now gives exact read_paths and forbids workspace scans.",
       "redaction": "safe",
       "scope_id": "project-mandate-bounded-packet",
+      "status": "accepted",
+      "unresolved_inputs": []
+    },
+    {
+      "affected_paths": [
+        "assets/catalog/agentic-enterprise-workflow.v1.json",
+        "hooks/_agentic_enterprise_hook_common.py",
+        "scripts/agentic_enterprise_workflow.py"
+      ],
+      "change_type": "hook",
+      "contradictions": [],
+      "decision": "PreToolUse blocks local test execution and Kubernetes history archaeology while allowing current CI evidence lookup.",
+      "decision_id": "D-2026-07-02-agent-exploration-limits-ci-owned-validation",
+      "owner_issue": "operator-request-2026-07-02",
+      "owner_role": "bears-workflow-overlay-platform-engineer",
+      "rationale": "Operator required tests to be CI-owned and Kubernetes history reads to stay bounded; hook enforcement keeps agent context small and validation evidence current.",
+      "redaction": "safe",
+      "scope_id": "agent-exploration-limits",
       "status": "accepted",
       "unresolved_inputs": []
     }

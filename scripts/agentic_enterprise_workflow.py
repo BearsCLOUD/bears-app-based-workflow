@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import sys
 import time
 from pathlib import Path
@@ -33,6 +34,26 @@ REQUIRED_DEGRADATION_ACTIONS = [
     "block_workflow",
     "rollback_runtime_activation",
 ]
+KUBERNETES_ROOT = "/srv/bears/kubernetes"
+LOCAL_TEST_PATTERNS = (
+    re.compile(r"(^|[;&|]\s*)pytest\b"),
+    re.compile(r"\bpython3?\s+-m\s+pytest\b"),
+    re.compile(r"\bpython3?\s+-m\s+unittest\b"),
+    re.compile(r"(^|[;&|]\s*)unittest\b"),
+    re.compile(r"\b(?:npm|pnpm|yarn)\s+(?:run\s+)?test\b"),
+    re.compile(r"\bgo\s+test\b"),
+    re.compile(r"\bcargo\s+test\b"),
+    re.compile(r"\b(?:gradle|gradlew|\.\/gradlew)\b[^\n;&|]*\btest\b"),
+    re.compile(r"\bmvn\s+test\b"),
+    re.compile(r"\bdocker\b[^\n;&|]*\b(?:smoke|test)\b"),
+)
+KUBE_HISTORY_PATTERNS = (
+    re.compile(r"\bgit\s+(?:-C\s+\S+\s+)?log\b[^\n;&|]*\s--all\b"),
+    re.compile(r"\bgit\s+(?:-C\s+\S+\s+)?reflog\b"),
+    re.compile(r"\bgit\s+(?:-C\s+\S+\s+)?branch\b[^\n;&|]*(?:-av|-a\s+-v|-v\s+-a)\b"),
+    re.compile(r"\bgit\s+(?:-C\s+\S+\s+)?worktree\s+list\b"),
+    re.compile(r"\bgit\s+(?:-C\s+\S+\s+)?show\s+[0-9a-f]{7,40}\b", re.IGNORECASE),
+)
 REQUIRED_STAGE_PREFIX = [
     "scope_row",
     "research",
@@ -454,9 +475,26 @@ def validate_workflow(catalog: dict[str, Any]) -> list[str]:
         if not isinstance(slo.get(event), int) or slo[event] > max_ms:
             errors.append(f"hook_policy.slo_ms.{event} must be <= {max_ms}")
     forbidden_hot_path = set(hooks.get("forbidden_hot_path_actions", [])) if isinstance(hooks.get("forbidden_hot_path_actions"), list) else set()
-    for action in ("tests", "broad_search", "network", "raw_logs"):
+    for action in ("tests", "broad_search", "network", "raw_logs", "local_tests", "kubernetes_history_archaeology"):
         if action not in forbidden_hot_path:
             errors.append(f"hook_policy.forbidden_hot_path_actions missing {action}")
+    local_test_policy = hooks.get("local_test_execution_policy") if isinstance(hooks.get("local_test_execution_policy"), dict) else {}
+    if local_test_policy.get("default") != "ci_owned":
+        errors.append("hook_policy.local_test_execution_policy.default must be ci_owned")
+    if local_test_policy.get("explicit_operator_command_required") is not True:
+        errors.append("hook_policy.local_test_execution_policy.explicit_operator_command_required must be true")
+    kube_history_policy = hooks.get("kubernetes_history_read_policy") if isinstance(hooks.get("kubernetes_history_read_policy"), dict) else {}
+    if kube_history_policy.get("default") != "current_state_only":
+        errors.append("hook_policy.kubernetes_history_read_policy.default must be current_state_only")
+    if kube_history_policy.get("explicit_operator_task_required") is not True:
+        errors.append("hook_policy.kubernetes_history_read_policy.explicit_operator_task_required must be true")
+    ci_policy = hooks.get("ci_result_lookup_policy") if isinstance(hooks.get("ci_result_lookup_policy"), dict) else {}
+    if ci_policy.get("current_commit_or_pr_only") is not True:
+        errors.append("hook_policy.ci_result_lookup_policy.current_commit_or_pr_only must be true")
+    ci_fields = set(ci_policy.get("required_evidence_fields", [])) if isinstance(ci_policy.get("required_evidence_fields"), list) else set()
+    for field in ("commit_sha", "check_name", "status", "timestamp"):
+        if field not in ci_fields:
+            errors.append(f"hook_policy.ci_result_lookup_policy.required_evidence_fields missing {field}")
 
     degradation = catalog.get("runtime_degradation_policy") if isinstance(catalog.get("runtime_degradation_policy"), dict) else {}
     if degradation.get("actions") != REQUIRED_DEGRADATION_ACTIONS:
@@ -875,6 +913,10 @@ def hook_decision(
     )
     if block.get("block_goal_run") is True:
         decision.update({"decision": "deny", "reason": str(block.get("reason", "workflow_block"))})
+    if event == "PreToolUse":
+        command_reason = _forbidden_pretool_command_reason(event_metadata)
+        if command_reason:
+            decision.update({"decision": "deny", "reason": command_reason})
     if event == "PreToolUse" and (agent_layer == "l1" or state.get("agent_layer") == "l1"):
         lower_tool = tool_name.casefold()
         if tool_name and tool_name not in L1_ALLOWED_TOOLS:
@@ -893,6 +935,28 @@ def hook_decision(
     else:
         decision["hookSpecificOutput"] = {"hookEventName": event}
     return decision
+
+
+def _forbidden_pretool_command_reason(metadata: dict[str, Any]) -> str:
+    command_text = str(metadata.get("command_text") or metadata.get("command") or metadata.get("cmd") or "").strip()
+    cwd = str(metadata.get("cwd") or metadata.get("workdir") or metadata.get("working_directory") or "").strip()
+    if not command_text:
+        return ""
+    normalized = " ".join(command_text.split())
+    for pattern in LOCAL_TEST_PATTERNS:
+        if pattern.search(normalized):
+            return f"Bears local test execution is CI-owned: {normalized}"
+    if _is_kubernetes_history_context(normalized, cwd):
+        if f"{KUBERNETES_ROOT}/.git" in normalized or ".git/logs" in normalized:
+            return f"Bears Kubernetes history read denied: {normalized}"
+        for pattern in KUBE_HISTORY_PATTERNS:
+            if pattern.search(normalized):
+                return f"Bears Kubernetes history read denied: {normalized}"
+    return ""
+
+
+def _is_kubernetes_history_context(command_text: str, cwd: str) -> bool:
+    return cwd == KUBERNETES_ROOT or cwd.startswith(f"{KUBERNETES_ROOT}/") or KUBERNETES_ROOT in command_text
 
 
 def emit_result(status: str, errors: list[str], **extra: Any) -> int:
@@ -930,6 +994,8 @@ def main(argv: list[str] | None = None) -> int:
     hd.add_argument("--split-state", default="")
     hd.add_argument("--decomposition-state", default="")
     hd.add_argument("--throttle-state", default="")
+    hd.add_argument("--command-text", default="")
+    hd.add_argument("--cwd", default="")
     args = parser.parse_args(argv)
 
     try:
@@ -986,6 +1052,8 @@ def main(argv: list[str] | None = None) -> int:
                         "split_state": args.split_state,
                         "decomposition_state": args.decomposition_state,
                         "throttle_state": args.throttle_state,
+                        "command_text": args.command_text,
+                        "cwd": args.cwd,
                     }.items()
                     if value not in (None, "")
                 },

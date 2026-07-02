@@ -349,7 +349,9 @@
       "network",
       "raw_logs",
       "workspace_scan",
-      "secret_read"
+      "secret_read",
+      "local_tests",
+      "kubernetes_history_archaeology"
     ],
     "blocking_enabled_after_packet": "workflow_packet_approved",
     "session_start_initializes_l1_prompt": true,
@@ -358,7 +360,61 @@
     "session_start_creates_l1_state_file": true,
     "runtime_duration_from_state_started_at_epoch": true,
     "governed_missing_time_token_metadata_denied": true,
-    "unmanaged_missing_metadata_warning": "control_not_armed"
+    "unmanaged_missing_metadata_warning": "control_not_armed",
+    "local_test_execution_policy": {
+      "default": "ci_owned",
+      "explicit_operator_command_required": true,
+      "forbidden_by_default": [
+        "pytest",
+        "python -m pytest",
+        "python -m unittest",
+        "npm test",
+        "pnpm test",
+        "yarn test",
+        "go test",
+        "cargo test",
+        "gradle test",
+        "./gradlew test",
+        "mvn test",
+        "smoke/integration/browser/docker/kubernetes test suites",
+        "repo validator suites"
+      ]
+    },
+    "kubernetes_history_read_policy": {
+      "default": "current_state_only",
+      "explicit_operator_task_required": true,
+      "forbidden_by_default": [
+        "/srv/bears/kubernetes/.git/**",
+        "git log --all",
+        "git reflog",
+        "git branch -av",
+        "git worktree list",
+        "git show <old-sha>",
+        "broad historical grep"
+      ],
+      "allowed_by_default": [
+        "git status --short",
+        "targeted current-file reads",
+        "targeted current-file grep",
+        "git show HEAD:<path>"
+      ]
+    },
+    "ci_result_lookup_policy": {
+      "current_commit_or_pr_only": true,
+      "required_evidence_fields": [
+        "commit_sha",
+        "check_name",
+        "status",
+        "timestamp"
+      ],
+      "allowed_sources": [
+        "GitHub Checks",
+        "GitHub Actions",
+        "commit statuses",
+        "current PR artifacts"
+      ],
+      "stale_history_results_forbidden": true
+    }
   },
   "runtime_degradation_policy": {
     "metrics": [

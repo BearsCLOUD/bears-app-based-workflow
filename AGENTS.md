@@ -5,6 +5,11 @@
 - It owns Bears action rules, roles, contracts, validators, workflow policy, hooks, and CD policy.
 - Codex daemon / Knowledge Orchestrator runtime routes through `/srv/bears/dev/app/codexdaemon`; the canonical product-app repository is `BearsCLOUD/apps`. `BearsCLOUD/codexdaemon` is a deprecated/archive-candidate source only.
 
+## Entity terms
+- `app` means a Bears product application source directory under `/srv/bears/dev/app` or the `BearsCLOUD/apps` repository.
+- `project` means a GitHub Project planning board with linked Issues and metadata fields. Do not use `project` for a local repo, path, workspace directory, or product app.
+- Use `target`, `registered target`, `repo`, `path`, `workspace surface`, or `app directory` for filesystem/source ownership.
+
 ## Required refs
 - Plugin manifest: `.codex-plugin/plugin.json`.
 - Role catalog: `assets/catalog/platform-role-catalog.v1.json`.
@@ -63,9 +68,12 @@
 - Telegram workflow governance stays here as a skill/catalog/script bundle owned by `bears-telegram-platform-engineer`.
 - Codex Telegram operator feedback is skill-driven by `skills/codex-telegram-operator-gate` and the configured `codex-telegram` MCP server; do not register or enable a Telegram `PreToolUse` hook gate.
 - Legacy `/srv/bears/plugins/codex-telegram-operator` is a migration source only; it must not own Bears governance, Telegram runtime, MCP runtime, or hook authority.
-- Do not recreate a standalone Telegram plugin, app, connector, MCP server, or runtime surface except the exact cataloged `/srv/bears/plugins/bearstg` read-only MCP plugin.
+- Do not recreate a standalone Telegram plugin, product app, connector, MCP server, or runtime surface except the exact cataloged `/srv/bears/plugins/bearstg` read-only MCP plugin.
 
 ## Validation
 - Route/audit gates are agent-local. Other validator suites are local-commit or CI owned unless the operator explicitly asks for a manual run.
-- Local commit validation owns blocking plugin test proof and closeout proof must cite `runtime/local-commit-validation/<main_sha>.json`.
+- Agents must not run local tests, repo validator suites, smoke tests, integration tests, browser tests, Docker tests, Kubernetes tests, or ad hoc validation suites manually.
+- Local commit validation or CI owns blocking plugin test proof. Closeout proof must cite `runtime/local-commit-validation/<main_sha>.json` or current commit/PR CI evidence.
+- Agents may inspect current commit or current PR GitHub Checks, GitHub Actions runs, statuses, logs, and artifacts. Reports must cite commit SHA, check name, status, and timestamp when available.
+- Deep `/srv/bears/kubernetes` Git history reads are forbidden unless the operator explicitly requests bounded history work in the current turn.
 - GitHub Actions `.github/workflows/validate.yml` is operator-dispatched diagnostics.

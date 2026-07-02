@@ -15,11 +15,11 @@
     "image_digest_required": false,
     "reject_latest_tag": true,
     "reject_placeholder_digest": true,
-    "image_ref": "codex-telegram-mcp:local-2eb8efbcfebd",
+    "image_ref": "codex-telegram-mcp:local-4fc9499822ee",
     "local_image_build": {
       "enabled": true,
       "source_repository": "BearsCLOUD/codex-telegram-mcp",
-      "source_ref": "2eb8efbcfebde61b509bd3b975ec71ab0f7fe41d",
+      "source_ref": "4fc9499822eec427da3d9f2254ba93fc5e9e58c1",
       "context_path": ".codex-telegram-source",
       "dockerfile": "Dockerfile",
       "load_to_k3d_nodes": true

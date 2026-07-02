@@ -151,11 +151,11 @@ def test_cd_contract_declares_kube_preflight_before_apply() -> None:
     assert contract["preflight"]["cluster_resources"] == []
     assert "remote_registry_pull" not in contract["preflight"]
     assert contract["source"]["image_digest_required"] is False
-    assert contract["source"]["image_ref"] == "codex-telegram-mcp:local-2eb8efbcfebd"
+    assert contract["source"]["image_ref"] == "codex-telegram-mcp:local-4fc9499822ee"
     local_build = contract["source"]["local_image_build"]
     assert local_build["enabled"] is True
     assert local_build["source_repository"] == "BearsCLOUD/codex-telegram-mcp"
-    assert local_build["source_ref"] == "2eb8efbcfebde61b509bd3b975ec71ab0f7fe41d"
+    assert local_build["source_ref"] == "4fc9499822eec427da3d9f2254ba93fc5e9e58c1"
     assert local_build["context_path"] == ".codex-telegram-source"
     assert local_build["load_to_k3d_nodes"] is True
     runtime_secret = contract["bootstrap"]["infisical_runtime_secret"]

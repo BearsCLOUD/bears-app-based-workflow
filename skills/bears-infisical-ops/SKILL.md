@@ -18,6 +18,7 @@ Use this skill for Infisical-backed access checks and live-readiness handoffs in
 - Fail closed if Infisical project, environment, path, or required env names are missing.
 - Treat Infisical as secret custody and environment injection only; it is not a software deployment path.
 - Local `infisical run` proof is preflight only. Final live PASS for software must come from Kubernetes desired state, `local_cd`, workload evidence, secret-reference readiness, and runtime health proof.
+- Treat `/srv/bears/control-plane/infisical` as bootstrap or preflight support only; it does not own Kubernetes runtime desired state.
 - For generated local values, use `$secret-factory`; do not implement a second write path.
 
 ## Required startup
@@ -104,6 +105,14 @@ When Infisical is reached through External Secrets Operator:
 10. Do not store provider auth payloads, Universal Auth credentials, service
     tokens, kubeconfigs, Infisical values, or decoded Kubernetes Secret data in
     Git, chat, logs, issues, or closeout.
+
+Runtime handoff chain:
+
+```text
+Infisical path/key name -> ExternalSecret -> Kubernetes Secret key name -> workload env name -> runtime health proof
+```
+
+Every step is names-only. A missing step blocks only the dependent live proof and must be routed to the owner named by `platform_roles.py route <exact-path>`.
 
 ## Dev platform data-service names
 

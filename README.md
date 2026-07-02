@@ -6,6 +6,14 @@ It is intended to be a Bears-owned overlay only. The source boundary is defined 
 
 Standalone `bears-speckit` plugin or layer claims are deprecated. The canonical flow is `@bears` plugin orchestration, ignored generated `.specify` workspace state, and upstream Spec Kit skills from `/srv/bears/.agents/skills`.
 
+## Instruction drift policy
+
+`AGENTS.md` files are routers only. Executable policy lives in `assets/catalog/*.v1.json`, `scripts/*.py`, `hooks/*.py`, `skills/*/SKILL.md`, and tests.
+
+Use exact child paths with `scripts/platform_roles.py route` and `scripts/platform_roles.py audit`. Parent paths that only classify a group must not authorize implementation.
+
+Infisical is custody and injection only. Kubernetes desired state plus `local_cd` owns runtime software proof. `/srv/bears/control-plane/infisical` is bootstrap or preflight support, not runtime deployment evidence.
+
 It adds Bears-specific orchestration for:
 
 - research before specification;

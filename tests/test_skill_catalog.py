@@ -56,6 +56,11 @@ class SkillCatalogTests(unittest.TestCase):
         }
         self.assertEqual(actual, expected)
 
+
+    def test_active_skill_exact_paths_have_role_coverage(self) -> None:
+        errors = skill_catalog.validate_active_skill_route_coverage(self.catalog, PLUGIN_ROOT)
+        self.assertEqual(errors, [])
+
     def test_rejects_disabled_skill_with_active_discovery_file(self) -> None:
         with tempfile.TemporaryDirectory() as tmp_dir:
             root = Path(tmp_dir) / "plugin"

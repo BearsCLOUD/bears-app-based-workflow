@@ -243,6 +243,31 @@ class PlatformRolesTest(unittest.TestCase):
         self.assertEqual(packet["why_blocked"], "unmapped")
         self.assertNotIn("primary_role", packet)
 
+
+    def test_infisical_ops_skill_routes_to_kubernetes_secret_reference_governance(self) -> None:
+        target = "/srv/bears/plugins/bears/skills/bears-infisical-ops/SKILL.md"
+        for router in (platform_roles.route_target, platform_roles.audit_target):
+            with self.subTest(router=router.__name__):
+                packet = router(self.catalog, target, plugin_root=PLUGIN_ROOT)
+                self.assertEqual(packet["status"], "matched")
+                self.assertEqual(packet["concrete_part"], "kubernetes_deploy_core")
+                self.assertEqual(packet["primary_role"], "bears-deploy-platform-engineer")
+                self.assertIn("Infisical is custody and injection only", packet["trust_boundary"])
+                if router is platform_roles.audit_target:
+                    self.assertTrue(packet["implementation_handoff_allowed"])
+
+    def test_python_codeflow_skill_routes_to_python_tooling_governance(self) -> None:
+        target = "/srv/bears/plugins/bears/skills/python-codeflow/SKILL.md"
+        for router in (platform_roles.route_target, platform_roles.audit_target):
+            with self.subTest(router=router.__name__):
+                packet = router(self.catalog, target, plugin_root=PLUGIN_ROOT)
+                self.assertEqual(packet["status"], "matched")
+                self.assertEqual(packet["concrete_part"], "workflow_overlay_python_dev_tooling")
+                self.assertEqual(packet["primary_role"], "bears-workflow-overlay-platform-engineer")
+                self.assertIn("python-codeflow skill", packet["allowed_write_boundary"])
+                if router is platform_roles.audit_target:
+                    self.assertTrue(packet["implementation_handoff_allowed"])
+
     def test_parent_group_broad_path_still_cannot_authorize_implementation(self) -> None:
         packet = platform_roles.role_development_plan(self.catalog, "plugins/bears", plugin_root=PLUGIN_ROOT)
         self.assertEqual(packet["status"], "needs_exact_target")

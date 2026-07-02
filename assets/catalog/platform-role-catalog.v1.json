@@ -4773,7 +4773,15 @@
         "plugins/bears/pyproject.toml",
         "plugins/bears/requirements-dev.txt",
         "/srv/bears/plugins/bears/pyproject.toml",
-        "/srv/bears/plugins/bears/requirements-dev.txt"
+        "/srv/bears/plugins/bears/requirements-dev.txt",
+        "python-codeflow",
+        "python_codeflow",
+        "skills/python-codeflow",
+        "skills/python-codeflow/SKILL.md",
+        "plugins/bears/skills/python-codeflow",
+        "plugins/bears/skills/python-codeflow/SKILL.md",
+        "/srv/bears/plugins/bears/skills/python-codeflow",
+        "/srv/bears/plugins/bears/skills/python-codeflow/SKILL.md"
       ],
       "group": "workflow",
       "required_role": "bears-workflow-overlay-platform-engineer",
@@ -4783,15 +4791,20 @@
       "part_kind": "concrete",
       "write_roots": [
         "/srv/bears/plugins/bears/pyproject.toml",
-        "/srv/bears/plugins/bears/requirements-dev.txt"
+        "/srv/bears/plugins/bears/requirements-dev.txt",
+        "/srv/bears/plugins/bears/skills/python-codeflow",
+        "plugins/bears/skills/python-codeflow",
+        "skills/python-codeflow"
       ],
-      "concrete_scope": "Plugin-local Python packaging metadata and development dependency list for the Bears workflow plugin.",
-      "allowed_write_boundary": "Only pyproject.toml and requirements-dev.txt inside /srv/bears/plugins/bears; no GitHub Actions workflow edits, production deploy, runtime mutation, secret access, or product code edits.",
-      "trust_boundary": "Python packaging and development dependency pins affect clean-clone reproducibility and validator setup shape but must not authorize CI workflow, runtime, deploy, integration, or production behavior.",
+      "concrete_scope": "Plugin-local Python packaging metadata, development dependency list, and python-codeflow skill instructions for Bears workflow plugin Python code standards.",
+      "allowed_write_boundary": "Only plugin-local Python tooling files and the python-codeflow skill under /srv/bears/plugins/bears; no product, runtime, deployment, Kubernetes, Infisical, or unrelated workflow-policy edits.",
+      "trust_boundary": "Python tooling and codeflow instructions affect how agents edit plugin Python code; they must not override nearest AGENTS.md routing, platform role gates, deployment policy, secret handling, or repo ownership.",
       "required_validations": [
         "python3 scripts/platform_roles.py validate",
         "python -m pip install -r requirements-dev.txt",
-        "python3 -m unittest tests/test_platform_roles.py"
+        "python3 -m unittest tests/test_platform_roles.py",
+        "python3 scripts/platform_roles.py route /srv/bears/plugins/bears/skills/python-codeflow/SKILL.md",
+        "python3 scripts/platform_roles.py audit /srv/bears/plugins/bears/skills/python-codeflow/SKILL.md"
       ],
       "supporting_roles": [
         "bears-platform-security-reviewer"
@@ -4799,7 +4812,8 @@
       "reviewer_triggers": [
         "dependency list change",
         "build-system metadata change",
-        "validator environment change"
+        "validator environment change",
+        "python-codeflow skill instruction change"
       ],
       "decomposition_required": false
     },
@@ -7695,7 +7709,14 @@
         "plugins/bears/skills/bears-kubernetes-ops",
         "plugins/bears/skills/bears-kubernetes-ops/SKILL.md",
         "/srv/bears/plugins/bears/skills/bears-kubernetes-ops",
-        "/srv/bears/plugins/bears/skills/bears-kubernetes-ops/SKILL.md"
+        "/srv/bears/plugins/bears/skills/bears-kubernetes-ops/SKILL.md",
+        "bears-infisical-ops",
+        "skills/bears-infisical-ops",
+        "skills/bears-infisical-ops/SKILL.md",
+        "plugins/bears/skills/bears-infisical-ops",
+        "plugins/bears/skills/bears-infisical-ops/SKILL.md",
+        "/srv/bears/plugins/bears/skills/bears-infisical-ops",
+        "/srv/bears/plugins/bears/skills/bears-infisical-ops/SKILL.md"
       ],
       "group": "infrastructure",
       "required_role": "bears-deploy-platform-engineer",
@@ -7714,11 +7735,14 @@
         "assets/catalog/cd-kube-deploy-contract.v1.json",
         "/srv/bears/plugins/bears/skills/bears-kubernetes-ops",
         "plugins/bears/skills/bears-kubernetes-ops",
-        "skills/bears-kubernetes-ops"
+        "skills/bears-kubernetes-ops",
+        "/srv/bears/plugins/bears/skills/bears-infisical-ops",
+        "plugins/bears/skills/bears-infisical-ops",
+        "skills/bears-infisical-ops"
       ],
-      "concrete_scope": "Kubernetes deploy-core repo boundary, @Bears Git/CD contracts, manifests, read-only evidence, safety checks, rollback runbooks, and automatic production CD for exact registered targets inside the /srv/bears/kubernetes submodule.",
-      "allowed_write_boundary": "Only the bears-infra repo boundary working tree /srv/bears/kubernetes plus exact @Bears Git/CD contract and validator files when assigned; production CD changes must flow through Bears infra desired state and @Bears contracts; live mutation is performed only by local @Bears CD from main, not by ad-hoc local agents.",
-      "trust_boundary": "Kubernetes deployment can change production runtime placement and rollback safety; branch-to-target mapping lives only in the @Bears Git contract, ordered deploy logic lives only in the @Bears CD contract, and the CD path must not add manual approval gates or branch policy fields.",
+      "concrete_scope": "Kubernetes deploy-core repo boundary, @Bears Git/CD contracts, manifests, read-only evidence, Infisical-backed secret reference handoff, safety checks, rollback runbooks, and automatic production CD for exact registered targets inside the /srv/bears/kubernetes submodule.",
+      "allowed_write_boundary": "Only the bears-infra repo boundary working tree /srv/bears/kubernetes plus exact @Bears Git/CD contract, validator, bears-kubernetes-ops skill, and bears-infisical-ops skill files when assigned; production CD changes must flow through Bears infra desired state and @Bears contracts; live mutation is performed only by local @Bears CD from main, not by ad-hoc local agents.",
+      "trust_boundary": "Kubernetes deployment can change production runtime placement, secret-reference wiring, and rollback safety; Infisical is custody and injection only, Kubernetes refs must stay names-only, branch-to-target mapping lives only in the @Bears Git contract, ordered deploy logic lives only in the @Bears CD contract, and the CD path must not add manual approval gates or branch policy fields.",
       "required_validations": [
         "python3 scripts/platform_roles.py validate",
         "python3 scripts/platform_roles.py route kube",
@@ -7732,7 +7756,9 @@
         "python3 scripts/platform_roles.py route /srv/bears/plugins/bears/assets/catalog/cd-kube-deploy-contract.v1.json",
         "python3 scripts/platform_roles.py audit /srv/bears/plugins/bears/assets/catalog/cd-kube-deploy-contract.v1.json",
         "python3 scripts/platform_roles.py route /srv/bears/kubernetes/manifests/bears-platform-stateful-backend-dev",
-        "python3 scripts/platform_roles.py audit /srv/bears/kubernetes/manifests/bears-platform-stateful-backend-dev"
+        "python3 scripts/platform_roles.py audit /srv/bears/kubernetes/manifests/bears-platform-stateful-backend-dev",
+        "python3 scripts/platform_roles.py route /srv/bears/plugins/bears/skills/bears-infisical-ops/SKILL.md",
+        "python3 scripts/platform_roles.py audit /srv/bears/plugins/bears/skills/bears-infisical-ops/SKILL.md"
       ],
       "supporting_roles": [
         "bears-platform-security-reviewer"
@@ -7742,7 +7768,9 @@
         "Kubernetes CD contract change",
         "Git branch-to-target contract change",
         "runtime placement change",
-        "rollback policy change"
+        "rollback policy change",
+        "Infisical ExternalSecret handoff change",
+        "secret-reference custody rule change"
       ],
       "decomposition_required": false
     },
@@ -14906,6 +14934,32 @@
       "target": "/srv/bears/control-plane/infisical/selfhost/bootstrap-output.json",
       "expected_status": "ROLE_COVERAGE_BLOCKER",
       "expected_why_blocked": "unmapped"
+    },
+    {
+      "target": "/srv/bears/plugins/bears/skills/bears-infisical-ops/SKILL.md",
+      "expected_status": "matched",
+      "required_role": "bears-deploy-platform-engineer",
+      "required_route_id": "kubernetes_deploy_core",
+      "why": "Infisical runtime custody rules must route with Kubernetes desired-state and secret-reference governance, not local control-plane proof."
+    },
+    {
+      "target": "skills/bears-infisical-ops/SKILL.md",
+      "expected_status": "matched",
+      "required_role": "bears-deploy-platform-engineer",
+      "required_route_id": "kubernetes_deploy_core"
+    },
+    {
+      "target": "/srv/bears/plugins/bears/skills/python-codeflow/SKILL.md",
+      "expected_status": "matched",
+      "required_role": "bears-workflow-overlay-platform-engineer",
+      "required_route_id": "workflow_overlay_python_dev_tooling",
+      "why": "Python codeflow instructions must route to plugin-local Python tooling governance, not parent-only skill inventory."
+    },
+    {
+      "target": "skills/python-codeflow/SKILL.md",
+      "expected_status": "matched",
+      "required_role": "bears-workflow-overlay-platform-engineer",
+      "required_route_id": "workflow_overlay_python_dev_tooling"
     }
   ],
   "agent_profile_mappings": [

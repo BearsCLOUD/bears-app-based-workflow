@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import importlib.util
 import json
 import sys
 from pathlib import Path
@@ -11,6 +12,8 @@ from typing import Any
 
 PLUGIN_ROOT = Path(__file__).resolve().parents[1]
 CATALOG_PATH = PLUGIN_ROOT / "assets" / "catalog" / "plugin-skill-catalog.v1.json"
+ROLE_CATALOG_PATH = PLUGIN_ROOT / "assets" / "catalog" / "platform-role-catalog.v1.json"
+ROLE_ROUTER_PATH = PLUGIN_ROOT / "scripts" / "platform_roles.py"
 ACTIVE_FILE = "SKILL.md"
 DISABLED_FILE = "SKILL.disabled.md"
 INVENTORY_START = "<!-- BEARS_SKILL_INVENTORY: START -->"
@@ -66,6 +69,51 @@ def _frontmatter_contains_name(path: Path, name: str) -> bool:
     text = path.read_text(encoding="utf-8")
     allowed = {f"name: {name}", f"name: \"{name}\"", f"name: '{name}'"}
     return any(line.strip() in allowed for line in text.splitlines())
+
+
+def _load_platform_roles(plugin_root: Path) -> Any | None:
+    """Load the local platform role router when the full plugin tree is present."""
+
+    router_path = plugin_root / ROLE_ROUTER_PATH.relative_to(PLUGIN_ROOT)
+    role_catalog_path = plugin_root / ROLE_CATALOG_PATH.relative_to(PLUGIN_ROOT)
+    if not router_path.is_file() or not role_catalog_path.is_file():
+        return None
+    spec = importlib.util.spec_from_file_location("bears_platform_roles_for_skill_catalog", router_path)
+    if spec is None or spec.loader is None:
+        raise RuntimeError(f"cannot load platform role router: {router_path}")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)  # type: ignore[union-attr]
+    return module
+
+
+def validate_active_skill_route_coverage(
+    catalog: dict[str, Any], plugin_root: Path = PLUGIN_ROOT
+) -> list[str]:
+    """Require every active skill's exact SKILL.md file to route under a valid role catalog."""
+
+    platform_roles = _load_platform_roles(plugin_root)
+    if platform_roles is None:
+        return []
+
+    role_catalog_path = plugin_root / ROLE_CATALOG_PATH.relative_to(PLUGIN_ROOT)
+    role_catalog = platform_roles.load_json(role_catalog_path)
+    role_errors = platform_roles.validate_catalog(role_catalog, plugin_root=plugin_root)
+    errors: list[str] = []
+    if role_errors:
+        errors.append("platform role catalog invalid while checking active skill routes: " + "; ".join(role_errors))
+        return errors
+    for entry in catalog.get("active_skills", []):
+        if not isinstance(entry, dict) or not isinstance(entry.get("path"), str):
+            continue
+        rel_target = f"{entry['path']}/{ACTIVE_FILE}"
+        target = str(plugin_root / rel_target)
+        route_packet = platform_roles.route_target(role_catalog, target, plugin_root=plugin_root)
+        if route_packet.get("status") != "matched":
+            errors.append(
+                "active skill exact route must match: "
+                f"{rel_target} -> {route_packet.get('status')}:{route_packet.get('why_blocked')}"
+            )
+    return errors
 
 
 def validate_catalog(catalog: dict[str, Any], plugin_root: Path = PLUGIN_ROOT) -> list[str]:
@@ -140,6 +188,8 @@ def validate_catalog(catalog: dict[str, Any], plugin_root: Path = PLUGIN_ROOT) -
             value = fragments.get(key)
             if not isinstance(value, str) or not value.startswith("docs/generated/"):
                 errors.append(f"generated_fragments.{key} must be a docs/generated/ relative path")
+
+    errors.extend(validate_active_skill_route_coverage(catalog, plugin_root))
 
     return errors
 

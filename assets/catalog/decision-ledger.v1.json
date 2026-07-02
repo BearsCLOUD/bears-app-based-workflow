@@ -1637,6 +1637,28 @@
       "scope_id": "workflow_overlay_validation_ci_workflow",
       "status": "accepted",
       "unresolved_inputs": []
+    },
+    {
+      "affected_paths": [
+        "assets/catalog/platform-role-catalog.v1.json",
+        "scripts/skill_catalog.py",
+        "tests/test_skill_catalog.py",
+        "tests/test_platform_roles.py",
+        "AGENTS.md",
+        "README.md",
+        "skills/bears-infisical-ops/SKILL.md"
+      ],
+      "change_type": "workflow",
+      "contradictions": [],
+      "decision": "Route every active plugin skill SKILL.md through exact platform role coverage and bind Infisical ops to Kubernetes secret-reference governance.",
+      "decision_id": "D-2026-07-02-infisical-kube-skill-route-drift",
+      "owner_issue": "operator-request-2026-07-02",
+      "owner_role": "bears-workflow-overlay-platform-engineer",
+      "rationale": "Parent-only skill routing caused drift for Infisical and Python codeflow work; exact route coverage plus compact routers prevents local control-plane and Kubernetes runtime proof from being mixed.",
+      "redaction": "safe",
+      "scope_id": "instruction-drift-cleanup",
+      "status": "accepted",
+      "unresolved_inputs": []
     }
   ],
   "schema": "bears-decision-ledger.v1",

@@ -38,34 +38,13 @@
 
 ## Rules
 - Keep artifacts and contracts in English.
-- Keep `AGENTS.md` compact; put executable policy in plugin catalogs, scripts, skills, and tests.
-- `kubernetes_deployment` is valid only when backed by Kubernetes desired state and `local_cd`; local host or manual deploy paths are policy violations.
-- For every Bears parent work session, start or reuse one long-lived parallel `gitflow` subagent using `bears-git-workflow-helper` instructions with model `gpt-5.4-mini`, reasoning `high`, and no parent/start context.
-- Reuse the same `gitflow` subagent for the entire parent work; do not spawn a new `gitflow` subagent for each step.
-- The `gitflow` subagent is a closeout lane only. It must not run general read-only audits, review unrelated repos, or replace owner-role validation.
-- The parent agent must not wait for `gitflow` subagent feedback on the critical path.
-- Completed task slice means validated, committed, and pushed. Leaving completed dirty work is forbidden.
-- After validation, immediately send the same `gitflow` subagent a `commit+push required` closeout notice with repo path, explicit allowlisted changed files, validation result, target branch, and intended commit message.
-- If unrelated dirty files exist, commit only the completed slice's explicit allowlisted files and report carried dirty paths.
-- If a hard safety hold prevents commit or push, the slice is not complete; report the exact blocker, owner, and GitHub issue, and keep gitflow hold active.
-- The `gitflow` subagent closes only explicit assigned Git tasks. It must reject completion claims without commit/push evidence or an explicit blocker. The main agent owns final clean-status reporting and must not treat `gitflow` as a general auditor.
-- Deployment, infrastructure, Kubernetes desired-state, CD, runtime rollout, rollback, network/egress, and cluster-evidence tasks must also start or reuse one long-lived parallel `infra/deploy/kube` subagent.
-- The infra/deploy/kube subagent uses `bears-deploy-platform-engineer` instructions with model `gpt-5.5`, reasoning `medium`, and no parent/start context. Reuse the same infra/deploy/kube subagent for the entire parent work.
-- The parent sends start, scope-change, validation, and closeout packets to that subagent and does not wait for feedback on the critical path unless a hard blocker is already known.
-- The infra/deploy/kube subagent is an audit and governance lane only; it does not replace exact role gates, Kubernetes desired state, local `@Bears` CD, or branch/secret policies.
-- Instruction, `AGENTS.md`, role-prompt, developer-instruction routing, workflow prose, governance-doc, and instruction-ownership tasks must also start or reuse one long-lived parallel `instructions/AGENTS` subagent.
-- The instructions/AGENTS subagent uses `bears-docs-maintainer` instructions with model `gpt-5.5`, reasoning `medium`, and no parent/start context. Reuse the same instructions/AGENTS subagent for the entire parent work.
-- The parent sends start, scope-change, validation, and closeout packets to that subagent and does not wait for feedback on the critical path unless a hard blocker is already known.
-- The instructions/AGENTS subagent is an audit and governance lane only; it does not replace nearest `AGENTS.md`, exact route gates, `@Bears` catalogs/scripts/skills, Git closeout, or generated-agent sync requirements.
-- Git work branches are restricted to `main` or `dev` unless an explicit task packet names another branch.
-- Use `main` for this plugin, workspace-control, infra desired-state, dev-instance production apps/services, and non-prod product repos.
-- Dev-instance production means the app/service production runtime intentionally lives on the current dev instance through Kubernetes desired state and local `@Bears` CD. It stays main-only because `main` is the source of truth for that runtime.
-- The `@Bears` plugin is a dev-instance production governance app; plugin work happens directly on `main`.
-- Use `dev` only for product repos that have a separate production promotion branch. Current `dev` product exceptions are `seller` and `platform`.
-- Prod-deployed product registration must define canonical repo, local path, branch class, `dev` work branch when used, `main` deploy branch, local `@Bears` CD selector, and GitHub Releases versioning.
-- Every discovered drift must have a GitHub issue in the owning repository before closeout. If ownership is unclear, create the issue in the nearest control repository and name the ownership gap.
-- Every completed task must end with commit plus push for the changed tracked repo, including instruction-only changes.
-- Keep Git clean after push; do not stage unrelated dirty files, and report any carried dirty paths.
+- Keep this file as a router. Do not duplicate full role, Git, branch, subagent, CD, deploy, or closeout policy here.
+- `assets/catalog/*.v1.json` owns machine policy. `scripts/*.py`, `hooks/*.py`, `skills/*/SKILL.md`, and tests enforce it.
+- Run `python3 scripts/platform_roles.py route <exact-path>` and `python3 scripts/platform_roles.py audit <exact-path>` before plugin changes.
+- `kubernetes_deployment` is valid only with Kubernetes desired state and `local_cd`. Local host processes, local `infisical run`, manual `kubectl apply`, and manual secret injection are not final live PASS evidence.
+- Infisical is secret custody and environment injection only. Runtime software proof must pass through Kubernetes refs, workload evidence, and health proof.
+- `control-plane/infisical` is bootstrap or preflight support only; it is not the runtime desired-state owner.
+- Completed plugin changes must be validated, committed, and pushed from `/srv/bears/plugins/bears`; stage only task-owned files and report carried dirty paths.
 - Do not store secrets, raw logs, kubeconfigs, tokens, private chats, production data, `.env` values, or `.knowledge/**` artifacts.
 
 ## Entity terms
@@ -87,7 +66,6 @@
 - Do not recreate a standalone Telegram plugin, app, connector, MCP server, or runtime surface except the exact cataloged `/srv/bears/plugins/bearstg` read-only MCP plugin.
 
 ## Validation
-- Local commit validation owns blocking plugin test proof.
-- Closeout proof must cite `runtime/local-commit-validation/<main_sha>.json`.
+- Route/audit gates are agent-local. Other validator suites are local-commit or CI owned unless the operator explicitly asks for a manual run.
+- Local commit validation owns blocking plugin test proof and closeout proof must cite `runtime/local-commit-validation/<main_sha>.json`.
 - GitHub Actions `.github/workflows/validate.yml` is operator-dispatched diagnostics.
-- Agents must not run repo validator suites or tests manually unless operator-approved, except route/audit gates and file-shape checks named by the active route.

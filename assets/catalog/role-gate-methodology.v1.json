@@ -1428,6 +1428,18 @@
       "expected_status": "matched",
       "required_route_id": "theants_product_dev_layer",
       "required_role": "bears-product-app-zone-engineer"
+    },
+    {
+      "target": "/srv/bears/dev/app/bears-ru",
+      "expected_status": "matched",
+      "required_route_id": "bears_ru_brand_site_archive_source",
+      "required_role": "bears-product-app-zone-engineer"
+    },
+    {
+      "target": "/srv/bears/dev/app/bearsapk",
+      "expected_status": "matched",
+      "required_route_id": "bearsapk_android_app_archive_source",
+      "required_role": "bears-product-app-zone-engineer"
     }
   ],
   "independent_control_audit": {

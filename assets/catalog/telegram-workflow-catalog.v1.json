@@ -423,7 +423,7 @@
       "owner_group": "products",
       "surface_type": "dev-core-product-bot-source",
       "current_framework_status": "custom Bot API polling client / not-aiogram / legacy sources preserved at projects/theants and dev/products/theants",
-      "target_state": "product module under canonical BearsCLOUD/apps with adapter seam and tests before any Aiogram 3 runtime rewrite",
+      "target_state": "app directory under canonical BearsCLOUD/apps with adapter seam and tests before any Aiogram 3 runtime rewrite",
       "migration_status": "target-aiogram3-rewrite-after-dev-core-split-proof",
       "test_status": "dev-core split proof plus product tests required before code work",
       "exception_status": "none",

@@ -297,7 +297,7 @@ Compatibility migration routing is exact:
 - `kube`, `kubernetes`, `bears-infra`, and `/srv/bears/kubernetes` route to Kubernetes repo-boundary governance.
 - `android-emulator` routes to the The Ants Android emulator platform `.225` lane.
 - `sentry` routes to the `.226` Sentry/observability future lane and governed Sentry runtime-plugin capability design.
-- `/srv/bears/dev/app` is the canonical product-app repo root for `BearsCLOUD/apps`; `/srv/bears/dev/app/theants` is a product module or migration/archive route, not a separate canonical repository.
+- `/srv/bears/dev/app` is the canonical product-app repo root for `BearsCLOUD/apps`; `/srv/bears/dev/app/theants` is an app directory or migration/archive route, not a separate canonical repository.
 - `/srv/bears/dev/app/vpn` routes to `bears-vpn-project-governance-engineer` for VPN project governance/specs; `/srv/bears/dev/app/vpn/androidapp` and `winapp` route to `bears-vpn-client-app-engineer`; `vpnbot` and exact VPN Telegram notifier files route to `bears-vpn-bot-engineer`; `amnezia-split` and `wireguard-amnezia` route to `bears-vpn-runtime-engineer`; disabled/offline `proxy` routes to `bears-vpn-proxy-engineer`; `traefik` routes to `bears-vpn-ingress-engineer` for GitFlow-only ingress config review.
 - Feature 006 `spec.md`, `plan.md`, and `governance/` route to `bears-telegram-platform-engineer`; `/srv/bears/control-plane/workspace-control/tests` routes to `bears-platform-role-governor` for agent reviewer role test governance.
 

@@ -643,7 +643,7 @@
       ],
       "next_actions": [
         "Keep /srv/bears/projects/theants as deprecated migration/archive evidence and link migration issues to BearsCLOUD/apps before archive.",
-        "Route canonical product work through /srv/bears/dev/app plus BearsCLOUD/apps; use /srv/bears/dev/app/theants only as a product module or migration/archive path.",
+        "Route canonical product work through /srv/bears/dev/app plus BearsCLOUD/apps; use /srv/bears/dev/app/theants only as an app directory or migration/archive path.",
         "Use bears-telegram-platform-engineer only as a supporting Telegram pattern reviewer for Aiogram-specific adapter work.",
         "Plan Aiogram 3 dispatcher/router migration only after product behavior is covered by deterministic tests."
       ],

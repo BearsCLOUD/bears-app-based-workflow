@@ -110,10 +110,14 @@ L2 forbidden actions:
 - During decomposition, postpone optional Project field fills and avoid broad Project field work in the same wave.
 - Returning `DECOMPOSED_ONLY` or `PARTIAL_DECOMPOSED_ONLY` before timeout has priority over complete metadata cleanup.
 - If required child metadata already exists before assignment, L2 may proceed child-by-child after verifying each child is visible and dependency-ready.
+- For a tiny child-only slice, use the direct subagent worker path when it is available; do not wrap that launch in nested codex exec.
+- If the direct worker path is unavailable, use the prewritten patch-template path for a one-file slice; do not invent a new edit flow.
+- Before any L3 spawn, compare remaining budget against runner startup plus edit validation; if the budget cannot cover both, stop and return a blocker instead of starting L3.
 - These decomposition limits do not widen metadata mutation authority; parent/operator authorization is still required.
 - The first child execution is a separate parent assignment after the child Issue and Project metadata are visible.
 - Do not combine decomposition and first L3 execution in one five-minute wave.
 - After a tiny-slice timeout, retry only that child slice with a child-only packet; skip broad discovery.
+- Keep issue #65's codex exec 60s timeout before edits and issue #59's parent >5min cleanup rule; these guardrails do not widen authority.
 - `RESET` and `CLEANUP` packets are terminal; do not continue or start L3 after either packet.
 - When the parent sends timeout `RESET` or `CLEANUP`, L2 must stop waiting on L3 at once, ignore any late L3 `READY` or `PASS`, and return `DRIFT_CLEANED`.
 - After timeout `RESET` or `CLEANUP`, post-timeout evidence must be comments only; do not change Project fields, issue state, or closeout state from late output.

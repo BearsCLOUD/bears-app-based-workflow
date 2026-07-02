@@ -18,12 +18,12 @@ Disabled skills expose only `SKILL.disabled.md`; they MUST NOT keep `SKILL.md`.
 - `skills/development-workflow-orchestration` — Coordinate broad Bears development workflow through validated packets and domain orchestrators.
 - `skills/platform-role-governance` — Enforce the canonical Bears plugin-owned platform role gate.
 - `skills/python-codeflow` — Enforce Bears Python codeflow, src layout, Clean/Hexagonal boundaries, runtime module splitting, validation, docs, tests, and gitflow hygiene.
-- `skills/project-mandate` — Run the registry-gated project artifact checklist after project registry gate approval.
+- `skills/project-mandate` — Run the registry-gated target artifact checklist after target registry gate approval.
 - `skills/secret-factory` — Govern write-only local secret generation and Infisical creation with provider handoff refusals.
 - `skills/speckit-bears-flow` — Run the Bears opinionated Spec Kit orchestration flow.
-- `skills/speckit-bears-research` — Produce Spec Kit-style research artifacts for Bears projects.
-- `skills/bears-project-constitution` — Create or update Bears project constitutions with ownership, artifact maps, validation duties, and dependent-doc sync.
-- `skills/bears-project-specify` — Create or update Bears project specifications and functional documentation from operator intent, constitution rules, and repo evidence.
+- `skills/speckit-bears-research` — Produce Spec Kit-style research artifacts for Bears targets.
+- `skills/bears-project-constitution` — Create or update Bears target constitutions with ownership, artifact maps, validation duties, and dependent-doc sync.
+- `skills/bears-project-specify` — Create or update Bears target specifications and functional documentation from operator intent, constitution rules, and repo evidence.
 - `skills/bears-project-plan` — Plan Bears implementation through GitHub Projects and Issues with route-selected roles, dependencies, validation, and projectdevsubagents handoff.
 - `skills/github-project-planning` — Plan and administer Bears GitHub Projects, fields, views, issues, sub-issues, item hygiene, and planning PASS handoffs before projectdevsubagents development execution.
 - `skills/bears-project-analyze` — Analyze Bears constitutions, specs, docs, GitHub Project plans, Issues, routes, validation, dependencies, and projectdevsubagents handoff for drift.

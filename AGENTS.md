@@ -72,8 +72,8 @@
 
 ## Validation
 - Route/audit gates are agent-local. Other validator suites are local-commit or CI owned unless the operator explicitly asks for a manual run.
-- Agents must not run local tests, repo validator suites, smoke tests, integration tests, browser tests, Docker tests, Kubernetes tests, or ad hoc validation suites manually.
-- Local commit validation or CI owns blocking plugin test proof. Closeout proof must cite `runtime/local-commit-validation/<main_sha>.json` or current commit/PR CI evidence.
+- Agents must not run repo validator suites or tests manually unless the operator explicitly asks for a manual run. This includes local tests, smoke tests, integration tests, browser tests, Docker tests, Kubernetes tests, and ad hoc validation suites.
+- Local commit validation owns blocking plugin test proof. CI evidence remains allowed when it comes from current commit or PR checks. Closeout proof must cite `runtime/local-commit-validation/<main_sha>.json` or current commit/PR CI evidence.
 - Agents may inspect current commit or current PR GitHub Checks, GitHub Actions runs, statuses, logs, and artifacts. Reports must cite commit SHA, check name, status, and timestamp when available.
 - Deep `/srv/bears/kubernetes` Git history reads are forbidden unless the operator explicitly requests bounded history work in the current turn.
 - GitHub Actions `.github/workflows/validate.yml` is operator-dispatched diagnostics.

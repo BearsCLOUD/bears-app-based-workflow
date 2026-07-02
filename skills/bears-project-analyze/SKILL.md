@@ -1,11 +1,15 @@
 ---
 name: bears-project-analyze
-description: "Analyze Bears project artifacts for drift before execution: constitution, specification, documentation, GitHub Project plan, Issues, route/audit roles, validation, dependencies, and projectdevsubagents handoff. Use as the Bears-native analogue to speckit-analyze before plan execution or after material project docs change."
+description: "Analyze Bears target artifacts for drift before execution: constitution, specification, documentation, GitHub Project plan, Issues, route/audit roles, validation, dependencies, and projectdevsubagents handoff. Use as the Bears-native analogue to speckit-analyze before plan execution or after material target docs change."
 ---
 
-# Bears Project Analyze
+## Entity terms
 
-Use this skill to prove a Bears project plan is internally consistent before implementation or `$projectdevsubagents` execution starts.
+`app` means a Bears product application source directory under `/srv/bears/dev/app` or `BearsCLOUD/apps`. `project` means a GitHub Project planning board with linked Issues and metadata fields. Use `target`, `registered target`, `repo`, `path`, `workspace surface`, or `app directory` for filesystem/source ownership.
+
+# Bears Target Analyze
+
+Use this skill to prove a Bears target plan is internally consistent before implementation or `$projectdevsubagents` execution starts.
 
 Analysis means a current-state check across artifacts. It does not fix files unless the operator asks for fixes after the report.
 
@@ -26,7 +30,7 @@ Forbidden:
 
 ## Workflow
 
-1. Read `/srv/bears/AGENTS.md`, nearest project `AGENTS.md`, and the artifacts named by the packets.
+1. Read `/srv/bears/AGENTS.md`, nearest target `AGENTS.md`, and the artifacts named by the packets.
 2. Verify artifact chain:
    - constitution exists or explicit approved gap;
    - spec references constitution rules and has acceptance criteria;
@@ -52,7 +56,7 @@ Forbidden:
   "schema": "bears-project.analysis-packet",
   "version": "1",
   "status": "pass|review|fail|blocked",
-  "target": "<project/repo/path>",
+  "target": "<target/repo/path>",
   "artifacts_checked": ["<paths or urls>"],
   "requirements_coverage": [
     {"id": "<requirement id>", "status": "covered|missing|contradicted", "evidence": "<path/url>"}

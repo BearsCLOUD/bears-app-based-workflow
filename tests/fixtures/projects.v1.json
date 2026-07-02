@@ -177,7 +177,7 @@
     },
     {
       "id": "vpn-project-root",
-      "name": "Bears VPN project root governance and Spec Kit lane",
+      "name": "Bears VPN target-root governance and Spec Kit lane",
       "kind": "product",
       "artifact_profile": "repo_project",
       "status": "registered",

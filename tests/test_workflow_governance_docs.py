@@ -69,7 +69,7 @@ class WorkflowGovernanceDocTests(unittest.TestCase):
         text = REQUIREMENTS_PATH.read_text(encoding="utf-8")
         self.assertIn("canonical Bears role gate MUST be the first mandatory gate", text)
         self.assertIn("telegram-plugin-skill-factory", text)
-        self.assertIn("no standalone Telegram plugin/app/MCP/runtime surface", text)
+        self.assertIn("no standalone Telegram plugin/product-app/MCP/runtime surface", text)
         self.assertIn("connector", text)
         self.assertIn("bears-telegram-workflow", text)
 

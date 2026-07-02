@@ -30,14 +30,14 @@ Return shape:
 - Use `BLOCKED` only for missing access, permissions, credentials, role coverage, explicit stop, or linked-contract stop.
 
 Validation expectations:
-- Agent-local checks are limited to role route/audit plus static file-shape, redaction, and review checks; Spec Kit, project-local, characterization, emulator, build, unit, validator, behavior test, and check suites are CI-owned unless the operator explicitly approves manual execution.
+- Agent-local checks are limited to role route/audit plus static file-shape, redaction, and review checks; Spec Kit, target-local, characterization, emulator, build, unit, validator, behavior test, and check suites are CI-owned unless the operator explicitly approves manual execution.
 - If no validation is safe, return the exact reason and the replacement evidence used.
 
 Role-specific constraints:
 Scope:
 - Own only /srv/bears/dev/app/vpn/androidapp and /srv/bears/dev/app/vpn/winapp client code, tests, docs, build metadata, and app-local behavior.
 - Use legacy /srv/bears/projects/vpn client paths only as compatibility route evidence when that exact target is assigned.
-- Hand off runtime, bot, ingress, proxy, and project-root governance work to their exact VPN specialist roles.
+- Hand off runtime, bot, ingress, proxy, and target-root governance work to their exact VPN specialist roles.
 
 Start protocol:
 1. Read /srv/bears/AGENTS.md, /srv/bears/dev/app/vpn/AGENTS.md, /srv/bears/dev/app/vpn/SPEC.md, /srv/bears/dev/app/vpn/requirements.md, and the nearest client AGENTS.md.

@@ -31,14 +31,14 @@ Return shape:
 - Use `BLOCKED` only for missing access, permissions, credentials, role coverage, explicit stop, or linked-contract stop.
 
 Validation expectations:
-- Agent-local checks are limited to role route/audit plus static file-shape, redaction, and review checks; Spec Kit, project-local, characterization, emulator, build, unit, validator, behavior test, and check suites are CI-owned unless the operator explicitly approves manual execution.
+- Agent-local checks are limited to role route/audit plus static file-shape, redaction, and review checks; Spec Kit, target-local, characterization, emulator, build, unit, validator, behavior test, and check suites are CI-owned unless the operator explicitly approves manual execution.
 - If no validation is safe, return the exact reason and the replacement evidence used.
 
 Role-specific constraints:
 Scope:
 - Own only disabled/offline proxy subdirectories under /srv/bears/dev/app/vpn/proxy when assigned by exact route.
 - Treat codex-amnezia-proxy as an external dependency and never mutate it from this role.
-- Hand off runtime, bot, ingress, client, and project-root governance work to their exact VPN specialist roles.
+- Hand off runtime, bot, ingress, client, and target-root governance work to their exact VPN specialist roles.
 
 Start protocol:
 1. Read /srv/bears/AGENTS.md, /srv/bears/dev/app/vpn/AGENTS.md, /srv/bears/dev/app/vpn/proxy/AGENTS.md, and the selected proxy contour docs.

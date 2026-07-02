@@ -161,7 +161,7 @@
       ],
       "security_rules": [
         "no broad duplicate skills without routing rule",
-        "no standalone Telegram plugin/app/MCP/runtime surface",
+        "no standalone Telegram plugin/product-app/MCP/runtime surface",
         "no connector/runtime/live Telegram claim without schema support"
       ],
       "reuse_targets": [
@@ -357,7 +357,7 @@
         "projects/metamask/src/bot.mjs",
         "plugins/bears/assets/catalog/telegram-aiogram-migration-backlog.v1.json"
       ],
-      "next_action": "Keep as inventory-only Telegram bot candidate until owning project artifacts, role mapping, and behavior tests exist.; Do not start framework rewrite from file-level evidence alone.",
+      "next_action": "Keep as inventory-only Telegram bot candidate until owning target artifacts, role mapping, and behavior tests exist.; Do not start framework rewrite from file-level evidence alone.",
       "inventory_coverage_status": "deferred-runtime-candidate"
     },
     {

@@ -188,7 +188,7 @@
         "Record route/API and Telegram UI characterization with mocked or approved non-secret boundaries before adapter extraction."
       ],
       "rollback_plan": [
-        "Keep implementation_gate blocked until required project artifacts, current test outputs, and behavior evidence are recorded.",
+        "Keep implementation_gate blocked until required target artifacts, current test outputs, and behavior evidence are recorded.",
         "Preserve current VPN product behavior and pre-change container baseline before adopting shared Telegram primitives.",
         "Limit validation to local/container non-secret checks until explicit operator approval opens live Telegram or issued-config smoke paths."
       ],
@@ -285,7 +285,7 @@
         "Record command, callback, allowed-user, Redis FSM, and auth_core characterization before shared primitive adoption."
       ],
       "rollback_plan": [
-        "Keep implementation_gate blocked until project artifacts, characterization tests, and missing_evidence are resolved.",
+        "Keep implementation_gate blocked until target artifacts, characterization tests, and missing_evidence are resolved.",
         "Preserve current admin-bot behavior baseline before adopting shared Telegram primitives.",
         "Limit validation to local non-secret checks until explicit operator approval opens live admin bot paths."
       ],
@@ -374,7 +374,7 @@
       "approval_status": "not-requested",
       "security_signoff": "required",
       "validation_plan": [
-        "Validate project artifacts before code work because SPEC.md, requirements.md, and README.md remain mandatory for this surface.",
+        "Validate target artifacts before code work because SPEC.md, requirements.md, and README.md remain mandatory for this surface.",
         "Run local bot import or startup-safe checks before runtime changes.",
         "Record callback and FSM characterization coverage before the beta-to-stable Aiogram upgrade."
       ],
@@ -467,7 +467,7 @@
       "approval_status": "not-requested",
       "security_signoff": "required",
       "validation_plan": [
-        "Validate project artifacts before code work because SPEC.md and requirements.md remain mandatory for this surface.",
+        "Validate target artifacts before code work because SPEC.md and requirements.md remain mandatory for this surface.",
         "Add local import or unit coverage for handler startup without real Telegram tokens or WB calls.",
         "Record safe characterization checks for executor-based polling, handlers, keyboards, files, and marketplace side effects before Router or Dispatcher changes."
       ],
@@ -564,7 +564,7 @@
         "Record image or sticker generation behavior with mocked OpenAI, Telegram, database, and worker boundaries before adapter extraction."
       ],
       "rollback_plan": [
-        "Keep implementation_gate blocked until project artifacts, characterization tests, and missing_evidence are resolved.",
+        "Keep implementation_gate blocked until target artifacts, characterization tests, and missing_evidence are resolved.",
         "Preserve current sticker-generation behavior baseline before adopting shared Telegram primitives.",
         "Limit validation to local non-secret checks until explicit operator approval opens live bot, model-call, or media paths."
       ],
@@ -660,7 +660,7 @@
         "Record auth binding, main menu, database bootstrap, proxy/session behavior, callbacks, and worker-delivered message characterization before shared primitive adoption."
       ],
       "rollback_plan": [
-        "Keep implementation_gate blocked until project artifacts, characterization tests, and missing_evidence are resolved.",
+        "Keep implementation_gate blocked until target artifacts, characterization tests, and missing_evidence are resolved.",
         "Preserve current main-bot behavior baseline before adopting shared Telegram primitives.",
         "Limit validation to local non-secret checks until explicit operator approval opens live main bot, DB mutation, or worker paths."
       ],

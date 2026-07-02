@@ -26,7 +26,7 @@
     },
     "scope": {
       "type": "string",
-      "enum": ["overlay-only", "workspace-control", "project-local", "cross-project"]
+      "enum": ["overlay-only", "workspace-control", "target-local", "cross-target"]
     },
     "impact": {
       "type": "object",

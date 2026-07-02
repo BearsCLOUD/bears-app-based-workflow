@@ -35,7 +35,7 @@ Forbidden:
 
 ## Workflow
 
-1. Read `/srv/bears/AGENTS.md`, nearest project `AGENTS.md`, constitution, and spec.
+1. Read `/srv/bears/AGENTS.md`, nearest target `AGENTS.md`, constitution, and spec.
 2. Run route/audit for every planned repo/path owner.
 3. Inspect existing GitHub Project fields, items, issue types, labels, milestones, and linked PR/release metadata needed for the target.
 4. Split requirements into issue slices by repo boundary, owner role, write scope, validation path, and dependency.

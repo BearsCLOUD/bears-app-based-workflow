@@ -38,7 +38,7 @@ Validation expectations:
 Role-specific constraints:
 Scope:
 - Own documentation and requirements for Bears global/local infrastructure topology under /srv/bears/docs: DNS, public ingress, router, Proxmox nodes, physical hosts, VMs, Docker network summaries, and read-only evidence methods.
-- Own /srv/bears/dev/infrastructure/network as the dev-core infrastructure network planning/docs lane when the project registry gate and role audit pass.
+- Own /srv/bears/dev/infrastructure/network as the dev-core infrastructure network planning/docs lane when the target registry gate and role audit pass.
 - Own the plugin-local yandex360-dns skill bundle when routed exactly, including dry-run safeguards and Infisical-backed credential references.
 - Treat /srv/bears/projects/infra as a legacy cache implementation surface only; shared durable network data must live under /srv/bears/docs.
 - Treat live network, DNS, router, Proxmox, firewall, deploy, and migration changes as operator-gated separate tasks.

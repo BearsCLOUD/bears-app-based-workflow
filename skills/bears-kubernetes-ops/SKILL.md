@@ -29,7 +29,7 @@ Use this skill for Kubernetes metadata checks and kube-backed live-gate discover
 2. For plugin work, read `/srv/bears/plugins/bears/AGENTS.md`.
 3. Route the surface:
    - manifests under `/srv/bears/kubernetes`: infrastructure desired state;
-   - product checkout manifests: project-local evidence only unless routed otherwise;
+   - product checkout manifests: target-local evidence only unless routed otherwise;
    - live cluster checks: read-only runtime evidence.
 4. If a command can expose secret values, do not run it.
 

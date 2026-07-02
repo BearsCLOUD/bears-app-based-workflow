@@ -39,7 +39,7 @@ Profile-backed files mirror `agent_profile_mappings[]`.
 | `bears-review-fix-helper.toml` | Use for bounded review and fix-support packets after an owner specialist changes assigned Bears governance files; no product, runtime, deployment, app, MCP, connector, provider, secret, or production authority. |
 | `bears-secret-factory-engineer.toml` | Own Bears Secret Factory governance for local generated values and write-only Infisical creation without secret readback or value exposure. |
 | `bears-session-worker-runtime-engineer.toml` | Use for Bears session worker runtime contracts, lanes, states, scope locks, heartbeat/closeout packets, resume/fork policy, and runtime validators. |
-| `bears-subagent-orchestration-engineer.toml` | Use for Bears subagent orchestration policy, non-product stage-boundary audit subagents, project registry gate handoff rules, and related validators. |
+| `bears-subagent-orchestration-engineer.toml` | Use for Bears subagent orchestration policy, non-product stage-boundary audit subagents, target registry gate handoff rules, and related validators. |
 | `bears-telegram-platform-engineer.toml` | Use for Bears Telegram platform core, Aiogram bot runtimes, Telegram adapters, callbacks, bot UI, operator approval/status loops, and Telegram tests. |
 | `bears-tenant-registry-platform-engineer.toml` | Use for Bears tenant registry work: tenant identity, canonical lookup, registration handoff, activation state, and tenant-scoped contracts. |
 | `bears-token-budget-helper.toml` | Use for compact state summaries, token budget checks, duration checks, and split recommendations; no product, runtime, deployment, app, MCP, connector, provider, secret, or production authority. |

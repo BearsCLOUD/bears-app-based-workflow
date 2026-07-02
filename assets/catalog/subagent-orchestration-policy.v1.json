@@ -375,7 +375,7 @@
         "lanes": [
           "role route audit",
           "registry consistency audit",
-          "project-mandate gate review",
+          "registered-target checklist gate review",
           "user information placement review"
         ],
         "required_packet_fields": [
@@ -2128,7 +2128,7 @@
       ],
       "durable_artifact": {
         "with_spec_kit_packet": "Store research.md, prior-art.md, and ux-research.md in the active Spec Kit feature directory before specification or planning work continues.",
-        "without_spec_kit_packet": "Store a bounded section in README.md or the narrowest project docs path, then move it to the feature directory after Spec Kit creates one."
+        "without_spec_kit_packet": "Store a bounded section in README.md or the narrowest target docs path, then move it to the feature directory after Spec Kit creates one."
       },
       "bounded_source_policy": {
         "bounded_summaries_only": true,
@@ -2676,7 +2676,7 @@
     ],
     "durable_artifact": {
       "with_spec_kit_packet": "Store research.md, prior-art.md, and ux-research.md in the active Spec Kit feature directory before specification or planning work continues.",
-      "without_spec_kit_packet": "Store a bounded section in README.md or the narrowest project docs path, then move it to the feature directory after Spec Kit creates one."
+      "without_spec_kit_packet": "Store a bounded section in README.md or the narrowest target docs path, then move it to the feature directory after Spec Kit creates one."
     },
     "skip_policy": {
       "operator_skip": {

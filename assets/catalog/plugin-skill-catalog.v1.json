@@ -51,7 +51,7 @@
       "path": "skills/python-codeflow"
     },
     {
-      "description": "Run the registry-gated project artifact checklist after project registry gate approval.",
+      "description": "Run the registry-gated target artifact checklist after target registry gate approval.",
       "name": "project-mandate",
       "path": "skills/project-mandate"
     },
@@ -66,17 +66,17 @@
       "path": "skills/speckit-bears-flow"
     },
     {
-      "description": "Produce Spec Kit-style research artifacts for Bears projects.",
+      "description": "Produce Spec Kit-style research artifacts for Bears targets.",
       "name": "speckit-bears-research",
       "path": "skills/speckit-bears-research"
     },
     {
-      "description": "Create or update Bears project constitutions with ownership, artifact maps, validation duties, and dependent-doc sync.",
+      "description": "Create or update Bears target constitutions with ownership, artifact maps, validation duties, and dependent-doc sync.",
       "name": "bears-project-constitution",
       "path": "skills/bears-project-constitution"
     },
     {
-      "description": "Create or update Bears project specifications and functional documentation from operator intent, constitution rules, and repo evidence.",
+      "description": "Create or update Bears target specifications and functional documentation from operator intent, constitution rules, and repo evidence.",
       "name": "bears-project-specify",
       "path": "skills/bears-project-specify"
     },

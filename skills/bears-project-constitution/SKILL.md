@@ -1,20 +1,24 @@
 ---
 name: bears-project-constitution
-description: "Create or update a Bears project constitution: concrete principles, ownership rules, artifact locations, validation duties, and dependent documentation sync. Use before project specification, GitHub Project planning, or plan execution when a repo/project lacks a current constitution or its rules changed."
+description: "Create or update a Bears target constitution: concrete principles, ownership rules, artifact locations, validation duties, and dependent documentation sync. Use before target specification, GitHub Project planning, or plan execution when a registered target lacks a current constitution or its rules changed."
 ---
 
-# Bears Project Constitution
+## Entity terms
 
-Use this skill to create or update a project constitution for a Bears repo, app, platform part, plugin, infra lane, or migration workstream.
+`app` means a Bears product application source directory under `/srv/bears/dev/app` or `BearsCLOUD/apps`. `project` means a GitHub Project planning board with linked Issues and metadata fields. Use `target`, `registered target`, `repo`, `path`, `workspace surface`, or `app directory` for filesystem/source ownership.
 
-A constitution is the project rule document that later specs, plans, GitHub Project items, and execution agents must obey.
+# Bears Target Constitution
+
+Use this skill to create or update a target constitution for a Bears repo, product app, platform part, plugin, infra lane, or migration workstream.
+
+A constitution is the target rule document that later specs, plans, GitHub Project items, and execution agents must obey.
 
 ## Boundary
 
 Allowed:
 
-- Inspect nearest `AGENTS.md`, README, SPEC, requirements, docs, existing contracts, GitHub issue/project metadata, and route/audit output.
-- Create or update the narrow project constitution artifact.
+- Inspect nearest `AGENTS.md`, README, SPEC, requirements, docs, existing contracts, GitHub Issue and Project metadata, and route/audit output.
+- Create or update the narrow target constitution artifact.
 - Add short router links from README or AGENTS only when the nearest router owns that pointer.
 - Record unresolved drift as owner-scoped follow-up work.
 
@@ -28,19 +32,19 @@ Forbidden:
 
 Pick the narrowest existing owner path:
 
-- Plugin: `/srv/bears/plugins/<plugin>/docs/reference/<project>-constitution.md` or plugin catalog when a machine contract already owns the rule.
-- Infra: `/srv/bears/kubernetes/docs/reference/<project>-constitution.md` or the nearest manifest/runbook docs path.
-- Platform: `/srv/bears/dev/platform/docs/reference/<project>-constitution.md`.
-- Apps: `/srv/bears/dev/app/<app>/docs/constitution.md` or `/srv/bears/dev/app/docs/<app>-constitution.md` when the app has no docs directory.
+- Plugin: `/srv/bears/plugins/<plugin>/docs/reference/<target>-constitution.md` or plugin catalog when a machine contract already owns the rule.
+- Infra: `/srv/bears/kubernetes/docs/reference/<target>-constitution.md` or the nearest manifest/runbook docs path.
+- Platform: `/srv/bears/dev/platform/docs/reference/<target>-constitution.md`.
+- Product apps: `/srv/bears/dev/app/<app-name>/docs/constitution.md` or `/srv/bears/dev/app/docs/<app-name>-constitution.md` when the app directory has no docs directory.
 - Workspace router: tracked root docs only when the rule is workspace-wide.
 
 Do not create a new parent docs tree when a nearer repo-local docs path exists.
 
 ## Workflow
 
-1. Read `/srv/bears/AGENTS.md`, the nearest project `AGENTS.md`, and route/audit for the exact target path.
+1. Read `/srv/bears/AGENTS.md`, the nearest target `AGENTS.md`, and route/audit for the exact target path.
 2. If operator principles are missing, ask at most five concrete questions covering owner, scope, forbidden behavior, validation, and GitHub planning impact.
-3. Inspect current README, SPEC, requirements, docs, catalogs, and GitHub issue/project metadata needed for the target only.
+3. Inspect current README, SPEC, requirements, docs, catalogs, and GitHub Issue and Project metadata needed for the target only.
 4. Draft or update the constitution with these sections:
    - Scope and owner;
    - Principle table with stable ids, exact rule text, rationale, validation proof, and dependent artifacts;
@@ -63,7 +67,7 @@ Do not create a new parent docs tree when a nearer repo-local docs path exists.
   "constitution": "<artifact path>",
   "owner": "<repo or team>",
   "principles": ["<stable ids>"],
-  "dependent_artifacts": ["<spec/docs/project/plan paths or urls>"],
+  "dependent_artifacts": ["<spec/docs/target/plan paths or urls>"],
   "validation": ["<commands or metadata checks>"],
   "open_drift": ["<issue urls or exact follow-up>"],
   "recommendation": "<next action>"

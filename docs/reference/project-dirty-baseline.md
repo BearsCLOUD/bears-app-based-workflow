@@ -26,9 +26,9 @@ Operator confirmation can change dirty-baseline status from `DIRTY_BASELINE_REQU
 
 ### `project-write-lane`
 
-Default mode. Use it only after selecting one concrete project root for a product/runtime/deploy/integration write lane.
+Default mode. Use it only after selecting one concrete repo root for a product/runtime/deploy/integration write lane.
 
-If the selected concrete project root is dirty and the operator has not confirmed that baseline, the command returns `DIRTY_BASELINE_REQUIRES_OPERATOR_CONFIRMATION` and blocks only that concrete project write lane.
+If the selected concrete repo root is dirty and the operator has not confirmed that baseline, the command returns `DIRTY_BASELINE_REQUIRES_OPERATOR_CONFIRMATION` and blocks only that concrete repo write lane.
 
 ### `container-inventory`
 
@@ -42,7 +42,7 @@ This mode returns `CONTAINER_INVENTORY_ONLY` and exits successfully even when ne
 cd /srv/bears/plugins/bears
 python3 scripts/project_dirty_baseline.py validate
 python3 scripts/project_dirty_baseline.py capture --root /srv/bears/projects --scope-mode container-inventory --json
-python3 scripts/project_dirty_baseline.py capture --root <concrete-project-root> --json
+python3 scripts/project_dirty_baseline.py capture --root <concrete-repo-root> --json
 ```
 
 ## Role-gate rule

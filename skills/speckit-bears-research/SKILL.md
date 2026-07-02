@@ -1,6 +1,6 @@
 ---
 name: speckit-bears-research
-description: Produce Spec Kit-style research artifacts before specification work, covering GitHub prior art, external best practices, UI/UX-friendly interfaces, risks, and documented recommendations for Bears projects.
+description: Produce Spec Kit-style research artifacts before specification work, covering GitHub prior art, external best practices, UI/UX-friendly interfaces, risks, and documented recommendations for Bears targets.
 ---
 
 # Bears Spec Kit Research
@@ -41,7 +41,7 @@ Write under the current feature directory when it exists:
 - `prior-art.md` — GitHub/project examples and comparison notes.
 - `ux-research.md` — user-friendly interface patterns and recommendations.
 
-If no feature directory exists yet, write a bounded section under `README.md` or the narrowest project docs path, then move it into the feature after `$speckit-specify` creates one.
+If no feature directory exists yet, write a bounded section under `README.md` or the narrowest target docs path, then move it into the feature after `$speckit-specify` creates one.
 
 ## Required structure
 
@@ -61,4 +61,4 @@ Each artifact must include:
 - Do not copy large source text or proprietary content.
 - Prefer official documentation, primary repositories, and maintained examples.
 - Mark stale or unverified claims explicitly.
-- Keep user-facing summaries concise and write project artifacts in English.
+- Keep user-facing summaries concise and write target artifacts in English.

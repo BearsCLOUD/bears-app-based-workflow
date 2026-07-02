@@ -492,6 +492,21 @@ PLUGIN_GOVERNANCE_ALLOWED_EXACT_TERMS = {
     "kubernetes_deployment",
     "fresh_no_parent_context",
 }
+PLUGIN_GOVERNANCE_REQUIRED_ENTITY_TERM_POLICY = {
+    "app": {
+        "meaning_fragments": ("/srv/bears/dev/app", "BearsCLOUD/apps"),
+        "forbidden_meanings": ("local repository", "plugin", "connector", "MCP server", "runtime surface"),
+    },
+    "project": {
+        "meaning_fragments": ("GitHub Project", "Issues", "metadata fields"),
+        "forbidden_meanings": (
+            "product application",
+            "local repository",
+            "workspace directory",
+            "deprecated /srv/bears/projects",
+        ),
+    },
+}
 PLUGIN_GOVERNANCE_FORBIDDEN_TOKEN = "deploy"
 PLUGIN_GOVERNANCE_FORBIDDEN_SECTION_KEY_TOKENS = (
     "example",
@@ -828,6 +843,52 @@ def validate_plugin_governance_language_policy(plugin_root: Path) -> list[str]:
                 "plugin governance language policy wording_policy.allowed_exact_terms missing: "
                 + ", ".join(missing_allowed_terms)
             )
+
+    entity_term_policy = wording_policy.get("entity_term_policy")
+    if not isinstance(entity_term_policy, dict):
+        errors.append("plugin governance language policy wording_policy.entity_term_policy must be an object")
+    else:
+        for term, requirement in PLUGIN_GOVERNANCE_REQUIRED_ENTITY_TERM_POLICY.items():
+            term_policy = entity_term_policy.get(term)
+            if not isinstance(term_policy, dict):
+                errors.append(
+                    f"plugin governance language policy wording_policy.entity_term_policy.{term} must be an object"
+                )
+                continue
+            meaning = term_policy.get("meaning")
+            if not isinstance(meaning, str) or not meaning.strip():
+                errors.append(
+                    f"plugin governance language policy wording_policy.entity_term_policy.{term}.meaning must be a non-empty string"
+                )
+            else:
+                missing_fragments = [
+                    fragment for fragment in requirement["meaning_fragments"] if fragment not in meaning
+                ]
+                if missing_fragments:
+                    errors.append(
+                        f"plugin governance language policy wording_policy.entity_term_policy.{term}.meaning missing: "
+                        + ", ".join(missing_fragments)
+                    )
+            required_precision = term_policy.get("required_precision")
+            if not isinstance(required_precision, str) or not required_precision.strip():
+                errors.append(
+                    f"plugin governance language policy wording_policy.entity_term_policy.{term}.required_precision must be a non-empty string"
+                )
+            forbidden_meanings = term_policy.get("forbidden_meanings")
+            if not isinstance(forbidden_meanings, list):
+                errors.append(
+                    f"plugin governance language policy wording_policy.entity_term_policy.{term}.forbidden_meanings must be a list"
+                )
+            else:
+                forbidden_text = "\n".join(item for item in forbidden_meanings if isinstance(item, str))
+                missing_forbidden = [
+                    fragment for fragment in requirement["forbidden_meanings"] if fragment not in forbidden_text
+                ]
+                if missing_forbidden:
+                    errors.append(
+                        f"plugin governance language policy wording_policy.entity_term_policy.{term}.forbidden_meanings missing: "
+                        + ", ".join(missing_forbidden)
+                    )
 
     token_rules = wording_policy.get("forbidden_token_rules")
     if not isinstance(token_rules, list):

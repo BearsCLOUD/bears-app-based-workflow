@@ -7,7 +7,7 @@
     "role_gate": "Every item must route to a plugin-owned specialist role before product or platform implementation. Unknown parts block implementation until the role/catalog artifact is created and validated.",
     "sequence": [
       "inventory",
-      "mandatory project artifacts",
+      "mandatory target artifacts",
       "characterization tests",
       "adapter boundary",
       "Aiogram 3 platform alignment",
@@ -165,7 +165,7 @@
         "Add characterization tests around message rendering, callbacks, auth denial, and polling startup/import."
       ],
       "validation_before_code": [
-        "Validate project artifacts first.",
+        "Validate target artifacts first.",
         "Run local lint/import/tests from pyproject or documented local command after adding coverage."
       ],
       "live_runtime_policy": "No live admin bot sends, polling changes, or token access without explicit operator approval.",
@@ -341,7 +341,7 @@
         "bears-platform-security-reviewer"
       ],
       "required_skill": "telegram-aiogram-migration",
-      "readiness_gate": "Stable Aiogram 3 hardening packet and project artifacts required before implementation edits.",
+      "readiness_gate": "Stable Aiogram 3 hardening packet and target artifacts required before implementation edits.",
       "artifact_gate": {
         "status": "blocked-before-code",
         "present": [
@@ -457,7 +457,7 @@
         "projects/metamask/src/bot.mjs"
       ],
       "next_actions": [
-        "Keep as inventory-only Telegram bot candidate until owning project artifacts and role mapping exist.",
+        "Keep as inventory-only Telegram bot candidate until owning target artifacts and role mapping exist.",
         "Document commands, admin checks, token boundary, and visible bot behavior before any framework rewrite proposal.",
         "Do not infer Aiogram implementation readiness from a single Telegraf file."
       ],

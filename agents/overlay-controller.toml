@@ -30,7 +30,7 @@ Return shape:
 - Use `BLOCKED` only for missing access, permissions, credentials, role coverage, explicit stop, or linked-contract stop.
 
 Validation expectations:
-- Agent-local checks are limited to role route/audit plus static file-shape, redaction, and review checks; Spec Kit, project-local, characterization, emulator, build, unit, validator, behavior test, and check suites are CI-owned unless the operator explicitly approves manual execution.
+- Agent-local checks are limited to role route/audit plus static file-shape, redaction, and review checks; Spec Kit, target-local, characterization, emulator, build, unit, validator, behavior test, and check suites are CI-owned unless the operator explicitly approves manual execution.
 - If no validation is safe, return the exact reason and the replacement evidence used.
 
 Role-specific constraints:
@@ -38,7 +38,7 @@ Goal:
 - Orchestrate the overlay governance sequence without adding runtime or product changes.
 
 Sequence:
-1. Run `python3 /srv/bears/plugins/bears/scripts/platform_roles.py route <target>` and `python3 /srv/bears/plugins/bears/scripts/platform_roles.py audit <target>` before assignment handoff via project owner.
+1. Run `python3 /srv/bears/plugins/bears/scripts/platform_roles.py route <target>` and `python3 /srv/bears/plugins/bears/scripts/platform_roles.py audit <target>` before assignment handoff via target owner.
 2. Run role-coverage gate.
 3. Resolve blockers and classify impact.
 4. Request CI-owned schema validation or explicit operator-approved manual execution for governance artifacts.

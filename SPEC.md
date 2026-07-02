@@ -22,7 +22,7 @@ It owns:
 - deterministic roadmap control for `/goal`-started workflow runs, including multi-spec concurrency control and session reuse binding;
 - session worker runtime catalogs and validators for Codex sessions that execute current Spec Kit truth under Bears control;
 - subagent orchestration policy for non-product stage-boundary audits, with legacy post-task aliases only for compatibility;
-- project registry gate and the registry-gated `project-mandate` checklist skill;
+- target registry gate and the registry-gated `project-mandate` checklist skill;
 - Telegram workflow governance as a skill-bundle surface under `/srv/bears/plugins/bears/skills/bears-telegram-workflow` plus sibling Telegram skills, catalogs, scripts, and tests;
 - plugin constitution governance at `assets/catalog/plugin-constitution.v1.json` and `scripts/plugin_constitution.py`;
 - executable capability inventory at `capabilities/inventory.v1.json` and plugin constitution wrapper at `capabilities/plugin_constitution/`;
@@ -53,7 +53,7 @@ Required lifecycle order for complex work is:
 9. validation;
 10. stage-boundary audit.
 
-The constitution gate checks the one-plugin boundary, absence of apps/connectors/MCP/runtime/product behavior, external Spec Kit boundary, executable capability-inventory boundary, exact role coverage, English entity-bound artifacts, restricted-data exclusion, and inventory sync.
+The constitution gate checks the one-plugin boundary, absence of product apps/connectors/MCP/runtime/product behavior, external Spec Kit boundary, executable capability-inventory boundary, exact role coverage, English entity-bound artifacts, restricted-data exclusion, and inventory sync.
 
 Validation entrypoint requirements for this surface are:
 
@@ -100,11 +100,11 @@ The canonical route for Telegram workflow governance is:
 
 `python3 /srv/bears/plugins/bears/scripts/platform_roles.py route /srv/bears/plugins/bears/skills/bears-telegram-workflow`
 
-It must select `bears-telegram-platform-engineer`. No standalone `/srv/bears/plugins/bears-telegram-workflow` plugin, app, connector, MCP server, or live Telegram runtime is authorized by this skill bundle. The canonical Bears role gate is first, and Telegram validators are secondary.
+It must select `bears-telegram-platform-engineer`. No standalone `/srv/bears/plugins/bears-telegram-workflow` plugin, product app, connector, MCP server, or live Telegram runtime is authorized by this skill bundle. The canonical Bears role gate is first, and Telegram validators are secondary.
 
 ## Non-goals
 
-- No apps/connectors in this plugin root.
+- No product apps/connectors in this plugin root.
 - No MCP servers in this plugin root.
 - No standalone `bears-speckit` plugin or layer.
 - No upstream Spec Kit skill vendoring.
@@ -151,7 +151,7 @@ Workflow routing stays inside the one-plugin Bears model:
 
 - plugin functionality layer owns Bears skills, workflows, catalogs, validators, schemas, agents, actions, capability inventory, tests, README, SPEC, and reference docs;
 - generated `.specify` workspace files stay ignored and must not become plugin source;
-- generated Spec Kit feature artifacts store project requirements, plans, tasks, research, design, and checklists only;
+- generated Spec Kit feature artifacts store target requirements, plans, tasks, research, design, and checklists only;
 - external upstream layer owns `/srv/bears/.agents/skills/speckit-*` and the installed `specify` CLI;
 - upstream Spec Kit command skills resolve from `/srv/bears/.agents/skills`;
 - `speckit-bears-flow` is a Bears-owned orchestration skill, not a standalone plugin or layer;
@@ -275,7 +275,7 @@ Nested subagents may be created only by explicit delegation-controller roles in 
 
 - `bears-deploy-platform-engineer` for Kubernetes, Proxmox read-only evidence, network evidence, runtime verification, and rollback review lanes;
 - `bears-subagent-orchestration-engineer` for plugin policy, validator, docs placement, and restricted-data safety review lanes;
-- `bears-platform-role-governor` for route audit, registry consistency audit, project-mandate gate review, and user-information placement lanes.
+- `bears-platform-role-governor` for route audit, registry consistency audit, registered-target checklist gate review, and user-information placement lanes.
 
 Every handoff packet must include:
 
@@ -305,9 +305,9 @@ The machine policy is `assets/catalog/subagent-orchestration-policy.v1.json`. It
 python3 scripts/subagent_orchestration_policy.py validate
 ```
 
-## Project registry gate
+## Target registry gate
 
-`project-mandate` is a checklist only. It must not run for arbitrary `/srv/bears` paths.
+`project-mandate` is a registered-target checklist only. It must not run for arbitrary `/srv/bears` paths.
 
 Before `project-mandate`, run:
 
@@ -334,7 +334,7 @@ Canonical agent workflow map: `assets/catalog/agent-workflow-map.v1.json`.
 
 ## Agentic Enterprise 4-Domain Workflow
 
-The plugin must provide governance for four logical repo domains: `platform`, `gitops`, `infra`, and `product_infra`. The plugin is the governance/control-plane overlay and must not become a generator for product code, GitOps desired state, infra payloads, apps, connectors, MCP servers, runtime services, or production mutation.
+The plugin must provide governance for four logical repo domains: `platform`, `gitops`, `infra`, and `product_infra`. The plugin is the governance/control-plane overlay and must not become a generator for product code, GitOps desired state, infra payloads, product apps, connectors, MCP servers, runtime services, or production mutation.
 
 The workflow contract lives in `assets/catalog/agentic-enterprise-workflow.v1.json`. The constitution lives in `assets/catalog/agentic-enterprise-constitution.v1.json`. The deterministic validator is `scripts/agentic_enterprise_workflow.py`. The hook manifest is `hooks.json`.
 

@@ -30,7 +30,7 @@ Return shape:
 - Use `BLOCKED` only for missing access, permissions, credentials, role coverage, explicit stop, or linked-contract stop.
 
 Validation expectations:
-- Agent-local checks are limited to role route/audit plus static file-shape, redaction, and review checks; Spec Kit, project-local, characterization, emulator, build, unit, validator, behavior test, and check suites are CI-owned unless the operator explicitly approves manual execution.
+- Agent-local checks are limited to role route/audit plus static file-shape, redaction, and review checks; Spec Kit, target-local, characterization, emulator, build, unit, validator, behavior test, and check suites are CI-owned unless the operator explicitly approves manual execution.
 - If no validation is safe, return the exact reason and the replacement evidence used.
 
 Role-specific constraints:
@@ -47,7 +47,7 @@ Start protocol:
 5. If the task touches auth_core, bears_gateway, cd_deploy_stage, Telegram runtime, product apps, runtime services, deploy state, migrations, or integrations, stop and hand off to the registered specialist role.
 
 Implementation rules:
-- Keep the plugin canonical path `/srv/bears/plugins/bears`; do not recreate `/srv/bears/plugins/bears-telegram-workflow` as a plugin, app, connector, MCP server, or runtime.
+- Keep the plugin canonical path `/srv/bears/plugins/bears`; do not recreate `/srv/bears/plugins/bears-telegram-workflow` as a plugin, product app, connector, MCP server, or runtime.
 - Do not vendor upstream `speckit-*` command skills into this plugin.
 - Keep Telegram workflow as a skill bundle inside the canonical plugin only.
 - Keep `workspace-map` disabled unless the operator explicitly re-enables it; broad context must use local dev-core registry/contracts plus scoped read-only evidence.

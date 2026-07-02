@@ -6,7 +6,7 @@
     },
     {
       "id": "runtime_surface_in_plugin",
-      "pattern": "Adding app, connector, MCP server, runtime service, product behavior, or production mutation behavior in this plugin."
+      "pattern": "Adding product app, connector, MCP server, runtime service, product behavior, or production mutation behavior in this plugin."
     },
     {
       "id": "upstream_speckit_vendoring",

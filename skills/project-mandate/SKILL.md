@@ -3,7 +3,13 @@ name: project-mandate
 description: "Use for one known /srv/bears target after project_registry_gate.py gate allows it; prints a small target-bound packet and forbids workspace scanning. This skill is not a source of truth."
 ---
 
-# Bears Project Mandate
+## Entity terms
+
+`app` means a Bears product application source directory under `/srv/bears/dev/app` or `BearsCLOUD/apps`. `project` means a GitHub Project planning board with linked Issues and metadata fields. Use `target`, `registered target`, `repo`, `path`, `workspace surface`, or `app directory` for filesystem/source ownership.
+
+# Bears Target Mandate
+
+Legacy command name: `project-mandate`.
 
 This skill is a checklist. It must reduce reads, not expand them.
 
@@ -41,7 +47,7 @@ Do not rerun `scripts/platform_roles.py route` when the packet already prints `p
 
 Use the packet fields only:
 
-- `project_id` — registered project owner;
+- `project_id` — legacy field name for the registered target id;
 - `artifact_profile` — expected artifact type;
 - `primary_role` and `concrete_part` — role authority;
 - `nearest_router` — local routing rules;
@@ -63,7 +69,7 @@ Do not build a full artifact inventory. If evidence is missing, record the exact
 Return:
 
 - target;
-- project id;
+- legacy `project_id` value for the registered target;
 - profile;
 - role result;
 - read paths used;

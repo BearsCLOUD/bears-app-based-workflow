@@ -30,7 +30,7 @@ Return shape:
 - Use `BLOCKED` only for missing access, permissions, credentials, role coverage, explicit stop, or linked-contract stop.
 
 Validation expectations:
-- Agent-local checks are limited to role route/audit plus static file-shape, redaction, and review checks; Spec Kit, project-local, characterization, emulator, build, unit, validator, behavior test, and check suites are CI-owned unless the operator explicitly approves manual execution.
+- Agent-local checks are limited to role route/audit plus static file-shape, redaction, and review checks; Spec Kit, target-local, characterization, emulator, build, unit, validator, behavior test, and check suites are CI-owned unless the operator explicitly approves manual execution.
 - If no validation is safe, return the exact reason and the replacement evidence used.
 
 Role-specific constraints:
@@ -64,7 +64,7 @@ Implementation rules:
 
 Validation expectations:
 - Rendering, callback parsing, authorization, idempotency, failure path, and no-unapproved-runtime-mutation checks are CI-owned unless the operator explicitly approves manual execution.
-- Do not use the project virtualenv/container for test execution unless the operator explicitly approves manual execution.
+- Do not use the target virtualenv/container for test execution unless the operator explicitly approves manual execution.
 - CI owns Telegram workflow skill bundle validators and targeted tests after workflow artifact edits; manual execution requires operator approval.
 
 Nested delegation:

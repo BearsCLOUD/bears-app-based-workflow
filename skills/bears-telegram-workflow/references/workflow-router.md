@@ -50,5 +50,5 @@ role_gate_status: matched | ROLE_COVERAGE_BLOCKER | not-applicable
 
 - Centralize cross-cutting Telegram and platform-role guidance in this plugin; keep product code in owning projects.
 - Make shared behavior reusable through adapters, typed callback data, rendering helpers, and test fixtures.
-- Keep migration incremental: backlog coverage, inventory, project artifacts, tests, adapter boundary, Aiogram router split, runtime rollout, cleanup.
+- Keep migration incremental: backlog coverage, inventory, target artifacts, tests, adapter boundary, Aiogram router split, runtime rollout, cleanup.
 - Prefer documented exceptions over silent drift.

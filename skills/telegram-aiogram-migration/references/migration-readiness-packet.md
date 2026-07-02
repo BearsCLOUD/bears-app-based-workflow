@@ -73,4 +73,4 @@ exceptions:
 
 ## Acceptance gate
 
-Do not start a broad rewrite until the backlog item validates, the role gate matches, mandatory project artifacts are present or explicitly blocking, and commands, callbacks, FSM states, side effects, secret governance, and validation are either inventoried or explicitly marked missing with a follow-up task.
+Do not start a broad rewrite until the backlog item validates, the role gate matches, mandatory target artifacts are present or explicitly blocking, and commands, callbacks, FSM states, side effects, secret governance, and validation are either inventoried or explicitly marked missing with a follow-up task.

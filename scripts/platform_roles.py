@@ -651,13 +651,7 @@ def route_target(catalog: dict[str, Any], target: str, *, plugin_root: Path = PL
             catalog=catalog,
             extra_evidence=[str(DEFAULT_CATALOG)],
         )
-    if _is_root_planning_drift_target(target, policy):
-        return _build_blocker(
-            target=target,
-            reason="unmapped",
-            catalog=catalog,
-            extra_evidence=["/srv/bears/AGENTS.md"],
-        )
+    root_planning_drift = _is_root_planning_drift_target(target, policy)
     if normalize(target) in _policy_parent_only_targets(policy):
         return _build_blocker(target=target, reason="parent_only", catalog=catalog)
 
@@ -669,7 +663,8 @@ def route_target(catalog: dict[str, Any], target: str, *, plugin_root: Path = PL
 
     if not matches:
         reason = "unmapped" if _is_path_like(target) else "unknown"
-        return _build_blocker(target=target, reason=reason, catalog=catalog)
+        extra_evidence = ["/srv/bears/AGENTS.md"] if root_planning_drift else None
+        return _build_blocker(target=target, reason=reason, catalog=catalog, extra_evidence=extra_evidence)
 
     best_score = max(match["score"] for match in matches)
     winners = [match for match in matches if match["score"] == best_score]

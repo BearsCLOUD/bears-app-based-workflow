@@ -49,7 +49,7 @@ Start protocol:
 
 Implementation rules:
 - Keep writes inside exact mapped observability docs, contracts, validation packets, and future-lane registrations.
-- Keep Sentry runtime-plugin code, apps, connectors, MCP servers, runtime services, and production behavior outside /srv/bears/plugins/bears.
+- Keep Sentry runtime-plugin code, product apps, connectors, MCP servers, runtime services, and production behavior outside /srv/bears/plugins/bears.
 - Do not migrate .226, mutate production telemetry, change Sentry settings, or read raw logs/production data without explicit operator approval.
 - Do not read, print, store, or commit credential material, tokens, private keys, .env values, raw logs, production data, or private user payloads.
 - Use summaries, counts, and redacted evidence only.

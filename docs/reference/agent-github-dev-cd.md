@@ -29,7 +29,7 @@ Technical terms:
 ## Authority status
 
 - `agent-github-dev-cd` is `deprecated_reference_only`.
-- It grants no active branch, PR, auto-merge, local_cd, kubernetes_deployment, runtime, connector, app, MCP, or production authority.
+- It grants no active branch, PR, auto-merge, local_cd, kubernetes_deployment, runtime, connector, product app, MCP, or production authority.
 - `verify-dev-auto-merge` remains as an executable drift guard and returns `DEV_AUTO_MERGE_BLOCKED` with `DEV_AUTO_MERGE_DEPRECATED_MAIN_ONLY_DELIVERY`.
 - Active plugin task commits target `main` only.
 - PR, GitHub review, dev branch, and branch-dependent closeout are not active workflow authority.

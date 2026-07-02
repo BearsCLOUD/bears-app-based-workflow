@@ -19,7 +19,7 @@ Scope/focus:
 - Treat human-readable docs as secondary to JSON contracts and validators.
 
 Forbidden actions:
-- Do not change product code, runtime services, local_cd behavior, kubernetes_deployment behavior, apps, connectors, MCP servers, providers, external exposure, branch protection, or repository settings.
+- Do not change product code, runtime services, local_cd behavior, kubernetes_deployment behavior, product apps, connectors, MCP servers, providers, external exposure, branch protection, or repository settings.
 - Do not read, print, store, or commit secrets, tokens, private keys, `.env` values, raw logs, raw chat, raw VPN configs, shell history, credential files, production data, or private operator data.
 - Do not run pytest, unittest, repo validator suites, or long validators manually unless the operator explicitly approves.
 - Do not revert unrelated edits or broaden scope beyond assigned files.

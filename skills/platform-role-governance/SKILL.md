@@ -41,7 +41,7 @@ This is the canonical Bears plugin-owned platform role gate. Use it before compa
 - `sentry` routes to the `.226` Sentry/observability future lane.
 - `/srv/bears/dev/app` and `BearsCLOUD/apps` route to the canonical product-app monorepo root. `/srv/bears/dev/products/theants` and `/srv/bears/projects/theants` are legacy migration/archive inputs only. `/srv/bears/dev/app/apps` and `/srv/bears/dev/apps` must stay unmapped.
 - `/srv/bears/dev/registry/projects.v1.json` routes to workspace governance and is the machine registry for `project-mandate`.
-- `project-mandate` and `/srv/bears/plugins/bears/skills/project-mandate` route to the registry-gated project checklist skill.
+- `project-mandate` and `/srv/bears/plugins/bears/skills/project-mandate` route to the registry-gated target checklist skill.
 - `subagent-orchestration-policy` routes to the non-product stage-boundary audit policy; legacy post-task wording is alias-only.
 
 ## Project artifact gate
@@ -53,7 +53,7 @@ cd /srv/bears/plugins/bears
 python3 scripts/project_registry_gate.py gate <target-path>
 ```
 
-If the path is absent from `/srv/bears/dev/registry/projects.v1.json`, return `PROJECT_REGISTRATION_BLOCKER` and do not create project artifacts.
+If the path is absent from `/srv/bears/dev/registry/projects.v1.json`, return `PROJECT_REGISTRATION_BLOCKER` and do not create target artifacts.
 
 ## Non-product closeout gate
 
@@ -63,10 +63,10 @@ When the operator requests subagent mode, keep the main agent orchestration-only
 
 - `bears-deploy-platform-engineer` for Kubernetes, Proxmox read-only evidence, network evidence, runtime verification, and rollback review lanes.
 - `bears-subagent-orchestration-engineer` for plugin policy, validator, docs placement, and restricted-data safety review lanes.
-- `bears-platform-role-governor` for route audit, registry consistency audit, project-mandate gate review, and user-information placement lanes.
+- `bears-platform-role-governor` for route audit, registry consistency audit, registered-target checklist gate review, and user-information placement lanes.
 
 ## Compatibility
 
-`bears-telegram-workflow` is a Telegram workflow skill bundle inside this canonical plugin. Do not recreate a standalone Telegram plugin, app, connector, MCP server, or runtime surface.
+`bears-telegram-workflow` is a Telegram workflow skill bundle inside this canonical plugin. Do not recreate a standalone Telegram plugin, product app, connector, MCP server, or runtime surface.
 
 See `references/missing-role-blocker.md` for the standard blocker wording and decomposition rules.

@@ -16,7 +16,7 @@ This skill is report-first. It does not add app connector, MCP, production deplo
 3. Require local-commit-owned or operator-approved schema-validation evidence for known governance packets when artifacts are present.
 4. For auth/gateway/deploy workflow changes, cite local-commit-owned `scripts/auth_gateway_deploy_readiness.py validate`; manual execution requires operator approval.
 5. For subagent closeout or non-product workflow changes, cite local-commit-owned `scripts/subagent_orchestration_policy.py validate`; manual execution requires operator approval.
-6. For project artifact or registry-gate changes, cite local-commit-owned `scripts/project_registry_gate.py validate-registry`; manual execution requires operator approval.
+6. For target artifact or registry-gate changes, cite local-commit-owned `scripts/project_registry_gate.py validate-registry`; manual execution requires operator approval.
 7. For Spec Kit-gated feature dirs, validate that `spec.md`, `plan.md`, and `tasks.md` exist, that `tasks.md` links to `role-coverage.json`, and that restricted mutation text has operator approval evidence.
 8. For platform-role, dev-core, Kubernetes, Android emulator, Sentry/observability, or The Ants routing changes, run route/audit checks for the changed targets and cite local-commit-owned validation.
 9. Check workflow or README references for old plugin names, invalid command names, broadened scope, deprecated projects parent authority, or source-boundary drift.

@@ -57,7 +57,7 @@ For `status` `pass`, `deterministic_validation_evidence` must be a non-empty obj
 
 The packet must also include either `route_target` with `/srv/bears/plugins/bears/assets/catalog/plugin-constitution.v1.json` or route/audit evidence from `platform_roles.py`. `changed_surfaces` must stay inside the exact plugin constitution governance path set. `lifecycle_position_proof` must be `after route_gate and before research_gate`.
 
-Trust-boundary text fails when it claims app, connector, MCP server, runtime service, product behavior, local_cd expansion, kubernetes_deployment expansion, standalone Bears governance, upstream Spec Kit vendoring, generic deploy wording, illustrative policy sections, or restricted-data access.
+Trust-boundary text fails when it claims product app, connector, MCP server, runtime service, product behavior, local_cd expansion, kubernetes_deployment expansion, standalone Bears governance, upstream Spec Kit vendoring, generic deploy wording, illustrative policy sections, or restricted-data access.
 
 ## Allowed outcomes
 
@@ -68,7 +68,7 @@ Trust-boundary text fails when it claims app, connector, MCP server, runtime ser
 ## Blocked outcomes
 
 - A second Bears governance plugin or standalone Bears governance layer.
-- App, connector, MCP server, runtime service, product behavior, or production mutation behavior in this plugin.
+- Product app, connector, MCP server, runtime service, product behavior, or production mutation behavior in this plugin.
 - Upstream Spec Kit skill vendoring in this plugin.
 - Generic deploy wording for `local_cd` or `kubernetes_deployment` entities.
 - Sample, example, or illustrative policy sections in governed policy surfaces.

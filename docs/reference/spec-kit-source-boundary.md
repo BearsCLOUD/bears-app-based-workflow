@@ -2,7 +2,7 @@
 
 This repository owns the Bears workflow-governance overlay at `/srv/bears/plugins/bears` and the policy for ignored generated `.specify` workspace state.
 
-Upstream Spec Kit skills remain external at `/srv/bears/.agents/skills`. This plugin may define how `.specify` scripts, templates, workflow registry, integration metadata, and constitution are generated, but it must not track generated `.specify` files. It must not vendor upstream `speckit-*` skills, create a second Bears governance plugin, or add app, connector, MCP server, runtime service, product behavior, or production mutation surfaces.
+Upstream Spec Kit skills remain external at `/srv/bears/.agents/skills`. This plugin may define how `.specify` scripts, templates, workflow registry, integration metadata, and constitution are generated, but it must not track generated `.specify` files. It must not vendor upstream `speckit-*` skills, create a second Bears governance plugin, or add product app, connector, MCP server, runtime service, product behavior, or production mutation surfaces.
 
 Workspace-level source-boundary contracts may exist outside this source repository. They are advisory references only unless their rule is mirrored in this repo-local README, SPEC, catalog, validator, workflow, or test surface.
 
@@ -89,7 +89,7 @@ Plugin functionality layer:
 
 - Owns Bears role gates, validators, catalogs, workflow policy, skills, schemas, and plugin documentation.
 - May adapt Spec Kit templates for Bears governance checks.
-- Must not become an upstream Spec Kit fork, app, connector, MCP server, runtime service, product feature, or production mutation surface.
+- Must not become an upstream Spec Kit fork, product app, connector, MCP server, runtime service, product feature, or production mutation surface.
 
 Generated Spec Kit layer:
 

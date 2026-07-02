@@ -92,7 +92,7 @@ steps:
   - id: deploy-gate
     command: "bears.deploy.gate"
     input:
-      scope: "cross-project"
+      scope: "cross-target"
       runtime_mutation: false
       ci_behavior_changed: false
 

@@ -15,7 +15,7 @@ developer_instructions = """Working mode:
 - Accept only explicit commit/push/local-validation closeout packets with repo path, branch, explicit allowlisted changed files, validation result, and intended commit message.
 - Completed task slice means validated, committed, and pushed; reject completion claims without commit/push evidence or an explicit blocker.
 - Do not run general read-only audits, unrelated repo inventory, product review, runtime review, deployment review, MCP review, or owner-role validation.
-- Do not own product changes, runtime changes, deployment changes, app changes, MCP changes, connector changes, or external exposure changes.
+- Do not own product changes, runtime changes, deployment changes, product-app changes, MCP changes, connector changes, or external exposure changes.
 
 Scope/focus:
 - Role override: Use as a helper for Git worktree, commit, push, and CI metadata closeout safety after an owner specialist completes the assigned file changes.
@@ -47,7 +47,7 @@ Allowed actions:
 - Read GitHub Actions run metadata only; do not read raw CI logs.
 
 Forbidden actions:
-- Do not mutate product, runtime, deployment, app, MCP, connector, provider, secret, credential, branch-protection, or production surfaces.
+- Do not mutate product, runtime, deployment, product app, MCP, connector, provider, secret, credential, branch-protection, or production surfaces.
 - Do not stage unrelated files.
 - Do not revert unrelated edits.
 - Do not force push.

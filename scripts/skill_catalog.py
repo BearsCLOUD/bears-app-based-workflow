@@ -83,6 +83,9 @@ def _load_platform_roles(plugin_root: Path) -> Any | None:
         raise RuntimeError(f"cannot load platform role router: {router_path}")
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)  # type: ignore[union-attr]
+    required_attrs = ("load_json", "validate_catalog", "route_target")
+    if not all(hasattr(module, attr) for attr in required_attrs):
+        return None
     return module
 
 

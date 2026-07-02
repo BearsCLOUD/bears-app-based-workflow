@@ -10,6 +10,8 @@ Standalone `bears-speckit` plugin or layer claims are deprecated. The canonical 
 
 `AGENTS.md` files are routers only. Executable policy lives in `assets/catalog/*.v1.json`, `scripts/*.py`, `hooks/*.py`, `skills/*/SKILL.md`, and tests.
 
+Entity terms are hard policy: `app` means a product application source under `/srv/bears/dev/app` or `BearsCLOUD/apps`; `project` means a GitHub Project planning board with linked Issues and metadata fields. Use `target`, `registered target`, `repo`, `path`, `workspace surface`, or `app directory` for filesystem/source ownership.
+
 Use exact child paths with `scripts/platform_roles.py route` and `scripts/platform_roles.py audit`. Parent paths that only classify a group must not authorize implementation.
 
 Infisical is custody and injection only. Kubernetes desired state plus `local_cd` owns runtime software proof. `/srv/bears/control-plane/infisical` is bootstrap or preflight support, not runtime deployment evidence.
@@ -33,7 +35,7 @@ It adds Bears-specific orchestration for:
 - deterministic historical scenario classification and main-only drift guards for deprecated agent GitHub dev CD at `assets/catalog/agent-github-dev-cd.v1.json` and `scripts/agent_github_dev_cd.py`.
 - deprecated Agent GitHub dev CD auto-merge guard through `verify-dev-auto-merge`; it blocks under main-only plugin delivery and grants no active local_cd authority.
 - governed validation hook runner for named repo-local control checks.
-- registry-gated project artifact checks for `/srv/bears`;
+- registry-gated target artifact checks for `/srv/bears`;
 - required stage-boundary audit subagents after non-product work.
 - orchestration-only parent-agent mode with the exact agent runtime matrix and explicit nested delegation controllers.
 - explicit parent control lane for route, validation, status, issue-planning, evidence integration, and subagent closeout actions.
@@ -41,7 +43,7 @@ It adds Bears-specific orchestration for:
 - bounded no-subagent mode for side answers and read-only no-op turns.
 - subagent mode allows at most 100 active subagents or descendants in one workflow (depth max 3).
 - Spec Kit as the planning core for broad, non-product, repo-boundary, plugin, infra, Kubernetes, and migration work.
-- Bears project-native skill chain for constitution, functional specification, GitHub Project planning, pre-execution analysis, and `projectdevsubagents` execution.
+- Bears target-native skill chain for constitution, functional specification, GitHub Project planning, pre-execution analysis, and `projectdevsubagents` execution.
 - infrastructure network map placement in `/srv/bears/docs`, /srv/bears/dev/infrastructure/network planning boundaries, and DNS workflow governance.
 - unified machine-first closeout validation through `assets/catalog/bears-doctor.v1.json` and `scripts/bears_doctor.py`.
 - workspace hygiene classification and safe cleanup planning through `assets/catalog/workspace-hygiene.v1.json` and `scripts/workspace_hygiene.py`.
@@ -85,7 +87,7 @@ Constitution checklist:
 - Changed surfaces stay inside exact plugin constitution governance paths.
 - Lifecycle proof states `after route_gate and before research_gate`.
 - Change stays inside `/srv/bears/plugins/bears`.
-- Apps, connectors, MCP servers, runtime services, product behavior, and production mutation paths are absent.
+- Product apps, connectors, MCP servers, runtime services, product behavior, and production mutation paths are absent.
 - Blocked-pattern text is absent.
 - Upstream Spec Kit remains external.
 - Exact primary specialist or helper role exists for implementation.
@@ -125,7 +127,7 @@ Constitution check:
 
 ### Artifact placement
 
-With a Spec Kit feature directory, store `research.md`, `prior-art.md`, and `ux-research.md` in that directory. Before the feature directory exists, store a bounded section in this README or the narrowest project docs path, then move the artifacts into the feature directory after Spec Kit creates it.
+With a Spec Kit feature directory, store `research.md`, `prior-art.md`, and `ux-research.md` in that directory. Before the feature directory exists, store a bounded section in this README or the narrowest target docs path, then move the artifacts into the feature directory after Spec Kit creates it.
 
 ### Required artifact sections
 
@@ -134,7 +136,7 @@ Each research artifact must include Decision or Recommendation, Rationale, Alter
 
 ## Prototype/spike gate
 
-The prototype gate runs after research and before design when research or design leaves unresolved high-risk uncertainty that can be cheaply tested. The artifact is `prototype.md` or `spike.md` under the feature directory or the narrowest project docs path.
+The prototype gate runs after research and before design when research or design leaves unresolved high-risk uncertainty that can be cheaply tested. The artifact is `prototype.md` or `spike.md` under the feature directory or the narrowest target docs path.
 
 Required artifact fields: hypothesis or uncertainty; prototype scope and non-goals; commands or checks run; findings and evidence summary; decision outcome; validation implications; cleanup or discard requirements.
 
@@ -215,7 +217,7 @@ Local commit validation targeted tests cover required design, approved skip, nar
 
 ### Compatibility notes
 
-The contract adds repo-only governance validation. It does not add apps, connectors, MCP servers, runtime services, production deploy behavior, or product behavior.
+The contract adds repo-only governance validation. It does not add product apps, connectors, MCP servers, runtime services, production deploy behavior, or product behavior.
 
 ### Safety boundaries
 
@@ -321,8 +323,8 @@ Sentry runtime-plugin governance is exact:
 - Owner role: `bears-observability-platform-engineer`.
 - Reviewer role: `bears-platform-security-reviewer`.
 - Trust boundary: Sentry API data can include secrets, user identifiers, private stack data, and production runtime signals; this Codex plugin stores only governance metadata and redacted evidence rules.
-- Allowed operations: read-only issue summaries, project health summaries, release error counts, issue count trends, alert status summaries, and redacted validation packets.
-- Forbidden operations: Sentry settings mutation, raw event payload export, stacktrace frame export, trace/span/breadcrumb/attachment/raw-log export, credential reads, user email/IP/cookie/header/request-body exposure, project deletion, integration token management, alert rule mutation, production data exposure without explicit operator approval and security review, and runtime code inside `/srv/bears/plugins/bears`.
+- Allowed operations: read-only issue summaries, Sentry project health summaries, release error counts, issue count trends, alert status summaries, and redacted validation packets.
+- Forbidden operations: Sentry settings mutation, raw event payload export, stacktrace frame export, trace/span/breadcrumb/attachment/raw-log export, credential reads, user email/IP/cookie/header/request-body exposure, Sentry project deletion, integration token management, alert rule mutation, production data exposure without explicit operator approval and security review, and runtime code inside `/srv/bears/plugins/bears`.
 - Redaction default: deny every Sentry field unless `assets/catalog/platform-role-catalog.v1.json` allowlists it under `runtime_plugin_capability.redaction_rules.allowed_fields`.
 - Evidence default: redacted-only summaries and counts.
 
@@ -400,7 +402,7 @@ Policy validation, role routing, registry gates, overlay checks, roadmap validat
 | Condition | Required result |
 | --- | --- |
 | Agent needs role route or role audit evidence | Use `role_route` or `role_audit` hook with `validation_target` |
-| Agent needs project registry evidence | Use `project_registry_gate` hook with `validation_target` |
+| Agent needs target-registry evidence | Use `project_registry_gate` hook with `validation_target` |
 | Agent needs plugin policy validation | Use `subagent_policy_validate`, `overlay_validate`, `roadmap_validate`, or `git_discipline_validate` |
 | Agent needs dirty closeout path coverage | Use `python3 scripts/git_discipline.py closeout-preflight --repo <repo> --allowed-path <path> --expected-branch-prefix <prefix> --gitlink-proof <path>:<old-object>:<target-object>:<source-pr-merge-commit> --json` for gitlink paths and block on `DIRTY_WORKTREE_BLOCKER` or `CLOSEOUT_PREFLIGHT_BLOCKED` |
 | Agent needs branch cleanup evidence | Use `python3 scripts/git_discipline.py branch-inventory --repo <repo> --base <base> --json` before any local or remote branch delete request |
@@ -434,7 +436,7 @@ Targeted tests cover valid hook config, unknown hook rejection, arbitrary shell 
 
 ### Compatibility notes
 
-This is governance design only. It does not add apps, connectors, MCP servers, runtime services, production runtime mutation, or a shell runner.
+This is governance design only. It does not add product apps, connectors, MCP servers, runtime services, production runtime mutation, or a shell runner.
 
 ### Safety boundaries
 
@@ -448,9 +450,9 @@ None for issue #17.
 
 Closeout requires subagent policy validation, overlay validation, targeted tests, role route/audit evidence, and security review evidence for restricted-data handling.
 
-Operator note: in this repo, "Telegram workflow" means governance rules for Telegram bot approval, status, callback, and message-UI flows. It does not mean a live Telegram bot, runtime, connector, app, or MCP surface inside this plugin.
+Operator note: in this repo, "Telegram workflow" means governance rules for Telegram bot approval, status, callback, and message-UI flows. It does not mean a live Telegram bot, runtime, connector, product app, or MCP surface inside this plugin.
 
-Telegram workflow governance still lives inside this canonical plugin as internal skills, catalogs, scripts, and tests. `bears-telegram-workflow` is a skill name only; do not recreate `/srv/bears/plugins/bears-telegram-workflow` as a standalone plugin, app, connector, MCP surface, or runtime.
+Telegram workflow governance still lives inside this canonical plugin as internal skills, catalogs, scripts, and tests. `bears-telegram-workflow` is a skill name only; do not recreate `/srv/bears/plugins/bears-telegram-workflow` as a standalone plugin, product app, connector, MCP surface, or runtime.
 
 Telegram governance assets are currently disabled from active plugin skill discovery. The preserved skill documents stay on disk as `skills/bears-telegram-workflow/SKILL.disabled.md`, `skills/telegram-aiogram-migration/SKILL.disabled.md`, `skills/telegram-plugin-skill-factory/SKILL.disabled.md`, and `skills/telegram-quality-testing/SKILL.disabled.md`; those directories do not contain `SKILL.md`, so plugin discovery cannot load them as active skills.
 
@@ -551,12 +553,12 @@ Disabled skills expose only `SKILL.disabled.md`; they MUST NOT keep `SKILL.md`.
 - `skills/development-workflow-orchestration` — Coordinate broad Bears development workflow through validated packets and domain orchestrators.
 - `skills/platform-role-governance` — Enforce the canonical Bears plugin-owned platform role gate.
 - `skills/python-codeflow` — Enforce Bears Python codeflow, src layout, Clean/Hexagonal boundaries, runtime module splitting, validation, docs, tests, and gitflow hygiene.
-- `skills/project-mandate` — Run the registry-gated project artifact checklist after project registry gate approval.
+- `skills/project-mandate` — Run the registry-gated target artifact checklist after target registry gate approval.
 - `skills/secret-factory` — Govern write-only local secret generation and Infisical creation with provider handoff refusals.
 - `skills/speckit-bears-flow` — Run the Bears opinionated Spec Kit orchestration flow.
-- `skills/speckit-bears-research` — Produce Spec Kit-style research artifacts for Bears projects.
-- `skills/bears-project-constitution` — Create or update Bears project constitutions with ownership, artifact maps, validation duties, and dependent-doc sync.
-- `skills/bears-project-specify` — Create or update Bears project specifications and functional documentation from operator intent, constitution rules, and repo evidence.
+- `skills/speckit-bears-research` — Produce Spec Kit-style research artifacts for Bears targets.
+- `skills/bears-project-constitution` — Create or update Bears target constitutions with ownership, artifact maps, validation duties, and dependent-doc sync.
+- `skills/bears-project-specify` — Create or update Bears target specifications and functional documentation from operator intent, constitution rules, and repo evidence.
 - `skills/bears-project-plan` — Plan Bears implementation through GitHub Projects and Issues with route-selected roles, dependencies, validation, and projectdevsubagents handoff.
 - `skills/github-project-planning` — Plan and administer Bears GitHub Projects, fields, views, issues, sub-issues, item hygiene, and planning PASS handoffs before projectdevsubagents development execution.
 - `skills/bears-project-analyze` — Analyze Bears constitutions, specs, docs, GitHub Project plans, Issues, routes, validation, dependencies, and projectdevsubagents handoff for drift.
@@ -581,7 +583,7 @@ Canonical agent workflow map: `assets/catalog/agent-workflow-map.v1.json`.
 The Bears plugin owns a compact agentic enterprise workflow surface:
 
 - `assets/catalog/agentic-enterprise-constitution.v1.json` stores the role-scoped principles: Docs-as-Code, Contract-first, Schema-first, DRY, modularity, single responsibility, executable validation, file-backed state, no hidden state, metrics, ADR, Policy-as-Code, and Observability-as-Code.
-- `assets/catalog/agentic-enterprise-workflow.v1.json` defines four repo domains: `platform`, `gitops`, `infra`, and `product_infra`. The plugin validates boundaries and must not generate product, GitOps, infra, connector, MCP, app, runtime-service, or production-mutation payloads.
+- `assets/catalog/agentic-enterprise-workflow.v1.json` defines four repo domains: `platform`, `gitops`, `infra`, and `product_infra`. The plugin validates boundaries and must not generate product, GitOps, infra, connector, MCP, product app, runtime-service, or production-mutation payloads.
 - `assets/catalog/subagent-orchestration-policy.v1.json` lists L2 domain delegation controllers for `platform`, `gitops`, `infra`, and `product_infra`. Each L2 controller may spawn only `bears-token-budget-helper`, `bears-git-workflow-helper`, and `bears-review-fix-helper` with `fork_context=false` and `parent_context=none`.
 - `scripts/agentic_enterprise_workflow.py` validates the constitution, workflow catalog, decision logs, scope matrices, and hook decisions. Local commit validation is the closeout authority; operator-dispatched GitHub diagnostics may run this validator only as non-closeout evidence.
 - `assets/catalog/tech-debt-matrix.v1.json` records workflow debt as state-file-backed rows. `scripts/tech_debt_matrix.py validate` keeps local validation failures and workflow defects executable instead of chat-only.

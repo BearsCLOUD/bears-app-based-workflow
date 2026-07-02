@@ -836,16 +836,36 @@ def _write_canonical_fixture_assets(plugin_root: Path) -> None:
             "style": "strict_entity_bound_concise",
             "abstract_drift": "blocked",
             "section_mode": "policy_only",
-        "required_entity_terms": ["local_cd", "kubernetes_deployment"],
-        "allowed_exact_terms": [
-            "github_ci",
-            "local_cd",
-            "dev-cd-gate",
-            "git_discipline",
-            "kubernetes_deployment",
-            "fresh_no_parent_context",
-        ],
-        "forbidden_token_rules": [
+            "required_entity_terms": ["local_cd", "kubernetes_deployment"],
+            "allowed_exact_terms": [
+                "github_ci",
+                "local_cd",
+                "dev-cd-gate",
+                "git_discipline",
+                "kubernetes_deployment",
+                "fresh_no_parent_context",
+            ],
+            "entity_term_policy": {
+                "app": {
+                    "meaning": "Bears product application source under /srv/bears/dev/app or a BearsCLOUD/apps app directory.",
+                    "required_precision": "Use product app, app directory, or /srv/bears/dev/app when the surface is application source.",
+                    "forbidden_meanings": [
+                        "local repository authority outside /srv/bears/dev/app",
+                        "plugin, connector, MCP server, or runtime surface unless the exact external product term is named",
+                    ],
+                },
+                "project": {
+                    "meaning": "GitHub Project planning board with linked Issues and metadata fields.",
+                    "required_precision": "Use GitHub Project when planning board authority is meant; use repo, path, target, app directory, or workspace surface for filesystem or source ownership.",
+                    "forbidden_meanings": [
+                        "product application",
+                        "local repository",
+                        "workspace directory",
+                        "deprecated /srv/bears/projects parent authority",
+                    ],
+                },
+            },
+            "forbidden_token_rules": [
                 {
                     "token": "deploy",
                     "status": "forbidden",
@@ -1202,6 +1222,63 @@ def test_validate_requires_plugin_governance_allowed_exact_terms(tmp_path: Path)
 
     assert errors_count > 0
     assert any("wording_policy.allowed_exact_terms missing" in error for error in errors)
+
+
+def test_validate_requires_plugin_governance_entity_term_policy(tmp_path: Path) -> None:
+    plugin_root, _feature_dir, workspace_root = _create_plugin_fixture(tmp_path)
+    policy_path = plugin_root / "assets" / "catalog" / "plugin-governance-language-policy.v1.json"
+    policy = json.loads(policy_path.read_text())
+    policy["wording_policy"].pop("entity_term_policy")
+    policy_path.write_text(json.dumps(policy))
+
+    errors_count, errors, _warnings = validate_all(
+        plugin_root=plugin_root,
+        workspace_root=workspace_root,
+        feature_dir=None,
+        strict_overlay_skills=False,
+        require_artifacts=False,
+    )
+
+    assert errors_count > 0
+    assert "plugin governance language policy wording_policy.entity_term_policy must be an object" in errors
+
+
+def test_validate_requires_project_to_mean_github_project(tmp_path: Path) -> None:
+    plugin_root, _feature_dir, workspace_root = _create_plugin_fixture(tmp_path)
+    policy_path = plugin_root / "assets" / "catalog" / "plugin-governance-language-policy.v1.json"
+    policy = json.loads(policy_path.read_text())
+    policy["wording_policy"]["entity_term_policy"]["project"]["meaning"] = "local workspace directory"
+    policy_path.write_text(json.dumps(policy))
+
+    errors_count, errors, _warnings = validate_all(
+        plugin_root=plugin_root,
+        workspace_root=workspace_root,
+        feature_dir=None,
+        strict_overlay_skills=False,
+        require_artifacts=False,
+    )
+
+    assert errors_count > 0
+    assert any("entity_term_policy.project.meaning missing" in error for error in errors)
+
+
+def test_validate_requires_app_to_mean_product_app_source(tmp_path: Path) -> None:
+    plugin_root, _feature_dir, workspace_root = _create_plugin_fixture(tmp_path)
+    policy_path = plugin_root / "assets" / "catalog" / "plugin-governance-language-policy.v1.json"
+    policy = json.loads(policy_path.read_text())
+    policy["wording_policy"]["entity_term_policy"]["app"]["meaning"] = "generic plugin surface"
+    policy_path.write_text(json.dumps(policy))
+
+    errors_count, errors, _warnings = validate_all(
+        plugin_root=plugin_root,
+        workspace_root=workspace_root,
+        feature_dir=None,
+        strict_overlay_skills=False,
+        require_artifacts=False,
+    )
+
+    assert errors_count > 0
+    assert any("entity_term_policy.app.meaning missing" in error for error in errors)
 
 
 def test_validate_blocks_plugin_governance_illustrative_sample_sections(tmp_path: Path) -> None:

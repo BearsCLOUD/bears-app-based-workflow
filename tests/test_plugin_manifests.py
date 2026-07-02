@@ -222,7 +222,7 @@ class PluginManifestTests(unittest.TestCase):
     def test_readme_explains_internal_telegram_workflow_without_listing_skill_inventory(self):
         readme = (PLUGIN_ROOT / "README.md").read_text(encoding="utf-8")
         self.assertIn('Operator note: in this repo, "Telegram workflow" means governance rules', readme)
-        self.assertIn("It does not mean a live Telegram bot, runtime, connector, app, or MCP surface", readme)
+        self.assertIn("It does not mean a live Telegram bot, runtime, connector, product app, or MCP surface", readme)
         self.assertIn("disabled from active plugin skill discovery", readme)
         self.assertIn("SKILL.disabled.md", readme)
         self.assertNotIn(

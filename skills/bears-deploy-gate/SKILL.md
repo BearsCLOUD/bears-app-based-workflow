@@ -11,7 +11,7 @@ This skill does not mutate deploy state. It is report-first and advisory unless 
 
 ## Workflow
 
-1. Classify scope as `overlay-only`, `workspace-control`, `project-local`, or `cross-project`.
+1. Classify scope as `overlay-only`, `workspace-control`, `target-local`, or `cross-target`.
 2. Rate deploy, rollback, secret, and runtime impact as `none`, `low`, `medium`, or `high`; rollback may also be `required`.
 3. Confirm that no secrets, `.env` values, production data, raw logs, or raw VPN configs are introduced.
 4. Emit JSON first using the `bears-workflow-overlay.deploy-gate` shape.

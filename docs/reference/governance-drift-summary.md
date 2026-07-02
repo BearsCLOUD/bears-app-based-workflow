@@ -13,11 +13,11 @@ Drift means a checked runtime, repository, cache, CI, hook, connector, or agent 
 ## Highest-impact drift groups
 
 1. Plugin does not prove control over all active agents.
-   - Unmanaged global and project-local agents remain outside concrete Bears role/principle binding.
+   - Unmanaged global and target-local agents remain outside concrete Bears role/principle binding.
 2. Constitution role keys do not match active agent names.
    - Scoped principles use abstract L1/L2/L3/reviewer keys that do not bind to concrete agent inventories.
 3. L1/L2 lifecycle rule is not fully propagated.
-   - Stale project-local hook and agent text can still imply L2 spawn-packet behavior instead of L1 task decomposition and L2 governance review.
+   - Stale target-local hook and agent text can still imply L2 spawn-packet behavior instead of L1 task decomposition and L2 governance review.
 4. Active project hooks reference missing plugin scripts.
    - Hook paths name scripts that are not present in the plugin source tree.
 5. Hook proof checks presence, not effective execution.
@@ -61,13 +61,13 @@ Drift means a checked runtime, repository, cache, CI, hook, connector, or agent 
 - W12: marketplace-and-installed-cache-sha-are-stale
 - W13: bounded-runtime-evidence-tooling-gap
 - W14: unknown-layer-hook-allows-tools
-- W15: project-local-codex-hooks-are-unmapped
-- W16: project-local-codex-agents-are-separate-from-plugin-agents
+- W15: target-local-codex-hooks-are-unmapped
+- W16: target-local-codex-agents-are-separate-from-plugin-agents
 - W17: user-codex-config-is-unmapped-and-contains-sensitive-runtime-material
 - W18: hook-event-schema-contract-is-not-proven
 - W19: parent-workspace-gitlink-lags-plugin-main
 - W20: active-model-instructions-do-not-reference-plugin-workflow
-- W21: project-local-hooks-reference-missing-plugin-scripts
+- W21: target-local-hooks-reference-missing-plugin-scripts
 - W22: plugin-hooks-and-project-hooks-are-different-implementations
 - W23: hook-registration-schema-mismatch-risk
 - W24: installed-cache-diff-spans-governance-code
@@ -102,8 +102,8 @@ Drift means a checked runtime, repository, cache, CI, hook, connector, or agent 
 - W53: scoped-l2-l3-hooks-have-no-tool-allowlist
 - W54: active-external-plugin-and-mcp-inventory-is-not-validated-by-bears-plugin
 - W55: active-custom-orchestrator-agent-has-stale-l2-spawn-packet-language
-- W56: project-local-agent-role-coverage-is-partial-and-one-route-is-wrong-scope
-- W57: project-local-agent-prompts-mostly-lack-plugin-principle-workflow-markers
+- W56: target-local-agent-role-coverage-is-partial-and-one-route-is-wrong-scope
+- W57: target-local-agent-prompts-mostly-lack-plugin-principle-workflow-markers
 - W58: active-project-session-hook-still-instructs-l2-spawn-packets
 - W59: plugin-worktree-has-uncommitted-specify-boundary-expansion
 - W60: active-project-agent-directory-contains-stale-backup-prompt-material
@@ -124,7 +124,7 @@ Drift means a checked runtime, repository, cache, CI, hook, connector, or agent 
 - W75: agent-github-dev-cd-doc-conflicts-with-no-spawn-per-task
 - W76: roadmap-control-spawn-gates-do-not-carry-l1-l2-no-spawn-policy
 - W77: agent-registration-proof-lacks-main-sha-ci-and-delivery-binding
-- W78: user-agent-registration-check-does-not-cover-project-local-agent-root
+- W78: user-agent-registration-check-does-not-cover-target-local-agent-root
 - W79: agent-registration-check-reports-tool-schema-staleness-but-still-passes
 - W80: active-model-instructions-do-not-load-plugin-principles
 - W81: active-session-start-hooks-do-not-emit-principle-or-delivery-state
@@ -172,8 +172,8 @@ Drift means a checked runtime, repository, cache, CI, hook, connector, or agent 
 - W123: pretooluse-allows-unknown-agent-layer-with-tool-name
 - W124: manifest-prompt-required-does-not-require-a-manifest-prompt-field
 - W125: constitution-validation-commands-conflict-with-agent-local-test-ban
-- W126: project-local-agents-have-no-source-digest-or-principle-binding
-- W127: agent-registration-sync-has-no-project-local-target
+- W126: target-local-agents-have-no-source-digest-or-principle-binding
+- W127: agent-registration-sync-has-no-target-local-target
 - W128: no-active-spec-kit-feature-packet-for-plugin-workflow-proof
 - W129: staged-specify-deletion-hides-generated-state-behind-ignore-rules
 - W130: effective-environment-resolver-is-sanitized-metadata-not-runtime-proof
@@ -188,12 +188,12 @@ Drift means a checked runtime, repository, cache, CI, hook, connector, or agent 
 - W139: agent-registration-sync-declares-disk-only-proof-without-active-tool-schema-verification
 - W140: principle-catalogs-are-not-bound-to-most-agent-prompts
 - W141: canonical-agent-source-validation-checks-codex-fields-but-not-principle-binding
-- W142: project-local-agent-directory-still-outside-sync-and-principle-policy
+- W142: target-local-agent-directory-still-outside-sync-and-principle-policy
 - W143: config-enabled-plugin-does-not-match-active-plugin-inventory
 - W144: cached-plugin-files-do-not-prove-active-plugin-registration
 - W145: active-config-has-no-hook-registration-section
 - W146: plugin-hook-commands-depend-on-runtime-plugin-root-env-vars
-- W147: project-local-hooks-use-different-event-contract-and-remain-outside-plugin-cache-proof
+- W147: target-local-hooks-use-different-event-contract-and-remain-outside-plugin-cache-proof
 - W148: managed-global-agents-are-stale-against-canonical-source
 - W149: agent-registration-sync-remains-disk-only-runtime-proof
 - W150: plugin-spec-kit-feature-packet-is-missing
@@ -203,8 +203,8 @@ Drift means a checked runtime, repository, cache, CI, hook, connector, or agent 
 - W154: plugin-manifest-does-not-deliver-agent-registration
 - W155: active-bootstrap-instructions-do-not-load-plugin-principles
 - W156: constitution-principles-are-not-bound-across-agent-prompts
-- W157: project-local-agent-profiles-are-outside-plugin-principle-coverage
-- W158: l1-l2-source-rule-is-not-proven-active-for-project-local-or-stale-managed-agents
+- W157: target-local-agent-profiles-are-outside-plugin-principle-coverage
+- W158: l1-l2-source-rule-is-not-proven-active-for-target-local-or-stale-managed-agents
 - W159: cache-sync-closeout-state-can-pass-while-runtime-governance-remains-unproven
 - W160: docs-only-ci-path-skips-runtime-governance-tests-for-audit-findings
 - W161: hook-policy-validation-only-checks-json-shape
@@ -215,7 +215,7 @@ Drift means a checked runtime, repository, cache, CI, hook, connector, or agent 
 - W166: canonical-agent-filenames-diverge-from-agent-type-names
 - W167: active-multi-agent-policy-conflicts-with-bears-workflow-delegation
 - W168: active-agent-schema-includes-unmanaged-generic-roles
-- W169: project-local-bears-agents-are-outside-plugin-sync
+- W169: target-local-bears-agents-are-outside-plugin-sync
 - W170: agent-sync-runtime-checkpoint-has-no-active-tool-schema-comparison
 - W171: config-agents-section-is-not-the-active-agent-authority
 - W172: bootstrap-model-instructions-do-not-bind-plugin-principles
@@ -231,8 +231,8 @@ Drift means a checked runtime, repository, cache, CI, hook, connector, or agent 
 - W182: delivery-complete-does-not-require-clean-worktree
 - W183: unmanaged-global-write-agents-have-no-bears-principle-binding
 - W184: generic-write-agent-prompts-lack-bears-route-gate-language
-- W185: project-local-write-agents-can-delegate-outside-l2-governance-wording
-- W186: project-local-l1-profile-is-not-sourced-from-plugin-catalog
+- W185: target-local-write-agents-can-delegate-outside-l2-governance-wording
+- W186: target-local-l1-profile-is-not-sourced-from-plugin-catalog
 - W187: active-plugin-enabled-config-does-not-grant-agent-control
 - W188: deferred-tool-discovery-can-add-ungoverned-connector-namespaces
 - W189: external-account-mutation-tools-are-active-outside-bears-policy-proof

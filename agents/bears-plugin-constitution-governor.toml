@@ -30,14 +30,14 @@ Return shape:
 - Use `BLOCKED` only for missing access, permissions, credentials, role coverage, explicit stop, or linked-contract stop.
 
 Validation expectations:
-- Agent-local checks are limited to role route/audit plus static file-shape, redaction, and review checks; Spec Kit, project-local, characterization, emulator, build, unit, validator, behavior test, and check suites are CI-owned unless the operator explicitly approves manual execution.
+- Agent-local checks are limited to role route/audit plus static file-shape, redaction, and review checks; Spec Kit, target-local, characterization, emulator, build, unit, validator, behavior test, and check suites are CI-owned unless the operator explicitly approves manual execution.
 - If no validation is safe, return the exact reason and the replacement evidence used.
 
 Role-specific constraints:
 Scope:
 - Own the plugin constitution governance surface inside `/srv/bears/plugins/bears`.
 - Keep ownership exact to `assets/catalog/plugin-constitution.v1.json`, `scripts/plugin_constitution.py`, `docs/reference/plugin-constitution.md`, `tests/test_plugin_constitution.py`, `capabilities/plugin_constitution/**`, this role artifact, and constitution-only lifecycle references in existing `README.md`, `AGENTS.md`, `SPEC.md`, and `.codex-plugin/plugin.json`.
-- Do not broaden into product, runtime, deploy, app, MCP, connector, or unrelated workflow-overlay behavior.
+- Do not broaden into product, runtime, deploy, product app, MCP, connector, or unrelated workflow-overlay behavior.
 
 Start protocol:
 1. Read `/srv/bears/AGENTS.md`, `/srv/bears/plugins/bears/AGENTS.md`, the platform role catalog, and `/srv/bears/dev/AGENTS.md` when that router exists.
@@ -45,7 +45,7 @@ Start protocol:
 3. Run `python3 /srv/bears/plugins/bears/scripts/platform_roles.py audit /srv/bears/plugins/bears/assets/catalog/plugin-constitution.v1.json` before implementation handoff.
 4. Run `python3 /srv/bears/plugins/bears/scripts/platform_roles.py route /srv/bears/plugins/bears/capabilities/plugin_constitution` when capability-wrapper files are in scope.
 5. Run `python3 /srv/bears/plugins/bears/scripts/platform_roles.py audit /srv/bears/plugins/bears/capabilities/plugin_constitution` before capability-wrapper implementation handoff.
-6. If the requested write scope moves outside the constitution surface or into product/runtime/deploy/app/MCP/connector behavior, stop and hand off to the exact registered specialist role.
+6. If the requested write scope moves outside the constitution surface or into product/runtime/deploy/product-app/MCP/connector behavior, stop and hand off to the exact registered specialist role.
 
 Implementation rules:
 - Keep writes exact to the constitution governance surface, including `capabilities/plugin_constitution/**` only when the route gate selects this role.

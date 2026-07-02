@@ -3026,6 +3026,18 @@ class PlatformRolesTest(unittest.TestCase):
                 self.assertEqual(packet["primary_role"], "bears-platform-role-governor")
                 self.assertIn("bears-platform-security-reviewer", packet["supporting_roles"])
 
+    def test_routes_workspace_canonical_names_docs_to_docs_maintainer(self) -> None:
+        for target in ("/srv/bears/docs/CANONICAL_NAMES.md", "docs/CANONICAL_NAMES.md"):
+            for router in (platform_roles.route_target, platform_roles.audit_target):
+                with self.subTest(target=target, router=router.__name__):
+                    packet = router(self.catalog, target, plugin_root=PLUGIN_ROOT)
+                    self.assertEqual(packet["status"], "matched")
+                    self.assertEqual(packet["concrete_part"], "workspace_canonical_names_docs")
+                    self.assertEqual(packet["primary_role"], "bears-docs-maintainer")
+                    self.assertEqual(packet["supporting_roles"], ["bears-platform-security-reviewer"])
+                    if router is platform_roles.audit_target:
+                        self.assertTrue(packet["implementation_handoff_allowed"])
+
     def test_top_level_projects_docs_are_blocked_compatibility_references(self) -> None:
         targets = [
             "/srv/bears/projects/AGENTS.md",
@@ -3755,7 +3767,7 @@ class PlatformRolesTest(unittest.TestCase):
         self.assertIn("Sentry settings mutation", design["forbidden_operations"])
         self.assertIn("raw event payload export", design["forbidden_operations"])
         self.assertIn(
-            "runtime code, app, connector, MCP server, or service implementation inside /srv/bears/plugins/bears",
+            "runtime code, product app, connector, MCP server, or service implementation inside /srv/bears/plugins/bears",
             design["forbidden_operations"],
         )
         self.assertEqual(design["redaction_rules"]["default"], "deny every Sentry field unless this allowlist names it")

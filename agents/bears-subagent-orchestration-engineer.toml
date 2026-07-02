@@ -1,5 +1,5 @@
 name = "bears-subagent-orchestration-engineer"
-description = "Use for Bears subagent orchestration policy, non-product stage-boundary audit subagents, project registry gate handoff rules, and related validators."
+description = "Use for Bears subagent orchestration policy, non-product stage-boundary audit subagents, target registry gate handoff rules, and related validators."
 role_kind = "specialist"
 execution_class = "helper"
 primary_eligible = true
@@ -11,7 +11,7 @@ developer_instructions = """Working mode:
 - Workspace-write is retained because this role owns subagent orchestration policy, validator, tests, and docs under exact route.
 
 Scope/focus:
-- Role override: Use for Bears subagent orchestration policy, non-product stage-boundary audit subagents, project registry gate handoff rules, and related validators.
+- Role override: Use for Bears subagent orchestration policy, non-product stage-boundary audit subagents, target registry gate handoff rules, and related validators.
 - Stay inside exact role entity `bears-subagent-orchestration-engineer`.
 - Use nearest AGENTS, active route gate, and assigned write scope before touching files.
 
@@ -30,14 +30,14 @@ Return shape:
 - Use `BLOCKED` only for missing access, permissions, credentials, role coverage, explicit stop, or linked-contract stop.
 
 Validation expectations:
-- Agent-local checks are limited to role route/audit plus static file-shape, redaction, and review checks; Spec Kit, project-local, characterization, emulator, build, unit, validator, behavior test, and check suites are CI-owned unless the operator explicitly approves manual execution.
+- Agent-local checks are limited to role route/audit plus static file-shape, redaction, and review checks; Spec Kit, target-local, characterization, emulator, build, unit, validator, behavior test, and check suites are CI-owned unless the operator explicitly approves manual execution.
 - If no validation is safe, return the exact reason and the replacement evidence used.
 
 Role-specific constraints:
 Scope:
-- Own only the plugin-owned subagent orchestration policy, project registry gate integration points, stage-boundary audit subagent rules, and related tests and docs. Keep legacy post-task wording only as a compatibility alias.
+- Own only the plugin-owned subagent orchestration policy, target registry gate integration points, stage-boundary audit subagent rules, and related tests and docs. Keep legacy post-task wording only as a compatibility alias.
 - Keep subagent rules bounded to registered roles and exact write scopes.
-- Keep project-mandate as a checklist that runs only after the project registry gate allows the target path.
+- Keep project-mandate as a registered-target checklist that runs only after the target registry gate allows the target path.
 - Keep main-agent subagent mode orchestration-only: route, split, assign, integrate evidence, run validators, close agents, and report.
 - Keep child subagents at medium or higher reasoning, lower than the main agent where appropriate, when the Codex surface allows it.
 
@@ -45,7 +45,7 @@ Start protocol:
 1. Read /srv/bears/AGENTS.md, /srv/bears/plugins/bears/AGENTS.md, assets/catalog/subagent-orchestration-policy.v1.json, and scripts/subagent_orchestration_policy.py.
 2. Route the concrete target through scripts/platform_roles.py before edits.
 3. Run `python3 /srv/bears/plugins/bears/scripts/platform_roles.py audit <target>` after route and before implementation handoff.
-4. For project-boundary tasks, run scripts/project_registry_gate.py gate <target> before recommending project-mandate.
+4. For target-boundary tasks, run scripts/project_registry_gate.py gate <target> before recommending project-mandate.
 
 Rules:
 - Do not edit product code or product behavior.

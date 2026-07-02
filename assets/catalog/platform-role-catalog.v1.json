@@ -203,6 +203,7 @@
       "workflow_overlay_validation_ci_workflow",
       "workspace_control_agent_reviewer_role_tests",
       "workspace_control_speckit_integration_surfaces",
+      "workspace_canonical_names_docs",
       "workspace_governance_canonical_plugin_docs",
       "workspace_network_map_docs",
       "workspace_root_github_actions_check_workflow",
@@ -387,7 +388,7 @@
         "infra_local_cd_safety_invariant",
         "platform_boundary_exclusion_invariant"
       ],
-      "issue_link_invariant": "Old repository issues and migration issues must link to BearsCLOUD/apps and must not create a new canonical app repository.",
+      "issue_link_invariant": "Old repository issues and migration issues must link to BearsCLOUD/apps and must not create a new canonical product-app repository.",
       "archive_readiness_invariant": "Archive readiness for every old source repository requires a BearsCLOUD/apps umbrella issue, a source migration issue linked to the umbrella issue, membership in the one canonical BearsCLOUD/apps planning Project `Apps Migration & Planning` with required fields populated once GitHub Project API proof is available, infra/local_cd safety proof, and platform boundary exclusion proof before archive.",
       "infra_local_cd_archive_readiness_invariant": "Archive readiness requires proof that Kubernetes desired state and local_cd selectors no longer depend on the old source repository, or that the dependency is explicitly classified as a temporary migration source by the owning infra/local_cd policy.",
       "platform_boundary_exclusion_invariant": "Platform repositories and temporary platform checkouts, including /srv/bears/dev/platform and /srv/bears/dev/workspace platform worktrees, are excluded from the app archive workflow unless a platform auditor explicitly classifies the checkout as an app migration source.",
@@ -986,7 +987,7 @@
       "forbidden_actions": [
         "product code edits",
         "runtime/deploy behavior changes",
-        "app/MCP/connector behavior changes",
+        "product-app/MCP/connector behavior changes",
         "cross-surface governance broadening outside constitution ownership",
         "secret or production data access"
       ],
@@ -1056,7 +1057,7 @@
       "forbidden_actions": [
         "product code edits",
         "runtime/deploy/integration edits",
-        "standalone Telegram plugin/app/MCP/runtime restoration",
+        "standalone Telegram plugin/product-app/MCP/runtime restoration",
         "upstream speckit-* skill vendoring",
         "secret or production data access"
       ],
@@ -1329,7 +1330,7 @@
         "secret access",
         "broad fallback ownership outside the exact mapped config surfaces",
         "product/runtime/deploy/integration mutation beyond the assigned Codex workspace configuration files",
-        "recreating standalone Telegram plugin/app/MCP/runtime/connector",
+        "recreating standalone Telegram plugin/product-app/MCP/runtime/connector",
         "GitHub Actions workflow edits outside the exact workspace-root check-generation route",
         "branch protection changes, merge-authority bypass, provider mutation, Kubernetes mutation, Infisical mutation, product, frontend, mobile, or UI mutation",
         "Infisical secret readback, .env value access, provider credential generation, Kubernetes desired-state mutation, local_cd selector mutation, runtime rollout, or product code mutation from the local Infisical bridge route"
@@ -1666,18 +1667,18 @@
     {
       "name": "bears-vpn-project-governance-engineer",
       "agent_file": "agents/bears-vpn-project-governance-engineer.toml",
-      "scope": "Bears VPN project-root governance, requirements, plans, docs, and Spec Kit artifacts under exact VPN project root routes.",
+      "scope": "Bears VPN target-root governance, requirements, plans, docs, and Spec Kit artifacts under exact VPN target root routes.",
       "model": "gpt-5.5",
       "sandbox_mode": "workspace-write",
       "developer_instructions_profile": "vpn-project-governance",
       "allowed_write_zones": [
-        "dev/app/vpn project-root docs, requirements, plans, .specify, specs, and governance metadata when assigned by exact route",
-        "projects/vpn project-root governance artifacts only when assigned by exact legacy compatibility route"
+        "dev/app/vpn target-root docs, requirements, plans, .specify, specs, and governance metadata when assigned by exact route",
+        "projects/vpn target-root governance artifacts only when assigned by exact legacy compatibility route"
       ],
       "forbidden_actions": [
         "secret access or printing raw .env values, private keys, peer keys, PSKs, VPN URIs, raw configs, tokens, shell history, raw logs, production data, or credentials",
         "child product implementation, runtime contour, Telegram bot, Traefik, proxy, host networking, or production deploy mutation",
-        "using project-root coverage as child implementation authority"
+        "using target-root coverage as child implementation authority"
       ],
       "evidence_required": [
         "exact route/audit packet",
@@ -4925,8 +4926,8 @@
         "/srv/bears/plugins/bears/agents/bears-git-workflow-helper.toml"
       ],
       "concrete_scope": "Exact helper role artifact that defines Git worktree, commit, push, freshness, and GitHub Actions metadata closeout safety behavior.",
-      "allowed_write_boundary": "Only /srv/bears/plugins/bears/agents/bears-git-workflow-helper.toml for the helper role definition; no product, runtime, deployment, app, MCP, connector, external exposure, branch-protection, provider setting, secret, credential, raw log, raw chat, raw VPN config, production data, or shell-history access.",
-      "trust_boundary": "This helper can commit and fast-forward push assigned files after freshness checks, so the role must stay limited to Git closeout safety and must not become a product, runtime, deployment, app, MCP, connector, or provider owner.",
+      "allowed_write_boundary": "Only /srv/bears/plugins/bears/agents/bears-git-workflow-helper.toml for the helper role definition; no product, runtime, deployment, product app, MCP, connector, external exposure, branch-protection, provider setting, secret, credential, raw log, raw chat, raw VPN config, production data, or shell-history access.",
+      "trust_boundary": "This helper can commit and fast-forward push assigned files after freshness checks, so the role must stay limited to Git closeout safety and must not become a product, runtime, deployment, product app, MCP, connector, or provider owner.",
       "required_validations": [
         "python3 scripts/platform_roles.py route /srv/bears/plugins/bears/agents/bears-git-workflow-helper.toml",
         "python3 scripts/platform_roles.py audit /srv/bears/plugins/bears/agents/bears-git-workflow-helper.toml",
@@ -4964,8 +4965,8 @@
         "/srv/bears/plugins/bears/agents/bears-token-budget-helper.toml"
       ],
       "concrete_scope": "Exact helper role artifact that defines token budget, time budget, compact state summary, and over-5-minute split support behavior.",
-      "allowed_write_boundary": "Only /srv/bears/plugins/bears/agents/bears-token-budget-helper.toml for the helper role definition; no product, runtime, deployment, app, MCP, connector, external exposure, branch-protection, provider setting, secret, credential, raw log, raw chat, raw VPN config, production data, or shell-history access.",
-      "trust_boundary": "This helper influences work splitting and compact state handoff only, so it must not become a product, runtime, deployment, app, MCP, connector, provider, or Git closeout owner.",
+      "allowed_write_boundary": "Only /srv/bears/plugins/bears/agents/bears-token-budget-helper.toml for the helper role definition; no product, runtime, deployment, product app, MCP, connector, external exposure, branch-protection, provider setting, secret, credential, raw log, raw chat, raw VPN config, production data, or shell-history access.",
+      "trust_boundary": "This helper influences work splitting and compact state handoff only, so it must not become a product, runtime, deployment, product app, MCP, connector, provider, or Git closeout owner.",
       "required_validations": [
         "python3 scripts/platform_roles.py route /srv/bears/plugins/bears/agents/bears-token-budget-helper.toml",
         "python3 scripts/platform_roles.py audit /srv/bears/plugins/bears/agents/bears-token-budget-helper.toml",
@@ -5003,8 +5004,8 @@
         "/srv/bears/plugins/bears/agents/bears-review-fix-helper.toml"
       ],
       "concrete_scope": "Exact helper role artifact that defines bounded review and fix-support packets for assigned Bears governance changes.",
-      "allowed_write_boundary": "Only /srv/bears/plugins/bears/agents/bears-review-fix-helper.toml for the helper role definition; no product, runtime, deployment, app, MCP, connector, external exposure, branch-protection, provider setting, secret, credential, raw log, raw chat, raw VPN config, production data, or shell-history access.",
-      "trust_boundary": "This helper influences review and fix-support packets only, so it must not stop owner agents except for real blockers and must not become a broad code, product, runtime, deployment, app, MCP, connector, provider, or Git closeout owner.",
+      "allowed_write_boundary": "Only /srv/bears/plugins/bears/agents/bears-review-fix-helper.toml for the helper role definition; no product, runtime, deployment, product app, MCP, connector, external exposure, branch-protection, provider setting, secret, credential, raw log, raw chat, raw VPN config, production data, or shell-history access.",
+      "trust_boundary": "This helper influences review and fix-support packets only, so it must not stop owner agents except for real blockers and must not become a broad code, product, runtime, deployment, product app, MCP, connector, provider, or Git closeout owner.",
       "required_validations": [
         "python3 scripts/platform_roles.py route /srv/bears/plugins/bears/agents/bears-review-fix-helper.toml",
         "python3 scripts/platform_roles.py audit /srv/bears/plugins/bears/agents/bears-review-fix-helper.toml",
@@ -5071,7 +5072,7 @@
         "/srv/bears/plugins/bears/capabilities/plugin_constitution"
       ],
       "concrete_scope": "Plugin constitution governance catalog, validator script, reference doc, tests, constitution governor agent file, and plugin_constitution capability metadata surface.",
-      "allowed_write_boundary": "Exact implementation route paths only: /srv/bears/plugins/bears/assets/catalog/plugin-constitution.v1.json, /srv/bears/plugins/bears/scripts/plugin_constitution.py, /srv/bears/plugins/bears/docs/reference/plugin-constitution.md, /srv/bears/plugins/bears/tests/test_plugin_constitution.py, /srv/bears/plugins/bears/agents/bears-plugin-constitution-governor.toml, and /srv/bears/plugins/bears/capabilities/plugin_constitution/**. Support-file writes are allowed only through bears-plugin-constitution-governor allowed_write_zones for self-registration and inventory sync. No product/runtime/local_cd/kubernetes_deployment/app/MCP/connector behavior.",
+      "allowed_write_boundary": "Exact implementation route paths only: /srv/bears/plugins/bears/assets/catalog/plugin-constitution.v1.json, /srv/bears/plugins/bears/scripts/plugin_constitution.py, /srv/bears/plugins/bears/docs/reference/plugin-constitution.md, /srv/bears/plugins/bears/tests/test_plugin_constitution.py, /srv/bears/plugins/bears/agents/bears-plugin-constitution-governor.toml, and /srv/bears/plugins/bears/capabilities/plugin_constitution/**. Support-file writes are allowed only through bears-plugin-constitution-governor allowed_write_zones for self-registration and inventory sync. No product/runtime/local_cd/kubernetes_deployment/product-app/MCP/connector behavior.",
       "trust_boundary": "Plugin constitution governance can widen plugin authority, lifecycle obligations, and manifest-facing policy claims if ownership drifts beyond the exact constitution surface.",
       "required_validations": [
         "python3 scripts/plugin_constitution.py validate",
@@ -5836,7 +5837,7 @@
         "canonical_ref": "/srv/bears/dev/app/codex-telegram",
         "decision": "moved_to_canonical_dev_app_product_lane",
         "allowed_use": "Migration source, archive evidence, or temporary migration worktree only.",
-        "forbidden_use": "Canonical product app repository authority or new standalone app repository registration.",
+        "forbidden_use": "Canonical product-app repository authority or new standalone product-app repository registration.",
         "status": "deprecated_archive_candidate",
         "active_replacement": "BearsCLOUD/apps",
         "canonical_local_root": "/srv/bears/dev/app",
@@ -6040,7 +6041,7 @@
       "part_kind": "concrete",
       "write_roots": [],
       "concrete_scope": "Enumerated Telegram runtime readiness inventory only; deprecated projects paths are legacy compatibility inputs and canonical dev paths must route through exact project entries when registered.",
-      "allowed_write_boundary": "No direct implementation writes from deprecated projects Telegram inventory paths; use the canonical registered /srv/bears/dev project lane or a narrower exact specialist route.",
+      "allowed_write_boundary": "No direct implementation writes from deprecated projects Telegram inventory paths; use the canonical registered /srv/bears/dev repo lane or a narrower exact specialist route.",
       "trust_boundary": "Telegram bot runtimes, adapters, message flows, approvals, and private/operator data handling.",
       "required_validations": [
         "canonical role route packet",
@@ -6076,7 +6077,7 @@
           "projects/vpn/amnezia-split/auto_split/telegram_msp_notify.py",
           "/srv/bears/projects/vpn/amnezia-split/auto_split/telegram_msp_notify.py"
         ],
-        "canonical_ref": "registered /srv/bears/dev project lane when present",
+        "canonical_ref": "registered /srv/bears/dev repo lane when present",
         "decision": "retained_legacy_readiness_inventory_only",
         "allowed_use": "Compatibility classification and migration evidence only.",
         "forbidden_use": "Canonical source authority, parent implementation coverage, or broad child implementation handoff."
@@ -6139,7 +6140,7 @@
       ],
       "concrete_scope": "Telegram workflow skill bundle inside the canonical Bears plugin.",
       "allowed_write_boundary": "/srv/bears/plugins/bears Telegram skill/catalog/script surfaces only when the Telegram specialist role is selected.",
-      "trust_boundary": "Telegram workflow governance, plugin-owned skills, and skill-bundle discovery metadata; no connector, app, MCP, or live Telegram runtime behavior.",
+      "trust_boundary": "Telegram workflow governance, plugin-owned skills, and skill-bundle discovery metadata; no connector, product app, MCP, or live Telegram runtime behavior.",
       "required_validations": [
         "canonical role route packet",
         "Bears plugin overlay validator suite",
@@ -6176,7 +6177,7 @@
         "/srv/bears/plugins/bears/skills/telegram-plugin-skill-factory/references/skill-lifecycle.md"
       ],
       "concrete_scope": "Exact Telegram plugin skill-factory lifecycle reference inside the canonical Bears plugin.",
-      "allowed_write_boundary": "Only skills/telegram-plugin-skill-factory/references/skill-lifecycle.md as Telegram skill-factory lifecycle governance documentation; no standalone Telegram plugin, app, connector, MCP server, runtime, production, or secret authority.",
+      "allowed_write_boundary": "Only skills/telegram-plugin-skill-factory/references/skill-lifecycle.md as Telegram skill-factory lifecycle governance documentation; no standalone Telegram plugin, product app, connector, MCP server, runtime, production, or secret authority.",
       "trust_boundary": "Telegram skill-factory lifecycle governance text only. It may change plugin-owned skill-bundle process wording but must not create runtime behavior, external exposure, credential handling, or production mutation paths.",
       "required_validations": [
         "python3 scripts/platform_roles.py route skills/telegram-plugin-skill-factory/references/skill-lifecycle.md",
@@ -6454,6 +6455,40 @@
       "decomposition_required": false
     },
     {
+      "name": "workspace_canonical_names_docs",
+      "aliases": [
+        "/srv/bears/docs/CANONICAL_NAMES.md",
+        "docs/CANONICAL_NAMES.md"
+      ],
+      "group": "control",
+      "required_role": "bears-docs-maintainer",
+      "role_required": true,
+      "no_role_policy": "blocker",
+      "source": "/srv/bears/AGENTS.md",
+      "part_kind": "concrete",
+      "write_roots": [
+        "/srv/bears/docs/CANONICAL_NAMES.md"
+      ],
+      "concrete_scope": "Exact Bears workspace canonical names startup glossary for stable workspace terms such as app and project.",
+      "allowed_write_boundary": "Only /srv/bears/docs/CANONICAL_NAMES.md; no AGENTS.md edits, product code, runtime, deploy, Kubernetes, secret, raw-log, raw-chat, or production-data surfaces.",
+      "trust_boundary": "This glossary controls future agent vocabulary and route intent. Term changes must stay concrete, workspace-scoped, and non-secret.",
+      "required_validations": [
+        "python3 scripts/platform_roles.py validate",
+        "python3 scripts/platform_roles.py route /srv/bears/docs/CANONICAL_NAMES.md",
+        "python3 scripts/platform_roles.py audit /srv/bears/docs/CANONICAL_NAMES.md",
+        "python3 -m unittest tests/test_platform_roles.py"
+      ],
+      "supporting_roles": [
+        "bears-platform-security-reviewer"
+      ],
+      "reviewer_triggers": [
+        "workspace term ownership change",
+        "agent vocabulary route change",
+        "canonical names trust boundary change"
+      ],
+      "decomposition_required": false
+    },
+    {
       "name": "workspace_governance_canonical_plugin_docs",
       "aliases": [
         "workspace-governance-canonical-plugin-docs",
@@ -6519,7 +6554,11 @@
       "aliases": [
         "/srv/bears",
         "/srv/bears/contracts/project_start_contract.md",
-        "/srv/bears/scripts/validate_workspace_workflow.py"
+        "/srv/bears/scripts/validate_workspace_workflow.py",
+        "/srv/bears/.specify/feature.json",
+        "/srv/bears/specs/004-dev-e2e-foundation/spec.md",
+        "/srv/bears/.specify",
+        "/srv/bears/specs/004-dev-e2e-foundation"
       ],
       "group": "control",
       "required_role": "bears-platform-role-governor",
@@ -6647,7 +6686,7 @@
         "/srv/bears/plugins/bears/docs/reference/agent-registration-sync.md"
       ],
       "concrete_scope": "Plugin-local Codex custom-agent registration sync script, tests, and reference doc for canonical agent TOML materialization into Codex agent directories.",
-      "allowed_write_boundary": "Only scripts/agent_registration_sync.py, tests/test_agent_registration_sync.py, and docs/reference/agent-registration-sync.md inside /srv/bears/plugins/bears. Support-file inventory updates are allowed only through exact platform_role_governance or plugin manifest routes. No runtime service, app, connector, MCP server, hook registration, product code, secret access, or production data access.",
+      "allowed_write_boundary": "Only scripts/agent_registration_sync.py, tests/test_agent_registration_sync.py, and docs/reference/agent-registration-sync.md inside /srv/bears/plugins/bears. Support-file inventory updates are allowed only through exact platform_role_governance or plugin manifest routes. No runtime service, product app, connector, MCP server, hook registration, product code, secret access, or production data access.",
       "trust_boundary": "This sync can materialize custom agents into Codex registration directories, so drift can widen agent availability or overwrite local operator files if managed-file boundaries are not exact.",
       "required_validations": [
         "python3 scripts/agent_registration_sync.py validate",
@@ -6748,7 +6787,7 @@
           "projects/seller/apps/telegram_notifications",
           "/srv/bears/projects/seller/apps/telegram_notifications"
         ],
-        "canonical_ref": "registered /srv/bears/dev project lane when present",
+        "canonical_ref": "registered /srv/bears/dev repo lane when present",
         "decision": "retained_legacy_inventory_only",
         "allowed_use": "Compatibility classification and migration evidence only.",
         "forbidden_use": "Canonical source authority, parent implementation coverage, or broad child implementation handoff."
@@ -6837,7 +6876,7 @@
         "canonical_local_root": "/srv/bears/dev/app",
         "issue_link_invariant": "Old repository issues and migration issues must link to BearsCLOUD/apps before closeout.",
         "allowed_use": "Migration source, archive evidence, or temporary migration worktree only.",
-        "forbidden_use": "Canonical product app repository authority or new standalone app repository registration.",
+        "forbidden_use": "Canonical product-app repository authority or new standalone product-app repository registration.",
         "umbrella_issue_invariant": "Archive readiness requires a BearsCLOUD/apps umbrella migration issue before archive.",
         "source_migration_issue_invariant": "Archive readiness requires a source repository migration issue linked to the BearsCLOUD/apps umbrella issue before archive.",
         "infra_local_cd_safety_invariant": "Archive readiness requires infra/local_cd safety proof: Kubernetes desired state and local_cd selectors must not depend on this old source repository unless the owning infra/local_cd policy classifies it as a temporary migration source.",
@@ -6895,7 +6934,7 @@
         "canonical_local_root": "/srv/bears/dev/app",
         "issue_link_invariant": "Old repository issues and migration issues must link to BearsCLOUD/apps before closeout.",
         "allowed_use": "Migration source, archive evidence, or temporary migration worktree only.",
-        "forbidden_use": "Canonical product app repository authority or new standalone app repository registration.",
+        "forbidden_use": "Canonical product-app repository authority or new standalone product-app repository registration.",
         "umbrella_issue_invariant": "Archive readiness requires a BearsCLOUD/apps umbrella migration issue before archive.",
         "source_migration_issue_invariant": "Archive readiness requires a source repository migration issue linked to the BearsCLOUD/apps umbrella issue before archive.",
         "infra_local_cd_safety_invariant": "Archive readiness requires infra/local_cd safety proof: Kubernetes desired state and local_cd selectors must not depend on this old source repository unless the owning infra/local_cd policy classifies it as a temporary migration source.",
@@ -6952,7 +6991,7 @@
         "canonical_ref": "/srv/bears/dev/app/tgsearch",
         "decision": "retained_legacy_inventory_only",
         "allowed_use": "Migration source, archive evidence, or temporary migration worktree only.",
-        "forbidden_use": "Canonical product app repository authority or new standalone app repository registration.",
+        "forbidden_use": "Canonical product-app repository authority or new standalone product-app repository registration.",
         "status": "deprecated_archive_candidate",
         "active_replacement": "BearsCLOUD/apps",
         "canonical_local_root": "/srv/bears/dev/app",
@@ -7883,7 +7922,7 @@
         "trust_boundary": "The runtime plugin may access Sentry through operator-provided credentials outside this repo; this Codex plugin stores only governance metadata and redacted evidence rules.",
         "allowed_operations": [
           "read-only issue summaries",
-          "read-only project health summaries",
+          "read-only Sentry service health summaries",
           "read-only release error counts",
           "read-only issue count trends",
           "read-only alert status summaries",
@@ -7896,11 +7935,11 @@
           "trace, span, breadcrumb, attachment, or raw log export",
           "credential, token, environment, or secret reads",
           "user email, IP address, cookie, header, request body, or private tag exposure",
-          "project deletion or organization mutation",
+          "Sentry project deletion or organization mutation",
           "integration token management",
           "alert rule mutation",
           "production data exposure without explicit operator approval and security review",
-          "runtime code, app, connector, MCP server, or service implementation inside /srv/bears/plugins/bears"
+          "runtime code, product app, connector, MCP server, or service implementation inside /srv/bears/plugins/bears"
         ],
         "redaction_rules": {
           "default": "deny every Sentry field unless this allowlist names it",
@@ -8019,7 +8058,7 @@
         "canonical_ref": "/srv/bears/dev/app/theants",
         "decision": "renamed_to_canonical_dev_app",
         "allowed_use": "Migration source, archive evidence, or temporary migration worktree only.",
-        "forbidden_use": "Canonical product app repository authority or new standalone app repository registration.",
+        "forbidden_use": "Canonical product-app repository authority or new standalone product-app repository registration.",
         "status": "deprecated_archive_candidate",
         "active_replacement": "BearsCLOUD/apps",
         "canonical_local_root": "/srv/bears/dev/app",
@@ -8296,9 +8335,9 @@
         "/srv/bears/plugins/bears/tests/test_project_registry_gate.py",
         "/srv/bears/plugins/bears/tests/fixtures/projects.v1.json"
       ],
-      "concrete_scope": "Project registry gate that blocks project-mandate on unregistered /srv/bears paths and attaches exact role route evidence.",
+      "concrete_scope": "Target registry gate that blocks the legacy-named project-mandate skill on unregistered /srv/bears paths and attaches exact role route evidence.",
       "allowed_write_boundary": "Only the project registry gate script, its exact tests, and tests/fixtures/projects.v1.json inside /srv/bears/plugins/bears; canonical registry authority lives under /srv/bears/dev/registry and does not route through this plugin fixture.",
-      "trust_boundary": "This gate prevents agents from creating project artifacts for unregistered paths and must not become a broad workspace scanner.",
+      "trust_boundary": "This gate prevents agents from creating target artifacts for unregistered paths and must not become a broad workspace scanner.",
       "required_validations": [
         "python3 scripts/project_registry_gate.py validate-registry",
         "python3 scripts/project_registry_gate.py gate /srv/bears/dev/app/theants",
@@ -8337,9 +8376,9 @@
       "write_roots": [
         "/srv/bears/plugins/bears/skills/project-mandate"
       ],
-      "concrete_scope": "Bears project-mandate checklist skill that runs only after project registry gate approval.",
-      "allowed_write_boundary": "Only the project-mandate skill docs inside /srv/bears/plugins/bears; it is a checklist and not a source of truth.",
-      "trust_boundary": "This skill can cause agents to create or audit project artifacts, so registry and role gates must run first.",
+      "concrete_scope": "Bears project-mandate legacy-named checklist skill that runs only after target registry gate approval.",
+      "allowed_write_boundary": "Only the legacy-named project-mandate skill docs inside /srv/bears/plugins/bears; it is a checklist and not a source of truth.",
+      "trust_boundary": "This skill can cause agents to create or audit target artifacts, so registry and role gates must run first.",
       "required_validations": [
         "python3 scripts/project_registry_gate.py gate /srv/bears/dev/app/theants",
         "python3 scripts/platform_roles.py validate",
@@ -8502,7 +8541,7 @@
       "source": "/srv/bears/projects/infra/AGENTS.md",
       "part_kind": "concrete",
       "write_roots": [],
-      "concrete_scope": "Legacy /srv/bears/projects/infra transitional cache project documentation and bounded read-only infrastructure map implementation/cache requirements. Shared durable network topology and rollout requirements belong in /srv/bears/docs, not this transitional project surface.",
+      "concrete_scope": "Legacy /srv/bears/projects/infra transitional cache target documentation and bounded read-only infrastructure map implementation/cache requirements. Shared durable network topology and rollout requirements belong in /srv/bears/docs, not this transitional project surface.",
       "allowed_write_boundary": "No direct implementation writes from /srv/bears/projects/infra; treat it as legacy cache evidence only and place durable network truth under /srv/bears/docs or the registered /srv/bears/dev/infrastructure/network lane.",
       "trust_boundary": "Legacy cache evidence may describe sensitive topology; packets must be bounded, docs-linked, and redact secrets, raw logs, raw VPN configs, credentials, and production data. The deprecated projects parent path cannot authorize new shared durable data placement.",
       "required_validations": [
@@ -8617,9 +8656,9 @@
         "/srv/bears/dev/app/vpn/docs",
         "/srv/bears/dev/app/vpn/plans"
       ],
-      "concrete_scope": "Bears VPN project root governance, requirements, plans, docs, and Spec Kit artifacts only; child implementation must route to exact Android, Windows, vpnbot, Traefik, proxy, or runtime surfaces.",
-      "allowed_write_boundary": "Only /srv/bears/dev/app/vpn project-root docs, plans, .specify, and specs artifacts; deprecated /srv/bears/projects/vpn paths are compatibility input only; no child product/runtime/ingress/proxy implementation through the project root route.",
-      "trust_boundary": "VPN project root docs route future client, bot, ingress, proxy, and runtime work; they may reference runtime and egress behavior but cannot authorize live runtime mutation, production deploy, host networking, or secret access.",
+      "concrete_scope": "Bears VPN target-root governance, requirements, plans, docs, and Spec Kit artifacts only; child implementation must route to exact Android, Windows, vpnbot, Traefik, proxy, or runtime surfaces.",
+      "allowed_write_boundary": "Only /srv/bears/dev/app/vpn target-root docs, plans, .specify, and specs artifacts; deprecated /srv/bears/projects/vpn paths are compatibility input only; no child product/runtime/ingress/proxy implementation through the target-root route.",
+      "trust_boundary": "VPN target-root docs route future client, bot, ingress, proxy, and runtime work; they may reference runtime and egress behavior but cannot authorize live runtime mutation, production deploy, host networking, or secret access.",
       "required_validations": [
         "python3 scripts/platform_roles.py validate",
         "python3 scripts/platform_roles.py route /srv/bears/projects/vpn",
@@ -8655,7 +8694,7 @@
         "canonical_ref": "/srv/bears/dev/app/vpn",
         "decision": "renamed_to_canonical_dev_app_with_legacy_exact_aliases",
         "allowed_use": "Migration source, archive evidence, or temporary migration worktree only.",
-        "forbidden_use": "Canonical product app repository authority or new standalone app repository registration.",
+        "forbidden_use": "Canonical product-app repository authority or new standalone product-app repository registration.",
         "status": "deprecated_archive_candidate",
         "active_replacement": "BearsCLOUD/apps",
         "canonical_local_root": "/srv/bears/dev/app",
@@ -8723,7 +8762,7 @@
         "canonical_ref": "/srv/bears/dev/app/vpn",
         "decision": "renamed_to_canonical_dev_app_with_legacy_exact_aliases",
         "allowed_use": "Migration source, archive evidence, or temporary migration worktree only.",
-        "forbidden_use": "Canonical product app repository authority or new standalone app repository registration.",
+        "forbidden_use": "Canonical product-app repository authority or new standalone product-app repository registration.",
         "status": "deprecated_archive_candidate",
         "active_replacement": "BearsCLOUD/apps",
         "canonical_local_root": "/srv/bears/dev/app",
@@ -8791,7 +8830,7 @@
         "canonical_ref": "/srv/bears/dev/app/vpn",
         "decision": "renamed_to_canonical_dev_app_with_legacy_exact_aliases",
         "allowed_use": "Migration source, archive evidence, or temporary migration worktree only.",
-        "forbidden_use": "Canonical product app repository authority or new standalone app repository registration.",
+        "forbidden_use": "Canonical product-app repository authority or new standalone product-app repository registration.",
         "status": "deprecated_archive_candidate",
         "active_replacement": "BearsCLOUD/apps",
         "canonical_local_root": "/srv/bears/dev/app",
@@ -8847,7 +8886,7 @@
         "canonical_local_root": "/srv/bears/dev/app",
         "issue_link_invariant": "Old repository issues and migration issues must link to BearsCLOUD/apps before closeout.",
         "allowed_use": "Migration source, archive evidence, or temporary migration worktree only.",
-        "forbidden_use": "Canonical product app repository authority or new standalone app repository registration.",
+        "forbidden_use": "Canonical product-app repository authority or new standalone product-app repository registration.",
         "umbrella_issue_invariant": "Archive readiness requires a BearsCLOUD/apps umbrella migration issue before archive.",
         "source_migration_issue_invariant": "Archive readiness requires a source repository migration issue linked to the BearsCLOUD/apps umbrella issue before archive.",
         "infra_local_cd_safety_invariant": "Archive readiness requires infra/local_cd safety proof: Kubernetes desired state and local_cd selectors must not depend on this old source repository unless the owning infra/local_cd policy classifies it as a temporary migration source.",
@@ -8897,7 +8936,7 @@
         "canonical_local_root": "/srv/bears/dev/app",
         "issue_link_invariant": "Old repository issues and migration issues must link to BearsCLOUD/apps before closeout.",
         "allowed_use": "Migration source, archive evidence, or temporary migration worktree only.",
-        "forbidden_use": "Canonical product app repository authority or new standalone app repository registration.",
+        "forbidden_use": "Canonical product-app repository authority or new standalone product-app repository registration.",
         "umbrella_issue_invariant": "Archive readiness requires a BearsCLOUD/apps umbrella migration issue before archive.",
         "source_migration_issue_invariant": "Archive readiness requires a source repository migration issue linked to the BearsCLOUD/apps umbrella issue before archive.",
         "infra_local_cd_safety_invariant": "Archive readiness requires infra/local_cd safety proof: Kubernetes desired state and local_cd selectors must not depend on this old source repository unless the owning infra/local_cd policy classifies it as a temporary migration source.",
@@ -8948,7 +8987,7 @@
         "canonical_local_root": "/srv/bears/dev/app",
         "issue_link_invariant": "Old repository issues and migration issues must link to BearsCLOUD/apps before closeout.",
         "allowed_use": "Migration source, archive evidence, or temporary migration worktree only.",
-        "forbidden_use": "Canonical product app repository authority or new standalone app repository registration.",
+        "forbidden_use": "Canonical product-app repository authority or new standalone product-app repository registration.",
         "umbrella_issue_invariant": "Archive readiness requires a BearsCLOUD/apps umbrella migration issue before archive.",
         "source_migration_issue_invariant": "Archive readiness requires a source repository migration issue linked to the BearsCLOUD/apps umbrella issue before archive.",
         "infra_local_cd_safety_invariant": "Archive readiness requires infra/local_cd safety proof: Kubernetes desired state and local_cd selectors must not depend on this old source repository unless the owning infra/local_cd policy classifies it as a temporary migration source.",
@@ -9075,7 +9114,7 @@
         "canonical_local_root": "/srv/bears/dev/app",
         "issue_link_invariant": "Old repository issues and migration issues must link to BearsCLOUD/apps before closeout.",
         "allowed_use": "Canonical app directory inside BearsCLOUD/apps for app-local source, docs, fixtures, and tests.",
-        "forbidden_use": "New standalone app repository authority, deploy authority, shared platform ownership, or secret custody.",
+        "forbidden_use": "New standalone product-app repository authority, deploy authority, shared platform ownership, or secret custody.",
         "umbrella_issue_invariant": "Archive readiness requires a BearsCLOUD/apps umbrella migration issue before archive.",
         "source_migration_issue_invariant": "Archive readiness requires a source repository migration issue linked to the BearsCLOUD/apps umbrella issue before archive.",
         "infra_local_cd_safety_invariant": "Archive readiness requires infra/local_cd safety proof: Kubernetes desired state and local_cd selectors must not depend on this old source repository unless the owning infra/local_cd policy classifies it as a temporary migration source.",
@@ -9111,7 +9150,7 @@
       ],
       "concrete_scope": "Canonical product app monorepo root for BearsCLOUD/apps at /srv/bears/dev/app.",
       "allowed_write_boundary": "Only the canonical /srv/bears/dev/app owner repository root and repo-local product app artifacts when assigned by exact route; former per-app Git repositories under or migrated from /srv/bears/dev/app/* are deprecated migration/archive sources only, not new canonical repositories.",
-      "trust_boundary": "BearsCLOUD/apps is the only canonical product app repository. Old app repositories and nested checkouts must link issues and migration evidence back to BearsCLOUD/apps and must not regain canonical source authority.",
+      "trust_boundary": "BearsCLOUD/apps is the only canonical product-app repository. Old product-app repositories and nested checkouts must link issues and migration evidence back to BearsCLOUD/apps and must not regain canonical source authority.",
       "required_validations": [
         "python3 scripts/platform_roles.py validate",
         "python3 scripts/platform_roles.py route /srv/bears/dev/app",
@@ -9124,8 +9163,8 @@
         "bears-platform-security-reviewer"
       ],
       "reviewer_triggers": [
-        "canonical app repository boundary change",
-        "nested app repository archive/deprecation rule change",
+        "canonical product-app repository boundary change",
+        "nested product-app repository archive/deprecation rule change",
         "old issue routing or active_replacement change"
       ],
       "decomposition_required": false,
@@ -9183,7 +9222,7 @@
         "canonical_local_root": "/srv/bears/dev/app",
         "issue_link_invariant": "Old repository issues and migration issues must link to BearsCLOUD/apps before closeout.",
         "allowed_use": "Migration source, archive evidence, or temporary migration worktree only; active source is BearsCLOUD/apps app_directory=codexdaemon.",
-        "forbidden_use": "Canonical product app repository authority or new standalone app repository registration.",
+        "forbidden_use": "Canonical product-app repository authority or new standalone product-app repository registration.",
         "umbrella_issue_invariant": "Archive readiness requires a BearsCLOUD/apps umbrella migration issue before archive.",
         "source_migration_issue_invariant": "Archive readiness requires a source repository migration issue linked to the BearsCLOUD/apps umbrella issue before archive.",
         "infra_local_cd_safety_invariant": "Archive readiness requires infra/local_cd safety proof: Kubernetes desired state and local_cd selectors must not depend on this old source repository unless the owning infra/local_cd policy classifies it as a temporary migration source.",
@@ -9243,7 +9282,7 @@
         "canonical_local_root": "/srv/bears/dev/app",
         "issue_link_invariant": "Old repository issues and migration issues must link to BearsCLOUD/apps before closeout.",
         "allowed_use": "Migration source, archive evidence, or temporary migration worktree only.",
-        "forbidden_use": "Canonical product app repository authority or new standalone app repository registration.",
+        "forbidden_use": "Canonical product-app repository authority or new standalone product-app repository registration.",
         "umbrella_issue_invariant": "Archive readiness requires a BearsCLOUD/apps umbrella migration issue before archive.",
         "source_migration_issue_invariant": "Archive readiness requires a source repository migration issue linked to the BearsCLOUD/apps umbrella issue before archive.",
         "infra_local_cd_safety_invariant": "Archive readiness requires infra/local_cd safety proof: Kubernetes desired state and local_cd selectors must not depend on this old source repository unless the owning infra/local_cd policy classifies it as a temporary migration source.",
@@ -9290,7 +9329,7 @@
       ],
       "reviewer_triggers": [
         "archive evidence promotion request",
-        "canonical app repository boundary change",
+        "canonical product-app repository boundary change",
         "old repository issue routing change"
       ],
       "decomposition_required": false,
@@ -9300,7 +9339,7 @@
         "canonical_local_root": "/srv/bears/dev/app",
         "issue_link_invariant": "Old repository issues and migration issues must link to BearsCLOUD/apps before closeout.",
         "allowed_use": "Migration source, archive evidence, or temporary migration worktree only.",
-        "forbidden_use": "Canonical product app repository authority or new standalone app repository registration.",
+        "forbidden_use": "Canonical product-app repository authority or new standalone product-app repository registration.",
         "umbrella_issue_invariant": "Archive readiness requires a BearsCLOUD/apps umbrella migration issue before archive.",
         "source_migration_issue_invariant": "Archive readiness requires a source repository migration issue linked to the BearsCLOUD/apps umbrella issue before archive.",
         "infra_local_cd_safety_invariant": "Archive readiness requires infra/local_cd safety proof: Kubernetes desired state and local_cd selectors must not depend on this old source repository unless the owning infra/local_cd policy classifies it as a temporary migration source.",
@@ -9348,7 +9387,7 @@
       ],
       "reviewer_triggers": [
         "archive evidence promotion request",
-        "canonical app repository boundary change",
+        "canonical product-app repository boundary change",
         "old repository issue routing change"
       ],
       "decomposition_required": false,
@@ -9358,7 +9397,7 @@
         "canonical_local_root": "/srv/bears/dev/app",
         "issue_link_invariant": "Old repository issues and migration issues must link to BearsCLOUD/apps before closeout.",
         "allowed_use": "Migration source, archive evidence, or temporary migration worktree only.",
-        "forbidden_use": "Canonical product app repository authority or new standalone app repository registration.",
+        "forbidden_use": "Canonical product-app repository authority or new standalone product-app repository registration.",
         "umbrella_issue_invariant": "Archive readiness requires a BearsCLOUD/apps umbrella migration issue before archive.",
         "source_migration_issue_invariant": "Archive readiness requires a source repository migration issue linked to the BearsCLOUD/apps umbrella issue before archive.",
         "infra_local_cd_safety_invariant": "Archive readiness requires infra/local_cd safety proof: Kubernetes desired state and local_cd selectors must not depend on this old source repository unless the owning infra/local_cd policy classifies it as a temporary migration source.",
@@ -10368,7 +10407,7 @@
         "tests/test_agent_action_ledger.py"
       ],
       "concrete_scope": "Exact metadata-only agent action ledger catalog, collector, renderer, tests, and reference doc.",
-      "allowed_write_boundary": "Only the action ledger catalog, script, test, and reference doc; no runtime service, app, connector, MCP server, product behavior, secrets, raw logs, raw chat, raw VPN config, or production data authority.",
+      "allowed_write_boundary": "Only the action ledger catalog, script, test, and reference doc; no runtime service, product app, connector, MCP server, product behavior, secrets, raw logs, raw chat, raw VPN config, or production data authority.",
       "trust_boundary": "This ledger summarizes worker evidence and can influence closeout claims; it must reject missing heartbeat, forbidden actions, missing validation, and restricted-data markers.",
       "required_validations": [
         "python3 scripts/platform_roles.py validate",
@@ -10519,7 +10558,7 @@
         "/srv/bears/plugins/bears/tests/test_agentic_enterprise_workflow.py"
       ],
       "concrete_scope": "Agentic enterprise workflow constitution, four repo-domain workflow catalog, decision-log and scope-matrix schemas, fast hook guard scripts, fixtures, and reference documentation, and CI test coverage.",
-      "allowed_write_boundary": "Only listed agentic enterprise workflow governance files inside /srv/bears/plugins/bears; no product code, GitOps desired-state generation, infra payload generation, app, connector, MCP server, runtime service, production mutation, or raw secret handling.",
+      "allowed_write_boundary": "Only listed agentic enterprise workflow governance files inside /srv/bears/plugins/bears; no product code, GitOps desired-state generation, infra payload generation, product app, connector, MCP server, runtime service, production mutation, or raw secret handling.",
       "trust_boundary": "This surface controls L1/L2/L3 orchestration boundaries, scope splitting, owner lineage, hook guard decisions, and runtime degradation actions for future agents.",
       "required_validations": [
         "python3 scripts/platform_roles.py validate",
@@ -10560,7 +10599,7 @@
         "/srv/bears/plugins/bears/agents/l2-platform-domain-orchestrator.toml"
       ],
       "concrete_scope": "Exact L2 platform domain orchestrator role metadata for agentic enterprise goal workflows.",
-      "allowed_write_boundary": "Only /srv/bears/plugins/bears/agents/l2-platform-domain-orchestrator.toml for the L2 platform domain orchestrator role definition; no product, runtime, GitOps desired-state, infra payload, app, MCP, connector, provider, external exposure, secret, credential, raw log, raw chat, raw VPN config, production data, or shell-history access.",
+      "allowed_write_boundary": "Only /srv/bears/plugins/bears/agents/l2-platform-domain-orchestrator.toml for the L2 platform domain orchestrator role definition; no product, runtime, GitOps desired-state, infra payload, product app, MCP, connector, provider, external exposure, secret, credential, raw log, raw chat, raw VPN config, production data, or shell-history access.",
       "trust_boundary": "This role controls L2 platform domain governance, helper delegation, L3 assignment review, and no-parent-context spawn policy for future goal workflows; it must remain governance-only.",
       "validation_required_inventory": [
         "python3 scripts/platform_roles.py route agents/l2-platform-domain-orchestrator.toml",
@@ -10624,7 +10663,7 @@
         "/srv/bears/plugins/bears/agents/l2-gitops-domain-orchestrator.toml"
       ],
       "concrete_scope": "Exact L2 gitops domain orchestrator role metadata for agentic enterprise goal workflows.",
-      "allowed_write_boundary": "Only /srv/bears/plugins/bears/agents/l2-gitops-domain-orchestrator.toml for the L2 gitops domain orchestrator role definition; no product, runtime, GitOps desired-state, infra payload, app, MCP, connector, provider, external exposure, secret, credential, raw log, raw chat, raw VPN config, production data, or shell-history access.",
+      "allowed_write_boundary": "Only /srv/bears/plugins/bears/agents/l2-gitops-domain-orchestrator.toml for the L2 gitops domain orchestrator role definition; no product, runtime, GitOps desired-state, infra payload, product app, MCP, connector, provider, external exposure, secret, credential, raw log, raw chat, raw VPN config, production data, or shell-history access.",
       "trust_boundary": "This role controls L2 gitops domain governance, helper delegation, L3 assignment review, and no-parent-context spawn policy for future goal workflows; it must remain governance-only.",
       "validation_required_inventory": [
         "python3 scripts/platform_roles.py route agents/l2-gitops-domain-orchestrator.toml",
@@ -10688,7 +10727,7 @@
         "/srv/bears/plugins/bears/agents/l2-infra-domain-orchestrator.toml"
       ],
       "concrete_scope": "Exact L2 infra domain orchestrator role metadata for agentic enterprise goal workflows.",
-      "allowed_write_boundary": "Only /srv/bears/plugins/bears/agents/l2-infra-domain-orchestrator.toml for the L2 infra domain orchestrator role definition; no product, runtime, GitOps desired-state, infra payload, app, MCP, connector, provider, external exposure, secret, credential, raw log, raw chat, raw VPN config, production data, or shell-history access.",
+      "allowed_write_boundary": "Only /srv/bears/plugins/bears/agents/l2-infra-domain-orchestrator.toml for the L2 infra domain orchestrator role definition; no product, runtime, GitOps desired-state, infra payload, product app, MCP, connector, provider, external exposure, secret, credential, raw log, raw chat, raw VPN config, production data, or shell-history access.",
       "trust_boundary": "This role controls L2 infra domain governance, helper delegation, L3 assignment review, and no-parent-context spawn policy for future goal workflows; it must remain governance-only.",
       "validation_required_inventory": [
         "python3 scripts/platform_roles.py route agents/l2-infra-domain-orchestrator.toml",
@@ -10752,7 +10791,7 @@
         "/srv/bears/plugins/bears/agents/l2-product-infra-domain-orchestrator.toml"
       ],
       "concrete_scope": "Exact L2 product_infra domain orchestrator role metadata for agentic enterprise goal workflows.",
-      "allowed_write_boundary": "Only /srv/bears/plugins/bears/agents/l2-product-infra-domain-orchestrator.toml for the L2 product_infra domain orchestrator role definition; no product, runtime, GitOps desired-state, infra payload, app, MCP, connector, provider, external exposure, secret, credential, raw log, raw chat, raw VPN config, production data, or shell-history access.",
+      "allowed_write_boundary": "Only /srv/bears/plugins/bears/agents/l2-product-infra-domain-orchestrator.toml for the L2 product_infra domain orchestrator role definition; no product, runtime, GitOps desired-state, infra payload, product app, MCP, connector, provider, external exposure, secret, credential, raw log, raw chat, raw VPN config, production data, or shell-history access.",
       "trust_boundary": "This role controls L2 product_infra domain governance, helper delegation, L3 assignment review, and no-parent-context spawn policy for future goal workflows; it must remain governance-only.",
       "validation_required_inventory": [
         "python3 scripts/platform_roles.py route agents/l2-product-infra-domain-orchestrator.toml",
@@ -11394,7 +11433,7 @@
         "/srv/bears/plugins/bears/skills/subagents/SKILL.md",
         "/srv/bears/plugins/bears/skills/subagents/references/role-lanes.md"
       ],
-      "allowed_write_boundary": "Only /srv/bears/plugins/bears/skills/subagents/** for subagent usage instructions and references; no product, runtime, deployment, app, MCP, connector, provider, secret, production-data, raw-log, raw-chat, or raw-VPN-config authority.",
+      "allowed_write_boundary": "Only /srv/bears/plugins/bears/skills/subagents/** for subagent usage instructions and references; no product, runtime, deployment, product app, MCP, connector, provider, secret, production-data, raw-log, raw-chat, or raw-VPN-config authority.",
       "concrete_scope": "Exact Subagents skill and direct references for parent control lanes, L2/L3 delegation, reusable workers, gitflow closeout, and subagent evidence packets.",
       "decomposition_required": false,
       "group": "workflow",
@@ -11448,7 +11487,7 @@
         "/srv/bears/plugins/bears/scripts/github_project_subagents.py",
         "/srv/bears/plugins/bears/docs/reference/github-project-subagents.md"
       ],
-      "allowed_write_boundary": "Only /srv/bears/plugins/bears/skills/projectdevsubagents/**, /srv/bears/plugins/bears/agents/bears-github-project-issues-orchestrator.toml, /srv/bears/plugins/bears/assets/catalog/github-project-subagents.v1.json, /srv/bears/plugins/bears/assets/schemas/github-project-subagents.v1.schema.json, /srv/bears/plugins/bears/scripts/github_project_subagents.py, and /srv/bears/plugins/bears/docs/reference/github-project-subagents.md; no GitHub Project field-model planning/admin skill edits, product, runtime, deploy, app, MCP, connector, provider, repository settings, branch protection, secrets, production data, raw logs, raw chats, or raw VPN configs.",
+      "allowed_write_boundary": "Only /srv/bears/plugins/bears/skills/projectdevsubagents/**, /srv/bears/plugins/bears/agents/bears-github-project-issues-orchestrator.toml, /srv/bears/plugins/bears/assets/catalog/github-project-subagents.v1.json, /srv/bears/plugins/bears/assets/schemas/github-project-subagents.v1.schema.json, /srv/bears/plugins/bears/scripts/github_project_subagents.py, and /srv/bears/plugins/bears/docs/reference/github-project-subagents.md; no GitHub Project field-model planning/admin skill edits, product, runtime, deploy, product app, MCP, connector, provider, repository settings, branch protection, secrets, production data, raw logs, raw chats, or raw VPN configs.",
       "concrete_scope": "Exact Project Dev Subagents skill, GitHub project/issue flow reference, and GitHub Projects/Issues orchestrator role artifact for project-driven L2/L3 development orchestration from already prepared Project/Issue state.",
       "decomposition_required": false,
       "group": "workflow",
@@ -11526,7 +11565,7 @@
         "skills/github-project-planning"
       ],
       "concrete_scope": "Exact GitHub Project planning/admin skill and references for Project selection or creation packets, field models, views, issue and sub-issue structure, item hygiene, roadmap planning, and planning PASS handoff before development orchestration.",
-      "allowed_write_boundary": "Only /srv/bears/plugins/bears/skills/github-project-planning/**; no product, platform, runtime, deploy, app, MCP, connector, provider, repository settings, branch protection, secrets, production data, raw logs, raw chats, or raw VPN configs.",
+      "allowed_write_boundary": "Only /srv/bears/plugins/bears/skills/github-project-planning/**; no product, platform, runtime, deploy, product app, MCP, connector, provider, repository settings, branch protection, secrets, production data, raw logs, raw chats, or raw VPN configs.",
       "trust_boundary": "This surface controls planning/admin guidance for GitHub Projects and Issues before development execution. It may prepare or validate operator-authorized metadata packets but must not execute L2/L3 dev orchestration, implementation, repository settings mutation, runtime/deploy mutation, or secret access.",
       "required_validations": [
         "python3 scripts/platform_roles.py route skills/github-project-planning",
@@ -11589,7 +11628,7 @@
         "scripts/orchestrator_closeout_manifest_authority.py",
         "/srv/bears/plugins/bears/scripts/orchestrator_closeout_manifest_authority.py"
       ],
-      "allowed_write_boundary": "Only execution-kernel authority support scripts, catalogs, and reference docs named by authority-map topics; no product, runtime, deploy, app, MCP, connector, provider, secret, production-data, raw-log, raw-chat, or raw-VPN-config authority.",
+      "allowed_write_boundary": "Only execution-kernel authority support scripts, catalogs, and reference docs named by authority-map topics; no product, runtime, deploy, product app, MCP, connector, provider, secret, production-data, raw-log, raw-chat, or raw-VPN-config authority.",
       "concrete_scope": "Exact authority-map support artifacts for goal orchestrator, async validation, sequential Codex Exec, issue autostart, and self-solving issue loop validation.",
       "decomposition_required": false,
       "group": "workflow",
@@ -11668,7 +11707,7 @@
       ],
       "concrete_scope": "Direct business-map-ai app directory in the BearsCLOUD/apps monorepo for migration/archive evidence and app-local work only.",
       "allowed_write_boundary": "Only app-local files under /srv/bears/dev/app/business-map-ai when the nearest router and exact route allow them; active repository authority stays /srv/bears/dev/app and BearsCLOUD/apps.",
-      "trust_boundary": "This app directory does not restore old per-app repository authority, deploy authority, local_cd authority, shared platform ownership, or secret custody.",
+      "trust_boundary": "This app directory does not restore old per-product-app repository authority, deploy authority, local_cd authority, shared platform ownership, or secret custody.",
       "required_validations": [
         "python3 /srv/bears/plugins/bears/scripts/project_registry_gate.py gate /srv/bears/dev/app/business-map-ai",
         "python3 scripts/platform_roles.py route /srv/bears/dev/app/business-map-ai",
@@ -11679,7 +11718,7 @@
       ],
       "reviewer_triggers": [
         "archive evidence promotion request",
-        "canonical app repository boundary change",
+        "canonical product-app repository boundary change",
         "old repository issue routing change"
       ],
       "decomposition_required": false,
@@ -11689,7 +11728,7 @@
         "canonical_local_root": "/srv/bears/dev/app",
         "issue_link_invariant": "Old repository issues and migration issues must link to BearsCLOUD/apps before closeout.",
         "allowed_use": "Migration source, archive evidence, or temporary migration worktree only.",
-        "forbidden_use": "Canonical product app repository authority or new standalone app repository registration.",
+        "forbidden_use": "Canonical product-app repository authority or new standalone product-app repository registration.",
         "umbrella_issue_invariant": "Archive readiness requires a BearsCLOUD/apps umbrella migration issue before archive.",
         "source_migration_issue_invariant": "Archive readiness requires a source repository migration issue linked to the BearsCLOUD/apps umbrella issue before archive.",
         "infra_local_cd_safety_invariant": "Archive readiness requires infra/local_cd safety proof: Kubernetes desired state and local_cd selectors must not depend on this old source repository unless the owning infra/local_cd policy classifies it as a temporary migration source.",
@@ -11727,7 +11766,7 @@
       ],
       "concrete_scope": "Direct design-systems-agent-kit app directory in the BearsCLOUD/apps monorepo for migration/archive evidence and app-local work only.",
       "allowed_write_boundary": "Only app-local files under /srv/bears/dev/app/design-systems-agent-kit when the nearest router and exact route allow them; active repository authority stays /srv/bears/dev/app and BearsCLOUD/apps.",
-      "trust_boundary": "This app directory does not restore old per-app repository authority, deploy authority, local_cd authority, shared platform ownership, or secret custody.",
+      "trust_boundary": "This app directory does not restore old per-product-app repository authority, deploy authority, local_cd authority, shared platform ownership, or secret custody.",
       "required_validations": [
         "python3 /srv/bears/plugins/bears/scripts/project_registry_gate.py gate /srv/bears/dev/app/design-systems-agent-kit",
         "python3 scripts/platform_roles.py route /srv/bears/dev/app/design-systems-agent-kit",
@@ -11738,7 +11777,7 @@
       ],
       "reviewer_triggers": [
         "archive evidence promotion request",
-        "canonical app repository boundary change",
+        "canonical product-app repository boundary change",
         "old repository issue routing change"
       ],
       "decomposition_required": false,
@@ -11748,7 +11787,7 @@
         "canonical_local_root": "/srv/bears/dev/app",
         "issue_link_invariant": "Old repository issues and migration issues must link to BearsCLOUD/apps before closeout.",
         "allowed_use": "Migration source, archive evidence, or temporary migration worktree only.",
-        "forbidden_use": "Canonical product app repository authority or new standalone app repository registration.",
+        "forbidden_use": "Canonical product-app repository authority or new standalone product-app repository registration.",
         "umbrella_issue_invariant": "Archive readiness requires a BearsCLOUD/apps umbrella migration issue before archive.",
         "source_migration_issue_invariant": "Archive readiness requires a source repository migration issue linked to the BearsCLOUD/apps umbrella issue before archive.",
         "infra_local_cd_safety_invariant": "Archive readiness requires infra/local_cd safety proof: Kubernetes desired state and local_cd selectors must not depend on this old source repository unless the owning infra/local_cd policy classifies it as a temporary migration source.",
@@ -11786,7 +11825,7 @@
       ],
       "concrete_scope": "Direct safe-circles app directory in the BearsCLOUD/apps monorepo for migration/archive evidence and app-local work only.",
       "allowed_write_boundary": "Only app-local files under /srv/bears/dev/app/safe-circles when the nearest router and exact route allow them; active repository authority stays /srv/bears/dev/app and BearsCLOUD/apps.",
-      "trust_boundary": "This app directory does not restore old per-app repository authority, deploy authority, local_cd authority, shared platform ownership, or secret custody.",
+      "trust_boundary": "This app directory does not restore old per-product-app repository authority, deploy authority, local_cd authority, shared platform ownership, or secret custody.",
       "required_validations": [
         "python3 /srv/bears/plugins/bears/scripts/project_registry_gate.py gate /srv/bears/dev/app/safe-circles",
         "python3 scripts/platform_roles.py route /srv/bears/dev/app/safe-circles",
@@ -11797,7 +11836,7 @@
       ],
       "reviewer_triggers": [
         "archive evidence promotion request",
-        "canonical app repository boundary change",
+        "canonical product-app repository boundary change",
         "old repository issue routing change"
       ],
       "decomposition_required": false,
@@ -11807,7 +11846,7 @@
         "canonical_local_root": "/srv/bears/dev/app",
         "issue_link_invariant": "Old repository issues and migration issues must link to BearsCLOUD/apps before closeout.",
         "allowed_use": "Migration source, archive evidence, or temporary migration worktree only.",
-        "forbidden_use": "Canonical product app repository authority or new standalone app repository registration.",
+        "forbidden_use": "Canonical product-app repository authority or new standalone product-app repository registration.",
         "umbrella_issue_invariant": "Archive readiness requires a BearsCLOUD/apps umbrella migration issue before archive.",
         "source_migration_issue_invariant": "Archive readiness requires a source repository migration issue linked to the BearsCLOUD/apps umbrella issue before archive.",
         "infra_local_cd_safety_invariant": "Archive readiness requires infra/local_cd safety proof: Kubernetes desired state and local_cd selectors must not depend on this old source repository unless the owning infra/local_cd policy classifies it as a temporary migration source.",
@@ -11845,7 +11884,7 @@
       ],
       "concrete_scope": "Direct zovu app directory in the BearsCLOUD/apps monorepo for migration/archive evidence and app-local work only.",
       "allowed_write_boundary": "Only app-local files under /srv/bears/dev/app/zovu when the nearest router and exact route allow them; active repository authority stays /srv/bears/dev/app and BearsCLOUD/apps.",
-      "trust_boundary": "This app directory does not restore old per-app repository authority, deploy authority, local_cd authority, shared platform ownership, or secret custody.",
+      "trust_boundary": "This app directory does not restore old per-product-app repository authority, deploy authority, local_cd authority, shared platform ownership, or secret custody.",
       "required_validations": [
         "python3 /srv/bears/plugins/bears/scripts/project_registry_gate.py gate /srv/bears/dev/app/zovu",
         "python3 scripts/platform_roles.py route /srv/bears/dev/app/zovu",
@@ -11856,7 +11895,7 @@
       ],
       "reviewer_triggers": [
         "archive evidence promotion request",
-        "canonical app repository boundary change",
+        "canonical product-app repository boundary change",
         "old repository issue routing change"
       ],
       "decomposition_required": false,
@@ -11866,7 +11905,7 @@
         "canonical_local_root": "/srv/bears/dev/app",
         "issue_link_invariant": "Old repository issues and migration issues must link to BearsCLOUD/apps before closeout.",
         "allowed_use": "Migration source, archive evidence, or temporary migration worktree only.",
-        "forbidden_use": "Canonical product app repository authority or new standalone app repository registration.",
+        "forbidden_use": "Canonical product-app repository authority or new standalone product-app repository registration.",
         "umbrella_issue_invariant": "Archive readiness requires a BearsCLOUD/apps umbrella migration issue before archive.",
         "source_migration_issue_invariant": "Archive readiness requires a source repository migration issue linked to the BearsCLOUD/apps umbrella issue before archive.",
         "infra_local_cd_safety_invariant": "Archive readiness requires infra/local_cd safety proof: Kubernetes desired state and local_cd selectors must not depend on this old source repository unless the owning infra/local_cd policy classifies it as a temporary migration source.",
@@ -12974,6 +13013,12 @@
       "target": "/srv/bears/dev/registry/projects.v1.json",
       "expected_status": "matched",
       "required_role": "bears-platform-role-governor"
+    },
+    {
+      "target": "/srv/bears/docs/CANONICAL_NAMES.md",
+      "expected_status": "matched",
+      "required_role": "bears-docs-maintainer",
+      "required_route_id": "workspace_canonical_names_docs"
     },
     {
       "target": "/srv/bears/dev/contracts/subagent_start_packet.md",
@@ -14560,8 +14605,9 @@
     },
     {
       "target": "/srv/bears/.specify",
-      "expected_status": "ROLE_COVERAGE_BLOCKER",
-      "expected_why_blocked": "unmapped"
+      "expected_status": "matched",
+      "required_role": "bears-platform-role-governor",
+      "required_route_id": "workspace_control_speckit_integration_surfaces"
     },
     {
       "target": "/srv/bears/specs",
@@ -14580,23 +14626,27 @@
     },
     {
       "target": "/srv/bears/docs/plans.md",
-      "expected_status": "ROLE_COVERAGE_BLOCKER",
-      "expected_why_blocked": "unmapped"
+      "expected_status": "matched",
+      "required_role": "bears-infrastructure-network-engineer",
+      "required_route_id": "workspace_network_map_docs"
     },
     {
       "target": "/srv/bears/.specify/feature.json",
-      "expected_status": "ROLE_COVERAGE_BLOCKER",
-      "expected_why_blocked": "unmapped"
+      "expected_status": "matched",
+      "required_role": "bears-platform-role-governor",
+      "required_route_id": "workspace_control_speckit_integration_surfaces"
     },
     {
       "target": "/srv/bears/specs/004-dev-e2e-foundation/spec.md",
-      "expected_status": "ROLE_COVERAGE_BLOCKER",
-      "expected_why_blocked": "unmapped"
+      "expected_status": "matched",
+      "required_role": "bears-platform-role-governor",
+      "required_route_id": "workspace_control_speckit_integration_surfaces"
     },
     {
       "target": "/srv/bears/specs/006-bears-platform-telegram/spec.md",
-      "expected_status": "ROLE_COVERAGE_BLOCKER",
-      "expected_why_blocked": "unmapped"
+      "expected_status": "matched",
+      "required_role": "bears-telegram-platform-engineer",
+      "required_route_id": "telegram_platform_feature_006_spec_governance_artifacts"
     },
     {
       "target": "/srv/bears/dev/platform/.github/workflows/publish-ghcr.yml",

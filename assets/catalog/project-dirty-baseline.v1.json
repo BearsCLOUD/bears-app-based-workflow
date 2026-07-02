@@ -3,7 +3,7 @@
   "owner_plugin": "bears",
   "concrete_part": "project_dirty_baseline",
   "updated": "2026-06-04",
-  "purpose": "Read-only provenance gate for concrete project write-lane dirty-baseline capture under a bounded root.",
+  "purpose": "Read-only provenance gate for concrete repo write-lane dirty-baseline capture under a bounded root.",
   "route_target": "/srv/bears/plugins/bears/scripts/project_dirty_baseline.py",
   "reference_doc": "/srv/bears/plugins/bears/docs/reference/project-dirty-baseline.md",
   "validation": {
@@ -40,12 +40,12 @@
     "project_write_lane_requires_concrete_root": true,
     "container_inventory_scope_mode": "container-inventory",
     "project_write_lane_scope_mode": "project-write-lane",
-    "future_project_migration": "Projects under /srv/bears/projects are migrated later through sequential exact role-gated project lanes.",
+    "future_project_migration": "Projects under /srv/bears/projects are migrated later through sequential exact role-gated repo lanes.",
     "rules": [
       "/srv/bears/projects is a transitional project container, not the baseline for Bears plugin-core stabilization.",
       "Global /srv/bears/projects capture is read-only inventory evidence and must not block plugin-core governance closeout.",
-      "Dirty-baseline confirmation is required only for a selected concrete project root before product/runtime/deploy/integration writes in that project lane.",
-      "A dirty baseline status blocks only the matching concrete project write lane.",
+      "Dirty-baseline confirmation is required only for a selected concrete repo root before product/runtime/deploy/integration writes in that repo lane.",
+      "A dirty baseline status blocks only the matching concrete repo write lane.",
       "Every later project migration still requires an exact platform role route and nearest local project gates."
     ]
   },
@@ -96,7 +96,7 @@
   },
   "governance_scan": {
     "container_inventory_root": "/srv/bears/projects",
-    "project_write_lane_root": "<concrete-project-root>",
+    "project_write_lane_root": "<concrete-repo-root>",
     "nearest_files": [
       "AGENTS.md",
       "SPEC.md",

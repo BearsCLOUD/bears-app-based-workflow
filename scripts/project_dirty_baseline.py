@@ -225,8 +225,8 @@ def validate_catalog(
             errors.append("governance_scan.root_default is forbidden; /srv/bears/projects is not a baseline")
         if governance_scan.get("container_inventory_root") != "/srv/bears/projects":
             errors.append("governance_scan.container_inventory_root must be /srv/bears/projects")
-        if governance_scan.get("project_write_lane_root") != "<concrete-project-root>":
-            errors.append("governance_scan.project_write_lane_root must be <concrete-project-root>")
+        if governance_scan.get("project_write_lane_root") != "<concrete-repo-root>":
+            errors.append("governance_scan.project_write_lane_root must be <concrete-repo-root>")
         nearest_files = governance_scan.get("nearest_files")
         if nearest_files != list(REQUIRED_GOVERNANCE_FILES):
             errors.append("governance_scan.nearest_files must equal [AGENTS.md, SPEC.md, requirements.md]")
@@ -414,7 +414,7 @@ def capture_baseline(
             "Read-only container inventory only.",
             "This packet is not a baseline for Bears plugin-core stabilization.",
             "Dirty repositories under the container do not block plugin-governance-only closeout.",
-            "Select a concrete project root and use project-write-lane mode before any project write handoff.",
+            "Select a concrete repo root and use project-write-lane mode before any repo write handoff.",
             "Run platform_roles.py route <target> separately before any scoped implementation handoff.",
         ]
     else:
@@ -466,7 +466,7 @@ def build_parser() -> argparse.ArgumentParser:
         "--scope-mode",
         choices=SCOPE_MODE_CHOICES,
         default=PROJECT_WRITE_LANE_SCOPE,
-        help="project write-lane gate by default; use container-inventory for read-only /srv/bears/projects inventory",
+        help="repo write-lane gate by default; use container-inventory for read-only /srv/bears/projects inventory",
     )
     capture.add_argument("--json", action="store_true", help="emit JSON packet")
     capture.add_argument(

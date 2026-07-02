@@ -101,7 +101,7 @@
     },
     {
       "id": "runtime_surface_in_plugin",
-      "pattern": "Adding app, connector, MCP server, runtime service, product behavior, or production mutation behavior in this plugin."
+      "pattern": "Adding product app, connector, MCP server, runtime service, product behavior, or production mutation behavior in this plugin."
     },
     {
       "id": "upstream_speckit_vendoring",
@@ -145,7 +145,7 @@
     "rule": "Bears plugin changes that affect L1/L2/L3 orchestration, hooks, scope matrices, decision logs, owner lineage, or four-domain boundaries must satisfy the agentic enterprise constitution."
   },
   "surface_policy": {
-    "rule": "The plugin root may carry governance layers only. App, connector, MCP server, runtime service, service registration, and deploy registration surfaces are forbidden as paths or manifest keys.",
+    "rule": "The plugin root may carry governance layers only. Product app, connector, MCP server, runtime service, service registration, and deploy registration surfaces are forbidden as paths or manifest keys.",
     "path_match_only": true,
     "fail_closed_on_forbidden_surface": true,
     "allowed_plugin_layers": [

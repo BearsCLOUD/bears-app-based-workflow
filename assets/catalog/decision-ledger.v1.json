@@ -1696,6 +1696,26 @@
       "scope_id": "agent-exploration-limits",
       "status": "accepted",
       "unresolved_inputs": []
+    },
+    {
+      "affected_paths": [
+        "assets/catalog/plugin-constitution.v1.json",
+        "assets/catalog/plugin-governance-language-policy.v1.json",
+        "assets/catalog/project-dirty-baseline.v1.json",
+        "assets/catalog/roadmap-control.v1.json",
+        "scripts/project_dirty_baseline.py"
+      ],
+      "change_type": "policy",
+      "contradictions": [],
+      "decision": "Enforce canonical app/project terms in plugin governance policy and repo/target wording.",
+      "decision_id": "D-2026-07-02-canonical-app-project-terms",
+      "owner_issue": "#383",
+      "owner_role": "bears-workflow-overlay-platform-engineer",
+      "rationale": "Plugin governance must distinguish product app source from plugin/runtime surfaces and GitHub Project planning boards from filesystem/source ownership.",
+      "redaction": "safe",
+      "scope_id": "canonical-app-project-terms",
+      "status": "accepted",
+      "unresolved_inputs": []
     }
   ],
   "schema": "bears-decision-ledger.v1",

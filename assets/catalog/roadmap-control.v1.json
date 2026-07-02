@@ -343,7 +343,7 @@
     ],
     "durable_artifact": {
       "with_spec_kit_packet": "Store research.md, prior-art.md, and ux-research.md in the active Spec Kit feature directory before specification or planning work continues.",
-      "without_spec_kit_packet": "Store a bounded section in README.md or the narrowest project docs path, then move it to the feature directory after Spec Kit creates one."
+      "without_spec_kit_packet": "Store a bounded section in README.md or the narrowest target docs path, then move it to the feature directory after Spec Kit creates one."
     },
     "skip_policy": {
       "operator_skip": {

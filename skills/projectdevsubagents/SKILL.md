@@ -104,6 +104,13 @@ L2 forbidden actions:
 - Parent talks to L2 only; L2 talks to L3 only.
 - When decomposition is needed, L2 must create and link child Issues, add each child to the GitHub Project, and then return `DECOMPOSED_ONLY`.
 - `DECOMPOSED_ONLY` means no L3 dispatch in the same five-minute wave.
+- One decomposition wave may create at most two child Issues unless a precomputed child-Issue template has explicit operator approval.
+- If more than two child Issues are needed, L2 creates the first two, records dependency/order links, sets only required status/linkage metadata, and returns `PARTIAL_DECOMPOSED_ONLY` before the five-minute parent wait expires.
+- `PARTIAL_DECOMPOSED_ONLY` means remaining child Issues and optional Project field fills are deferred to later parent assignments; no L3 dispatch in that wave.
+- During decomposition, postpone optional Project field fills and avoid broad Project field work in the same wave.
+- Returning `DECOMPOSED_ONLY` or `PARTIAL_DECOMPOSED_ONLY` before timeout has priority over complete metadata cleanup.
+- If required child metadata already exists before assignment, L2 may proceed child-by-child after verifying each child is visible and dependency-ready.
+- These decomposition limits do not widen metadata mutation authority; parent/operator authorization is still required.
 - The first child execution is a separate parent assignment after the child Issue and Project metadata are visible.
 - Do not combine decomposition and first L3 execution in one five-minute wave.
 - After a tiny-slice timeout, retry only that child slice with a child-only packet; skip broad discovery.
@@ -126,8 +133,8 @@ For each assigned Project item or Issue:
 3. Run route/audit for the target path.
 4. If route/audit returns `ROLE_COVERAGE_BLOCKER`, create a role-improvement L3 packet and keep the implementation item blocked.
 5. Split work when repo boundary, @Bears role, write scope, validation path, or deploy/runtime boundary differs.
-6. If decomposition is needed, create and link child Issues, add each child to the GitHub Project, and return `DECOMPOSED_ONLY`; do not dispatch L3 in the same wave.
-7. Build one L3 packet per split only after the child metadata is visible.
+6. If decomposition is needed, create and link at most two child Issues per wave, add only required Project status/linkage metadata, and return `DECOMPOSED_ONLY` or `PARTIAL_DECOMPOSED_ONLY`; do not dispatch L3 in the same wave.
+7. Build one L3 packet per split only after the child metadata is visible, dependency-ready, and either preexisted or came from a prior parent assignment.
 8. Validate every materialized L3 packet only through local-commit-owned or operator-approved `python3 scripts/github_project_subagents.py validate-assignment <packet.json>` evidence.
 9. Dispatch L3 workers.
 10. Collect L3 closeout packets.

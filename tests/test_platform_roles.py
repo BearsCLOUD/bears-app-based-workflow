@@ -3858,6 +3858,30 @@ class PlatformRolesTest(unittest.TestCase):
                 self.assertEqual(packet["status"], "ROLE_COVERAGE_BLOCKER")
                 self.assertEqual(packet["why_blocked"], "unmapped")
 
+    def test_all_current_direct_app_dirs_have_exact_routes(self) -> None:
+        expected = {
+            "/srv/bears/dev/app/bears-ru": ("bears_ru_brand_site_archive_source", "bears-product-app-zone-engineer"),
+            "/srv/bears/dev/app/bearsapk": ("bearsapk_android_app_archive_source", "bears-product-app-zone-engineer"),
+            "/srv/bears/dev/app/business-map-ai": ("business_map_ai_archive_source", "bears-product-app-zone-engineer"),
+            "/srv/bears/dev/app/codex-telegram": ("telegram_platform", "bears-telegram-platform-engineer"),
+            "/srv/bears/dev/app/codexdaemon": ("codexdaemon_runtime", "bears-codex-daemon-engineer"),
+            "/srv/bears/dev/app/design-systems-agent-kit": ("design_systems_agent_kit_archive_source", "bears-product-app-zone-engineer"),
+            "/srv/bears/dev/app/desk": ("desk_product_dev_layer", "bears-product-app-zone-engineer"),
+            "/srv/bears/dev/app/leadgen": ("leadgen_product_dev_layer", "bears-product-app-zone-engineer"),
+            "/srv/bears/dev/app/safe-circles": ("safe_circles_archive_source", "bears-product-app-zone-engineer"),
+            "/srv/bears/dev/app/tgbase": ("tgbase_analytics_engine", "bears-telegram-platform-engineer"),
+            "/srv/bears/dev/app/tgsearch": ("tgsearch_collector", "bears-telegram-platform-engineer"),
+            "/srv/bears/dev/app/theants": ("theants_product_dev_layer", "bears-product-app-zone-engineer"),
+            "/srv/bears/dev/app/vpn": ("vpn_project_root", "bears-vpn-project-governance-engineer"),
+            "/srv/bears/dev/app/zovu": ("zovu_archive_source", "bears-product-app-zone-engineer"),
+        }
+        for target, (part, role) in expected.items():
+            with self.subTest(target=target):
+                packet = platform_roles.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
+                self.assertEqual(packet["status"], "matched")
+                self.assertEqual(packet["concrete_part"], part)
+                self.assertEqual(packet["primary_role"], role)
+
     def test_product_apps_monorepo_policy_rejects_new_standalone_app_repo(self) -> None:
         catalog = copy.deepcopy(self.catalog)
         part = copy.deepcopy(next(item for item in catalog["platform_parts"] if item["name"] == "desk_product_dev_layer"))
@@ -3927,7 +3951,7 @@ class PlatformRolesTest(unittest.TestCase):
         self.assertNotIn("source_project_name_template", policy)
         planning_project = policy["canonical_planning_project"]
         self.assertEqual(planning_project["owner_repository"], "BearsCLOUD/apps")
-        self.assertIn("source_repo/app_module", planning_project["required_issue_fields"])
+        self.assertIn("source_repo/app_directory", planning_project["required_issue_fields"])
         self.assertIn("archive_readiness", planning_project["required_issue_fields"])
         self.assertIn("existing per-source Projects may exist only as legacy evidence and must not be required, created, or used for PASS", planning_project["scope"])
         self.assertEqual(

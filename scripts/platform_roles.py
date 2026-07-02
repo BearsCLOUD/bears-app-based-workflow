@@ -951,7 +951,7 @@ def _validate_product_apps_monorepo_catalog(catalog: dict[str, Any], errors: lis
         )
     planning_project = apps_policy.get("canonical_planning_project")
     required_project_fields = {
-        "source_repo/app_module",
+        "source_repo/app_directory",
         "migration_stage",
         "infra_local_cd_status",
         "platform_boundary_status",
@@ -1085,7 +1085,7 @@ def _validate_product_apps_monorepo_catalog(catalog: dict[str, Any], errors: lis
         planning_link = legacy.get("canonical_planning_project_invariant")
         if not isinstance(planning_link, str) or not all(
             token in planning_link
-            for token in (canonical_remote, "Apps Migration & Planning", "canonical", "Project", "source_repo/app_module", "archive_readiness", "API proof")
+            for token in (canonical_remote, "Apps Migration & Planning", "canonical", "Project", "source_repo/app_directory", "archive_readiness", "API proof")
         ):
             errors.append(
                 f"product-apps-monorepo: {part_name}.legacy_compatibility.canonical_planning_project_invariant "

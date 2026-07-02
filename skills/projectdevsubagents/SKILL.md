@@ -108,9 +108,13 @@ L2 forbidden actions:
 - Do not combine decomposition and first L3 execution in one five-minute wave.
 - After a tiny-slice timeout, retry only that child slice with a child-only packet; skip broad discovery.
 - `RESET` and `CLEANUP` packets are terminal; do not continue or start L3 after either packet.
+- When the parent sends timeout `RESET` or `CLEANUP`, L2 must stop waiting on L3 at once, ignore any late L3 `READY` or `PASS`, and return `DRIFT_CLEANED`.
+- After timeout `RESET` or `CLEANUP`, post-timeout evidence must be comments only; do not change Project fields, issue state, or closeout state from late output.
 - A timeout `READY` result is rejected; close uncommitted work and do not commit or push.
+- Late `READY` or `PASS` after timeout `RESET` or `CLEANUP` is rejected, even if the child work finished.
 - Parallel L2 fan-out is allowed only for dependency-ready disjoint scopes.
 - Parent timeout after combined decomposition + execution is workflow drift, even when no files changed.
+- If the same timeout drift repeats after the fix, open a new active drift issue and link it to the original evidence.
 - Regression example: `BearsCLOUD/apps#38` -> `#45` and `#46`; L2 started L3 `019f2437-d47a-7590-b8fe-37c02d7a49d5`; parent wait exceeded five minutes; the worker was interrupted; no files changed in `/srv/bears/dev/app/callsaver`.
 
 ## L2 execution loop

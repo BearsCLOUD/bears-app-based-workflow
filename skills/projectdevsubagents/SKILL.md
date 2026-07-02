@@ -134,6 +134,10 @@ L2 forbidden actions:
 
 - Parent talks to L2 only; L2 talks to L3 only.
 - The first-minute parent gate is mandatory before all decomposition, route/audit, metadata enrichment, file reads, or L3 dispatch.
+- Grouped L2 goals are allowed only for Project/Issue metadata batches, decomposition batches, closeout batches, or selecting exactly one dependency-ready implementation child for the current five-minute wave.
+- L2 may self-select from an authorized GitHub Project query, but it must return a batch packet before the five-minute parent wait expires: `METADATA_BATCH`, `DECOMPOSED_ONLY`, `PARTIAL_DECOMPOSED_ONLY`, `CLOSEOUT_BATCH`, `ONE_CHILD_READY`, `FAST_BLOCKER`, or `DRIFT_CLEANED`.
+- If self-selection finds implementation work, L2 must choose one dependency-ready child, execute only that child through the verified mechanism, and stop after a validated patch/gitflow-ready packet or blocker packet.
+- Multi-child implementation batches are forbidden unless the parent packet names explicit precomputed child templates and a shorter per-child gate for each child.
 - When decomposition is needed, L2 must create and link child Issues, add each child to the GitHub Project, and then return `DECOMPOSED_ONLY`.
 - `DECOMPOSED_ONLY` means no L3 dispatch in the same five-minute wave.
 - One decomposition wave may create at most two child Issues unless a precomputed child-Issue template has explicit operator approval.
@@ -153,7 +157,8 @@ L2 forbidden actions:
 - After a tiny-slice timeout, retry only that child slice with a child-only packet; skip broad discovery.
 - Keep issue #65's codex exec 60s timeout before edits and issue #59's parent >5min cleanup rule; these guardrails do not widen authority. If issue #65 timeout repeats after issue #16, treat it as repeated timeout drift and return `FAST_BLOCKER` instead of starting a slow implementation attempt.
 - `RESET` and `CLEANUP` packets are terminal; do not continue or start L3 after either packet.
-- When the parent sends timeout `RESET` or `CLEANUP`, L2 must stop waiting on L3 at once, ignore any late L3 `READY` or `PASS`, and return `DRIFT_CLEANED`.
+- When the parent sends timeout `RESET` or `CLEANUP`, L2 must stop waiting on L3 at once, ignore any late L3 `READY` or `PASS`, and return `DRIFT_CLEANED` within the cleanup wait.
+- If L2 cannot return `DRIFT_CLEANED` within the cleanup wait, the parent records stronger workflow drift, links the active drift issue, and future grouped batches must split smaller than the missed batch before retry. Current drift issue: `BearsCLOUD/bears_plugin#23`.
 - After timeout `RESET` or `CLEANUP`, post-timeout evidence must be comments only; do not change Project fields, issue state, or closeout state from late output.
 - A timeout `READY` result is rejected; close uncommitted work and do not commit or push.
 - Late `READY` or `PASS` after timeout `RESET` or `CLEANUP` is rejected, even if the child work finished.

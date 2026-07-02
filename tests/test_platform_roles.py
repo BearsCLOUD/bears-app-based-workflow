@@ -3842,14 +3842,39 @@ class PlatformRolesTest(unittest.TestCase):
                 self.assertEqual(packet["status"], "matched")
                 self.assertEqual(packet["primary_role"], "bears-telegram-platform-engineer")
 
-    def test_dev_app_group_root_is_intentional_parent_only_blocker(self) -> None:
+    def test_product_apps_monorepo_root_routes_to_exact_product_role(self) -> None:
         packet = platform_roles.route_target(self.catalog, "/srv/bears/dev/app", plugin_root=PLUGIN_ROOT)
-        self.assertEqual(packet["status"], "ROLE_COVERAGE_BLOCKER")
-        self.assertEqual(packet["why_blocked"], "parent_only")
-        self.assertEqual(packet["matched_platform_part"], "dev_core_app_group")
-        self.assertEqual(packet["matched_part_kind"], "group")
-        self.assertTrue(packet["decomposition_required"])
-        self.assertEqual(packet["required_role_shape"]["name"], "bears-workflow-overlay-controller")
+        self.assertEqual(packet["status"], "matched")
+        self.assertEqual(packet["concrete_part"], "product_apps_monorepo_root")
+        self.assertEqual(packet["primary_role"], "bears-product-app-zone-engineer")
+        self.assertEqual(packet["supporting_roles"], ["bears-platform-security-reviewer"])
+
+    def test_invalid_apps_monorepo_paths_stay_blocked(self) -> None:
+        for target in ("/srv/bears/dev/app/apps", "/srv/bears/dev/apps", "/srv/bears/dev/app/newapp"):
+            with self.subTest(target=target):
+                packet = platform_roles.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
+                self.assertEqual(packet["status"], "ROLE_COVERAGE_BLOCKER")
+                self.assertEqual(packet["why_blocked"], "unmapped")
+
+    def test_product_apps_monorepo_policy_rejects_new_standalone_app_repo(self) -> None:
+        catalog = copy.deepcopy(self.catalog)
+        part = copy.deepcopy(next(item for item in catalog["platform_parts"] if item["name"] == "desk_product_dev_layer"))
+        part["name"] = "future_standalone_product_app"
+        part["aliases"] = ["/srv/bears/dev/app/future", "dev/app/future", "BearsCLOUD/future"]
+        part["write_roots"] = ["/srv/bears/dev/app/future"]
+        part.pop("legacy_compatibility", None)
+        catalog["platform_parts"].append(part)
+        catalog["mandatory_policy"]["role_required_for"].append("future_standalone_product_app")
+
+        errors = platform_roles.validate_catalog(catalog, plugin_root=PLUGIN_ROOT)
+
+        self.assertTrue(
+            any(
+                "product-apps-monorepo: future_standalone_product_app old app route must declare legacy_compatibility"
+                in error
+                for error in errors
+            )
+        )
 
     def test_dev_registry_root_routes_to_exact_workspace_governance_docs(self) -> None:
         for router in (platform_roles.route_target, platform_roles.audit_target):

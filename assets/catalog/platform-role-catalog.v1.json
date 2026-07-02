@@ -99,7 +99,7 @@
       "current_infra_runtime_future_kube_lane",
       "deprecated_local_git_remote_hygiene",
       "desk_product_dev_layer",
-      "dev_core_app_group",
+      "product_apps_monorepo_root",
       "dev_core_control_group",
       "dev_core_infrastructure_group",
       "dev_core_infrastructure_network_lane",
@@ -175,6 +175,7 @@
       "telegram_workflow_plugin_feature_005_governance_packets",
       "telegram_workflow_plugin_feature_005_truth_layer",
       "tg_oh_agent_missing_source",
+      "tgbase_analytics_engine",
       "tgsearch_collector",
       "theants_control_provenance_layer",
       "theants_ops_runbooks_layer",
@@ -343,7 +344,39 @@
       "/srv/bears/plans.md",
       "/srv/bears/roadmap.md",
       "/srv/bears/docs/plans.md"
-    ]
+    ],
+    "product_apps_monorepo_policy": {
+      "canonical_local_root": "/srv/bears/dev/app",
+      "canonical_remote": "BearsCLOUD/apps",
+      "canonical_remote_urls": [
+        "https://github.com/BearsCLOUD/apps",
+        "https://github.com/BearsCLOUD/apps.git",
+        "git@github.com:BearsCLOUD/apps.git"
+      ],
+      "invalid_canonical_targets": [
+        "/srv/bears/dev/app/apps",
+        "/srv/bears/dev/apps"
+      ],
+      "nested_repo_policy": "Nested /srv/bears/dev/app/* Git repositories are migration sources or archive candidates only; they must not be registered as new canonical product app repositories after consolidation.",
+      "allowed_nested_statuses": [
+        "migration_source",
+        "archive_candidate",
+        "deprecated_archive_candidate",
+        "temporary_migration_worktree"
+      ],
+      "required_legacy_fields": [
+        "status",
+        "active_replacement",
+        "issue_link_invariant",
+        "umbrella_issue_invariant",
+        "source_migration_issue_invariant",
+        "source_project_link_invariant"
+      ],
+      "issue_link_invariant": "Old repository issues and migration issues must link to BearsCLOUD/apps and must not create a new canonical app repository.",
+      "archive_readiness_invariant": "Archive readiness for every old source repository requires an umbrella issue, a source migration issue, and a source-specific GitHub Project link in BearsCLOUD/apps or BearsCLOUD org before archive.",
+      "source_project_name_template": "Migrate <source-repo> into apps",
+      "source_project_link_invariant": "Each old source repository must have a dedicated GitHub Project named `Migrate <source-repo> into apps` in BearsCLOUD/apps or BearsCLOUD org, linked to the umbrella issue and the source migration issue before archive."
+    }
   },
   "roles": [
     {
@@ -5627,7 +5660,7 @@
       ],
       "concrete_scope": "Codex Telegram prod-only MCP product service under the canonical /srv/bears/dev/app product lane.",
       "allowed_write_boundary": "Only /srv/bears/dev/app/codex-telegram when the nearest local router allows it; /srv/bears/projects/codex-telegram is legacy evidence only; no /srv/bears/dev/workspace product adapter or local product daemon ownership.",
-      "trust_boundary": "Telegram MCP behavior, admin authorization, private chat handling, production endpoint registration, Kubernetes runtime references, and Infisical secret references; no raw secrets or private chats in artifacts.",
+      "trust_boundary": "Telegram MCP behavior, allowlist authorization, private chat handling, production endpoint registration, Kubernetes runtime references, and Infisical secret references; no raw secrets or private chats in artifacts.",
       "required_validations": [
         "python3 scripts/platform_roles.py validate",
         "python3 scripts/platform_roles.py route /srv/bears/dev/app/codex-telegram",
@@ -5653,8 +5686,15 @@
         ],
         "canonical_ref": "/srv/bears/dev/app/codex-telegram",
         "decision": "moved_to_canonical_dev_app_product_lane",
-        "allowed_use": "Evidence and compatibility classification only.",
-        "forbidden_use": "Canonical source authority, product MCP adapter ownership, local daemon ownership, or broad child implementation handoff."
+        "allowed_use": "Migration source, archive evidence, or temporary migration worktree only.",
+        "forbidden_use": "Canonical product app repository authority or new standalone app repository registration.",
+        "status": "deprecated_archive_candidate",
+        "active_replacement": "BearsCLOUD/apps",
+        "canonical_local_root": "/srv/bears/dev/app",
+        "issue_link_invariant": "Old repository issues and migration issues must link to BearsCLOUD/apps before closeout.",
+        "umbrella_issue_invariant": "Archive readiness requires a BearsCLOUD/apps umbrella migration issue before archive.",
+        "source_migration_issue_invariant": "Archive readiness requires a source repository migration issue linked to the BearsCLOUD/apps umbrella issue before archive.",
+        "source_project_link_invariant": "Archive readiness requires a dedicated GitHub Project named `Migrate <source-repo> into apps` in BearsCLOUD/apps or BearsCLOUD org, linked to the umbrella issue and the source migration issue before archive."
       }
     },
     {
@@ -5905,7 +5945,14 @@
         "plugins/bears/skills/telegram-plugin-skill-factory",
         "/srv/bears/plugins/bears/skills/telegram-plugin-skill-factory",
         "agents/bears-telegram-platform-engineer.toml",
-        "/srv/bears/plugins/bears/agents/bears-telegram-platform-engineer.toml"
+        "/srv/bears/plugins/bears/agents/bears-telegram-platform-engineer.toml",
+        "codex-telegram-operator-gate",
+        "skills/codex-telegram-operator-gate",
+        "skills/codex-telegram-operator-gate/SKILL.md",
+        "plugins/bears/skills/codex-telegram-operator-gate",
+        "plugins/bears/skills/codex-telegram-operator-gate/SKILL.md",
+        "/srv/bears/plugins/bears/skills/codex-telegram-operator-gate",
+        "/srv/bears/plugins/bears/skills/codex-telegram-operator-gate/SKILL.md"
       ],
       "group": "workflow",
       "required_role": "bears-telegram-platform-engineer",
@@ -5921,7 +5968,10 @@
         "/srv/bears/plugins/bears/assets/catalog/telegram-plugin-skill-factory-policy.v1.json",
         "/srv/bears/plugins/bears/scripts/telegram_catalog.py",
         "/srv/bears/plugins/bears/scripts/telegram_skill_factory_policy.py",
-        "/srv/bears/plugins/bears/agents/bears-telegram-platform-engineer.toml"
+        "/srv/bears/plugins/bears/agents/bears-telegram-platform-engineer.toml",
+        "/srv/bears/plugins/bears/skills/codex-telegram-operator-gate",
+        "plugins/bears/skills/codex-telegram-operator-gate",
+        "skills/codex-telegram-operator-gate"
       ],
       "concrete_scope": "Telegram workflow skill bundle inside the canonical Bears plugin.",
       "allowed_write_boundary": "/srv/bears/plugins/bears Telegram skill/catalog/script surfaces only when the Telegram specialist role is selected.",
@@ -6614,7 +6664,69 @@
         "lead-generation concept ownership change",
         "restricted-data, external exposure, or production workflow boundary change"
       ],
-      "decomposition_required": false
+      "decomposition_required": false,
+      "legacy_compatibility": {
+        "status": "deprecated_archive_candidate",
+        "active_replacement": "BearsCLOUD/apps",
+        "canonical_local_root": "/srv/bears/dev/app",
+        "issue_link_invariant": "Old repository issues and migration issues must link to BearsCLOUD/apps before closeout.",
+        "allowed_use": "Migration source, archive evidence, or temporary migration worktree only.",
+        "forbidden_use": "Canonical product app repository authority or new standalone app repository registration.",
+        "umbrella_issue_invariant": "Archive readiness requires a BearsCLOUD/apps umbrella migration issue before archive.",
+        "source_migration_issue_invariant": "Archive readiness requires a source repository migration issue linked to the BearsCLOUD/apps umbrella issue before archive.",
+        "source_project_link_invariant": "Archive readiness requires a dedicated GitHub Project named `Migrate <source-repo> into apps` in BearsCLOUD/apps or BearsCLOUD org, linked to the umbrella issue and the source migration issue before archive."
+      }
+    },
+    {
+      "name": "tgbase_analytics_engine",
+      "aliases": [
+        "tgbase",
+        "TGBase",
+        "dev/app/tgbase",
+        "/srv/bears/dev/app/tgbase",
+        "BearsCLOUD/tgbase",
+        "https://github.com/BearsCLOUD/tgbase"
+      ],
+      "group": "products",
+      "required_role": "bears-telegram-platform-engineer",
+      "role_required": true,
+      "no_role_policy": "blocker",
+      "source": "/srv/bears/dev/PROJECTS.md",
+      "part_kind": "concrete",
+      "write_roots": [
+        "/srv/bears/dev/app/tgbase"
+      ],
+      "concrete_scope": "TGBase Telegram analysis, storage, and RAG engine over safe tgsearch-derived Telegram data.",
+      "allowed_write_boundary": "Direct implementation writes are allowed only under /srv/bears/dev/app/tgbase; Telegram collection, TDLib, Telethon, sessions, and live Telegram access stay behind tgsearch routes.",
+      "trust_boundary": "Postgres plus pgvector storage for derived Telegram facts, evidence pointers, embeddings, topics, and RAG indexes from tgsearch only; no Telegram session access, no direct live Telegram API calls, no sends, no raw secrets, no raw private chats in Git, and no deploy authority outside Kubernetes desired state plus local_cd.",
+      "required_validations": [
+        "python3 scripts/platform_roles.py validate",
+        "python3 scripts/platform_roles.py route /srv/bears/dev/app/tgbase",
+        "python3 scripts/platform_roles.py audit /srv/bears/dev/app/tgbase",
+        "cd /srv/bears/dev/app/tgbase && PYTHONPATH=src python3 -m pytest -q",
+        "cd /srv/bears/dev/app/tgbase && PYTHONPATH=src python3 -m ruff check src tests"
+      ],
+      "supporting_roles": [
+        "bears-platform-security-reviewer"
+      ],
+      "reviewer_triggers": [
+        "Telegram-derived data boundary change",
+        "storage schema or RAG output contract change",
+        "direct Telegram API, session, or raw chat access request",
+        "database read/write scope or embedding export change"
+      ],
+      "decomposition_required": false,
+      "legacy_compatibility": {
+        "status": "deprecated_archive_candidate",
+        "active_replacement": "BearsCLOUD/apps",
+        "canonical_local_root": "/srv/bears/dev/app",
+        "issue_link_invariant": "Old repository issues and migration issues must link to BearsCLOUD/apps before closeout.",
+        "allowed_use": "Migration source, archive evidence, or temporary migration worktree only.",
+        "forbidden_use": "Canonical product app repository authority or new standalone app repository registration.",
+        "umbrella_issue_invariant": "Archive readiness requires a BearsCLOUD/apps umbrella migration issue before archive.",
+        "source_migration_issue_invariant": "Archive readiness requires a source repository migration issue linked to the BearsCLOUD/apps umbrella issue before archive.",
+        "source_project_link_invariant": "Archive readiness requires a dedicated GitHub Project named `Migrate <source-repo> into apps` in BearsCLOUD/apps or BearsCLOUD org, linked to the umbrella issue and the source migration issue before archive."
+      }
     },
     {
       "name": "tgsearch_collector",
@@ -6658,8 +6770,15 @@
         ],
         "canonical_ref": "/srv/bears/dev/app/tgsearch",
         "decision": "retained_legacy_inventory_only",
-        "allowed_use": "Compatibility classification and migration evidence only.",
-        "forbidden_use": "Canonical source authority, parent implementation coverage, or broad child implementation handoff."
+        "allowed_use": "Migration source, archive evidence, or temporary migration worktree only.",
+        "forbidden_use": "Canonical product app repository authority or new standalone app repository registration.",
+        "status": "deprecated_archive_candidate",
+        "active_replacement": "BearsCLOUD/apps",
+        "canonical_local_root": "/srv/bears/dev/app",
+        "issue_link_invariant": "Old repository issues and migration issues must link to BearsCLOUD/apps before closeout.",
+        "umbrella_issue_invariant": "Archive readiness requires a BearsCLOUD/apps umbrella migration issue before archive.",
+        "source_migration_issue_invariant": "Archive readiness requires a source repository migration issue linked to the BearsCLOUD/apps umbrella issue before archive.",
+        "source_project_link_invariant": "Archive readiness requires a dedicated GitHub Project named `Migrate <source-repo> into apps` in BearsCLOUD/apps or BearsCLOUD org, linked to the umbrella issue and the source migration issue before archive."
       }
     },
     {
@@ -7398,7 +7517,14 @@
         "plugins/bears/scripts/bears_auto_cd.py",
         "/srv/bears/kubernetes/manifests/bears-platform-stateful-backend-dev",
         "kubernetes/manifests/bears-platform-stateful-backend-dev",
-        "manifests/bears-platform-stateful-backend-dev"
+        "manifests/bears-platform-stateful-backend-dev",
+        "bears-kubernetes-ops",
+        "skills/bears-kubernetes-ops",
+        "skills/bears-kubernetes-ops/SKILL.md",
+        "plugins/bears/skills/bears-kubernetes-ops",
+        "plugins/bears/skills/bears-kubernetes-ops/SKILL.md",
+        "/srv/bears/plugins/bears/skills/bears-kubernetes-ops",
+        "/srv/bears/plugins/bears/skills/bears-kubernetes-ops/SKILL.md"
       ],
       "group": "infrastructure",
       "required_role": "bears-deploy-platform-engineer",
@@ -7414,7 +7540,10 @@
         "/srv/bears/plugins/bears/assets/catalog/git-deploy-contract.v1.json",
         "/srv/bears/plugins/bears/assets/catalog/cd-kube-deploy-contract.v1.json",
         "assets/catalog/git-deploy-contract.v1.json",
-        "assets/catalog/cd-kube-deploy-contract.v1.json"
+        "assets/catalog/cd-kube-deploy-contract.v1.json",
+        "/srv/bears/plugins/bears/skills/bears-kubernetes-ops",
+        "plugins/bears/skills/bears-kubernetes-ops",
+        "skills/bears-kubernetes-ops"
       ],
       "concrete_scope": "Kubernetes deploy-core repo boundary, @Bears Git/CD contracts, manifests, read-only evidence, safety checks, rollback runbooks, and automatic production CD for exact registered targets inside the /srv/bears/kubernetes submodule.",
       "allowed_write_boundary": "Only the bears-infra repo boundary working tree /srv/bears/kubernetes plus exact @Bears Git/CD contract and validator files when assigned; production CD changes must flow through Bears infra desired state and @Bears contracts; live mutation is performed only by local @Bears CD from main, not by ad-hoc local agents.",
@@ -7689,8 +7818,15 @@
         ],
         "canonical_ref": "/srv/bears/dev/app/theants",
         "decision": "renamed_to_canonical_dev_app",
-        "allowed_use": "Compatibility classification and migration evidence only.",
-        "forbidden_use": "Canonical source authority, parent implementation coverage, or broad child implementation handoff."
+        "allowed_use": "Migration source, archive evidence, or temporary migration worktree only.",
+        "forbidden_use": "Canonical product app repository authority or new standalone app repository registration.",
+        "status": "deprecated_archive_candidate",
+        "active_replacement": "BearsCLOUD/apps",
+        "canonical_local_root": "/srv/bears/dev/app",
+        "issue_link_invariant": "Old repository issues and migration issues must link to BearsCLOUD/apps before closeout.",
+        "umbrella_issue_invariant": "Archive readiness requires a BearsCLOUD/apps umbrella migration issue before archive.",
+        "source_migration_issue_invariant": "Archive readiness requires a source repository migration issue linked to the BearsCLOUD/apps umbrella issue before archive.",
+        "source_project_link_invariant": "Archive readiness requires a dedicated GitHub Project named `Migrate <source-repo> into apps` in BearsCLOUD/apps or BearsCLOUD org, linked to the umbrella issue and the source migration issue before archive."
       }
     },
     {
@@ -8313,8 +8449,15 @@
         ],
         "canonical_ref": "/srv/bears/dev/app/vpn",
         "decision": "renamed_to_canonical_dev_app_with_legacy_exact_aliases",
-        "allowed_use": "Compatibility classification and migration evidence only.",
-        "forbidden_use": "Canonical source authority, parent implementation coverage, or broad child implementation handoff."
+        "allowed_use": "Migration source, archive evidence, or temporary migration worktree only.",
+        "forbidden_use": "Canonical product app repository authority or new standalone app repository registration.",
+        "status": "deprecated_archive_candidate",
+        "active_replacement": "BearsCLOUD/apps",
+        "canonical_local_root": "/srv/bears/dev/app",
+        "issue_link_invariant": "Old repository issues and migration issues must link to BearsCLOUD/apps before closeout.",
+        "umbrella_issue_invariant": "Archive readiness requires a BearsCLOUD/apps umbrella migration issue before archive.",
+        "source_migration_issue_invariant": "Archive readiness requires a source repository migration issue linked to the BearsCLOUD/apps umbrella issue before archive.",
+        "source_project_link_invariant": "Archive readiness requires a dedicated GitHub Project named `Migrate <source-repo> into apps` in BearsCLOUD/apps or BearsCLOUD org, linked to the umbrella issue and the source migration issue before archive."
       }
     },
     {
@@ -8370,8 +8513,15 @@
         ],
         "canonical_ref": "/srv/bears/dev/app/vpn",
         "decision": "renamed_to_canonical_dev_app_with_legacy_exact_aliases",
-        "allowed_use": "Compatibility classification and migration evidence only.",
-        "forbidden_use": "Canonical source authority, parent implementation coverage, or broad child implementation handoff."
+        "allowed_use": "Migration source, archive evidence, or temporary migration worktree only.",
+        "forbidden_use": "Canonical product app repository authority or new standalone app repository registration.",
+        "status": "deprecated_archive_candidate",
+        "active_replacement": "BearsCLOUD/apps",
+        "canonical_local_root": "/srv/bears/dev/app",
+        "issue_link_invariant": "Old repository issues and migration issues must link to BearsCLOUD/apps before closeout.",
+        "umbrella_issue_invariant": "Archive readiness requires a BearsCLOUD/apps umbrella migration issue before archive.",
+        "source_migration_issue_invariant": "Archive readiness requires a source repository migration issue linked to the BearsCLOUD/apps umbrella issue before archive.",
+        "source_project_link_invariant": "Archive readiness requires a dedicated GitHub Project named `Migrate <source-repo> into apps` in BearsCLOUD/apps or BearsCLOUD org, linked to the umbrella issue and the source migration issue before archive."
       }
     },
     {
@@ -8428,8 +8578,15 @@
         ],
         "canonical_ref": "/srv/bears/dev/app/vpn",
         "decision": "renamed_to_canonical_dev_app_with_legacy_exact_aliases",
-        "allowed_use": "Compatibility classification and migration evidence only.",
-        "forbidden_use": "Canonical source authority, parent implementation coverage, or broad child implementation handoff."
+        "allowed_use": "Migration source, archive evidence, or temporary migration worktree only.",
+        "forbidden_use": "Canonical product app repository authority or new standalone app repository registration.",
+        "status": "deprecated_archive_candidate",
+        "active_replacement": "BearsCLOUD/apps",
+        "canonical_local_root": "/srv/bears/dev/app",
+        "issue_link_invariant": "Old repository issues and migration issues must link to BearsCLOUD/apps before closeout.",
+        "umbrella_issue_invariant": "Archive readiness requires a BearsCLOUD/apps umbrella migration issue before archive.",
+        "source_migration_issue_invariant": "Archive readiness requires a source repository migration issue linked to the BearsCLOUD/apps umbrella issue before archive.",
+        "source_project_link_invariant": "Archive readiness requires a dedicated GitHub Project named `Migrate <source-repo> into apps` in BearsCLOUD/apps or BearsCLOUD org, linked to the umbrella issue and the source migration issue before archive."
       }
     },
     {
@@ -8468,7 +8625,18 @@
         "live Telegram send, webhook, or bot runtime mutation change",
         "customer access or payment/provisioning behavior change"
       ],
-      "decomposition_required": false
+      "decomposition_required": false,
+      "legacy_compatibility": {
+        "status": "deprecated_archive_candidate",
+        "active_replacement": "BearsCLOUD/apps",
+        "canonical_local_root": "/srv/bears/dev/app",
+        "issue_link_invariant": "Old repository issues and migration issues must link to BearsCLOUD/apps before closeout.",
+        "allowed_use": "Migration source, archive evidence, or temporary migration worktree only.",
+        "forbidden_use": "Canonical product app repository authority or new standalone app repository registration.",
+        "umbrella_issue_invariant": "Archive readiness requires a BearsCLOUD/apps umbrella migration issue before archive.",
+        "source_migration_issue_invariant": "Archive readiness requires a source repository migration issue linked to the BearsCLOUD/apps umbrella issue before archive.",
+        "source_project_link_invariant": "Archive readiness requires a dedicated GitHub Project named `Migrate <source-repo> into apps` in BearsCLOUD/apps or BearsCLOUD org, linked to the umbrella issue and the source migration issue before archive."
+      }
     },
     {
       "name": "vpn_traefik_ingress_dev_layer",
@@ -8504,7 +8672,18 @@
         "production deploy-flow wording change",
         "secret, certificate, token, or provider-credential handling change"
       ],
-      "decomposition_required": false
+      "decomposition_required": false,
+      "legacy_compatibility": {
+        "status": "deprecated_archive_candidate",
+        "active_replacement": "BearsCLOUD/apps",
+        "canonical_local_root": "/srv/bears/dev/app",
+        "issue_link_invariant": "Old repository issues and migration issues must link to BearsCLOUD/apps before closeout.",
+        "allowed_use": "Migration source, archive evidence, or temporary migration worktree only.",
+        "forbidden_use": "Canonical product app repository authority or new standalone app repository registration.",
+        "umbrella_issue_invariant": "Archive readiness requires a BearsCLOUD/apps umbrella migration issue before archive.",
+        "source_migration_issue_invariant": "Archive readiness requires a source repository migration issue linked to the BearsCLOUD/apps umbrella issue before archive.",
+        "source_project_link_invariant": "Archive readiness requires a dedicated GitHub Project named `Migrate <source-repo> into apps` in BearsCLOUD/apps or BearsCLOUD org, linked to the umbrella issue and the source migration issue before archive."
+      }
     },
     {
       "name": "vpn_disabled_proxy_dev_layer",
@@ -8541,7 +8720,18 @@
         "Telegram MTProxy, SOCKS, or VPN-adjacent traffic behavior change",
         "secret-backed config handling change"
       ],
-      "decomposition_required": false
+      "decomposition_required": false,
+      "legacy_compatibility": {
+        "status": "deprecated_archive_candidate",
+        "active_replacement": "BearsCLOUD/apps",
+        "canonical_local_root": "/srv/bears/dev/app",
+        "issue_link_invariant": "Old repository issues and migration issues must link to BearsCLOUD/apps before closeout.",
+        "allowed_use": "Migration source, archive evidence, or temporary migration worktree only.",
+        "forbidden_use": "Canonical product app repository authority or new standalone app repository registration.",
+        "umbrella_issue_invariant": "Archive readiness requires a BearsCLOUD/apps umbrella migration issue before archive.",
+        "source_migration_issue_invariant": "Archive readiness requires a source repository migration issue linked to the BearsCLOUD/apps umbrella issue before archive.",
+        "source_project_link_invariant": "Archive readiness requires a dedicated GitHub Project named `Migrate <source-repo> into apps` in BearsCLOUD/apps or BearsCLOUD org, linked to the umbrella issue and the source migration issue before archive."
+      }
     },
     {
       "name": "vpn_specialist_role_metadata",
@@ -8623,31 +8813,49 @@
       "decomposition_required": false
     },
     {
-      "name": "dev_core_app_group",
+      "name": "product_apps_monorepo_root",
       "aliases": [
         "/srv/bears/dev/app",
-        "dev/app"
+        "dev/app",
+        "BearsCLOUD/apps",
+        "https://github.com/BearsCLOUD/apps",
+        "https://github.com/BearsCLOUD/apps.git",
+        "git@github.com:BearsCLOUD/apps.git"
       ],
       "group": "products",
-      "required_role": "bears-workflow-overlay-controller",
+      "required_role": "bears-product-app-zone-engineer",
       "role_required": true,
       "no_role_policy": "blocker",
-      "source": "/srv/bears/AGENTS.md",
-      "part_kind": "group",
-      "write_roots": [],
-      "concrete_scope": "app dev-core group classifier only; choose an exact child app repository or docs lane before edits.",
-      "allowed_write_boundary": "No implementation writes from this group route; select a narrower exact app part first.",
-      "trust_boundary": "Group classification cannot authorize child product or shared-platform implementation.",
+      "source": "/srv/bears/plugins/bears/assets/catalog/platform-role-catalog.v1.json",
+      "part_kind": "concrete",
+      "write_roots": [
+        "/srv/bears/dev/app"
+      ],
+      "concrete_scope": "Canonical product app monorepo root for BearsCLOUD/apps at /srv/bears/dev/app.",
+      "allowed_write_boundary": "Only the canonical /srv/bears/dev/app owner repository root and repo-local product app artifacts when assigned by exact route; nested /srv/bears/dev/app/* Git repositories are migration sources or archive candidates, not new canonical repositories.",
+      "trust_boundary": "BearsCLOUD/apps is the only canonical product app repository. Old app repositories and nested checkouts must link issues and migration evidence back to BearsCLOUD/apps and must not regain canonical source authority.",
       "required_validations": [
         "python3 scripts/platform_roles.py validate",
-        "python3 scripts/platform_roles.py route <target>",
-        "python3 scripts/platform_roles.py audit <target>"
+        "python3 scripts/platform_roles.py route /srv/bears/dev/app",
+        "python3 scripts/platform_roles.py audit /srv/bears/dev/app",
+        "python3 scripts/platform_roles.py route BearsCLOUD/apps",
+        "python3 scripts/platform_roles.py audit BearsCLOUD/apps",
+        "python3 -m unittest tests/test_platform_roles.py tests/test_role_gate_methodology.py"
       ],
-      "supporting_roles": [],
+      "supporting_roles": [
+        "bears-platform-security-reviewer"
+      ],
       "reviewer_triggers": [
-        "dev-core app group boundary change"
+        "canonical app repository boundary change",
+        "nested app repository archive/deprecation rule change",
+        "old issue routing or active_replacement change"
       ],
-      "decomposition_required": true
+      "decomposition_required": false,
+      "canonical_repository": {
+        "local_root": "/srv/bears/dev/app",
+        "remote": "BearsCLOUD/apps",
+        "github_repo": "BearsCLOUD/apps"
+      }
     },
     {
       "name": "codexdaemon_runtime",
@@ -8690,7 +8898,18 @@
         "@Bears policy/catalog/CD boundary change",
         "Kubernetes, secret, external exposure, or live runtime boundary change"
       ],
-      "decomposition_required": false
+      "decomposition_required": false,
+      "legacy_compatibility": {
+        "status": "deprecated_archive_candidate",
+        "active_replacement": "BearsCLOUD/apps",
+        "canonical_local_root": "/srv/bears/dev/app",
+        "issue_link_invariant": "Old repository issues and migration issues must link to BearsCLOUD/apps before closeout.",
+        "allowed_use": "Migration source, archive evidence, or temporary migration worktree only.",
+        "forbidden_use": "Canonical product app repository authority or new standalone app repository registration.",
+        "umbrella_issue_invariant": "Archive readiness requires a BearsCLOUD/apps umbrella migration issue before archive.",
+        "source_migration_issue_invariant": "Archive readiness requires a source repository migration issue linked to the BearsCLOUD/apps umbrella issue before archive.",
+        "source_project_link_invariant": "Archive readiness requires a dedicated GitHub Project named `Migrate <source-repo> into apps` in BearsCLOUD/apps or BearsCLOUD org, linked to the umbrella issue and the source migration issue before archive."
+      }
     },
     {
       "name": "desk_product_dev_layer",
@@ -8727,7 +8946,18 @@
         "Desk repo-local versus shared-platform boundary change",
         "restricted-data or operator workflow boundary change"
       ],
-      "decomposition_required": false
+      "decomposition_required": false,
+      "legacy_compatibility": {
+        "status": "deprecated_archive_candidate",
+        "active_replacement": "BearsCLOUD/apps",
+        "canonical_local_root": "/srv/bears/dev/app",
+        "issue_link_invariant": "Old repository issues and migration issues must link to BearsCLOUD/apps before closeout.",
+        "allowed_use": "Migration source, archive evidence, or temporary migration worktree only.",
+        "forbidden_use": "Canonical product app repository authority or new standalone app repository registration.",
+        "umbrella_issue_invariant": "Archive readiness requires a BearsCLOUD/apps umbrella migration issue before archive.",
+        "source_migration_issue_invariant": "Archive readiness requires a source repository migration issue linked to the BearsCLOUD/apps umbrella issue before archive.",
+        "source_project_link_invariant": "Archive readiness requires a dedicated GitHub Project named `Migrate <source-repo> into apps` in BearsCLOUD/apps or BearsCLOUD org, linked to the umbrella issue and the source migration issue before archive."
+      }
     },
     {
       "name": "bears_platform_module_registry_surface",
@@ -11192,6 +11422,18 @@
       "required_role": "bears-telegram-platform-engineer"
     },
     {
+      "target": "/srv/bears/dev/app/tgbase",
+      "expected_status": "matched",
+      "required_role": "bears-telegram-platform-engineer",
+      "required_route_id": "tgbase_analytics_engine"
+    },
+    {
+      "target": "/srv/bears/dev/app/tgbase/src/tgbase/pipeline.py",
+      "expected_status": "matched",
+      "required_role": "bears-telegram-platform-engineer",
+      "required_route_id": "tgbase_analytics_engine"
+    },
+    {
       "target": "/srv/bears/dev/app/tgsearch",
       "expected_status": "matched",
       "required_role": "bears-telegram-platform-engineer"
@@ -12070,8 +12312,9 @@
     },
     {
       "target": "/srv/bears/dev/app",
-      "expected_status": "ROLE_COVERAGE_BLOCKER",
-      "expected_why_blocked": "parent_only"
+      "expected_status": "matched",
+      "required_role": "bears-product-app-zone-engineer",
+      "required_route_id": "product_apps_monorepo_root"
     },
     {
       "target": "/srv/bears/dev/registry",
@@ -13446,6 +13689,33 @@
       "expected_status": "matched",
       "required_role": "bears-product-app-zone-engineer",
       "required_route_id": "leadgen_platform_research_migration"
+    },
+    {
+      "target": "BearsCLOUD/apps",
+      "expected_status": "matched",
+      "required_role": "bears-product-app-zone-engineer",
+      "required_route_id": "product_apps_monorepo_root"
+    },
+    {
+      "target": "https://github.com/BearsCLOUD/apps",
+      "expected_status": "matched",
+      "required_role": "bears-product-app-zone-engineer",
+      "required_route_id": "product_apps_monorepo_root"
+    },
+    {
+      "target": "/srv/bears/dev/app/apps",
+      "expected_status": "ROLE_COVERAGE_BLOCKER",
+      "expected_why_blocked": "unmapped"
+    },
+    {
+      "target": "/srv/bears/dev/apps",
+      "expected_status": "ROLE_COVERAGE_BLOCKER",
+      "expected_why_blocked": "unmapped"
+    },
+    {
+      "target": "/srv/bears/dev/app/newapp",
+      "expected_status": "ROLE_COVERAGE_BLOCKER",
+      "expected_why_blocked": "unmapped"
     }
   ],
   "agent_profile_mappings": [

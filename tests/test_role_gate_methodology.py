@@ -86,7 +86,7 @@ def test_deploy_core_must_keep_exact_primary_role() -> None:
     assert any("auth-gateway-deploy-core" in error for error in errors)
 
 
-def test_dev_core_and_theants_alignment_targets_are_enforced() -> None:
+def test_apps_monorepo_alignment_targets_are_enforced() -> None:
     methodology = _methodology()
     catalog = _catalog()
     required_targets = {
@@ -98,6 +98,11 @@ def test_dev_core_and_theants_alignment_targets_are_enforced() -> None:
         "sentry",
         "/srv/bears/dev/products/theants",
         "/srv/bears/projects/theants",
+        "/srv/bears/dev/app",
+        "BearsCLOUD/apps",
+        "/srv/bears/dev/app/apps",
+        "/srv/bears/dev/apps",
+        "/srv/bears/dev/app/newapp",
         "BearsCLOUD/bears_plugin",
         "BearsCLOUD/bears-codex-workspace",
         "/srv/bears/.gitmodules",
@@ -106,12 +111,12 @@ def test_dev_core_and_theants_alignment_targets_are_enforced() -> None:
     assert required_targets <= alignment_targets
 
     for part in catalog["platform_parts"]:
-        if part["name"] == "theants_product_dev_layer":
+        if part["name"] == "product_apps_monorepo_root":
             part["required_role"] = "bears-telegram-platform-engineer"
             break
 
     errors = module.validate_catalog_alignment(methodology, catalog, plugin_root=PLUGIN_ROOT)
-    assert any("/srv/bears/projects/theants" in error for error in errors)
+    assert any("/srv/bears/dev/app" in error for error in errors)
 
 
 def test_audit_completion_criteria_are_generic_and_complete() -> None:
@@ -1039,13 +1044,27 @@ class Issue85RoleGateSourceFreshnessUnittest(unittest.TestCase):
         self.assertEqual("unmapped", decision["why_blocked"])
 
 
-def test_dev_app_group_alignment_is_parent_only() -> None:
+def test_product_apps_monorepo_root_alignment_is_matched() -> None:
     methodology = _methodology()
     catalog = _catalog()
     checks = {item["target"]: item for item in methodology["catalog_alignment_checks"]}
     check = checks["/srv/bears/dev/app"]
-    assert check["expected_status"] == "ROLE_COVERAGE_BLOCKER"
-    assert check["why_blocked"] == "parent_only"
+    assert check["expected_status"] == "matched"
+    assert check["required_route_id"] == "product_apps_monorepo_root"
+    assert check["required_role"] == "bears-product-app-zone-engineer"
+
+    errors = module.validate_catalog_alignment(methodology, catalog, plugin_root=PLUGIN_ROOT)
+    assert errors == []
+
+
+def test_apps_monorepo_invalid_paths_are_alignment_blockers() -> None:
+    methodology = _methodology()
+    catalog = _catalog()
+    checks = {item["target"]: item for item in methodology["catalog_alignment_checks"]}
+    for target in ("/srv/bears/dev/app/apps", "/srv/bears/dev/apps", "/srv/bears/dev/app/newapp"):
+        check = checks[target]
+        assert check["expected_status"] == "ROLE_COVERAGE_BLOCKER"
+        assert check["why_blocked"] == "unmapped"
 
     errors = module.validate_catalog_alignment(methodology, catalog, plugin_root=PLUGIN_ROOT)
     assert errors == []

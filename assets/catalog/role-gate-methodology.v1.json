@@ -447,9 +447,9 @@
       "expected_status": "matched"
     },
     {
-      "id": "dev_core_app_group_stays_parent_only",
+      "id": "product_apps_monorepo_root_has_exact_product_role",
       "target": "/srv/bears/dev/app",
-      "expected_status": "ROLE_COVERAGE_BLOCKER"
+      "expected_status": "matched"
     },
     {
       "id": "workspace_registry_root_has_exact_governance_role",
@@ -1111,8 +1111,9 @@
     },
     {
       "target": "/srv/bears/dev/app",
-      "expected_status": "ROLE_COVERAGE_BLOCKER",
-      "why_blocked": "parent_only"
+      "expected_status": "matched",
+      "required_route_id": "product_apps_monorepo_root",
+      "required_role": "bears-product-app-zone-engineer"
     },
     {
       "target": "/srv/bears/dev/registry",
@@ -1373,6 +1374,33 @@
     },
     {
       "target": "/repos/BearsCLOUD/bears-platform/actions/permissions",
+      "expected_status": "ROLE_COVERAGE_BLOCKER",
+      "why_blocked": "unmapped"
+    },
+    {
+      "target": "BearsCLOUD/apps",
+      "expected_status": "matched",
+      "required_route_id": "product_apps_monorepo_root",
+      "required_role": "bears-product-app-zone-engineer"
+    },
+    {
+      "target": "https://github.com/BearsCLOUD/apps",
+      "expected_status": "matched",
+      "required_route_id": "product_apps_monorepo_root",
+      "required_role": "bears-product-app-zone-engineer"
+    },
+    {
+      "target": "/srv/bears/dev/app/apps",
+      "expected_status": "ROLE_COVERAGE_BLOCKER",
+      "why_blocked": "unmapped"
+    },
+    {
+      "target": "/srv/bears/dev/apps",
+      "expected_status": "ROLE_COVERAGE_BLOCKER",
+      "why_blocked": "unmapped"
+    },
+    {
+      "target": "/srv/bears/dev/app/newapp",
       "expected_status": "ROLE_COVERAGE_BLOCKER",
       "why_blocked": "unmapped"
     }

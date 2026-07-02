@@ -120,6 +120,7 @@ MANDATORY_POLICY_REQUIRED_FIELDS = {
     "broad_fallback_matching_allowed",
     "parent_only_targets",
     "root_planning_drift_targets",
+    "product_apps_monorepo_policy",
     "blocked_edits",
     "allowed_next_actions",
     "role_development",
@@ -127,6 +128,16 @@ MANDATORY_POLICY_REQUIRED_FIELDS = {
     "independent_control_audit",
     "definitions",
     "selection_rules",
+}
+PRODUCT_APPS_MONOREPO_POLICY_REQUIRED_FIELDS = {
+    "canonical_local_root",
+    "canonical_remote",
+    "canonical_remote_urls",
+    "invalid_canonical_targets",
+    "nested_repo_policy",
+    "allowed_nested_statuses",
+    "required_legacy_fields",
+    "issue_link_invariant",
 }
 ROLE_DEVELOPMENT_REQUIRED_FIELDS = {
     "lane",
@@ -546,6 +557,18 @@ def _policy_root_planning_drift_targets(policy: dict[str, Any]) -> set[str]:
     return {normalize(item) for item in targets if isinstance(item, str) and item.strip()}
 
 
+def _product_apps_monorepo_policy(policy: dict[str, Any]) -> dict[str, Any]:
+    configured = policy.get("product_apps_monorepo_policy")
+    return configured if isinstance(configured, dict) else {}
+
+
+def _product_apps_invalid_targets(policy: dict[str, Any]) -> set[str]:
+    configured = _product_apps_monorepo_policy(policy).get("invalid_canonical_targets")
+    if not isinstance(configured, list):
+        return set()
+    return {normalize(item) for item in configured if isinstance(item, str) and item.strip()}
+
+
 def _is_root_planning_drift_target(target: str, policy: dict[str, Any]) -> bool:
     target_norm = normalize(target)
     for root_norm in _policy_root_planning_drift_targets(policy):
@@ -620,6 +643,14 @@ def _valid_supporting_roles(part: dict[str, Any], role_index: dict[str, dict[str
 def route_target(catalog: dict[str, Any], target: str, *, plugin_root: Path = PLUGIN_ROOT) -> dict[str, Any]:
     role_index = _role_map(catalog)
     policy = catalog.get("mandatory_policy", {}) if isinstance(catalog.get("mandatory_policy"), dict) else {}
+    target_norm = normalize(target)
+    if target_norm in _product_apps_invalid_targets(policy):
+        return _build_blocker(
+            target=target,
+            reason="unmapped",
+            catalog=catalog,
+            extra_evidence=[str(DEFAULT_CATALOG)],
+        )
     if _is_root_planning_drift_target(target, policy):
         return _build_blocker(
             target=target,
@@ -648,6 +679,15 @@ def route_target(catalog: dict[str, Any], target: str, *, plugin_root: Path = PL
 
     winner = winners[0]
     part = winner["part"]
+    if part.get("name") == "product_apps_monorepo_root" and winner.get("match_type") == "root_child":
+        return _build_blocker(
+            target=target,
+            reason="unmapped",
+            catalog=catalog,
+            matched_part=part,
+            matched_role=role_index.get(part.get("required_role")),
+            extra_evidence=[str(DEFAULT_CATALOG)],
+        )
     role = role_index.get(part.get("required_role"))
 
     if part.get("part_kind") != "concrete":
@@ -766,6 +806,30 @@ def _validate_policy(policy: dict[str, Any], errors: list[str]) -> None:
     if not isinstance(policy.get("definitions"), dict) or not policy["definitions"]:
         errors.append("mandatory_policy.definitions must be a non-empty object")
     _require_non_empty_list(policy.get("selection_rules"), "mandatory_policy.selection_rules", errors)
+    apps_policy = policy.get("product_apps_monorepo_policy")
+    if not isinstance(apps_policy, dict):
+        errors.append("mandatory_policy.product_apps_monorepo_policy must be an object")
+    else:
+        missing_apps_policy = PRODUCT_APPS_MONOREPO_POLICY_REQUIRED_FIELDS - apps_policy.keys()
+        if missing_apps_policy:
+            errors.append(
+                "mandatory_policy.product_apps_monorepo_policy missing fields: "
+                + ", ".join(sorted(missing_apps_policy))
+            )
+        if apps_policy.get("canonical_local_root") != "/srv/bears/dev/app":
+            errors.append("mandatory_policy.product_apps_monorepo_policy.canonical_local_root must be /srv/bears/dev/app")
+        if apps_policy.get("canonical_remote") != "BearsCLOUD/apps":
+            errors.append("mandatory_policy.product_apps_monorepo_policy.canonical_remote must be BearsCLOUD/apps")
+        invalid_targets = apps_policy.get("invalid_canonical_targets")
+        if not isinstance(invalid_targets, list):
+            errors.append("mandatory_policy.product_apps_monorepo_policy.invalid_canonical_targets must be a list")
+        else:
+            required_invalid = {"/srv/bears/dev/app/apps", "/srv/bears/dev/apps"}
+            if not required_invalid <= {item for item in invalid_targets if isinstance(item, str)}:
+                errors.append(
+                    "mandatory_policy.product_apps_monorepo_policy.invalid_canonical_targets must include "
+                    "/srv/bears/dev/app/apps and /srv/bears/dev/apps"
+                )
 
 
 def _has_seller_legacy_path(value: str) -> bool:
@@ -811,6 +875,115 @@ def _validate_no_seller_bound_core_defaults(catalog: dict[str, Any], errors: lis
     for part_name, route_target_value in targets.items():
         if _has_seller_legacy_path(route_target_value):
             errors.append(f"no-seller-bound-core: workflow route target {part_name} must not use seller path")
+
+
+def _is_product_apps_nested_value(value: str) -> bool:
+    normalized = normalize(value)
+    return normalized.startswith("srv/bears/dev/app/") or normalized.startswith("dev/app/")
+
+
+def _is_bearscloud_repo_value(value: str) -> str | None:
+    normalized = value.strip()
+    prefixes = (
+        "BearsCLOUD/",
+        "https://github.com/BearsCLOUD/",
+        "git@github.com:BearsCLOUD/",
+    )
+    for prefix in prefixes:
+        if not normalized.startswith(prefix):
+            continue
+        repo = normalized[len(prefix) :]
+        if repo.endswith(".git"):
+            repo = repo[:-4]
+        return f"BearsCLOUD/{repo.strip('/')}"
+    return None
+
+
+def _validate_product_apps_monorepo_catalog(catalog: dict[str, Any], errors: list[str]) -> None:
+    policy = catalog.get("mandatory_policy")
+    apps_policy = _product_apps_monorepo_policy(policy if isinstance(policy, dict) else {})
+    canonical_local = apps_policy.get("canonical_local_root")
+    canonical_remote = apps_policy.get("canonical_remote")
+    if canonical_local != "/srv/bears/dev/app" or canonical_remote != "BearsCLOUD/apps":
+        return
+
+    canonical_parts: list[str] = []
+    invalid_targets = {
+        normalize(item)
+        for item in apps_policy.get("invalid_canonical_targets", [])
+        if isinstance(item, str)
+    }
+    allowed_nested_statuses = {
+        item
+        for item in apps_policy.get("allowed_nested_statuses", [])
+        if isinstance(item, str)
+    }
+    required_legacy_fields = {
+        item
+        for item in apps_policy.get("required_legacy_fields", [])
+        if isinstance(item, str)
+    }
+    for part in catalog.get("platform_parts", []):
+        if not isinstance(part, dict):
+            continue
+        part_name = part.get("name", "<unknown>")
+        values = [
+            value
+            for field in ("aliases", "write_roots")
+            for value in part.get(field, [])
+            if isinstance(value, str)
+        ]
+        if any(normalize(value) in invalid_targets for value in values):
+            errors.append(f"product-apps-monorepo: {part_name} must not alias invalid canonical target")
+
+        canonical_repository = part.get("canonical_repository")
+        if isinstance(canonical_repository, dict):
+            if canonical_repository.get("remote") == canonical_remote:
+                canonical_parts.append(str(part_name))
+            elif part.get("group") == "products":
+                errors.append(
+                    f"product-apps-monorepo: {part_name}.canonical_repository.remote must be {canonical_remote}"
+                )
+
+        nested = any(_is_product_apps_nested_value(value) for value in values)
+        old_remote = part.get("group") == "products" and any(
+            repo is not None and repo != canonical_remote
+            for repo in (_is_bearscloud_repo_value(value) for value in values)
+        )
+        if part.get("name") == "product_apps_monorepo_root":
+            if canonical_repository != {
+                "local_root": canonical_local,
+                "remote": canonical_remote,
+                "github_repo": canonical_remote,
+            }:
+                errors.append("product-apps-monorepo: product_apps_monorepo_root must declare canonical_repository")
+            if canonical_local not in part.get("write_roots", []):
+                errors.append("product-apps-monorepo: product_apps_monorepo_root.write_roots must include /srv/bears/dev/app")
+            continue
+
+        if not (nested or old_remote):
+            continue
+        legacy = part.get("legacy_compatibility")
+        if not isinstance(legacy, dict):
+            errors.append(f"product-apps-monorepo: {part_name} old app route must declare legacy_compatibility")
+            continue
+        missing = sorted(required_legacy_fields - legacy.keys())
+        if missing:
+            errors.append(f"product-apps-monorepo: {part_name}.legacy_compatibility missing {missing}")
+        if legacy.get("active_replacement") != canonical_remote:
+            errors.append(f"product-apps-monorepo: {part_name}.legacy_compatibility.active_replacement must be {canonical_remote}")
+        status = legacy.get("status")
+        if status not in allowed_nested_statuses:
+            errors.append(f"product-apps-monorepo: {part_name}.legacy_compatibility.status must be one of {sorted(allowed_nested_statuses)}")
+        issue_link = legacy.get("issue_link_invariant")
+        if not isinstance(issue_link, str) or canonical_remote not in issue_link:
+            errors.append(f"product-apps-monorepo: {part_name}.legacy_compatibility.issue_link_invariant must name {canonical_remote}")
+
+    if canonical_parts != ["product_apps_monorepo_root"]:
+        errors.append(
+            "product-apps-monorepo: exactly product_apps_monorepo_root must declare "
+            f"canonical_repository for {canonical_remote}; got {canonical_parts}"
+        )
 
 
 def validate_catalog(catalog: dict[str, Any], *, plugin_root: Path = PLUGIN_ROOT) -> list[str]:
@@ -1165,6 +1338,7 @@ def validate_catalog(catalog: dict[str, Any], *, plugin_root: Path = PLUGIN_ROOT
                 )
 
     _validate_no_seller_bound_core_defaults(catalog, errors)
+    _validate_product_apps_monorepo_catalog(catalog, errors)
 
     if isinstance(roles, list):
         for role in roles:

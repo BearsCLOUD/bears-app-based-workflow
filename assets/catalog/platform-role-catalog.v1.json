@@ -6812,7 +6812,7 @@
       "write_roots": [
         "/srv/bears/dev/app/tgbase"
       ],
-      "concrete_scope": "TGBase Telegram analysis, storage, and RAG engine over safe tgsearch-derived Telegram data.",
+      "concrete_scope": "TGBase Telegram data analysis and storage engine through safe tgsearch-derived Telegram data, including RAG indexes.",
       "allowed_write_boundary": "Direct implementation writes are allowed only under /srv/bears/dev/app/tgbase; Telegram collection, TDLib, Telethon, sessions, and live Telegram access stay behind tgsearch routes.",
       "trust_boundary": "Postgres plus pgvector storage for derived Telegram facts, evidence pointers, embeddings, topics, and RAG indexes from tgsearch only; no Telegram session access, no direct live Telegram API calls, no sends, no raw secrets, no raw private chats in Git, and no deploy authority outside Kubernetes desired state plus local_cd.",
       "required_validations": [
@@ -6869,9 +6869,9 @@
       "write_roots": [
         "/srv/bears/dev/app/tgsearch"
       ],
-      "concrete_scope": "tgsearch Telegram collector/client surface",
+      "concrete_scope": "tgsearch Telegram TDLib/Telethon search and collection tool, MCP/Codex plugin support surface, and Telegram bot creation/UX testing helper.",
       "allowed_write_boundary": "Direct implementation writes are allowed only under the canonical /srv/bears/dev/app/tgsearch product app checkout; deprecated projects/tgsearch refs are inventory evidence only.",
-      "trust_boundary": "Telegram client/session handling, collection behavior, read-only evidence boundaries, and no-live-account mutation constraints.",
+      "trust_boundary": "Telegram TDLib/Telethon client/session handling, search and collection behavior, MCP/Codex support, bot-creation/UX-test helper behavior, read-only evidence boundaries, and no-live-account mutation constraints.",
       "required_validations": [
         "canonical role route packet",
         "collector exception record",

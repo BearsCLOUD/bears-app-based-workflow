@@ -22,16 +22,16 @@ Disabled skills expose only `SKILL.disabled.md`; they MUST NOT keep `SKILL.md`.
 - `skills/secret-factory` — Govern write-only local secret generation and Infisical creation with provider handoff refusals.
 - `skills/speckit-bears-flow` — Run the Bears opinionated Spec Kit orchestration flow.
 - `skills/speckit-bears-research` — Produce Spec Kit-style research artifacts for Bears targets.
-- `skills/bears-project-constitution` — Create or update Bears target constitutions with ownership, artifact maps, validation duties, and dependent-doc sync.
-- `skills/bears-project-specify` — Create or update Bears target specifications and functional documentation from operator intent, constitution rules, and repo evidence.
-- `skills/app-docs2project-bears` — Convert Bears app docs into concrete, drift-safe GitHub Issues and Apps Project #20 items for mini-model projectdevsubagents execution.
-- `skills/github-project-planning` — Plan and administer Bears GitHub Projects, fields, views, issues, sub-issues, item hygiene, and planning PASS handoffs before projectdevsubagents development execution.
-- `skills/bears-project-analyze` — Analyze Bears constitutions, specs, docs, GitHub Project plans, Issues, routes, validation, dependencies, and projectdevsubagents handoff for drift.
+- `skills/app-constitution` — Create or update Bears target constitutions with ownership, artifact maps, validation duties, and dependent-doc sync.
+- `skills/app-specify` — Create or update Bears target specifications and functional documentation from operator intent, constitution rules, and repo evidence.
+- `skills/app-plan` — Convert Bears app docs into concrete, drift-safe GitHub Issues and Apps Project #20 items for mini-model app-dev execution.
+- `skills/github-project-planning` — Plan and administer Bears GitHub Projects, fields, views, issues, sub-issues, item hygiene, and planning PASS handoffs before app-dev development execution.
+- `skills/app-analyze` — Analyze Bears constitutions, specs, docs, GitHub Project plans, Issues, routes, validation, dependencies, and app-dev handoff for drift.
 - `skills/yandex360-dns` — DNS governance workflow for bears.ru through Yandex 360 using presence-only checks, dry-run plan review, and read-only governance evidence only.
 - `skills/bears-kubernetes-ops` — Perform Bears Kubernetes metadata checks, desired-state/local_cd deploy-boundary checks, secret-reference readiness, and dev-instance runtime placement guidance.
 - `skills/bears-infisical-ops` — Perform Bears Infisical names-only readiness, ExternalSecret provider handoff, and Telegram session custody checks without exposing secret values.
 - `skills/subagents` — Govern Bears subagent selection, L2/L3 delegation, parent-control-only mode, gitflow closeout lanes, and evidence packets.
-- `skills/projectdevsubagents` — Drive development from GitHub Projects and Issues through parent-control-only L2 orchestrators and gpt-5.4-mini high L3 @Bears workers.
+- `skills/app-dev` — Drive development from GitHub Projects and Issues through parent-control-only L2 orchestrators and gpt-5.4-mini high L3 @Bears workers.
 - `skills/codex-telegram-operator-gate` — Request bounded operator decisions, feedback waits, and safe file exchange through the configured codex-telegram MCP server without a Telegram PreToolUse hook.
 
 ## Disabled preserved skill docs

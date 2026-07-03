@@ -592,7 +592,7 @@
           "validation hook result"
         ],
         "constraints": [
-          "use only after projectdevsubagents first-minute proof names this controller",
+          "use only after app-dev first-minute proof names this controller",
           "use only with python3 scripts/github_project_subagents.py validate-assignment evidence or local-commit-owned equivalent",
           "child role must be bears-product-app-zone-engineer and route-selected for the exact product app repo or app directory target",
           "write scope must be equal to or narrower than the validated assignment packet",

@@ -1,15 +1,15 @@
 ---
-name: bears-project-specify
-description: "Create or update Bears target specifications and functional documentation from operator intent, constitution rules, repo evidence, and acceptance criteria. Use as the Bears-native analogue to Spec Kit specify for feature descriptions, repo/target docs, user/operator behavior docs, and implementation-ready requirements."
+name: app-specify
+description: "Create or update app specifications and functional documentation from operator intent, constitution rules, repo evidence, and acceptance criteria. Use for app behavior docs and implementation-ready requirements."
 ---
 
 ## Entity terms
 
 `app` means a Bears product application source directory under `/srv/bears/dev/app` or `BearsCLOUD/apps`. `project` means a GitHub Project planning board with linked Issues and metadata fields. Use `target`, `registered target`, `repo`, `path`, `workspace surface`, or `app directory` for filesystem/source ownership.
 
-# Bears Target Specify
+# App Specify
 
-Use this skill to turn operator intent into concrete target documentation and implementation-ready requirements.
+Use this skill to turn operator intent into concrete app documentation and implementation-ready requirements.
 
 A specification is the source document that states what the feature or workstream must do, for whom, where it lives, how success is proven, and what is out of scope.
 
@@ -38,7 +38,7 @@ Use the narrowest owner path:
 
 ## Workflow
 
-1. Read `/srv/bears/AGENTS.md`, nearest target `AGENTS.md`, and the target constitution. If no constitution exists, run `$bears-project-constitution` or record an explicit constitution gap.
+1. Read `/srv/bears/AGENTS.md`, nearest target `AGENTS.md`, and the target constitution. If no constitution exists, run `$app-constitution` or record an explicit constitution gap.
 2. Run route/audit for the exact target path.
 3. Extract operator intent into concrete scope, actors, workflows, inputs, outputs, data boundaries, errors, recovery behavior, and validation proof.
 4. Inspect only files needed to avoid contradicting current implementation and docs.
@@ -53,7 +53,7 @@ Use the narrowest owner path:
    - Validation plan;
    - Dependencies and open questions.
 6. Update user/operator/developer docs only when the spec changes visible behavior or workflow use.
-7. Emit a `bears-project.specification-packet` and hand it to `$app-docs2project-bears`.
+7. Emit a `bears-project.specification-packet` and hand it to `$app-plan`.
 
 ## Specification packet
 

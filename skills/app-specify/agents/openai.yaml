@@ -1,0 +1,4 @@
+interface:
+  display_name: "Bears Project Specify"
+  short_description: "Write requirements and functional docs"
+  default_prompt: "Use $app-specify to turn operator intent into Bears requirements, functional documentation, acceptance criteria, and validation proof."

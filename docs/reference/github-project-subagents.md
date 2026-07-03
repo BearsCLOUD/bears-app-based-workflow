@@ -29,7 +29,7 @@ L3 lane uses the exact route-selected @Bears role with `gpt-5.4-mini` and `reaso
 
 ## Runtime proxy deadline enforcement
 
-If `bears-development-workflow-orchestrator` is used as runtime proxy for `role=bears-github-project-issues-orchestrator`, it must use the L2 limits from the role profile, `skills/projectdevsubagents/SKILL.md`, this reference, `assets/catalog/github-project-subagents.v1.json`, and `scripts/github_project_subagents.py`.
+If `bears-development-workflow-orchestrator` is used as runtime proxy for `role=bears-github-project-issues-orchestrator`, it must use the L2 limits from the role profile, `skills/app-dev/SKILL.md`, this reference, `assets/catalog/github-project-subagents.v1.json`, and `scripts/github_project_subagents.py`.
 
 Current drift issue #25 is `BearsCLOUD/bears_plugin#25`.
 

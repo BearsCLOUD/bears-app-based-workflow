@@ -1,15 +1,15 @@
 ---
-name: bears-project-constitution
-description: "Create or update a Bears target constitution: concrete principles, ownership rules, artifact locations, validation duties, and dependent documentation sync. Use before target specification, GitHub Project planning, or plan execution when a registered target lacks a current constitution or its rules changed."
+name: app-constitution
+description: "Create or update app constitutions: concrete principles, ownership rules, artifact locations, proof duties, and dependent documentation sync. Use before app specification, app planning, or app-dev execution when an app target lacks a current constitution or its rules changed."
 ---
 
 ## Entity terms
 
 `app` means a Bears product application source directory under `/srv/bears/dev/app` or `BearsCLOUD/apps`. `project` means a GitHub Project planning board with linked Issues and metadata fields. Use `target`, `registered target`, `repo`, `path`, `workspace surface`, or `app directory` for filesystem/source ownership.
 
-# Bears Target Constitution
+# App Constitution
 
-Use this skill to create or update a target constitution for a Bears repo, product app, platform part, plugin, infra lane, or migration workstream.
+Use this skill to create or update an app constitution for a Bears product app, app directory, migration workstream, or app-owned repo target.
 
 A constitution is the target rule document that later specs, plans, GitHub Project items, and execution agents must obey.
 

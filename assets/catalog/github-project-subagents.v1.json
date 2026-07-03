@@ -286,8 +286,8 @@
   ],
   "required_validations": [
     "python3 scripts/github_project_subagents.py validate",
-    "python3 scripts/platform_roles.py route skills/projectdevsubagents",
-    "python3 scripts/platform_roles.py audit skills/projectdevsubagents",
+    "python3 scripts/platform_roles.py route skills/app-dev",
+    "python3 scripts/platform_roles.py audit skills/app-dev",
     "python3 scripts/platform_roles.py route agents/bears-github-project-issues-orchestrator.toml",
     "python3 scripts/platform_roles.py audit agents/bears-github-project-issues-orchestrator.toml"
   ]

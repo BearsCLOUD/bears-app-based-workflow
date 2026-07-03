@@ -44,7 +44,7 @@ Archive readiness requires all of these:
 
 ## Planning handoff
 
-When Project #20 planning is ready for execution, hand off to `projectdevsubagents` with:
+When Project #20 planning is ready for execution, hand off to `a downstream workflow` with:
 
 ```text
 project_url=https://github.com/users/BearsCLOUD/projects/20

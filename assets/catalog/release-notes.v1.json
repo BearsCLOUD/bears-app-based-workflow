@@ -3,7 +3,7 @@
     {
       "affected_surfaces": [
         "github_project_subagents_catalog",
-        "projectdevsubagents_skill",
+        "app-dev_skill",
         "github_project_issues_orchestrator",
         "execution_kernel_authority_map_support",
         "platform_role_catalog",
@@ -36,8 +36,8 @@
         "scripts/issue_autostart.py",
         "scripts/sequential_codex_exec.py",
         "scripts/validation_worker.py",
-        "skills/projectdevsubagents/SKILL.md",
-        "skills/projectdevsubagents/references/github-project-issue-flow.md",
+        "skills/app-dev/SKILL.md",
+        "skills/app-dev/references/github-project-issue-flow.md",
         "scripts/issue_state_reconciler.py",
         "scripts/opencode_executor.py",
         "scripts/workflow_tree.py",
@@ -82,7 +82,7 @@
     {
       "affected_surfaces": [
         "subagents_skill",
-        "projectdevsubagents_skill",
+        "app-dev_skill",
         "github_project_issues_orchestrator",
         "platform_role_catalog",
         "plugin_skill_catalog",
@@ -106,8 +106,8 @@
         "docs/generated/README.skill-inventory.md",
         "docs/generated/SPEC.skill-inventory.md",
         "scripts/validate_overlay.py",
-        "skills/projectdevsubagents/SKILL.md",
-        "skills/projectdevsubagents/references/github-project-issue-flow.md",
+        "skills/app-dev/SKILL.md",
+        "skills/app-dev/references/github-project-issue-flow.md",
         "skills/subagents/SKILL.md",
         "skills/subagents/references/role-lanes.md"
       ],
@@ -116,8 +116,8 @@
       "validation": [
         "python3 scripts/platform_roles.py route skills/subagents",
         "python3 scripts/platform_roles.py audit skills/subagents",
-        "python3 scripts/platform_roles.py route skills/projectdevsubagents",
-        "python3 scripts/platform_roles.py audit skills/projectdevsubagents",
+        "python3 scripts/platform_roles.py route skills/app-dev",
+        "python3 scripts/platform_roles.py audit skills/app-dev",
         "python3 scripts/platform_roles.py route agents/bears-github-project-issues-orchestrator.toml",
         "python3 scripts/platform_roles.py audit agents/bears-github-project-issues-orchestrator.toml",
         "python3 scripts/skill_catalog.py generate --check",

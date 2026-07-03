@@ -6518,7 +6518,7 @@
       "lifecycle": "doc",
       "owner_issue": "operator-goal-github-project-subagents",
       "owner_role": "bears-github-project-issues-orchestrator",
-      "path": "skills/projectdevsubagents/SKILL.md",
+      "path": "skills/app-dev/SKILL.md",
       "source_of_truth_status": "canonical",
       "validation": [
         "python3 scripts/artifact_registry.py validate"
@@ -6535,7 +6535,7 @@
       "lifecycle": "doc",
       "owner_issue": "operator-goal-github-project-subagents",
       "owner_role": "bears-github-project-issues-orchestrator",
-      "path": "skills/projectdevsubagents/references/github-project-issue-flow.md",
+      "path": "skills/app-dev/references/github-project-issue-flow.md",
       "source_of_truth_status": "canonical",
       "validation": [
         "python3 scripts/artifact_registry.py validate"
@@ -7045,7 +7045,7 @@
       "lifecycle": "doc",
       "owner_issue": "operator-goal-github-project-planning",
       "owner_role": "bears-github-project-issues-orchestrator",
-      "path": "skills/bears-project-constitution/SKILL.md",
+      "path": "skills/app-constitution/SKILL.md",
       "source_of_truth_status": "canonical",
       "validation": [
         "python3 scripts/artifact_registry.py validate"
@@ -7062,7 +7062,7 @@
       "lifecycle": "doc",
       "owner_issue": "operator-goal-github-project-planning",
       "owner_role": "bears-github-project-issues-orchestrator",
-      "path": "skills/bears-project-constitution/agents/openai.yaml",
+      "path": "skills/app-constitution/agents/openai.yaml",
       "source_of_truth_status": "canonical",
       "validation": [
         "python3 scripts/artifact_registry.py validate"
@@ -7079,7 +7079,7 @@
       "lifecycle": "doc",
       "owner_issue": "operator-goal-github-project-planning",
       "owner_role": "bears-github-project-issues-orchestrator",
-      "path": "skills/bears-project-specify/SKILL.md",
+      "path": "skills/app-specify/SKILL.md",
       "source_of_truth_status": "canonical",
       "validation": [
         "python3 scripts/artifact_registry.py validate"
@@ -7096,7 +7096,7 @@
       "lifecycle": "doc",
       "owner_issue": "operator-goal-github-project-planning",
       "owner_role": "bears-github-project-issues-orchestrator",
-      "path": "skills/bears-project-specify/agents/openai.yaml",
+      "path": "skills/app-specify/agents/openai.yaml",
       "source_of_truth_status": "canonical",
       "validation": [
         "python3 scripts/artifact_registry.py validate"
@@ -7113,7 +7113,7 @@
       "lifecycle": "doc",
       "owner_issue": "operator-goal-github-project-planning",
       "owner_role": "bears-github-project-issues-orchestrator",
-      "path": "skills/app-docs2project-bears/SKILL.md",
+      "path": "skills/app-plan/SKILL.md",
       "source_of_truth_status": "canonical",
       "validation": [
         "python3 scripts/artifact_registry.py validate"
@@ -7130,7 +7130,7 @@
       "lifecycle": "doc",
       "owner_issue": "operator-goal-github-project-planning",
       "owner_role": "bears-github-project-issues-orchestrator",
-      "path": "skills/app-docs2project-bears/agents/openai.yaml",
+      "path": "skills/app-plan/agents/openai.yaml",
       "source_of_truth_status": "canonical",
       "validation": [
         "python3 scripts/artifact_registry.py validate"
@@ -7147,7 +7147,7 @@
       "lifecycle": "doc",
       "owner_issue": "operator-goal-github-project-planning",
       "owner_role": "bears-github-project-issues-orchestrator",
-      "path": "skills/bears-project-analyze/SKILL.md",
+      "path": "skills/app-analyze/SKILL.md",
       "source_of_truth_status": "canonical",
       "validation": [
         "python3 scripts/artifact_registry.py validate"
@@ -7164,7 +7164,7 @@
       "lifecycle": "doc",
       "owner_issue": "operator-goal-github-project-planning",
       "owner_role": "bears-github-project-issues-orchestrator",
-      "path": "skills/bears-project-analyze/agents/openai.yaml",
+      "path": "skills/app-analyze/agents/openai.yaml",
       "source_of_truth_status": "canonical",
       "validation": [
         "python3 scripts/artifact_registry.py validate"

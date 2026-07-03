@@ -1279,8 +1279,8 @@
         "assets/schemas/github-project-subagents.v1.schema.json",
         "scripts/github_project_subagents.py",
         "docs/reference/github-project-subagents.md",
-        "skills/projectdevsubagents/SKILL.md",
-        "skills/projectdevsubagents/references/github-project-issue-flow.md",
+        "skills/app-dev/SKILL.md",
+        "skills/app-dev/references/github-project-issue-flow.md",
         "agents/bears-github-project-issues-orchestrator.toml"
       ],
       "tests": [

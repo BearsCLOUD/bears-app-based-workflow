@@ -79,6 +79,6 @@ Planning PASS requires:
 - required views exist or an exact missing-view request is recorded;
 - every ready item has owner repo, local path, owner role, issue type, workstream, blocker status, and validation target;
 - blocker items state the exact missing permission, credential, access, role coverage, or operator decision;
-- `projectdevsubagents` handoff inputs are complete for development work.
+- `a downstream workflow` handoff inputs are complete for development work.
 
 Return `status: review` when any condition is missing.

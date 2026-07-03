@@ -72,28 +72,28 @@
     },
     {
       "description": "Create or update Bears target constitutions with ownership, artifact maps, validation duties, and dependent-doc sync.",
-      "name": "bears-project-constitution",
-      "path": "skills/bears-project-constitution"
+      "name": "app-constitution",
+      "path": "skills/app-constitution"
     },
     {
       "description": "Create or update Bears target specifications and functional documentation from operator intent, constitution rules, and repo evidence.",
-      "name": "bears-project-specify",
-      "path": "skills/bears-project-specify"
+      "name": "app-specify",
+      "path": "skills/app-specify"
     },
     {
-      "description": "Convert Bears app docs into concrete, drift-safe GitHub Issues and Apps Project #20 items for mini-model projectdevsubagents execution.",
-      "name": "app-docs2project-bears",
-      "path": "skills/app-docs2project-bears"
+      "description": "Convert Bears app docs into concrete, drift-safe GitHub Issues and Apps Project #20 items for mini-model app-dev execution.",
+      "name": "app-plan",
+      "path": "skills/app-plan"
     },
     {
-      "description": "Plan and administer Bears GitHub Projects, fields, views, issues, sub-issues, item hygiene, and planning PASS handoffs before projectdevsubagents development execution.",
+      "description": "Plan and administer Bears GitHub Projects, fields, views, issues, sub-issues, item hygiene, and planning PASS handoffs before app-dev development execution.",
       "name": "github-project-planning",
       "path": "skills/github-project-planning"
     },
     {
-      "description": "Analyze Bears constitutions, specs, docs, GitHub Project plans, Issues, routes, validation, dependencies, and projectdevsubagents handoff for drift.",
-      "name": "bears-project-analyze",
-      "path": "skills/bears-project-analyze"
+      "description": "Analyze Bears constitutions, specs, docs, GitHub Project plans, Issues, routes, validation, dependencies, and app-dev handoff for drift.",
+      "name": "app-analyze",
+      "path": "skills/app-analyze"
     },
     {
       "description": "DNS governance workflow for bears.ru through Yandex 360 using presence-only checks, dry-run plan review, and read-only governance evidence only.",
@@ -117,8 +117,8 @@
     },
     {
       "description": "Drive development from GitHub Projects and Issues through parent-control-only L2 orchestrators and gpt-5.4-mini high L3 @Bears workers.",
-      "name": "projectdevsubagents",
-      "path": "skills/projectdevsubagents"
+      "name": "app-dev",
+      "path": "skills/app-dev"
     },
     {
       "description": "Request bounded operator decisions, feedback waits, and safe file exchange through the configured codex-telegram MCP server without a Telegram PreToolUse hook.",

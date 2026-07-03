@@ -1,11 +1,11 @@
 ---
 name: github-project-planning
-description: "Use for Bears GitHub Project planning and administration before development execution: creating or selecting GitHub Projects, defining field models, roadmap views, issue and sub-issue structure, item field hygiene, planning PASS packets, and handoff to projectdevsubagents. Do not use for product implementation, L2/L3 dev dispatch, runtime/deploy work, repository settings, secrets, or raw logs."
+description: "Use for general GitHub Project planning and administration: creating or selecting Projects, defining field models, roadmap views, issue and sub-issue structure, item field hygiene, and planning PASS packets. Do not use for product implementation, L2/L3 dev dispatch, runtime/deploy work, repository settings, secrets, or raw logs."
 ---
 
 # GitHub Project Planning
 
-Use this skill to plan and govern GitHub Projects and linked Issues before any development orchestration starts.
+Use this skill to plan and govern GitHub Projects and linked Issues as an independent GitHub Project workflow surface.
 
 ## Scope
 
@@ -13,7 +13,7 @@ In scope:
 
 - select an existing GitHub Project or prepare an operator-authorized Project creation packet;
 - define Project fields, views, roadmap slices, issue types, labels, milestones, and item hygiene rules;
-- create a planning PASS packet with Project URL/number, fields, views, owner repos, local paths, owner roles, validation targets, and mutation authorization state;
+- create a planning PASS packet with Project URL/number, fields, views, owner repos, local paths, owner roles, proof targets, and mutation authorization state;
 - plan Issues, sub-issues, draft items, comments, labels, and milestones;
 - verify that `BearsCLOUD/apps` planning follows the canonical Apps Project #20 field policy when that Project is in scope.
 
@@ -24,7 +24,6 @@ Out of scope:
 - direct mutation of repository settings, branch protection, environments, webhooks, Actions settings, secrets, variables, or production state;
 - reading raw logs, raw CI logs, raw chats, shell history, credential files, production data, `.env` values, or secret values.
 
-After planning PASS, hand off development execution to `projectdevsubagents` with the Project/Issue state and route/audit targets.
 
 ## Required references
 
@@ -39,13 +38,13 @@ Load only the references needed for the current planning task:
 ## Operating rules
 
 1. Start from the nearest `AGENTS.md`, the owning repository boundary, and explicit operator intent.
-2. Run route/audit before changing plugin planning artifacts or before assigning an owner role to planned work.
+2. Use the owning repo or operator packet to identify the correct owner role before planning work items.
 3. Treat GitHub Project or Issue mutations as external metadata changes. Require an explicit operator authorization packet before creating or editing Projects, fields, views, Issues, sub-issues, labels, milestones, comments, or item fields.
 4. Use GitHub metadata only. Do not read raw logs or secret-bearing surfaces.
-5. Keep one work item mapped to one owner repo, one local path, one owner role, one validation target, and one blocker state.
-6. Split items when repo boundary, local path, owner role, validation target, deployment boundary, or secret-custody boundary differs.
-7. Mark planning PASS only after required fields, views, issue links, owner roles, validation targets, and blocker states are complete.
-8. Send development execution to `projectdevsubagents`; do not dispatch L2/L3 workers from this skill.
+5. Keep one work item mapped to one owner repo, one local path, one owner role, one proof target, and one blocker state.
+6. Split items when repo boundary, local path, owner role, proof target, deployment boundary, or secret-custody boundary differs.
+7. Mark planning PASS only after required fields, views, issue links, owner roles, proof targets, and blocker states are complete.
+8. Do not dispatch implementation workers from this skill; return Project and Issue metadata that another workflow can consume.
 
 ## Planning PASS packet
 
@@ -63,12 +62,11 @@ Return this shape when the planning slice is ready:
     "creation_authorized": false,
     "metadata_mutation_authorized": false
   },
-  "fields": ["Status", "Priority", "Owner repo", "Local path", "Owner role", "Issue type", "Workstream", "Blocker status", "Validation target"],
+  "fields": ["Status", "Priority", "Owner repo", "Local path", "Owner role", "Issue type", "Workstream", "Blocker status", "Proof target"],
   "views": ["Backlog", "Ready", "Blocked", "In progress", "Review", "Done", "Roadmap", "Repo boundary"],
   "items_ready": 0,
   "items_blocked": 0,
-  "handoff_skill": "projectdevsubagents",
-  "handoff_inputs": ["project_url", "project_number", "owner_repos", "issue_ids", "field_ids", "route_audit_targets"],
+  "consumer_inputs": ["project_url", "project_number", "owner_repos", "issue_ids", "field_ids"],
   "blockers": []
 }
 ```

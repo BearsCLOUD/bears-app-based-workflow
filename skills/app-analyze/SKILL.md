@@ -1,15 +1,15 @@
 ---
-name: bears-project-analyze
-description: "Analyze Bears target artifacts for drift before execution: constitution, specification, documentation, GitHub Project plan, Issues, route/audit roles, validation, dependencies, and projectdevsubagents handoff. Use as the Bears-native analogue to speckit-analyze before plan execution or after material target docs change."
+name: app-analyze
+description: "Analyze app artifacts for drift before execution: constitution, specification, documentation, GitHub Project plan, Issues, roles, proof requirements, dependencies, and app-dev handoff. Use before app-dev execution or after material app docs change."
 ---
 
 ## Entity terms
 
 `app` means a Bears product application source directory under `/srv/bears/dev/app` or `BearsCLOUD/apps`. `project` means a GitHub Project planning board with linked Issues and metadata fields. Use `target`, `registered target`, `repo`, `path`, `workspace surface`, or `app directory` for filesystem/source ownership.
 
-# Bears Target Analyze
+# App Analyze
 
-Use this skill to prove a Bears target plan is internally consistent before implementation or `$projectdevsubagents` execution starts.
+Use this skill to prove an app plan is internally consistent before implementation or `$app-dev` execution starts.
 
 Analysis means a current-state check across artifacts. It does not fix files unless the operator asks for fixes after the report.
 
@@ -39,7 +39,7 @@ Forbidden:
    - Issue dependencies match the plan order;
    - each planned target has route/audit evidence and one exact @Bears role;
    - each item has validation and closeout evidence requirements;
-   - `$projectdevsubagents` can consume the plan without parent implementation.
+   - `$app-dev` can consume the plan without parent implementation.
 3. Classify every finding:
    - `blocker`: execution cannot start safely;
    - `fix_required`: artifact must be corrected before execution;
@@ -68,7 +68,7 @@ Forbidden:
     {"target": "<path>", "role": "<@Bears role>", "status": "matched|missing"}
   ],
   "execution_handoff": "ready|needs-fix|blocked",
-  "execution_skill": "projectdevsubagents",
+  "execution_skill": "app-dev",
   "recommendation": "<next action>"
 }
 ```

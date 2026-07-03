@@ -1,15 +1,15 @@
 ---
-name: app-docs2project-bears
-description: "Convert Bears app documentation into concrete, drift-safe GitHub Issues and Apps Project #20 items. Use when app docs under /srv/bears/dev/app must become executable mini-model tasks with exact paths, roles, acceptance criteria, dependencies, and projectdevsubagents handoff."
+name: app-plan
+description: "Convert Bears app documentation into concrete, drift-safe GitHub Issues and Apps Project #20 items. Use when app docs under /srv/bears/dev/app must become executable app-dev tasks with exact paths, roles, acceptance criteria, dependencies, and handoff."
 ---
 
-# App Docs to Project Bears
+# App Plan
 
-Use this skill to convert a Bears product app documentation set into GitHub Issues and Apps Project #20 items.
+Use this skill to convert a Bears product app documentation set into GitHub Issues and Apps Project #20 items for `$app-dev` execution.
 
 `app` means a Bears product application source directory under `/srv/bears/dev/app` or `BearsCLOUD/apps`. `project` means a GitHub Project planning board with linked Issues and metadata fields. Use `target`, `repo`, `path`, or `app directory` for filesystem/source ownership.
 
-The output is not a draft plan. The output is applied GitHub metadata: concrete Issues in `BearsCLOUD/apps`, linked Project #20 items, filled fields, dependencies, and ready handoff input for `$projectdevsubagents`.
+The output is not a draft plan. The output is applied GitHub metadata: concrete Issues in `BearsCLOUD/apps`, linked Project #20 items, filled fields, dependencies, and ready handoff input for `$app-dev`.
 
 ## Boundary
 
@@ -17,7 +17,7 @@ Allowed:
 
 - Read `/srv/bears/AGENTS.md`, nearest app `AGENTS.md`, app docs, existing GitHub Project #20 metadata, existing Issues, route/audit output, and validation policy.
 - Create or update bounded GitHub Issues, sub-issues, Project item links, Project item fields, labels, milestones, and evidence comments for app-docs planning in `BearsCLOUD/apps` and Apps Project #20.
-- Create only decomposition, dependency, acceptance, validation, blocker, and handoff metadata needed for execution by `$projectdevsubagents`.
+- Create only decomposition, dependency, acceptance, validation, blocker, and handoff metadata needed for execution by `$app-dev`.
 
 Forbidden:
 
@@ -32,8 +32,8 @@ Forbidden:
 - Project number: `20`.
 - Owner repo: `BearsCLOUD/apps`.
 - Local app root: `/srv/bears/dev/app`.
-- Execution skill: `$projectdevsubagents`.
-- Target worker class: mini-model-compatible L3 task.
+- Execution skill: `$app-dev`.
+- Target worker class: app-dev L3 task.
 
 Invoking this skill for an app docs target runs the bounded GitHub metadata writes listed in `Allowed` directly. The skill returns `blocked` when required GitHub access or route proof is missing.
 
@@ -59,7 +59,7 @@ Do not use root `/srv/bears/specs`, root `.specify`, root `plans.md`, root `road
 
 ## Drift-safe decomposition rules
 
-One GitHub Issue is one mini-model task.
+One GitHub Issue is one app-dev task.
 
 Every execution Issue must include:
 
@@ -171,8 +171,8 @@ If any field cannot be filled exactly, create a blocker Issue instead of an exec
 9. Create or update GitHub Issues and sub-issues in `BearsCLOUD/apps`.
 10. Add every Issue to Project #20 and fill required fields: `source_repo`, `app_directory`, `migration_stage`, `infra_local_cd_safety`, `platform_boundary`, and `archive_readiness`.
 11. Link dependencies with Issue URLs and Project metadata.
-12. Emit `app-docs2project-bears.project-task-packet` with applied mutation proof.
-13. Run `$bears-project-analyze` before handing execution to `$projectdevsubagents`.
+12. Emit `app-plan.project-task-packet` with applied mutation proof.
+13. Run `$app-analyze` before handing execution to `$app-dev`.
 
 ## Block rules
 
@@ -182,7 +182,7 @@ Use `blocked` only for:
 - missing GitHub access to `BearsCLOUD/apps` or Apps Project #20;
 - owner repo not resolved to `BearsCLOUD/apps`;
 - route/audit `ROLE_COVERAGE_BLOCKER`;
-- requirement that cannot be decomposed into no-choice mini-model tasks;
+- requirement that cannot be decomposed into no-choice app-dev tasks;
 - any execution Issue with a Micro-slice check answer of `no`;
 - one-file or atomic slice overhead drift without low-overhead L2/L3 packet path or explicit operator approval to relax the parent 5-minute wait budget;
 - impossible dependency order.
@@ -191,7 +191,7 @@ Use `blocked` only for:
 
 ```json
 {
-  "schema": "app-docs2project-bears.project-task-packet",
+  "schema": "app-plan.project-task-packet",
   "version": "1",
   "status": "applied|blocked",
   "project": {
@@ -216,8 +216,8 @@ Use `blocked` only for:
     }
   ],
   "blockers": ["<exact blocker issues or reasons>"],
-  "execution_skill": "projectdevsubagents",
+  "execution_skill": "app-dev",
   "analysis_required": true,
-  "recommendation": "Run $bears-project-analyze, then hand ready items to $projectdevsubagents."
+  "recommendation": "Run $app-analyze, then hand ready items to $app-dev."
 }
 ```

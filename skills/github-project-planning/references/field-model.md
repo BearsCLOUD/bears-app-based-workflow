@@ -37,5 +37,5 @@ Use optional fields only when the Project needs them:
 | Release | Text | GitHub Release or version tag. |
 | Parent issue | Text | Parent issue URL when sub-issue UI is unavailable. |
 | Route target | Text | Exact path for `platform_roles.py route/audit`. |
-| Handoff skill | Single select | `github-project-planning`, `projectdevsubagents`, or another named skill. |
+| Consumer workflow | Single select | `github-project-planning` or another named consumer workflow. |
 | Mutation authorization | Single select | none, read-only, authorized | External metadata mutation gate. |

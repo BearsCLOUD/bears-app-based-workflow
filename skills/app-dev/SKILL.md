@@ -1,9 +1,9 @@
 ---
-name: projectdevsubagents
-description: "Use for Bears development orchestration from ready GitHub Project work items and linked Issues. Parent controls L2 lanes, L2 uses helper subagents, implementation is done by @Bears L3 workers, and completion is confirmed by a separate L3 critic."
+name: app-dev
+description: "Use for Bears app development orchestration from ready GitHub Project work items and linked Issues. Parent controls L2 lanes, L2 uses helper subagents, implementation is done by @Bears L3 workers, and completion is confirmed by a separate L3 critic."
 ---
 
-# Project Dev Subagents
+# App Dev
 
 Use this skill for **development orchestration from ready GitHub Project work items and linked Issues**.
 
@@ -11,7 +11,7 @@ This skill starts after the owning planning flow or an explicit operator packet 
 
 ## Dictionary
 
-- `task` means one bounded work unit: one GitHub Issue or Project item slice, one repo boundary, one exact target set, one owning role, one execution lane, and one proof requirement.
+- `task` means one bounded app-plan work unit: one GitHub Issue or Project item slice, one repo boundary, one exact target set, one owning role, one execution lane, and one proof requirement.
 - `wave` means one parent-dispatched batch of dependency-ready tasks that may run in parallel when their repos and target sets do not overlap.
 - Use only `task` and `wave` for orchestration units in this skill. Do not introduce extra unit names.
 
@@ -38,7 +38,7 @@ Out of scope:
 
 Before execution, the parent must provide one of these:
 
-- a ready project-task packet plus a project analysis packet with execution handoff marked ready;
+- a ready app-plan project-task packet plus an app-analyze packet with execution handoff marked ready;
 - existing GitHub Project/Issue state plus explicit operator approval that replaces those packets.
 
 The plan must define owner repo, target paths, route-selected roles, dependencies, proof requirement, and closeout fields for every task.

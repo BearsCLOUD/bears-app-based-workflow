@@ -77,7 +77,17 @@ Parent forbidden actions:
 
 ## L2 orchestrator lane
 
-Each L2 orchestrator must use `bears-github-project-issues-orchestrator`. L2 is not a developer. L2 turns Project work into bounded L3 tasks.
+Each L2 orchestrator must run the `bears-github-project-issues-orchestrator` role. L2 is not a developer. L2 turns Project work into bounded L3 tasks.
+
+## Runtime fallback and deadline rules
+
+- If the exact L2 agent type `bears-github-project-issues-orchestrator` is unavailable, use the approved runtime proxy `bears-development-workflow-orchestrator` with explicit `role=bears-github-project-issues-orchestrator`; if that proxy is unavailable or unauthorized, return `FAST_BLOCKER` before dispatch.
+- After any five-minute miss, the next attempt must be one-file/one-issue or issue-strengthening only; no grouped implementation retry is allowed.
+- When the parent supplies an exact Issue plus route/audit evidence, L2 must skip broad Project scans and read only metadata required for that Issue.
+- L2 must set an internal child cutoff before 240 seconds, close descendants before that cutoff, and return `FAST_BLOCKER` with no WIP when completion is not proven.
+- The parent must reject any L2 result with elapsed time greater than 300 seconds, even when the final text says `PASS`.
+- No WIP may remain after timeout; cleanup is mandatory before any retry.
+- Current drift issue: `BearsCLOUD/bears_plugin#24`.
 
 ## First-minute parent gate
 
@@ -158,7 +168,7 @@ L2 forbidden actions:
 - Keep issue #65's codex exec 60s timeout before edits and issue #59's parent >5min cleanup rule; these guardrails do not widen authority. If issue #65 timeout repeats after issue #16, treat it as repeated timeout drift and return `FAST_BLOCKER` instead of starting a slow implementation attempt.
 - `RESET` and `CLEANUP` packets are terminal; do not continue or start L3 after either packet.
 - When the parent sends timeout `RESET` or `CLEANUP`, L2 must stop waiting on L3 at once, ignore any late L3 `READY` or `PASS`, and return `DRIFT_CLEANED` within the cleanup wait.
-- If L2 cannot return `DRIFT_CLEANED` within the cleanup wait, the parent records stronger workflow drift, links the active drift issue, and future grouped batches must split smaller than the missed batch before retry. Current drift issue: `BearsCLOUD/bears_plugin#23`.
+- If L2 cannot return `DRIFT_CLEANED` within the cleanup wait, the parent records stronger workflow drift, links the active drift issue, and future grouped batches must split smaller than the missed batch before retry. Current drift issue: `BearsCLOUD/bears_plugin#24`.
 - After timeout `RESET` or `CLEANUP`, post-timeout evidence must be comments only; do not change Project fields, issue state, or closeout state from late output.
 - A timeout `READY` result is rejected; close uncommitted work and do not commit or push.
 - Late `READY` or `PASS` after timeout `RESET` or `CLEANUP` is rejected, even if the child work finished.

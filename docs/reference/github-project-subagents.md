@@ -21,6 +21,8 @@ This reference binds GitHub planning surfaces to Bears parent, L2, and L3 lanes.
 
 Parent lane selects Projects, repositories, Issues, and L2 orchestrators. It does not implement, write files, mutate Git, mutate Project or PR metadata directly, mutate runtime, or mutate repository settings. It passes explicit operator-authorized metadata requests to L2.
 
+Before parallel L2 fan-out, the parent must run a capacity preflight: prove available L2 slots, each lane's L3 spawn capacity, exact Issue scope, target file or contract, route/audit target, validation path, and 240s/270s cutoff. If capacity is unknown or at thread limit, the parent starts only one smaller L2 lane or returns `FAST_BLOCKER`.
+
 L2 lane uses `bears-github-project-issues-orchestrator` with `gpt-5.5` and `reasoning=medium`. It may mutate GitHub planning metadata only when the parent packet authorizes mutation. It does not implement or run implementation commands.
 
 L3 lane uses the exact route-selected @Bears role with `gpt-5.4-mini` and `reasoning=high`. It owns one issue or Project item slice inside one repo boundary and one allowed write scope.
@@ -33,6 +35,11 @@ Current drift issue #25 is `BearsCLOUD/bears_plugin#25`.
 
 The fallback runtime proxy must:
 
+- return a parent-visible `READY`, `WIP`, or `FAST_BLOCKER` packet inside the first minute;
+- treat `WIP` as metadata/decomposition only, with no L3 spawn and a declared cutoff;
+- create or update a smaller Issue or issue comment and return `FAST_BLOCKER` when L3 spawn fails or capacity is unavailable;
+- after timeout, retry with one issue, one L3 max, one target file or contract, and one validation path;
+- update `BearsCLOUD/bears_plugin#26` on repeated timeout before retrying smaller;
 - return `FAST_BLOCKER` before 240 seconds when no PASS is ready;
 - close descendants before `FAST_BLOCKER`;
 - leave no WIP on `FAST_BLOCKER` or timeout;

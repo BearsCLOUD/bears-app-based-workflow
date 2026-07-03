@@ -90,9 +90,12 @@ Each L2 orchestrator must run the `bears-github-project-issues-orchestrator` rol
 - No WIP may remain after timeout; cleanup is mandatory before any retry.
 - Current drift issue #25: `BearsCLOUD/bears_plugin#25`.
 
-## Issue #26 timeout slicing rules
+## Issue #26 capacity and timeout slicing rules
 
 - Current drift issue #26: `BearsCLOUD/bears_plugin#26`.
+- `parent capacity preflight`: before parallel L2 fan-out, the parent must prove available L2 agent slots, each lane's L3 spawn capacity, exact Issue scope, route/audit target, target file or contract, validation path, and 240s/270s cutoff. If capacity is unknown, at thread limit, or unavailable, the parent may start only one smaller L2 lane or must return a parent-visible `FAST_BLOCKER`.
+- `first-minute visible state`: every L2 must return exactly one parent-visible `READY`, `WIP`, or `FAST_BLOCKER` packet inside 60 seconds. `READY` requires verified capacity and a bounded execution path. `WIP` is allowed only for metadata/decomposition work already in progress with no L3 spawn yet, exact next action, and cutoff. Missing first-minute packet is timeout drift.
+- `L3 capacity failure`: if L3 spawn fails, runner capacity is unavailable, or a thread limit blocks child launch, L2 must stop silently waiting, close or interrupt descendants it owns, create or update a smaller Issue or issue comment with exact evidence, and return `FAST_BLOCKER`; it must not continue as if L3 were running.
 - `parent wait max 300s`: the parent wait ceiling is 300 seconds from L2 assignment receipt. Any L2 packet returned after 300 seconds is SLA drift and cannot be accepted as `PASS`, `READY`, `ADOPTED_WITH_GITFLOW_PACKET`, or normal completion.
 - `L2 execution lane 240s target`: every L2 execution lane must plan for validated completion, gitflow-ready evidence or blocker evidence, and task-owned cleanup inside 240 seconds. The lane must hard-stop before 270 seconds, stop descendants, and return `FAST_BLOCKER`, `CLEANED_NO_WIP`, or `DRIFT_CLEANED` before the parent ceiling.
 - `no PASS after 300s`: L2 must not claim PASS after the parent ceiling. Evidence that arrives after 300 seconds may be used only for recovery triage, adopt-or-clean validation, issue comments, or a later smaller lane; it must not update Project/Issue completion state as normal success.
@@ -107,29 +110,29 @@ Each L2 orchestrator must run the `bears-github-project-issues-orchestrator` rol
 - `one-file L2 slicing`: after any grouped-lane timeout or atomic-lane timeout, the L2 packet must name exactly one repo boundary, one Issue, one target file, one route/audit target, one allowed write scope, and one validation path. If the required fix touches more than one file, L2 must return `DECOMPOSED_ONLY` or `FAST_BLOCKER` and defer extra files to later child Issues.
 - `180s FAST_BLOCKER`: for timeout-recovery lanes, L2 must set a wall-clock cutoff at or before 180 seconds after assignment receipt. If validated completion plus cleanup proof is not already guaranteed before that cutoff, L2 must stop, run no further implementation steps, and return `FAST_BLOCKER`.
 - `no-WIP cleanup`: before returning `FAST_BLOCKER`, `DRIFT_CLEANED`, or any timeout packet, L2/L3 must stop descendants, reject late `READY` or `PASS`, remove only task-owned uncommitted edits, and report target-file `git status` evidence. If no-WIP cleanup cannot be proven, the result is workflow drift, not PASS.
-- `deferred validator follow-up`: this skill may add timeout rules without implementing validator/catalog changes in the same pass. The closeout must name the required validator follow-up for `github_project_subagents.py` or the GitHub Project subagent catalog, and that follow-up must be a later one-file or explicitly scoped child Issue before enforcement code changes.
 
 ## First-minute parent gate
 
 Immediately after assignment receipt, before route/audit, issue enrichment, Project field reads beyond the assigned item, environment/profile loading, local file reads beyond the fixed proof path below, execution planning, or L3 dispatch, L2 must answer the parent inside 60 seconds with exactly one of these packets:
 
 - `FAST_BLOCKER`: no writes, no metadata mutation, no L3 dispatch. Use this when deterministic completion inside the parent wait gate is not already proven, or when the active L2 controller profile cannot launch L3 and cannot write or apply a preapproved patch-template.
-- `FIRST_MINUTE_PASS`: deterministic proof that the child-only execution path can finish inside the parent wait gate, including the preexisting child Issue or approved issue template, exact repo/path boundary, route target, role target, write scope, validation path, authorized execution mechanism, closeout path, and remaining time budget.
+- `READY`: deterministic proof that the child-only execution path can finish inside the parent wait gate, including the preexisting child Issue or approved issue template, exact repo/path boundary, route target, role target, write scope, validation path, authorized execution mechanism, closeout path, and remaining time budget.
+- `WIP`: parent-visible metadata or decomposition progress only. It must name one current action, one smaller Issue/comment update if needed, no L3 spawn yet, no implementation WIP, and the cutoff for returning `READY`, `DECOMPOSED_ONLY`, or `FAST_BLOCKER`.
 
 The first packet uses this fixed checklist in this hard order:
 
 1. Read only the assigned Issue identifier, title, and body with one assigned-Issue read. If this cannot finish inside 15 seconds, return `FAST_BLOCKER`.
 2. Verify only the named controller proof for `github-project-issues-product-app-l3-delegation-controller` in `assets/catalog/subagent-orchestration-policy.v1.json` with one 10-second grep/read command or one 40-line file slice around the controller entry: exact controller id, role `bears-github-project-issues-orchestrator`, and allowed child role `bears-product-app-zone-engineer`.
-3. Return `FAST_BLOCKER` or `FIRST_MINUTE_PASS` immediately. Do not run route/audit, spawn L3, plan execution, enrich GitHub Project fields, read broad local files, or load role/profile trees before this packet.
+3. Return `FAST_BLOCKER`, `WIP`, or `READY` immediately. Do not run route/audit, spawn L3, plan execution, enrich GitHub Project fields, read broad local files, or load role/profile trees before this packet.
 
 If the controller proof cannot be read and verified within that one command or one 40-line file slice, return `FAST_BLOCKER` immediately.
 
-`FIRST_MINUTE_PASS` is forbidden until L2 has verified an actual authorized execution mechanism available in the active lane. For product-app L3 lanes, valid proof is only the named controller proof above. Other valid proof is only one of these:
+`READY` is forbidden until L2 has verified an actual authorized execution mechanism available in the active lane. For product-app L3 lanes, valid proof is only the named controller proof above. Other valid proof is only one of these:
 
 - named L3 dispatch capability allowed by the active L2 role/profile for this lane; or
 - concrete preapproved patch-template path for a one-file slice with exact write scope, validation, and rollback instructions.
 
-A nominal `worker_path` string, planned worker name, assumed runner availability, environment load, or planned route/audit is not proof. The first-minute packet must name the exact capability proof checked, the source policy path or template path, and the action it authorizes. For product-app L3 lanes it must cite `assets/catalog/subagent-orchestration-policy.v1.json` and `github-project-issues-product-app-l3-delegation-controller`. A later `PASS`, `READY`, closeout, or `DRIFT` caused by missing worker authority after `FIRST_MINUTE_PASS` is workflow drift, not success.
+A nominal `worker_path` string, planned worker name, assumed runner availability, environment load, or planned route/audit is not proof. The first-minute packet must name the exact capability proof checked, the source policy path or template path, and the action it authorizes. For product-app L3 lanes it must cite `assets/catalog/subagent-orchestration-policy.v1.json` and `github-project-issues-product-app-l3-delegation-controller`. A later `PASS`, `READY`, closeout, or `DRIFT` caused by missing worker authority after `READY` is workflow drift, not success.
 
 For tiny child-only slices, L2 may dispatch L3 or use a patch-template only when the first-minute packet cites one of these precomputed paths:
 
@@ -179,7 +182,7 @@ L2 forbidden actions:
 - For a tiny child-only slice, check named L3 dispatch capability allowed by the active L2 role/profile, precomputed child-Issue template, and deterministic preapproved patch-template availability within the first minute; if no authorized mechanism is confirmed, return `FAST_BLOCKER` immediately and do not start a slow implementation attempt.
 - If named L3 dispatch capability is available in the active L2 role/profile, use it for the tiny child-only slice; do not wrap that launch in nested codex exec.
 - If L3 dispatch is unavailable but the preapproved patch-template fallback is confirmed, use that one-file slice path; do not invent a new edit flow.
-- If the active controller profile forbids direct L3 launch and also forbids writing or applying templates, return `FAST_BLOCKER`; do not return `FIRST_MINUTE_PASS` from a nominal `worker_path`.
+- If the active controller profile forbids direct L3 launch and also forbids writing or applying templates, return `FAST_BLOCKER`; do not return `READY` from a nominal `worker_path`.
 - Before any L3 spawn, compare remaining budget against runner startup plus edit validation; if the budget cannot cover both, stop and return a blocker instead of starting L3.
 - These decomposition limits do not widen metadata mutation authority; parent/operator authorization is still required.
 - The first child execution is a separate parent assignment after the child Issue and Project metadata are visible.
@@ -201,20 +204,21 @@ L2 forbidden actions:
 
 For each assigned Project item or Issue:
 
-1. Read only the assigned item identifier, issue title/body, and the fixed named controller proof path required by the first-minute gate, then return `FAST_BLOCKER` or `FIRST_MINUTE_PASS` to the parent inside 60 seconds.
-2. If `FIRST_MINUTE_PASS` was returned, load only the ready plan/analysis packet, current Project item, linked Issue, sub-issues, linked PRs, Actions/check metadata, and existing field values required by that pass proof; if the named capability proof is later absent or unauthorized, stop and report workflow drift.
-3. Identify the canonical owner repo, local path, target paths, issue type, acceptance criteria, and blocker notes.
-4. Run route/audit for the target path.
-5. If route/audit returns `ROLE_COVERAGE_BLOCKER`, create a role-improvement L3 packet and keep the implementation item blocked.
-6. Split work when repo boundary, @Bears role, write scope, validation path, or deploy/runtime boundary differs.
-7. If decomposition is needed, create and link at most two child Issues per wave, add only required Project status/linkage metadata, and return `DECOMPOSED_ONLY` or `PARTIAL_DECOMPOSED_ONLY`; do not dispatch L3 in the same wave.
-8. Build one L3 packet per split only after the child metadata is visible, dependency-ready, and either preexisted or came from a prior parent assignment.
-9. Validate every materialized L3 packet only through local-commit-owned or operator-approved `python3 scripts/github_project_subagents.py validate-assignment <packet.json>` evidence.
-10. Dispatch L3 workers or use the patch-template only when the first-minute proof remains true after route/audit and required metadata checks, including the exact authorized execution mechanism named in the first-minute packet.
-11. Collect L3 closeout packets.
-12. Update Project/Issue state only from L3 evidence, validation proof, commit SHA, PR metadata, Release metadata, or blocker proof.
-13. Request gitflow closeout when files changed.
-14. Report item status to the parent.
+1. Read only the assigned item identifier, issue title/body, and the fixed named controller proof path required by the first-minute gate, then return `FAST_BLOCKER`, `WIP`, or `READY` to the parent inside 60 seconds.
+2. If `WIP` was returned, continue only the named metadata/decomposition action and return `READY`, `DECOMPOSED_ONLY`, or `FAST_BLOCKER` before the declared cutoff; do not spawn L3 from `WIP`.
+3. If `READY` was returned, load only the ready plan/analysis packet, current Project item, linked Issue, sub-issues, linked PRs, Actions/check metadata, and existing field values required by that pass proof; if the named capability proof is later absent or unauthorized, stop and report workflow drift.
+4. Identify the canonical owner repo, local path, target paths, issue type, acceptance criteria, and blocker notes.
+5. Run route/audit for the target path.
+6. If route/audit returns `ROLE_COVERAGE_BLOCKER`, create a role-improvement L3 packet and keep the implementation item blocked.
+7. Split work when repo boundary, @Bears role, write scope, validation path, or deploy/runtime boundary differs.
+8. If decomposition is needed, create and link at most two child Issues per wave, add only required Project status/linkage metadata, and return `DECOMPOSED_ONLY` or `PARTIAL_DECOMPOSED_ONLY`; do not dispatch L3 in the same wave.
+9. Build one L3 packet per split only after the child metadata is visible, dependency-ready, and either preexisted or came from a prior parent assignment.
+10. Validate every materialized L3 packet only through local-commit-owned or operator-approved `python3 scripts/github_project_subagents.py validate-assignment <packet.json>` evidence.
+11. Dispatch L3 workers or use the patch-template only when the first-minute proof remains true after route/audit and required metadata checks, including the exact authorized execution mechanism named in the first-minute packet.
+12. Collect L3 closeout packets.
+13. Update Project/Issue state only from L3 evidence, validation proof, commit SHA, PR metadata, Release metadata, or blocker proof.
+14. Request gitflow closeout when files changed.
+15. Report item status to the parent.
 
 ## L3 worker lane
 

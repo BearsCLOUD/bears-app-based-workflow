@@ -13,7 +13,10 @@
       "pass GitHub metadata packets and route/audit targets",
       "wait for L2 evidence and integrate closeout packets",
       "request gitflow closeout from bears-git-workflow-helper",
-      "reject fallback runtime proxy PASS after elapsed time greater than 300 seconds"
+      "reject fallback runtime proxy PASS after elapsed time greater than 300 seconds",
+      "run capacity preflight before parallel L2 fan-out: prove available L2 slots, each lane L3 spawn capacity, exact issue scope, target file or contract, validation path, and 240s/270s cutoff",
+      "fan out parallel L2 lanes only after capacity preflight proves disjoint dependency-ready scope and child capacity",
+      "reject L2 packets that miss the first-minute READY/WIP/FAST_BLOCKER parent-visible status gate"
     ],
     "forbidden_actions": [
       "implementation file writes",
@@ -21,7 +24,10 @@
       "git add, git commit, git push, merge, or force push",
       "runtime, deploy, provider, secret, repository settings, or production mutation",
       "raw logs, secrets, credentials, private chats, raw VPN configs, or production data reads",
-      "reusing fallback L2 implementation pools until BearsCLOUD/bears_plugin#25 enforcement is present"
+      "reusing fallback L2 implementation pools until BearsCLOUD/bears_plugin#25 enforcement is present",
+      "parallel L2 fan-out without capacity preflight",
+      "accepting L2 PASS, READY, or WIP after elapsed time greater than 300 seconds",
+      "retrying a timed-out lane without decomposing smaller and updating BearsCLOUD/bears_plugin#26"
     ]
   },
   "l2_orchestrator": {
@@ -34,7 +40,10 @@
       "prepare L3 /goal packets for route-selected @Bears roles",
       "prepare role-improvement L3 packets when route/audit or role text is unsafe",
       "write evidence-backed Project and Issue closeout metadata after L3 evidence",
-      "use bears-development-workflow-orchestrator as runtime proxy only with explicit role=bears-github-project-issues-orchestrator and the fallback deadline guard present"
+      "use bears-development-workflow-orchestrator as runtime proxy only with explicit role=bears-github-project-issues-orchestrator and the fallback deadline guard present",
+      "return exactly one parent-visible READY, WIP, or FAST_BLOCKER packet inside the first minute",
+      "when L3 spawn fails or capacity is unavailable, create or update a smaller Issue or issue comment, close owned descendants, and return FAST_BLOCKER",
+      "for one L2 retry choose one issue, one L3 max, one target file or contract, and one validation path"
     ],
     "forbidden_actions": [
       "implementation file writes",
@@ -46,7 +55,12 @@
       "leaving WIP after FAST_BLOCKER or timeout",
       "returning PASS after elapsed time greater than 300 seconds",
       "broad Project scans when parent-provided exact Issues and route/audit evidence are sufficient",
-      "implementation pools before BearsCLOUD/bears_plugin#25 runtime proxy enforcement is present"
+      "implementation pools before BearsCLOUD/bears_plugin#25 runtime proxy enforcement is present",
+      "missing the first-minute READY/WIP/FAST_BLOCKER packet",
+      "continuing silently after L3 spawn fails or capacity is unavailable",
+      "leaving descendants open after 240 seconds or after the 270 seconds hard stop",
+      "retrying with more than one issue, one L3 max, one target file or contract, or one validation path after timeout",
+      "repeated timeout without updating BearsCLOUD/bears_plugin#26 and decomposing smaller"
     ]
   },
   "l3_worker": {
@@ -68,62 +82,165 @@
   "github_surfaces": [
     {
       "name": "projects_v2",
-      "coverage": ["Project owner", "number", "items", "views", "fields", "field options", "workflows", "charts", "draft issues", "linked issues", "linked pull requests"],
-      "allowed_lanes": ["parent-control", "l2-orchestrator"],
+      "coverage": [
+        "Project owner",
+        "number",
+        "items",
+        "views",
+        "fields",
+        "field options",
+        "workflows",
+        "charts",
+        "draft issues",
+        "linked issues",
+        "linked pull requests"
+      ],
+      "allowed_lanes": [
+        "parent-control",
+        "l2-orchestrator"
+      ],
       "mutation_policy": "L2 may mutate Project items and fields only with parent packet authorization and after evidence exists."
     },
     {
       "name": "issues",
-      "coverage": ["issue type", "state", "body", "comments", "labels", "milestone", "assignees", "timeline", "linked branch", "linked pull request", "dependencies"],
-      "allowed_lanes": ["l2-orchestrator", "l3-worker-closeout"],
+      "coverage": [
+        "issue type",
+        "state",
+        "body",
+        "comments",
+        "labels",
+        "milestone",
+        "assignees",
+        "timeline",
+        "linked branch",
+        "linked pull request",
+        "dependencies"
+      ],
+      "allowed_lanes": [
+        "l2-orchestrator",
+        "l3-worker-closeout"
+      ],
       "mutation_policy": "L2 owns planning metadata; L3 returns closeout text for L2 to apply."
     },
     {
       "name": "sub_issues",
-      "coverage": ["parent issue", "child issue", "priority", "progress", "multi-level decomposition"],
-      "allowed_lanes": ["l2-orchestrator"],
+      "coverage": [
+        "parent issue",
+        "child issue",
+        "priority",
+        "progress",
+        "multi-level decomposition"
+      ],
+      "allowed_lanes": [
+        "l2-orchestrator"
+      ],
       "mutation_policy": "L2 may create, attach, detach, or reprioritize sub-issues only for the assigned parent objective."
     },
     {
       "name": "pull_requests",
-      "coverage": ["review state", "mergeability", "linked issues", "check suites", "review comments metadata", "base/head refs"],
-      "allowed_lanes": ["l2-orchestrator", "gitflow-closeout"],
+      "coverage": [
+        "review state",
+        "mergeability",
+        "linked issues",
+        "check suites",
+        "review comments metadata",
+        "base/head refs"
+      ],
+      "allowed_lanes": [
+        "l2-orchestrator",
+        "gitflow-closeout"
+      ],
       "mutation_policy": "L2 may link and summarize PR metadata; gitflow owns commit/push and PR closeout when assigned."
     },
     {
       "name": "actions_checks",
-      "coverage": ["workflow runs", "check suites", "check runs", "conclusions", "artifacts metadata", "rerun eligibility"],
-      "allowed_lanes": ["l2-orchestrator", "route-selected ci reviewer"],
+      "coverage": [
+        "workflow runs",
+        "check suites",
+        "check runs",
+        "conclusions",
+        "artifacts metadata",
+        "rerun eligibility"
+      ],
+      "allowed_lanes": [
+        "l2-orchestrator",
+        "route-selected ci reviewer"
+      ],
       "mutation_policy": "Metadata-only by default; raw logs and reruns require exact role plus operator authorization."
     },
     {
       "name": "releases_tags_packages",
-      "coverage": ["tags", "releases", "release notes", "assets metadata", "packages metadata", "container package refs"],
-      "allowed_lanes": ["l2-orchestrator", "gitflow-closeout", "release role"],
+      "coverage": [
+        "tags",
+        "releases",
+        "release notes",
+        "assets metadata",
+        "packages metadata",
+        "container package refs"
+      ],
+      "allowed_lanes": [
+        "l2-orchestrator",
+        "gitflow-closeout",
+        "release role"
+      ],
       "mutation_policy": "Versioned delivery mutation requires exact delivery route and parent packet."
     },
     {
       "name": "discussions_wiki_pages",
-      "coverage": ["decision discussions", "Q&A", "announcements", "wiki pages", "non-actionable planning records"],
-      "allowed_lanes": ["l2-orchestrator"],
+      "coverage": [
+        "decision discussions",
+        "Q&A",
+        "announcements",
+        "wiki pages",
+        "non-actionable planning records"
+      ],
+      "allowed_lanes": [
+        "l2-orchestrator"
+      ],
       "mutation_policy": "Use for non-actionable decisions and public knowledge; do not replace Issues for work tracking."
     },
     {
       "name": "code_security_metadata",
-      "coverage": ["code scanning alerts", "secret scanning alert metadata", "dependabot alerts", "security advisories"],
-      "allowed_lanes": ["route-selected security reviewer"],
+      "coverage": [
+        "code scanning alerts",
+        "secret scanning alert metadata",
+        "dependabot alerts",
+        "security advisories"
+      ],
+      "allowed_lanes": [
+        "route-selected security reviewer"
+      ],
       "mutation_policy": "Read metadata only; no raw secret values, private payloads, dismissals, or settings mutation without exact security packet."
     },
     {
       "name": "deployments_environments",
-      "coverage": ["deployment records", "environment names", "deployment status metadata", "protection rule metadata"],
-      "allowed_lanes": ["l2-orchestrator", "infra/deploy/kube audit lane"],
+      "coverage": [
+        "deployment records",
+        "environment names",
+        "deployment status metadata",
+        "protection rule metadata"
+      ],
+      "allowed_lanes": [
+        "l2-orchestrator",
+        "infra/deploy/kube audit lane"
+      ],
       "mutation_policy": "Metadata-only for planning; runtime or environment mutation is forbidden outside exact deploy route."
     },
     {
       "name": "repository_collaboration_metadata",
-      "coverage": ["branches", "commits", "compare", "code owners", "repository topics", "repository rules metadata", "teams metadata"],
-      "allowed_lanes": ["l2-orchestrator", "gitflow-closeout"],
+      "coverage": [
+        "branches",
+        "commits",
+        "compare",
+        "code owners",
+        "repository topics",
+        "repository rules metadata",
+        "teams metadata"
+      ],
+      "allowed_lanes": [
+        "l2-orchestrator",
+        "gitflow-closeout"
+      ],
       "mutation_policy": "Read-only by default; repository settings, branch protection, teams, Apps, and webhooks are forbidden."
     }
   ],

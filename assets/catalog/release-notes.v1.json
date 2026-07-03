@@ -1,6 +1,52 @@
 {
   "entries": [
     {
+      "date": "2026-07-03",
+      "issue_ref": "#8",
+      "affected_surfaces": [
+        "app_workflow_skills",
+        "github_project_planning_skill",
+        "app_dev_skill",
+        "plugin_skill_catalog",
+        "platform_role_catalog",
+        "operator_only_diagnostics_workflow"
+      ],
+      "files": [
+        ".codex-plugin/plugin.json",
+        ".github/workflows/validate.yml",
+        "README.md",
+        "SPEC.md",
+        "assets/catalog/artifact-registry.v1.json",
+        "assets/catalog/decision-ledger.v1.json",
+        "assets/catalog/github-project-subagents.v1.json",
+        "assets/catalog/platform-role-catalog.v1.json",
+        "assets/catalog/plugin-skill-catalog.v1.json",
+        "assets/catalog/release-notes.v1.json",
+        "assets/catalog/subagent-orchestration-policy.v1.json",
+        "assets/catalog/test-selection.v1.json",
+        "docs/generated/README.skill-inventory.md",
+        "docs/generated/SPEC.skill-inventory.md",
+        "docs/reference/github-project-subagents.md",
+        "skills/app-analyze/SKILL.md",
+        "skills/app-constitution/SKILL.md",
+        "skills/app-dev/SKILL.md",
+        "skills/app-plan/SKILL.md",
+        "skills/app-specify/SKILL.md",
+        "skills/github-project-planning/SKILL.md",
+        "skills/speckit-bears-flow/SKILL.md",
+        "tests/test_platform_roles.py"
+      ],
+      "impact": "App workflow skills now use short app-* names, app-dev consumes app-plan tasks, github-project-planning remains an independent GitHub Project planning skill, and the validate workflow trigger matches the operator-only diagnostics policy.",
+      "validation": [
+        "python3 scripts/skill_catalog.py validate",
+        "python3 scripts/skill_catalog.py generate --check",
+        "python3 scripts/github_project_subagents.py validate",
+        "python3 scripts/platform_roles.py validate",
+        "python3 scripts/release_notes_gate.py check --from-git <previous>..<head>",
+        "python3 -m unittest tests/test_test_selection.py"
+      ]
+    },
+    {
       "affected_surfaces": [
         "github_project_subagents_catalog",
         "app-dev_skill",

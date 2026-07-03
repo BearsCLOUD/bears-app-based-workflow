@@ -27,7 +27,8 @@
       "reusing fallback L2 implementation pools until BearsCLOUD/bears_plugin#25 enforcement is present",
       "parallel L2 fan-out without capacity preflight",
       "accepting L2 PASS, READY, or WIP after elapsed time greater than 300 seconds",
-      "retrying a timed-out lane without decomposing smaller and updating BearsCLOUD/bears_plugin#26"
+      "retrying a timed-out lane without decomposing smaller and updating BearsCLOUD/bears_plugin#26",
+      "accepting post-cutoff cleanup success as CLEANUP_PASS instead of drift evidence"
     ]
   },
   "l2_orchestrator": {
@@ -50,9 +51,13 @@
       "update BearsCLOUD/bears_plugin#26 with lane id, elapsed seconds, target, WIP proof, and next smaller metadata-only action when repeated timeout occurs",
       "prefer metadata-only Issue or comment reinforcement before spawning another L3 after timeout drift",
       "return a parent-visible final packet before the parent wait limit for every file-changing L2 lane",
+      "run cleanup as a separate first-class L2 lane with a shorter cleanup cutoff than implementation lanes",
+      "require each cleanup L2 packet to name exactly one cleanup target, one status proof command, and no issue metadata mutation unless explicitly assigned",
+      "return parent-visible CLEANUP_PASS or FAST_BLOCKER before the parent cutoff for every cleanup lane",
       "use the parent persistent gitflow handoff packet for file-changing commit/push closeout and return the gitflow-ready allowlist plus commit message to the parent",
       "return FAST_BLOCKER before accepting file-changing work when the parent persistent gitflow handoff is absent, stale, or unauthorized",
-      "record BearsCLOUD/apps#107 commit 3d1addaa6bab6579e93d9617d3d5ba81bdbd69aa as post-cutoff PASS drift evidence only, not as a repeatable closeout pattern"
+      "record BearsCLOUD/apps#107 commit 3d1addaa6bab6579e93d9617d3d5ba81bdbd69aa as post-cutoff PASS drift evidence only, not as a repeatable closeout pattern",
+      "record the BearsCLOUD/apps#105 and BearsCLOUD/apps#110 cleanup timeout event as drift evidence only, not as a repeatable cleanup pattern"
     ],
     "forbidden_actions": [
       "implementation file writes",
@@ -74,6 +79,9 @@
       "waiting for L3 after 240 seconds when final PASS evidence is not already ready",
       "claiming clean or absent after closeout without post-close bounded WIP proof",
       "treating cleanup lane timeout as CLEANED_NO_WIP or PASS instead of workflow drift",
+      "treating post-cutoff cleanup success as accepted CLEANUP_PASS or normal closeout",
+      "running cleanup with more than one cleanup target or more than one status proof command",
+      "mutating issue metadata from a cleanup lane unless explicitly assigned",
       "spawning another L3 after repeated timeout before metadata-only reinforcement or exact parent reauthorization",
       "using an L2-owned gitflow lane for file-changing closeout instead of the parent persistent gitflow handoff",
       "accepting file-changing work before parent persistent gitflow handoff is present and authorized",

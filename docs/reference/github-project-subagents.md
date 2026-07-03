@@ -46,6 +46,10 @@ The fallback runtime proxy must:
 - leave no WIP on `FAST_BLOCKER` or timeout;
 - run post-close bounded WIP proof before claiming a target is clean or absent;
 - treat cleanup lane timeout as new workflow drift, not as `CLEANED_NO_WIP`;
+- run cleanup as a separate first-class L2 lane with a shorter cleanup cutoff than implementation lanes;
+- require each cleanup L2 packet to name exactly one cleanup target, one status proof command, and no issue metadata mutation unless explicitly assigned;
+- return parent-visible `CLEANUP_PASS` or `FAST_BLOCKER` before the parent cutoff; post-cutoff cleanup success is drift evidence only;
+- record the `BearsCLOUD/apps#105` and `BearsCLOUD/apps#110` cleanup timeout event as drift evidence, not a repeatable pattern;
 - never report PASS after elapsed time greater than 300 seconds;
 - require exact new-file authorization from the Issue, sub-issue, or parent packet before any L3 creates a new file;
 - skip broad Project scans when the parent provides exact Issues and route/audit evidence;

@@ -118,6 +118,17 @@ Each L2 orchestrator must run the `bears-github-project-issues-orchestrator` rol
 - `post-cutoff untracked drift`: any task-owned or target-adjacent untracked file found after the 270-second L2 hard stop or 300-second parent cutoff is hard workflow drift. L2 must stop further dispatch, remove or quarantine only authorized task-owned files, then prove cleanup with `git status --short -- <target>` and `test ! -e <expected-new-file>` before any retry; no post-cutoff untracked file may be adopted as `PASS`.
 - `cleanup lane timeout`: if a cleanup lane misses its own cutoff, record it as new workflow drift in `BearsCLOUD/bears_plugin#26`; do not let that lane claim `CLEANED_NO_WIP` until a later bounded proof packet verifies the path state.
 
+## Issue #31 cleanup lane packet rules
+
+- Current drift issue #31: `BearsCLOUD/bears_plugin#31`; parent drift tracker: `BearsCLOUD/bears_plugin#26`.
+- Drift evidence: `BearsCLOUD/apps#105` and `BearsCLOUD/apps#110` cleanup lanes missed the parent-visible final packet cutoff after the #105/#110 cleanup timeout event. Treat the later clean target state as drift evidence only, not as a repeatable cleanup pattern.
+- A cleanup lane is a separate first-class L2 lane, not an implementation lane tail. It must use a shorter cleanup cutoff than implementation lanes: target return before 180 seconds and hard stop before the parent cutoff.
+- A cleanup L2 packet must name exactly one cleanup target, exactly one status proof command, and `metadata_mutation_authorized=false` unless the parent explicitly assigns one issue comment or one metadata update.
+- A cleanup lane must return one parent-visible `CLEANUP_PASS` or `FAST_BLOCKER` packet before the parent cutoff. Missing, late, or chat-only cleanup evidence is workflow drift.
+- `CLEANUP_PASS` requires the exact status proof command output for the single cleanup target, no task-owned WIP for that target, and no issue metadata mutation unless explicitly assigned.
+- If cleanup cannot finish inside the first bounded cleanup window, L2 must return `FAST_BLOCKER` before touching, deleting, or restoring the target.
+- Post-cutoff cleanup success may support recovery triage or the next smaller lane, but it must not close the timed-out cleanup assignment or mark Issue/Project execution complete.
+
 ## Issue #29 parent-visible closeout and parent gitflow handoff
 
 - Current drift issue #29: `BearsCLOUD/bears_plugin#29`; parent drift tracker: `BearsCLOUD/bears_plugin#26`.

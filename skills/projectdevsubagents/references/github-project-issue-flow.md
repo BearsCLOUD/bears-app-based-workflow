@@ -55,6 +55,38 @@ completion_criteria=<closeout proof required by L2>
 closeout_updates=<Project fields and Issue comment requested from L2>
 ```
 
+## Mini runtime proxy packet for L3
+
+Use this packet only when L2 must pass a tiny L3 slice through a constrained runtime proxy. The packet must keep the route/audit result intact and must not widen the worker scope.
+
+```text
+mini_runtime_proxy=true
+proxy_lane=l3
+proxy_reason=<exact missing or constrained runtime capability>
+route_selected_role=<exact @Bears role returned by route/audit>
+route_selected_profile=<exact role/profile name passed to the worker>
+github_issue=<owner/repo#number>
+repo=<local path and owner/repo>
+target=<one exact file or one exact path>
+allowed_write_boundary=<exact files/paths the worker may edit>
+forbidden_surfaces=<paths, runtimes, metadata, deploy, secret, or settings surfaces the worker must not touch>
+metadata_mutation_authorized=<true|false>
+first_minute_progress_proof=<READY|WIP|FAST_BLOCKER packet id or exact proof text>
+first_minute_proof_time=<UTC timestamp or elapsed seconds from assignment receipt>
+execution_lane=tiny_one_file_or_one_path
+post_fix_no_wip_gate=<exact command proving task-owned WIP is absent after PASS>
+validation=<exact command or metadata check>
+completion_criteria=<closeout proof required by L2>
+```
+
+Required rules:
+
+- `route_selected_role` and `route_selected_profile` must match the route-selected @Bears role/profile name; a proxy role name may not replace them.
+- `allowed_write_boundary` must preserve the L2 packet write scope exactly. `forbidden_surfaces` must preserve every forbidden path, runtime, metadata, deploy, secret, and settings surface.
+- Write work may continue only after `first_minute_progress_proof` exists. Missing proof returns `FAST_BLOCKER` with no writes and no L3 dispatch.
+- After a timeout, failed proxy run, or missing worker-authority proof, use only one tiny execution lane until one post-fix `PASS` plus `post_fix_no_wip_gate` proves no task-owned WIP.
+- The proxy may not batch multiple Issues, repos, target files, role scopes, validation paths, or closeout paths.
+
 ## Role-improvement assignment
 
 Spawn a role-improvement L3 worker when route/audit returns `ROLE_COVERAGE_BLOCKER`, a selected role lacks exact write scope, or role text permits forbidden implementation authority. The worker may edit only role/profile/catalog/validator files allowed by the role-development packet.

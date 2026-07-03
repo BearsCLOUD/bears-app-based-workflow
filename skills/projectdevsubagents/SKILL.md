@@ -200,6 +200,13 @@ L2 forbidden actions:
 - If the same timeout, first-minute drift, or missing worker-authority drift repeats after issue #17, issue #18, or issue #19, open a new active drift issue, link it to the original evidence, and do not retry the product child until that drift is fixed.
 - Regression example: `BearsCLOUD/apps#38` -> `#45` and `#46`; L2 started L3 `019f2437-d47a-7590-b8fe-37c02d7a49d5`; parent wait exceeded five minutes; the worker was interrupted; no files changed in `/srv/bears/dev/app/callsaver`.
 
+## New-file implementation preflight
+
+- Before any implementation L3 may create a new file, L2 must require a no-write preflight/plan packet naming the Issue, repo, exact new file path, route/audit evidence, owning role, validation command, and parent-visible WIP heartbeat text.
+- L2 must send the WIP heartbeat to the parent before file creation starts; no child may write the new file while the preflight is missing.
+- If the no-write preflight is not ready inside the first 60 seconds, L2 must return `FAST_BLOCKER`, then create or update a smaller Issue or issue comment with the missing proof instead of spawning write work.
+- Timed-out L2 or L3 WIP must be stopped and removed before the parent cap; timed-out WIP is not `PASS`, `READY`, or closeout evidence.
+
 ## L2 execution loop
 
 For each assigned Project item or Issue:

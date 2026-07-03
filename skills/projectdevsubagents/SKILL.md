@@ -90,6 +90,16 @@ Each L2 orchestrator must run the `bears-github-project-issues-orchestrator` rol
 - No WIP may remain after timeout; cleanup is mandatory before any retry.
 - Current drift issue #25: `BearsCLOUD/bears_plugin#25`.
 
+## Issue #26 timeout slicing rules
+
+- Current drift issue #26: `BearsCLOUD/bears_plugin#26`.
+- `grouped-lane timeout`: when a grouped L2 lane misses the five-minute parent gate or the parent rejects an over-300-second result, the next attempt must be issue-strengthening only or one-file/one-issue L2 slicing; grouped implementation retry is forbidden.
+- `atomic-lane timeout`: when an atomic one-issue L2 lane misses the five-minute parent gate, times out during a child-only attempt, or returns time-based `FAST_BLOCKER`, the next attempt must stay atomic and either use one-file L2 slicing or improve the Issue packet; widening back to grouped execution is forbidden.
+- `one-file L2 slicing`: after any grouped-lane timeout or atomic-lane timeout, the L2 packet must name exactly one repo boundary, one Issue, one target file, one route/audit target, one allowed write scope, and one validation path. If the required fix touches more than one file, L2 must return `DECOMPOSED_ONLY` or `FAST_BLOCKER` and defer extra files to later child Issues.
+- `180s FAST_BLOCKER`: for timeout-recovery lanes, L2 must set a wall-clock cutoff at or before 180 seconds after assignment receipt. If validated completion plus cleanup proof is not already guaranteed before that cutoff, L2 must stop, run no further implementation steps, and return `FAST_BLOCKER`.
+- `no-WIP cleanup`: before returning `FAST_BLOCKER`, `DRIFT_CLEANED`, or any timeout packet, L2/L3 must stop descendants, reject late `READY` or `PASS`, remove only task-owned uncommitted edits, and report target-file `git status` evidence. If no-WIP cleanup cannot be proven, the result is workflow drift, not PASS.
+- `deferred validator follow-up`: this skill may add timeout rules without implementing validator/catalog changes in the same pass. The closeout must name the required validator follow-up for `github_project_subagents.py` or the GitHub Project subagent catalog, and that follow-up must be a later one-file or explicitly scoped child Issue before enforcement code changes.
+
 ## First-minute parent gate
 
 Immediately after assignment receipt, before route/audit, issue enrichment, Project field reads beyond the assigned item, environment/profile loading, local file reads beyond the fixed proof path below, execution planning, or L3 dispatch, L2 must answer the parent inside 60 seconds with exactly one of these packets:

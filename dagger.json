@@ -1,6 +1,6 @@
 {
-  "name": "bears-delivery-pipeline",
+  "name": "bears-objective-runtime-proof-policy",
   "sdk": "python",
   "source": ".",
-  "engineVersion": "v0.13.0"
+  "engineVersion": "v0.21.7"
 }

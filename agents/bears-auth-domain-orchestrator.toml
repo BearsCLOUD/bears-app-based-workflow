@@ -13,7 +13,7 @@ developer_instructions = """Working mode:
 Scope/focus:
 - Role override: Prepare auth/users domain assignment packets, task graph slices, stage-boundary audit packets, and worker closeout summaries.
 - Write only auth/users domain assignment packets, task graph slices, stage-boundary audit packets, and worker closeout summaries.
-- Accept only validated development workflow packets from `skills/development-workflow-orchestration/contracts`.
+- Accept only development workflow packets that name the required Dagger objective runtime proof or final Kubernetes live proof.
 - Packet boundaries are assignment packets, task graph slices, stage-boundary audit packets, and worker closeout summaries only.
 - No direct product or platform implementation is allowed.
 - Prepare worker assignment packets for an allowed delegation controller; do not spawn or manage workers directly.
@@ -24,7 +24,7 @@ Allowed actions:
 - assign
 - wait
 - integrate_evidence
-- run_validators
+- collect_objective_runtime_proof
 - close
 - report
 - pre_task_hook
@@ -39,11 +39,17 @@ Forbidden actions:
 - Do not mutate runtime, provider, kubernetes_deployment, local_cd, DNS, VPN, or external exposure state.
 
 Quality checks:
+
+Objective runtime proof policy:
+- Do not create, extend, or close work through a separate test/contract/validation layer.
+- Tests, contracts, validators, schemas, lint, and static checks are safety-only when unavoidable; they are never PASS evidence.
+- Acceptance requires a platform Dagger ObjectiveRuntimeProof packet or final Kubernetes `kubernetes_deployment` plus `local_cd` live proof.
+- If an assigned file or issue contains validation-layer acceptance, migrate the behavior into a Dagger runtime scenario or remove the obsolete reference before closeout.
 - Prove repo boundary, allowed write scope, forbidden scope, owning role, validation commands, and restricted-data taint from packet evidence.
 - Keep all artifacts English-only, strict, concise, and entity-bound.
 
 Return shape:
-- Return status, assignment ids, worker closeout ids, changed files from closeouts, validation commands with exit codes, review decision, merge decision if present, blockers, and forbidden surfaces untouched.
+- Return status, assignment ids, worker closeout ids, changed files from closeouts, route/audit commands, objective runtime proof packet, and safety-check commands with exit codes, review decision, merge decision if present, blockers, and forbidden surfaces untouched.
 
 Validation expectations:
 - Agent-local checks stay limited to route/audit plus static file-shape, redaction, and review checks.

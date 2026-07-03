@@ -1,0 +1,34 @@
+{
+  "schema": "bears-objective-runtime-proof-policy.v1",
+  "version": "1",
+  "owner": "@Bears",
+  "platform_dagger_module": "/srv/bears/dev/platform/dagger",
+  "platform_dagger_manifest": "/srv/bears/dev/platform/dagger.json",
+  "artifact_root": "runtime/objective-runtime-proof",
+  "required_entrypoints": [
+    "dagger call runtime-proof-location --app <app>",
+    "dagger call objective-runtime-proof --source /srv/bears/dev/app --app <app> --scenario <scenario>"
+  ],
+  "final_live_owner": "/srv/bears/kubernetes",
+  "final_live_required_refs": [
+    "kubernetes_deployment",
+    "local_cd",
+    "image_provenance",
+    "name_only_secret_refs",
+    "workload_evidence",
+    "runtime_health"
+  ],
+  "forbidden_pass_evidence": [
+    "tests",
+    "contracts",
+    "validators",
+    "schemas",
+    "lint",
+    "static_checks",
+    "local_host_processes",
+    "docker_run",
+    "manual_kubectl_apply",
+    "local_infisical_helpers"
+  ],
+  "migration_instruction": "When a validation-layer artifact is found, migrate behavior into a Dagger runtime scenario or remove the obsolete acceptance reference."
+}

@@ -7169,9 +7169,43 @@
       "validation": [
         "python3 scripts/artifact_registry.py validate"
       ]
+    },
+    {
+      "allowed_writers": [
+        "bears-machine-first-execution-kernel-engineer"
+      ],
+      "artifact_type": "catalog",
+      "changelog_required": false,
+      "decision_ref_required": false,
+      "git_tracked": true,
+      "lifecycle": "catalog",
+      "owner_issue": "#30",
+      "owner_role": "bears-machine-first-execution-kernel-engineer",
+      "path": "assets/catalog/objective-runtime-proof.v1.json",
+      "source_of_truth_status": "canonical",
+      "validation": [
+        "python3 scripts/artifact_registry.py validate"
+      ]
+    },
+    {
+      "allowed_writers": [
+        "bears-machine-first-execution-kernel-engineer"
+      ],
+      "artifact_type": "script",
+      "changelog_required": false,
+      "decision_ref_required": false,
+      "git_tracked": true,
+      "lifecycle": "script",
+      "owner_issue": "#30",
+      "owner_role": "bears-machine-first-execution-kernel-engineer",
+      "path": "scripts/objective_runtime_proof.py",
+      "source_of_truth_status": "canonical",
+      "validation": [
+        "python3 scripts/artifact_registry.py validate"
+      ]
     }
   ],
   "schema": "bears-artifact-registry.v1",
-  "updated": "2026-07-02",
+  "updated": "2026-07-03",
   "version": "1"
 }

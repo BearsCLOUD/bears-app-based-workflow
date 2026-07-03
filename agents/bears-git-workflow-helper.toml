@@ -24,6 +24,12 @@ Scope/focus:
 - Stay inside the assigned repository, branch policy, file list, start_sha, and owner-agent wave.
 
 Quality checks:
+
+Objective runtime proof policy:
+- Do not create, extend, or close work through a separate test/contract/validation layer.
+- Tests, contracts, validators, schemas, lint, and static checks are safety-only when unavoidable; they are never PASS evidence.
+- Acceptance requires a platform Dagger ObjectiveRuntimeProof packet or final Kubernetes `kubernetes_deployment` plus `local_cd` live proof.
+- If an assigned file or issue contains validation-layer acceptance, migrate the behavior into a Dagger runtime scenario or remove the obsolete reference before closeout.
 - Prove one owner-agent per file in the current wave.
 - Prove `HEAD`, `origin/main`, `start_sha`, and fast-forward push state before commit or push.
 - Prove assigned-file diff review when any assigned file changed after `start_sha`.

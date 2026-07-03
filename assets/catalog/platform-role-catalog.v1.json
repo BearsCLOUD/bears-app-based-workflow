@@ -218,7 +218,10 @@
       "business_map_ai_archive_source",
       "design_systems_agent_kit_archive_source",
       "safe_circles_archive_source",
-      "zovu_archive_source"
+      "zovu_archive_source",
+      "bears_platform_objective_runtime_proof",
+      "objective_runtime_proof_policy",
+      "product_apps_monorepo_router_docs"
     ],
     "no_role_policy": "blocker",
     "unknown_child_policy": "ROLE_COVERAGE_BLOCKER",
@@ -11925,6 +11928,136 @@
         "repository": "BearsCLOUD/apps",
         "app_directory": "zovu"
       }
+    },
+    {
+      "name": "bears_platform_objective_runtime_proof",
+      "aliases": [
+        "/srv/bears/dev/platform/dagger.json",
+        "dev/platform/dagger.json",
+        "/srv/bears/dev/platform/dagger",
+        "dev/platform/dagger",
+        "/srv/bears/dev/platform/docs/objective-runtime-proof.md",
+        "dev/platform/docs/objective-runtime-proof.md",
+        "bears-platform-objective-runtime-proof"
+      ],
+      "group": "platform",
+      "required_role": "bears-platform-role-governor",
+      "role_required": true,
+      "no_role_policy": "blocker",
+      "source": "/srv/bears/dev/platform/AGENTS.md",
+      "part_kind": "concrete",
+      "write_roots": [
+        "/srv/bears/dev/platform/dagger.json",
+        "/srv/bears/dev/platform/dagger",
+        "/srv/bears/dev/platform/docs/objective-runtime-proof.md"
+      ],
+      "concrete_scope": "Platform-owned Dagger module and operator docs for ObjectiveRuntimeProof generation across Bears apps.",
+      "allowed_write_boundary": "Only /srv/bears/dev/platform/dagger.json, /srv/bears/dev/platform/dagger/**, and /srv/bears/dev/platform/docs/objective-runtime-proof.md; no product-app implementation, Kubernetes desired state, local_cd, secret, live API, or external exposure authority.",
+      "trust_boundary": "This Dagger surface controls app acceptance evidence. It must produce runtime proof packets and must not recreate a test, contract, validator, schema, lint, or static-check PASS layer.",
+      "required_validations": [
+        "python3 scripts/platform_roles.py route /srv/bears/dev/platform/dagger.json",
+        "python3 scripts/platform_roles.py audit /srv/bears/dev/platform/dagger.json",
+        "python3 scripts/platform_roles.py route /srv/bears/dev/platform/dagger/src/main/__init__.py",
+        "python3 scripts/platform_roles.py audit /srv/bears/dev/platform/dagger/src/main/__init__.py",
+        "dagger call runtime-proof-location --app callsaver",
+        "dagger call objective-runtime-proof --source /srv/bears/dev/app --app callsaver --scenario synthetic-sales-dialogue"
+      ],
+      "supporting_roles": [
+        "bears-platform-security-reviewer"
+      ],
+      "reviewer_triggers": [
+        "ObjectiveRuntimeProof field change",
+        "Dagger proof entrypoint change",
+        "runtime proof artifact location change",
+        "validation-layer acceptance wording change"
+      ],
+      "decomposition_required": false
+    },
+    {
+      "name": "objective_runtime_proof_policy",
+      "aliases": [
+        "objective-runtime-proof-policy",
+        "/srv/bears/plugins/bears/scripts/objective_runtime_proof.py",
+        "plugins/bears/scripts/objective_runtime_proof.py",
+        "/srv/bears/plugins/bears/assets/catalog/objective-runtime-proof.v1.json",
+        "plugins/bears/assets/catalog/objective-runtime-proof.v1.json",
+        "/srv/bears/plugins/bears/dagger.json",
+        "plugins/bears/dagger.json"
+      ],
+      "group": "workflow",
+      "required_role": "bears-platform-role-governor",
+      "role_required": true,
+      "no_role_policy": "blocker",
+      "source": "/srv/bears/plugins/bears/AGENTS.md",
+      "part_kind": "concrete",
+      "write_roots": [
+        "/srv/bears/plugins/bears/scripts/objective_runtime_proof.py",
+        "plugins/bears/scripts/objective_runtime_proof.py",
+        "/srv/bears/plugins/bears/assets/catalog/objective-runtime-proof.v1.json",
+        "plugins/bears/assets/catalog/objective-runtime-proof.v1.json",
+        "/srv/bears/plugins/bears/dagger.json",
+        "plugins/bears/dagger.json"
+      ],
+      "concrete_scope": "@Bears policy and wrapper surface for platform Dagger ObjectiveRuntimeProof adoption.",
+      "allowed_write_boundary": "Only objective-runtime-proof wrapper, catalog, and plugin Dagger pin files; no product implementation, Kubernetes desired state, local_cd mutation, secret access, or static validation PASS layer.",
+      "trust_boundary": "This policy controls agent closeout evidence and must route acceptance to platform Dagger proof or Kubernetes live proof only.",
+      "required_validations": [
+        "python3 scripts/platform_roles.py route /srv/bears/plugins/bears/scripts/objective_runtime_proof.py",
+        "python3 scripts/platform_roles.py audit /srv/bears/plugins/bears/scripts/objective_runtime_proof.py",
+        "python3 scripts/objective_runtime_proof.py locate --app callsaver --json"
+      ],
+      "supporting_roles": [
+        "bears-platform-security-reviewer"
+      ],
+      "reviewer_triggers": [
+        "objective runtime proof wrapper change",
+        "Dagger version pin change",
+        "agent PASS evidence policy change"
+      ],
+      "decomposition_required": false
+    },
+    {
+      "name": "product_apps_monorepo_router_docs",
+      "aliases": [
+        "/srv/bears/dev/app/AGENTS.md",
+        "dev/app/AGENTS.md"
+      ],
+      "group": "products",
+      "required_role": "bears-product-app-zone-engineer",
+      "role_required": true,
+      "no_role_policy": "blocker",
+      "source": "/srv/bears/dev/app/AGENTS.md",
+      "part_kind": "concrete",
+      "write_roots": [
+        "/srv/bears/dev/app/AGENTS.md",
+        "dev/app/AGENTS.md"
+      ],
+      "concrete_scope": "Canonical BearsCLOUD/apps repo-root router instructions.",
+      "allowed_write_boundary": "Only /srv/bears/dev/app/AGENTS.md repo-root router wording; no app implementation, nested repo authority, Kubernetes desired state, local_cd, secret, or live runtime authority.",
+      "trust_boundary": "This router controls future product-app agent acceptance routing and must point app PASS evidence to platform Dagger ObjectiveRuntimeProof or Kubernetes live proof only.",
+      "required_validations": [
+        "python3 scripts/platform_roles.py route /srv/bears/dev/app/AGENTS.md",
+        "python3 scripts/platform_roles.py audit /srv/bears/dev/app/AGENTS.md"
+      ],
+      "supporting_roles": [
+        "bears-platform-security-reviewer"
+      ],
+      "reviewer_triggers": [
+        "product app repo router wording change",
+        "objective runtime proof routing change"
+      ],
+      "decomposition_required": false,
+      "legacy_compatibility": {
+        "status": "active_app_directory",
+        "active_replacement": "BearsCLOUD/apps",
+        "issue_link_invariant": "Repo-root router issues stay in BearsCLOUD/apps and must not create a separate product-app repository.",
+        "umbrella_issue_invariant": "BearsCLOUD/apps umbrella issue remains the canonical apps consolidation reference.",
+        "source_migration_issue_invariant": "Router changes do not create per-source migration authority; source migration issues still link to the BearsCLOUD/apps umbrella issue.",
+        "canonical_planning_project_invariant": "BearsCLOUD/apps router work stays in the canonical Apps Migration & Planning Project when project planning is used; source_repo/app_directory, archive_readiness, and API proof rules remain unchanged.",
+        "infra_local_cd_safety_invariant": "Kubernetes desired state and local_cd selectors must not depend on an old source repository; infra/local_cd safety proof stays in /srv/bears/kubernetes.",
+        "platform_boundary_exclusion_invariant": "Router wording cannot move shared platform behavior into app directories; /srv/bears/dev/platform stays excluded from app archive workflow unless platform auditor classifies otherwise.",
+        "per_source_projects_policy": "legacy_evidence_only_not_required_not_created_not_pass"
+      }
     }
   ],
   "workflow_routes": [
@@ -15014,6 +15147,41 @@
       "expected_status": "matched",
       "required_role": "bears-workflow-overlay-platform-engineer",
       "required_route_id": "workflow_overlay_python_dev_tooling"
+    },
+    {
+      "target": "/srv/bears/dev/platform/dagger.json",
+      "expected_status": "matched",
+      "required_role": "bears-platform-role-governor"
+    },
+    {
+      "target": "/srv/bears/dev/platform/dagger/src/main/__init__.py",
+      "expected_status": "matched",
+      "required_role": "bears-platform-role-governor"
+    },
+    {
+      "target": "/srv/bears/dev/platform/docs/objective-runtime-proof.md",
+      "expected_status": "matched",
+      "required_role": "bears-platform-role-governor"
+    },
+    {
+      "target": "/srv/bears/plugins/bears/scripts/objective_runtime_proof.py",
+      "expected_status": "matched",
+      "required_role": "bears-platform-role-governor"
+    },
+    {
+      "target": "/srv/bears/plugins/bears/assets/catalog/objective-runtime-proof.v1.json",
+      "expected_status": "matched",
+      "required_role": "bears-platform-role-governor"
+    },
+    {
+      "target": "/srv/bears/plugins/bears/dagger.json",
+      "expected_status": "matched",
+      "required_role": "bears-platform-role-governor"
+    },
+    {
+      "target": "/srv/bears/dev/app/AGENTS.md",
+      "expected_status": "matched",
+      "required_role": "bears-product-app-zone-engineer"
     }
   ],
   "agent_profile_mappings": [

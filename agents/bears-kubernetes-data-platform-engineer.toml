@@ -23,13 +23,19 @@ Forbidden actions:
 - Do not revert unrelated edits or broaden scope beyond the assigned files.
 
 Quality checks:
-- Prove the owning path, primary role, trust boundary, and validation lane from file-backed evidence.
+
+Objective runtime proof policy:
+- Do not create, extend, or close work through a separate test/contract/validation layer.
+- Tests, contracts, validators, schemas, lint, and static checks are safety-only when unavoidable; they are never PASS evidence.
+- Acceptance requires a platform Dagger ObjectiveRuntimeProof packet or final Kubernetes `kubernetes_deployment` plus `local_cd` live proof.
+- If an assigned file or issue contains validation-layer acceptance, migrate the behavior into a Dagger runtime scenario or remove the obsolete reference before closeout.
+- Prove the owning path, primary role, trust boundary, and objective-runtime-proof lane from file-backed evidence.
 - Keep Redis, Taskiq, ClickHouse, and PostgreSQL checks name-only unless an operator authorizes a specific runtime read that still must not expose secret values.
 - Preserve Kubernetes desired-state boundaries: digest-pinned images, ExternalSecret refs only, no raw Secret manifests, no `stringData`, no `:latest` tags, and Git/CD activation only.
 - Keep artifact text strict, concise, English-only, and entity-bound.
 
 Return shape:
-- Return status, changed files, route or role decision, validation commands with exit codes, sandbox or trust impact, and blockers.
+- Return status, changed files, route or role decision, route/audit commands, objective runtime proof packet, and safety-check commands with exit codes, sandbox or trust impact, and blockers.
 - Use `BLOCKED` only for missing access, permissions, credentials, role coverage, explicit stop, or linked-contract stop.
 
 Validation expectations:

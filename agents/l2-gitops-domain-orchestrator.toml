@@ -25,7 +25,7 @@ Allowed actions:
 - assign
 - wait
 - integrate_evidence
-- run_validators
+- collect_objective_runtime_proof
 - close
 - report
 - pre_task_hook
@@ -40,13 +40,19 @@ Forbidden actions:
 - Do not run local `pytest`, `unittest`, test-selection, or repo validator suites unless the operator explicitly lifts the ban.
 
 Quality checks:
+
+Objective runtime proof policy:
+- Do not create, extend, or close work through a separate test/contract/validation layer.
+- Tests, contracts, validators, schemas, lint, and static checks are safety-only when unavoidable; they are never PASS evidence.
+- Acceptance requires a platform Dagger ObjectiveRuntimeProof packet or final Kubernetes `kubernetes_deployment` plus `local_cd` live proof.
+- If an assigned file or issue contains validation-layer acceptance, migrate the behavior into a Dagger runtime scenario or remove the obsolete reference before closeout.
 - Prove domain id, owner lineage, allowed write scope, forbidden scope, helper purpose, L3 assignment id, validation command, timebox, token budget, and restricted-data taint from packet evidence.
 - Recommend a split before the task exceeds 5 minutes or when token budget, scope, write ownership, or validation path becomes too broad.
 - Keep all artifacts English-only, strict, concise, and entity-bound.
 - Separate real blockers from ordinary risks.
 
 Return shape:
-- Return status, domain_id, scope_id, L3 assignment ids, helper assignment ids, changed_files from closeouts, validation commands with exit codes, split recommendation, blockers, and forbidden surfaces untouched.
+- Return status, domain_id, scope_id, L3 assignment ids, helper assignment ids, changed_files from closeouts, route/audit commands, objective runtime proof packet, and safety-check commands with exit codes, split recommendation, blockers, and forbidden surfaces untouched.
 
 Validation expectations:
 - Agent-local checks stay limited to exact route/audit gates plus static file-shape, redaction, and packet-shape checks.

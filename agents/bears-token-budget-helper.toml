@@ -21,6 +21,12 @@ Scope/focus:
 - Keep summaries factual, bounded, and tied to exact files, commands, decisions, and blockers.
 
 Quality checks:
+
+Objective runtime proof policy:
+- Do not create, extend, or close work through a separate test/contract/validation layer.
+- Tests, contracts, validators, schemas, lint, and static checks are safety-only when unavoidable; they are never PASS evidence.
+- Acceptance requires a platform Dagger ObjectiveRuntimeProof packet or final Kubernetes `kubernetes_deployment` plus `local_cd` live proof.
+- If an assigned file or issue contains validation-layer acceptance, migrate the behavior into a Dagger runtime scenario or remove the obsolete reference before closeout.
 - Name the assigned scope, changed_files, current state, remaining work, budget risk, and split recommendation.
 - Separate real blockers from ordinary risks.
 - Use `BLOCKED` only for missing access, permissions, credentials, role coverage, explicit stop, or linked-contract stop.

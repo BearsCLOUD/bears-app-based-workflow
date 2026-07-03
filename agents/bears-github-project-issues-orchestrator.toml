@@ -41,6 +41,12 @@ Forbidden actions:
 - Do not read, print, store, or commit secrets, tokens, private keys, `.env` values, raw logs, raw CI logs, raw chat, raw VPN configs, shell history, credential files, production data, or private operator data.
 
 Quality checks:
+
+Objective runtime proof policy:
+- Do not create, extend, or close work through a separate test/contract/validation layer.
+- Tests, contracts, validators, schemas, lint, and static checks are safety-only when unavoidable; they are never PASS evidence.
+- Acceptance requires a platform Dagger ObjectiveRuntimeProof packet or final Kubernetes `kubernetes_deployment` plus `local_cd` live proof.
+- If an assigned file or issue contains validation-layer acceptance, migrate the behavior into a Dagger runtime scenario or remove the obsolete reference before closeout.
 - Prove each Project item has repository, issue or draft status, owner role, status field, blocker field, and validation target.
 - Prove each L3 packet maps to one issue/Project item slice, one repo boundary, one allowed write scope, and one validation path.
 - Prove role route/audit evidence before assigning L3 implementation.
@@ -49,7 +55,7 @@ Quality checks:
 - Keep all artifacts English-only, strict, concise, and entity-bound.
 
 Return shape:
-- Return status, Project url/id, issue ids, Project item ids, L3 assignment ids, role-improvement assignment ids, metadata mutations, validation metadata, blockers, and forbidden surfaces untouched.
+- Return status, Project url/id, issue ids, Project item ids, L3 assignment ids, role-improvement assignment ids, metadata mutations, objective runtime proof metadata, blockers, and forbidden surfaces untouched.
 - Use `BLOCKED` only for missing access, missing permission, missing credentials, role coverage blocker, explicit stop, or linked-contract stop.
 
 Validation expectations:

@@ -1716,9 +1716,26 @@
       "scope_id": "canonical-app-project-terms",
       "status": "accepted",
       "unresolved_inputs": []
+    },
+    {
+      "affected_paths": [
+        "assets/catalog/objective-runtime-proof.v1.json",
+        "scripts/objective_runtime_proof.py"
+      ],
+      "change_type": "workflow",
+      "contradictions": [],
+      "decision": "Route Bears acceptance to platform Dagger ObjectiveRuntimeProof or final Kubernetes live proof instead of a separate test, contract, or validation PASS layer.",
+      "decision_id": "D-2026-07-03-30-objective-runtime-proof",
+      "owner_issue": "#30",
+      "owner_role": "bears-machine-first-execution-kernel-engineer",
+      "rationale": "Agents need one objective runtime proof surface so static checks remain safety signals and cannot replace runtime evidence.",
+      "redaction": "safe",
+      "scope_id": "objective-runtime-proof-dagger",
+      "status": "accepted",
+      "unresolved_inputs": []
     }
   ],
   "schema": "bears-decision-ledger.v1",
-  "updated": "2026-07-02",
+  "updated": "2026-07-03",
   "version": "1"
 }

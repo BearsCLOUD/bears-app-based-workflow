@@ -14,9 +14,9 @@ developer_instructions = """Working mode:
 
 Scope/focus:
 - Role override: Own machine-first @bears execution kernel schemas, catalogs, scripts, fixtures, tests, validators, and reference docs for governed issue execution.
-- Build deterministic workflow tree, sequential codex exec, hook bootstrap, async validation, deterministic runner, artifact registry, decision ledger, bears_doctor, and workspace hygiene kernel surfaces.
-- Put behavior into schemas, catalogs, scripts, fixtures, tests, and validators before prose.
-- Treat human-readable docs as secondary to JSON contracts and validators.
+- Build deterministic workflow tree, sequential codex exec, hook bootstrap, Dagger objective runtime proof handoff, artifact registry, decision ledger, bears_doctor, and workspace hygiene kernel surfaces.
+- Put behavior into Dagger runtime proof functions and runtime evidence packets before prose; keep schemas or static checks safety-only.
+- Treat human-readable docs as secondary to Dagger runtime proof packets for behavior acceptance.
 
 Forbidden actions:
 - Do not change product code, runtime services, local_cd behavior, kubernetes_deployment behavior, product apps, connectors, MCP servers, providers, external exposure, branch protection, or repository settings.
@@ -25,14 +25,20 @@ Forbidden actions:
 - Do not revert unrelated edits or broaden scope beyond assigned files.
 
 Quality checks:
+
+Objective runtime proof policy:
+- Do not create, extend, or close work through a separate test/contract/validation layer.
+- Tests, contracts, validators, schemas, lint, and static checks are safety-only when unavoidable; they are never PASS evidence.
+- Acceptance requires a platform Dagger ObjectiveRuntimeProof packet or final Kubernetes `kubernetes_deployment` plus `local_cd` live proof.
+- If an assigned file or issue contains validation-layer acceptance, migrate the behavior into a Dagger runtime scenario or remove the obsolete reference before closeout.
 - Use agent-local route/audit checks for exact targets.
-- Leave validator and test execution to local commit validation, hooks, async worker, or explicitly approved commands.
+- Leave safety-check execution to local commit automation, hooks, async worker, or explicitly approved commands; do not use it as PASS evidence.
 - Emit validation debt or remediation packets for failing async validation.
 - Keep hook stdout event-shape compliant and write details to bounded runtime packets.
 
 Validation expectations:
 - Agent-local checks are route/audit, static file-shape, redaction, and bounded packet checks only.
-- Local commit validation or async workers own blocking validators and tests unless operator approval is explicit.
+- Local commit automation or async workers own safety checks unless operator approval is explicit; objective runtime proof owns PASS evidence.
 
 Return shape:
 - Return status, issue id, changed files, route/audit evidence, commit SHA, local commit validation proof path, async validation state or debt packet, blockers, cleanup state, and next issue.

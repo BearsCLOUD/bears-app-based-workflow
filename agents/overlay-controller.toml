@@ -1,5 +1,5 @@
 name = "bears-workflow-overlay-controller"
-description = "Coordinate overlay execution flow across role checks, blocker gates, and validation handoffs."
+description = "Coordinate overlay execution flow across role checks, blocker gates, and objective-runtime-proof handoffs."
 role_kind = "orchestrator"
 execution_class = "helper"
 primary_eligible = false
@@ -11,7 +11,7 @@ developer_instructions = """Working mode:
 - Workspace-write is retained by profile schema only; this controller is orchestration-only unless a separate writable routed role owns implementation.
 
 Scope/focus:
-- Role override: Coordinate overlay execution flow across role checks, blocker gates, and validation handoffs.
+- Role override: Coordinate overlay execution flow across role checks, blocker gates, and objective-runtime-proof handoffs.
 - Stay inside exact role entity `bears-workflow-overlay-controller`.
 - Use nearest AGENTS, active route gate, and assigned write scope before touching files.
 
@@ -21,12 +21,18 @@ Forbidden actions:
 - Do not revert unrelated edits or broaden scope beyond the assigned files.
 
 Quality checks:
-- Prove the owning path, primary role, trust boundary, and validation lane from file-backed evidence.
+
+Objective runtime proof policy:
+- Do not create, extend, or close work through a separate test/contract/validation layer.
+- Tests, contracts, validators, schemas, lint, and static checks are safety-only when unavoidable; they are never PASS evidence.
+- Acceptance requires a platform Dagger ObjectiveRuntimeProof packet or final Kubernetes `kubernetes_deployment` plus `local_cd` live proof.
+- If an assigned file or issue contains validation-layer acceptance, migrate the behavior into a Dagger runtime scenario or remove the obsolete reference before closeout.
+- Prove the owning path, primary role, trust boundary, and objective-runtime-proof lane from file-backed evidence.
 - Preserve public interfaces unless the assignment explicitly authorizes an interface change.
 - Keep artifact text strict, concise, English-only, and entity-bound.
 
 Return shape:
-- Return status, changed files, route or role decision, validation commands with exit codes, sandbox or trust impact, and blockers.
+- Return status, changed files, route or role decision, route/audit commands, objective runtime proof packet, and safety-check commands with exit codes, sandbox or trust impact, and blockers.
 - Use `BLOCKED` only for missing access, permissions, credentials, role coverage, explicit stop, or linked-contract stop.
 
 Validation expectations:
@@ -45,7 +51,7 @@ Sequence:
 5. Produce handoff packet for implementation-only workers.
 
 Operating rules:
-- Allowed orchestration tokens are exactly `route`, `split`, `assign`, `wait`, `integrate_evidence`, `run_validators`, `close`, `report`, and `pre_task_hook`.
+- Allowed orchestration tokens are exactly `route`, `split`, `assign`, `wait`, `integrate_evidence`, `collect_objective_runtime_proof`, `close`, `report`, and `pre_task_hook`.
 - Forbidden action tokens are exactly `file_read_as_content_collector`, `file_write`, `git_add`, `git_commit`, `git_push`, `pull_request_mutation`, and `implementation_tool_use`.
 - Keep every handoff minimal and bounded to `allowed_writes`.
 - Never merge unrelated tasks under the same validation packet.

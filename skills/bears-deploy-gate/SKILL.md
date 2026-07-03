@@ -24,12 +24,11 @@ This skill does not mutate deploy state. It is report-first and advisory unless 
 Kubernetes deploy-core policy is split into two machine-readable contracts owned by `@Bears`:
 
 1. Git policy: `assets/catalog/git-deploy-contract.v1.json` owns branch, merge-request, and target mapping.
-2. CD policy: `assets/catalog/cd-kube-deploy-contract.v1.json` owns what deploys, from where, and the ordered Kubernetes actions.
-3. Executor: `scripts/bears_auto_cd.py` runs only the fixed local `@Bears` CD sequence from `main`.
-   The ordered sequence is `build_local_image` -> `load_local_image_to_k3d` -> `local_cd` apply -> rollout evidence.
+2. CD policy: `assets/catalog/cd-kube-deploy-contract.v1.json` owns global CD authority and the app descriptor directory.
+3. Executor: `scripts/bears_auto_cd.py` owns the fixed local `@Bears` CD mechanics from `main`, including source staging, image handoff, Kubernetes mutation, rollout, and evidence.
 4. Production Kubernetes mutation is allowed only from the local `@Bears` CD path after the Git contract resolves the `main` target.
-   Runner `kubectl` path setup is executor-owned; agents must not discover kube tool paths or use manual `kubectl apply` as PASS evidence.
-5. The CD contract must not contain merge policy, branch policy, pull-request policy, or manual approval gates.
+   Runner toolchain setup is executor-owned; agents must not discover kube tool paths or use manual Kubernetes mutation as PASS evidence.
+5. The CD contract and app descriptors must not contain merge policy, branch policy, pull-request policy, manual approval gates, or executor mechanics.
 6. Human control for production promotion is the Git merge request from `dev` to `main`; it is not a CD contract field.
 
 If any contract, role route, manifest safety check, or required CI secret is missing, mark only the dependent deploy step blocked. Governance docs, route mappings, validators, tests, and future-lane registrations may continue inside their exact roles.

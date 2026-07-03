@@ -568,7 +568,7 @@
         "consumer graph baseline",
         "rollback path",
         "@Bears Git deploy contract evidence for branch-to-target mapping",
-        "@Bears CD Kubernetes contract evidence for ordered deploy logic",
+        "@Bears CD Kubernetes executor evidence for fixed deploy mechanics",
         "local @Bears CD evidence for main-branch production apply",
         "manifest safety validation evidence for immutable image digest, no raw Secret, no stringData, and no latest tag",
         "static Traefik/YAML validation and GitFlow review evidence when dev/app/vpn/traefik is assigned",
@@ -5314,8 +5314,8 @@
       "part_kind": "concrete",
       "write_roots": [],
       "concrete_scope": "Exact GitHub Actions default workflow permissions endpoint for the BearsCLOUD private repository codex-telegram-mcp only.",
-      "allowed_write_boundary": "Only /repos/BearsCLOUD/codex-telegram-mcp/actions/permissions/workflow for default_workflow_permissions=write and can_approve_pull_request_reviews=false so the product main workflow can produce local image build proof without registry push; rollback note is default_workflow_permissions=read and can_approve_pull_request_reviews=false; no broad repo settings, no branch protection, no Actions permissions siblings, no secrets, no variables, no collaborators, no teams, no webhooks, no environments, no deploy keys, no product code, no runtime mutation, no local_cd workflow mutation, and no kubernetes_deployment mutation.",
-      "trust_boundary": "This provider setting can widen the repository GITHUB_TOKEN default permission for BearsCLOUD/codex-telegram-mcp so the product main workflow can produce local image build proof without registry push. It must not read or print tokens, secrets, production data, raw logs, raw chat, or raw VPN configs.",
+      "allowed_write_boundary": "Only /repos/BearsCLOUD/codex-telegram-mcp/actions/permissions/workflow for default_workflow_permissions=write and can_approve_pull_request_reviews=false so the product main workflow can produce local CD proof without registry push; rollback note is default_workflow_permissions=read and can_approve_pull_request_reviews=false; no broad repo settings, no branch protection, no Actions permissions siblings, no secrets, no variables, no collaborators, no teams, no webhooks, no environments, no deploy keys, no product code, no runtime mutation, no local_cd workflow mutation, and no kubernetes_deployment mutation.",
+      "trust_boundary": "This provider setting can widen the repository GITHUB_TOKEN default permission for BearsCLOUD/codex-telegram-mcp so the product main workflow can produce local CD proof without registry push. It must not read or print tokens, secrets, production data, raw logs, raw chat, or raw VPN configs.",
       "required_validations": [
         "python3 scripts/platform_roles.py validate",
         "python3 scripts/platform_roles.py route /repos/BearsCLOUD/codex-telegram-mcp/actions/permissions/workflow",
@@ -5355,7 +5355,7 @@
       ],
       "concrete_scope": "Exact transient self-hosted GitHub Actions runner lane for BearsCLOUD/codex-telegram-mcp image publish while hosted GitHub Actions billing is unavailable.",
       "allowed_write_boundary": "Only /srv/bears/dev/workspace/github-actions-runner/codex-telegram-mcp-publish and the exact repository runner registration/remove-token endpoints for BearsCLOUD/codex-telegram-mcp; runner labels must include codex-telegram-mcp and bears-product-publish; no systemd service, no broad org runner, no repository secrets or variables, no branch protection, no Kubernetes mutation, no raw token printing, and no production data access.",
-      "trust_boundary": "A self-hosted runner can execute product GitHub workflow commands on the host and produce local image build proof without registry push. It must be limited to the private codex-telegram-mcp repository image publish workflow, exact labels, no PR execution from untrusted code, and no raw registration token or secret output.",
+      "trust_boundary": "A self-hosted runner can execute product GitHub workflow commands on the host and produce local CD proof without registry push. It must be limited to the private codex-telegram-mcp repository image publish workflow, exact labels, no PR execution from untrusted code, and no raw registration token or secret output.",
       "required_validations": [
         "python3 scripts/platform_roles.py validate",
         "python3 scripts/platform_roles.py route /srv/bears/dev/workspace/github-actions-runner/codex-telegram-mcp-publish",
@@ -7788,7 +7788,7 @@
       ],
       "concrete_scope": "Kubernetes deploy-core repo boundary, @Bears Git/CD contracts, manifests, read-only evidence, Infisical-backed secret reference handoff, safety checks, rollback runbooks, and automatic production CD for exact registered targets inside the /srv/bears/kubernetes submodule.",
       "allowed_write_boundary": "Only the bears-infra repo boundary working tree /srv/bears/kubernetes plus exact @Bears Git/CD contract, validator, bears-kubernetes-ops skill, and bears-infisical-ops skill files when assigned; production CD changes must flow through Bears infra desired state and @Bears contracts; live mutation is performed only by local @Bears CD from main, not by ad-hoc local agents.",
-      "trust_boundary": "Kubernetes deployment can change production runtime placement, secret-reference wiring, and rollback safety; Infisical is custody and injection only, Kubernetes refs must stay names-only, branch-to-target mapping lives only in the @Bears Git contract, ordered deploy logic lives only in the @Bears CD contract, and the CD path must not add manual approval gates or branch policy fields.",
+      "trust_boundary": "Kubernetes deployment can change production runtime placement, secret-reference wiring, and rollback safety; Infisical is custody and injection only, Kubernetes refs must stay names-only, branch-to-target mapping lives only in the @Bears Git contract, deploy mechanics live only in the @Bears CD executor, and the CD path must not add manual approval gates or branch policy fields.",
       "required_validations": [
         "python3 scripts/platform_roles.py validate",
         "python3 scripts/platform_roles.py route kube",

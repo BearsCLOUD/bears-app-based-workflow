@@ -142,7 +142,7 @@
         "assets/file-context/index.v1.json",
         "scripts/bears_auto_cd.py"
       ],
-      "impact": "Bears local_cd contract uses local image build/load evidence without external registry publishing, and the platform build docs route is exact so local-image documentation can be edited without broad platform fallback.",
+      "impact": "Bears local_cd executor owns image handoff evidence without external registry publishing, and the platform docs route is exact so CD documentation can be edited without broad platform fallback.",
       "issue_ref": "#520",
       "validation": [
         "python3 scripts/local_commit_validation.py run --staged",

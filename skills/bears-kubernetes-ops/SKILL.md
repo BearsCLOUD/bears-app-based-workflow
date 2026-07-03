@@ -14,9 +14,9 @@ Use this skill for Kubernetes metadata checks and kube-backed live-gate discover
 - Never print `.data`, `stringData`, token, kubeconfig, session, private chat, or production-data values.
 - Never run mutating commands (`apply`, `patch`, `delete`, `scale`, `rollout restart`, `exec` with writes) unless a higher-priority task explicitly authorizes the exact mutation.
 - All Bears live software deploys must be Kubernetes desired-state backed and promoted through `local_cd`; local host runs, `docker run`, local Infisical helpers, and manual `kubectl apply` are not deploy paths.
-- Local image build is strict: the CD contract `source.local_image_build` defines `build_local_image` -> `load_local_image_to_k3d` -> `local_cd` apply -> rollout evidence.
-- Agents must not hunt for `kubectl`, kubeconfigs, or cluster access to decide a build path. The fixed `local_cd` executor owns runner toolchain paths.
-- Agent-run `kubectl` is read-only metadata proof only after `local_cd` evidence or exact operator-approved runtime inspection; it is not source/build truth and not a final deploy path.
+- The local CD executor owns source staging, image handoff, apply, rollout, and evidence mechanics; descriptors and policy must not define those steps.
+- Agents must not hunt for `kubectl`, kubeconfigs, or cluster access to decide a CD path. The fixed `local_cd` executor owns runner toolchain paths.
+- Agent-run `kubectl` is read-only metadata proof only after `local_cd` evidence or exact operator-approved runtime inspection; it is not source truth and not a final deploy path.
 - Local dev-instance Kubernetes may prove manifest shape, image wiring, and read-only readiness only; it is not final live PASS evidence.
 - Operator-approved live mutation may be incident break-glass only; it must not become deployment source of truth.
 - Do not use Kubernetes as a bypass around Infisical or Secret Factory policy.
@@ -61,7 +61,7 @@ current dev instance.
 2. Keep kubeconfigs, certificates, cache, and cluster state out of Git; `/srv/bears/runtime/**` is runtime-only.
 3. Use `.tmp` only for disposable scratch that may be deleted between runs.
 4. Report local cluster evidence as `dev-instance proof`, not final live PASS.
-5. Never convert local `kubectl apply`, local image smoke, or local host process evidence into deployment proof. Final live PASS requires Kubernetes desired state, `local_cd`, workload evidence, image provenance, secret-reference readiness, CD evidence, and runtime health proof.
+5. Never convert local `kubectl apply`, local smoke, or local host process evidence into deployment proof. Final live PASS requires Kubernetes desired state, `local_cd`, workload evidence, secret-reference readiness, CD evidence, and runtime health proof.
 
 ## Safe manifest discovery
 

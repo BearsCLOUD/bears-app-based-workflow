@@ -29,6 +29,22 @@ def write_json(path: Path, value: object) -> None:
     path.write_text(json.dumps(value, indent=2) + "\n", encoding="utf-8")
 
 
+def load_module():
+    import importlib.util
+
+    spec = importlib.util.spec_from_file_location("bears_auto_cd", SCRIPT)
+    assert spec and spec.loader
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def selected_contract(application: str):
+    module = load_module()
+    cd_contract = json.loads(CD_CONTRACT.read_text(encoding="utf-8"))
+    return module.application_contract(cd_contract, application, KUBE_ROOT)
+
+
 def write_codex_telegram_manifest(path: Path, image: str | None = None, digest: str | None = None) -> None:
     image = image or f"registry.local/bears/codex-telegram-mcp@sha256:{digest or '1' * 64}"
     path.write_text(
@@ -70,13 +86,15 @@ def test_contracts_reject_placeholder_digest_fixture(tmp_path: Path) -> None:
     fixture_manifest = fixture_root / "manifests" / "codex-telegram-prod"
     fixture_manifest.mkdir(parents=True)
     write_codex_telegram_manifest(fixture_manifest / "deployment.yaml", digest="0" * 64)
-    cd_contract = json.loads(CD_CONTRACT.read_text(encoding="utf-8"))
-    cd_contract["source"].pop("image_ref", None)
-    cd_contract["source"].pop("local_image_build", None)
-    cd_contract["source"]["image_digest_required"] = True
-    cd_path = tmp_path / "cd.json"
-    write_json(cd_path, cd_contract)
-    result = run_cli("validate", "--cd-contract", str(cd_path), "--repo-root", str(fixture_root))
+
+    descriptor_dir = fixture_root / "local_cd" / "applications"
+    descriptor_dir.mkdir(parents=True)
+    descriptor = json.loads((KUBE_ROOT / "local_cd/applications/codex-telegram-mcp.v1.json").read_text(encoding="utf-8"))
+    descriptor["source"].pop("image_ref", None)
+    descriptor["source"]["image_digest_required"] = True
+    write_json(descriptor_dir / "codex-telegram-mcp.v1.json", descriptor)
+
+    result = run_cli("validate", "--repo-root", str(fixture_root), "--application", "codex-telegram-mcp")
     assert result.returncode == 1
     assert "placeholder all-zero image digest is forbidden" in result.stderr
 
@@ -86,19 +104,22 @@ def test_cd_contract_rejects_git_policy_fields(tmp_path: Path) -> None:
     cd_contract["deployment_branch"] = "main"
     cd_path = tmp_path / "cd.json"
     write_json(cd_path, cd_contract)
-    result = run_cli("validate", "--cd-contract", str(cd_path), "--repo-root", str(KUBE_ROOT))
+    result = run_cli(
+        "validate",
+        "--cd-contract",
+        str(cd_path),
+        "--repo-root",
+        str(KUBE_ROOT),
+        "--application",
+        "codex-telegram-mcp",
+    )
     assert result.returncode == 1
     assert "forbidden Git/manual gate field" in result.stderr
 
 
 def test_git_contract_rejects_unknown_deploy_branch() -> None:
     git_contract = json.loads(GIT_CONTRACT.read_text(encoding="utf-8"))
-    import importlib.util
-
-    spec = importlib.util.spec_from_file_location("bears_auto_cd", SCRIPT)
-    assert spec and spec.loader
-    module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)
+    module = load_module()
     try:
         module.resolve_target(git_contract, "BearsCLOUD/bears-infra", "dev")
     except Exception as exc:  # noqa: BLE001 - test checks any resolver refusal.
@@ -111,14 +132,29 @@ def test_manifest_validator_accepts_nonzero_digest_fixture(tmp_path: Path) -> No
     fixture_root = tmp_path / "repo"
     fixture_manifest = fixture_root / "manifests" / "codex-telegram-prod"
     fixture_manifest.mkdir(parents=True)
-    contract = json.loads(CD_CONTRACT.read_text(encoding="utf-8"))
+    descriptor_dir = fixture_root / "local_cd" / "applications"
+    descriptor_dir.mkdir(parents=True)
+    descriptor = json.loads((KUBE_ROOT / "local_cd/applications/codex-telegram-mcp.v1.json").read_text(encoding="utf-8"))
+    write_json(descriptor_dir / "codex-telegram-mcp.v1.json", descriptor)
     write_codex_telegram_manifest(
         fixture_manifest / "deployment.yaml",
-        image=contract["source"]["image_ref"],
+        image=descriptor["source"]["image_ref"],
     )
-    result = run_cli("validate", "--repo-root", str(fixture_root))
+    result = run_cli("validate", "--repo-root", str(fixture_root), "--application", "codex-telegram-mcp")
     assert result.returncode == 0, result.stderr
     assert "Bears automatic CD contracts ok" in result.stdout
+
+
+def test_application_descriptor_rejects_executor_owned_fields(tmp_path: Path) -> None:
+    fixture_root = tmp_path / "repo"
+    descriptor_dir = fixture_root / "local_cd" / "applications"
+    descriptor_dir.mkdir(parents=True)
+    descriptor = json.loads((KUBE_ROOT / "local_cd/applications/codex-telegram-mcp.v1.json").read_text(encoding="utf-8"))
+    descriptor["source"]["local_image_build"] = {"enabled": True}
+    write_json(descriptor_dir / "codex-telegram-mcp.v1.json", descriptor)
+    result = run_cli("validate", "--repo-root", str(fixture_root), "--application", "codex-telegram-mcp")
+    assert result.returncode == 1
+    assert "executor-owned field" in result.stderr
 
 
 def test_build_manifests_falls_back_to_kubectl_kustomize() -> None:
@@ -128,23 +164,40 @@ def test_build_manifests_falls_back_to_kubectl_kustomize() -> None:
 
 
 def test_cd_contract_uses_runner_kubeconfig_source() -> None:
-    contract = json.loads(CD_CONTRACT.read_text(encoding="utf-8"))
+    contract = selected_contract("codex-telegram-mcp")
     assert contract["kubernetes"]["kubeconfig_source"] == "runner_environment"
-    assert "use_runner_kubeconfig" in contract["ordered_steps"]
+    assert "ordered_steps" not in json.loads(CD_CONTRACT.read_text(encoding="utf-8"))
     assert "kubeconfig_b64_env" not in contract["kubernetes"]
 
 
-def test_cd_contract_declares_kube_preflight_before_apply() -> None:
-    contract = json.loads(CD_CONTRACT.read_text(encoding="utf-8"))
-    steps = contract["ordered_steps"]
-    assert steps.index("bootstrap_infisical_runtime_secret") < steps.index("kubectl_apply")
-    assert steps.index("build_local_image") < steps.index("load_local_image_to_k3d")
-    assert steps.index("load_local_image_to_k3d") < steps.index("kubectl_apply")
-    assert "check_remote_registry_pull_access" not in steps
-    assert steps.index("preflight_kube_truth") < steps.index("kubectl_apply")
-    assert steps.index("kubectl_apply") < steps.index("rollout_restart_after_apply")
-    assert steps.index("rollout_restart_after_apply") < steps.index("rollout_status")
-    assert "bootstrap_infisical_cluster_secret_store" not in steps
+def test_cd_contract_declares_descriptor_and_executor_boundary() -> None:
+    catalog = json.loads(CD_CONTRACT.read_text(encoding="utf-8"))
+    assert catalog["application_descriptor_directory"] == "local_cd/applications"
+    assert sorted(item["application"] for item in catalog["applications"]) == [
+        "callsaver-starter",
+        "codex-telegram-mcp",
+        "codex-web",
+        "dagger-engine",
+        "external-secrets-operator",
+        "opencode-server",
+        "tgsearch-live-gate",
+    ]
+    forbidden = {
+        "ordered_steps",
+        "local_image_build",
+        "context_path",
+        "dockerfile",
+        "load_to_k3d_nodes",
+        "kubeconfig_source",
+    }
+    for descriptor_path in (KUBE_ROOT / "local_cd/applications").glob("*.v1.json"):
+        descriptor = json.loads(descriptor_path.read_text(encoding="utf-8"))
+        key_paths = {path.rsplit(".", 1)[-1] for path in load_module().walk_keys(descriptor)}
+        assert forbidden.isdisjoint(key_paths), descriptor_path
+
+
+def test_cd_contract_declares_codex_telegram_app() -> None:
+    contract = selected_contract("codex-telegram-mcp")
     assert contract["kubernetes"]["restart_after_apply"] is True
     api_names = {item["name"] for item in contract["preflight"]["api_resources"]}
     assert api_names == {"ingressroutes.traefik.io"}
@@ -152,17 +205,13 @@ def test_cd_contract_declares_kube_preflight_before_apply() -> None:
     assert "remote_registry_pull" not in contract["preflight"]
     assert contract["source"]["image_digest_required"] is False
     assert contract["source"]["image_ref"] == "codex-telegram-mcp:local-4fc9499822ee"
-    local_build = contract["source"]["local_image_build"]
-    assert local_build["enabled"] is True
-    assert local_build["source_repository"] == "BearsCLOUD/apps"
-    assert local_build["source_subpath"] == "codex-telegram"
-    assert local_build["archive_source_repo"] == "BearsCLOUD/codex-telegram-mcp"
-    assert local_build["archive_allowed"] is False
-    assert local_build["canonical_planning_project"] == "Apps Migration & Planning"
-    assert "separate per-source" in local_build["canonical_planning_project_invariant"]
-    assert local_build["source_ref"] == "4fc9499822eec427da3d9f2254ba93fc5e9e58c1"
-    assert local_build["context_path"] == ".codex-telegram-source"
-    assert local_build["load_to_k3d_nodes"] is True
+    assert contract["source"]["source_repository"] == "BearsCLOUD/apps"
+    assert contract["source"]["source_subpath"] == "codex-telegram"
+    assert contract["source"]["archive_source_repo"] == "BearsCLOUD/codex-telegram-mcp"
+    assert contract["source"]["archive_allowed"] is False
+    assert contract["source"]["canonical_planning_project"] == "Apps Migration & Planning"
+    assert "separate per-source" in contract["source"]["canonical_planning_project_invariant"]
+    assert contract["source"]["source_ref"] == "4fc9499822eec427da3d9f2254ba93fc5e9e58c1"
     gate = contract["apps_monorepo_archive_gate"]
     assert gate["canonical_repository"] == "BearsCLOUD/apps"
     assert gate["canonical_planning_project"]["owner_repository"] == "BearsCLOUD/apps"
@@ -185,7 +234,6 @@ def test_cd_contract_declares_kube_preflight_before_apply() -> None:
     assert sorted(contract["bootstrap"]) == ["infisical_runtime_secret"]
 
 
-
 def test_auto_cd_reads_infisical_runtime_secrets_without_store_manifest() -> None:
     text = SCRIPT.read_text(encoding="utf-8")
     assert "def bootstrap_infisical_runtime_secret" in text
@@ -198,12 +246,7 @@ def test_auto_cd_reads_infisical_runtime_secrets_without_store_manifest() -> Non
 
 
 def test_auto_cd_skips_absent_optional_infisical_runtime_secret(monkeypatch) -> None:
-    import importlib.util
-
-    spec = importlib.util.spec_from_file_location("bears_auto_cd", SCRIPT)
-    assert spec and spec.loader
-    module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)
+    module = load_module()
     applied: list[str] = []
     contract = {
         "kubernetes": {"namespace": "codex-telegram-prod"},
@@ -269,9 +312,7 @@ def test_auto_cd_writes_started_failed_and_succeeded_evidence() -> None:
 
 
 def test_cd_contract_declares_external_secrets_operator_app() -> None:
-    contract = json.loads(CD_CONTRACT.read_text(encoding="utf-8"))
-    apps = {item["application"]: item for item in contract["applications"]}
-    app = apps["external-secrets-operator"]
+    app = selected_contract("external-secrets-operator")
     assert app["source"]["manifest_path"] == "manifests/external-secrets-prod"
     assert app["kubernetes"]["apply_mode"] == "server_side"
     assert app["kubernetes"]["kubeconfig_source"] == "runner_environment"
@@ -285,9 +326,7 @@ def test_cd_contract_declares_external_secrets_operator_app() -> None:
 
 
 def test_cd_contract_declares_opencode_browser_auth_runtime() -> None:
-    contract = json.loads(CD_CONTRACT.read_text(encoding="utf-8"))
-    apps = {item["application"]: item for item in contract["applications"]}
-    app = apps["opencode-server"]
+    app = selected_contract("opencode-server")
     assert app["kubernetes"]["restart_after_apply"] is True
     assert "bootstrap" not in app
     assert "ExternalSecret" not in app["required_manifest_literals"]
@@ -296,22 +335,17 @@ def test_cd_contract_declares_opencode_browser_auth_runtime() -> None:
 
 
 def test_cd_contract_declares_tgsearch_live_gate_app() -> None:
-    contract = json.loads(CD_CONTRACT.read_text(encoding="utf-8"))
-    apps = {item["application"]: item for item in contract["applications"]}
-    app = apps["tgsearch-live-gate"]
+    app = selected_contract("tgsearch-live-gate")
     assert app["source"]["manifest_path"] == "manifests/tgsearch"
     assert app["source"]["image_repository"] == "tgintel"
     assert app["source"]["image_digest_required"] is False
     assert app["source"]["reject_latest_tag"] is True
     assert app["source"]["reject_placeholder_digest"] is True
-    build = app["source"]["local_image_build"]
-    assert build["enabled"] is True
-    assert build["source_repository"] == "BearsCLOUD/apps"
-    assert build["source_subpath"] == "tgsearch"
-    assert build["archive_source_repo"] == "BearsCLOUD/tgsearch"
-    assert build["archive_allowed"] is False
-    assert build["canonical_planning_project"] == "Apps Migration & Planning"
-    assert build["context_path"] == ".tgsearch-source"
+    assert app["source"]["source_repository"] == "BearsCLOUD/apps"
+    assert app["source"]["source_subpath"] == "tgsearch"
+    assert app["source"]["archive_source_repo"] == "BearsCLOUD/tgsearch"
+    assert app["source"]["archive_allowed"] is False
+    assert app["source"]["canonical_planning_project"] == "Apps Migration & Planning"
     assert app["kubernetes"]["namespace"] == "tgsearch-dev"
     assert app["kubernetes"]["job"] == "tgsearch-tgintel-live-gate"
     assert app["kubernetes"]["kubeconfig_source"] == "runner_environment"
@@ -328,7 +362,7 @@ def test_auto_cd_supports_job_completion_waits() -> None:
     assert "def wait_for_declared_workloads" in text
     assert '"--for=condition=complete"' in text
     assert "job/{job}" in text
-    assert "kubernetes.jobs entries must be non-empty strings" in text
+    assert "kubernetes.{plural} entries must be non-empty strings" in text
 
 
 def test_auto_cd_supports_server_side_apply_mode() -> None:
@@ -341,7 +375,7 @@ def test_auto_cd_supports_server_side_apply_mode() -> None:
 def test_auto_cd_supports_declared_rollout_targets() -> None:
     text = SCRIPT.read_text(encoding="utf-8")
     assert 'def rollout_targets' in text
-    assert '"kubernetes.deployments must be a non-empty list"' in text
+    assert "kubernetes.deployment missing" in text
     assert 'for deployment in deployments' in text
 
 
@@ -356,37 +390,31 @@ def test_auto_cd_rejects_remote_registry_pull_preflight() -> None:
     text = SCRIPT.read_text(encoding="utf-8")
     assert "def check_remote_registry_pull_access" in text
     assert "remote registry pull preflight is disabled" in text
-    assert "source.local_image_build" in text
+    assert "executor-owned local image handoff" in text
     assert "check_remote_registry_pull_access(cd_contract, manifest, env)" in text
 
 
-def test_auto_cd_supports_local_image_build_and_k3d_load() -> None:
+def test_auto_cd_executor_owns_local_image_build_and_k3d_load() -> None:
     text = SCRIPT.read_text(encoding="utf-8")
     assert "def build_local_image" in text
     assert '"docker", "build", "--pull"' in text
     assert '"--build-arg", f"{name}="' in text
-    assert '"clear_proxy_build_args"' in text
+    assert "EXECUTOR_LOCAL_BUILD_DEFAULTS" in text
     assert "def load_local_image_to_k3d" in text
     assert '"ctr", "-n", "k8s.io", "images", "import", "-"' in text
     assert "load_local_image_to_k3d(cd_contract, local_image_ref, env)" in text
 
 
 def test_cd_contract_declares_callsaver_starter_app() -> None:
-    contract = json.loads(CD_CONTRACT.read_text(encoding="utf-8"))
-    apps = {item["application"]: item for item in contract["applications"]}
-    app = apps["callsaver-starter"]
+    app = selected_contract("callsaver-starter")
     assert app["source"]["manifest_path"] == "manifests/callsaver-starter"
     assert app["source"]["image_repository"] == "callsaver-starter"
     assert app["source"]["image_digest_required"] is False
     assert app["source"]["reject_latest_tag"] is True
     assert app["source"]["image_ref"] == "callsaver-starter:0.1.0"
-    build = app["source"]["local_image_build"]
-    assert build["enabled"] is True
-    assert build["source_repository"] == "BearsCLOUD/apps"
-    assert build["source_ref"] == "main"
-    assert build["source_subpath"] == "callsaver"
-    assert build["context_path"] == ".callsaver-source"
-    assert build["clear_proxy_build_args"] is True
+    assert app["source"]["source_repository"] == "BearsCLOUD/apps"
+    assert app["source"]["source_ref"] == "main"
+    assert app["source"]["source_subpath"] == "callsaver"
     assert app["kubernetes"]["namespace"] == "callsaver-dev"
     assert app["kubernetes"]["deployment"] == "callsaver-starter"
     assert app["kubernetes"]["kubeconfig_source"] == "runner_environment"

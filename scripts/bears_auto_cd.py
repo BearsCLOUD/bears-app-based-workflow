@@ -2,8 +2,9 @@
 """Validate and run Bears machine-readable Git/CD contracts.
 
 This program is intended for GitHub Actions. It is not a Codex agent runner:
-it executes only fixed Kubernetes CD steps declared by the Bears plugin
-contracts and rejects branch policy inside the CD contract.
+it owns the fixed Kubernetes CD mechanics, reads app desired state from the
+Bears infra repo, and rejects branch policy or CD step descriptions outside
+the executable.
 """
 from __future__ import annotations
 
@@ -26,6 +27,7 @@ from typing import Any
 PLUGIN_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_GIT_CONTRACT = PLUGIN_ROOT / "assets" / "catalog" / "git-deploy-contract.v1.json"
 DEFAULT_CD_CONTRACT = PLUGIN_ROOT / "assets" / "catalog" / "cd-kube-deploy-contract.v1.json"
+DEFAULT_APP_DESCRIPTOR_DIR = Path("local_cd") / "applications"
 FORBIDDEN_CD_KEYS = {
     "development_branch",
     "deployment_branch",
@@ -47,6 +49,56 @@ APPS_MONOREPO_ARCHIVE_SCAN_SURFACES = {
     "kubernetes_runbooks",
     "manifests_readme",
     "secret_custody_docs",
+}
+FORBIDDEN_DESCRIPTOR_KEYS = {
+    "ordered_steps",
+    "local_image_build",
+    "build_local_image",
+    "load_local_image_to_k3d",
+    "load_to_k3d_nodes",
+    "kubectl_apply",
+    "kubectl",
+    "context_path",
+    "dockerfile",
+    "clear_proxy_build_args",
+    "toolchain",
+    "operator_approval",
+    "approval_gate",
+    "manual_gate",
+}
+EXECUTOR_LOCAL_BUILD_DEFAULTS: dict[str, dict[str, Any]] = {
+    "codex-telegram-mcp": {
+        "context_path": ".codex-telegram-source",
+        "dockerfile": "Dockerfile",
+        "source_subpath": "codex-telegram",
+        "clear_proxy_build_args": False,
+    },
+    "tgsearch-live-gate": {
+        "context_path": ".tgsearch-source",
+        "dockerfile": "Dockerfile",
+        "source_subpath": "tgsearch",
+        "clear_proxy_build_args": False,
+    },
+    "callsaver-starter": {
+        "context_path": ".callsaver-source",
+        "dockerfile": "Dockerfile",
+        "source_subpath": "callsaver",
+        "clear_proxy_build_args": True,
+    },
+    "codex-web": {
+        "context_path": "images/codex-web",
+        "dockerfile": "Dockerfile",
+        "clear_proxy_build_args": False,
+    },
+}
+SOURCE_SYNC_EXCLUDES = {
+    ".git",
+    ".env",
+    ".sessions",
+    "runtime",
+    "reports",
+    "__pycache__",
+    ".pytest_cache",
 }
 
 
@@ -131,8 +183,28 @@ def resolve_target(git_contract: dict[str, Any], repository: str, branch: str) -
     raise ContractError(f"no automatic CD target for {repository}@{branch}")
 
 
+
+def validate_cd_root_contract(contract: dict[str, Any]) -> list[str]:
+    """Validate global CD authority fields before selecting an app descriptor."""
+    errors: list[str] = []
+    if contract.get("schema") != "bears.cd-kube-deploy-contract.v1":
+        errors.append("cd contract schema mismatch")
+    for path in walk_keys(contract):
+        key = path.rsplit(".", 1)[-1]
+        if key in FORBIDDEN_CD_KEYS:
+            errors.append(f"cd contract contains forbidden Git/manual gate field: {path}")
+        if key in FORBIDDEN_DESCRIPTOR_KEYS:
+            errors.append(f"cd root contract contains executor-owned field: {path}")
+    if contract.get("repository") != "BearsCLOUD/bears-infra":
+        errors.append("cd contract repository must be BearsCLOUD/bears-infra")
+    if contract.get("target_id") != "fyuriserv-prod":
+        errors.append("cd contract target_id must be fyuriserv-prod")
+    if not contract.get("application_descriptor_directory"):
+        errors.append("cd contract application_descriptor_directory missing")
+    return errors
+
 def validate_cd_contract(contract: dict[str, Any], git_contract: dict[str, Any]) -> list[str]:
-    """Validate the CD contract and reject Git policy fields."""
+    """Validate the selected CD contract and reject policy/mechanics drift."""
     errors: list[str] = []
     if contract.get("schema") != "bears.cd-kube-deploy-contract.v1":
         errors.append("cd contract schema mismatch")
@@ -141,6 +213,8 @@ def validate_cd_contract(contract: dict[str, Any], git_contract: dict[str, Any])
         key = path.rsplit(".", 1)[-1]
         if key in FORBIDDEN_CD_KEYS:
             errors.append(f"cd contract contains forbidden Git/manual gate field: {path}")
+        if key in FORBIDDEN_DESCRIPTOR_KEYS:
+            errors.append(f"cd application descriptor contains executor-owned field: {path}")
     if contract.get("source", {}).get("branch_source") != "git_contract":
         errors.append("cd contract branch_source must be git_contract")
     manifest_path = contract.get("source", {}).get("manifest_path")
@@ -158,37 +232,8 @@ def validate_cd_contract(contract: dict[str, Any], git_contract: dict[str, Any])
         kube = contract.get("kubernetes", {})
         if kube.get("server_alias") != target.get("server_alias") or kube.get("environment") != target.get("environment"):
             errors.append("cd contract Kubernetes target does not match Git contract")
-    ordered_steps = contract.get("ordered_steps", [])
-    for step in (
-        "validate_git_contract",
-        "resolve_target_from_git_contract",
-        "validate_cd_contract",
-        "validate_manifest_safety",
-        "build_kustomize",
-        "kubectl_apply",
-        "rollout_status",
-        "write_sanitized_evidence",
-    ):
-        if step not in ordered_steps:
-            errors.append(f"cd contract ordered_steps missing {step}")
-    if "configure_kubeconfig_from_env_ref" not in ordered_steps and "use_runner_kubeconfig" not in ordered_steps:
-        errors.append("cd contract ordered_steps missing kubeconfig source step")
     errors.extend(validate_apps_monorepo_archive_gate(contract))
     return errors
-
-
-def _contract_local_image_builds(contract: dict[str, Any]) -> list[tuple[str, dict[str, Any]]]:
-    builds: list[tuple[str, dict[str, Any]]] = []
-    top_build = contract.get("source", {}).get("local_image_build")
-    if isinstance(top_build, dict):
-        builds.append(("source.local_image_build", top_build))
-    for index, item in enumerate(contract.get("applications", [])):
-        if not isinstance(item, dict):
-            continue
-        build = item.get("source", {}).get("local_image_build")
-        if isinstance(build, dict):
-            builds.append((f"applications[{index}].source.local_image_build", build))
-    return builds
 
 
 def validate_apps_monorepo_archive_gate(contract: dict[str, Any]) -> list[str]:
@@ -251,64 +296,92 @@ def validate_apps_monorepo_archive_gate(contract: dict[str, Any]) -> list[str]:
         if missing:
             errors.append(f"apps_monorepo_archive_gate.scan_surfaces missing {missing}")
 
-    for path, build in _contract_local_image_builds(contract):
-        source_repository = build.get("source_repository")
+    source = contract.get("source", {})
+    if not isinstance(source, dict):
+        errors.append("source must be an object")
+        return errors
+    path = "source"
+    archive_source = source.get("archive_source_repo")
+    if archive_source in APPS_MONOREPO_ARCHIVE_SOURCE_REPOS:
+        source_repository = source.get("source_repository")
         if source_repository in APPS_MONOREPO_ARCHIVE_SOURCE_REPOS:
             errors.append(f"{path}.source_repository must be BearsCLOUD/apps, not {source_repository}")
-        archive_source = build.get("archive_source_repo")
-        if archive_source not in APPS_MONOREPO_ARCHIVE_SOURCE_REPOS:
-            continue
         expected_subpath = APPS_MONOREPO_ARCHIVE_SOURCE_REPOS[archive_source]
         if source_repository != APPS_MONOREPO_REPOSITORY:
             errors.append(f"{path}.source_repository must be BearsCLOUD/apps for archived source {archive_source}")
-        if build.get("source_subpath") != expected_subpath:
+        if source.get("source_subpath") != expected_subpath:
             errors.append(f"{path}.source_subpath must be {expected_subpath}")
-        if build.get("archive_allowed") is not False:
+        if source.get("archive_allowed") is not False:
             errors.append(f"{path}.archive_allowed must stay false until infra/local_cd archive checks pass")
-        archive_blocker = build.get("archive_blocker")
+        archive_blocker = source.get("archive_blocker")
         if not isinstance(archive_blocker, str) or not all(
             token in archive_blocker for token in ("infra/local_cd", "workflows", "Kubernetes", "secret-custody")
         ):
             errors.append(f"{path}.archive_blocker must name infra/local_cd, workflows, Kubernetes docs, and secret-custody scans")
-        planning_project = build.get("canonical_planning_project_invariant")
+        planning_project = source.get("canonical_planning_project_invariant")
         if not isinstance(planning_project, str) or not all(
             token in planning_project for token in ("Apps Migration & Planning", "canonical", "Project", "required migration fields", "API proof")
         ):
             errors.append(f"{path}.canonical_planning_project_invariant must require the canonical Apps planning Project with populated fields")
         if "Migrate " in planning_project and " into apps" in planning_project:
             errors.append(f"{path}.canonical_planning_project_invariant must not require a separate per-source Project")
-        if build.get("per_source_projects_policy") != "legacy_evidence_only_not_required_not_created_not_pass":
+        if source.get("per_source_projects_policy") != "legacy_evidence_only_not_required_not_created_not_pass":
             errors.append(f"{path}.per_source_projects_policy must mark per-source Projects as legacy evidence only")
     return errors
 
 
-def application_contract(contract: dict[str, Any], application: str | None) -> dict[str, Any]:
-    """Return the selected application CD contract.
-
-    The legacy top-level object remains the default application contract.
-    Additional applications are declared as full contract objects under
-    ``applications`` and are selected explicitly by GitHub Actions.
-    """
-    if not application:
-        return contract
-    if contract.get("application") == application:
-        return contract
+def descriptor_path(repo_root: Path, contract: dict[str, Any], application: str) -> Path:
+    """Return the repo-local descriptor path for *application*."""
+    descriptor_dir = Path(str(contract.get("application_descriptor_directory", DEFAULT_APP_DESCRIPTOR_DIR)))
+    if descriptor_dir.is_absolute() or ".." in descriptor_dir.parts:
+        raise ContractError("application_descriptor_directory must stay relative to repo root")
     for item in contract.get("applications", []):
         if isinstance(item, dict) and item.get("application") == application:
-            selected = dict(item)
-            selected.setdefault("schema", contract.get("schema"))
-            selected.setdefault("version", contract.get("version"))
-            selected.setdefault("owner_plugin", contract.get("owner_plugin"))
-            selected.setdefault("git_contract_ref", contract.get("git_contract_ref"))
-            selected.setdefault("repository", contract.get("repository"))
-            selected.setdefault("target_id", contract.get("target_id"))
-            selected.setdefault("ordered_steps", contract.get("ordered_steps"))
-            selected.setdefault("forbidden_manifest_literals", contract.get("forbidden_manifest_literals"))
-            selected.setdefault("evidence", contract.get("evidence"))
-            selected.setdefault("rollback", contract.get("rollback"))
-            selected.setdefault("apps_monorepo_archive_gate", contract.get("apps_monorepo_archive_gate"))
-            return selected
-    raise ContractError(f"unknown CD application: {application}")
+            raw_descriptor = item.get("descriptor", descriptor_dir / f"{application}.v1.json")
+            rel = Path(str(raw_descriptor))
+            if rel.is_absolute() or ".." in rel.parts:
+                raise ContractError("application descriptor path must stay relative to repo root")
+            return repo_root / rel
+    return repo_root / descriptor_dir / f"{application}.v1.json"
+
+
+def application_contract(contract: dict[str, Any], application: str | None, repo_root: Path) -> dict[str, Any]:
+    """Return the selected application CD contract.
+
+    App desired state lives in the bears-infra repo under local_cd/applications.
+    The plugin catalog supplies only global authority metadata.
+    """
+    if not application:
+        raise ContractError("--application is required; app desired state is descriptor-owned")
+    selected = load_json(descriptor_path(repo_root, contract, application))
+    if selected.get("schema") != "bears.local-cd-application.v1":
+        raise ContractError("application descriptor schema mismatch")
+    if selected.get("application") != application:
+        raise ContractError("application descriptor name mismatch")
+    for path in walk_keys(selected):
+        key = path.rsplit(".", 1)[-1]
+        if key in FORBIDDEN_DESCRIPTOR_KEYS or key == "kubeconfig_source":
+            raise ContractError(f"application descriptor contains executor-owned field: {path}")
+    selected["schema"] = contract.get("schema")
+    selected.setdefault("version", contract.get("version"))
+    selected.setdefault("owner_plugin", contract.get("owner_plugin"))
+    selected.setdefault("git_contract_ref", contract.get("git_contract_ref"))
+    selected.setdefault("repository", contract.get("repository"))
+    selected.setdefault("target_id", contract.get("target_id"))
+    selected.setdefault("evidence", contract.get("evidence"))
+    selected.setdefault("rollback", contract.get("rollback"))
+    selected.setdefault("apps_monorepo_archive_gate", contract.get("apps_monorepo_archive_gate"))
+    selected.setdefault("forbidden_manifest_literals", [])
+    selected.setdefault("required_manifest_literals", [])
+    source = selected.setdefault("source", {})
+    if isinstance(source, dict):
+        source.setdefault("branch_source", "git_contract")
+    kube = selected.setdefault("kubernetes", {})
+    if isinstance(kube, dict):
+        kube.setdefault("server_alias", "fyuriserv")
+        kube.setdefault("environment", "prod")
+        kube.setdefault("kubeconfig_source", "runner_environment")
+    return selected
 
 
 def manifest_text(repo_root: Path, contract: dict[str, Any]) -> tuple[Path, str]:
@@ -362,9 +435,10 @@ def validate_all(git_path: Path, cd_path: Path, repo_root: Path, application: st
     """Validate all contracts and manifests or raise ContractError."""
     git_contract = load_json(git_path)
     cd_root = load_json(cd_path)
-    cd_contract = application_contract(cd_root, application)
+    cd_contract = application_contract(cd_root, application, repo_root)
     errors = []
     errors.extend(validate_git_contract(git_contract))
+    errors.extend(validate_cd_root_contract(cd_root))
     errors.extend(validate_cd_contract(cd_contract, git_contract))
     errors.extend(validate_manifest_safety(repo_root, cd_contract))
     if errors:
@@ -637,16 +711,24 @@ def contract_image_reference(manifest: Path, contract: dict[str, Any]) -> str:
 
 
 def local_image_build_config(contract: dict[str, Any]) -> dict[str, Any]:
-    """Return the declared local image build config, if any."""
-    config = contract.get("source", {}).get("local_image_build", {})
-    if not isinstance(config, dict):
-        raise ContractError("source.local_image_build must be an object")
+    """Return executor-owned local image build settings for the app."""
+    application = str(contract.get("application", ""))
+    defaults = EXECUTOR_LOCAL_BUILD_DEFAULTS.get(application, {})
+    if not defaults:
+        return {}
+    source = contract.get("source", {})
+    if not isinstance(source, dict):
+        raise ContractError("source must be an object")
+    config = dict(defaults)
+    for key in ("source_repository", "source_ref", "source_subpath"):
+        if key in source:
+            config[key] = source[key]
     return config
 
 
 def local_image_build_enabled(contract: dict[str, Any]) -> bool:
-    """Return true when the contract declares runner-local Docker build delivery."""
-    return local_image_build_config(contract).get("enabled") is True
+    """Return true when the executable owns a local build for this app."""
+    return bool(local_image_build_config(contract))
 
 
 def source_image_ref(contract: dict[str, Any], manifest: Path | None = None) -> str:
@@ -671,8 +753,27 @@ def safe_repo_relative_path(repo_root: Path, raw_path: str, field_name: str) -> 
     return resolved
 
 
+def prepare_local_source(repo_root: Path, contract: dict[str, Any]) -> None:
+    """Stage app source into the executor-owned build context when needed."""
+    if not local_image_build_enabled(contract):
+        return
+    config = local_image_build_config(contract)
+    source_repository = str(config.get("source_repository", ""))
+    source_subpath = str(config.get("source_subpath", ""))
+    if source_repository != APPS_MONOREPO_REPOSITORY or not source_subpath:
+        return
+    source_root = Path("/srv/bears/dev/app") / source_subpath
+    if not source_root.is_dir():
+        raise ContractError(f"local source directory missing: {source_subpath}")
+    context_path = safe_repo_relative_path(repo_root, str(config.get("context_path", "")), "executor.context_path")
+    if context_path.exists():
+        shutil.rmtree(context_path)
+    ignore = shutil.ignore_patterns(*sorted(SOURCE_SYNC_EXCLUDES))
+    shutil.copytree(source_root, context_path, ignore=ignore)
+
+
 def build_local_image(repo_root: Path, contract: dict[str, Any]) -> str:
-    """Build the contract-declared image locally on the GitHub Actions runner."""
+    """Build the executable-declared image locally on the GitHub Actions runner."""
     if not local_image_build_enabled(contract):
         return ""
     if not shutil.which("docker"):
@@ -681,7 +782,7 @@ def build_local_image(repo_root: Path, contract: dict[str, Any]) -> str:
     image_ref = source_image_ref(contract)
     if not image_ref or image_ref.endswith(":latest"):
         raise ContractError("source.image_ref must be a non-latest image tag for local build")
-    context_path = safe_repo_relative_path(repo_root, str(config.get("context_path", "")), "source.local_image_build.context_path")
+    context_path = safe_repo_relative_path(repo_root, str(config.get("context_path", "")), "executor.context_path")
     if not context_path.is_dir():
         raise ContractError("local image build context path is missing")
     command = ["docker", "build", "--pull", "-t", image_ref]
@@ -690,7 +791,7 @@ def build_local_image(repo_root: Path, contract: dict[str, Any]) -> str:
             command.extend(["--build-arg", f"{name}="])
     dockerfile = str(config.get("dockerfile", ""))
     if dockerfile:
-        dockerfile_path = safe_repo_relative_path(context_path, dockerfile, "source.local_image_build.dockerfile")
+        dockerfile_path = safe_repo_relative_path(context_path, dockerfile, "executor.dockerfile")
         command.extend(["-f", str(dockerfile_path)])
     command.append(str(context_path))
     run(command)
@@ -725,12 +826,9 @@ def import_image_to_k3d_node(image_ref: str, node: str) -> None:
 
 
 def load_local_image_to_k3d(contract: dict[str, Any], image_ref: str, env: dict[str, str]) -> None:
-    """Load the locally built image into all Kubernetes nodes when declared."""
+    """Load the locally built image into all Kubernetes nodes."""
     if not local_image_build_enabled(contract):
         return
-    config = local_image_build_config(contract)
-    if config.get("load_to_k3d_nodes") is not True:
-        raise ContractError("source.local_image_build.load_to_k3d_nodes must be true")
     nodes = kubectl_node_names(env)
     if not nodes:
         raise ContractError("no Kubernetes nodes found for local image load")
@@ -749,7 +847,7 @@ def check_remote_registry_pull_access(contract: dict[str, Any], manifest: Path, 
         image_ref = contract_image_reference(manifest, contract)
         raise ContractError(
             f"remote registry pull preflight is disabled for {image_ref}; "
-            "use source.local_image_build or source.image_ref with node-local image handoff"
+            "use an executor-owned local image handoff or source.image_ref"
         )
 
 
@@ -1035,6 +1133,7 @@ def deploy(args: argparse.Namespace) -> None:
     evidence = write_evidence(args.evidence_dir, cd_contract, args.repository, args.branch, args.sha, "started")
     with kubeconfig_context:
         try:
+            prepare_local_source(args.repo_root, cd_contract)
             local_image_ref = build_local_image(args.repo_root, cd_contract)
             if local_image_ref:
                 load_local_image_to_k3d(cd_contract, local_image_ref, env)

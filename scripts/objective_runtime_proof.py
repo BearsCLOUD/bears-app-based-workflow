@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
-"""Locate and run the platform Dagger ObjectiveRuntimeProof entrypoint."""
+"""Locate and run Kubernetes-backed platform Dagger ObjectiveRuntimeProof."""
 from __future__ import annotations
 
 import argparse
 import json
+import os
 import shutil
 import subprocess
 import sys
@@ -16,6 +17,7 @@ PLATFORM_ROOT = WORKSPACE_ROOT / "dev/platform"
 APPS_ROOT = WORKSPACE_ROOT / "dev/app"
 CATALOG = PLUGIN_ROOT / "assets/catalog/objective-runtime-proof.v1.json"
 TIMEOUT_SECONDS = 900
+RUNNER_HOST_ENV = "_EXPERIMENTAL_DAGGER_RUNNER_HOST"
 
 
 def load_catalog() -> dict[str, Any]:
@@ -47,16 +49,42 @@ def locate(app: str) -> dict[str, Any]:
         source_input=str(APPS_ROOT / app_name),
         artifact_root=f"{catalog['artifact_root']}/{app_name}/<run-id>.json",
         final_live_owner=catalog["final_live_owner"],
-        required_entrypoint=f"dagger call objective-runtime-proof --source {APPS_ROOT} --app {app_name} --scenario <scenario>",
+        dagger_engine_manifest_path=catalog["dagger_engine_manifest_path"],
+        dagger_engine_namespace=catalog["dagger_engine_namespace"],
+        dagger_engine_workload=catalog["dagger_engine_workload"],
+        dagger_engine_pod_selector=catalog["dagger_engine_pod_selector"],
+        runner_host_env=catalog["runner_host_env"],
+        required_entrypoint=(
+            "DAGGER_ENGINE_POD_NAME=$(kubectl get pod --selector="
+            f"{catalog['dagger_engine_pod_selector']} --namespace={catalog['dagger_engine_namespace']} "
+            "--output=jsonpath='{.items[0].metadata.name}') && "
+            f"{catalog['runner_host_env']}=kube-pod://$DAGGER_ENGINE_POD_NAME?namespace={catalog['dagger_engine_namespace']} "
+            f"dagger call objective-runtime-proof --source {APPS_ROOT} --app {app_name} --scenario <scenario>"
+        ),
         forbidden_pass_evidence=catalog["forbidden_pass_evidence"],
     )
 
 
-def run(app: str, scenario: str, source: str) -> dict[str, Any]:
+def run(app: str, scenario: str, source: str, runner_host: str | None = None) -> dict[str, Any]:
     app_name = safe_app(app)
+    catalog = load_catalog()
+    selected_runner_host = runner_host or os.environ.get(RUNNER_HOST_ENV)
+    if not selected_runner_host:
+        return packet(
+            status="kubernetes_runner_missing",
+            app=app_name,
+            missing_env=RUNNER_HOST_ENV,
+            dagger_engine_manifest_path=catalog["dagger_engine_manifest_path"],
+            next_action="Deploy/verify dagger-engine through /srv/bears/kubernetes local_cd and run with _EXPERIMENTAL_DAGGER_RUNNER_HOST=kube-pod://<pod>?namespace=dagger.",
+        )
     binary = dagger_path()
     if not binary:
-        return packet(status="tool_missing", app=app_name, missing_tool="dagger", next_action="Install Dagger CLI in the runtime dependency layer before requesting proof.")
+        return packet(
+            status="cli_missing",
+            app=app_name,
+            missing_tool="dagger",
+            next_action="Install the pinned Dagger CLI in the CD runner toolchain; the Dagger Engine runtime owner remains Kubernetes.",
+        )
     command = [
         binary,
         "call",
@@ -68,9 +96,12 @@ def run(app: str, scenario: str, source: str) -> dict[str, Any]:
         "--scenario",
         scenario,
     ]
+    env = dict(os.environ)
+    env[RUNNER_HOST_ENV] = selected_runner_host
     proc = subprocess.run(
         command,
         cwd=PLATFORM_ROOT,
+        env=env,
         text=True,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
@@ -80,8 +111,9 @@ def run(app: str, scenario: str, source: str) -> dict[str, Any]:
     return packet(
         status="pass" if proc.returncode == 0 else "failed",
         app=app_name,
-        command=" ".join(command),
+        command=f"{RUNNER_HOST_ENV}={selected_runner_host} " + " ".join(command),
         cwd=str(PLATFORM_ROOT),
+        runner_host=selected_runner_host,
         exit_code=proc.returncode,
         stdout_excerpt=proc.stdout[-4000:],
         stderr_excerpt=proc.stderr[-2000:],
@@ -94,7 +126,7 @@ def migrate(target: str) -> dict[str, Any]:
         status="migration_required",
         target=clean,
         required_action="Replace test/contract/validation-layer acceptance with platform Dagger ObjectiveRuntimeProof or remove the obsolete reference.",
-        replacement="python3 scripts/objective_runtime_proof.py run --app <app> --scenario <scenario> --json",
+        replacement="_EXPERIMENTAL_DAGGER_RUNNER_HOST=kube-pod://<pod>?namespace=dagger python3 scripts/objective_runtime_proof.py run --app <app> --scenario <scenario> --json",
         forbidden_closeout="Do not close with tests, contracts, validators, schemas, lint, or static checks as PASS evidence.",
     )
 
@@ -116,6 +148,7 @@ def main(argv: list[str] | None = None) -> int:
     run_p.add_argument("--app", required=True)
     run_p.add_argument("--scenario", default="default")
     run_p.add_argument("--source", default=str(APPS_ROOT))
+    run_p.add_argument("--runner-host", default=None)
     run_p.add_argument("--json", action="store_true")
     migrate_p = sub.add_parser("migrate")
     migrate_p.add_argument("target")
@@ -124,7 +157,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.command == "locate":
         result = locate(args.app)
     elif args.command == "run":
-        result = run(args.app, args.scenario, args.source)
+        result = run(args.app, args.scenario, args.source, args.runner_host)
     else:
         result = migrate(args.target)
     if getattr(args, "json", False):
@@ -132,7 +165,7 @@ def main(argv: list[str] | None = None) -> int:
     else:
         for key, value in result.items():
             print(f"{key}: {value}")
-    return 0 if result.get("status") in {"located", "pass", "tool_missing", "migration_required"} else 1
+    return 0 if result.get("status") in {"located", "pass", "cli_missing", "kubernetes_runner_missing", "migration_required"} else 1
 
 
 if __name__ == "__main__":

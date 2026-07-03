@@ -18,7 +18,7 @@
 - Canonical role gate: `/srv/bears/plugins/bears/scripts/platform_roles.py`.
 
 ## Functional map
-- `agents/*.toml` — canonical Bears role profiles; sync generated OpenCode agents with `scripts/opencode_agent_sync.py`.
+- `agents/*.toml` — canonical Bears role profiles; do not sync them into OpenCode agents.
 - `skills/*/SKILL.md` — Codex skills for governance, role gates, deployment review, Kubernetes, Infisical, DNS, health, Spec Kit flow, and Secret Factory.
 - `assets/catalog/*.v1.json` — machine-readable policy catalogs for roles, workflow gates, Git/CD, closeout, and governance.
 - `assets/schemas/*.schema.json` and `schemas/*.schema.json` — legacy/internal guardrail schemas only; they must not be used as app PASS evidence.
@@ -34,7 +34,7 @@
 - Role profiles define specialist scope, allowed evidence, forbidden actions, handoff shape, and validation focus.
 - Role profiles do not own product registration, Git/CD policy, deployment policy, or secret exceptions.
 - `assets/catalog/*.v1.json` owns machine policy. `scripts/*.py` and `hooks/*.py` enforce it. `skills/*/SKILL.md` owns task workflow. `docs/reference/*.md` explains it.
-- After role profile changes, run `python3 scripts/opencode_agent_sync.py sync --target repo` and restart long-running OpenCode runtime before relying on generated `.opencode/agent/*.md`.
+- After role profile changes, keep role behavior in `agents/*.toml` and plugin skills/catalogs only; OpenCode is deployment-only and must not receive generated Bears agent files.
 
 ## External runtime boundary
 - `BearsCLOUD/apps` is the canonical product-app repository for codexdaemon source after consolidation. `BearsCLOUD/codexdaemon` may be routed only as a deprecated/archive-candidate migration source until archived.

@@ -367,6 +367,40 @@
           }
         ]
       }
+    },
+    {
+      "application": "dagger-engine",
+      "source": {
+        "branch_source": "git_contract",
+        "manifest_path": "manifests/dagger-engine",
+        "image_repository": "registry.dagger.io/engine:v0.21.7",
+        "image_digest_required": false,
+        "reject_latest_tag": true,
+        "reject_placeholder_digest": true
+      },
+      "kubernetes": {
+        "server_alias": "fyuriserv",
+        "environment": "prod",
+        "namespace": "dagger",
+        "daemonset": "dagger-engine",
+        "kubeconfig_source": "runner_environment",
+        "apply_mode": "server_side",
+        "rollout_timeout_seconds": 600
+      },
+      "required_manifest_literals": [
+        "dagger",
+        "dagger-engine",
+        "registry.dagger.io/engine:v0.21.7",
+        "name: dagger-dagger-helm-engine",
+        "privileged: true",
+        "/var/lib/dagger"
+      ],
+      "forbidden_manifest_literals": [
+        "kind: Secret",
+        "stringData:",
+        ":latest",
+        "image: latest"
+      ]
     }
   ],
   "preflight": {

@@ -830,50 +830,52 @@ def kubectl_apply_command(contract: dict[str, Any], manifest: Path) -> list[str]
     raise ContractError(f"unsupported kubernetes.apply_mode: {mode}")
 
 
-def rollout_targets(contract: dict[str, Any]) -> tuple[list[str], str]:
-    """Return deployment names and timeout for the contract rollout wait."""
+def _timeout_arg(contract: dict[str, Any]) -> str:
+    """Return the kubectl timeout argument from Kubernetes contract settings."""
     kube = contract.get("kubernetes", {})
     timeout_seconds = kube.get("rollout_timeout_seconds", 180)
     if not isinstance(timeout_seconds, int) or timeout_seconds <= 0:
         raise ContractError("kubernetes.rollout_timeout_seconds must be a positive integer")
-    deployments = kube.get("deployments")
-    if deployments is None:
-        deployment = kube.get("deployment")
-        if not isinstance(deployment, str) or not deployment:
-            raise ContractError("kubernetes.deployment missing")
-        return [deployment], f"--timeout={timeout_seconds}s"
-    if not isinstance(deployments, list) or not deployments:
-        raise ContractError("kubernetes.deployments must be a non-empty list")
+    return f"--timeout={timeout_seconds}s"
+
+
+def _named_targets(contract: dict[str, Any], singular: str, plural: str) -> list[str]:
+    """Return one or many Kubernetes workload names from the contract."""
+    kube = contract.get("kubernetes", {})
+    many = kube.get(plural)
+    if many is None:
+        one = kube.get(singular)
+        if one is None:
+            return []
+        if not isinstance(one, str) or not one:
+            raise ContractError(f"kubernetes.{singular} must be a non-empty string")
+        return [one]
+    if not isinstance(many, list) or not many:
+        raise ContractError(f"kubernetes.{plural} must be a non-empty list")
     names: list[str] = []
-    for item in deployments:
+    for item in many:
         if not isinstance(item, str) or not item:
-            raise ContractError("kubernetes.deployments entries must be non-empty strings")
+            raise ContractError(f"kubernetes.{plural} entries must be non-empty strings")
         names.append(item)
-    return names, f"--timeout={timeout_seconds}s"
+    return names
+
+
+def rollout_targets(contract: dict[str, Any]) -> tuple[list[str], str]:
+    """Return deployment names and timeout for the contract rollout wait."""
+    deployments = _named_targets(contract, "deployment", "deployments")
+    if not deployments:
+        raise ContractError("kubernetes.deployment missing")
+    return deployments, _timeout_arg(contract)
+
+
+def daemonset_rollout_targets(contract: dict[str, Any]) -> tuple[list[str], str]:
+    """Return DaemonSet names and timeout for the contract rollout wait."""
+    return _named_targets(contract, "daemonset", "daemonsets"), _timeout_arg(contract)
 
 
 def job_wait_targets(contract: dict[str, Any]) -> tuple[list[str], str]:
     """Return job names and timeout for completion waits."""
-    kube = contract.get("kubernetes", {})
-    timeout_seconds = kube.get("rollout_timeout_seconds", 180)
-    if not isinstance(timeout_seconds, int) or timeout_seconds <= 0:
-        raise ContractError("kubernetes.rollout_timeout_seconds must be a positive integer")
-    jobs = kube.get("jobs")
-    if jobs is None:
-        job = kube.get("job")
-        if job is None:
-            return [], f"--timeout={timeout_seconds}s"
-        if not isinstance(job, str) or not job:
-            raise ContractError("kubernetes.job must be a non-empty string")
-        return [job], f"--timeout={timeout_seconds}s"
-    if not isinstance(jobs, list) or not jobs:
-        raise ContractError("kubernetes.jobs must be a non-empty list")
-    names: list[str] = []
-    for item in jobs:
-        if not isinstance(item, str) or not item:
-            raise ContractError("kubernetes.jobs entries must be non-empty strings")
-        names.append(item)
-    return names, f"--timeout={timeout_seconds}s"
+    return _named_targets(contract, "job", "jobs"), _timeout_arg(contract)
 
 
 def wait_for_declared_workloads(contract: dict[str, Any], env: dict[str, str]) -> None:
@@ -883,6 +885,9 @@ def wait_for_declared_workloads(contract: dict[str, Any], env: dict[str, str]) -
         deployments, timeout = rollout_targets(contract)
         for deployment in deployments:
             run(["kubectl", "-n", namespace, "rollout", "status", f"deployment/{deployment}", timeout], env=env)
+    daemonsets, timeout = daemonset_rollout_targets(contract)
+    for daemonset in daemonsets:
+        run(["kubectl", "-n", namespace, "rollout", "status", f"daemonset/{daemonset}", timeout], env=env)
     jobs, timeout = job_wait_targets(contract)
     for job in jobs:
         run(["kubectl", "-n", namespace, "wait", "--for=condition=complete", f"job/{job}", timeout], env=env)
@@ -896,9 +901,13 @@ def rollout_restart_after_apply(contract: dict[str, Any], env: dict[str, str]) -
     namespace = str(kube.get("namespace", ""))
     if not namespace:
         raise ContractError("kubernetes.namespace missing")
-    deployments, _timeout = rollout_targets(contract)
-    for deployment in deployments:
-        run(["kubectl", "-n", namespace, "rollout", "restart", f"deployment/{deployment}"], env=env)
+    if kube.get("deployment") or kube.get("deployments"):
+        deployments, _timeout = rollout_targets(contract)
+        for deployment in deployments:
+            run(["kubectl", "-n", namespace, "rollout", "restart", f"deployment/{deployment}"], env=env)
+    daemonsets, _timeout = daemonset_rollout_targets(contract)
+    for daemonset in daemonsets:
+        run(["kubectl", "-n", namespace, "rollout", "restart", f"daemonset/{daemonset}"], env=env)
 
 
 def build_manifests(repo_root: Path, contract: dict[str, Any]) -> Path:
@@ -1007,6 +1016,7 @@ def write_evidence(evidence_dir: Path, contract: dict[str, Any], repository: str
         f"target_id={contract.get('target_id')}",
         f"namespace={contract.get('kubernetes', {}).get('namespace')}",
         f"deployment={contract.get('kubernetes', {}).get('deployment')}",
+        f"daemonset={contract.get('kubernetes', {}).get('daemonset')}",
         f"job={contract.get('kubernetes', {}).get('job')}",
         f"manifest_path={contract.get('source', {}).get('manifest_path')}",
     ]

@@ -52,6 +52,13 @@ RUNTIME_PROXY_REQUIRED_MARKERS = (
     "cleanup lane timeout",
     "metadata-only",
     "before 240 seconds",
+    "parent-visible final packet",
+    "parent wait limit",
+    "parent persistent gitflow handoff",
+    "FAST_BLOCKER before accepting file-changing work",
+    "post-cutoff PASS drift evidence",
+    "BearsCLOUD/apps#107",
+    "3d1addaa6bab6579e93d9617d3d5ba81bdbd69aa",
 )
 ALLOWED_ASSIGNMENT_LANES = {"l2", "l3"}
 ASSIGNMENT_REQUIRED_FIELDS = {

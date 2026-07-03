@@ -118,6 +118,16 @@ Each L2 orchestrator must run the `bears-github-project-issues-orchestrator` rol
 - `post-cutoff untracked drift`: any task-owned or target-adjacent untracked file found after the 270-second L2 hard stop or 300-second parent cutoff is hard workflow drift. L2 must stop further dispatch, remove or quarantine only authorized task-owned files, then prove cleanup with `git status --short -- <target>` and `test ! -e <expected-new-file>` before any retry; no post-cutoff untracked file may be adopted as `PASS`.
 - `cleanup lane timeout`: if a cleanup lane misses its own cutoff, record it as new workflow drift in `BearsCLOUD/bears_plugin#26`; do not let that lane claim `CLEANED_NO_WIP` until a later bounded proof packet verifies the path state.
 
+## Issue #29 parent-visible closeout and parent gitflow handoff
+
+- Current drift issue #29: `BearsCLOUD/bears_plugin#29`; parent drift tracker: `BearsCLOUD/bears_plugin#26`.
+- Drift evidence: `BearsCLOUD/apps#107` commit `3d1addaa6bab6579e93d9617d3d5ba81bdbd69aa` arrived after the parent-visible wait limit and used an L2-owned gitflow lane. Treat it as drift evidence only, not as a repeatable closeout pattern.
+- A file-changing L2 must return a parent-visible final packet before the parent wait limit. Missing, late, chat-only, or post-cutoff final evidence is workflow drift and cannot be accepted as `PASS`.
+- A file-changing L2 must use the parent-provided persistent gitflow handoff packet for commit/push closeout. L2 must not start or use its own gitflow lane.
+- If the parent persistent gitflow handoff is absent, stale, or not authorized, L2 must return `FAST_BLOCKER` before accepting file-changing work or before dispatching L3 file-changing work.
+- The final parent packet for file-changing work must include changed files, validation evidence, task-owned no-WIP proof, issue/comment updates, and a gitflow-ready allowlist plus commit message for the parent persistent gitflow lane.
+- Any `PASS` posted after the parent wait limit is recovery evidence only. It may support cleanup or a new smaller lane, but it must not close the current parent assignment or mark Project/Issue execution complete.
+
 ## First-minute parent gate
 
 Immediately after assignment receipt, before route/audit, issue enrichment, Project field reads beyond the assigned item, environment/profile loading, local file reads beyond the fixed proof path below, execution planning, or L3 dispatch, L2 must answer the parent inside 60 seconds with exactly one of these packets:

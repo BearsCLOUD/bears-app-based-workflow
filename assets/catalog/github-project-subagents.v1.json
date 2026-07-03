@@ -48,7 +48,11 @@
       "close owned L3 descendants and return FAST_BLOCKER before 240 seconds when final PASS evidence is not ready",
       "run post-close bounded WIP proof with git status for tracked targets and test ! -e for expected-new-file targets before claiming clean or absent",
       "update BearsCLOUD/bears_plugin#26 with lane id, elapsed seconds, target, WIP proof, and next smaller metadata-only action when repeated timeout occurs",
-      "prefer metadata-only Issue or comment reinforcement before spawning another L3 after timeout drift"
+      "prefer metadata-only Issue or comment reinforcement before spawning another L3 after timeout drift",
+      "return a parent-visible final packet before the parent wait limit for every file-changing L2 lane",
+      "use the parent persistent gitflow handoff packet for file-changing commit/push closeout and return the gitflow-ready allowlist plus commit message to the parent",
+      "return FAST_BLOCKER before accepting file-changing work when the parent persistent gitflow handoff is absent, stale, or unauthorized",
+      "record BearsCLOUD/apps#107 commit 3d1addaa6bab6579e93d9617d3d5ba81bdbd69aa as post-cutoff PASS drift evidence only, not as a repeatable closeout pattern"
     ],
     "forbidden_actions": [
       "implementation file writes",
@@ -70,7 +74,11 @@
       "waiting for L3 after 240 seconds when final PASS evidence is not already ready",
       "claiming clean or absent after closeout without post-close bounded WIP proof",
       "treating cleanup lane timeout as CLEANED_NO_WIP or PASS instead of workflow drift",
-      "spawning another L3 after repeated timeout before metadata-only reinforcement or exact parent reauthorization"
+      "spawning another L3 after repeated timeout before metadata-only reinforcement or exact parent reauthorization",
+      "using an L2-owned gitflow lane for file-changing closeout instead of the parent persistent gitflow handoff",
+      "accepting file-changing work before parent persistent gitflow handoff is present and authorized",
+      "missing the parent-visible final packet before the parent wait limit for file-changing work",
+      "treating post-cutoff PASS evidence, including BearsCLOUD/apps#107 commit 3d1addaa6bab6579e93d9617d3d5ba81bdbd69aa, as normal closeout"
     ]
   },
   "l3_worker": {

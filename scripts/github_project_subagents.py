@@ -24,6 +24,17 @@ REQUIRED_SURFACES = {
     "deployments_environments",
     "repository_collaboration_metadata",
 }
+RUNTIME_PROXY_REQUIRED_MARKERS = (
+    "bears-development-workflow-orchestrator",
+    "role=bears-github-project-issues-orchestrator",
+    "FAST_BLOCKER",
+    "240 seconds",
+    "300 seconds",
+    "WIP",
+    "timeout",
+    "broad Project scans",
+    "BearsCLOUD/bears_plugin#25",
+)
 ALLOWED_ASSIGNMENT_LANES = {"l2", "l3"}
 ASSIGNMENT_REQUIRED_FIELDS = {
     "lane",
@@ -96,6 +107,10 @@ def validate_catalog(path: Path = CATALOG) -> list[str]:
         for marker in ("implementation", "git add", "secret"):
             if marker not in forbidden:
                 errors.append(f"{lane_name} forbidden actions must mention {marker}")
+    catalog_text = "\n".join(strings(packet))
+    for marker in RUNTIME_PROXY_REQUIRED_MARKERS:
+        if marker not in catalog_text:
+            errors.append(f"runtime proxy deadline guard must mention {marker}")
     if has_forbidden(packet):
         errors.append("catalog contains forbidden data marker")
     return errors

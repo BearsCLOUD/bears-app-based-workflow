@@ -1,7 +1,7 @@
 {
   "schema": "bears-github-project-subagents.v1",
   "version": "1",
-  "updated": "2026-07-02",
+  "updated": "2026-07-03",
   "owner_role": "bears-github-project-issues-orchestrator",
   "parent_lane": {
     "role": "parent-control-lane",
@@ -12,14 +12,16 @@
       "start or reuse L2 orchestrator subagents",
       "pass GitHub metadata packets and route/audit targets",
       "wait for L2 evidence and integrate closeout packets",
-      "request gitflow closeout from bears-git-workflow-helper"
+      "request gitflow closeout from bears-git-workflow-helper",
+      "reject fallback runtime proxy PASS after elapsed time greater than 300 seconds"
     ],
     "forbidden_actions": [
       "implementation file writes",
       "implementation shell commands",
       "git add, git commit, git push, merge, or force push",
       "runtime, deploy, provider, secret, repository settings, or production mutation",
-      "raw logs, secrets, credentials, private chats, raw VPN configs, or production data reads"
+      "raw logs, secrets, credentials, private chats, raw VPN configs, or production data reads",
+      "reusing fallback L2 implementation pools until BearsCLOUD/bears_plugin#25 enforcement is present"
     ]
   },
   "l2_orchestrator": {
@@ -31,14 +33,20 @@
       "mutate Issues, sub-issues, Project items, Project fields, labels, milestones, assignees, links, and issue comments only when the parent packet authorizes mutation",
       "prepare L3 /goal packets for route-selected @Bears roles",
       "prepare role-improvement L3 packets when route/audit or role text is unsafe",
-      "write evidence-backed Project and Issue closeout metadata after L3 evidence"
+      "write evidence-backed Project and Issue closeout metadata after L3 evidence",
+      "use bears-development-workflow-orchestrator as runtime proxy only with explicit role=bears-github-project-issues-orchestrator and the fallback deadline guard present"
     ],
     "forbidden_actions": [
       "implementation file writes",
       "implementation shell commands",
       "git add, git commit, git push, merge, or force push",
       "repository settings, branch protection, secrets, variables, webhooks, environments, deploy keys, Apps, organization settings, billing, or production mutation",
-      "raw GitHub Actions log reads unless a separate exact role and operator packet authorize them"
+      "raw GitHub Actions log reads unless a separate exact role and operator packet authorize them",
+      "fallback L2 work continuing after 240 seconds without ready PASS proof",
+      "leaving WIP after FAST_BLOCKER or timeout",
+      "returning PASS after elapsed time greater than 300 seconds",
+      "broad Project scans when parent-provided exact Issues and route/audit evidence are sufficient",
+      "implementation pools before BearsCLOUD/bears_plugin#25 runtime proxy enforcement is present"
     ]
   },
   "l3_worker": {

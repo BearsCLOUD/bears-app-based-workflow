@@ -82,12 +82,13 @@ Each L2 orchestrator must run the `bears-github-project-issues-orchestrator` rol
 ## Runtime fallback and deadline rules
 
 - If the exact L2 agent type `bears-github-project-issues-orchestrator` is unavailable, use the approved runtime proxy `bears-development-workflow-orchestrator` with explicit `role=bears-github-project-issues-orchestrator`; if that proxy is unavailable or unauthorized, return `FAST_BLOCKER` before dispatch.
+- The runtime proxy must enforce the same L2 deadline rules in its role profile and the GitHub Project subagents catalog/script guard before any fallback implementation pool is used.
 - After any five-minute miss, the next attempt must be one-file/one-issue or issue-strengthening only; no grouped implementation retry is allowed.
 - When the parent supplies an exact Issue plus route/audit evidence, L2 must skip broad Project scans and read only metadata required for that Issue.
 - L2 must set an internal child cutoff before 240 seconds, close descendants before that cutoff, and return `FAST_BLOCKER` with no WIP when completion is not proven.
 - The parent must reject any L2 result with elapsed time greater than 300 seconds, even when the final text says `PASS`.
 - No WIP may remain after timeout; cleanup is mandatory before any retry.
-- Current drift issue: `BearsCLOUD/bears_plugin#24`.
+- Current drift issue #25: `BearsCLOUD/bears_plugin#25`.
 
 ## First-minute parent gate
 

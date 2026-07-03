@@ -1733,6 +1733,23 @@
       "scope_id": "objective-runtime-proof-dagger",
       "status": "accepted",
       "unresolved_inputs": []
+    },
+    {
+      "affected_paths": [
+        "assets/catalog/agent-github-dev-cd.v1.json",
+        "scripts/agent_github_dev_cd.py"
+      ],
+      "change_type": "workflow",
+      "contradictions": [],
+      "decision": "Keep the plugin validate workflow as operator-dispatched diagnostics only and align the archived GitHub dev-CD policy checker with that trigger model.",
+      "decision_id": "D-2026-07-03-008-operator-diagnostics-only",
+      "owner_issue": "#8",
+      "owner_role": "bears-workflow-overlay-platform-engineer",
+      "rationale": "The root and plugin routers state that GitHub Actions validate.yml is diagnostics only; the policy checker must not require push triggers after the app skill rename closeout.",
+      "redaction": "safe",
+      "scope_id": "app-workflow-skill-rename",
+      "status": "accepted",
+      "unresolved_inputs": []
     }
   ],
   "schema": "bears-decision-ledger.v1",

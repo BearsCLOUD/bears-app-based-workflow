@@ -81,6 +81,18 @@
     },
     {
       "kind": "files",
+      "name": "ci-and-pr-pipeline",
+      "pants_target": "//:ci_and_pr_pipeline_files",
+      "patterns": [
+        ".github/workflows/**"
+      ],
+      "tests": [
+        "tests/test_agent_github_dev_cd.py",
+        "tests/test_pr_pipeline.py"
+      ]
+    },
+    {
+      "kind": "files",
       "name": "plugin-surface",
       "pants_target": "//:plugin_surface_files",
       "patterns": [
@@ -506,6 +518,6 @@
     }
   ],
   "schema": "bears-pants-test-graph.v1",
-  "updated": "2026-07-02",
+  "updated": "2026-07-03",
   "version": "1"
 }

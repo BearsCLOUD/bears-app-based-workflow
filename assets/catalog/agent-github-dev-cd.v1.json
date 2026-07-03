@@ -2,7 +2,7 @@
   "schema": "bears-agent-github-dev-cd.v1",
   "owner_plugin": "bears",
   "concrete_part": "agent_github_dev_cd_flow",
-  "updated": "2026-06-23",
+  "updated": "2026-07-03",
   "purpose": "Archived, non-authoritative reference for the former agent GitHub dev-CD flow; active Bears plugin delivery is main-only through agentic-enterprise delivery_policy.",
   "route_target": "/srv/bears/plugins/bears/.github/workflows/validate.yml",
   "reference_doc": "/srv/bears/plugins/bears/docs/reference/agent-github-dev-cd.md",
@@ -334,9 +334,7 @@
     "required_on_dev_branch": false,
     "required_pull_request_event": false,
     "required_pull_request_targets": [],
-    "required_push_branches": [
-      "main"
-    ],
+    "required_push_branches": [],
     "validation_workflow": "/srv/bears/plugins/bears/.github/workflows/validate.yml",
     "required_commands": [
       "python3 scripts/ci_requirements.py validate-workflow",
@@ -358,8 +356,8 @@
       "docs_only_skips_unit_suite": true,
       "changed_path_classifier_job": "changes",
       "summary_job": "ci-summary",
-      "automatic_tests": "local_post_commit_and_github_push_main",
-      "github_tests": "push_main_and_operator_emergency_workflow_dispatch"
+      "automatic_tests": "local_post_commit_only",
+      "github_tests": "operator_emergency_workflow_dispatch_only"
     },
     "branch_based_dev_cd_gate_allowed": false
   },

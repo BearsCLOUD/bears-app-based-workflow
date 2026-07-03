@@ -29,6 +29,11 @@ files(
 )
 
 files(
+    name="ci_and_pr_pipeline_files",
+    sources=[".github/workflows/*.yml"],
+)
+
+files(
     name="external_review_audit_files",
     sources=[
         "docs/audits/external-review-2026-06-25/*",

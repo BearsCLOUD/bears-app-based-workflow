@@ -78,7 +78,10 @@
 
 ## Safety checks
 - Route/audit gates are agent-local ownership checks; they are not PASS evidence.
+- Local commit validation owns blocking plugin test proof.
+- Agents must not run repo validator suites or tests manually unless the operator names one command.
 - Repo suites, tests, validators, schemas, lint, Docker checks, Kubernetes checks, browser checks, and ad hoc checks are safety-only unless a human explicitly requests one named command.
+- Closeout proof must cite `runtime/local-commit-validation/<main_sha>.json` after the commit exists.
 - Plugin closeout for app/platform behavior must cite an ObjectiveRuntimeProof packet or final Kubernetes live proof, not validation artifacts.
 - Agents may inspect current commit or current PR GitHub Checks, GitHub Actions runs, statuses, logs, and artifacts as safety context only.
 - Deep `/srv/bears/kubernetes` Git history reads are forbidden unless the operator explicitly requests bounded history work in the current turn.

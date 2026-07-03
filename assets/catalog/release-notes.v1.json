@@ -12,6 +12,7 @@
         "operator_only_diagnostics_workflow"
       ],
       "files": [
+        "AGENTS.md",
         ".codex-plugin/plugin.json",
         ".github/workflows/validate.yml",
         "README.md",
@@ -19,6 +20,8 @@
         "assets/catalog/artifact-registry.v1.json",
         "assets/catalog/decision-ledger.v1.json",
         "assets/catalog/github-project-subagents.v1.json",
+        "BUILD",
+        "assets/catalog/pants-test-graph.v1.json",
         "assets/catalog/platform-role-catalog.v1.json",
         "assets/catalog/plugin-skill-catalog.v1.json",
         "assets/catalog/release-notes.v1.json",
@@ -34,7 +37,10 @@
         "skills/app-specify/SKILL.md",
         "skills/github-project-planning/SKILL.md",
         "skills/speckit-bears-flow/SKILL.md",
-        "tests/test_platform_roles.py"
+        "tests/test_platform_roles.py",
+        "assets/catalog/agent-github-dev-cd.v1.json",
+        "scripts/agent_github_dev_cd.py",
+        "tests/test_agent_github_dev_cd.py"
       ],
       "impact": "App workflow skills now use short app-* names, app-dev consumes app-plan tasks, github-project-planning remains an independent GitHub Project planning skill, and the validate workflow trigger matches the operator-only diagnostics policy.",
       "validation": [

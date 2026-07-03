@@ -43,7 +43,12 @@
       "use bears-development-workflow-orchestrator as runtime proxy only with explicit role=bears-github-project-issues-orchestrator and the fallback deadline guard present",
       "return exactly one parent-visible READY, WIP, or FAST_BLOCKER packet inside the first minute",
       "when L3 spawn fails or capacity is unavailable, create or update a smaller Issue or issue comment, close owned descendants, and return FAST_BLOCKER",
-      "for one L2 retry choose one issue, one L3 max, one target file or contract, and one validation path"
+      "for one L2 retry choose one issue, one L3 max, one target file or contract, and one validation path",
+      "require exact new-file authorization from the Issue body, sub-issue, or parent packet before spawning any L3 that creates a file",
+      "close owned L3 descendants and return FAST_BLOCKER before 240 seconds when final PASS evidence is not ready",
+      "run post-close bounded WIP proof with git status for tracked targets and test ! -e for expected-new-file targets before claiming clean or absent",
+      "update BearsCLOUD/bears_plugin#26 with lane id, elapsed seconds, target, WIP proof, and next smaller metadata-only action when repeated timeout occurs",
+      "prefer metadata-only Issue or comment reinforcement before spawning another L3 after timeout drift"
     ],
     "forbidden_actions": [
       "implementation file writes",
@@ -60,7 +65,12 @@
       "continuing silently after L3 spawn fails or capacity is unavailable",
       "leaving descendants open after 240 seconds or after the 270 seconds hard stop",
       "retrying with more than one issue, one L3 max, one target file or contract, or one validation path after timeout",
-      "repeated timeout without updating BearsCLOUD/bears_plugin#26 and decomposing smaller"
+      "repeated timeout without updating BearsCLOUD/bears_plugin#26 and decomposing smaller",
+      "spawning L3 new-file work without exact new-file authorization from the Issue body, sub-issue, or parent packet",
+      "waiting for L3 after 240 seconds when final PASS evidence is not already ready",
+      "claiming clean or absent after closeout without post-close bounded WIP proof",
+      "treating cleanup lane timeout as CLEANED_NO_WIP or PASS instead of workflow drift",
+      "spawning another L3 after repeated timeout before metadata-only reinforcement or exact parent reauthorization"
     ]
   },
   "l3_worker": {
@@ -76,7 +86,9 @@
       "scope expansion beyond the route/audit packet",
       "unassigned GitHub metadata mutation",
       "secret, raw log, private chat, raw VPN config, or production data reads",
-      "deploy or runtime mutation unless the exact route and operator packet authorize it"
+      "deploy or runtime mutation unless the exact route and operator packet authorize it",
+      "creating a new file without exact new-file authorization passed by L2 from the Issue body, sub-issue, or parent packet",
+      "reporting PASS after the parent 300 second ceiling or after L2 closeout"
     ]
   },
   "github_surfaces": [

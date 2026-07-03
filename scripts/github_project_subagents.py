@@ -47,6 +47,11 @@ RUNTIME_PROXY_REQUIRED_MARKERS = (
     "broad Project scans",
     "BearsCLOUD/bears_plugin#25",
     "BearsCLOUD/bears_plugin#26",
+    "exact new-file authorization",
+    "post-close bounded WIP proof",
+    "cleanup lane timeout",
+    "metadata-only",
+    "before 240 seconds",
 )
 ALLOWED_ASSIGNMENT_LANES = {"l2", "l3"}
 ASSIGNMENT_REQUIRED_FIELDS = {

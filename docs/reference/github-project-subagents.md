@@ -40,10 +40,14 @@ The fallback runtime proxy must:
 - create or update a smaller Issue or issue comment and return `FAST_BLOCKER` when L3 spawn fails or capacity is unavailable;
 - after timeout, retry with one issue, one L3 max, one target file or contract, and one validation path;
 - update `BearsCLOUD/bears_plugin#26` on repeated timeout before retrying smaller;
+- prefer metadata-only Issue/comment reinforcement before another L3 after a repeated timeout;
 - return `FAST_BLOCKER` before 240 seconds when no PASS is ready;
-- close descendants before `FAST_BLOCKER`;
+- close descendants before 240 seconds and before `FAST_BLOCKER`;
 - leave no WIP on `FAST_BLOCKER` or timeout;
+- run post-close bounded WIP proof before claiming a target is clean or absent;
+- treat cleanup lane timeout as new workflow drift, not as `CLEANED_NO_WIP`;
 - never report PASS after elapsed time greater than 300 seconds;
+- require exact new-file authorization from the Issue, sub-issue, or parent packet before any L3 creates a new file;
 - skip broad Project scans when the parent provides exact Issues and route/audit evidence;
 - avoid implementation pools until this enforcement text and catalog/script guard are present.
 

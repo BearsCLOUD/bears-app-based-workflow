@@ -7079,6 +7079,40 @@
       "lifecycle": "doc",
       "owner_issue": "operator-goal-github-project-planning",
       "owner_role": "bears-github-project-issues-orchestrator",
+      "source_of_truth_status": "canonical",
+      "validation": [
+        "python3 scripts/artifact_registry.py validate"
+      ],
+      "path": "skills/app-research/SKILL.md"
+    },
+    {
+      "allowed_writers": [
+        "bears-github-project-issues-orchestrator"
+      ],
+      "artifact_type": "doc",
+      "changelog_required": false,
+      "decision_ref_required": false,
+      "git_tracked": true,
+      "lifecycle": "doc",
+      "owner_issue": "operator-goal-github-project-planning",
+      "owner_role": "bears-github-project-issues-orchestrator",
+      "source_of_truth_status": "canonical",
+      "validation": [
+        "python3 scripts/artifact_registry.py validate"
+      ],
+      "path": "skills/app-research/agents/openai.yaml"
+    },
+    {
+      "allowed_writers": [
+        "bears-github-project-issues-orchestrator"
+      ],
+      "artifact_type": "doc",
+      "changelog_required": false,
+      "decision_ref_required": false,
+      "git_tracked": true,
+      "lifecycle": "doc",
+      "owner_issue": "operator-goal-github-project-planning",
+      "owner_role": "bears-github-project-issues-orchestrator",
       "path": "skills/app-specify/SKILL.md",
       "source_of_truth_status": "canonical",
       "validation": [
@@ -7206,6 +7240,6 @@
     }
   ],
   "schema": "bears-artifact-registry.v1",
-  "updated": "2026-07-03",
+  "updated": "2026-07-04",
   "version": "1"
 }

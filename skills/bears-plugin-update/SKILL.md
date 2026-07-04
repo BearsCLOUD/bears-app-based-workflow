@@ -5,7 +5,10 @@ description: "Use for @Bears plugin updates: route policy ownership, keep centra
 
 # Bears Plugin Update
 
-Use this skill when changing the `@Bears` plugin source under `/srv/bears/plugins/bears`.
+Use this skill only after the changed fact is classified as central `@Bears` plugin config.
+Do not use the skill as a blanket trigger for every source edit under `/srv/bears/plugins/bears`.
+If the rule belongs to one target repo or path, edit that target `AGENTS.md`.
+If the change materializes Codex runtime behavior inside one target, edit that target `.codex/`.
 
 This skill is regulatory. It defines where update facts belong and which owner surface must be changed. It does not store target-specific product facts and does not replace route/audit ownership discovery.
 

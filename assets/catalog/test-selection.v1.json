@@ -172,7 +172,6 @@
       "tests": [
         "tests/test_bears_doctor.py",
         "tests/test_local_commit_validation.py",
-        "tests/test_workflow_governance_docs.py",
         "tests/test_plugin_manifests.py",
         "tests/test_test_selection.py"
       ]
@@ -416,7 +415,6 @@
       ],
       "tests": [
         "tests/test_plugin_manifests.py",
-        "tests/test_workflow_governance_docs.py",
         "tests/test_test_selection.py"
       ]
     },
@@ -508,7 +506,6 @@
       "tests": [
         "tests/test_agentic_enterprise_workflow.py",
         "tests/test_plugin_constitution.py",
-        "tests/test_workflow_governance_docs.py",
         "tests/test_development_workflow_validate.py",
         "tests/test_capability_hook_claims.py",
         "tests/test_test_selection.py"
@@ -521,8 +518,7 @@
         "docs/reference/secret-factory.md"
       ],
       "tests": [
-        "tests/test_secret_factory.py",
-        "tests/test_workflow_governance_docs.py"
+        "tests/test_secret_factory.py"
       ]
     },
     {
@@ -546,9 +542,7 @@
         "assets/catalog/telegram-workflow-catalog.v1.json"
       ],
       "tests": [
-        "tests/test_telegram_catalog.py",
         "tests/test_telegram_runtime_readiness.py",
-        "tests/test_telegram_skill_factory_policy.py",
         "tests/test_telegram_surface_inventory.py"
       ]
     },

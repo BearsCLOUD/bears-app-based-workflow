@@ -638,10 +638,14 @@ def _write_canonical_fixture_assets(plugin_root: Path) -> None:
     for skill in (
         "platform-role-governance",
         "bears-goal-prompt",
-        "project-mandate",
-        "platform-role-governance",
-        "speckit-bears-flow",
-        "speckit-bears-research",
+        "app-constitution",
+        "app-specify",
+        "app-plan",
+        "app-analyze",
+        "app-dev",
+        "app-research",
+        "subagents",
+        "python-codeflow",
     ):
         skill_dir = plugin_root / "skills" / skill
         skill_dir.mkdir(parents=True, exist_ok=True)
@@ -655,10 +659,14 @@ def _write_canonical_fixture_assets(plugin_root: Path) -> None:
     active_skill_names = [
         "platform-role-governance",
         "bears-goal-prompt",
-        "project-mandate",
-        "platform-role-governance",
-        "speckit-bears-flow",
-        "speckit-bears-research",
+        "app-constitution",
+        "app-specify",
+        "app-plan",
+        "app-analyze",
+        "app-dev",
+        "app-research",
+        "subagents",
+        "python-codeflow",
     ]
     skill_catalog = {
         "schema": "bears-plugin-skill-catalog.v1",
@@ -968,7 +976,6 @@ def _create_plugin_fixture(tmp_path: Path) -> tuple[Path, Path, Path]:
     agents.mkdir()
     skills.mkdir()
     schemas.mkdir()
-    (skills / "speckit-bears-flow").mkdir()
     codex.mkdir()
     feature.mkdir()
     (feature / "spec.md").write_text("# Spec\n")
@@ -999,11 +1006,13 @@ def _write_policy_packet(path: Path) -> None:
             {
                 "schema": "bears-workflow-overlay.workflow-policy",
                 "version": "1",
-                "status": "draft",
-                "project_router": "agent-router",
-                "policy_id": "P-1",
-                "owner": {"name": "Ops", "team": "Workflow", "contact": "ops@local"},
-                "scope": {"project_group": "overlay", "artifact_type": "plugin"},
+                "status": "pass",
+                "target": "plugin-fixture",
+                "owner_role": "bears-workflow-overlay-platform-engineer",
+                "allowed_scope": ["plugin fixture"],
+                "forbidden_scope": ["app workflow", "runtime mutation", "secrets"],
+                "evidence": ["fixture policy packet"],
+                "recommendation": "accept fixture",
             }
         )
     )

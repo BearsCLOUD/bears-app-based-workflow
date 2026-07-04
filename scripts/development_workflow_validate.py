@@ -10,20 +10,152 @@ from pathlib import Path, PurePosixPath
 from typing import Any
 
 PLUGIN_ROOT = Path(__file__).resolve().parents[1]
-CONTRACT_DIR = PLUGIN_ROOT / "skills/development-workflow-orchestration/contracts"
 FIXTURE_DIR = PLUGIN_ROOT / "tests/fixtures/development_workflow"
 
-SCHEMA_FILES = {
-    "user-agreement": "user-agreement.v1.schema.json",
-    "workspace-bootstrap": "workspace-bootstrap.v1.schema.json",
-    "architecture-packet": "architecture-packet.v1.schema.json",
-    "task-graph": "task-graph.v1.schema.json",
-    "domain-orchestrator-assignment": "domain-orchestrator-assignment.v1.schema.json",
-    "worker-assignment": "worker-assignment.v1.schema.json",
-    "worker-closeout": "worker-closeout.v1.schema.json",
-    "review-result": "review-result.v1.schema.json",
-    "merge-decision": "merge-decision.v1.schema.json",
-    "stage-boundary-audit": "stage-boundary-audit.v1.schema.json",
+PACKET_REQUIRED_FIELDS = {
+    "user-agreement": [
+        "goal_id",
+        "goal",
+        "explicit_user_constraints",
+        "forbidden_surfaces",
+        "allowed_repositories",
+        "live_mutation_rules",
+        "secret_data_handling_rules",
+        "target_readiness_definition",
+        "review_rules",
+        "merge_rules",
+        "parallelization_permission",
+        "unresolved_questions",
+        "accepted_assumptions",
+        "restricted_data_taint",
+        "status",
+    ],
+    "workspace-bootstrap": [
+        "goal_id",
+        "role",
+        "repo_boundary",
+        "branch_worktree_policy",
+        "local_agents_file",
+        "allowed_write_scope",
+        "forbidden_scope",
+        "validation_commands",
+        "closeout_format",
+        "owner_role",
+        "reviewer_role",
+        "rollback_path",
+        "restricted_data_taint",
+        "status",
+    ],
+    "architecture-packet": [
+        "goal_id",
+        "role",
+        "repo_boundary",
+        "module_boundaries",
+        "dependency_graph",
+        "migration_map",
+        "contract_map",
+        "risk_map",
+        "validation_plan",
+        "parallelizable_task_graph",
+        "restricted_data_taint",
+        "status",
+    ],
+    "task-graph": [
+        "goal_id",
+        "role",
+        "repo_boundary",
+        "tasks",
+        "dependencies",
+        "parallel_groups",
+        "restricted_data_taint",
+        "status",
+    ],
+    "domain-orchestrator-assignment": [
+        "goal_id",
+        "task_id",
+        "role",
+        "domain",
+        "repo_boundary",
+        "allowed_write_scope",
+        "forbidden_scope",
+        "validation_commands",
+        "smart_reuse_required",
+        "task_ids",
+        "restricted_data_taint",
+        "status",
+    ],
+    "worker-assignment": [
+        "goal_id",
+        "task_id",
+        "role",
+        "repo_boundary",
+        "branch_worktree",
+        "allowed_write_scope",
+        "forbidden_scope",
+        "validation_commands",
+        "required_tests",
+        "closeout_schema",
+        "no_secret_no_live_mutation_rules",
+        "restricted_data_taint",
+        "status",
+    ],
+    "worker-closeout": [
+        "goal_id",
+        "task_id",
+        "role",
+        "repo_boundary",
+        "changed_files",
+        "validation_results",
+        "head_sha",
+        "risk_notes",
+        "restricted_data_taint",
+        "worker_state",
+        "status",
+    ],
+    "review-result": [
+        "goal_id",
+        "task_id",
+        "role",
+        "repo_boundary",
+        "decision",
+        "checked_claims",
+        "rejected_claims",
+        "validation_results",
+        "forbidden_surfaces_touched",
+        "head_sha",
+        "restricted_data_taint",
+        "status",
+    ],
+    "merge-decision": [
+        "goal_id",
+        "task_id",
+        "role",
+        "repo_boundary",
+        "decision",
+        "review_decision",
+        "unchanged_head_evidence",
+        "validation_results",
+        "head_sha",
+        "restricted_data_taint",
+        "status",
+    ],
+    "stage-boundary-audit": [
+        "goal_id",
+        "role",
+        "repo_boundary",
+        "pr_urls",
+        "head_shas",
+        "merge_shas",
+        "changed_files",
+        "validation_results",
+        "blockers",
+        "pending_tasks",
+        "unresolved_user_decisions",
+        "forbidden_surfaces_untouched",
+        "claims_not_made",
+        "restricted_data_taint",
+        "status",
+    ],
 }
 
 PACKET_KIND_SCHEMA_ALIASES = {
@@ -97,12 +229,7 @@ def _require_string_list(packet: dict[str, Any], field: str, errors: list[str]) 
 
 
 def _schema_required(kind: str) -> list[str]:
-    if kind not in SCHEMA_FILES:
-        return []
-    schema_path = CONTRACT_DIR / SCHEMA_FILES[kind]
-    schema = load_json(schema_path)
-    required = schema.get("required")
-    return required if isinstance(required, list) else []
+    return list(PACKET_REQUIRED_FIELDS.get(kind, []))
 
 
 def _common_errors(packet: Any, kind: str) -> list[str]:
@@ -120,7 +247,7 @@ def _common_errors(packet: Any, kind: str) -> list[str]:
 
 
 def validate_packet(packet: Any, kind: str) -> list[str]:
-    if kind not in SCHEMA_FILES:
+    if kind not in PACKET_REQUIRED_FIELDS:
         return [f"unknown packet kind: {kind}"]
     errors = _common_errors(packet, kind)
     if not isinstance(packet, dict):
@@ -220,7 +347,7 @@ def normalize_packet_schema_kind(packet_kind: str | None) -> str | None:
     if not isinstance(packet_kind, str):
         return None
     normalized = packet_kind.strip().lower().replace("_", "-")
-    if normalized in SCHEMA_FILES:
+    if normalized in PACKET_REQUIRED_FIELDS:
         return normalized
     return PACKET_KIND_SCHEMA_ALIASES.get(normalized)
 
@@ -470,21 +597,9 @@ def validate_workflow_state_references(
 
 def validate_all() -> list[str]:
     errors: list[str] = []
-    for kind, filename in SCHEMA_FILES.items():
-        path = CONTRACT_DIR / filename
-        if not path.is_file():
-            errors.append(f"missing schema: {filename}")
-            continue
-        schema = load_json(path)
-        if schema.get("type") != "object":
-            errors.append(f"{filename}.type must be object")
-        required = schema.get("required")
-        if not isinstance(required, list) or not required:
-            errors.append(f"{filename}.required must be non-empty")
-        desc = str(schema.get("description", ""))
-        for marker in ("raw secrets", "raw logs", "raw chats", "raw VPN configs", "production data"):
-            if marker not in desc:
-                errors.append(f"{filename}.description must mention {marker}")
+    for kind, required in PACKET_REQUIRED_FIELDS.items():
+        if not required:
+            errors.append(f"{kind}.required must be non-empty")
     for path in sorted((FIXTURE_DIR / "positive").glob("*.json")):
         kind = path.stem
         if kind == "workflow-state":
@@ -493,7 +608,7 @@ def validate_all() -> list[str]:
                 for error in validate_workflow_state_references(load_json(path), base_dir=path.parent)
             )
             continue
-        if kind not in SCHEMA_FILES:
+        if kind not in PACKET_REQUIRED_FIELDS:
             continue
         errors.extend(f"{path}: {error}" for error in validate_packet(load_json(path), kind))
     for path in sorted((FIXTURE_DIR / "negative").glob("*.json")):
@@ -503,7 +618,7 @@ def validate_all() -> list[str]:
             if not packet_errors:
                 errors.append(f"{path}: negative fixture unexpectedly passed")
             continue
-        if kind not in SCHEMA_FILES:
+        if kind not in PACKET_REQUIRED_FIELDS:
             continue
         packet_errors = validate_packet(load_json(path), kind)
         if not packet_errors:

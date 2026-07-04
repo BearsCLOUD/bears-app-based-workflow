@@ -441,7 +441,6 @@
       "telegram_platform_feature_006_workspace_lane",
       "telegram_runtime_readiness_catalog",
       "telegram_runtime_surfaces",
-      "telegram_workflow_governance_docs_test",
       "telegram_workflow_plugin_feature_005_checklists",
       "telegram_workflow_plugin_feature_005_governance_packets",
       "telegram_workflow_plugin_feature_005_truth_layer",
@@ -491,7 +490,8 @@
       "bears_platform_objective_runtime_proof",
       "objective_runtime_proof_policy",
       "product_apps_monorepo_router_docs",
-      "codex_telegram_operator_workflow"
+      "codex_telegram_operator_workflow",
+      "development_workflow_packet_validator"
     ],
     "root_planning_drift_targets": [
       "/srv/bears/.specify",
@@ -2838,7 +2838,10 @@
         "plugins/bears/skills/app-research",
         "plugins/bears/skills/app-research/SKILL.md",
         "/srv/bears/plugins/bears/skills/app-research",
-        "/srv/bears/plugins/bears/skills/app-research/SKILL.md"
+        "/srv/bears/plugins/bears/skills/app-research/SKILL.md",
+        "tests/test_plugin_manifests.py",
+        "plugins/bears/tests/test_plugin_manifests.py",
+        "/srv/bears/plugins/bears/tests/test_plugin_manifests.py"
       ],
       "allowed_write_boundary": "Only listed canonical plugin core manifest, app workflow skills and minimal workflow policy docs, workflows, templates, and core governance agent TOML files; no product/runtime/local_cd/kubernetes_deployment/integration edits, no standalone plugin restoration, no tracked .specify generated files, no upstream speckit-* skill vendoring.",
       "concrete_scope": "Canonical workflow-overlay core plugin packaging, app workflow skills, app-research, app constitution/specification/planning/analysis skills, workflows, templates, and core governance agent TOML files.",
@@ -2859,7 +2862,8 @@
         "workflow execution order change",
         "skill instruction changes that affect worker authority",
         "Spec Kit initialization boundary change",
-        "attempt to track generated .specify files"
+        "attempt to track generated .specify files",
+        "plugin manifest inventory test change"
       ],
       "role_required": true,
       "source": "/srv/bears/plugins/bears/agents/bears-workflow-overlay-platform-engineer.toml",
@@ -2892,7 +2896,10 @@
         "/srv/bears/plugins/bears/skills/app-analyze",
         "skills/app-analyze",
         "/srv/bears/plugins/bears/skills/app-research",
-        "skills/app-research"
+        "skills/app-research",
+        "tests/test_plugin_manifests.py",
+        "plugins/bears/tests/test_plugin_manifests.py",
+        "/srv/bears/plugins/bears/tests/test_plugin_manifests.py"
       ]
     },
     {
@@ -2994,7 +3001,12 @@
         "/srv/bears/plugins/bears/assets/schemas/opencode-agent-profile.v1.schema.json",
         "assets/catalog/opencode-agent-profiles.v1.json",
         "plugins/bears/assets/catalog/opencode-agent-profiles.v1.json",
-        "/srv/bears/plugins/bears/assets/catalog/opencode-agent-profiles.v1.json"
+        "/srv/bears/plugins/bears/assets/catalog/opencode-agent-profiles.v1.json",
+        "release-notes",
+        "release_notes",
+        "assets/catalog/release-notes.v1.json",
+        "plugins/bears/assets/catalog/release-notes.v1.json",
+        "/srv/bears/plugins/bears/assets/catalog/release-notes.v1.json"
       ],
       "allowed_write_boundary": "Only listed plugin-local schemas, catalogs, scripts, fixtures, tests, validators, and reference docs for the machine-first execution kernel; no product, runtime service, local_cd, kubernetes_deployment, connector, MCP, app, provider, secret, raw log, raw chat, raw VPN config, credential, or production-data authority.",
       "concrete_scope": "Exact machine-first execution kernel surfaces for GitHub issues #387, #389, #390, #371, #372, #382, #383, #388, and minimal #386, and #413, and #415, and #416.",
@@ -3096,7 +3108,12 @@
         "docs/reference/bears-goals-and-principles.md",
         "tests/test_bears_goals_principles.py",
         "assets/schemas/opencode-agent-profile.v1.schema.json",
-        "assets/catalog/opencode-agent-profiles.v1.json"
+        "assets/catalog/opencode-agent-profiles.v1.json",
+        "release-notes",
+        "release_notes",
+        "assets/catalog/release-notes.v1.json",
+        "plugins/bears/assets/catalog/release-notes.v1.json",
+        "/srv/bears/plugins/bears/assets/catalog/release-notes.v1.json"
       ]
     },
     {
@@ -4489,42 +4506,6 @@
     },
     {
       "aliases": [
-        "tests/test_workflow_governance_docs.py",
-        "plugins/bears/tests/test_workflow_governance_docs.py",
-        "/srv/bears/plugins/bears/tests/test_workflow_governance_docs.py"
-      ],
-      "allowed_write_boundary": "Only tests/test_workflow_governance_docs.py assertions and constants that verify Telegram workflow skill-bundle governance docs; no product, runtime, connector, MCP server, deployment, production, or secret authority.",
-      "concrete_scope": "Exact local-commit-owned doc governance test file for Telegram workflow skill-bundle governance assertions.",
-      "decomposition_required": false,
-      "group": "workflow",
-      "name": "telegram_workflow_governance_docs_test",
-      "no_role_policy": "blocker",
-      "part_kind": "concrete",
-      "required_role": "bears-telegram-platform-engineer",
-      "required_validations": [
-        "python3 scripts/platform_roles.py route tests/test_workflow_governance_docs.py",
-        "python3 scripts/platform_roles.py audit tests/test_workflow_governance_docs.py",
-        "python3 -m unittest tests/test_workflow_governance_docs.py"
-      ],
-      "reviewer_triggers": [
-        "Telegram skill-bundle boundary assertion change",
-        "canonical role-gate assertion change",
-        "runtime or connector authority assertion appears"
-      ],
-      "role_required": true,
-      "source": "/srv/bears/plugins/bears/tests/test_workflow_governance_docs.py",
-      "supporting_roles": [
-        "bears-platform-security-reviewer"
-      ],
-      "trust_boundary": "local-commit-owned repository test coverage for plugin governance documentation. It may assert text in plugin docs but must not authorize runtime behavior, live Telegram actions, external exposure, credential handling, or production mutation paths.",
-      "write_roots": [
-        "tests/test_workflow_governance_docs.py",
-        "plugins/bears/tests/test_workflow_governance_docs.py",
-        "/srv/bears/plugins/bears/tests/test_workflow_governance_docs.py"
-      ]
-    },
-    {
-      "aliases": [
         "specs/005-telegram-workflow-plugin/governance/workflow-policy.json",
         "/srv/bears/specs/005-telegram-workflow-plugin/governance/workflow-policy.json",
         "specs/005-telegram-workflow-plugin/governance/role-coverage.json",
@@ -4544,8 +4525,7 @@
       "required_role": "bears-telegram-platform-engineer",
       "required_validations": [
         "python3 scripts/platform_roles.py validate",
-        "python3 scripts/validate_overlay.py --json validate --strict-overlay-skills --feature-dir /srv/bears/specs/005-telegram-workflow-plugin --require-artifacts",
-        "python3 -m unittest tests/test_platform_roles.py tests/test_spec_governance_packets.py"
+        "python3 scripts/validate_overlay.py --json validate --strict-overlay-skills --feature-dir /srv/bears/specs/005-telegram-workflow-plugin --require-artifacts"
       ],
       "reviewer_triggers": [
         "role coverage packet change",
@@ -10259,6 +10239,53 @@
         "/srv/bears/dev/app/AGENTS.md",
         "dev/app/AGENTS.md"
       ]
+    },
+    {
+      "aliases": [
+        "development-workflow-packet-validator",
+        "development_workflow_packet_validator",
+        "scripts/development_workflow_validate.py",
+        "tests/test_development_workflow_validate.py",
+        "tests/fixtures/development_workflow",
+        "plugins/bears/scripts/development_workflow_validate.py",
+        "plugins/bears/tests/test_development_workflow_validate.py",
+        "plugins/bears/tests/fixtures/development_workflow",
+        "/srv/bears/plugins/bears/scripts/development_workflow_validate.py",
+        "/srv/bears/plugins/bears/tests/test_development_workflow_validate.py",
+        "/srv/bears/plugins/bears/tests/fixtures/development_workflow"
+      ],
+      "allowed_write_boundary": "Only the development workflow packet validator script, its fixtures, and its exact unit coverage inside /srv/bears/plugins/bears; no skill resurrection, product implementation, runtime mutation, deployment, local_cd, kubernetes_deployment, or secret authority.",
+      "concrete_scope": "Plugin-local development workflow packet validation surface after workflow orchestration instructions moved into app-dev/app-plan and subagents skills.",
+      "decomposition_required": false,
+      "group": "workflow",
+      "name": "development_workflow_packet_validator",
+      "no_role_policy": "blocker",
+      "part_kind": "concrete",
+      "required_role": "bears-development-workflow-orchestrator",
+      "required_validations": [
+        "python3 scripts/platform_roles.py route scripts/development_workflow_validate.py",
+        "python3 scripts/platform_roles.py audit scripts/development_workflow_validate.py",
+        "python3 -m py_compile scripts/development_workflow_validate.py"
+      ],
+      "reviewer_triggers": [
+        "packet kind compatibility change",
+        "workflow state reference resolution change",
+        "restricted data marker policy change"
+      ],
+      "role_required": true,
+      "source": "/srv/bears/plugins/bears/scripts/development_workflow_validate.py",
+      "supporting_roles": [
+        "bears-platform-security-reviewer"
+      ],
+      "trust_boundary": "This validator is a local safety guardrail for packet shape and local references. It must not become an app PASS layer or restore a separate development-workflow-orchestration skill.",
+      "write_roots": [
+        "/srv/bears/plugins/bears/scripts/development_workflow_validate.py",
+        "/srv/bears/plugins/bears/tests/test_development_workflow_validate.py",
+        "/srv/bears/plugins/bears/tests/fixtures/development_workflow",
+        "scripts/development_workflow_validate.py",
+        "tests/test_development_workflow_validate.py",
+        "tests/fixtures/development_workflow"
+      ]
     }
   ],
   "roles": [
@@ -14014,12 +14041,6 @@
     },
     {
       "expected_status": "matched",
-      "required_role": "bears-telegram-platform-engineer",
-      "required_route_id": "telegram_workflow_governance_docs_test",
-      "target": "tests/test_workflow_governance_docs.py"
-    },
-    {
-      "expected_status": "matched",
       "required_role": "bears-codex-daemon-engineer",
       "required_route_id": "codexdaemon_runtime",
       "target": "/srv/bears/dev/app/codexdaemon"
@@ -14957,6 +14978,24 @@
       "required_role": "bears-deploy-platform-engineer",
       "required_route_id": "workflow_overlay_validation_ci_workflow",
       "target": "/srv/bears/plugins/bears/assets/catalog/doctor-component-coverage.v1.json"
+    },
+    {
+      "expected_status": "matched",
+      "required_role": "bears-development-workflow-orchestrator",
+      "required_route_id": "development_workflow_packet_validator",
+      "target": "scripts/development_workflow_validate.py"
+    },
+    {
+      "expected_status": "matched",
+      "required_role": "bears-workflow-overlay-platform-engineer",
+      "required_route_id": "workflow_overlay_core_plugin_surface",
+      "target": "tests/test_plugin_manifests.py"
+    },
+    {
+      "expected_status": "matched",
+      "required_role": "bears-machine-first-execution-kernel-engineer",
+      "required_route_id": "machine_first_execution_kernel",
+      "target": "assets/catalog/release-notes.v1.json"
     }
   ],
   "schema": "bears-platform-role-catalog.v1",

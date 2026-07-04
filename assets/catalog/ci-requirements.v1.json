@@ -399,10 +399,6 @@
         "category": "fast"
       },
       {
-        "path": "tests/test_spec_governance_packets.py",
-        "category": "fast"
-      },
-      {
         "path": "tests/test_subagent_orchestration_policy.py",
         "category": "fast"
       },
@@ -411,15 +407,7 @@
         "category": "fast"
       },
       {
-        "path": "tests/test_telegram_catalog.py",
-        "category": "fast"
-      },
-      {
         "path": "tests/test_telegram_runtime_readiness.py",
-        "category": "fast"
-      },
-      {
-        "path": "tests/test_telegram_skill_factory_policy.py",
         "category": "fast"
       },
       {
@@ -440,10 +428,6 @@
       },
       {
         "path": "tests/test_worker_pool.py",
-        "category": "fast"
-      },
-      {
-        "path": "tests/test_workflow_governance_docs.py",
         "category": "fast"
       },
       {
@@ -481,7 +465,8 @@
     "blocking_command": "safety-only pre-commit; no development checks",
     "agent_manual_execution_allowed": false,
     "pass_evidence_allowed": false,
-    "role": "automatic_post_commit_or_github_diagnostics_only"
+    "role": "automatic_post_commit_or_github_diagnostics_only",
+    "test_categories": []
   },
   "cd_gate": {
     "runtime_apply_requires_degradation_continue": true,

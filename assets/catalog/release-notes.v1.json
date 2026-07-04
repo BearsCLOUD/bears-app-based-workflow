@@ -1276,10 +1276,36 @@
       "validation": [
         "python3 scripts/local_commit_validation.py run --staged"
       ]
+    },
+    {
+      "affected_surfaces": [
+        "app_workflow_skill_boundary",
+        "development_workflow_packet_validator",
+        "ci_requirements",
+        "plugin_manifest_inventory"
+      ],
+      "date": "2026-07-04",
+      "files": [
+        "assets/catalog/ci-requirements.v1.json",
+        "assets/catalog/decision-ledger.v1.json",
+        "assets/catalog/platform-role-catalog.v1.json",
+        "assets/catalog/release-notes.v1.json",
+        "assets/catalog/test-selection.v1.json",
+        "scripts/development_workflow_validate.py",
+        "tests/test_plugin_manifests.py",
+        "tests/test_test_selection.py",
+        "tests/test_validate_overlay.py",
+        "tests/test_function_test_loader.py"
+      ],
+      "impact": "Align plugin safety catalogs and packet validation with the app-* skill boundary after removing legacy development-workflow and Speckit overlay skill dependencies.",
+      "issue_ref": "#8",
+      "validation": [
+        "python3 scripts/local_commit_validation.py run --commit-sha <sha>"
+      ]
     }
   ],
   "exemptions": [],
   "schema": "bears-release-notes.v1",
-  "updated": "2026-07-02",
+  "updated": "2026-07-04",
   "version": "1"
 }

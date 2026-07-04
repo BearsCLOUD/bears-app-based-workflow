@@ -1790,6 +1790,30 @@
       "scope_id": "codex-workflow-policy-retirement",
       "status": "accepted",
       "unresolved_inputs": []
+    },
+    {
+      "affected_paths": [
+        "scripts/development_workflow_validate.py",
+        "assets/catalog/platform-role-catalog.v1.json",
+        "assets/catalog/ci-requirements.v1.json",
+        "assets/catalog/test-selection.v1.json",
+        "tests/test_plugin_manifests.py",
+        "tests/test_test_selection.py",
+        "assets/catalog/release-notes.v1.json",
+        "tests/test_validate_overlay.py",
+        "tests/test_function_test_loader.py"
+      ],
+      "change_type": "workflow",
+      "contradictions": [],
+      "decision": "Keep the development workflow packet validator self-contained after development-workflow-orchestration and Speckit overlay skills were consolidated into app workflow skills.",
+      "decision_id": "app-workflow-validator-drift-cleanup-2026-07-04",
+      "owner_issue": "operator-goal-plugin-app-workflow-consistency",
+      "owner_role": "bears-development-workflow-orchestrator",
+      "rationale": "The active plugin must not depend on removed skill contract files or missing test files, and CI safety catalogs must reflect the app-* skill boundary.",
+      "redaction": "safe",
+      "scope_id": "app-workflow-skill-boundaries",
+      "status": "accepted",
+      "unresolved_inputs": []
     }
   ],
   "schema": "bears-decision-ledger.v1",

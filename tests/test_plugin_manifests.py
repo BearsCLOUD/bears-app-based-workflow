@@ -21,10 +21,15 @@ EXPECTED_SKILL_PATHS = [
     "skills/bears-goal-prompt/SKILL.md",
     "skills/bears-workflow-validate/SKILL.md",
     "skills/platform-role-governance/SKILL.md",
-    "skills/project-mandate/SKILL.md",
     "skills/secret-factory/SKILL.md",
-    "skills/speckit-bears-flow/SKILL.md",
-    "skills/speckit-bears-research/SKILL.md",
+    "skills/app-constitution/SKILL.md",
+    "skills/app-specify/SKILL.md",
+    "skills/app-plan/SKILL.md",
+    "skills/app-analyze/SKILL.md",
+    "skills/app-dev/SKILL.md",
+    "skills/app-research/SKILL.md",
+    "skills/subagents/SKILL.md",
+    "skills/python-codeflow/SKILL.md",
     "skills/yandex360-dns/SKILL.md",
 ]
 EXPECTED_CATALOG_PATHS = [
@@ -157,8 +162,8 @@ class PluginManifestTests(unittest.TestCase):
         self.assertNotIn("$bears-telegram-workflow", prompt)
         self.assertNotIn("$telegram-quality-testing", prompt)
         self.assertNotIn("$telegram-aiogram-migration", prompt)
-        self.assertIn("$project-mandate", prompt)
-        self.assertIn("project_registry_gate.py", prompt)
+        self.assertIn("App Target Gate", prompt)
+        self.assertIn("$app-research", prompt)
         self.assertIn("stage boundary", prompt.lower())
         self.assertIn("legacy post-task wording", prompt)
         self.assertIn("$yandex360-dns", prompt)
@@ -208,14 +213,8 @@ class PluginManifestTests(unittest.TestCase):
         readme = (PLUGIN_ROOT / "README.md").read_text(encoding="utf-8")
         self.assertIn('Operator note: in this repo, "Telegram workflow" means governance rules', readme)
         self.assertIn("It does not mean a live Telegram bot, runtime, connector, product app, or MCP surface", readme)
-        self.assertIn("disabled from active plugin skill discovery", readme)
-        self.assertNotIn("SKILL.disabled.md", readme)
-        self.assertNotIn(
-            readme,
-        )
-        self.assertNotIn(
-            readme,
-        )
+        self.assertIn("Plugin-local Speckit overlay skills are removed from active plugin discovery", readme)
+        self.assertIn("Active skills expose `SKILL.md`", readme)
 
     def test_readme_lists_language_policy_inventory(self):
         readme = (PLUGIN_ROOT / "README.md").read_text(encoding="utf-8")

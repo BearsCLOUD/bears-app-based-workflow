@@ -21,7 +21,7 @@
       "path": "skills/bears-codex-health"
     },
     {
-      "description": "Govern @Bears plugin updates, ownership placement, central plugin config boundaries, and generated inventory sync.",
+      "description": "Govern @Bears plugin updates through skill-local config, route/audit ownership discovery, sequential audit-review packets, and generated inventory sync.",
       "name": "bears-plugin-update",
       "path": "skills/bears-plugin-update"
     },
@@ -106,13 +106,7 @@
       "path": "skills/codex-telegram-operator-gate"
     }
   ],
-  "disabled_skills": [
-    {
-      "name": "bears-workflow-validate",
-      "path": "skills/bears-workflow-validate",
-      "reason": "Retired active name after hard rename to bears-plugin-update; preserved only as disabled historical documentation."
-    }
-  ],
+  "disabled_skills": [],
   "discovery_policy": {
     "active_skill_file": "SKILL.md",
     "disabled_skill_file": "SKILL.disabled.md",

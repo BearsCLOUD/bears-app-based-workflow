@@ -538,7 +538,6 @@ This plugin must keep `.specify` generated workspace files ignored. This plugin 
 Canonical catalog: `assets/catalog/plugin-skill-catalog.v1.json`.
 
 Active skills expose `SKILL.md` and are discoverable by the plugin loader.
-Disabled skills expose only `SKILL.disabled.md`; they MUST NOT keep `SKILL.md`.
 
 ## Active skills
 
@@ -546,7 +545,7 @@ Disabled skills expose only `SKILL.disabled.md`; they MUST NOT keep `SKILL.md`.
 - `skills/bears-deploy-gate` — Assess plugin/non-app deploy, rollback, runtime, and secret impact without acting as an app workflow gate.
 - `skills/bears-goal-prompt` — Generate bounded and verifiable Codex goal prompts for Bears work.
 - `skills/bears-codex-health` — Diagnose Codex desktop/app-server freezes, MCP fan-out, session growth, and safe evidence-first remediation planning.
-- `skills/bears-plugin-update` — Govern @Bears plugin updates, ownership placement, central plugin config boundaries, and generated inventory sync.
+- `skills/bears-plugin-update` — Govern @Bears plugin updates through skill-local config, route/audit ownership discovery, sequential audit-review packets, and generated inventory sync.
 - `skills/platform-role-governance` — Enforce the canonical Bears plugin-owned platform role gate.
 - `skills/bears-agents` — Govern @Bears role lifecycle, role coverage gaps, role TOML updates, and registration drift.
 - `skills/python-codeflow` — Independent reusable L3-local Python standard for bounded Python worker tasks.
@@ -563,9 +562,6 @@ Disabled skills expose only `SKILL.disabled.md`; they MUST NOT keep `SKILL.md`.
 - `skills/subagents` — Govern Bears subagent selection, L2/L3 delegation, parent-control-only mode, gitflow closeout lanes, and evidence packets.
 - `skills/app-dev` — Execute app-plan tasks through L2 lane orchestrators, L2 helpers, L3 workers, and L3 critics.
 - `skills/codex-telegram-operator-gate` — Request bounded operator decisions, feedback waits, and safe file exchange through the configured codex-telegram MCP server without a Telegram PreToolUse hook.
-
-## Disabled preserved skill docs
-- `skills/bears-workflow-validate/SKILL.disabled.md` — Retired active name after hard rename to bears-plugin-update; preserved only as disabled historical documentation.
 <!-- BEARS_SKILL_INVENTORY: END -->
 
 Canonical agent workflow map: `assets/catalog/agent-workflow-map.v1.json`.

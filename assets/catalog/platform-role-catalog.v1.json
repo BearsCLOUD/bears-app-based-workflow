@@ -4129,10 +4129,18 @@
         "/srv/bears/plugins/bears/schemas/workflow-policy.schema.json",
         "/srv/bears/plugins/bears/schemas/role-coverage.schema.json",
         "/srv/bears/plugins/bears/schemas/blocker-review.schema.json",
-        "/srv/bears/plugins/bears/schemas/deploy-gate.schema.json"
+        "/srv/bears/plugins/bears/schemas/deploy-gate.schema.json",
+        "skills/bears-plugin-update/plugin-update.config.v1.json",
+        "skills/bears-plugin-update/plugin-update.config.v1.schema.json",
+        "/srv/bears/plugins/bears/skills/bears-plugin-update/plugin-update.config.v1.json",
+        "/srv/bears/plugins/bears/skills/bears-plugin-update/plugin-update.config.v1.schema.json",
+        "contracts/external-review-audit.cue",
+        "/srv/bears/plugins/bears/contracts/external-review-audit.cue",
+        "contracts",
+        "/srv/bears/plugins/bears/contracts"
       ],
-      "allowed_write_boundary": "Only bears-plugin-update skill docs, bears-plugin-update role profile, overlay validator script/tests, and governance packet schemas inside /srv/bears/plugins/bears; target-specific facts belong in target AGENTS.md, target docs, or target .codex/.",
-      "concrete_scope": "@Bears plugin update governance, overlay validator, governance packet schema, and generated inventory boundary surface.",
+      "allowed_write_boundary": "Only bears-plugin-update skill docs, skill-local config/schema, role profile, overlay validator script/tests, governance packet schemas/contracts, and generated inventory surfaces inside the plugin root; target-specific facts belong in target AGENTS.md, target docs, or target .codex/.",
+      "concrete_scope": "@Bears plugin update governance, skill-local update config, overlay validator, governance packet schema/contract, and generated inventory boundary surface.",
       "decomposition_required": false,
       "group": "workflow",
       "name": "bears_plugin_update_governance",
@@ -4142,6 +4150,10 @@
       "required_validations": [
         "python3 scripts/platform_roles.py route skills/bears-plugin-update/SKILL.md",
         "python3 scripts/platform_roles.py audit skills/bears-plugin-update/SKILL.md",
+        "python3 scripts/platform_roles.py route skills/bears-plugin-update/plugin-update.config.v1.json",
+        "python3 scripts/platform_roles.py audit skills/bears-plugin-update/plugin-update.config.v1.json",
+        "python3 scripts/platform_roles.py route skills/bears-plugin-update/plugin-update.config.v1.schema.json",
+        "python3 scripts/platform_roles.py audit skills/bears-plugin-update/plugin-update.config.v1.schema.json",
         "python3 scripts/platform_roles.py validate",
         "python3 scripts/skill_catalog.py generate --check"
       ],
@@ -4165,7 +4177,11 @@
         "/srv/bears/plugins/bears/schemas/workflow-policy.schema.json",
         "/srv/bears/plugins/bears/schemas/role-coverage.schema.json",
         "/srv/bears/plugins/bears/schemas/blocker-review.schema.json",
-        "/srv/bears/plugins/bears/schemas/deploy-gate.schema.json"
+        "/srv/bears/plugins/bears/schemas/deploy-gate.schema.json",
+        "/srv/bears/plugins/bears/skills/bears-plugin-update/plugin-update.config.v1.json",
+        "/srv/bears/plugins/bears/skills/bears-plugin-update/plugin-update.config.v1.schema.json",
+        "/srv/bears/plugins/bears/contracts/external-review-audit.cue",
+        "/srv/bears/plugins/bears/contracts"
       ]
     },
     {
@@ -9213,7 +9229,9 @@
         ".codex/agents/bears-orchestrator.toml",
         "/srv/bears/.codex/agents/bears-orchestrator.toml",
         "local-agent-runner.yaml",
-        "/srv/bears/local-agent-runner.yaml"
+        "/srv/bears/local-agent-runner.yaml",
+        ".agents",
+        "/srv/bears/plugins/bears/.agents"
       ],
       "allowed_write_boundary": "Only /srv/bears/.codex/config.toml, /srv/bears/opencode.jsonc, /srv/bears/.opencode/agent, /srv/bears/.opencode/plugins/bears.ts, /srv/bears/.opencode/command, /srv/bears/.codex/bears_model_instructions.md, /srv/bears/.codex/agents/bears-worker.toml, /srv/bears/.codex/agents/bears-docs-maintainer.toml, /srv/bears/.codex/agents/bears-orchestrator.toml, /srv/bears/local-agent-runner.yaml, /srv/bears/.agents/plugins/marketplace.json, /srv/bears/plugins/bears/.agents/plugins/marketplace.json, /srv/bears/plugins/bears/tests/test_plugin_marketplace.py, and /srv/bears/plugins/bears/agents/bears-codex-workspace-config-engineer.toml, and /home/ai1/.codex/config.toml only for explicit current local Codex runtime MCP/config wiring.",
       "concrete_scope": "Exact Bears Codex and OpenCode workspace configuration and marketplace files that control model instructions, worker agents, tools, plugins, hooks, worker execution under /srv/bears. Includes the exact current local Codex runtime config file /home/ai1/.codex/config.toml when explicitly assigned.",
@@ -9269,7 +9287,8 @@
         "/srv/bears/plugins/bears/tests/test_plugin_marketplace.py",
         "/srv/bears/plugins/bears/agents/bears-codex-workspace-config-engineer.toml",
         "/srv/bears/.codex/agents/bears-orchestrator.toml",
-        "/srv/bears/local-agent-runner.yaml"
+        "/srv/bears/local-agent-runner.yaml",
+        "/srv/bears/plugins/bears/.agents"
       ]
     },
     {
@@ -9606,7 +9625,9 @@
         "plugins/bears/docs/reference/clarification-architect.md",
         "plugins/bears/tests/test_clarification_architect_role.py",
         "plugins/bears/tests/fixtures/clarification_architect",
-        "plugins/bears/tests/fixtures/clarification_architect/**"
+        "plugins/bears/tests/fixtures/clarification_architect/**",
+        "prompts",
+        "/srv/bears/plugins/bears/prompts"
       ],
       "allowed_write_boundary": "Only #442 plugin-local clarification architect artifacts inside /srv/bears/plugins/bears; no product, runtime, deployment, external exposure, secret, raw log, raw chat, raw VPN config, or production data authority.",
       "concrete_scope": "Clarification architect schemas, methodology, profile, prompt, docs, tests, fixtures, and read-only helper agent profile for deterministic goal-question packets.",
@@ -9656,7 +9677,8 @@
         "/srv/bears/plugins/bears/prompts/roles/clarification-architect.md",
         "/srv/bears/plugins/bears/docs/reference/clarification-architect.md",
         "/srv/bears/plugins/bears/tests/test_clarification_architect_role.py",
-        "/srv/bears/plugins/bears/tests/fixtures/clarification_architect"
+        "/srv/bears/plugins/bears/tests/fixtures/clarification_architect",
+        "/srv/bears/plugins/bears/prompts"
       ]
     },
     {
@@ -15047,6 +15069,36 @@
       "expected_status": "matched",
       "required_role": "bears-platform-role-governor",
       "target": "/srv/bears/plugins/bears/skills/bears-agents/SKILL.md"
+    },
+    {
+      "expected_status": "matched",
+      "required_role": "bears-plugin-update-engineer",
+      "target": "skills/bears-plugin-update/plugin-update.config.v1.json"
+    },
+    {
+      "expected_status": "matched",
+      "required_role": "bears-plugin-update-engineer",
+      "target": "skills/bears-plugin-update/plugin-update.config.v1.schema.json"
+    },
+    {
+      "expected_status": "matched",
+      "required_role": "bears-codex-workspace-config-engineer",
+      "target": ".agents"
+    },
+    {
+      "expected_status": "matched",
+      "required_role": "bears-plugin-update-engineer",
+      "target": "contracts/external-review-audit.cue"
+    },
+    {
+      "expected_status": "matched",
+      "required_role": "bears-machine-first-execution-kernel-engineer",
+      "target": "prompts"
+    },
+    {
+      "expected_status": "matched",
+      "required_role": "bears-plugin-update-engineer",
+      "target": "contracts"
     }
   ],
   "schema": "bears-platform-role-catalog.v1",

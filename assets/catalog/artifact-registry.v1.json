@@ -7138,6 +7138,40 @@
     },
     {
       "allowed_writers": [
+        "bears-plugin-update-engineer"
+      ],
+      "changelog_required": false,
+      "decision_ref_required": false,
+      "git_tracked": true,
+      "lifecycle": "config",
+      "owner_issue": "operator-goal-plugin-update-refactor",
+      "owner_role": "bears-plugin-update-engineer",
+      "source_of_truth_status": "canonical",
+      "validation": [
+        "python3 scripts/artifact_registry.py validate"
+      ],
+      "artifact_type": "catalog",
+      "path": "skills/bears-plugin-update/plugin-update.config.v1.json"
+    },
+    {
+      "allowed_writers": [
+        "bears-plugin-update-engineer"
+      ],
+      "changelog_required": false,
+      "decision_ref_required": false,
+      "git_tracked": true,
+      "lifecycle": "config",
+      "owner_issue": "operator-goal-plugin-update-refactor",
+      "owner_role": "bears-plugin-update-engineer",
+      "source_of_truth_status": "canonical",
+      "validation": [
+        "python3 scripts/artifact_registry.py validate"
+      ],
+      "artifact_type": "schema",
+      "path": "skills/bears-plugin-update/plugin-update.config.v1.schema.json"
+    },
+    {
+      "allowed_writers": [
         "bears-platform-role-governor"
       ],
       "artifact_type": "doc",
@@ -7148,23 +7182,6 @@
       "owner_issue": "operator-goal-plugin-update-refactor",
       "owner_role": "bears-platform-role-governor",
       "path": "skills/bears-agents/SKILL.md",
-      "source_of_truth_status": "canonical",
-      "validation": [
-        "python3 scripts/artifact_registry.py validate"
-      ]
-    },
-    {
-      "allowed_writers": [
-        "bears-plugin-update-engineer"
-      ],
-      "artifact_type": "doc",
-      "changelog_required": false,
-      "decision_ref_required": false,
-      "git_tracked": true,
-      "lifecycle": "doc",
-      "owner_issue": "operator-goal-plugin-update-refactor",
-      "owner_role": "bears-plugin-update-engineer",
-      "path": "skills/bears-workflow-validate/SKILL.disabled.md",
       "source_of_truth_status": "canonical",
       "validation": [
         "python3 scripts/artifact_registry.py validate"

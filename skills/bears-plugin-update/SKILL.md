@@ -1,70 +1,63 @@
 ---
 name: bears-plugin-update
-description: "Use for @Bears plugin updates: route policy ownership, keep central plugin config separate from target AGENTS.md and target .codex surfaces, and rely on automatic CI/local-commit checks for validation."
+description: "Use for @Bears plugin updates: route policy ownership, use skill-local config, keep target facts in target surfaces, and rely on CI/local-commit checks for validation."
 ---
 
 # Bears Plugin Update
 
-Use this skill only after the changed fact is classified as central `@Bears` plugin config.
-Do not use the skill as a blanket trigger for every source edit under `/srv/bears/plugins/bears`.
-If the rule belongs to one target repo or path, edit that target `AGENTS.md`.
-If the change materializes Codex runtime behavior inside one target, edit that target `.codex/`.
+This skill governs shared `@Bears` plugin update work. Skill-local config lives in `plugin-update.config.v1.json`; its schema lives in `plugin-update.config.v1.schema.json`.
 
-This skill is regulatory. It defines where update facts belong and which owner surface must be changed. It does not store target-specific product facts and does not replace route/audit ownership discovery.
+## Plugin Update Gate
 
-## Ownership routing
+Classify every changed fact into one owner surface from `plugin-update.config.v1.json`:
 
-### Central plugin config
+- `central_plugin_config` for shared plugin policy, catalogs, role profiles, hooks, scripts, generated inventory, governance schemas, contracts, prompts, capabilities, tests, and skill workflow rules.
+- `target_agents_md` for one target repo or path rule: ownership, forbidden paths, source-of-truth pointers, workflow entrypoints, repo responsibility, path responsibility, or app-directory responsibility.
+- `target_codex` for materialized Codex runtime behavior scoped to one target: repo-local agents, skill wrappers, prompts, config, or local Codex behavior.
 
-Use central plugin config only when the change affects shared plugin policy or generated plugin surfaces:
+Proceed with this skill only for `central_plugin_config` facts. Route `target_agents_md` facts to the target `AGENTS.md`. Route `target_codex` facts to the target `.codex/` surface.
 
-- plugin manifest or capability metadata;
-- skill catalog and generated skill inventory;
-- role catalog and role TOML profiles;
-- Git, CI, CD, hook, closeout, and workflow policy catalogs;
-- generated plugin inventory;
-- plugin-owned scripts, hooks, schemas, tests, and capability packages.
+## Workflow
 
-### Target AGENTS.md
+1. Load `plugin-update.config.v1.json`.
+2. Classify each changed fact into exactly one owner surface.
+3. Run route/audit ownership discovery for each exact changed path.
+4. When a configured trigger path changes and no configured exemption matches, perform sequential audit-review before implementation edits.
+5. Build the audit manifest from git-tracked files plus untracked-unignored files under the plugin root, sorted by path.
+6. Classify manifest entries as `text_file`, `generated_file`, `directory`, or `binary_or_non_text`.
+7. Review text files line by line against the current plugin constitution and this skill.
+8. Record directory child inventory and generated-file generator source.
+9. Add only implementation tasks found by the audit-review; keep existing tasks unchanged.
+10. Sync generated plugin inventory when the skill catalog changes.
+11. Use CI/local-commit validation as blocking check evidence. Route/audit output is ownership evidence only.
 
-Edit a target `AGENTS.md` only when the rule belongs to one exact repo or path:
+## JSON Packet
 
-- local ownership and directory rules;
-- forbidden paths;
-- source-of-truth pointers;
-- target-specific workflow entrypoints;
-- target-specific repo, path, or app directory responsibility.
+Sequential audit-review returns one JSON packet:
 
-### Target .codex/
+```json
+{
+  "schema": "bears-plugin-update.audit-packet.v1",
+  "changed_targets": [],
+  "reviewed_files": [
+    {
+      "path": "relative/path",
+      "kind": "text_file",
+      "reviewed_line_ranges": [{"start": 1, "end": 1}],
+      "constitution_alignment": "aligned",
+      "update_skill_alignment": "aligned",
+      "owner_surface": "central_plugin_config",
+      "drift_items": []
+    }
+  ],
+  "reviewed_line_ranges": [],
+  "drift_items": [],
+  "planned_tasks_added": []
+}
+```
 
-Use a target `.codex/` surface only for materialized Codex runtime behavior inside that target:
+Packet field requirements are defined in `plugin-update.config.v1.json`.
 
-- repo-local agent files;
-- repo-local skill wrappers;
-- generated local prompts or config;
-- target-local Codex behavior that must not become global plugin policy.
+## Report
 
-## Plugin storage limits
-
-The plugin must not store target-specific product facts, board facts, repo-local implementation details, or per-target docs content. Put those facts in the target `AGENTS.md`, target docs, or target `.codex/` according to the routing rules above.
-
-The plugin stores only shared routing rules, governance contracts, role definitions, policy catalogs, hook policy, generated plugin inventory, and validators that enforce those surfaces.
-
-## Route and audit use
-
-Run route/audit only as ownership discovery before edits. Route/audit output is not PASS evidence and must not replace automatic CI or local-commit validation.
-
-## Validation ownership
-
-Automatic CI and local-commit validation own plugin checks. Skill text must not list manual script-command runbooks as the operator workflow.
-
-Manual command execution is allowed only when the operator names a command or when the nearest repo instructions explicitly allow that exact agent-local ownership check.
-
-## Update checklist
-
-1. Identify whether the changed fact belongs to central plugin config, target `AGENTS.md`, or target `.codex/`.
-2. Run route/audit for ownership discovery on the exact target path.
-3. Keep target-specific facts out of plugin policy.
-4. Update generated plugin inventory when the skill catalog changes.
-5. Let automatic CI/local-commit validation own blocking check results.
-6. Report changed files, ownership route result, validation source, and any carried unrelated dirty paths.
+Report changed files, owner-surface classification, route/audit result, CI/local-commit validation source, and carried unrelated dirty paths.

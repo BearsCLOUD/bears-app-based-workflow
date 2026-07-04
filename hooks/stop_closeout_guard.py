@@ -1,183 +1,335 @@
 #!/usr/bin/env python3
-"""Stop hook for Bears plugin closeout delivery guard."""
+"""Non-blocking Stop hook that records redacted dialogue statistics."""
 
 from __future__ import annotations
 
 import json
+import math
 import os
+import re
 import subprocess
 import sys
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
-from _agentic_enterprise_hook_common import read_stdin_event
 
 PLUGIN_ROOT = Path(__file__).resolve().parents[1]
-DELIVERY_STATE = PLUGIN_ROOT / "runtime/plugin-cache-sync/plugin-cache-sync-state.v1.json"
-VALIDATION_STATE_ROOT = PLUGIN_ROOT / "runtime/validation-state"
-DOCTOR_SCRIPT = PLUGIN_ROOT / "scripts/bears_doctor.py"
-TRUE_STRINGS = {"1", "true", "yes", "y", "on"}
-CLOSEOUT_KEYS = {
+WORKSPACE_ROOT = Path(__file__).resolve().parents[3]
+STATS_PATH = WORKSPACE_ROOT / ".codex/runtime/dialogue-stats/dialogue-stats.jsonl"
+MAX_STRING_LENGTH = 240
+MAX_HINTS = 24
+SECRET_PATTERNS = (
+    re.compile(r"(?i)(sk-[a-z0-9_-]{12,})"),
+    re.compile(r"(?i)(xox[baprs]-[a-z0-9-]{10,})"),
+    re.compile(r"(?i)(gh[pousr]_[a-z0-9_]{20,})"),
+    re.compile(r"(?i)(telegram[_-]?(bot)?[_-]?token\s*[:=]\s*)[^\s,;]+"),
+    re.compile(r"(?i)(api[_-]?key\s*[:=]\s*)[^\s,;]+"),
+    re.compile(r"(?i)(authorization\s*[:=]\s*bearer\s+)[^\s,;]+"),
+    re.compile(r"(?i)(password\s*[:=]\s*)[^\s,;]+"),
+    re.compile(r"(?i)(secret\s*[:=]\s*)[^\s,;]+"),
+    re.compile(r"(?i)(token\s*[:=]\s*)[^\s,;]+"),
+)
+SENSITIVE_KEY_PARTS = (
+    "authorization",
+    "cookie",
+    "env",
+    "header",
+    "key",
+    "log",
+    "message",
+    "output",
+    "password",
+    "prompt",
+    "secret",
+    "stderr",
+    "stdout",
+    "text",
+    "token_value",
+    "transcript",
+)
+ID_KEYS = (
+    "conversation_id",
+    "conversationId",
+    "dialogue_id",
+    "dialogueId",
+    "parent_id",
+    "parentId",
+    "request_id",
+    "requestId",
+    "run_id",
+    "runId",
+    "session_id",
+    "sessionId",
+    "thread_id",
+    "threadId",
+    "trace_id",
+    "traceId",
+    "turn_id",
+    "turnId",
+)
+COUNTER_KEYS = (
+    "cached_input_tokens",
+    "cachedInputTokens",
+    "completion_tokens",
+    "completionTokens",
+    "input_tokens",
+    "inputTokens",
+    "output_tokens",
+    "outputTokens",
+    "prompt_tokens",
+    "promptTokens",
+    "reasoning_tokens",
+    "reasoningTokens",
+    "total_tokens",
+    "totalTokens",
+    "tool_calls",
+    "toolCalls",
+    "tool_errors",
+    "toolErrors",
+    "tool_successes",
+    "toolSuccesses",
+)
+CLOSEOUT_KEYS = (
     "bears_closeout",
     "closeout",
+    "closeout_hint",
     "closeout_intent",
     "delivery_closeout",
     "final_closeout",
-    "final_report",
     "task_closeout",
-}
+)
 
 
-def _is_true(value: Any) -> bool:
-    if value is True:
-        return True
+def _utc_now() -> str:
+    return datetime.now(UTC).isoformat(timespec="seconds").replace("+00:00", "Z")
+
+
+def _redact_string(value: str) -> str:
+    redacted = value.replace("\x00", "")
+    for pattern in SECRET_PATTERNS:
+        is_bare_secret = (
+            pattern.pattern.startswith("(?i)(sk-")
+            or pattern.pattern.startswith("(?i)(xox")
+            or pattern.pattern.startswith("(?i)(gh")
+        )
+        if is_bare_secret:
+            redacted = pattern.sub("[REDACTED]", redacted)
+        else:
+            redacted = pattern.sub(lambda match: f"{match.group(1)}[REDACTED]", redacted)
+    if len(redacted) > MAX_STRING_LENGTH:
+        return f"{redacted[:MAX_STRING_LENGTH]}…"
+    return redacted
+
+
+def _safe_scalar(value: Any) -> Any:
     if isinstance(value, str):
-        return value.strip().casefold() in TRUE_STRINGS
-    return False
+        return _redact_string(value)
+    if isinstance(value, bool) or value is None:
+        return value
+    if isinstance(value, int):
+        return value
+    if isinstance(value, float):
+        return value if math.isfinite(value) else None
+    return None
 
 
-def _has_closeout_intent(obj: Any) -> bool:
-    if isinstance(obj, dict):
-        for key, value in obj.items():
-            if key in CLOSEOUT_KEYS and _is_true(value):
-                return True
-            if key in {"state", "workflow", "metadata", "bears"} and _has_closeout_intent(value):
-                return True
-    return False
+def _is_sensitive_key(key: str) -> bool:
+    normalized = key.replace("-", "_").casefold()
+    return any(part in normalized for part in SENSITIVE_KEY_PARTS)
 
 
-def _load_json(path: Path) -> dict[str, Any]:
+def _walk_dicts(obj: Any) -> list[dict[str, Any]]:
+    found: list[dict[str, Any]] = []
+    stack = [obj]
+    while stack:
+        current = stack.pop()
+        if isinstance(current, dict):
+            found.append(current)
+            for key, value in current.items():
+                if not isinstance(key, str) or _is_sensitive_key(key):
+                    continue
+                if isinstance(value, (dict, list)):
+                    stack.append(value)
+        elif isinstance(current, list):
+            stack.extend(item for item in current if isinstance(item, (dict, list)))
+    return found
+
+
+def _first_string(obj: dict[str, Any], keys: tuple[str, ...]) -> str | None:
+    for source in _walk_dicts(obj):
+        for key in keys:
+            value = source.get(key)
+            if isinstance(value, str) and value.strip():
+                return _redact_string(value.strip())
+    return None
+
+
+def _collect_ids(event: dict[str, Any]) -> dict[str, Any]:
+    ids: dict[str, Any] = {}
+    for source in _walk_dicts(event):
+        for key in ID_KEYS:
+            value = source.get(key)
+            if isinstance(value, str) and value.strip():
+                ids[_snake_case(key)] = _redact_string(value.strip())
+    return ids
+
+
+def _collect_counters(event: dict[str, Any]) -> dict[str, Any]:
+    counters: dict[str, Any] = {}
+    for source in _walk_dicts(event):
+        for key in COUNTER_KEYS:
+            value = source.get(key)
+            if isinstance(value, bool):
+                continue
+            if isinstance(value, int):
+                counters[_snake_case(key)] = value
+            elif isinstance(value, float) and value.is_integer():
+                counters[_snake_case(key)] = int(value)
+    return counters
+
+
+def _collect_closeout_hints(event: dict[str, Any]) -> dict[str, Any]:
+    hints: dict[str, Any] = {}
+    for source in _walk_dicts(event):
+        for key in CLOSEOUT_KEYS:
+            if key in source and len(hints) < MAX_HINTS:
+                hints[_snake_case(key)] = _safe_scalar(source[key])
+    return hints
+
+
+def _snake_case(value: str) -> str:
+    chars: list[str] = []
+    for index, char in enumerate(value):
+        if char.isupper() and index > 0:
+            chars.append("_")
+        chars.append(char.lower())
+    return "".join(chars).replace("-", "_")
+
+
+def _event_name(event: dict[str, Any]) -> str:
+    raw = _first_string(event, ("hook_event_name", "hookEventName", "event", "event_name", "eventName"))
+    return raw or "Stop"
+
+
+def _timestamp(event: dict[str, Any]) -> str:
+    raw = _first_string(event, ("timestamp", "created_at", "createdAt", "started_at", "startedAt"))
+    return raw or _utc_now()
+
+
+def _cwd(event: dict[str, Any]) -> str | None:
+    raw = _first_string(event, ("cwd", "workdir", "working_directory", "workingDirectory"))
+    if raw:
+        return raw
+    current = os.getcwd()
+    return _redact_string(current) if current else None
+
+
+def _git_summary(cwd: str | None) -> dict[str, Any]:
+    if not cwd:
+        return {"available": False}
     try:
-        data = json.loads(path.read_text(encoding="utf-8"))
+        path = Path(cwd).expanduser().resolve()
     except Exception:
-        return {}
-    return data if isinstance(data, dict) else {}
-
-
-def _git_status() -> list[str]:
-    proc = subprocess.run(
-        ["git", "status", "--porcelain", "--untracked-files=all"],
-        cwd=str(PLUGIN_ROOT),
-        text=True,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.DEVNULL,
-        check=False,
-        timeout=3,
-    )
-    if proc.returncode != 0:
-        return ["git_status_unavailable"]
-    return [line.strip() for line in proc.stdout.splitlines() if line.strip()]
-
-
-def _head_sha() -> str | None:
-    proc = subprocess.run(
-        ["git", "rev-parse", "--verify", "HEAD"],
-        cwd=str(PLUGIN_ROOT),
-        text=True,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.DEVNULL,
-        check=False,
-        timeout=3,
-    )
-    if proc.returncode != 0:
-        return None
-    return proc.stdout.strip()
-
-
-def _validation_status() -> str:
-    sha = _head_sha()
-    if not sha:
-        return "missing"
-    state = _load_json(VALIDATION_STATE_ROOT / sha / "validation-state.v1.json")
-    return str(state.get("status") or "missing")
-
-
-def _head_range(sha: str | None) -> str:
-    if not sha:
-        return "HEAD~1..HEAD"
-    proc = subprocess.run(
-        ["git", "rev-list", "--parents", "-n", "1", sha],
-        cwd=str(PLUGIN_ROOT),
-        text=True,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.DEVNULL,
-        check=False,
-        timeout=3,
-    )
-    if proc.returncode != 0:
-        return f"HEAD~1..{sha}"
-    parts = proc.stdout.strip().split()
-    parent = parts[1] if len(parts) > 1 else "4b825dc642cb6eb9a060e54bf8d69288fbee4904"
-    return f"{parent}..{sha}"
-
-
-def _doctor_status() -> str:
-    if not DOCTOR_SCRIPT.exists():
-        return "not_available"
-    sha = _head_sha()
-    proc = subprocess.run(
-        [sys.executable, str(DOCTOR_SCRIPT), "emit-summary", "--from-git", _head_range(sha), "--json"],
-        cwd=str(PLUGIN_ROOT),
-        text=True,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.DEVNULL,
-        check=False,
-        timeout=15,
-    )
+        return {"available": False}
+    if not path.exists() or not path.is_dir():
+        return {"available": False}
     try:
-        packet = json.loads(proc.stdout)
+        inside = subprocess.run(
+            ["git", "rev-parse", "--is-inside-work-tree"],
+            cwd=str(path),
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.DEVNULL,
+            check=False,
+            timeout=2,
+        )
+        if inside.returncode != 0 or inside.stdout.strip() != "true":
+            return {"available": False}
+        branch = subprocess.run(
+            ["git", "branch", "--show-current"],
+            cwd=str(path),
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.DEVNULL,
+            check=False,
+            timeout=2,
+        )
+        status = subprocess.run(
+            ["git", "status", "--porcelain", "--untracked-files=all"],
+            cwd=str(path),
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.DEVNULL,
+            check=False,
+            timeout=2,
+        )
     except Exception:
-        return "fail"
-    return str(packet.get("status") or "fail")
-
-
-def _delivery_complete() -> bool:
-    state = _load_json(DELIVERY_STATE)
-    return state.get("delivery_complete") is True
-
-
-def _result(decision: str, reason: str, *, dirty_count: int, delivery_complete: bool, closeout_intent: bool, validation_status: str, doctor_status: str) -> dict[str, Any]:
-    payload: dict[str, Any] = {
-        "schema": "bears-plugin-stop-closeout-guard.v1",
-        "event": "Stop",
-        "decision": decision,
-        "reason": reason,
-        "closeout_intent": closeout_intent,
-        "delivery_complete": delivery_complete,
-        "validation_status": validation_status,
-        "doctor_status": doctor_status,
+        return {"available": False}
+    dirty_count = 0 if status.returncode != 0 else len([line for line in status.stdout.splitlines() if line.strip()])
+    return {
+        "available": True,
+        "branch": _redact_string(branch.stdout.strip()) if branch.returncode == 0 and branch.stdout.strip() else None,
         "dirty_count": dirty_count,
+    }
+
+
+def _statistics_row(event: dict[str, Any], payload_present: bool) -> dict[str, Any]:
+    cwd = _cwd(event)
+    row: dict[str, Any] = {
+        "schema": "bears-dialogue-stop-statistics.v1",
+        "recorded_at": _utc_now(),
+        "timestamp": _timestamp(event),
+        "event": _event_name(event),
+        "payload_present": payload_present,
+        "cwd": cwd,
+        "ids": _collect_ids(event),
+        "model": _first_string(event, ("model", "model_name", "modelName")),
+        "counters": _collect_counters(event),
+        "git": _git_summary(cwd),
+        "closeout_hints": _collect_closeout_hints(event),
+    }
+    return {key: value for key, value in row.items() if value not in ({}, None)}
+
+
+def _append_jsonl(path: Path, row: dict[str, Any]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("a", encoding="utf-8") as handle:
+        handle.write(json.dumps(row, sort_keys=True, separators=(",", ":")) + "\n")
+
+
+def _stdout(status: str, row: dict[str, Any], error: str | None = None) -> dict[str, Any]:
+    payload: dict[str, Any] = {
+        "hook": {
+            "name": "bears-dialogue-stop-statistics",
+            "status": status,
+            "stats_path": str(STATS_PATH),
+            "payload_present": bool(row.get("payload_present")),
+        },
         "hookSpecificOutput": {"hookEventName": "Stop"},
     }
-    if decision == "deny":
-        payload["hookSpecificOutput"].update(
-            {
-                "permissionDecision": "deny",
-                "permissionDecisionReason": reason,
-            }
-        )
-        payload["next_actions"] = [
-            "commit task changes directly to main",
-            "run python3 scripts/bears_doctor.py validate-closeout --from-git <parent_sha>..<main_sha> --json",
-            "run python3 scripts/plugin_cache_sync.py watch --interval-seconds 15 --timeout-seconds 1200",
-            "close only after runtime/plugin-cache-sync/plugin-cache-sync-state.v1.json has delivery_complete=true",
-        ]
+    if error:
+        payload["hook"]["error"] = _redact_string(error)
     return payload
 
 
 def main() -> int:
-    event = read_stdin_event()
-    closeout_intent = _has_closeout_intent(event) or _is_true(os.environ.get("BEARS_PLUGIN_CLOSEOUT"))
-    delivery_complete = _delivery_complete()
-    validation_status = _validation_status()
-    doctor_status = _doctor_status()
-    dirty = _git_status()
-    if closeout_intent and (dirty or not delivery_complete or doctor_status != "pass"):
-        reason = "Bears plugin closeout blocked until main commit, bears_doctor pass, cache sync, and delivery_complete=true."
-        print(json.dumps(_result("deny", reason, dirty_count=len(dirty), delivery_complete=delivery_complete, closeout_intent=True, validation_status=validation_status, doctor_status=doctor_status), indent=2, sort_keys=True))
-        return 2
-    reason = "closeout guard passed" if closeout_intent else "no closeout intent in Stop payload"
-    print(json.dumps(_result("allow", reason, dirty_count=len(dirty), delivery_complete=delivery_complete, closeout_intent=closeout_intent, validation_status=validation_status, doctor_status=doctor_status), indent=2, sort_keys=True))
+    stdin_text = sys.stdin.read()
+    payload_present = bool(stdin_text.strip())
+    if payload_present:
+        try:
+            event_raw = json.loads(stdin_text)
+        except json.JSONDecodeError:
+            event_raw = {}
+    else:
+        event_raw = {}
+    event = event_raw if isinstance(event_raw, dict) else {}
+    row = _statistics_row(event, payload_present)
+    try:
+        _append_jsonl(STATS_PATH, row)
+        print(json.dumps(_stdout("ok", row), indent=2, sort_keys=True))
+    except Exception as exc:  # noqa: BLE001
+        print(json.dumps(_stdout("error", row, str(exc)), indent=2, sort_keys=True))
     return 0
 
 

@@ -1774,6 +1774,22 @@
       "scope_id": "app-workflow-ci-boundaries",
       "status": "accepted",
       "unresolved_inputs": []
+    },
+    {
+      "affected_paths": [
+        "scripts/codex_workflow_policy.py"
+      ],
+      "change_type": "policy",
+      "contradictions": [],
+      "decision": "Remove the obsolete codex workflow policy script after its references were retired.",
+      "decision_id": "remove-obsolete-codex-workflow-policy-script-2026-07-04",
+      "owner_issue": "operator-goal-remove-obsolete-codex-workflow-policy-script",
+      "owner_role": "bears-workflow-overlay-platform-engineer",
+      "rationale": "The deleted script is no longer an active authority surface and needs a machine-readable accepted record for closeout.",
+      "redaction": "safe",
+      "scope_id": "codex-workflow-policy-retirement",
+      "status": "accepted",
+      "unresolved_inputs": []
     }
   ],
   "schema": "bears-decision-ledger.v1",

@@ -21,14 +21,19 @@
       "path": "skills/bears-codex-health"
     },
     {
-      "description": "Validate Bears workflow-overlay skill, README, schema-packet, and workflow boundaries.",
-      "name": "bears-workflow-validate",
-      "path": "skills/bears-workflow-validate"
+      "description": "Govern @Bears plugin updates, ownership placement, central plugin config boundaries, and generated inventory sync.",
+      "name": "bears-plugin-update",
+      "path": "skills/bears-plugin-update"
     },
     {
       "description": "Enforce the canonical Bears plugin-owned platform role gate.",
       "name": "platform-role-governance",
       "path": "skills/platform-role-governance"
+    },
+    {
+      "description": "Govern @Bears role lifecycle, role coverage gaps, role TOML updates, and registration drift.",
+      "name": "bears-agents",
+      "path": "skills/bears-agents"
     },
     {
       "description": "Independent reusable L3-local Python standard for bounded Python worker tasks.",
@@ -101,7 +106,13 @@
       "path": "skills/codex-telegram-operator-gate"
     }
   ],
-  "disabled_skills": [],
+  "disabled_skills": [
+    {
+      "name": "bears-workflow-validate",
+      "path": "skills/bears-workflow-validate",
+      "reason": "Retired active name after hard rename to bears-plugin-update; preserved only as disabled historical documentation."
+    }
+  ],
   "discovery_policy": {
     "active_skill_file": "SKILL.md",
     "disabled_skill_file": "SKILL.disabled.md",

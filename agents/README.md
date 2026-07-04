@@ -67,7 +67,7 @@ Profile-backed files mirror `agent_profile_mappings[]`.
 | `governance-project-router.toml` | Route workflow-overlay tasks to the correct project/router owner and ensure path, remote, and CI lane alignment. |
 | `overlay-controller.toml` | Coordinate overlay execution flow across role checks, blocker gates, and validation handoffs. |
 | `role-coverage-gate.toml` | Evaluate whether required platform roles exist for overlay work and return role-coverage blockers when missing. |
-| `workflow-artifact-validator.toml` | Validate governance packets and schema conformance for feature artifacts in the workflow overlay. |
+| `bears-plugin-update-engineer.toml` | Govern plugin updates and validate governance packets for the @Bears plugin surface. |
 
 ## Sandbox mode matrix
 
@@ -130,7 +130,7 @@ This matrix records the checked-in TOML mode after issue #56. `workspace-write` 
 | `governance-project-router.toml` | `bears-workflow-overlay-project-router` | `read-only` | `read-only` | No write authority; routes work to project and repository boundaries only. | `python3 scripts/validate_overlay.py --json validate --strict-overlay-skills`; `python3 -m unittest tests/test_validate_overlay.py` |
 | `overlay-controller.toml` | `bears-workflow-overlay-controller` | `workspace-write` | `workspace-write` | Writes bounded local governance handoff, README, and validator artifacts when exact route assigns them. | `python3 scripts/validate_overlay.py --json validate --strict-overlay-skills`; `python3 -m unittest tests/test_validate_overlay.py` |
 | `role-coverage-gate.toml` | `bears-workflow-overlay-role-coverage-gate` | `read-only` | `read-only` | No write authority; validates role coverage and returns ROLE_COVERAGE_BLOCKER decisions only. | `python3 scripts/validate_overlay.py --json validate --strict-overlay-skills`; `python3 -m unittest tests/test_validate_overlay.py` |
-| `workflow-artifact-validator.toml` | `bears-workflow-overlay-workflow-artifact-validator` | `workspace-write` | `workspace-write` | Writes validator script/tests when exact route assigns validator implementation. | `python3 scripts/validate_overlay.py --json validate --strict-overlay-skills`; `python3 -m unittest tests/test_validate_overlay.py` |
+| `bears-plugin-update-engineer.toml` | `bears-plugin-update-engineer` | `workspace-write` | `workspace-write` | Writes validator script/tests when exact route assigns validator implementation. | `python3 scripts/validate_overlay.py --json validate --strict-overlay-skills`; `python3 -m unittest tests/test_validate_overlay.py` |
 
 ## Codex custom-agent registration
 

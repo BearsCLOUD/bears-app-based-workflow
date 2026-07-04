@@ -32,13 +32,12 @@
         "assets/catalog/role-gate-methodology.v1.json",
         "scripts/platform_roles.py",
         "scripts/role_gate_methodology.py",
-        "skills/bears-role-gate/SKILL.md",
         "skills/platform-role-governance/SKILL.md"
       ],
       "capability_source_paths": [],
       "active_skill_front_doors": [
-        "skills/bears-role-gate",
-        "skills/platform-role-governance"
+        "skills/platform-role-governance",
+        "skills/bears-agents"
       ],
       "internal_front_door": "",
       "legacy_entrypoints": [
@@ -175,7 +174,9 @@
         "scripts/subagent_orchestration_policy.py"
       ],
       "capability_source_paths": [],
-      "active_skill_front_doors": [],
+      "active_skill_front_doors": [
+        "skills/subagents"
+      ],
       "internal_front_door": "",
       "legacy_entrypoints": [
         "python3 scripts/subagent_orchestration_policy.py validate"
@@ -313,21 +314,20 @@
         "README.md",
         "SPEC.md",
         "requirements.md",
-        "skills/bears-governance-check/SKILL.md",
-        "skills/speckit-bears-flow/SKILL.md",
-        "skills/speckit-bears-research/SKILL.md",
         "skills/bears-codex-health/SKILL.md",
-        "skills/development-workflow-orchestration/SKILL.md",
         "skills/python-codeflow/SKILL.md"
       ],
       "capability_source_paths": [],
       "active_skill_front_doors": [
-        "skills/bears-governance-check",
-        "skills/speckit-bears-flow",
-        "skills/speckit-bears-research",
         "skills/bears-codex-health",
-        "skills/development-workflow-orchestration",
-        "skills/python-codeflow"
+        "skills/python-codeflow",
+        "skills/app-constitution",
+        "skills/app-research",
+        "skills/app-specify",
+        "skills/app-plan",
+        "skills/github-project-planning",
+        "skills/app-analyze",
+        "skills/app-dev"
       ],
       "internal_front_door": "",
       "legacy_entrypoints": [
@@ -468,13 +468,10 @@
       "canonical_source_phase": "legacy",
       "owner_role": "bears-workflow-overlay-platform-engineer",
       "primary_legacy_sources": [
-        "scripts/project_registry_gate.py",
-        "skills/project-mandate/SKILL.md"
+        "scripts/project_registry_gate.py"
       ],
       "capability_source_paths": [],
-      "active_skill_front_doors": [
-        "skills/project-mandate"
-      ],
+      "active_skill_front_doors": [],
       "internal_front_door": "",
       "legacy_entrypoints": [
         "python3 scripts/project_registry_gate.py validate-registry"
@@ -685,22 +682,15 @@
       "canonical_source_phase": "legacy",
       "owner_role": "bears-telegram-platform-engineer",
       "primary_legacy_sources": [
-        "assets/catalog/telegram-workflow-catalog.v1.json",
         "assets/catalog/telegram-aiogram-migration-backlog.v1.json",
-        "assets/catalog/telegram-plugin-skill-factory-policy.v1.json",
         "assets/catalog/telegram-runtime-readiness.v1.json",
-        "scripts/telegram_catalog.py",
         "scripts/telegram_migration_backlog.py",
-        "scripts/telegram_runtime_readiness.py",
-        "scripts/telegram_skill_factory_policy.py",
-        "scripts/telegram_surface_inventory.py",
-        "skills/bears-telegram-workflow/SKILL.disabled.md",
-        "skills/telegram-aiogram-migration/SKILL.disabled.md",
-        "skills/telegram-plugin-skill-factory/SKILL.disabled.md",
-        "skills/telegram-quality-testing/SKILL.disabled.md"
+        "scripts/telegram_runtime_readiness.py"
       ],
       "capability_source_paths": [],
-      "active_skill_front_doors": [],
+      "active_skill_front_doors": [
+        "skills/codex-telegram-operator-gate"
+      ],
       "internal_front_door": "",
       "legacy_entrypoints": [
         "python3 scripts/telegram_catalog.py validate",
@@ -710,9 +700,7 @@
       "schemas": [],
       "fixtures": [],
       "tests": [
-        "tests/test_telegram_catalog.py",
         "tests/test_telegram_runtime_readiness.py",
-        "tests/test_telegram_skill_factory_policy.py",
         "tests/test_telegram_surface_inventory.py"
       ],
       "validators": [
@@ -1066,11 +1054,11 @@
       "owner_role": "bears-workflow-overlay-platform-engineer",
       "primary_legacy_sources": [
         "scripts/validate_overlay.py",
-        "skills/bears-workflow-validate/SKILL.md"
+        "skills/bears-plugin-update/SKILL.md"
       ],
       "capability_source_paths": [],
       "active_skill_front_doors": [
-        "skills/bears-workflow-validate"
+        "skills/bears-plugin-update"
       ],
       "internal_front_door": "",
       "legacy_entrypoints": [
@@ -1748,17 +1736,6 @@
       "blocking_rule": "blocks touched skill or role-gate migration until shrunk",
       "validator_command": "python3 scripts/capability_layout.py validate",
       "reviewer_signoff": "platform-role-governor-audit-required"
-    },
-    {
-      "path": "skills/project-mandate/SKILL.md",
-      "field": "front_matter.description",
-      "observed_size": "276 chars",
-      "budget": "260 chars",
-      "owner_role": "bears-workflow-overlay-platform-engineer",
-      "shrink_deadline_phase": "Phase 1 close",
-      "blocking_rule": "blocks touched skill or project-registry migration until shrunk",
-      "validator_command": "python3 scripts/capability_layout.py validate",
-      "reviewer_signoff": "workflow-overlay-platform-engineer-audit-required"
     },
     {
       "path": "skills/bears-goal-prompt/SKILL.md",

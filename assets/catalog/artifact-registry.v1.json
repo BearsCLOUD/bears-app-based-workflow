@@ -6535,6 +6535,7 @@
       "lifecycle": "script",
       "owner_issue": "#8",
       "owner_role": "bears-machine-first-execution-kernel-engineer",
+      "path": "scripts/validation_job_runner.py",
       "source_of_truth_status": "canonical",
       "validation": [
         "python3 scripts/artifact_registry.py validate"
@@ -6568,6 +6569,7 @@
       "lifecycle": "catalog",
       "owner_issue": "#8",
       "owner_role": "bears-machine-first-execution-kernel-engineer",
+      "path": "assets/catalog/async-validation.v1.json",
       "source_of_truth_status": "canonical",
       "validation": [
         "python3 scripts/artifact_registry.py validate"
@@ -6618,6 +6620,7 @@
       "lifecycle": "doc",
       "owner_issue": "#8",
       "owner_role": "bears-machine-first-execution-kernel-engineer",
+      "path": "docs/reference/workflow-tree.md",
       "source_of_truth_status": "canonical",
       "validation": [
         "python3 scripts/artifact_registry.py validate"
@@ -7094,6 +7097,74 @@
       "owner_issue": "#30",
       "owner_role": "bears-machine-first-execution-kernel-engineer",
       "path": "scripts/objective_runtime_proof.py",
+      "source_of_truth_status": "canonical",
+      "validation": [
+        "python3 scripts/artifact_registry.py validate"
+      ]
+    },
+    {
+      "allowed_writers": [
+        "bears-plugin-update-engineer"
+      ],
+      "artifact_type": "doc",
+      "changelog_required": false,
+      "decision_ref_required": false,
+      "git_tracked": true,
+      "lifecycle": "doc",
+      "owner_issue": "operator-goal-plugin-update-refactor",
+      "owner_role": "bears-plugin-update-engineer",
+      "path": "agents/bears-plugin-update-engineer.toml",
+      "source_of_truth_status": "canonical",
+      "validation": [
+        "python3 scripts/artifact_registry.py validate"
+      ]
+    },
+    {
+      "allowed_writers": [
+        "bears-plugin-update-engineer"
+      ],
+      "artifact_type": "doc",
+      "changelog_required": false,
+      "decision_ref_required": false,
+      "git_tracked": true,
+      "lifecycle": "doc",
+      "owner_issue": "operator-goal-plugin-update-refactor",
+      "owner_role": "bears-plugin-update-engineer",
+      "path": "skills/bears-plugin-update/SKILL.md",
+      "source_of_truth_status": "canonical",
+      "validation": [
+        "python3 scripts/artifact_registry.py validate"
+      ]
+    },
+    {
+      "allowed_writers": [
+        "bears-platform-role-governor"
+      ],
+      "artifact_type": "doc",
+      "changelog_required": false,
+      "decision_ref_required": false,
+      "git_tracked": true,
+      "lifecycle": "doc",
+      "owner_issue": "operator-goal-plugin-update-refactor",
+      "owner_role": "bears-platform-role-governor",
+      "path": "skills/bears-agents/SKILL.md",
+      "source_of_truth_status": "canonical",
+      "validation": [
+        "python3 scripts/artifact_registry.py validate"
+      ]
+    },
+    {
+      "allowed_writers": [
+        "bears-plugin-update-engineer"
+      ],
+      "artifact_type": "doc",
+      "changelog_required": false,
+      "decision_ref_required": false,
+      "git_tracked": true,
+      "lifecycle": "doc",
+      "owner_issue": "operator-goal-plugin-update-refactor",
+      "owner_role": "bears-plugin-update-engineer",
+      "path": "skills/bears-workflow-validate/SKILL.disabled.md",
       "source_of_truth_status": "canonical",
       "validation": [
         "python3 scripts/artifact_registry.py validate"

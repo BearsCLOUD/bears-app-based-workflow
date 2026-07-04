@@ -87,7 +87,7 @@ EXPECTED_AGENT_RUNTIME_POLICY = {
             "deploy-impact-gate",
             "governance-project-router",
             "role-coverage-gate",
-            "workflow-artifact-validator",
+            "bears-plugin-update-engineer",
         },
     },
     "commit_local_validation_test_closeout_lane": {

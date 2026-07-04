@@ -462,7 +462,7 @@
       "vpn_traefik_ingress_dev_layer",
       "worker_pool_pr_pipeline_mechanics",
       "workflow_backlog_lane",
-      "workflow_overlay_artifact_validator",
+      "bears_plugin_update_governance",
       "workflow_overlay_core_plugin_surface",
       "workflow_overlay_issue_templates",
       "workflow_overlay_platform_role_gate_composite_action",
@@ -491,7 +491,8 @@
       "objective_runtime_proof_policy",
       "product_apps_monorepo_router_docs",
       "codex_telegram_operator_workflow",
-      "development_workflow_packet_validator"
+      "development_workflow_packet_validator",
+      "bears_agents_role_lifecycle_skill"
     ],
     "root_planning_drift_targets": [
       "/srv/bears/.specify",
@@ -2659,6 +2660,45 @@
     },
     {
       "aliases": [
+        "bears-agents",
+        "bears_agents",
+        "role lifecycle skill",
+        "skills/bears-agents",
+        "skills/bears-agents/SKILL.md",
+        "/srv/bears/plugins/bears/skills/bears-agents",
+        "/srv/bears/plugins/bears/skills/bears-agents/SKILL.md"
+      ],
+      "allowed_write_boundary": "Only /srv/bears/plugins/bears/skills/bears-agents/** for role lifecycle skill instructions; role catalog, role TOML, registration scripts, and tests route through their exact platform-role-governance owners.",
+      "concrete_scope": "@Bears role lifecycle skill instructions for role TOML, role coverage blockers, registration sync, and role drift handling.",
+      "decomposition_required": false,
+      "group": "workflow",
+      "name": "bears_agents_role_lifecycle_skill",
+      "no_role_policy": "blocker",
+      "part_kind": "concrete",
+      "required_role": "bears-platform-role-governor",
+      "required_validations": [
+        "python3 scripts/platform_roles.py route skills/bears-agents/SKILL.md",
+        "python3 scripts/platform_roles.py audit skills/bears-agents/SKILL.md",
+        "python3 scripts/platform_roles.py validate",
+        "python3 scripts/skill_catalog.py generate --check"
+      ],
+      "reviewer_triggers": [
+        "role lifecycle authority change",
+        "ROLE_COVERAGE_BLOCKER remediation policy change",
+        "registration sync policy change"
+      ],
+      "role_required": true,
+      "source": "/srv/bears/plugins/bears/agents/bears-platform-role-governor.toml",
+      "supporting_roles": [
+        "bears-platform-security-reviewer"
+      ],
+      "trust_boundary": "Role lifecycle guidance can widen future role authority if it merges role definition with runtime delegation or bypasses route/audit selection.",
+      "write_roots": [
+        "/srv/bears/plugins/bears/skills/bears-agents"
+      ]
+    },
+    {
+      "aliases": [
         "/srv/bears/deprecated/legacy-2026-05-11/docs/docs-core/.git/config",
         "/srv/bears/deprecated/legacy-2026-05-11/docs/docs-core/.git/config.lock",
         "/srv/bears/deprecated/legacy-2026-05-11/docs/docs-mcp/repo/.git/config",
@@ -4067,10 +4107,15 @@
     },
     {
       "aliases": [
-        "workflow-overlay-artifact-validator",
-        "workflow_overlay_artifact_validator",
-        "bears-workflow-validate",
-        "skills/bears-workflow-validate",
+        "bears-plugin-update",
+        "plugin-update",
+        "bears_plugin_update",
+        "skills/bears-plugin-update",
+        "skills/bears-plugin-update/SKILL.md",
+        "agents/bears-plugin-update-engineer.toml",
+        "/srv/bears/plugins/bears/skills/bears-plugin-update",
+        "/srv/bears/plugins/bears/skills/bears-plugin-update/SKILL.md",
+        "/srv/bears/plugins/bears/agents/bears-plugin-update-engineer.toml",
         "scripts/validate_overlay.py",
         "tests/test_function_test_loader.py",
         "tests/test_validate_overlay.py",
@@ -4081,49 +4126,46 @@
         "/srv/bears/plugins/bears/scripts/validate_overlay.py",
         "/srv/bears/plugins/bears/tests/test_function_test_loader.py",
         "/srv/bears/plugins/bears/tests/test_validate_overlay.py",
-        "/srv/bears/plugins/bears/skills/bears-workflow-validate",
         "/srv/bears/plugins/bears/schemas/workflow-policy.schema.json",
         "/srv/bears/plugins/bears/schemas/role-coverage.schema.json",
         "/srv/bears/plugins/bears/schemas/blocker-review.schema.json",
-        "/srv/bears/plugins/bears/schemas/deploy-gate.schema.json",
-        "skills/bears-workflow-validate/SKILL.md",
-        "agents/workflow-artifact-validator.toml",
-        "/srv/bears/plugins/bears/agents/workflow-artifact-validator.toml"
+        "/srv/bears/plugins/bears/schemas/deploy-gate.schema.json"
       ],
-      "allowed_write_boundary": "Only overlay validator script, overlay validator tests, governance packet schemas, and bears-workflow-validate skill docs inside /srv/bears/plugins/bears.",
-      "concrete_scope": "Workflow overlay schema and governance-packet validator surface.",
+      "allowed_write_boundary": "Only bears-plugin-update skill docs, bears-plugin-update role profile, overlay validator script/tests, and governance packet schemas inside /srv/bears/plugins/bears; target-specific facts belong in target AGENTS.md, target docs, or target .codex/.",
+      "concrete_scope": "@Bears plugin update governance, overlay validator, governance packet schema, and generated inventory boundary surface.",
       "decomposition_required": false,
       "group": "workflow",
-      "name": "workflow_overlay_artifact_validator",
+      "name": "bears_plugin_update_governance",
       "no_role_policy": "blocker",
       "part_kind": "concrete",
-      "required_role": "bears-workflow-overlay-workflow-artifact-validator",
+      "required_role": "bears-plugin-update-engineer",
       "required_validations": [
-        "python3 scripts/validate_overlay.py --json validate --strict-overlay-skills --feature-dir /srv/bears/specs/005-telegram-workflow-plugin --require-artifacts",
+        "python3 scripts/platform_roles.py route skills/bears-plugin-update/SKILL.md",
+        "python3 scripts/platform_roles.py audit skills/bears-plugin-update/SKILL.md",
         "python3 scripts/platform_roles.py validate",
-        "python3 -m unittest tests/test_validate_overlay.py tests/test_platform_roles.py"
+        "python3 scripts/skill_catalog.py generate --check"
       ],
       "reviewer_triggers": [
-        "schema required field change",
-        "strict overlay skill policy change",
-        "governance packet acceptance semantics change"
+        "plugin update ownership boundary change",
+        "target fact storage policy change",
+        "manual validation workflow claim change"
       ],
       "role_required": true,
-      "source": "/srv/bears/plugins/bears/agents/workflow-artifact-validator.toml",
+      "source": "/srv/bears/plugins/bears/agents/bears-plugin-update-engineer.toml",
       "supporting_roles": [
         "bears-platform-security-reviewer"
       ],
-      "trust_boundary": "Validator results can authorize or reject Spec Kit governance artifacts; no product/runtime/deploy/integration behavior.",
+      "trust_boundary": "Plugin update and validator guidance can widen future plugin policy or incorrectly store target-specific facts; route/audit remains ownership discovery only and CI/local-commit owns checks.",
       "write_roots": [
+        "/srv/bears/plugins/bears/skills/bears-plugin-update",
+        "/srv/bears/plugins/bears/agents/bears-plugin-update-engineer.toml",
         "/srv/bears/plugins/bears/scripts/validate_overlay.py",
         "/srv/bears/plugins/bears/tests/test_function_test_loader.py",
         "/srv/bears/plugins/bears/tests/test_validate_overlay.py",
-        "/srv/bears/plugins/bears/skills/bears-workflow-validate",
         "/srv/bears/plugins/bears/schemas/workflow-policy.schema.json",
         "/srv/bears/plugins/bears/schemas/role-coverage.schema.json",
         "/srv/bears/plugins/bears/schemas/blocker-review.schema.json",
-        "/srv/bears/plugins/bears/schemas/deploy-gate.schema.json",
-        "/srv/bears/plugins/bears/agents/workflow-artifact-validator.toml"
+        "/srv/bears/plugins/bears/schemas/deploy-gate.schema.json"
       ]
     },
     {
@@ -11024,19 +11066,23 @@
       "scope": "Machine-first execution kernel contracts, schemas, catalogs, scripts, fixtures, tests, validators, and reference docs for governed @bears workflow evidence and closeout policy."
     },
     {
-      "agent_file": "agents/workflow-artifact-validator.toml",
+      "agent_file": "agents/bears-plugin-update-engineer.toml",
       "allowed_write_zones": [
+        "plugins/bears/skills/bears-plugin-update",
+        "plugins/bears/agents/bears-plugin-update-engineer.toml",
+        "plugins/bears/assets/catalog/plugin-skill-catalog.v1.json when assigned through skill inventory route",
+        "plugins/bears/docs/generated/* when generated from skill catalog",
+        "plugins/bears/README.md and plugins/bears/SPEC.md generated skill inventory blocks when assigned",
         "plugins/bears/scripts/validate_overlay.py",
         "plugins/bears/tests/test_validate_overlay.py",
-        "plugins/bears/schemas/*.schema.json",
-        "plugins/bears/skills/bears-workflow-validate",
-        "feature governance packet schema references when assigned"
+        "plugins/bears/tests/test_function_test_loader.py",
+        "plugins/bears/schemas/*.schema.json"
       ],
-      "developer_instructions_profile": "workflow-artifact-validator",
+      "developer_instructions_profile": "bears-plugin-update-engineer",
       "evidence_required": [
         "canonical role route packet",
-        "overlay validator strict run",
-        "unit tests for overlay validation behavior"
+        "target fact placement decision",
+        "local-commit or CI-owned plugin validation evidence"
       ],
       "execution_class": "helper",
       "forbidden_actions": [
@@ -11047,11 +11093,11 @@
       ],
       "handoff_contract": "/srv/bears/dev/contracts/subagent_start_packet.md",
       "model": "gpt-5.4-mini",
-      "name": "bears-workflow-overlay-workflow-artifact-validator",
+      "name": "bears-plugin-update-engineer",
       "primary_eligible": true,
       "role_kind": "specialist",
       "sandbox_mode": "workspace-write",
-      "scope": "Bears workflow overlay schema validation, governance packet validation, overlay validator script, and validation tests."
+      "scope": "@Bears plugin update governance, ownership placement, overlay validator/schema boundary, skill rename boundaries, generated inventory sync, and central plugin config boundaries."
     },
     {
       "agent_file": "agents/bears-platform-role-governor.toml",
@@ -12499,7 +12545,7 @@
     },
     {
       "expected_status": "matched",
-      "required_role": "bears-workflow-overlay-workflow-artifact-validator",
+      "required_role": "bears-plugin-update-engineer",
       "target": "/srv/bears/plugins/bears/scripts/validate_overlay.py"
     },
     {
@@ -12529,12 +12575,12 @@
     },
     {
       "expected_status": "matched",
-      "required_role": "bears-workflow-overlay-workflow-artifact-validator",
+      "required_role": "bears-plugin-update-engineer",
       "target": "/srv/bears/plugins/bears/tests/test_validate_overlay.py"
     },
     {
       "expected_status": "matched",
-      "required_role": "bears-workflow-overlay-workflow-artifact-validator",
+      "required_role": "bears-plugin-update-engineer",
       "target": "/srv/bears/plugins/bears/tests/test_function_test_loader.py"
     },
     {
@@ -14996,6 +15042,11 @@
       "required_role": "bears-machine-first-execution-kernel-engineer",
       "required_route_id": "machine_first_execution_kernel",
       "target": "assets/catalog/release-notes.v1.json"
+    },
+    {
+      "expected_status": "matched",
+      "required_role": "bears-platform-role-governor",
+      "target": "/srv/bears/plugins/bears/skills/bears-agents/SKILL.md"
     }
   ],
   "schema": "bears-platform-role-catalog.v1",

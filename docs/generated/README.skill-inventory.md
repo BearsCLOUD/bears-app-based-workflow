@@ -12,8 +12,9 @@ Disabled skills expose only `SKILL.disabled.md`; they MUST NOT keep `SKILL.md`.
 - `skills/bears-deploy-gate` — Assess plugin/non-app deploy, rollback, runtime, and secret impact without acting as an app workflow gate.
 - `skills/bears-goal-prompt` — Generate bounded and verifiable Codex goal prompts for Bears work.
 - `skills/bears-codex-health` — Diagnose Codex desktop/app-server freezes, MCP fan-out, session growth, and safe evidence-first remediation planning.
-- `skills/bears-workflow-validate` — Validate Bears workflow-overlay skill, README, schema-packet, and workflow boundaries.
+- `skills/bears-plugin-update` — Govern @Bears plugin updates, ownership placement, central plugin config boundaries, and generated inventory sync.
 - `skills/platform-role-governance` — Enforce the canonical Bears plugin-owned platform role gate.
+- `skills/bears-agents` — Govern @Bears role lifecycle, role coverage gaps, role TOML updates, and registration drift.
 - `skills/python-codeflow` — Independent reusable L3-local Python standard for bounded Python worker tasks.
 - `skills/secret-factory` — Govern write-only local secret generation and Infisical creation with provider handoff refusals.
 - `skills/app-constitution` — Create or update one Bears app constitution with target, owner, layer map, artifact map, and drift handling.
@@ -30,3 +31,4 @@ Disabled skills expose only `SKILL.disabled.md`; they MUST NOT keep `SKILL.md`.
 - `skills/codex-telegram-operator-gate` — Request bounded operator decisions, feedback waits, and safe file exchange through the configured codex-telegram MCP server without a Telegram PreToolUse hook.
 
 ## Disabled preserved skill docs
+- `skills/bears-workflow-validate/SKILL.disabled.md` — Retired active name after hard rename to bears-plugin-update; preserved only as disabled historical documentation.

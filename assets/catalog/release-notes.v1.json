@@ -1324,6 +1324,23 @@
       "validation": [
         "python3 scripts/local_commit_validation.py run --commit-sha <sha>"
       ]
+    },
+    {
+      "affected_surfaces": [
+        "subagent_orchestration_policy",
+        "plugin_update_role_rename"
+      ],
+      "date": "2026-07-04",
+      "files": [
+        "assets/catalog/subagent-orchestration-policy.v1.json",
+        "scripts/subagent_orchestration_policy.py",
+        "assets/catalog/release-notes.v1.json"
+      ],
+      "impact": "Align subagent orchestration policy references with the bears-plugin-update role rename while keeping runtime delegation separate from role lifecycle governance.",
+      "issue_ref": "#8",
+      "validation": [
+        "python3 scripts/local_commit_validation.py run --staged"
+      ]
     }
   ],
   "exemptions": [],

@@ -114,7 +114,7 @@ class SubagentOrchestrationPolicyTest(unittest.TestCase):
         "deploy-impact-gate.toml",
         "governance-project-router.toml",
         "role-coverage-gate.toml",
-        "workflow-artifact-validator.toml",
+        "bears-plugin-update-engineer.toml",
     }
     HELPER_AGENT_RUNTIME = {
         "bears-git-workflow-helper.toml": {"model": "gpt-5.4-mini", "reasoning_effort": "high"},
@@ -136,7 +136,7 @@ class SubagentOrchestrationPolicyTest(unittest.TestCase):
         "deploy-impact-gate",
         "governance-project-router",
         "role-coverage-gate",
-        "workflow-artifact-validator",
+        "bears-plugin-update-engineer",
     }
     EXPECTED_EVIDENCE_GATHERING_APPLIES_TO = {
         "file reading agents",
@@ -3858,7 +3858,7 @@ class SubagentOrchestrationPolicyTest(unittest.TestCase):
 
     def test_issue122_rejects_current_day_collector_memory_and_broad_session_scan(self) -> None:
         assignment = {
-            "agent_name": "workflow-artifact-validator",
+            "agent_name": "bears-plugin-update-engineer",
             "sandbox_mode": "read-only",
             "current_day_collector": True,
             "task_summary": "current-day checkpoint collector",
@@ -3889,7 +3889,7 @@ class SubagentOrchestrationPolicyTest(unittest.TestCase):
 
     def test_issue122_accepts_current_day_collector_with_explicit_checkpoint_scope(self) -> None:
         assignment = {
-            "agent_name": "workflow-artifact-validator",
+            "agent_name": "bears-plugin-update-engineer",
             "sandbox_mode": "read-only",
             "current_day_collector": True,
             "session_checkpoints": [

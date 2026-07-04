@@ -317,9 +317,9 @@ The gate checks `/srv/bears/dev/registry/projects.v1.json`, then routes the targ
 
 `assets/catalog/plugin-skill-catalog.v1.json` is the single source of truth for active and disabled Bears plugin skills.
 
-Active discoverable skills: `bears-blocker-eval`, `bears-deploy-gate`, `bears-goal-prompt`, `bears-codex-health`, `bears-workflow-validate`, `platform-role-governance`, `python-codeflow`, `secret-factory`, `app-constitution`, `app-research`, `app-specify`, `app-plan`, `github-project-planning`, `app-analyze`, `yandex360-dns`, `bears-kubernetes-ops`, `bears-infisical-ops`, `subagents`, `app-dev`, `codex-telegram-operator-gate`.
+Active discoverable skills: `bears-blocker-eval`, `bears-deploy-gate`, `bears-goal-prompt`, `bears-codex-health`, `bears-plugin-update`, `platform-role-governance`, `bears-agents`, `python-codeflow`, `secret-factory`, `app-constitution`, `app-research`, `app-specify`, `app-plan`, `github-project-planning`, `app-analyze`, `yandex360-dns`, `bears-kubernetes-ops`, `bears-infisical-ops`, `subagents`, `app-dev`, `codex-telegram-operator-gate`.
 
-Disabled preserved skill docs: .
+Disabled preserved skill docs: `bears-workflow-validate`.
 
 A disabled skill directory is valid only when `SKILL.md` is absent and `SKILL.disabled.md` is present.
 <!-- BEARS_SKILL_INVENTORY: END -->

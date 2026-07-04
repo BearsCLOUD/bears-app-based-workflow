@@ -13,7 +13,7 @@ FIXTURE = PLUGIN_ROOT / "tests/fixtures/capability_layout/p1_06_08_mutations.v1.
 BASE_RUNTIME_CLAIM = {
     "event": "SubagentStop",
     "source_layer": "plugin",
-    "hook_source_path": "skills/bears-workflow-validate/SKILL.md",
+    "hook_source_path": "skills/bears-plugin-update/SKILL.md",
     "enabled_config_layer": "plugin_manifest",
     "feature_key": "features.hooks",
     "effective_hooks_enabled": True,
@@ -82,7 +82,7 @@ class CapabilityHookClaimTests(unittest.TestCase):
             claim = {
                 "event": "SubagentStop",
                 "source_layer": "plugin",
-                "hook_source_path": "skills/bears-workflow-validate/SKILL.md",
+                "hook_source_path": "skills/bears-plugin-update/SKILL.md",
                 "runtime_behavior_claimed": False,
             }
         else:  # pragma: no cover - fixture guard

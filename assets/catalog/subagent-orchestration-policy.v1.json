@@ -33,7 +33,7 @@
         "deploy-impact-gate",
         "governance-project-router",
         "role-coverage-gate",
-        "workflow-artifact-validator"
+        "bears-plugin-update-engineer"
       ]
     },
     "main_agent": {

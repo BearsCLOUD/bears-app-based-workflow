@@ -111,7 +111,7 @@ AGENT_SANDBOX_MODE_MATRIX = {
     "l2-product-infra-domain-orchestrator.toml": "workspace-write",
     "overlay-controller.toml": "workspace-write",
     "role-coverage-gate.toml": "read-only",
-    "workflow-artifact-validator.toml": "workspace-write",
+    "bears-plugin-update-engineer.toml": "workspace-write",
 }
 
 SCHEMA_FILES = {

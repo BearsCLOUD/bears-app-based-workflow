@@ -559,9 +559,9 @@ class PlatformRolesTest(unittest.TestCase):
                 "workflow_overlay_core_plugin_surface",
                 "bears-workflow-overlay-platform-engineer",
             ),
-            "workflow-artifact-validator.toml": (
-                "workflow_overlay_artifact_validator",
-                "bears-workflow-overlay-workflow-artifact-validator",
+            "bears-plugin-update-engineer.toml": (
+                "bears_plugin_update_governance",
+                "bears-plugin-update-engineer",
             ),
         }
         agent_files = sorted(path.name for path in (PLUGIN_ROOT / "agents").glob("*.toml"))
@@ -1853,7 +1853,7 @@ class PlatformRolesTest(unittest.TestCase):
 
     def test_catalog_uses_expected_role_models(self) -> None:
         expected_models = {
-            "bears-workflow-overlay-workflow-artifact-validator": self.EVIDENCE_ROLE_MODEL,
+            "bears-plugin-update-engineer": self.EVIDENCE_ROLE_MODEL,
             "bears-git-workflow-helper": self.EVIDENCE_ROLE_MODEL,
             "bears-token-budget-helper": self.EVIDENCE_ROLE_MODEL,
             "bears-review-fix-helper": self.EVIDENCE_ROLE_MODEL,
@@ -2090,17 +2090,17 @@ class PlatformRolesTest(unittest.TestCase):
             "/srv/bears/plugins/bears/scripts/validate_overlay.py",
             "/srv/bears/plugins/bears/tests/test_validate_overlay.py",
             "/srv/bears/plugins/bears/schemas/workflow-policy.schema.json",
-            "/srv/bears/plugins/bears/skills/bears-workflow-validate",
-            "skills/bears-workflow-validate/SKILL.md",
+            "/srv/bears/plugins/bears/skills/bears-plugin-update",
+            "skills/bears-plugin-update/SKILL.md",
         ]
         for target in targets:
             with self.subTest(target=target):
                 packet = platform_roles.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
                 self.assertEqual(packet["status"], "matched")
-                self.assertEqual(packet["concrete_part"], "workflow_overlay_artifact_validator")
+                self.assertEqual(packet["concrete_part"], "bears_plugin_update_governance")
                 self.assertEqual(
                     packet["primary_role"],
-                    "bears-workflow-overlay-workflow-artifact-validator",
+                    "bears-plugin-update-engineer",
                 )
                 self.assertIn("bears-platform-security-reviewer", packet["supporting_roles"])
                 self.assertFalse(packet["decomposition_required"])
@@ -2113,7 +2113,6 @@ class PlatformRolesTest(unittest.TestCase):
             "/srv/bears/plugins/bears/skills/speckit-bears-research/SKILL.md",
             "/srv/bears/plugins/bears/skills/bears-blocker-eval/SKILL.md",
             "/srv/bears/plugins/bears/skills/bears-deploy-gate/SKILL.md",
-            "/srv/bears/plugins/bears/skills/bears-workflow-validate/SKILL.md",
             "/srv/bears/plugins/bears/templates/research-template.md",
             "/srv/bears/plugins/bears/workflows/bears-sdd/workflow.yml",
             "workflows/bears-sdd/workflow.yml",

@@ -85,4 +85,4 @@
 - Plugin closeout for app/platform behavior must cite an ObjectiveRuntimeProof packet or final Kubernetes live proof, not validation artifacts.
 - Agents may inspect current commit or current PR GitHub Checks, GitHub Actions runs, statuses, logs, and artifacts as safety context only.
 - Deep `/srv/bears/kubernetes` Git history reads are forbidden unless the operator explicitly requests bounded history work in the current turn.
-- GitHub Actions `.github/workflows/validate.yml` is operator-dispatched diagnostics only.
+- GitHub Actions `.github/workflows/validate.yml` runs fast diagnostics on `main` push and keeps emergency full-suite diagnostics operator-dispatched only.

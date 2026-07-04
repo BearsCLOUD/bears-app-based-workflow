@@ -226,7 +226,7 @@ class PluginManifestTests(unittest.TestCase):
     def test_agents_validation_policy_routes_repo_validators_to_local_commit_validation(self):
         agents = AGENTS_PATH.read_text(encoding="utf-8")
         self.assertIn("Local commit validation owns blocking plugin test proof", agents)
-        self.assertIn("GitHub Actions `.github/workflows/validate.yml` is operator-dispatched diagnostics", agents)
+        self.assertIn("GitHub Actions `.github/workflows/validate.yml` runs fast diagnostics on `main` push", agents)
         self.assertIn("Agents must not run repo validator suites or tests manually", agents)
         self.assertIn("Closeout proof must cite `runtime/local-commit-validation/<main_sha>.json`", agents)
         self.assertNotIn("python3 scripts/agent_github_dev_cd.py validate", agents)

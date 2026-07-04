@@ -1302,6 +1302,28 @@
       "validation": [
         "python3 scripts/local_commit_validation.py run --commit-sha <sha>"
       ]
+    },
+    {
+      "affected_surfaces": [
+        "agent_github_dev_cd_flow",
+        "validate_workflow_trigger_policy",
+        "plugin_instruction_policy"
+      ],
+      "date": "2026-07-04",
+      "files": [
+        "AGENTS.md",
+        "SPEC.md",
+        "assets/catalog/agent-github-dev-cd.v1.json",
+        "assets/catalog/decision-ledger.v1.json",
+        "assets/catalog/release-notes.v1.json",
+        "scripts/agent_github_dev_cd.py",
+        "tests/test_agent_github_dev_cd.py"
+      ],
+      "impact": "Align the archived GitHub dev-CD policy checker and plugin docs with main-push automatic diagnostics while preserving operator-only emergency full-suite dispatch.",
+      "issue_ref": "#8",
+      "validation": [
+        "python3 scripts/local_commit_validation.py run --commit-sha <sha>"
+      ]
     }
   ],
   "exemptions": [],

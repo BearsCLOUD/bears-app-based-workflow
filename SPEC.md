@@ -225,7 +225,7 @@ Validation entrypoint requirements for this surface are:
 - `python3 scripts/secret_factory.py validate`
 - `python3 scripts/validate_overlay.py --json validate --strict-overlay-skills`
 
-Local commit validation owns test execution for this surface through `scripts/local_commit_validation.py` and `scripts/test_selection.py`. The local git `pre-commit` hook blocks failing staged changes; the local git `post-commit` hook runs impacted fast tests for the exact commit. GitHub Actions is operator-dispatched diagnostics only. Local agents must not run pytest, unittest, or repo validator suites unless the operator explicitly lifts the ban.
+Local commit validation owns test execution for this surface through `scripts/local_commit_validation.py` and `scripts/test_selection.py`. The local git `pre-commit` hook blocks failing staged changes; the local git `post-commit` hook runs impacted fast tests for the exact commit. GitHub Actions runs fast diagnostics on `main` push and keeps emergency full-suite diagnostics operator-dispatched only. Local agents must not run pytest, unittest, or repo validator suites unless the operator explicitly lifts the ban.
 
 ## Session Workers Runtime
 

@@ -2691,8 +2691,8 @@ def validate_catalog(
                 errors.append(f"ci_policy.{key} must be false for main-only delivery")
         if ci_policy.get("required_pull_request_targets") != []:
             errors.append("ci_policy.required_pull_request_targets must be [] for main-only delivery")
-        if ci_policy.get("required_push_branches") != []:
-            errors.append("ci_policy.required_push_branches must be [] for operator-only diagnostics")
+        if ci_policy.get("required_push_branches") != ["main"]:
+            errors.append("ci_policy.required_push_branches must be [main] for automatic post-commit diagnostics")
         if strict_route and ci_policy.get("validation_workflow") != VALIDATE_WORKFLOW_PATH:
             errors.append(f"ci_policy.validation_workflow must be {VALIDATE_WORKFLOW_PATH}")
         required_commands = ci_policy.get("required_commands")
@@ -2808,8 +2808,16 @@ def validate_catalog(
         else:
             if "pull_request" in on_data or "merge_group" in on_data:
                 errors.append("validate workflow must not include pull_request or merge_group in main-only delivery")
-            if set(on_data) != {"workflow_dispatch"}:
-                errors.append("validate workflow must expose only operator workflow_dispatch")
+            allowed_events = {"push", "workflow_dispatch"}
+            if set(on_data) != allowed_events:
+                errors.append("validate workflow must expose only main push and operator workflow_dispatch")
+            push_data = on_data.get("push")
+            if not isinstance(push_data, dict) or push_data.get("branches") != ["main"]:
+                errors.append("validate workflow push.branches must be [main]")
+            dispatch_data = on_data.get("workflow_dispatch")
+            dispatch_inputs = dispatch_data.get("inputs") if isinstance(dispatch_data, dict) else None
+            if not isinstance(dispatch_inputs, dict) or "emergency_full_suite" not in dispatch_inputs:
+                errors.append("validate workflow workflow_dispatch must keep emergency_full_suite input")
         jobs = validation_workflow_data.get("jobs")
         if not isinstance(jobs, dict):
             errors.append("validate workflow must define jobs")

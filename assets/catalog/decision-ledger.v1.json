@@ -1724,15 +1724,17 @@
         "scripts/agent_github_dev_cd.py"
       ],
       "change_type": "workflow",
-      "contradictions": [],
-      "decision": "Keep the plugin validate workflow as operator-dispatched diagnostics only and align the archived GitHub dev-CD policy checker with that trigger model.",
+      "contradictions": [
+        "Superseded by main-push automatic diagnostics policy on 2026-07-04."
+      ],
+      "decision": "Superseded trigger model for plugin validate workflow and archived GitHub dev-CD policy checker.",
       "decision_id": "D-2026-07-03-008-operator-diagnostics-only",
       "owner_issue": "#8",
       "owner_role": "bears-workflow-overlay-platform-engineer",
-      "rationale": "The root and plugin routers state that GitHub Actions validate.yml is diagnostics only; the policy checker must not require push triggers after the app skill rename closeout.",
+      "rationale": "Superseded because active CI policy now requires fast automatic diagnostics on main push while keeping emergency full suite operator-dispatched.",
       "redaction": "safe",
       "scope_id": "app-workflow-skill-rename",
-      "status": "accepted",
+      "status": "superseded",
       "unresolved_inputs": []
     },
     {
@@ -1812,6 +1814,28 @@
       "rationale": "The active plugin must not depend on removed skill contract files or missing test files, and CI safety catalogs must reflect the app-* skill boundary.",
       "redaction": "safe",
       "scope_id": "app-workflow-skill-boundaries",
+      "status": "accepted",
+      "unresolved_inputs": []
+    },
+    {
+      "affected_paths": [
+        "AGENTS.md",
+        "SPEC.md",
+        "assets/catalog/agent-github-dev-cd.v1.json",
+        "assets/catalog/decision-ledger.v1.json",
+        "assets/catalog/release-notes.v1.json",
+        "scripts/agent_github_dev_cd.py",
+        "tests/test_agent_github_dev_cd.py"
+      ],
+      "change_type": "workflow",
+      "contradictions": [],
+      "decision": "Allow the plugin validate workflow to run fast automatic diagnostics on main push while keeping emergency full suite behind operator workflow_dispatch.",
+      "decision_id": "app-workflow-main-push-diagnostics-2026-07-04",
+      "owner_issue": "operator-goal-plugin-app-workflow-consistency",
+      "owner_role": "bears-workflow-overlay-platform-engineer",
+      "rationale": "The operator policy requires quick automatic CI after commit; the archived GitHub dev-CD checker must enforce main-only push diagnostics rather than workflow_dispatch-only diagnostics.",
+      "redaction": "safe",
+      "scope_id": "app-workflow-ci-boundaries",
       "status": "accepted",
       "unresolved_inputs": []
     }

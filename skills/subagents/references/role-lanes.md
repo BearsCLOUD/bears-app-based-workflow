@@ -11,7 +11,7 @@ Use exact @Bears role TOMLs from `/srv/bears/plugins/bears/agents`.
 - `l2-infra-domain-orchestrator`: infrastructure domain assignment review.
 - `l2-product-infra-domain-orchestrator`: product-infra domain assignment review.
 
-L2 orchestrators may create L3 assignments and role-improvement assignments. They must not implement code, edit repo payload, commit, push, deploy, or read restricted data.
+L2 orchestrators may create L3 assignments and role-gap blocker packets. They must not implement code, edit repo payload, commit, push, deploy, or read restricted data.
 
 ## L3 execution lanes
 

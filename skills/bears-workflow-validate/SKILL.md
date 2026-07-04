@@ -20,7 +20,7 @@ This skill is report-first. It does not add app connector, MCP, production deplo
 7. For Spec Kit-gated feature dirs, validate that `spec.md`, `plan.md`, and `tasks.md` exist, that `tasks.md` links to `role-coverage.json`, and that restricted mutation text has operator approval evidence.
 8. For platform-role, dev-core, Kubernetes, Android emulator, Sentry/observability, or The Ants routing changes, run route/audit checks for the changed targets and cite local-commit-owned validation.
 9. Check workflow or README references for old plugin names, invalid command names, broadened scope, deprecated projects parent authority, or source-boundary drift.
-10. Confirm standalone `bears-speckit` plugin or layer claims stay deprecated; `speckit-bears-flow` must remain an `@bears` workflow skill that calls upstream Spec Kit skills from `/srv/bears/.agents/skills`.
+10. Confirm standalone `bears-speckit` plugin or layer claims stay deprecated; Plugin-local Speckit overlay skills must stay absent from active discovery, and app workflow must route through `app-*`.
 11. Confirm stage-boundary audits replace per-file non-product audits.
 12. Emit JSON first using the `bears-workflow-overlay.workflow-validation` shape below.
 13. Optionally add a short Markdown diagnostics summary after the JSON.
@@ -31,7 +31,7 @@ Run only bounded inspection checks that match the changed files and allowed scop
 
 ```bash
 find /srv/bears/plugins/bears/skills -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | sort
-find /srv/bears/plugins/bears/skills -mindepth 1 -maxdepth 1 -type d -name 'speckit-*' ! -name 'speckit-bears-*' -printf '%f\n' | sort
+find /srv/bears/plugins/bears/skills -mindepth 1 -maxdepth 1 -type d -name 'speckit-*' -printf '%f\n' | sort
 grep -RIn 'bears-''speckit' /srv/bears/plugins/bears/README.md /srv/bears/plugins/bears/skills || true
 grep -RInE 'standalone .*bears-speckit|bears-speckit .*plugin|bears-speckit .*layer' /srv/bears/plugins/bears/README.md /srv/bears/plugins/bears/SPEC.md /srv/bears/plugins/bears/requirements.md /srv/bears/plugins/bears/skills /srv/bears/plugins/bears/assets/catalog || true
 ```
@@ -68,12 +68,12 @@ Emit this JSON artifact first:
     {
       "id": "skill-boundary",
       "status": "pass",
-      "evidence": "No upstream speckit-* skill directories remain except speckit-bears-* overlays."
+      "evidence": "No speckit-* skill directories remain in the active plugin overlay."
     },
     {
       "id": "bears-speckit-boundary",
       "status": "pass",
-      "evidence": "Standalone bears-speckit plugin/layer claims are deprecated; speckit-bears-flow remains an @bears workflow skill."
+      "evidence": "Standalone bears-speckit plugin/layer claims are deprecated; app workflow routes through app-* skills."
     },
     {
       "id": "skill-frontmatter",

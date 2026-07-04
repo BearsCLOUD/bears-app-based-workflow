@@ -1,4 +1,4 @@
 interface:
-  display_name: "Bears Project Analyze"
-  short_description: "Check target artifacts before execution"
-  default_prompt: "Use $app-analyze to check Bears constitution, spec, docs, GitHub Project plan, Issues, roles, validation, and execution handoff for drift."
+  display_name: "App Analyze"
+  short_description: "Check app handoff readiness"
+  default_prompt: "Use $app-analyze to check App Target Gate, constitution, research, spec, Project items, Issues, lanes, roles, proof requirements, dependencies, and app-dev handoff."

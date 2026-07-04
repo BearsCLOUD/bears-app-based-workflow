@@ -1,4 +1,4 @@
 interface:
   display_name: "App Plan"
-  short_description: "Convert app docs into GitHub Project tasks"
-  default_prompt: "Use $app-plan to convert Bears app docs into concrete, drift-safe GitHub Issues and Apps Project #20 items for mini-model app-dev execution."
+  short_description: "Convert docs into app-dev tasks"
+  default_prompt: "Use $app-plan to convert Bears app docs into GitHub Issues and Apps Project #20 items with app/platform/infra lanes for app-dev execution."

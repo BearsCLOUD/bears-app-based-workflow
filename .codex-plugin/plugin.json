@@ -4,7 +4,7 @@
     "name": "Bears Workspace",
     "url": "https://bears.local"
   },
-  "description": "Bears workspace governance plugin for Spec Kit orchestration, role gates, blockers, deploy gates, contracts, validators, hooks, Git/CD policy, target registry gates, and workflow closeout. Codex daemon and Knowledge Orchestrator runtime source is BearsCLOUD/apps source_subpath=codexdaemon; BearsCLOUD/codexdaemon is legacy archive evidence only.",
+  "description": "Bears workspace governance plugin for app workflow orchestration, role gates, blockers, deploy gates, contracts, validators, hooks, Git/CD policy, target registry gates, and workflow closeout. Codex daemon and Knowledge Orchestrator runtime source is BearsCLOUD/apps source_subpath=codexdaemon; BearsCLOUD/codexdaemon is legacy archive evidence only.",
   "homepage": "https://bears.local/plugins/bears",
   "hooks": "./hooks.json",
   "interface": {
@@ -37,7 +37,6 @@
       "Agent GitHub dev CD governance",
       "Agent GitHub merge-authority checks",
       "GitHub issue-type governance",
-      "Development workflow orchestration",
       "Agent workflow map validation",
       "Agent action ledger rendering",
       "Local commit validation policy",
@@ -60,13 +59,16 @@
       "GitHub Project and Issue subagent orchestration",
       "App Dev governance",
       "Subagents skill governance",
-      "GitHub Project subagent catalog validation"
+      "GitHub Project subagent catalog validation",
+      "App Target Gate",
+      "App Research",
+      "App workflow orchestration"
     ],
     "category": "Development",
     "defaultPrompt": [
-      "Run the Bears workflow overlay for this feature with role gates, blockers, deploy gates, roadmap-control gating, plan/tasks analysis, and implementation control.",
+      "Run the Bears app workflow with App Target Gate, app-research when risk-gated, app-plan lane mapping, app-analyze handoff, and app-dev L2/L3 execution control.",
       "Run the plugin constitution gate after route gate and before research for plugin governance changes; validate assets/catalog/plugin-constitution.v1.json with `python3 scripts/plugin_constitution.py validate` and inspect change packets with `python3 scripts/plugin_constitution.py inspect-change --packet <path>`.",
-      "Run the deterministic research gate before Spec Kit specification, plan, tasks, analyze, and implementation for broad, new, risky, drift-prone, workflow, runtime, integration, UI/UX, automation, plugin, infra, Kubernetes, migration, or boundary-sensitive work; require bounded research.md, prior-art.md, and ux-research.md when interface behavior is affected.",
+      "Run $app-research before app specification and again before app planning for broad, new, risky, drift-prone, workflow, runtime, integration, UI/UX, automation, plugin, infra, Kubernetes, migration, or boundary-sensitive work; require bounded research.md, prior-art.md, and ux-research.md when interface behavior is affected.",
       "Run the deterministic design artifact gate before Spec Kit plan, tasks, analyze, and implementation for workflow, orchestration, hook, roadmap, role gate, validator, runtime contract, operator/developer interaction, or UI/UX flow changes.",
       "Run the deterministic prototype/spike gate before design, Spec Kit plan, tasks, analyze, and implementation when research or design leaves unresolved high-risk uncertainty that can be cheaply tested; keep prototype output separate from durable implementation.",
       "Use $platform-role-governance before platform-part edits and route through exactly one primary specialist or helper role.",
@@ -83,13 +85,11 @@
       "Validate roadmap-control state with `assets/catalog/roadmap-control.v1.json` using `python3 scripts/roadmap_control.py validate`.",
       "Use $yandex360-dns for bears.ru DNS governance through runtime-injected Infisical presence checks, dry-run plan review, and read-only evidence only.",
       "Use $secret-factory only for catalog-listed local generation kinds; write to Infisical without reading, printing, storing, logging, committing, or exposing generated values, and return provider handoff for provider-owned values.",
-      "Use $project-mandate only after scripts/project_registry_gate.py allows the /srv/bears target path.",
       "For non-product work, run the four audits at the stage boundary for plugin fit, drift, docs plus restricted-data safety, and user-information capture; accept legacy post-task wording only as an alias.",
       "Route Sentry runtime-plugin capability work through $platform-role-governance; keep Sentry access code outside /srv/bears/plugins/bears, return redacted-only evidence by default, and require explicit operator approval plus security review for raw payloads, settings mutation, credential handling changes, production data exposure, or .226 Kubernetes lane promotion.",
       "For Agent GitHub dev CD issue pickup, recognize only fixed GitHub issue identifiers `type:bugfix`, `type:idea`, and `type:develop-ready`; `type:develop-ready` is produced from repository constitution alignment, research, and accepted operator decisions.",
       "agent pickup may start bounded development only for `type:develop-ready` after route gate, constitution evidence, research evidence, accepted decision evidence, owning role, task packet, duplicate guard, and `verify-agent-pickup --dry-run` pass; block unlabeled, idea-only, bugfix-only, blocked, human-review (`needs-human` or `manual-only`), secret, credentials, deploy, production, and security-review issues.",
       "Before PR ready or merge in Agent GitHub dev CD, require `python3 scripts/agent_github_dev_cd.py merge-authority-check --packet <path> --expected-repository <owner/repo> --expected-pr-number <number> --expected-head-ref <head-ref> --expected-head-sha <head-sha> --expected-base-ref <base-ref>` with exact PR/head, green checks or named no-CI exception/operator override, state_file_policy PASS, workflow_state and merge_authority_state refs, title validation, draft policy, rollback note, and operator_request or contract_authority. Plain parent send_input merge text is workflow drift.",
-      "Use $development-workflow-orchestration for broad Bears development work; parent agents must not implement broad work directly. Validate packets with `python3 scripts/development_workflow_validate.py validate`, validate the canonical map with `python3 scripts/agent_workflow_map.py validate`, and keep artifacts metadata-only.",
       "Use the agentic enterprise workflow: one small repo-domain scope, research first, decision log, owner lineage, fast hooks, and `python3 scripts/agentic_enterprise_workflow.py validate` in CI.",
       "Classify startup prompts with `python3 scripts/agent_github_dev_cd.py classify-task --prompt-file <path>` before agent GitHub dev CD work; verify branch, merge, local_cd, and production-mutation boundaries with `python3 scripts/agent_github_dev_cd.py verify-scenario-policy --packet <path>`.",
       "Before automatic `dev` merge in Agent GitHub dev CD, require `python3 scripts/agent_github_dev_cd.py verify-dev-auto-merge --packet <path> --expected-repository <owner/repo> --expected-pr-number <number> --expected-head-ref <head-ref> --expected-head-sha <head-sha> --expected-base-ref dev` with contract_authority, state_file_policy PASS, workflow_state and merge_authority_state refs, local-commit-validation PASS, draft false, exact head, and CLEAN mergeable state.",
@@ -162,7 +162,6 @@
     "verify-agent-pickup",
     "merge-authority",
     "merge-authority-check",
-    "development-workflow-orchestration",
     "agent-workflow-map",
     "agent-action-ledger",
     "parallel-lightweight-ci",
@@ -204,7 +203,9 @@
     "subagents-skill",
     "github-project-orchestrator",
     "l3-bears-workers",
-    "github-project-subagents-validator"
+    "github-project-subagents-validator",
+    "app-research",
+    "app-plan"
   ],
   "license": "UNLICENSED",
   "metadata": {

@@ -39,7 +39,7 @@
       "read assigned GitHub Project, Issue, Pull Request, Actions, Release, Discussion, Wiki, Package, Deployment, label, milestone, branch, commit, and code scanning metadata",
       "mutate Issues, sub-issues, Project items, Project fields, labels, milestones, assignees, links, and issue comments only when the parent packet authorizes mutation",
       "prepare L3 /goal packets for route-selected @Bears roles",
-      "prepare role-improvement L3 packets when route/audit or role text is unsafe",
+      "record role-gap blockers when route/audit or role text is unsafe",
       "write evidence-backed Project and Issue closeout metadata after L3 evidence",
       "use bears-development-workflow-orchestrator as runtime proxy only with explicit role=bears-github-project-issues-orchestrator and the fallback deadline guard present",
       "return exactly one parent-visible READY, WIP, or FAST_BLOCKER packet inside the first minute",

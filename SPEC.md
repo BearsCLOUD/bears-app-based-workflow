@@ -4,7 +4,7 @@
 
 `/srv/bears/plugins/bears` is the canonical Bears governance plugin for shared platform workflow control. It is the only Codex plugin authorized for this Bears governance model.
 
-Standalone `bears-speckit` plugin or layer claims are deprecated. Generated `.specify` workspace files are ignored and must not become plugin source. Spec Kit core skills stay upstream in `/srv/bears/.agents/skills`; `@bears` only orchestrates them through Bears-owned workflow skills such as `speckit-bears-flow`.
+Standalone `bears-speckit` plugin or layer claims are deprecated. Generated `.specify` workspace files are ignored and must not become plugin source. Spec Kit core skills stay upstream in `/srv/bears/.agents/skills`; app workflow orchestration is owned by `app-*` skills, with external product research in `app-research`.
 
 Canonical source after split:
 
@@ -22,7 +22,7 @@ It owns:
 - deterministic roadmap control for `/goal`-started workflow runs, including multi-spec concurrency control and session reuse binding;
 - session worker runtime catalogs and validators for Codex sessions that execute current Spec Kit truth under Bears control;
 - subagent orchestration policy for non-product stage-boundary audits, with legacy post-task aliases only for compatibility;
-- target registry gate and the registry-gated `project-mandate` checklist skill;
+- App Target Gate inside `app-*` skills, with target registry evidence used only as compatibility input;
 - Telegram workflow governance as a skill-bundle surface under `/srv/bears/plugins/bears/skills/bears-telegram-workflow` plus sibling Telegram skills, catalogs, scripts, and tests;
 - plugin constitution governance at `assets/catalog/plugin-constitution.v1.json` and `scripts/plugin_constitution.py`;
 - executable capability inventory at `capabilities/inventory.v1.json` and plugin constitution wrapper at `capabilities/plugin_constitution/`;
@@ -154,7 +154,7 @@ Workflow routing stays inside the one-plugin Bears model:
 - generated Spec Kit feature artifacts store target requirements, plans, tasks, research, design, and checklists only;
 - external upstream layer owns `/srv/bears/.agents/skills/speckit-*` and the installed `specify` CLI;
 - upstream Spec Kit command skills resolve from `/srv/bears/.agents/skills`;
-- `speckit-bears-flow` is a Bears-owned orchestration skill, not a standalone plugin or layer;
+- Plugin-local Speckit overlay skills are removed from active plugin discovery; app workflow lives in `app-*`;
 - the canonical Bears role gate runs first for every Telegram change request;
 - formatting/UI uses `telegram-quality-testing`;
 - Aiogram migration uses `telegram-aiogram-migration`;
@@ -307,9 +307,9 @@ python3 scripts/subagent_orchestration_policy.py validate
 
 ## Target registry gate
 
-`project-mandate` is a registered-target checklist only. It must not run for arbitrary `/srv/bears` paths.
+The former target checklist skill is removed from active plugin discovery. App Target Gate inside `app-*` owns registered-target focus for app workflow.
 
-Before `project-mandate`, run:
+Before App Target Gate uses compatibility registry evidence, run:
 
 ```bash
 python3 scripts/project_registry_gate.py gate <target-path>
@@ -323,7 +323,7 @@ The gate checks `/srv/bears/dev/registry/projects.v1.json`, then routes the targ
 
 `assets/catalog/plugin-skill-catalog.v1.json` is the single source of truth for active and disabled Bears plugin skills.
 
-Active discoverable skills: `bears-blocker-eval`, `bears-deploy-gate`, `bears-goal-prompt`, `bears-codex-health`, `bears-governance-check`, `bears-role-gate`, `bears-workflow-validate`, `development-workflow-orchestration`, `platform-role-governance`, `python-codeflow`, `project-mandate`, `secret-factory`, `speckit-bears-flow`, `speckit-bears-research`, `app-constitution`, `app-specify`, `app-plan`, `github-project-planning`, `app-analyze`, `yandex360-dns`, `bears-kubernetes-ops`, `bears-infisical-ops`, `subagents`, `app-dev`, `codex-telegram-operator-gate`.
+Active discoverable skills: `bears-blocker-eval`, `bears-deploy-gate`, `bears-goal-prompt`, `bears-codex-health`, `bears-governance-check`, `bears-role-gate`, `bears-workflow-validate`, `platform-role-governance`, `python-codeflow`, `secret-factory`, `app-constitution`, `app-research`, `app-specify`, `app-plan`, `github-project-planning`, `app-analyze`, `yandex360-dns`, `bears-kubernetes-ops`, `bears-infisical-ops`, `subagents`, `app-dev`, `codex-telegram-operator-gate`.
 
 Disabled preserved skill docs: `bears-telegram-workflow`, `telegram-aiogram-migration`, `telegram-plugin-skill-factory`, `telegram-quality-testing`.
 

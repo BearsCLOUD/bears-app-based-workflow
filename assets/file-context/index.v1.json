@@ -13358,7 +13358,7 @@
         "render_packet",
         "validate_registry"
       ],
-      "purpose": "Gate project-mandate usage through the Bears dev-core project registry.",
+      "purpose": "Provide compatibility registry evidence for App Target Gate.",
       "read_policy": "summary_first",
       "reads": [],
       "related_contexts": [],

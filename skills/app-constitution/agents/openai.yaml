@@ -1,4 +1,4 @@
 interface:
-  display_name: "Bears Project Constitution"
-  short_description: "Create project rules and artifact owners"
-  default_prompt: "Use $app-constitution to create or update concrete Bears project rules, artifact owners, validation duties, and drift handling."
+  display_name: "App Constitution"
+  short_description: "Create app target rules"
+  default_prompt: "Use $app-constitution to create or update one Bears app constitution with App Target Gate, owner, layer map, artifact map, and drift handling."

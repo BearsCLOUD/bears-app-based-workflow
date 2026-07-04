@@ -1,77 +1,75 @@
 ---
 name: app-constitution
-description: "Create or update app constitutions: concrete principles, ownership rules, artifact locations, proof duties, and dependent documentation sync. Use before app specification, app planning, or app-dev execution when an app target lacks a current constitution or its rules changed."
+description: "Create or update app constitutions for one Bears app target. Use before app-research, app-specify, app-plan, or app-dev when ownership rules, layer boundaries, artifact locations, or proof duties are missing or changed."
 ---
-
-## Entity terms
-
-`app` means a Bears product application source directory under `/srv/bears/dev/app` or `BearsCLOUD/apps`. `project` means a GitHub Project planning board with linked Issues and metadata fields. Use `target`, `registered target`, `repo`, `path`, `workspace surface`, or `app directory` for filesystem/source ownership.
 
 # App Constitution
 
-Use this skill to create or update an app constitution for a Bears product app, app directory, migration workstream, or app-owned repo target.
+`app` means one Bears product application directory under `/srv/bears/dev/app` or the `BearsCLOUD/apps` repository. `project` means only a GitHub Project board with linked Issues and metadata fields. Use `repo`, `path`, `target`, `workspace surface`, or `app directory` for filesystem ownership.
 
-A constitution is the target rule document that later specs, plans, GitHub Project items, and execution agents must obey.
+## App Target Gate
+
+Every app-* skill starts with this gate:
+
+- Name one exact app directory or app docs path.
+- Classify each target as exactly one layer: `app`, `platform`, or `infra`.
+- `app` layer belongs to `BearsCLOUD/apps` and one app directory under `/srv/bears/dev/app`.
+- `platform` layer belongs to `/srv/bears/dev/platform`.
+- `infra` layer belongs to `/srv/bears/kubernetes`.
+- Legacy child repos and `/srv/bears/projects` are evidence only.
+- Broad workspace scans are forbidden when target packets name paths.
+- If a request crosses layers, keep the layers separate and pass them to `$app-plan` as separate lanes.
+
+Use this skill to create or update the app constitution: the concrete rule document that later app specs, docs, GitHub Project items, Issues, and app-dev agents must obey.
 
 ## Boundary
 
 Allowed:
 
-- Inspect nearest `AGENTS.md`, README, SPEC, requirements, docs, existing contracts, GitHub Issue and Project metadata, and route/audit output.
-- Create or update the narrow target constitution artifact.
-- Add short router links from README or AGENTS only when the nearest router owns that pointer.
+- Read nearest `AGENTS.md`, current app docs, existing constitution, GitHub Project or Issue metadata, and route evidence for the exact target.
+- Create or update only the narrow constitution artifact and short links from owned docs.
 - Record unresolved drift as owner-scoped follow-up work.
 
 Forbidden:
 
-- Runtime, deploy, Kubernetes, provider, repository setting, secret, credential, `.env`, production-data, or raw-log mutation.
 - Product implementation.
+- Runtime, Kubernetes desired-state, provider, repo-setting, secret, `.env`, production-data, raw-log, or raw-chat mutation.
 - Root `/srv/bears/specs`, `.specify`, root `plans.md`, root `roadmap.md`, or `/srv/bears/docs/plans.md` recreation.
 
 ## Artifact placement
 
-Pick the narrowest existing owner path:
+Use the narrowest owner path:
 
-- Plugin: `/srv/bears/plugins/<plugin>/docs/reference/<target>-constitution.md` or plugin catalog when a machine contract already owns the rule.
-- Infra: `/srv/bears/kubernetes/docs/reference/<target>-constitution.md` or the nearest manifest/runbook docs path.
-- Platform: `/srv/bears/dev/platform/docs/reference/<target>-constitution.md`.
-- Product apps: `/srv/bears/dev/app/<app-name>/docs/constitution.md` or `/srv/bears/dev/app/docs/<app-name>-constitution.md` when the app directory has no docs directory.
-- Workspace router: tracked root docs only when the rule is workspace-wide.
-
-Do not create a new parent docs tree when a nearer repo-local docs path exists.
+- App: `/srv/bears/dev/app/<app-name>/docs/constitution.md`, or `/srv/bears/dev/app/docs/<app-name>-constitution.md` when the app directory has no docs directory.
+- Platform: `/srv/bears/dev/platform/docs/reference/<target>-constitution.md` only for shared platform layer rules.
+- Infra: `/srv/bears/kubernetes/docs/reference/<target>-constitution.md` only for infra layer rules.
+- Plugin: plugin-local docs or catalog only when the plugin is the target.
 
 ## Workflow
 
-1. Read `/srv/bears/AGENTS.md`, the nearest target `AGENTS.md`, and route/audit for the exact target path.
-2. If operator principles are missing, ask at most five concrete questions covering owner, scope, forbidden behavior, validation, and GitHub planning impact.
-3. Inspect current README, SPEC, requirements, docs, catalogs, and GitHub Issue and Project metadata needed for the target only.
-4. Draft or update the constitution with these sections:
-   - Scope and owner;
-   - Principle table with stable ids, exact rule text, rationale, validation proof, and dependent artifacts;
-   - Artifact map for spec, documentation, GitHub Project plan, execution, validation, and closeout;
-   - Forbidden paths and forbidden actions;
-   - Drift handling with owner repo and issue requirement;
-   - Amendment rule with required validation and approval.
-5. Sync dependent docs by adding only short links or replacing conflicting rule text. Do not duplicate the full constitution into routers.
-6. Emit a `bears-project.constitution-packet` before closeout.
-7. Run validation commands that match changed files, then request gitflow closeout.
+1. Run the App Target Gate and stop on ambiguous target, repo, or layer ownership.
+2. If operator principles are missing, ask at most five concrete questions covering owner, scope, forbidden behavior, proof, and GitHub Project impact.
+3. Inspect only target docs and metadata needed for the constitution.
+4. Write the constitution with: scope and owner; layer map; principle table; artifact map; forbidden paths/actions; drift handling; amendment rule.
+5. Add only short links from owned docs; do not duplicate the constitution into routers.
+6. Emit `app-constitution.packet`.
 
-## Constitution packet
+## Packet
 
 ```json
 {
-  "schema": "bears-project.constitution-packet",
+  "schema": "app-constitution.packet",
   "version": "1",
   "status": "draft|review|approved|blocked",
   "target": "<exact path or repo>",
+  "app_directory": "<app directory or none>",
+  "layers": ["app|platform|infra"],
   "constitution": "<artifact path>",
   "owner": "<repo or team>",
-  "principles": ["<stable ids>"],
-  "dependent_artifacts": ["<spec/docs/target/plan paths or urls>"],
-  "validation": ["<commands or metadata checks>"],
+  "dependent_artifacts": ["<spec/docs/GitHub Project/Issue urls>"],
   "open_drift": ["<issue urls or exact follow-up>"],
   "recommendation": "<next action>"
 }
 ```
 
-Use `blocked` only for missing access, missing owner, missing required route coverage, or explicit operator stop.
+Use `blocked` only for access, missing owner, missing route coverage, or explicit operator stop.

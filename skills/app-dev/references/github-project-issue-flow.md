@@ -23,7 +23,7 @@ closeout_policy=<commit/push/proof requirements>
 3. Load linked PR metadata, check suite status, Release/tag/package metadata, and deployment metadata only when the item needs it.
 4. Resolve the canonical owner repo and local checkout path.
 5. Run route/audit for every target path.
-6. Classify the item as implementation, review, validation, role-improvement, infra/deploy metadata, security metadata, docs, or closeout.
+6. Classify the item as implementation, review, proof metadata, role-gap blocker, infra/deploy metadata, security metadata, docs, or closeout.
 7. Split the item when repo boundary, role, write scope, validation path, or deploy/runtime boundary differs.
 8. Create or update Issues and sub-issues only when `metadata_mutation=authorized`.
 9. Generate one L3 `/goal` packet per split.
@@ -87,9 +87,9 @@ Required rules:
 - After a timeout, failed proxy run, or missing worker-authority proof, use only one tiny execution lane until one post-fix `PASS` plus `post_fix_no_wip_gate` proves no task-owned WIP.
 - The proxy may not batch multiple Issues, repos, target files, role scopes, validation paths, or closeout paths.
 
-## Role-improvement assignment
+## Role-gap escalation
 
-Spawn a role-improvement L3 worker when route/audit returns `ROLE_COVERAGE_BLOCKER`, a selected role lacks exact write scope, or role text permits forbidden implementation authority. The worker may edit only role/profile/catalog/validator files allowed by the role-development packet.
+When route/audit returns `ROLE_COVERAGE_BLOCKER`, a selected role lacks exact write scope, or role text permits forbidden implementation authority, L2 records a blocker and returns it to the parent. Do not spawn L3 for role edits from app-dev.
 
 ## Project state update rule
 

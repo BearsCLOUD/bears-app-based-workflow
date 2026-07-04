@@ -1,7 +1,7 @@
 {
   "schema": "bears-platform-role-catalog.v1",
   "version": "1",
-  "updated": "2026-07-02",
+  "updated": "2026-07-04",
   "owner_plugin": "bears",
   "mandatory_policy": {
     "missing_role_status": "ROLE_COVERAGE_BLOCKER",
@@ -107,7 +107,6 @@
       "dev_core_ops_group",
       "dev_core_products_group",
       "dev_core_quality_group",
-      "development_workflow_orchestration",
       "docs_maintainer_role_metadata",
       "file_context_index",
       "git_discipline",
@@ -141,7 +140,6 @@
       "plugin_cache_sync_governance",
       "plugin_constitution_governance",
       "project_dirty_baseline",
-      "project_mandate_skill",
       "project_registry_gate",
       "proxybot_missing_source",
       "question_answer_ledger",
@@ -1041,8 +1039,6 @@
       "developer_instructions_profile": "workflow-overlay-platform",
       "allowed_write_zones": [
         "plugins/bears/.codex-plugin/plugin.json",
-        "plugins/bears/skills/speckit-bears-flow",
-        "plugins/bears/skills/speckit-bears-research",
         "plugins/bears/skills/bears-blocker-eval",
         "plugins/bears/skills/bears-deploy-gate",
         "plugins/bears/skills/bears-governance-check",
@@ -1055,7 +1051,12 @@
         "plugins/bears/scripts/capability_layout.py",
         "plugins/bears/tests/test_capability_layout.py",
         "plugins/bears/tests/fixtures/capability_layout",
-        "plugins/bears/agents/* overlay governance TOML files when assigned"
+        "plugins/bears/agents/* overlay governance TOML files when assigned",
+        "plugins/bears/skills/app-constitution",
+        "plugins/bears/skills/app-research",
+        "plugins/bears/skills/app-specify",
+        "plugins/bears/skills/app-plan",
+        "plugins/bears/skills/app-analyze"
       ],
       "forbidden_actions": [
         "product code edits",
@@ -1839,15 +1840,14 @@
     {
       "name": "bears-development-workflow-orchestrator",
       "agent_file": "agents/bears-development-workflow-orchestrator.toml",
-      "scope": "Bears broad development workflow orchestration artifacts, canonical workflow map, packet schemas, validators, fixtures, domain orchestrator profiles, and action ledger docs for metadata-only governance.",
+      "scope": "Bears metadata-only agent workflow map, assignment packet, and action ledger governance. The deleted development-workflow skill is not active discovery.",
       "model": "gpt-5.5",
       "sandbox_mode": "workspace-write",
-      "developer_instructions_profile": "development-workflow-orchestration",
+      "developer_instructions_profile": "agent-workflow-map",
       "allowed_write_zones": [
         "plugins/bears/agents/bears-development-workflow-orchestrator.toml",
         "plugins/bears/agents/bears-*-domain-orchestrator.toml",
         "plugins/bears/agents/bears-qa-governance-orchestrator.toml",
-        "plugins/bears/skills/development-workflow-orchestration",
         "plugins/bears/scripts/development_workflow_validate.py",
         "plugins/bears/scripts/agent_workflow_map.py",
         "plugins/bears/scripts/agent_action_ledger.py",
@@ -1874,7 +1874,7 @@
       ],
       "evidence_required": [
         "exact route/audit packet",
-        "development workflow validator output",
+        "agent workflow map or action ledger evidence",
         "workflow map validator output",
         "stage-boundary audit packet evidence"
       ],
@@ -2054,7 +2054,7 @@
       "allowed_write_zones": [
         "assigned GitHub Project and Issue metadata when the parent packet authorizes mutation",
         "assigned planning packet artifacts under skills/app-dev or exact workflow-governance route",
-        "L3 assignment packets and role-improvement packets that name exact @Bears roles"
+        "L3 assignment packets and role-gap blocker packets that name exact @Bears roles"
       ],
       "developer_instructions_profile": "github-project-issues-orchestration",
       "evidence_required": [
@@ -4365,13 +4365,7 @@
       "aliases": [
         "workflow-overlay-core-plugin-surface",
         "workflow_overlay_core_plugin_surface",
-        "speckit-bears-flow",
-        "speckit-bears-research",
         "plugins/bears/.codex-plugin/plugin.json",
-        "plugins/bears/skills/speckit-bears-flow",
-        "plugins/bears/skills/speckit-bears-flow/SKILL.md",
-        "plugins/bears/skills/speckit-bears-research",
-        "plugins/bears/skills/speckit-bears-research/SKILL.md",
         "plugins/bears/skills/bears-blocker-eval",
         "plugins/bears/skills/bears-deploy-gate",
         "plugins/bears/skills/bears-governance-check",
@@ -4384,10 +4378,6 @@
         "plugins/bears/agents/overlay-controller.toml",
         "plugins/bears/agents/role-coverage-gate.toml",
         "/srv/bears/plugins/bears/.codex-plugin/plugin.json",
-        "/srv/bears/plugins/bears/skills/speckit-bears-flow",
-        "/srv/bears/plugins/bears/skills/speckit-bears-flow/SKILL.md",
-        "/srv/bears/plugins/bears/skills/speckit-bears-research",
-        "/srv/bears/plugins/bears/skills/speckit-bears-research/SKILL.md",
         "/srv/bears/plugins/bears/skills/bears-blocker-eval",
         "/srv/bears/plugins/bears/skills/bears-deploy-gate",
         "/srv/bears/plugins/bears/skills/bears-governance-check",
@@ -4400,7 +4390,6 @@
         "/srv/bears/plugins/bears/agents/overlay-controller.toml",
         "/srv/bears/plugins/bears/agents/role-coverage-gate.toml",
         "workflows/bears-sdd/workflow.yml",
-        "skills/speckit-bears-flow/SKILL.md",
         "plugin-v2-capability-architecture",
         "plugin_v2_capability_architecture",
         "bears-plugin-v2-capability-architecture",
@@ -4440,7 +4429,14 @@
         "/srv/bears/plugins/bears/skills/app-analyze/SKILL.md",
         "skills/bears-blocker-eval/SKILL.md",
         "skills/bears-deploy-gate/SKILL.md",
-        "skills/bears-governance-check/SKILL.md"
+        "skills/bears-governance-check/SKILL.md",
+        "app-research",
+        "skills/app-research",
+        "skills/app-research/SKILL.md",
+        "plugins/bears/skills/app-research",
+        "plugins/bears/skills/app-research/SKILL.md",
+        "/srv/bears/plugins/bears/skills/app-research",
+        "/srv/bears/plugins/bears/skills/app-research/SKILL.md"
       ],
       "group": "workflow",
       "required_role": "bears-workflow-overlay-platform-engineer",
@@ -4450,8 +4446,6 @@
       "part_kind": "concrete",
       "write_roots": [
         "/srv/bears/plugins/bears/.codex-plugin/plugin.json",
-        "/srv/bears/plugins/bears/skills/speckit-bears-flow",
-        "/srv/bears/plugins/bears/skills/speckit-bears-research",
         "/srv/bears/plugins/bears/skills/bears-blocker-eval",
         "/srv/bears/plugins/bears/skills/bears-deploy-gate",
         "/srv/bears/plugins/bears/skills/bears-governance-check",
@@ -4474,10 +4468,12 @@
         "/srv/bears/plugins/bears/skills/app-plan",
         "skills/app-plan",
         "/srv/bears/plugins/bears/skills/app-analyze",
-        "skills/app-analyze"
+        "skills/app-analyze",
+        "/srv/bears/plugins/bears/skills/app-research",
+        "skills/app-research"
       ],
-      "concrete_scope": "Canonical workflow-overlay core plugin packaging, Spec Kit initialization policy, ignored generated Spec Kit workspace boundary, capability governance rules reference, Bears-owned overlay skills, workflows, templates, and core governance agent TOML files.",
-      "allowed_write_boundary": "Only listed canonical plugin core manifest, Spec Kit initialization policy, ignored generated Spec Kit workspace boundary, capability governance rules reference, Bears-owned overlay skills, workflows, templates, and core governance agent TOML files; no product/runtime/local_cd/kubernetes_deployment/integration edits, no standalone Telegram plugin restoration, no tracked .specify generated files, no upstream-speckit workflow authority, and no upstream speckit-* skill vendoring.",
+      "concrete_scope": "Canonical workflow-overlay core plugin packaging, app workflow skills, app-research, app constitution/specification/planning/analysis skills, workflows, templates, and core governance agent TOML files.",
+      "allowed_write_boundary": "Only listed canonical plugin core manifest, app workflow skills, workflows, templates, and core governance agent TOML files; no product/runtime/local_cd/kubernetes_deployment/integration edits, no standalone plugin restoration, no tracked .specify generated files, no upstream speckit-* skill vendoring.",
       "trust_boundary": "This surface controls how Bears initializes Spec Kit and orchestrates governed workflow; it can widen future agent authority if plugin packaging, generated Spec Kit boundary, workflow, or skill instructions drift.",
       "required_validations": [
         "python3 scripts/platform_roles.py validate",
@@ -8342,7 +8338,7 @@
         "/srv/bears/plugins/bears/tests/test_project_registry_gate.py",
         "/srv/bears/plugins/bears/tests/fixtures/projects.v1.json"
       ],
-      "concrete_scope": "Target registry gate that blocks the legacy-named project-mandate skill on unregistered /srv/bears paths and attaches exact role route evidence.",
+      "concrete_scope": "Target registry gate that blocks the App Target Gate compatibility evidence on unregistered /srv/bears paths and attaches exact role route evidence.",
       "allowed_write_boundary": "Only the project registry gate script, its exact tests, and tests/fixtures/projects.v1.json inside /srv/bears/plugins/bears; canonical registry authority lives under /srv/bears/dev/registry and does not route through this plugin fixture.",
       "trust_boundary": "This gate prevents agents from creating target artifacts for unregistered paths and must not become a broad workspace scanner.",
       "required_validations": [
@@ -8358,46 +8354,6 @@
         "registry blocker semantics change",
         "path matching change",
         "role gate integration change"
-      ],
-      "decomposition_required": false
-    },
-    {
-      "name": "project_mandate_skill",
-      "aliases": [
-        "project-mandate",
-        "project_mandate",
-        "bears-project-mandate",
-        "/srv/bears/plugins/bears/skills/project-mandate",
-        "/srv/bears/plugins/bears/skills/project-mandate/SKILL.md",
-        "/srv/bears/plugins/bears/skills/project-mandate/agents/openai.yaml",
-        "skills/project-mandate",
-        "skills/project-mandate/SKILL.md",
-        "skills/project-mandate/agents/openai.yaml"
-      ],
-      "group": "control",
-      "required_role": "bears-platform-role-governor",
-      "role_required": true,
-      "no_role_policy": "blocker",
-      "source": "/srv/bears/plugins/bears/skills/project-mandate/SKILL.md",
-      "part_kind": "concrete",
-      "write_roots": [
-        "/srv/bears/plugins/bears/skills/project-mandate"
-      ],
-      "concrete_scope": "Bears project-mandate legacy-named checklist skill that runs only after target registry gate approval.",
-      "allowed_write_boundary": "Only the legacy-named project-mandate skill docs inside /srv/bears/plugins/bears; it is a checklist and not a source of truth.",
-      "trust_boundary": "This skill can cause agents to create or audit target artifacts, so registry and role gates must run first.",
-      "required_validations": [
-        "python3 scripts/project_registry_gate.py gate /srv/bears/dev/app/theants",
-        "python3 scripts/platform_roles.py validate",
-        "python3 -m unittest tests/test_project_registry_gate.py tests/test_platform_roles.py"
-      ],
-      "supporting_roles": [
-        "bears-platform-security-reviewer"
-      ],
-      "reviewer_triggers": [
-        "registry gate order change",
-        "required artifact profile change",
-        "user fact placement rule change"
       ],
       "decomposition_required": false
     },
@@ -10262,72 +10218,6 @@
       "related_codex_environment_role": "bears-codex-workspace-config-engineer"
     },
     {
-      "name": "development_workflow_orchestration",
-      "aliases": [
-        "development-workflow-orchestration",
-        "skills/development-workflow-orchestration",
-        "/srv/bears/plugins/bears/skills/development-workflow-orchestration",
-        "scripts/development_workflow_validate.py",
-        "tests/test_development_workflow_validate.py",
-        "tests/fixtures/development_workflow",
-        "agents/bears-development-workflow-orchestrator.toml",
-        "agents/bears-auth-domain-orchestrator.toml",
-        "agents/bears-gateway-domain-orchestrator.toml",
-        "agents/bears-payments-domain-orchestrator.toml",
-        "agents/bears-infra-domain-orchestrator.toml",
-        "agents/bears-tenant-domain-orchestrator.toml",
-        "agents/bears-qa-governance-orchestrator.toml"
-      ],
-      "group": "workflow",
-      "required_role": "bears-development-workflow-orchestrator",
-      "role_required": true,
-      "no_role_policy": "blocker",
-      "source": "skills/development-workflow-orchestration/AGENTS.md",
-      "part_kind": "concrete",
-      "write_roots": [
-        "/srv/bears/plugins/bears/skills/development-workflow-orchestration",
-        "/srv/bears/plugins/bears/scripts/development_workflow_validate.py",
-        "/srv/bears/plugins/bears/tests/test_development_workflow_validate.py",
-        "/srv/bears/plugins/bears/tests/fixtures/development_workflow",
-        "/srv/bears/plugins/bears/agents/bears-development-workflow-orchestrator.toml",
-        "/srv/bears/plugins/bears/agents/bears-auth-domain-orchestrator.toml",
-        "/srv/bears/plugins/bears/agents/bears-gateway-domain-orchestrator.toml",
-        "/srv/bears/plugins/bears/agents/bears-payments-domain-orchestrator.toml",
-        "/srv/bears/plugins/bears/agents/bears-infra-domain-orchestrator.toml",
-        "/srv/bears/plugins/bears/agents/bears-tenant-domain-orchestrator.toml",
-        "/srv/bears/plugins/bears/agents/bears-qa-governance-orchestrator.toml",
-        "skills/development-workflow-orchestration",
-        "scripts/development_workflow_validate.py",
-        "tests/test_development_workflow_validate.py",
-        "tests/fixtures/development_workflow",
-        "agents/bears-development-workflow-orchestrator.toml",
-        "agents/bears-auth-domain-orchestrator.toml",
-        "agents/bears-gateway-domain-orchestrator.toml",
-        "agents/bears-payments-domain-orchestrator.toml",
-        "agents/bears-infra-domain-orchestrator.toml",
-        "agents/bears-tenant-domain-orchestrator.toml",
-        "agents/bears-qa-governance-orchestrator.toml"
-      ],
-      "concrete_scope": "Exact development workflow orchestration skill, packet schemas, validator, fixtures, and orchestrator profile files for broad Bears development governance.",
-      "allowed_write_boundary": "Only development-workflow orchestration artifacts under skills/development-workflow-orchestration, scripts/development_workflow_validate.py, matching tests/fixtures, and listed orchestrator agent TOMLs; no product, runtime, provider, secret, local_cd, kubernetes_deployment, or live mutation authority.",
-      "trust_boundary": "This surface can route future broad work to worker pools and reviewers; packet schemas and profiles must stay metadata-only, role-gated, duplicate-aware, and restricted-data safe.",
-      "required_validations": [
-        "python3 scripts/platform_roles.py validate",
-        "python3 scripts/development_workflow_validate.py validate",
-        "python3 -m unittest tests/test_development_workflow_validate.py tests/test_platform_roles.py"
-      ],
-      "supporting_roles": [
-        "bears-platform-security-reviewer"
-      ],
-      "reviewer_triggers": [
-        "workflow stage authority change",
-        "domain orchestrator spawn authority change",
-        "restricted-data wording change",
-        "merge decision rule change"
-      ],
-      "decomposition_required": false
-    },
-    {
       "name": "agent_workflow_map",
       "aliases": [
         "agent-workflow-map",
@@ -10344,7 +10234,21 @@
         "plugins/bears/.gitignore",
         "/srv/bears/plugins/bears/assets/schemas/agent-workflow-state.v1.schema.json",
         "/srv/bears/plugins/bears/assets/schemas/agent-workflow-worker-state.v1.schema.json",
-        "/srv/bears/plugins/bears/.gitignore"
+        "/srv/bears/plugins/bears/.gitignore",
+        "agents/bears-development-workflow-orchestrator.toml",
+        "/srv/bears/plugins/bears/agents/bears-development-workflow-orchestrator.toml",
+        "agents/bears-auth-domain-orchestrator.toml",
+        "agents/bears-gateway-domain-orchestrator.toml",
+        "agents/bears-payments-domain-orchestrator.toml",
+        "agents/bears-infra-domain-orchestrator.toml",
+        "agents/bears-tenant-domain-orchestrator.toml",
+        "agents/bears-qa-governance-orchestrator.toml",
+        "/srv/bears/plugins/bears/agents/bears-auth-domain-orchestrator.toml",
+        "/srv/bears/plugins/bears/agents/bears-gateway-domain-orchestrator.toml",
+        "/srv/bears/plugins/bears/agents/bears-payments-domain-orchestrator.toml",
+        "/srv/bears/plugins/bears/agents/bears-infra-domain-orchestrator.toml",
+        "/srv/bears/plugins/bears/agents/bears-tenant-domain-orchestrator.toml",
+        "/srv/bears/plugins/bears/agents/bears-qa-governance-orchestrator.toml"
       ],
       "group": "workflow",
       "required_role": "bears-development-workflow-orchestrator",
@@ -10368,10 +10272,24 @@
         "/srv/bears/plugins/bears/.gitignore",
         "assets/schemas/agent-workflow-state.v1.schema.json",
         "assets/schemas/agent-workflow-worker-state.v1.schema.json",
-        ".gitignore"
+        ".gitignore",
+        "agents/bears-development-workflow-orchestrator.toml",
+        "/srv/bears/plugins/bears/agents/bears-development-workflow-orchestrator.toml",
+        "agents/bears-auth-domain-orchestrator.toml",
+        "agents/bears-gateway-domain-orchestrator.toml",
+        "agents/bears-payments-domain-orchestrator.toml",
+        "agents/bears-infra-domain-orchestrator.toml",
+        "agents/bears-tenant-domain-orchestrator.toml",
+        "agents/bears-qa-governance-orchestrator.toml",
+        "/srv/bears/plugins/bears/agents/bears-auth-domain-orchestrator.toml",
+        "/srv/bears/plugins/bears/agents/bears-gateway-domain-orchestrator.toml",
+        "/srv/bears/plugins/bears/agents/bears-payments-domain-orchestrator.toml",
+        "/srv/bears/plugins/bears/agents/bears-infra-domain-orchestrator.toml",
+        "/srv/bears/plugins/bears/agents/bears-tenant-domain-orchestrator.toml",
+        "/srv/bears/plugins/bears/agents/bears-qa-governance-orchestrator.toml"
       ],
-      "concrete_scope": "Exact canonical machine-readable agent workflow map, root and per-worker state schemas, runtime-ignore file, validator, tests, and generated reference doc.",
-      "allowed_write_boundary": "Only the agent workflow map catalog, workflow state schemas, plugin runtime-ignore entries, validator, test, and reference doc; no independent lifecycle source, product behavior, runtime, provider, secret, local_cd, kubernetes_deployment, or live mutation authority.",
+      "concrete_scope": "Exact machine-readable agent workflow map, root and per-worker state schemas, runtime-ignore file, validator, reference doc, and metadata-only orchestrator profile files.",
+      "allowed_write_boundary": "Only the agent workflow map catalog, workflow state schemas, plugin runtime-ignore entries, validator, reference doc, and listed metadata-only orchestrator profiles; no independent lifecycle skill, product behavior, runtime, provider, secret, local_cd, kubernetes_deployment, or live mutation authority.",
       "trust_boundary": "This map is the canonical workflow source for lifecycle order, transitions, evidence, and role-stage compatibility; drift can widen future agent authority.",
       "required_validations": [
         "python3 scripts/platform_roles.py validate",
@@ -11515,7 +11433,7 @@
         "GitHub Project mutation authority change",
         "Issue closeout authority change",
         "L2 or L3 delegation authority change",
-        "role-improvement spawn authority change",
+        "role-gap blocker authority change",
         "restricted-data boundary change"
       ],
       "role_required": true,
@@ -12747,16 +12665,6 @@
       "required_role": "bears-workflow-overlay-platform-engineer"
     },
     {
-      "target": "/srv/bears/plugins/bears/skills/speckit-bears-flow/SKILL.md",
-      "expected_status": "matched",
-      "required_role": "bears-workflow-overlay-platform-engineer"
-    },
-    {
-      "target": "/srv/bears/plugins/bears/skills/speckit-bears-research/SKILL.md",
-      "expected_status": "matched",
-      "required_role": "bears-workflow-overlay-platform-engineer"
-    },
-    {
       "target": "/srv/bears/plugins/bears/skills/bears-blocker-eval/SKILL.md",
       "expected_status": "matched",
       "required_role": "bears-workflow-overlay-platform-engineer"
@@ -13138,11 +13046,6 @@
     },
     {
       "target": "/srv/bears/plugins/bears/scripts/project_registry_gate.py",
-      "expected_status": "matched",
-      "required_role": "bears-platform-role-governor"
-    },
-    {
-      "target": "/srv/bears/plugins/bears/skills/project-mandate",
       "expected_status": "matched",
       "required_role": "bears-platform-role-governor"
     },
@@ -15182,6 +15085,18 @@
       "target": "/srv/bears/dev/app/AGENTS.md",
       "expected_status": "matched",
       "required_role": "bears-product-app-zone-engineer"
+    },
+    {
+      "target": "/srv/bears/plugins/bears/skills/app-research/SKILL.md",
+      "expected_status": "matched",
+      "required_role": "bears-workflow-overlay-platform-engineer",
+      "concrete_part": "workflow_overlay_core_plugin_surface"
+    },
+    {
+      "target": "skills/app-research/SKILL.md",
+      "expected_status": "matched",
+      "required_role": "bears-workflow-overlay-platform-engineer",
+      "concrete_part": "workflow_overlay_core_plugin_surface"
     }
   ],
   "agent_profile_mappings": [
@@ -15190,7 +15105,7 @@
       "agent_file": "agents/bears-auth-domain-orchestrator.toml",
       "execution_class": "helper",
       "mapped_role": "bears-development-workflow-orchestrator",
-      "concrete_part": "development_workflow_orchestration",
+      "concrete_part": "agent_workflow_map",
       "coverage_kind": "domain_orchestrator_profile"
     },
     {
@@ -15198,7 +15113,7 @@
       "agent_file": "agents/bears-gateway-domain-orchestrator.toml",
       "execution_class": "helper",
       "mapped_role": "bears-development-workflow-orchestrator",
-      "concrete_part": "development_workflow_orchestration",
+      "concrete_part": "agent_workflow_map",
       "coverage_kind": "domain_orchestrator_profile"
     },
     {
@@ -15206,7 +15121,7 @@
       "agent_file": "agents/bears-infra-domain-orchestrator.toml",
       "execution_class": "helper",
       "mapped_role": "bears-development-workflow-orchestrator",
-      "concrete_part": "development_workflow_orchestration",
+      "concrete_part": "agent_workflow_map",
       "coverage_kind": "domain_orchestrator_profile"
     },
     {
@@ -15214,7 +15129,7 @@
       "agent_file": "agents/bears-payments-domain-orchestrator.toml",
       "execution_class": "helper",
       "mapped_role": "bears-development-workflow-orchestrator",
-      "concrete_part": "development_workflow_orchestration",
+      "concrete_part": "agent_workflow_map",
       "coverage_kind": "domain_orchestrator_profile"
     },
     {
@@ -15222,7 +15137,7 @@
       "agent_file": "agents/bears-qa-governance-orchestrator.toml",
       "execution_class": "helper",
       "mapped_role": "bears-development-workflow-orchestrator",
-      "concrete_part": "development_workflow_orchestration",
+      "concrete_part": "agent_workflow_map",
       "coverage_kind": "domain_orchestrator_profile"
     },
     {
@@ -15230,7 +15145,7 @@
       "agent_file": "agents/bears-tenant-domain-orchestrator.toml",
       "execution_class": "helper",
       "mapped_role": "bears-development-workflow-orchestrator",
-      "concrete_part": "development_workflow_orchestration",
+      "concrete_part": "agent_workflow_map",
       "coverage_kind": "domain_orchestrator_profile"
     },
     {

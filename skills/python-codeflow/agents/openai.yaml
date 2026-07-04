@@ -1,6 +1,6 @@
 interface:
   display_name: "Python Codeflow"
-  short_description: "Hard Python dev/review/refactor rules."
-  default_prompt: "Use $python-codeflow for Python development, review, or refactoring in this repository."
+  short_description: "L3-local Python standard"
+  default_prompt: "Use $python-codeflow inside a bounded L3 task that changes Python code; it does not own app-dev orchestration or GitHub Project state."
 policy:
   allow_implicit_invocation: true

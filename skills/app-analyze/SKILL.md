@@ -1,15 +1,26 @@
 ---
 name: app-analyze
-description: "Analyze app artifacts for drift before execution: constitution, specification, documentation, GitHub Project plan, Issues, roles, proof requirements, dependencies, and app-dev handoff. Use before app-dev execution or after material app docs change."
+description: "Analyze app workflow artifacts for drift before app-dev: App Target Gate, constitution, research, specification, GitHub Project plan, Issues, lanes, roles, proof requirements, dependencies, and handoff."
 ---
-
-## Entity terms
-
-`app` means a Bears product application source directory under `/srv/bears/dev/app` or `BearsCLOUD/apps`. `project` means a GitHub Project planning board with linked Issues and metadata fields. Use `target`, `registered target`, `repo`, `path`, `workspace surface`, or `app directory` for filesystem/source ownership.
 
 # App Analyze
 
-Use this skill to prove an app plan is internally consistent before implementation or `$app-dev` execution starts.
+`app` means one Bears product application directory under `/srv/bears/dev/app` or the `BearsCLOUD/apps` repository. `project` means only a GitHub Project board with linked Issues and metadata fields. Use `repo`, `path`, `target`, `workspace surface`, or `app directory` for filesystem ownership.
+
+## App Target Gate
+
+Every app-* skill starts with this gate:
+
+- Name one exact app directory or app docs path.
+- Classify each target as exactly one layer: `app`, `platform`, or `infra`.
+- `app` layer belongs to `BearsCLOUD/apps` and one app directory under `/srv/bears/dev/app`.
+- `platform` layer belongs to `/srv/bears/dev/platform`.
+- `infra` layer belongs to `/srv/bears/kubernetes`.
+- Legacy child repos and `/srv/bears/projects` are evidence only.
+- Broad workspace scans are forbidden when target packets name paths.
+- If a request crosses layers, keep the layers separate and pass them to `$app-plan` as separate lanes.
+
+Use this skill to prove an app plan is internally consistent before `$app-dev` starts.
 
 Analysis means a current-state check across artifacts. It does not fix files unless the operator asks for fixes after the report.
 
@@ -17,47 +28,40 @@ Analysis means a current-state check across artifacts. It does not fix files unl
 
 Allowed:
 
-- Read nearest `AGENTS.md`, constitution, spec, docs, GitHub Project plan packet, Project/Issue metadata, route/audit output, validation policy, and closeout rules.
-- Report contradictions, gaps, stale references, dependency mistakes, role mismatches, validation gaps, and execution blockers.
+- Read nearest `AGENTS.md`, app constitution, app-research packet, spec, docs, `app-plan.project-task-packet`, GitHub Project/Issue metadata, route evidence, and closeout rules.
+- Report contradictions, gaps, stale references, dependency mistakes, role mismatches, proof gaps, and execution blockers.
 - Recommend exact artifact fixes or Project/Issue updates.
 
 Forbidden:
 
 - Implementation edits.
-- Runtime, deploy, Kubernetes, provider, repo-setting, secret, `.env`, production-data, raw-log, or raw-chat mutation.
+- Runtime, Kubernetes desired-state, provider, repo-setting, secret, `.env`, production-data, raw-log, or raw-chat mutation.
 - Broad workspace scans when packet targets are known.
 - Calling a risk a blocker unless access, permission, missing route coverage, explicit stop, or required owner proof prevents safe execution.
 
 ## Workflow
 
-1. Read `/srv/bears/AGENTS.md`, nearest target `AGENTS.md`, and the artifacts named by the packets.
-2. Verify artifact chain:
-   - constitution exists or explicit approved gap;
-   - spec references constitution rules and has acceptance criteria;
-   - docs changed match the spec;
-   - GitHub Project plan items cover every requirement;
-   - Issue dependencies match the plan order;
-   - each planned target has route/audit evidence and one exact @Bears role;
-   - each item has validation and closeout evidence requirements;
-   - `$app-dev` can consume the plan without parent implementation.
-3. Classify every finding:
-   - `blocker`: execution cannot start safely;
-   - `fix_required`: artifact must be corrected before execution;
-   - `advisory`: safe to execute but should be tracked;
-   - `pass`: verified.
-4. Produce a requirements coverage table, artifact drift table, role/route table, validation table, dependency table, and execution handoff verdict.
-5. Emit a `bears-project.analysis-packet`.
-6. Execution may start only when status is `pass`, or when the operator explicitly approves a scoped execution with listed `advisory` items.
+1. Run the App Target Gate against every target in the packet.
+2. Verify artifact chain: constitution, risk-gated research, spec, docs, Project items, Issues, lane map, dependencies, route-selected roles, proof requirements, and `$app-dev` handoff.
+3. Verify cross-layer work is split into `app`, `platform`, and `infra` lanes before execution.
+4. Verify optional sub-lanes are disjoint and have explicit dependencies.
+5. Verify every task has one repo boundary, one target set, one owning role, one lane, and one proof requirement.
+6. Classify each finding as `blocker`, `fix_required`, `advisory`, or `pass`.
+7. Emit `app-analysis.packet`.
+8. Execution may start only when status is `pass`, or when the operator explicitly approves scoped execution with listed advisory items.
 
-## Analysis packet
+## Packet
 
 ```json
 {
-  "schema": "bears-project.analysis-packet",
+  "schema": "app-analysis.packet",
   "version": "1",
   "status": "pass|review|fail|blocked",
   "target": "<target/repo/path>",
+  "app_directory": "<app directory or none>",
   "artifacts_checked": ["<paths or urls>"],
+  "target_gate": "pass|fail|blocked",
+  "lane_map": "pass|fail|blocked",
   "requirements_coverage": [
     {"id": "<requirement id>", "status": "covered|missing|contradicted", "evidence": "<path/url>"}
   ],

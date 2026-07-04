@@ -2271,7 +2271,7 @@
     "close-unused-subagents",
     "readiness-gates-before-runtime",
     "audit-subagents-fresh-no-parent-context",
-    "project-mandate-owned-by-bears",
+    "app-target-gate-owned-by-app-skills",
     "main-agent-orchestration-only",
     "parent-control-lane-actions",
     "no-subagent-mode-decision-table",
@@ -2381,9 +2381,9 @@
       "rule": "Every audit subagent with inherit_parent_context=false MUST be fresh-required, MUST NOT reuse a worker, and MUST NOT receive parent context beyond the explicit audit packet."
     },
     {
-      "id": "project-mandate-owned-by-bears",
+      "id": "app-target-gate-owned-by-app-skills",
       "status": "mandatory",
-      "rule": "The project-mandate checklist is owned by the Bears plugin and may run only after the project registry gate allows the target path."
+      "rule": "App Target Gate is owned by app-* skills and must focus work on one isolated app target after route or compatibility registry evidence."
     },
     {
       "id": "main-agent-orchestration-only",

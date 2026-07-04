@@ -1,212 +1,98 @@
 ---
 name: app-dev
-description: "Use for Bears app development orchestration from ready GitHub Project work items and linked Issues. Parent controls L2 lanes, L2 uses helper subagents, implementation is done by @Bears L3 workers, and completion is confirmed by a separate L3 critic."
+description: "Execute app-plan tasks from GitHub Project/Issues. Parent controls L2 lane orchestrators, L2 controls helpers and L3 workers, and L3 critic confirms each task before done."
 ---
 
 # App Dev
 
-Use this skill for **development orchestration from ready GitHub Project work items and linked Issues**.
+`app` means one Bears product application directory under `/srv/bears/dev/app` or the `BearsCLOUD/apps` repository. `project` means only a GitHub Project board with linked Issues and metadata fields. Use `repo`, `path`, `target`, `workspace surface`, or `app directory` for filesystem ownership.
 
-This skill starts after the owning planning flow or an explicit operator packet provides ready work items, owner repo, target paths, dependencies, acceptance criteria, and closeout fields.
+## App Target Gate
 
-## Dictionary
+Every app-* skill starts with this gate:
 
-- `task` means one bounded app-plan work unit: one GitHub Issue or Project item slice, one repo boundary, one exact target set, one owning role, one execution lane, and one proof requirement.
-- `wave` means one parent-dispatched batch of dependency-ready tasks that may run in parallel when their repos and target sets do not overlap.
-- Use only `task` and `wave` for orchestration units in this skill. Do not introduce extra unit names.
+- Name one exact app directory or app docs path.
+- Classify each target as exactly one layer: `app`, `platform`, or `infra`.
+- `app` layer belongs to `BearsCLOUD/apps` and one app directory under `/srv/bears/dev/app`.
+- `platform` layer belongs to `/srv/bears/dev/platform`.
+- `infra` layer belongs to `/srv/bears/kubernetes`.
+- Legacy child repos and `/srv/bears/projects` are evidence only.
+- Broad workspace scans are forbidden when target packets name paths.
+- If a request crosses layers, keep the layers separate and pass them to `$app-plan` as separate lanes.
 
-## Boundary
+Use this skill to execute dependency-ready `app-plan` tasks after `$app-analyze` returns `pass` or the operator explicitly approves advisory execution.
 
-In scope:
-
-- consume ready GitHub Project items, linked Issues, sub-issues, PR metadata, Actions metadata, Release metadata, and role-routing evidence;
-- split ready work into task packets;
-- coordinate L2 orchestrators, L2 helper subagents, L3 workers, L3 critics, and gitflow closeout;
-- update Project/Issue state only from evidence;
-- report exact Project/Issue execution status.
-
-Out of scope:
-
-- creating a new GitHub Project unless an explicit operator packet says so;
-- choosing the organization's Project field model;
-- replacing roadmap governance;
-- replacing issue-type policy;
-- replacing repo-local specs, acceptance criteria, or product ownership;
-- doing implementation in the parent or L2 lane.
-
-## Required upstream artifacts
-
-Before execution, the parent must provide one of these:
-
-- a ready app-plan project-task packet plus an app-analyze packet with execution handoff marked ready;
-- existing GitHub Project/Issue state plus explicit operator approval that replaces those packets.
-
-The plan must define owner repo, target paths, route-selected roles, dependencies, proof requirement, and closeout fields for every task.
+`task` means one bounded app-plan work unit. `wave` means one parent-dispatched batch of dependency-ready tasks that may run in parallel only when repos and target sets do not overlap.
 
 ## Required topology
 
-```text
-Parent agent
-  -> L2 GitHub/project orchestrator subagents
-      -> L2 helper subagents for bounded metadata/decomposition/support work
-      -> L3 @Bears implementation/review subagents
-      -> L3 role-improvement subagent when role gaps appear
-      -> L3 critic subagent for every completed task
-  -> one persistent gitflow closeout subagent
+- Parent/L1 controls only L2 lane orchestrators and wave boundaries.
+- L2 orchestrators control Project/Issue state, decomposition, helper subagents, and L3 assignments for their lane.
+- L2 may spawn helper subagents only through `$subagents`; helpers support metadata, decomposition, evidence gathering, or packet shaping.
+- L3 workers implement one task with `model=gpt-5.4-mini` and `reasoning=high` unless the task packet names a stricter model.
+- L3 critic uses `model=gpt-5.5`, `reasoning=high`, no parent/start context, and receives only the task plus review objective.
+- L3 critic confirms 100% task completion before `done`; it never controls L2 and never edits files.
+- `python-codeflow` applies inside L3 worker packets when Python files are changed.
+
+## Boundary
+
+Allowed:
+
+- Read `app-plan.project-task-packet`, `app-analysis.packet`, GitHub Project/Issue metadata, route evidence, target docs, and task-owned files.
+- Start L2 lane orchestrators for `app`, `platform`, `infra`, and any sub-lanes already defined by `$app-plan`.
+- Dispatch L3 workers only from decision-complete task packets.
+- Update Project/Issue state only from L2 with concrete worker and critic evidence.
+
+Forbidden:
+
+- Parent/L1 implementation edits.
+- L3 controlling L2.
+- Inventing layer or lane boundaries not present in `app-plan.project-task-packet`.
+- Combining unrelated layers, repos, target sets, providers, or roles into one task.
+- Runtime, Kubernetes desired-state, repo-setting, secret, `.env`, production-data, raw-log, or raw-chat mutation unless the exact task and role own that layer.
+
+## Execution loop
+
+This skill uses the same conceptual loop as implementation-by-task workflows: read task, dispatch owner, collect evidence, run independent critic, close task. It does not call or depend on upstream `speckit-implement`.
+
+1. Run the App Target Gate for the packet.
+2. Read `app-analysis.packet`; stop unless handoff is ready or operator approved advisory execution.
+3. Group dependency-ready tasks into a wave by non-overlapping repo/path targets.
+4. Start or reuse one L2 orchestrator per lane in the packet.
+5. Send each L2 only its lane tasks, dependencies, allowed Project/Issue mutations, helper rules, and closeout format.
+6. L2 may use `$subagents` helpers for decomposition or metadata support, then dispatches L3 workers for ready tasks.
+7. Each L3 worker returns changed files, commit/push evidence or exact blocker, Project/Issue evidence, and task completion claim.
+8. L2 dispatches one L3 critic per completed task. The critic receives only the task and review objective.
+9. L2 marks task `done` only after critic confirms 100% completion.
+10. Parent integrates L2 closeout packets, advances the next wave, and reports remaining blockers or drift.
+
+## L2 packet minimum
+
+```json
+{
+  "schema": "app-dev.l2-lane-packet",
+  "version": "1",
+  "lane": "<lane id>",
+  "layer": "app|platform|infra",
+  "repo": "<repo path>",
+  "tasks": ["<issue urls>"],
+  "allowed_project_mutations": ["status", "comments", "dependency links", "field updates named by app-plan"],
+  "helper_policy": "Use $subagents for L2 helpers only; helpers do not implement.",
+  "completion": "all assigned tasks done by L3 worker plus L3 critic confirmation"
+}
 ```
 
-## Parent control lane
+## Wave closeout
 
-The parent agent is orchestration-only. Parent allowed actions:
-
-- select the existing Project, repository set, issue query, L2 lanes, and ready analysis packet;
-- start or reuse L2 orchestrators;
-- pass Project item ids, Issue ids, PR ids, Actions metadata ids, Release ids, target paths, and role-routing targets;
-- wait for L2 evidence packets;
-- integrate L2 closeout packets;
-- request commit/push closeout through `bears-git-workflow-helper`;
-- report exact Project/Issue status.
-
-Parent forbidden actions:
-
-- file writes;
-- implementation commands;
-- direct Project administration; pass explicit operator-authorized metadata requests to L2 instead;
-- `git add`, `git commit`, `git push`, merge, or force push;
-- direct PR mutation; pass explicit operator-authorized metadata requests to L2 instead;
-- runtime, deploy, provider, secret, repository settings, branch protection, or production mutation.
-
-## L2 orchestrator lane
-
-Each L2 orchestrator must run the `bears-github-project-issues-orchestrator` role. L2 is not a developer. L2 turns ready Project work into bounded tasks.
-
-L2 must use helper subagents for bounded support work when it can run without blocking the critical path. Helper subagents may read assigned metadata, prepare decomposition notes, draft task packets, compare closeout evidence, or prepare Project/Issue update text. Helper subagents must not implement, edit files, commit, push, mutate runtime, or change Project/Issue state unless the parent packet explicitly authorizes that exact metadata action through L2.
-
-L2 allowed actions:
-
-- read assigned Project items and linked Issues, sub-issues, PR metadata, Actions metadata, Releases, labels, milestones, blockers, and dependency notes;
-- verify repo/path ownership from the provided routing evidence or exact owner packet;
-- classify each item by repo boundary, @Bears role, write scope, proof requirement, and blocker state;
-- create or update Issues, sub-issues, links, labels, milestones, assignees, and Project fields only when the parent packet authorizes that exact metadata mutation;
-- split work into L3 `/goal` packets;
-- spawn L3 workers with route-selected @Bears role names;
-- spawn one role-improvement L3 worker when role coverage is missing;
-- spawn one L3 critic for every task before marking it done;
-- integrate L3 worker and L3 critic closeout into Project and Issue state from evidence.
-
-L2 forbidden actions:
-
-- implementation file writes;
-- shell implementation commands;
-- commit, push, merge, or force push;
-- deploy or runtime mutation;
-- repository settings, branch protection, secret, variable, webhook, GitHub App, billing, or environment mutation;
-- reading secrets, raw logs, raw chats, raw VPN configs, credentials, or production data.
-
-## L2 execution loop
-
-For each assigned task:
-
-1. Read the ready plan packet, current Project item, linked Issue, sub-issues, linked PRs, Actions/check metadata, and existing field values needed for that task.
-2. Identify the canonical owner repo, local path, target paths, issue type, acceptance criteria, and blocker notes.
-3. Use helper subagents for bounded metadata/decomposition/support work when useful and safe.
-4. If role coverage is missing, create a role-improvement L3 packet and keep the implementation task blocked.
-5. Split work into separate tasks when repo boundary, @Bears role, write scope, proof requirement, or deploy/runtime boundary differs.
-6. If decomposition is needed, create and link child Issues for the current wave, add only required Project status/linkage metadata, and return decomposition status; do not dispatch implementation in the same wave.
-7. Build one L3 worker packet per task only after the child metadata is visible, dependency-ready, and either preexisted or came from a prior parent assignment.
-8. Dispatch L3 workers only when the task has exact target paths, allowed actions, forbidden actions, acceptance criteria, and proof requirement.
-9. Collect L3 worker closeout packets.
-10. Dispatch one L3 critic for each task that claims completion.
-11. Update Project/Issue state only from L3 worker evidence, L3 critic confirmation, commit SHA, PR metadata, Release metadata, or blocker proof.
-12. Request gitflow closeout when files changed.
-13. Report task and wave status to the parent.
-
-## L3 worker lane
-
-- Use the exact @Bears role selected for the target path.
-- Use `model=gpt-5.4-mini` and `reasoning=high`.
-- One L3 worker assignment covers one task.
-- L3 worker must return changed files, proof evidence, blockers, issue/project item ids, requested Project field updates, and forbidden surfaces untouched.
-- L3 worker must not directly mutate Project fields unless the L2 packet explicitly asks for a closeout comment or metadata update.
-
-## L3 critic lane
-
-- Use a separate L3 critic subagent for every task that claims completion.
-- Use `model=gpt-5.5` and `reasoning=high`.
-- Start with no parent context and no start context.
-- Provide only the task packet, the L3 worker closeout packet, and the critic review request.
-- The critic must confirm whether the task is 100% complete against the task packet.
-- The critic must return exactly one of: `TASK_CONFIRMED_100`, `TASK_INCOMPLETE`, or `TASK_BLOCKED`.
-- `TASK_CONFIRMED_100` must name the evidence that proves every acceptance criterion and every forbidden surface remained untouched.
-- `TASK_INCOMPLETE` must name each missing requirement and the exact next task needed.
-- `TASK_BLOCKED` must name the blocker, owner, and issue URL or requested issue placement.
-- L2 must not mark a task done without `TASK_CONFIRMED_100` from the critic.
-
-## L3 worker assignment packet
-
-```text
-/goal
-lane=l3_worker
-role=<route-selected @Bears role>
-model=gpt-5.4-mini
-reasoning=high
-github_project_item=<item id/url>
-github_issue=<owner/repo#number>
-repo=<local path and owner/repo>
-task=<one bounded task>
-target=<exact files/paths>
-metadata_mutation_authorized=<true|false>
-allowed_actions=<bounded list>
-forbidden_actions=<bounded list>
-acceptance_criteria=<issue checklist or Project item requirement>
-proof_requirement=<exact evidence required>
-completion_criteria=<closeout proof required by L2>
-closeout_updates=<Project fields and Issue comment requested from L2>
+```json
+{
+  "schema": "app-dev.wave-closeout",
+  "version": "1",
+  "wave": "<wave id>",
+  "status": "done|partial|blocked",
+  "tasks_done": ["<issue urls>"],
+  "tasks_blocked": [{"issue": "<url>", "blocker": "<exact blocker>", "owner": "<role>"}],
+  "critic_confirmations": [{"issue": "<url>", "critic": "<agent id>", "result": "confirmed|rejected"}],
+  "next_wave_ready": ["<issue urls>"]
+}
 ```
-
-## L3 critic assignment packet
-
-```text
-/goal
-lane=l3_critic
-role=bears-critic
-model=gpt-5.5
-reasoning=high
-context_policy=no_parent_context_no_start_context
-input_task_packet=<exact L3 worker assignment packet>
-input_worker_closeout=<exact L3 worker closeout packet>
-review_request=Confirm whether this task is 100% complete against the task packet.
-allowed_actions=<read provided packets only; inspect referenced changed files only when the task packet permits it>
-forbidden_actions=<file writes; implementation commands; Project/Issue mutation; commit; push; runtime mutation; secret access>
-completion_criteria=<TASK_CONFIRMED_100|TASK_INCOMPLETE|TASK_BLOCKED with required evidence>
-```
-
-## Done rule
-
-A task is done only when all required evidence exists for that task:
-
-- L3 worker result for the task;
-- `TASK_CONFIRMED_100` from the L3 critic;
-- commit SHA and push proof when files changed;
-- linked PR, Release, or deployment metadata when required by the task;
-- Issue closeout comment text;
-- Project/Issue state updates derived from evidence.
-
-A wave is done only when every task in the wave is done, blocked with an explicit owner and issue URL, or deferred into a named later wave.
-
-## GitHub surface coverage
-
-Before L3 dispatch, L2 must inspect and reconcile only the metadata needed for the assigned task:
-
-- Project item ids, linked content ids, field values, status, and blockers;
-- Issues, issue types, sub-issues, labels, milestones, assignees, linked branches, linked PRs, and dependencies;
-- Pull requests, review state, mergeability metadata, check suite status, and linked issues;
-- Actions status metadata without raw log reads;
-- Releases, tags, packages, and deployment notes when delivery is in scope;
-- Discussions only when the work needs a non-actionable decision record;
-- Wiki and Pages metadata only for public knowledge or docs pointers;
-- code/security alert metadata only through a security-review route;
-- Deployments and Environments metadata only for planning; runtime or environment mutation requires the exact deploy route;
-- repository collaboration metadata, including branches, commits, compare output, CODEOWNERS, repository topics, rules metadata, and teams metadata, as read-only planning evidence.
-
-See `references/github-project-issue-flow.md` and `../../docs/reference/github-project-subagents.md` for orchestration sequence and surface matrix.

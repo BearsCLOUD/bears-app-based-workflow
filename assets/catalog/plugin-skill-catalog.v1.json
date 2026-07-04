@@ -36,24 +36,14 @@
       "path": "skills/bears-workflow-validate"
     },
     {
-      "description": "Coordinate broad Bears development workflow through validated packets and domain orchestrators.",
-      "name": "development-workflow-orchestration",
-      "path": "skills/development-workflow-orchestration"
-    },
-    {
       "description": "Enforce the canonical Bears plugin-owned platform role gate.",
       "name": "platform-role-governance",
       "path": "skills/platform-role-governance"
     },
     {
-      "description": "Enforce Bears Python codeflow, src layout, Clean/Hexagonal boundaries, runtime module splitting, validation, docs, tests, and gitflow hygiene.",
+      "description": "Independent reusable L3-local Python standard for bounded Python worker tasks.",
       "name": "python-codeflow",
       "path": "skills/python-codeflow"
-    },
-    {
-      "description": "Run the registry-gated target artifact checklist after target registry gate approval.",
-      "name": "project-mandate",
-      "path": "skills/project-mandate"
     },
     {
       "description": "Govern write-only local secret generation and Infisical creation with provider handoff refusals.",
@@ -61,27 +51,22 @@
       "path": "skills/secret-factory"
     },
     {
-      "description": "Run the Bears opinionated Spec Kit orchestration flow.",
-      "name": "speckit-bears-flow",
-      "path": "skills/speckit-bears-flow"
-    },
-    {
-      "description": "Produce Spec Kit-style research artifacts for Bears targets.",
-      "name": "speckit-bears-research",
-      "path": "skills/speckit-bears-research"
-    },
-    {
-      "description": "Create or update Bears target constitutions with ownership, artifact maps, validation duties, and dependent-doc sync.",
+      "description": "Create or update one Bears app constitution with target, owner, layer map, artifact map, and drift handling.",
       "name": "app-constitution",
       "path": "skills/app-constitution"
     },
     {
-      "description": "Create or update Bears target specifications and functional documentation from operator intent, constitution rules, and repo evidence.",
+      "description": "Research external solutions, prior art, product logic, integrations, UI/UX patterns, providers, and market constraints for Bears app targets.",
+      "name": "app-research",
+      "path": "skills/app-research"
+    },
+    {
+      "description": "Create or update app specifications from operator intent, constitution rules, app-research evidence, and repo evidence.",
       "name": "app-specify",
       "path": "skills/app-specify"
     },
     {
-      "description": "Convert Bears app docs into concrete, drift-safe GitHub Issues and Apps Project #20 items for mini-model app-dev execution.",
+      "description": "Convert Bears app docs into GitHub Issues and Apps Project #20 items with app/platform/infra lane maps for app-dev execution.",
       "name": "app-plan",
       "path": "skills/app-plan"
     },
@@ -91,7 +76,7 @@
       "path": "skills/github-project-planning"
     },
     {
-      "description": "Analyze Bears constitutions, specs, docs, GitHub Project plans, Issues, routes, validation, dependencies, and app-dev handoff for drift.",
+      "description": "Analyze app workflow artifacts, lane maps, dependencies, roles, proof requirements, and app-dev handoff for drift.",
       "name": "app-analyze",
       "path": "skills/app-analyze"
     },
@@ -116,7 +101,7 @@
       "path": "skills/subagents"
     },
     {
-      "description": "Drive development from GitHub Projects and Issues through parent-control-only L2 orchestrators and gpt-5.4-mini high L3 @Bears workers.",
+      "description": "Execute app-plan tasks through L2 lane orchestrators, L2 helpers, L3 workers, and L3 critics.",
       "name": "app-dev",
       "path": "skills/app-dev"
     },
@@ -160,6 +145,6 @@
   },
   "owner_plugin": "bears",
   "schema": "bears-plugin-skill-catalog.v1",
-  "updated": "2026-07-02",
+  "updated": "2026-07-04",
   "version": "1"
 }

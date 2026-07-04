@@ -3537,7 +3537,7 @@
         "/srv/bears/plugins/bears/tests/test_pants_test_graph.py"
       ],
       "allowed_write_boundary": "Only Bears plugin operator-dispatched diagnostics workflow, CI requirements catalog/script, test-selection catalog, workflow technical-debt matrix/script/schema/tests, and local commit validation governance metadata inside /srv/bears/plugins/bears; no production deploy state changes, runtime mutation, secret access, or product code edits.",
-      "concrete_scope": "Plugin-local GitHub Actions diagnostics workflow, CI requirements catalog, test-selection catalog, and workflow technical-debt matrix for the Bears workflow plugin.",
+      "concrete_scope": "Plugin-local GitHub Actions diagnostics workflow, CI requirements catalog, doctor component coverage catalog, test-selection catalog, and workflow technical-debt matrix for the Bears workflow plugin.",
       "decomposition_required": false,
       "group": "workflow",
       "name": "workflow_overlay_validation_ci_workflow",
@@ -3584,7 +3584,9 @@
         "/srv/bears/plugins/bears/assets/catalog/pants-test-graph.v1.json",
         "tests/test_pants_test_graph.py",
         "plugins/bears/tests/test_pants_test_graph.py",
-        "/srv/bears/plugins/bears/tests/test_pants_test_graph.py"
+        "/srv/bears/plugins/bears/tests/test_pants_test_graph.py",
+        "assets/catalog/doctor-component-coverage.v1.json",
+        "/srv/bears/plugins/bears/assets/catalog/doctor-component-coverage.v1.json"
       ]
     },
     {
@@ -9803,22 +9805,16 @@
       "aliases": [
         "scripts/goal_orchestrator.py",
         "scripts/validation_worker.py",
-        "scripts/sequential_codex_exec.py",
         "scripts/issue_autostart.py",
-        "assets/catalog/codex-exec-adapter.v1.json",
         "assets/catalog/issue-autostart.v1.json",
         "docs/reference/async-validation.md",
-        "docs/reference/sequential-codex-exec.md",
         "docs/reference/issue-autostart.md",
         "docs/reference/self-solving-issue-loop.md",
         "/srv/bears/plugins/bears/scripts/goal_orchestrator.py",
         "/srv/bears/plugins/bears/scripts/validation_worker.py",
-        "/srv/bears/plugins/bears/scripts/sequential_codex_exec.py",
         "/srv/bears/plugins/bears/scripts/issue_autostart.py",
-        "/srv/bears/plugins/bears/assets/catalog/codex-exec-adapter.v1.json",
         "/srv/bears/plugins/bears/assets/catalog/issue-autostart.v1.json",
         "/srv/bears/plugins/bears/docs/reference/async-validation.md",
-        "/srv/bears/plugins/bears/docs/reference/sequential-codex-exec.md",
         "/srv/bears/plugins/bears/docs/reference/issue-autostart.md",
         "/srv/bears/plugins/bears/docs/reference/self-solving-issue-loop.md",
         "scripts/issue_state_reconciler.py",
@@ -9838,8 +9834,8 @@
         "scripts/orchestrator_closeout_manifest_authority.py",
         "/srv/bears/plugins/bears/scripts/orchestrator_closeout_manifest_authority.py"
       ],
-      "allowed_write_boundary": "Only execution-kernel authority support scripts, catalogs, and reference docs named by authority-map topics; no product, runtime, deploy, product app, MCP, connector, provider, secret, production-data, raw-log, raw-chat, or raw-VPN-config authority.",
-      "concrete_scope": "Exact authority-map support artifacts for goal orchestrator, async validation, sequential Codex Exec, issue autostart, and self-solving issue loop validation.",
+      "allowed_write_boundary": "Only execution-kernel authority support scripts, delivery manifest support, catalogs, and reference docs named by authority-map topics; no product, runtime, deploy, product app, MCP, connector, provider, secret, production-data, raw-log, raw-chat, or raw-VPN-config authority.",
+      "concrete_scope": "Exact authority-map and delivery-manifest support artifacts for goal orchestrator, async validation, issue autostart, and closeout workflow policy.",
       "decomposition_required": false,
       "group": "workflow",
       "name": "execution_kernel_authority_map_support",
@@ -9849,7 +9845,6 @@
       "required_validations": [
         "python3 scripts/authority_map.py validate",
         "python3 scripts/validation_worker.py validate",
-        "python3 scripts/sequential_codex_exec.py validate",
         "python3 scripts/issue_autostart.py validate",
         "python3 scripts/goal_orchestrator.py validate",
         "python3 scripts/platform_roles.py validate",
@@ -9864,10 +9859,10 @@
       ],
       "reviewer_triggers": [
         "authority-map topic change",
-        "Codex Exec adapter policy change",
         "issue autostart policy change",
         "async validation worker policy change",
-        "goal state validation change"
+        "goal state validation change",
+        "platform microtask runtime boundary change"
       ],
       "role_required": true,
       "source": "assets/catalog/authority-map.v1.json",
@@ -9878,12 +9873,9 @@
       "write_roots": [
         "scripts/goal_orchestrator.py",
         "scripts/validation_worker.py",
-        "scripts/sequential_codex_exec.py",
         "scripts/issue_autostart.py",
-        "assets/catalog/codex-exec-adapter.v1.json",
         "assets/catalog/issue-autostart.v1.json",
         "docs/reference/async-validation.md",
-        "docs/reference/sequential-codex-exec.md",
         "docs/reference/issue-autostart.md",
         "docs/reference/self-solving-issue-loop.md",
         "scripts/issue_state_reconciler.py",
@@ -9893,7 +9885,13 @@
         "scripts/issue_closeout.py",
         "scripts/file_execution_join.py",
         "scripts/model_check_orchestrator.py",
-        "scripts/orchestrator_closeout_manifest_authority.py"
+        "scripts/orchestrator_closeout_manifest_authority.py",
+        "scripts/authority_map.py",
+        "/srv/bears/plugins/bears/scripts/authority_map.py",
+        "scripts/delivery_manifest.py",
+        "/srv/bears/plugins/bears/scripts/delivery_manifest.py",
+        "assets/catalog/delivery-manifest.v1.json",
+        "/srv/bears/plugins/bears/assets/catalog/delivery-manifest.v1.json"
       ]
     },
     {
@@ -14683,12 +14681,6 @@
       "expected_status": "matched",
       "required_role": "bears-machine-first-execution-kernel-engineer",
       "required_route_id": "execution_kernel_authority_map_support",
-      "target": "scripts/sequential_codex_exec.py"
-    },
-    {
-      "expected_status": "matched",
-      "required_role": "bears-machine-first-execution-kernel-engineer",
-      "required_route_id": "execution_kernel_authority_map_support",
       "target": "scripts/issue_autostart.py"
     },
     {
@@ -14941,6 +14933,30 @@
       "expected_status": "matched",
       "required_role": "bears-workflow-overlay-platform-engineer",
       "target": "skills/app-research/SKILL.md"
+    },
+    {
+      "expected_status": "matched",
+      "required_role": "bears-machine-first-execution-kernel-engineer",
+      "required_route_id": "execution_kernel_authority_map_support",
+      "target": "scripts/authority_map.py"
+    },
+    {
+      "expected_status": "matched",
+      "required_role": "bears-machine-first-execution-kernel-engineer",
+      "required_route_id": "execution_kernel_authority_map_support",
+      "target": "scripts/delivery_manifest.py"
+    },
+    {
+      "expected_status": "matched",
+      "required_role": "bears-deploy-platform-engineer",
+      "required_route_id": "workflow_overlay_validation_ci_workflow",
+      "target": "assets/catalog/doctor-component-coverage.v1.json"
+    },
+    {
+      "expected_status": "matched",
+      "required_role": "bears-deploy-platform-engineer",
+      "required_route_id": "workflow_overlay_validation_ci_workflow",
+      "target": "/srv/bears/plugins/bears/assets/catalog/doctor-component-coverage.v1.json"
     }
   ],
   "schema": "bears-platform-role-catalog.v1",

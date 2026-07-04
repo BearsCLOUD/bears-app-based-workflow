@@ -29,7 +29,6 @@
   "commands": [
     "python3 scripts/delivery_manifest.py validate",
     "python3 scripts/issue_intake.py intake --repo <owner/repo> --number <n> --output-root <runtime/deliveries>",
-    "python3 scripts/sequential_codex_exec.py execute --plan <path>",
     "python3 scripts/validation_worker.py create-fixer-step --remediation <path> --output <path>",
     "python3 scripts/issue_closeout.py close --manifest <path> --dry-run",
     "python3 scripts/issue_state_reconciler.py reconcile --manifest-root <path> --issues-json <path>",
@@ -73,11 +72,12 @@
   },
   "delivery_id_policy": "Canonical enterprise delivery_id is bears-governance-kernel-v1; closeout-ready and closed manifests must match commit metadata, bears_doctor closeout summary, issue_closeout output, and changelog linkage.",
   "execution_policy": {
-    "adapter": "assets/catalog/codex-exec-adapter.v1.json",
     "bounded_session_policy": "One issue must run as finite role steps; one unbounded agent session for a whole issue is rejected.",
     "commit_policy": "Role steps may prepare changes only inside scoped worktrees; main-only commit closeout remains owned by commit_closeout and bears_doctor.",
     "prompt_policy": "Create one short prompt file per role packet. Contract and validator files carry behavior.",
-    "runner": "scripts/sequential_codex_exec.py execute"
+    "status": "plugin_runtime_adapter_removed",
+    "future_microtask_owner": "platform_service_constitution_and_research_only",
+    "plugin_boundary": "@Bears owns policy packets only; it must not own codex exec runtime queues."
   },
   "forbidden_data": [
     "secret",
@@ -114,7 +114,8 @@
     "closeout_rule": "Issue closeout is blocked while remediation_state is open or blocked.",
     "role_kind": "fixer",
     "source": "bears-validation-remediation.v1",
-    "target": "bears-codex-exec-role-step.v1"
+    "target": "platform-microtask-service-research-only",
+    "status": "runtime target removed from plugin scope"
   },
   "repo_routing": {
     "access_values": [

@@ -71,13 +71,10 @@
         "AGENTS.md",
         "assets/catalog/workflow-roadmap.v1.json",
         "assets/catalog/issue-execution-priority.v1.json",
-        "assets/catalog/codex-exec-adapter.v1.json",
         "assets/catalog/mcp-policy.v1.json",
         "scripts/issue_autostart.py",
         "scripts/goal_orchestrator.py",
-        "scripts/codex_workflow_policy.py",
         "scripts/prompt_compiler.py",
-        "scripts/sequential_codex_exec.py",
         "scripts/issue_closeout.py"
       ],
       "synthetic_issue": {

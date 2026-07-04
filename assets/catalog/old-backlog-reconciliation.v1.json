@@ -2,15 +2,75 @@
   "schema": "bears-old-backlog-reconciliation.v1",
   "version": "1",
   "owner_issue": "#411",
-  "target_issues": [370, 371, 372, 373, 374, 375, 376, 379, 380, 381, 382, 383, 387, 388, 389],
-  "allowed_classifications": ["completed", "superseded", "partial", "phase_2", "blocked", "manual_review", "out_of_scope"],
+  "target_issues": [
+    370,
+    371,
+    372,
+    373,
+    374,
+    375,
+    376,
+    379,
+    380,
+    381,
+    382,
+    383,
+    387,
+    388,
+    389
+  ],
+  "allowed_classifications": [
+    "completed",
+    "superseded",
+    "partial",
+    "phase_2",
+    "blocked",
+    "manual_review",
+    "out_of_scope"
+  ],
   "proof_map": {
-    "371": {"classification": "completed", "proof_commit": "1b8332b", "proof_path": "scripts/validation_queue.py", "delivery_id": "bears-governance-kernel-v1", "reason": "async validation queue and worker surfaces exist"},
-    "382": {"classification": "completed", "proof_commit": "cb0580b", "proof_path": "scripts/artifact_registry.py", "delivery_id": "bears-governance-kernel-v1", "reason": "artifact registry and pre-commit added-file gate exist"},
-    "383": {"classification": "completed", "proof_commit": "3bd430c", "proof_path": "scripts/decision_ledger.py", "delivery_id": "bears-governance-kernel-v1", "reason": "decision ledger validator and required-decision gate exist"},
-    "387": {"classification": "completed", "proof_commit": "7615239", "proof_path": "scripts/workflow_tree.py", "delivery_id": "bears-governance-kernel-v1", "reason": "canonical workflow tree contract and validator exist"},
-    "388": {"classification": "completed", "proof_commit": "14b8df0655983ae243acb25d0d9a1f1b181c1916", "proof_path": "scripts/bears_doctor.py", "delivery_id": "bears-governance-kernel-v1", "reason": "bears_doctor closeout validator is active and passed this closeout"},
-    "389": {"classification": "completed", "proof_commit": "abcd665", "proof_path": "scripts/sequential_codex_exec.py", "delivery_id": "bears-governance-kernel-v1", "reason": "sequential codex exec runner and role budget tests exist"}
+    "371": {
+      "classification": "completed",
+      "proof_commit": "1b8332b",
+      "proof_path": "scripts/validation_queue.py",
+      "delivery_id": "bears-governance-kernel-v1",
+      "reason": "async validation queue and worker surfaces exist"
+    },
+    "382": {
+      "classification": "completed",
+      "proof_commit": "cb0580b",
+      "proof_path": "scripts/artifact_registry.py",
+      "delivery_id": "bears-governance-kernel-v1",
+      "reason": "artifact registry and pre-commit added-file gate exist"
+    },
+    "383": {
+      "classification": "completed",
+      "proof_commit": "3bd430c",
+      "proof_path": "scripts/decision_ledger.py",
+      "delivery_id": "bears-governance-kernel-v1",
+      "reason": "decision ledger validator and required-decision gate exist"
+    },
+    "387": {
+      "classification": "completed",
+      "proof_commit": "7615239",
+      "proof_path": "scripts/workflow_tree.py",
+      "delivery_id": "bears-governance-kernel-v1",
+      "reason": "canonical workflow tree contract and validator exist"
+    },
+    "388": {
+      "classification": "completed",
+      "proof_commit": "14b8df0655983ae243acb25d0d9a1f1b181c1916",
+      "proof_path": "scripts/bears_doctor.py",
+      "delivery_id": "bears-governance-kernel-v1",
+      "reason": "bears_doctor closeout validator is active and passed this closeout"
+    },
+    "389": {
+      "classification": "superseded",
+      "proof_commit": "abcd665",
+      "proof_path": "platform microtask service constitution/research follow-up",
+      "delivery_id": "bears-governance-kernel-v1",
+      "reason": "plugin-owned sequential codex exec runner was removed; future runtime belongs to platform service research/constitution only"
+    }
   },
   "default_open_classification": "phase_2",
   "commands": [

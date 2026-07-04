@@ -28,7 +28,6 @@ REQUIRED_TOPICS = {
     "test_selection",
     "file_context_index",
     "async_validation",
-    "sequential_codex_exec",
     "issue_autostart",
 }
 

@@ -13,7 +13,6 @@
       "required_files": [
         "scripts/issue_autostart.py",
         "scripts/workflow_roadmap.py",
-        "scripts/codex_workflow_policy.py",
         "assets/catalog/issue-autostart.v1.json",
         "assets/catalog/workflow-roadmap.v1.json",
         "assets/catalog/codex-workflow-policy.v1.json",

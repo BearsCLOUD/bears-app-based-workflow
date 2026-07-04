@@ -30,13 +30,13 @@ Allowed:
 
 - Read `/srv/bears/AGENTS.md`, nearest app `AGENTS.md`, app constitution, app-research packet, app spec/docs, existing GitHub Project #20 metadata, existing Issues, and route evidence.
 - Create or update bounded GitHub Issues, sub-issues, Project item links, Project item fields, labels, milestones, dependencies, and evidence comments in `BearsCLOUD/apps` and Apps Project #20.
-- Create only decomposition, dependency, acceptance, proof, blocker, lane, and handoff metadata needed by `$app-dev`.
+- Create only decomposition, dependency, acceptance, proof, schema-packet, blocker, lane, and handoff metadata needed by `$app-dev`.
 
 Forbidden:
 
-- Implementation file edits.
+- Implementation file edits, including schema skeleton files or generated product contract files.
 - Runtime, Kubernetes desired-state, provider account, repo-setting, branch-protection, environment, webhook, secret, variable, `.env`, production-data, raw-log, or raw-chat mutation.
-- Product behavior decisions not stated by docs, `$app-research`, or route evidence.
+- Product behavior decisions not stated by docs, `$app-research`, schema packets, or route evidence.
 - Broad Issues that require a worker to choose architecture, scope, files, role, proof, or dependency order.
 
 ## Defaults
@@ -81,13 +81,43 @@ Every execution Issue must include:
 - route-selected @Bears role;
 - source doc references with section names;
 - acceptance criteria checklist;
-- proof source from CI/check metadata or commit closeout expectation;
+- L3 autoCI/CD status matrix names from automatic CI/check metadata or commit closeout expectation;
 - dependency Issue URLs;
-- completion proof: changed files, commit SHA, push proof, Project status update, and closeout comment.
+- completion proof: changed files, one commit SHA, push proof, status matrix evidence, Project status update, and closeout comment.
 
 Split an Issue whenever repo, path, write scope, role, proof source, dependency order, platform boundary, infra boundary, or restricted-data boundary differs.
 
 Block broad work instead of creating an execution Issue when docs do not make the task decision-complete. Forbidden broad titles include `implement backend`, `make UI`, `finish MVP`, `integrate platform`, and any equivalent title without exact files, behavior, acceptance, proof, and role.
+
+
+## Product schema packets
+
+`schema packet` means planning metadata for a future product schema or contract. It is not a file and not PASS evidence.
+
+Rules:
+
+- `app-plan` may design schema packets to make parallel L3 work decision-complete.
+- `app-plan` must not create schema skeleton files, generated contracts, migrations, validators, or tests.
+- Each schema packet must become one or more L3 materialization tasks owned by `$app-dev`.
+- Schema packets may define names, owner layer, app directory, consumers, allowed paths, forbidden paths, dependencies, and status matrix expectations.
+- If a schema shape is not decision-complete, create a blocker Issue instead of an execution Issue.
+
+Schema packet shape:
+
+```json
+{
+  "schema": "app-plan.product-schema-packet",
+  "version": "1",
+  "name": "<schema or contract name>",
+  "owner_layer": "app|platform|infra",
+  "app_directory": "<exact app directory or none>",
+  "consumers": ["<consumer path or issue>"],
+  "allowed_paths": ["<future file paths>"],
+  "forbidden_paths": ["<paths>"],
+  "materialization_tasks": ["<issue urls>"],
+  "status_matrix": ["<automatic status names>"]
+}
+```
 
 ## L3 goal block
 
@@ -109,8 +139,8 @@ target=<exact files/paths>
 allowed_actions=<bounded list>
 forbidden_actions=<bounded list>
 acceptance_criteria=<checklist copied from this issue>
-proof=<metadata or commit closeout expectation>
-completion_criteria=changed files, commit SHA, push proof, Project status update, closeout comment
+proof=<automatic status matrix or commit closeout expectation>
+completion_criteria=changed files, one commit SHA, push proof, status matrix evidence, Project status update, closeout comment
 ```
 
 If any field cannot be filled exactly, create a blocker Issue instead of an execution Issue.
@@ -122,7 +152,7 @@ If any field cannot be filled exactly, create a blocker Issue instead of an exec
 3. Build the lane map first: app, platform, infra, plus optional sub-lanes with disjoint paths.
 4. Convert requirements into decision-complete tasks.
 5. Create dependencies so app-dev waves can run only dependency-ready, non-overlapping tasks.
-6. Ensure every task has one role, one layer, one lane, one repo boundary, and one proof requirement.
+6. Ensure every task has one role, one layer, one lane, one repo boundary, one L3 status matrix, and one proof requirement.
 7. Emit `app-plan.project-task-packet`.
 8. Run `$app-analyze` before handing execution to `$app-dev`.
 
@@ -141,7 +171,10 @@ If any field cannot be filled exactly, create a blocker Issue instead of an exec
     {"layer": "app|platform|infra", "lane": "<lane id>", "repo": "<repo path>", "target_paths": ["<paths>"], "parallel_group": "<group id>", "dependencies": ["<issue urls>"]}
   ],
   "issues": [
-    {"url": "<issue url>", "task_id": "<id>", "layer": "app|platform|infra", "lane": "<lane id>", "role": "<@Bears role>", "dependencies": ["<issue urls>"], "status": "ready|blocked"}
+    {"url": "<issue url>", "task_id": "<id>", "layer": "app|platform|infra", "lane": "<lane id>", "role": "<@Bears role>", "dependencies": ["<issue urls>"], "status_matrix": ["<automatic status names>"], "status": "ready|blocked"}
+  ],
+  "product_schema_packets": [
+    {"name": "<schema or contract name>", "owner_layer": "app|platform|infra", "materialization_tasks": ["<issue urls>"], "status_matrix": ["<automatic status names>"]}
   ],
   "blocked_requirements": ["<requirement ids and reason>"],
   "execution_skill": "app-dev",

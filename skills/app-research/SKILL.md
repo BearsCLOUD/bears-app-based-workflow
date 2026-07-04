@@ -29,7 +29,7 @@ Run `$app-research` when the app work includes any of these:
 - new product or major feature;
 - external provider, integration, API, data source, or market dependency;
 - UI/UX, operator flow, status, error, recovery, or notification behavior;
-- unclear architecture, data model, product logic, or prior-art choice.
+- unclear architecture, data model, product logic, queue/runtime ownership, or prior-art choice.
 
 Skip only for exact bugfix or docs-only work with no new product logic and record the skip reason in the next app packet.
 
@@ -47,6 +47,19 @@ Forbidden:
 - GitHub Project or Issue mutation.
 - Runtime, deploy, provider-account, secret, `.env`, production-data, raw-log, or raw-chat mutation.
 - Copying large source text or proprietary content.
+
+
+## Platform microtask service research scope
+
+For future Codex microtask queues, research must compare only architecture options and handoff contracts. It must not implement a handler, queue worker, Kubernetes manifest, secret reference, or `codex exec` runner.
+
+Required comparison axes:
+
+- platform service ownership versus app-local ownership;
+- Taskiq and Redis operational fit;
+- JSON packet shape needed by L2 wave decomposition;
+- safety limits for parallel `codex exec` streams;
+- how status evidence returns to app-dev without blocking L2.
 
 ## Workflow
 

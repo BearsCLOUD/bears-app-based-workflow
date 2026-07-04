@@ -2,7 +2,7 @@
   "schema": "bears-ci-requirements.v1",
   "version": "1",
   "owner_plugin": "bears",
-  "purpose": "GitHub push diagnostics for Bears plugin main commits plus operator emergency dispatch. Local commit validation remains plugin closeout authority, and local Codex cache sync runs only on this host after exact-SHA validation PASS.",
+  "purpose": "Automatic post-commit and GitHub push diagnostics for @Bears policy changes. Local pre-commit is safety-only and must not run development checks. App-dev consumes L3 status evidence; Dagger and Kubernetes local_cd own full/live PASS.",
   "trigger_policy": {
     "automatic_on_pull_request": false,
     "agent_manual_ci_dispatch_allowed": false,
@@ -14,14 +14,18 @@
       "main"
     ],
     "forbidden_agent_commands": [
-      "gh workflow run",
+      "/dispatches",
       "gh run rerun",
-      "repository_dispatch",
-      "/dispatches"
+      "gh workflow run",
+      "manual Dagger dispatch from app-dev",
+      "manual local_cd dispatch from app-dev",
+      "manual test suite dispatch",
+      "manual validator suite dispatch",
+      "repository_dispatch"
     ],
     "changed_path_diff_policy": {
       "local_post_commit": "HEAD^..HEAD",
-      "reason": "The local git pre-commit hook validates staged changes before commit; the post-commit hook records exact-SHA validation proof for plugin cache sync and closeout. GitHub push on main runs diagnostics for the pushed commit.",
+      "reason": "Pre-commit is safety-only. Post-commit and GitHub push create automatic evidence for the exact commit. Agents must not run local check layers as PASS evidence.",
       "github_push": "HEAD^..HEAD"
     },
     "operator_emergency_dispatch_allowed": true,
@@ -34,7 +38,9 @@
       "post-commit"
     ],
     "blocking_local_commit_hook": "pre-commit",
-    "proof_local_commit_hook": "post-commit"
+    "proof_local_commit_hook": "post-commit",
+    "pre_commit_scope": "safety_only",
+    "post_commit_scope": "enqueue_or_record_automatic_evidence_only"
   },
   "parallel_jobs": [
     "changes",
@@ -82,7 +88,7 @@
       "integration",
       "slow"
     ],
-    "new_test_requires_catalog_or_marker": true,
+    "new_test_requires_catalog_or_marker": "CI-owned only; agents must not create tests as PASS evidence",
     "test_files": [
       {
         "path": "tests/test_agent_action_ledger.py",
@@ -472,7 +478,10 @@
     "selector_runner": "test_selection",
     "impacted_fast_test_command": "python3 scripts/test_selection.py run --tier fast",
     "local_hook_command": "python3 scripts/local_commit_validation.py install-hook",
-    "blocking_command": "python3 scripts/local_commit_validation.py run --staged"
+    "blocking_command": "safety-only pre-commit; no development checks",
+    "agent_manual_execution_allowed": false,
+    "pass_evidence_allowed": false,
+    "role": "automatic_post_commit_or_github_diagnostics_only"
   },
   "cd_gate": {
     "runtime_apply_requires_degradation_continue": true,
@@ -483,7 +492,7 @@
     "cache_sync_script": "scripts/plugin_cache_sync.py",
     "diagnostic_summary_job": "ci-summary",
     "runtime_apply_requires_exact_commit_local_validation_pass": true,
-    "local_validation_fail_creates_workflow_defect": true,
+    "local_validation_fail_creates_workflow_defect": "CI-owned diagnostic only; not an app-dev L2 blocker unless task packet declares hard blocker",
     "cache_sync_requires_exact_commit_local_validation_pass": true,
     "local_validation_proof_file": "runtime/local-commit-validation/<main_sha>.json",
     "github_diagnostics_automatic_on_push": true,
@@ -496,6 +505,47 @@
     "proof_local_commit_hook": "post-commit",
     "github_push_ci_required_before_cache_sync": true,
     "github_push_ci_workflow": ".github/workflows/validate.yml",
-    "cache_sync_runtime_scope": "local_codex_cache_on_this_host"
+    "cache_sync_runtime_scope": "local_codex_cache_on_this_host",
+    "app_dev_direct_trigger_allowed": false,
+    "full_proof_owner": "Dagger objective-runtime-proof through /srv/bears/dev/platform/dagger",
+    "final_live_pass_owner": "/srv/bears/kubernetes kubernetes_deployment plus local_cd"
+  },
+  "local_gate_policy": {
+    "pre_commit_blocks_only": [
+      "secret_value_exposure",
+      "raw_private_data",
+      "forbidden_tracked_path",
+      "repo_boundary_violation"
+    ],
+    "pre_commit_forbidden": [
+      "tests",
+      "validators",
+      "lint",
+      "schema validation",
+      "Dagger",
+      "Kubernetes checks",
+      "local_cd",
+      "long scripts"
+    ],
+    "post_commit": "automatic evidence only",
+    "agent_closeout_rule": "Agents cite automatic commit/status evidence; they do not create local PASS layers."
+  },
+  "app_dev_status_matrix": {
+    "scope": "L3 only",
+    "unit": "one task equals one L3 commit",
+    "l2_blocking": false,
+    "required_evidence": [
+      "commit_sha",
+      "push_proof",
+      "automatic_fast_statuses",
+      "dagger_objective_runtime_proof_when_required",
+      "kubernetes_deployment_plus_local_cd_when_live_required"
+    ],
+    "forbidden": [
+      "app-dev direct CI trigger",
+      "app-dev direct Dagger trigger",
+      "app-dev direct local_cd trigger",
+      "manual test or validator PASS"
+    ]
   }
 }

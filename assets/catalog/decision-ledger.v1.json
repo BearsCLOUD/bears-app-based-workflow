@@ -240,7 +240,6 @@
         "scripts/issue_intake.py",
         "scripts/issue_closeout.py",
         "scripts/issue_state_reconciler.py",
-        "scripts/sequential_codex_exec.py",
         "scripts/validation_worker.py",
         "assets/catalog/bears-doctor.v1.json",
         "assets/catalog/test-selection.v1.json",
@@ -341,11 +340,7 @@
     },
     {
       "affected_paths": [
-        "assets/catalog/codex-exec-adapter.v1.json",
-        "assets/schemas/codex-exec-step-result.v1.schema.json",
-        "scripts/sequential_codex_exec.py",
-        "tests/test_sequential_codex_exec.py",
-        "docs/reference/sequential-codex-exec.md"
+        "assets/schemas/codex-exec-step-result.v1.schema.json"
       ],
       "change_type": "workflow",
       "contradictions": [],
@@ -550,7 +545,6 @@
       "affected_paths": [
         "assets/schemas/codex-exec-role-profile.v1.schema.json",
         "assets/catalog/codex-exec-role-profiles.v1.json",
-        "scripts/sequential_codex_exec.py",
         "scripts/issue_intake.py",
         "tests/test_codex_exec_role_profiles.py",
         "assets/catalog/artifact-registry.v1.json",
@@ -599,12 +593,8 @@
     },
     {
       "affected_paths": [
-        "assets/catalog/codex-exec-adapter.v1.json",
         "assets/schemas/codex-exec-step-result.v1.schema.json",
-        "scripts/sequential_codex_exec.py",
-        "scripts/codex_exec_contract.py",
-        "docs/reference/sequential-codex-exec.md",
-        "tests/test_sequential_codex_exec.py"
+        "scripts/codex_exec_contract.py"
       ],
       "change_type": "validation",
       "contradictions": [],
@@ -623,9 +613,7 @@
         "assets/schemas/codex-workflow-policy.v1.schema.json",
         "assets/schemas/codex-execution-decision.v1.schema.json",
         "assets/catalog/codex-workflow-policy.v1.json",
-        "scripts/codex_workflow_policy.py",
         "docs/reference/codex-workflow-policy.md",
-        "tests/test_codex_workflow_policy.py",
         "assets/catalog/artifact-registry.v1.json",
         "assets/catalog/decision-ledger.v1.json",
         "assets/catalog/release-notes.v1.json",
@@ -708,7 +696,7 @@
       "decision_id": "D-2026-06-25-416-opencode-executor",
       "owner_issue": "#416",
       "owner_role": "bears-machine-first-execution-kernel-engineer",
-      "rationale": "Issue #416 requires cheap bounded subagents without replacing @bears validation, closeout, autostart, or sequential_codex_exec implementation authority.",
+      "rationale": "Issue #416 requires cheap bounded subagents without replacing @Bears closeout or autostart authority; plugin-owned sequential codex exec runtime authority is superseded by future platform microtask service constitution and research.",
       "redaction": "safe",
       "scope_id": "opencode-headless-executor",
       "status": "accepted",
@@ -748,7 +736,6 @@
         "assets/schemas/goal-question.v1.schema.json",
         "assets/schemas/goal-state.v1.schema.json",
         "scripts/agent_usage.py",
-        "scripts/codex_workflow_policy.py",
         "scripts/context_budget.py",
         "scripts/goal_orchestrator.py",
         "scripts/goal_question_bank.py",
@@ -1552,12 +1539,9 @@
         "assets/catalog/platform-role-catalog.v1.json",
         "scripts/goal_orchestrator.py",
         "scripts/validation_worker.py",
-        "scripts/sequential_codex_exec.py",
         "scripts/issue_autostart.py",
-        "assets/catalog/codex-exec-adapter.v1.json",
         "assets/catalog/issue-autostart.v1.json",
         "docs/reference/async-validation.md",
-        "docs/reference/sequential-codex-exec.md",
         "docs/reference/issue-autostart.md",
         "docs/reference/self-solving-issue-loop.md",
         "AGENTS.md",
@@ -1768,6 +1752,26 @@
       "rationale": "Disabled Telegram skill dirs were removed from skills/, so coupled catalog and helper files must not stay as active authoritative surfaces.",
       "redaction": "safe",
       "scope_id": "app-workflow-skill-boundaries",
+      "status": "accepted",
+      "unresolved_inputs": []
+    },
+    {
+      "affected_paths": [
+        "assets/catalog/ci-requirements.v1.json",
+        "assets/catalog/codex-exec-adapter.v1.json",
+        "scripts/ci_requirements.py",
+        "scripts/sequential_codex_exec.py",
+        "docs/reference/sequential-codex-exec.md"
+      ],
+      "change_type": "workflow",
+      "contradictions": [],
+      "decision": "Keep app workflow CI boundaries aligned with ci-requirements and sequential exec surfaces.",
+      "decision_id": "app-workflow-ci-boundaries-2026-07-04",
+      "owner_issue": "operator-goal-tighten-app-workflow-ci-boundaries",
+      "owner_role": "bears-workflow-overlay-platform-engineer",
+      "rationale": "Staged workflow-policy changes need one accepted ledger entry covering the new CI boundary paths.",
+      "redaction": "safe",
+      "scope_id": "app-workflow-ci-boundaries",
       "status": "accepted",
       "unresolved_inputs": []
     }

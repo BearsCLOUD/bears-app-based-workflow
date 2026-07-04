@@ -36,6 +36,19 @@ Forbidden:
 - Runtime, Kubernetes desired-state, provider, repo-setting, secret, `.env`, production-data, raw-log, or raw-chat mutation.
 - Root `/srv/bears/specs`, `.specify`, root `plans.md`, root `roadmap.md`, or `/srv/bears/docs/plans.md` recreation.
 
+
+## Platform microtask service constitution scope
+
+When the target is a future Codex microtask queue, the constitution may define only ownership and boundaries. Runtime implementation is out of scope for this skill.
+
+The constitution must state:
+
+- `@Bears` owns policy packets and workflow rules only.
+- The platform service owns runtime execution.
+- Kubernetes owns runtime placement and secret references.
+- Taskiq means the Python task worker layer. Redis means the queue or state backend. Secret values are never stored in plugin artifacts.
+- The future flow is JSON packet -> platform service -> Taskiq/Redis -> `codex exec` stream.
+
 ## Artifact placement
 
 Use the narrowest owner path:

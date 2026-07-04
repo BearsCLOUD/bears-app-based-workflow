@@ -192,29 +192,6 @@
       "validator": "python3 scripts/validation_worker.py validate"
     },
     {
-      "canonical_source": "assets/catalog/codex-exec-adapter.v1.json",
-      "deprecated_surfaces": [
-        "unbounded single-session issue solving"
-      ],
-      "generated_outputs": [
-        "runtime/codex-exec/**",
-        "runtime/codex-exec/jobs/<job_id>.json",
-        "runtime/codex-exec/steps/<job_id>/<step_id>.json",
-        "runtime/codex-exec/prompts/<job_id>/<step_id>.md"
-      ],
-      "manifest_claims": [
-        "issue work is split into finite role steps",
-        "sequential_codex_exec supervises prompt, job, step result, failure class, dirty scope, resume, and abort packets",
-        "codex exec command invocation goes through assets/catalog/codex-exec-adapter.v1.json"
-      ],
-      "owning_role": "bears-machine-first-execution-kernel-engineer",
-      "secondary_docs": [
-        "docs/reference/sequential-codex-exec.md"
-      ],
-      "topic": "sequential_codex_exec",
-      "validator": "python3 scripts/sequential_codex_exec.py validate"
-    },
-    {
       "canonical_source": "assets/catalog/issue-autostart.v1.json",
       "deprecated_surfaces": [
         "runtime/issue-autostart/queue/*.json"

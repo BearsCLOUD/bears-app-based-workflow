@@ -29,7 +29,7 @@ FORBIDDEN_DUPLICATE_TEST_RUNNERS = {
     "python3 -m pytest -q tests",
 }
 LOCAL_COMMIT_VALIDATION_COMMAND = "python3 scripts/local_commit_validation.py run --commit-sha HEAD"
-LOCAL_COMMIT_BLOCKING_COMMAND = "python3 scripts/local_commit_validation.py run --staged"
+LOCAL_COMMIT_BLOCKING_COMMAND = "safety-only pre-commit; no development checks"
 IMPACTED_FAST_TEST_COMMAND = "python3 scripts/test_selection.py run --tier fast"
 LOCAL_HOOK_INSTALL_COMMAND = "python3 scripts/local_commit_validation.py install-hook"
 REQUIRED_LOCAL_COMMIT_HOOKS = ["pre-commit", "post-commit"]
@@ -131,6 +131,10 @@ def validate_catalog(catalog: dict[str, Any]) -> list[str]:
             errors.append(f"test_policy.fast_command must be {LOCAL_COMMIT_VALIDATION_COMMAND}")
         if test_policy.get("blocking_command") != LOCAL_COMMIT_BLOCKING_COMMAND:
             errors.append(f"test_policy.blocking_command must be {LOCAL_COMMIT_BLOCKING_COMMAND}")
+        if test_policy.get("agent_manual_execution_allowed") is not False:
+            errors.append("test_policy.agent_manual_execution_allowed must be false")
+        if test_policy.get("pass_evidence_allowed") is not False:
+            errors.append("test_policy.pass_evidence_allowed must be false")
         if test_policy.get("impacted_fast_test_command") != IMPACTED_FAST_TEST_COMMAND:
             errors.append(f"test_policy.impacted_fast_test_command must be {IMPACTED_FAST_TEST_COMMAND}")
         if int(test_policy.get("fast_timeout_minutes", 0)) > 12:
@@ -158,13 +162,18 @@ def validate_catalog(catalog: dict[str, Any]) -> list[str]:
         for key in (
             "runtime_apply_requires_exact_commit_local_validation_pass",
             "runtime_apply_requires_degradation_continue",
-            "local_validation_fail_creates_workflow_defect",
             "cache_sync_requires_exact_commit_local_validation_pass",
             "closeout_requires_cache_sync_done",
             "closeout_requires_effective_hooks_proof",
         ):
             if cd_gate.get(key) is not True:
                 errors.append(f"cd_gate.{key} must be true")
+        if cd_gate.get("app_dev_direct_trigger_allowed") is not False:
+            errors.append("cd_gate.app_dev_direct_trigger_allowed must be false")
+        if cd_gate.get("full_proof_owner") != "Dagger objective-runtime-proof through /srv/bears/dev/platform/dagger":
+            errors.append("cd_gate.full_proof_owner must point to platform Dagger")
+        if cd_gate.get("final_live_pass_owner") != "/srv/bears/kubernetes kubernetes_deployment plus local_cd":
+            errors.append("cd_gate.final_live_pass_owner must point to kubernetes_deployment plus local_cd")
     return errors
 
 

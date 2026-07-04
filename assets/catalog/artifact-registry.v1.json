@@ -2844,23 +2844,6 @@
     },
     {
       "allowed_writers": [
-        "bears-development-workflow-orchestrator"
-      ],
-      "artifact_type": "script",
-      "changelog_required": false,
-      "decision_ref_required": false,
-      "git_tracked": true,
-      "lifecycle": "script",
-      "owner_issue": "#426",
-      "owner_role": "bears-development-workflow-orchestrator",
-      "path": "scripts/codex_workflow_policy.py",
-      "source_of_truth_status": "canonical",
-      "validation": [
-        "python3 scripts/artifact_registry.py validate"
-      ]
-    },
-    {
-      "allowed_writers": [
         "bears-machine-first-execution-kernel-engineer"
       ],
       "artifact_type": "script",
@@ -6552,7 +6535,6 @@
       "lifecycle": "script",
       "owner_issue": "#8",
       "owner_role": "bears-machine-first-execution-kernel-engineer",
-      "path": "scripts/sequential_codex_exec.py",
       "source_of_truth_status": "canonical",
       "validation": [
         "python3 scripts/artifact_registry.py validate"
@@ -6586,7 +6568,6 @@
       "lifecycle": "catalog",
       "owner_issue": "#8",
       "owner_role": "bears-machine-first-execution-kernel-engineer",
-      "path": "assets/catalog/codex-exec-adapter.v1.json",
       "source_of_truth_status": "canonical",
       "validation": [
         "python3 scripts/artifact_registry.py validate"
@@ -6637,7 +6618,6 @@
       "lifecycle": "doc",
       "owner_issue": "#8",
       "owner_role": "bears-machine-first-execution-kernel-engineer",
-      "path": "docs/reference/sequential-codex-exec.md",
       "source_of_truth_status": "canonical",
       "validation": [
         "python3 scripts/artifact_registry.py validate"

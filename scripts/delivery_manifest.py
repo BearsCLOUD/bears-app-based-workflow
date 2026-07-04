@@ -53,7 +53,6 @@ def validate_catalog() -> list[str]:
         "python3 scripts/delivery_manifest.py validate",
         "python3 scripts/issue_intake.py intake --repo <owner/repo> --number <n> --output-root <runtime/deliveries>",
         "python3 scripts/issue_intake.py route --issue <n> --json",
-        "python3 scripts/sequential_codex_exec.py execute --plan <path>",
         "python3 scripts/validation_worker.py create-fixer-step --remediation <path> --output <path>",
         "python3 scripts/issue_closeout.py close --manifest <path> --dry-run",
         "python3 scripts/issue_state_reconciler.py reconcile --manifest-root <path> --issues-json <path>",

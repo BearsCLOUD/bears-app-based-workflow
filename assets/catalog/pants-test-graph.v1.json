@@ -489,7 +489,6 @@
       "patterns": [
         "scripts/goal_orchestrator.py",
         "scripts/validation_worker.py",
-        "scripts/sequential_codex_exec.py",
         "scripts/issue_autostart.py",
         "scripts/issue_state_reconciler.py",
         "scripts/opencode_executor.py",
@@ -499,10 +498,8 @@
         "scripts/file_execution_join.py",
         "scripts/model_check_orchestrator.py",
         "scripts/orchestrator_closeout_manifest_authority.py",
-        "assets/catalog/codex-exec-adapter.v1.json",
         "assets/catalog/issue-autostart.v1.json",
         "docs/reference/async-validation.md",
-        "docs/reference/sequential-codex-exec.md",
         "docs/reference/issue-autostart.md",
         "docs/reference/self-solving-issue-loop.md"
       ],

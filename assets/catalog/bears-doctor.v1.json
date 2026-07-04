@@ -296,9 +296,9 @@
       "summary": "goal_orchestrator state can be validated by bears_doctor validate-goal"
     },
     {
+      "component_issue": "#442",
       "id": "clarification_role_support",
-      "required": true,
-      "component_issue": "#442"
+      "required": true
     },
     {
       "command": [
@@ -415,27 +415,6 @@
       ],
       "component_issue": "#440",
       "id": "code_property_graph_freshness",
-      "required": true
-    },
-    {
-      "command": [
-        "python3",
-        "scripts/sequential_codex_exec.py",
-        "validate"
-      ],
-      "component_issue": "#405",
-      "id": "codex_exec_role_profiles",
-      "required": true
-    },
-    {
-      "command": [
-        "python3",
-        "scripts/codex_workflow_policy.py",
-        "validate",
-        "--json"
-      ],
-      "component_issue": "#414",
-      "id": "codex_workflow_policy",
       "required": true
     },
     {

@@ -20,16 +20,18 @@
     "runtime_health"
   ],
   "forbidden_pass_evidence": [
-    "tests",
+    "app_dev_direct_trigger",
+    "ci_status_without_runtime_scenario",
     "contracts",
-    "validators",
-    "schemas",
-    "lint",
-    "static_checks",
-    "local_host_processes",
     "docker_run",
+    "lint",
+    "local_host_processes",
+    "local_infisical_helpers",
     "manual_kubectl_apply",
-    "local_infisical_helpers"
+    "schemas",
+    "static_checks",
+    "tests",
+    "validators"
   ],
   "migration_instruction": "When a validation-layer artifact is found, migrate behavior into a Kubernetes-backed Dagger runtime scenario or remove the obsolete acceptance reference.",
   "runtime_owner": "/srv/bears/kubernetes",
@@ -37,5 +39,13 @@
   "dagger_engine_namespace": "dagger",
   "dagger_engine_workload": "daemonset/dagger-engine",
   "dagger_engine_pod_selector": "name=dagger-dagger-helm-engine",
-  "runner_host_env": "_EXPERIMENTAL_DAGGER_RUNNER_HOST"
+  "runner_host_env": "_EXPERIMENTAL_DAGGER_RUNNER_HOST",
+  "methodology": "fixed_dagger_objective_runtime_proof",
+  "app_dev_integration": {
+    "mode": "status_matrix_evidence_only",
+    "scope": "L3 task closeout",
+    "l2_blocking": false,
+    "direct_trigger_allowed": false,
+    "one_task_one_commit": true
+  }
 }

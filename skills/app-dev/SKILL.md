@@ -41,7 +41,7 @@ Allowed:
 - Read `app-plan.project-task-packet`, `app-analysis.packet`, GitHub Project/Issue metadata, route evidence, target docs, and task-owned files.
 - Start L2 lane orchestrators for `app`, `platform`, `infra`, and any sub-lanes already defined by `$app-plan`.
 - Dispatch L3 workers only from decision-complete task packets.
-- Update Project/Issue state only from L2 with concrete worker and critic evidence.
+- Update Project/Issue state only from L2 with concrete worker, critic, commit, and status evidence.
 
 Forbidden:
 
@@ -50,6 +50,7 @@ Forbidden:
 - Inventing layer or lane boundaries not present in `app-plan.project-task-packet`.
 - Combining unrelated layers, repos, target sets, providers, or roles into one task.
 - Runtime, Kubernetes desired-state, repo-setting, secret, `.env`, production-data, raw-log, or raw-chat mutation unless the exact task and role own that layer.
+- Direct CI/CD, Dagger, local_cd, or Kubernetes trigger commands from app-dev; app-dev consumes automatic status evidence only.
 
 ## Execution loop
 
@@ -66,6 +67,37 @@ This skill uses the same conceptual loop as implementation-by-task workflows: re
 9. L2 marks task `done` only after critic confirms 100% completion.
 10. Parent integrates L2 closeout packets, advances the next wave, and reports remaining blockers or drift.
 
+
+## L3 autoCI/CD status matrix
+
+`autoCI/CD` means automatic status evidence created after an L3 commit is pushed. It is not a Codex command queue and it is not an L2 blocker.
+
+Rules:
+
+- The matrix applies only to L3 workers. L2 may continue lane orchestration while automatic statuses are pending.
+- One `task` closes through one L3-owned commit. Split the task when a second commit would be needed.
+- L3 closeout must name the commit SHA, push proof, and expected status names from the task packet.
+- Fast CI statuses are automatic after commit or push. Agents must not create, dispatch, or run local check layers to prove completion.
+- Full product proof is a fixed Dagger objective-runtime-proof scenario, followed by Kubernetes `kubernetes_deployment` plus `local_cd` evidence when live proof is required.
+- Tests, validators, schemas, lint, static checks, and local host processes may be internal safety guardrails only. They are never PASS evidence.
+- Missing or failing statuses become follow-up evidence for L2 triage unless the task packet declares them a hard blocker.
+
+Required L3 status packet:
+
+```json
+{
+  "schema": "app-dev.l3-status-matrix",
+  "version": "1",
+  "task": "<issue url>",
+  "commit_sha": "<sha>",
+  "push_proof": "<url or exact ref>",
+  "fast_statuses": ["<status name>"],
+  "full_proof": "dagger-objective-runtime-proof:<scenario>|none",
+  "live_proof": "kubernetes_deployment+local_cd|none",
+  "l2_blocking": false
+}
+```
+
 ## L2 packet minimum
 
 ```json
@@ -78,7 +110,7 @@ This skill uses the same conceptual loop as implementation-by-task workflows: re
   "tasks": ["<issue urls>"],
   "allowed_project_mutations": ["status", "comments", "dependency links", "field updates named by app-plan"],
   "helper_policy": "Use $subagents for L2 helpers only; helpers do not implement.",
-  "completion": "all assigned tasks done by L3 worker plus L3 critic confirmation"
+  "completion": "all assigned tasks have L3 commit evidence, automatic status matrix evidence, and L3 critic confirmation"
 }
 ```
 
@@ -93,6 +125,7 @@ This skill uses the same conceptual loop as implementation-by-task workflows: re
   "tasks_done": ["<issue urls>"],
   "tasks_blocked": [{"issue": "<url>", "blocker": "<exact blocker>", "owner": "<role>"}],
   "critic_confirmations": [{"issue": "<url>", "critic": "<agent id>", "result": "confirmed|rejected"}],
+  "status_matrices": [{"issue": "<url>", "commit_sha": "<sha>", "l2_blocking": false}],
   "next_wave_ready": ["<issue urls>"]
 }
 ```

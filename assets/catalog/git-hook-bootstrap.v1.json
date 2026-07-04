@@ -9,41 +9,54 @@
   "thin_hooks": [
     {
       "name": "pre-commit",
-      "mode": "cheap_blocking_checks",
+      "mode": "safety_only_blocking_checks",
       "allowed_actions": [
         "detect_repo_boundary",
         "detect_worktree_path",
-        "run_git_diff_check",
+        "detect_forbidden_tracked_paths",
+        "detect_secret_or_raw_private_data_exposure",
         "write_effective_hook_proof"
       ],
       "forbidden_actions": [
+        "create_test_or_validator",
         "print_secret",
         "print_unbounded_output",
         "read_raw_chat",
         "read_raw_log",
         "read_secret",
+        "run_dagger",
+        "run_kubernetes_check",
+        "run_lint",
+        "run_local_cd",
         "run_long_validator",
+        "run_schema_validation",
         "run_test_suite",
         "solve_github_issue"
       ]
     },
     {
       "name": "post-commit",
-      "mode": "enqueue_validation",
+      "mode": "automatic_evidence_enqueue",
       "allowed_actions": [
         "detect_commit_sha",
-        "skip_worker_spawn_by_default",
         "write_effective_hook_proof",
         "write_validation_job",
-        "write_validation_state"
+        "write_validation_state",
+        "exit_without_worker_execution"
       ],
       "forbidden_actions": [
+        "create_test_or_validator",
         "print_secret",
         "print_unbounded_output",
         "read_raw_chat",
         "read_raw_log",
         "read_secret",
+        "run_dagger",
+        "run_kubernetes_check",
+        "run_lint",
+        "run_local_cd",
         "run_long_validator",
+        "run_schema_validation",
         "run_test_suite",
         "solve_github_issue"
       ]
@@ -156,5 +169,6 @@
       ],
       "writes": []
     }
-  ]
+  ],
+  "policy_summary": "Pre-commit is safety-only. Post-commit records or enqueues automatic evidence and exits. Development checks, Dagger, Kubernetes, and local_cd are never run from hook hot paths."
 }

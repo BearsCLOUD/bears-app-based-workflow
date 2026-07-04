@@ -1,56 +1,4 @@
 {
-  "schema": "bears-role-gate-methodology.v1",
-  "version": "1",
-  "updated": "2026-06-19",
-  "owner_plugin": "bears",
-  "methodology_id": "bears-role-gate-methodology-v1",
-  "main_rule": "The orchestrator MUST block development with ROLE_COVERAGE_BLOCKER unless the requested concrete part has exactly one valid primary specialist or helper role at the same granularity as the requested write scope.",
-  "truth_control_work": {
-    "truth": "Spec Kit",
-    "control": "Bears plugin",
-    "work": "session workers"
-  },
-  "definitions": {
-    "concrete_part": "The smallest explicit service, path, workflow, role-governance surface, runtime contract, or integration area that fully contains the requested write scope and is mapped by an exact plugin-owned catalog entry.",
-    "valid_specialist_role": "A plugin-owned role with an existing TOML artifact, role_kind=specialist, primary_eligible=true, exact concrete_scope, bounded allowed_write_boundary, explicit trust_boundary, required_validations, developer_instructions, model, model_reasoning_effort, and sandbox_mode.",
-    "parent_role_insufficient": "A parent, project-group, controller, or umbrella role may classify the request but cannot authorize edits for a child or mixed concrete surface because it is broader than the requested write scope.",
-    "broad_role_invalid": "A role is invalid for primary ownership when it spans unrelated parts, is controller/reviewer-only, lacks a bounded write boundary, or can be selected only through fallback/prefix/group matching instead of an exact concrete mapping.",
-    "primary_role": "The one plugin-owned specialist or helper role selected for the requested concrete part; supporting, security, QA, and reviewer roles can never replace it.",
-    "supporting_roles": "Reviewer-only or QA/security sidecar roles attached after the primary specialist or helper role is selected when trust, secret, external, production, deploy, or quality risk flags exist.",
-    "implementation_handoff": "The orchestrator-to-worker transition that allows product, platform, runtime, deploy, migration, or integration edits only after role routing and independent control audit pass."
-  },
-  "blocker_cases": [
-    {
-      "why_blocked": "unknown",
-      "status": "ROLE_COVERAGE_BLOCKER",
-      "meaning": "The requested part cannot be identified as a known concrete path, service, workflow, or area."
-    },
-    {
-      "why_blocked": "unmapped",
-      "status": "ROLE_COVERAGE_BLOCKER",
-      "meaning": "The requested concrete part is path-like or plausible but lacks an exact plugin-owned catalog mapping."
-    },
-    {
-      "why_blocked": "parent_only",
-      "status": "ROLE_COVERAGE_BLOCKER",
-      "meaning": "Only parent, group, controller, or umbrella coverage exists; child implementation remains unauthorized."
-    },
-    {
-      "why_blocked": "missing_role",
-      "status": "ROLE_COVERAGE_BLOCKER",
-      "meaning": "The catalog points to no role, a missing TOML artifact, or an invalid/malformed role artifact."
-    },
-    {
-      "why_blocked": "invalid_broad_role",
-      "status": "ROLE_COVERAGE_BLOCKER",
-      "meaning": "The selected role is broad, controller/reviewer-only, not primary eligible, or lacks bounded specialist shape."
-    },
-    {
-      "why_blocked": "ambiguous_owner",
-      "status": "ROLE_COVERAGE_BLOCKER",
-      "meaning": "More than one primary candidate owns the same concrete target or alias/write-root mapping."
-    }
-  ],
   "allowed_before_coverage": [
     "create/refine primary role artifact",
     "add exact catalog mapping",
@@ -58,24 +6,50 @@
     "add forward-test evidence",
     "governance docs"
   ],
-  "forbidden_before_coverage": [
-    "product code edits",
-    "platform implementation edits",
-    "runtime edits",
-    "deploy edits",
-    "migration edits",
-    "integration behavior edits"
-  ],
-  "selection_method": [
-    "Identify the requested concrete part from path, service, workflow, remote, dependency edge, and requested behavior.",
-    "Resolve candidates from exact aliases or declared write roots only; broad fallback matching is forbidden. Exact workspace submodule-root aliases may route parent gitlink pointers only and must not widen child working-tree authority.",
-    "Reject parent or group matches as parent_only blockers.",
-    "Reject controller, reviewer, or broad roles as invalid_broad_role blockers.",
-    "If exactly one valid primary specialist or helper role remains, attach reviewer-only supporting roles for risk flags and continue to audit.",
-    "Before closing a ROLE_COVERAGE_BLOCKER packet, run the source freshness preflight and distinguish STALE_ROLE_GATE_SOURCE from true missing coverage.",
-    "If zero or multiple primary roles remain, return the exact ROLE_COVERAGE_BLOCKER packet."
+  "blocker_cases": [
+    {
+      "meaning": "The requested part cannot be identified as a known concrete path, service, workflow, or area.",
+      "status": "ROLE_COVERAGE_BLOCKER",
+      "why_blocked": "unknown"
+    },
+    {
+      "meaning": "The requested concrete part is path-like or plausible but lacks an exact plugin-owned catalog mapping.",
+      "status": "ROLE_COVERAGE_BLOCKER",
+      "why_blocked": "unmapped"
+    },
+    {
+      "meaning": "Only parent, group, controller, or umbrella coverage exists; child implementation remains unauthorized.",
+      "status": "ROLE_COVERAGE_BLOCKER",
+      "why_blocked": "parent_only"
+    },
+    {
+      "meaning": "The catalog points to no role, a missing TOML artifact, or an invalid/malformed role artifact.",
+      "status": "ROLE_COVERAGE_BLOCKER",
+      "why_blocked": "missing_role"
+    },
+    {
+      "meaning": "The selected role is broad, controller/reviewer-only, not primary eligible, or lacks bounded specialist shape.",
+      "status": "ROLE_COVERAGE_BLOCKER",
+      "why_blocked": "invalid_broad_role"
+    },
+    {
+      "meaning": "More than one primary candidate owns the same concrete target or alias/write-root mapping.",
+      "status": "ROLE_COVERAGE_BLOCKER",
+      "why_blocked": "ambiguous_owner"
+    }
   ],
   "blocker_packet": {
+    "allowed_next_actions": [
+      "create/refine primary role artifact",
+      "add exact catalog mapping",
+      "add/update validators",
+      "add forward-test evidence"
+    ],
+    "blocked_edits": [
+      "product implementation",
+      "platform implementation",
+      "runtime/deploy/migration/integration edits"
+    ],
     "required_fields": [
       "status",
       "missing_part",
@@ -87,26 +61,6 @@
       "required_role_shape",
       "decomposition_required"
     ],
-    "status": "ROLE_COVERAGE_BLOCKER",
-    "why_blocked_enum": [
-      "unknown",
-      "unmapped",
-      "parent_only",
-      "missing_role",
-      "invalid_broad_role",
-      "ambiguous_owner"
-    ],
-    "blocked_edits": [
-      "product implementation",
-      "platform implementation",
-      "runtime/deploy/migration/integration edits"
-    ],
-    "allowed_next_actions": [
-      "create/refine primary role artifact",
-      "add exact catalog mapping",
-      "add/update validators",
-      "add forward-test evidence"
-    ],
     "required_role_shape_fields": [
       "name",
       "concrete_scope",
@@ -115,19 +69,6 @@
       "required_validations"
     ],
     "role_development": {
-      "required_fields": [
-        "lane",
-        "owner_role",
-        "max_attempts",
-        "allowed_write_scope",
-        "required_validations",
-        "rerun_commands",
-        "terminal_blocker_conditions",
-        "unsafe_implementation_policy"
-      ],
-      "lane": "role-development",
-      "owner_role": "bears-platform-role-governor",
-      "max_attempts": 2,
       "allowed_write_scope": [
         "agents/*.toml",
         "assets/catalog/platform-role-catalog.v1.json",
@@ -138,6 +79,19 @@
         "tests/test_role_gate_methodology.py",
         "AGENTS.md",
         "docs/reference/capability-governance-rules.md"
+      ],
+      "lane": "role-development",
+      "max_attempts": 2,
+      "owner_role": "bears-platform-role-governor",
+      "required_fields": [
+        "lane",
+        "owner_role",
+        "max_attempts",
+        "allowed_write_scope",
+        "required_validations",
+        "rerun_commands",
+        "terminal_blocker_conditions",
+        "unsafe_implementation_policy"
       ],
       "required_validations": [
         "python3 scripts/platform_roles.py validate",
@@ -155,1376 +109,791 @@
         "validated_exact_role_not_produced"
       ],
       "unsafe_implementation_policy": "route/audit remain nonzero and implementation_handoff_allowed=false until one exact primary specialist or helper role validates at the requested write granularity."
-    }
+    },
+    "status": "ROLE_COVERAGE_BLOCKER",
+    "why_blocked_enum": [
+      "unknown",
+      "unmapped",
+      "parent_only",
+      "missing_role",
+      "invalid_broad_role",
+      "ambiguous_owner"
+    ]
   },
-  "required_validators": [
-    {
-      "id": "known_concrete_part_one_primary",
-      "command": "python3 scripts/platform_roles.py route /srv/bears/legacy/seller/apps/auth_core"
-    },
-    {
-      "id": "unknown_or_unmapped_blocks",
-      "command": "python3 -m unittest tests/test_platform_roles.py"
-    },
-    {
-      "id": "parent_group_only_rejected",
-      "command": "python3 scripts/platform_roles.py route /srv/bears/legacy/seller/apps"
-    },
-    {
-      "id": "overly_broad_role_rejected",
-      "command": "python3 -m unittest tests/test_platform_roles.py"
-    },
-    {
-      "id": "decomposition_required_for_broad_scope",
-      "command": "python3 scripts/platform_roles.py route plugins/bears"
-    },
-    {
-      "id": "supporting_roles_attach_on_risk",
-      "command": "python3 scripts/platform_roles.py route /srv/bears/legacy/seller/apps/auth_core"
-    },
-    {
-      "id": "handoff_blocked_before_validation",
-      "command": "python3 scripts/platform_roles.py audit /srv/bears/plugins/bears/assets/catalog/platform-role-catalog.v1.json"
-    },
-    {
-      "id": "stale_source_distinguished_from_missing_coverage",
-      "command": "python3 -m unittest tests/test_role_gate_methodology.py"
-    },
-    {
-      "id": "auto_role_development_plan_ready",
-      "command": "python3 scripts/platform_roles.py role-development-plan tests/test_missing_auto_role_example.py --json"
-    }
-  ],
-  "forward_tests": [
-    {
-      "id": "new_child_under_known_group_blocks",
-      "target": "/srv/bears/projects/seller/apps/unknown_future_app",
-      "expected_status": "ROLE_COVERAGE_BLOCKER"
-    },
-    {
-      "id": "alias_path_drift_does_not_widen",
-      "target": "/srv/bears/plugins/bears-shadow",
-      "expected_status": "ROLE_COVERAGE_BLOCKER"
-    },
-    {
-      "id": "catalog_growth_keeps_one_primary",
-      "target": "/srv/bears/plugins/bears/assets/catalog/platform-role-catalog.v1.json",
-      "expected_status": "matched"
-    },
-    {
-      "id": "broad_fallback_matching_cannot_reappear",
-      "target": "plugins/bears",
-      "expected_status": "ROLE_COVERAGE_BLOCKER"
-    },
-    {
-      "id": "workspace_root_kubernetes_gitlink_has_exact_governor",
-      "target": "/srv/bears/kubernetes",
-      "expected_status": "matched"
-    },
-    {
-      "id": "workspace_root_plugin_gitlink_has_exact_governor",
-      "target": "/srv/bears/plugins/bears",
-      "expected_status": "matched"
-    },
-    {
-      "id": "deprecated_root_stays_unmapped_until_exact_child_is_selected",
-      "target": "/srv/bears/deprecated",
-      "expected_status": "ROLE_COVERAGE_BLOCKER"
-    },
-    {
-      "id": "deprecated_docs_core_git_config_has_exact_specialist",
-      "target": "/srv/bears/deprecated/legacy-2026-05-11/docs/docs-core/.git/config",
-      "expected_status": "matched"
-    },
-    {
-      "id": "deprecated_docs_core_git_config_lock_has_exact_specialist",
-      "target": "/srv/bears/deprecated/legacy-2026-05-11/docs/docs-core/.git/config.lock",
-      "expected_status": "matched"
-    },
-    {
-      "id": "deprecated_docs_mcp_repo_git_config_has_exact_specialist",
-      "target": "/srv/bears/deprecated/legacy-2026-05-11/docs/docs-mcp/repo/.git/config",
-      "expected_status": "matched"
-    },
-    {
-      "id": "deprecated_docs_mcp_repo_git_config_lock_has_exact_specialist",
-      "target": "/srv/bears/deprecated/legacy-2026-05-11/docs/docs-mcp/repo/.git/config.lock",
-      "expected_status": "matched"
-    },
-    {
-      "id": "deprecated_ad_stat_git_config_has_exact_specialist",
-      "target": "/srv/bears/deprecated/legacy-2026-05-11/docs/docs-mcp/orphaned-from-docs-repo-20260419T1300Z/ad_stat/.git/config",
-      "expected_status": "matched"
-    },
-    {
-      "id": "deprecated_ad_stat_git_config_lock_has_exact_specialist",
-      "target": "/srv/bears/deprecated/legacy-2026-05-11/docs/docs-mcp/orphaned-from-docs-repo-20260419T1300Z/ad_stat/.git/config.lock",
-      "expected_status": "matched"
-    },
-    {
-      "id": "deploy_core_has_exact_specialist",
-      "target": "/srv/bears/plugins/bears/workflows/auth-gateway-deploy-core/workflow.yml",
-      "expected_status": "matched"
-    },
-    {
-      "id": "deploy_contract_test_has_exact_specialist",
-      "target": "/srv/bears/dev/platform/tests/test_deploy_contracts.py",
-      "expected_status": "matched"
-    },
-    {
-      "id": "auth_contract_test_has_exact_specialist",
-      "target": "/srv/bears/dev/platform/tests/test_auth_contracts.py",
-      "expected_status": "matched"
-    },
-    {
-      "id": "feature_008_auth_matrix_has_exact_specialist",
-      "target": "/srv/bears/dev/platform/docs/migration/auth-source-to-target-matrix.md",
-      "expected_status": "matched"
-    },
-    {
-      "id": "feature_008_auth_fixture_has_exact_specialist",
-      "target": "/srv/bears/dev/platform/tests/fixtures/auth_session_contracts.py",
-      "expected_status": "matched"
-    },
-    {
-      "id": "feature_008_auth_session_contract_test_has_exact_specialist",
-      "target": "/srv/bears/dev/platform/tests/test_auth_session_contracts.py",
-      "expected_status": "matched"
-    },
-    {
-      "id": "feature_008_auth_token_contract_test_has_exact_specialist",
-      "target": "/srv/bears/dev/platform/tests/test_integration_token_contracts.py",
-      "expected_status": "matched"
-    },
-    {
-      "id": "gateway_contract_test_has_exact_specialist",
-      "target": "/srv/bears/dev/platform/tests/test_gateway_contracts.py",
-      "expected_status": "matched"
-    },
-    {
-      "id": "gateway_runtime_contract_test_has_exact_specialist",
-      "target": "/srv/bears/dev/platform/tests/test_gateway_runtime_contracts.py",
-      "expected_status": "matched"
-    },
-    {
-      "id": "feature_008_gateway_route_matrix_has_exact_specialist",
-      "target": "/srv/bears/dev/platform/docs/migration/gateway-legacy-route-matrix.md",
-      "expected_status": "matched"
-    },
-    {
-      "id": "feature_008_gateway_route_fixture_has_exact_specialist",
-      "target": "/srv/bears/dev/platform/tests/fixtures/gateway_route_matrix.py",
-      "expected_status": "matched"
-    },
-    {
-      "id": "payments_alias_has_exact_specialist",
-      "target": "payments",
-      "expected_status": "matched"
-    },
-    {
-      "id": "billing_contract_test_has_exact_specialist",
-      "target": "/srv/bears/dev/platform/tests/test_billing_contracts.py",
-      "expected_status": "matched"
-    },
-    {
-      "id": "billing_runtime_service_contract_test_has_exact_specialist",
-      "target": "/srv/bears/dev/platform/tests/test_billing_runtime_service.py",
-      "expected_status": "matched"
-    },
-    {
-      "id": "feature_008_billing_adapter_matrix_has_exact_specialist",
-      "target": "/srv/bears/dev/platform/docs/migration/billing-status-adapter-matrix.md",
-      "expected_status": "matched"
-    },
-    {
-      "id": "feature_008_billing_adapter_fixture_has_exact_specialist",
-      "target": "/srv/bears/dev/platform/tests/fixtures/billing_status_adapters.py",
-      "expected_status": "matched"
-    },
-    {
-      "id": "session_runtime_has_exact_specialist",
-      "target": "/srv/bears/plugins/bears/assets/catalog/session-workers-runtime.v1.json",
-      "expected_status": "matched"
-    },
-    {
-      "id": "dev_core_root_has_exact_governance_role",
-      "target": "/srv/bears/dev",
-      "expected_status": "matched"
-    },
-    {
-      "id": "bears_platform_repo_root_has_exact_governance_role",
-      "target": "/srv/bears/dev/platform",
-      "expected_status": "matched"
-    },
-    {
-      "id": "bears_platform_repo_router_docs_have_exact_governance_role",
-      "target": "/srv/bears/dev/platform/AGENTS.md",
-      "expected_status": "matched"
-    },
-    {
-      "id": "tenant_registry_runtime_contract_test_has_exact_specialist",
-      "target": "/srv/bears/dev/platform/tests/test_tenant_registry_runtime_contracts.py",
-      "expected_status": "matched"
-    },
-    {
-      "id": "bears_platform_stage_rules_have_exact_governance_role",
-      "target": "/srv/bears/dev/platform/docs/stage-rules.md",
-      "expected_status": "matched"
-    },
-    {
-      "id": "kube_has_exact_deploy_core_role",
-      "target": "kube",
-      "expected_status": "matched"
-    },
-    {
-      "id": "android_emulator_has_exact_platform_role",
-      "target": "android-emulator",
-      "expected_status": "matched"
-    },
-    {
-      "id": "sentry_has_exact_observability_role",
-      "target": "sentry",
-      "expected_status": "matched"
-    },
-    {
-      "id": "theants_old_dev_products_path_has_deprecated_archive_route",
-      "target": "/srv/bears/dev/products/theants",
-      "expected_status": "matched",
-      "required_route_id": "theants_product_dev_layer",
-      "required_role": "bears-product-app-zone-engineer"
-    },
-    {
-      "id": "theants_legacy_source_has_transitional_product_role",
-      "target": "/srv/bears/projects/theants",
-      "expected_status": "matched",
-      "required_route_id": "theants_product_dev_layer",
-      "required_role": "bears-product-app-zone-engineer"
-    },
-    {
-      "id": "dev_products_group_stays_parent_only",
-      "target": "/srv/bears/dev/products",
-      "expected_status": "ROLE_COVERAGE_BLOCKER"
-    },
-    {
-      "id": "gateway_seller_route_pack_fixture_has_exact_specialist",
-      "target": "/srv/bears/dev/platform/tests/fixtures/seller_route_pack.py",
-      "expected_status": "matched"
-    },
-    {
-      "id": "gateway_auth_mode_map_contract_test_has_exact_specialist",
-      "target": "/srv/bears/dev/platform/tests/test_gateway_auth_mode_map.py",
-      "expected_status": "matched"
-    },
-    {
-      "id": "gateway_route_pack_contract_test_has_exact_specialist",
-      "target": "/srv/bears/dev/platform/tests/test_gateway_route_pack.py",
-      "expected_status": "matched"
-    },
-    {
-      "id": "gateway_tenant_registry_binding_contract_test_has_exact_specialist",
-      "target": "/srv/bears/dev/platform/tests/test_gateway_tenant_registry_binding.py",
-      "expected_status": "matched"
-    },
-    {
-      "id": "gateway_runtime_service_contract_test_has_exact_specialist",
-      "target": "/srv/bears/dev/platform/tests/test_gateway_runtime_service.py",
-      "expected_status": "matched"
-    },
-    {
-      "id": "billing_status_adapter_contract_test_has_exact_specialist",
-      "target": "/srv/bears/dev/platform/tests/test_billing_status_adapters.py",
-      "expected_status": "matched"
-    },
-    {
-      "id": "billing_idempotency_contract_test_has_exact_specialist",
-      "target": "/srv/bears/dev/platform/tests/test_billing_idempotency.py",
-      "expected_status": "matched"
-    },
-    {
-      "id": "billing_money_units_contract_test_has_exact_specialist",
-      "target": "/srv/bears/dev/platform/tests/test_billing_money_units.py",
-      "expected_status": "matched"
-    },
-    {
-      "id": "billing_processing_contract_test_has_exact_specialist",
-      "target": "/srv/bears/dev/platform/tests/test_billing_processing_contracts.py",
-      "expected_status": "matched"
-    },
-    {
-      "id": "product_apps_monorepo_root_has_exact_product_role",
-      "target": "/srv/bears/dev/app",
-      "expected_status": "matched"
-    },
-    {
-      "id": "workspace_registry_root_has_exact_governance_role",
-      "target": "/srv/bears/dev/registry",
-      "expected_status": "matched"
-    },
-    {
-      "id": "desk_product_dev_layer_has_exact_product_role",
-      "target": "/srv/bears/dev/app/desk",
-      "expected_status": "matched"
-    },
-    {
-      "id": "bears_platform_module_registry_has_exact_specialist",
-      "target": "/srv/bears/dev/platform/src/bears_platform/module_registry",
-      "expected_status": "matched"
-    },
-    {
-      "id": "bears_platform_provider_gateway_has_exact_specialist",
-      "target": "/srv/bears/dev/platform/src/bears_platform/provider_gateway",
-      "expected_status": "matched"
-    },
-    {
-      "id": "bears_platform_data_cache_has_exact_specialist",
-      "target": "/srv/bears/dev/platform/src/bears_platform/data_cache",
-      "expected_status": "matched"
-    },
-    {
-      "id": "bears_platform_managed_backend_has_exact_specialist",
-      "target": "/srv/bears/dev/platform/src/bears_platform/managed_backend",
-      "expected_status": "matched"
-    },
-    {
-      "id": "bears_platform_runtime_packet_doc_has_exact_specialist",
-      "target": "/srv/bears/dev/platform/docs/runtime-implementation-packet-after-rotation.md",
-      "expected_status": "matched"
-    },
-    {
-      "id": "plugin_issue_template_config_has_exact_specialist",
-      "target": "/srv/bears/plugins/bears/.github/ISSUE_TEMPLATE/config.yml",
-      "expected_status": "matched"
-    },
-    {
-      "id": "payments_worker_isolation_contract_tests_repo_relative_has_exact_specialist",
-      "target": "tests/test_payments_worker_isolation_contract.py",
-      "expected_status": "matched"
-    },
-    {
-      "id": "payments_worker_isolation_contract_tests_absolute_has_exact_specialist",
-      "target": "/srv/bears/dev/platform/tests/test_payments_worker_isolation_contract.py",
-      "expected_status": "matched"
-    },
-    {
-      "id": "payments_worker_isolation_fixture_repo_relative_has_exact_specialist",
-      "target": "tests/fixtures/payments_worker_isolation.py",
-      "expected_status": "matched"
-    },
-    {
-      "id": "payments_worker_isolation_fixture_absolute_has_exact_specialist",
-      "target": "/srv/bears/dev/platform/tests/fixtures/payments_worker_isolation.py",
-      "expected_status": "matched"
-    },
-    {
-      "id": "bears_platform_data_cache_runtime_tests_has_exact_specialist",
-      "target": "/srv/bears/dev/platform/tests/test_data_cache_runtime.py",
-      "expected_status": "matched"
-    },
-    {
-      "id": "bears_platform_managed_backend_runtime_tests_has_exact_specialist",
-      "target": "/srv/bears/dev/platform/tests/test_managed_backend_runtime.py",
-      "expected_status": "matched"
-    },
-    {
-      "id": "bears_platform_managed_backend_runtime_status_views_tests_has_exact_specialist",
-      "target": "/srv/bears/dev/platform/tests/test_runtime_status_views.py",
-      "expected_status": "matched"
-    },
-    {
-      "id": "bears_platform_managed_backend_health_contract_tests_has_exact_specialist",
-      "target": "/srv/bears/dev/platform/tests/test_health.py",
-      "expected_status": "matched"
-    },
-    {
-      "id": "bears_platform_repo_readme_docs_has_exact_docs_specialist",
-      "target": "/srv/bears/dev/platform/README.md",
-      "expected_status": "matched"
-    },
-    {
-      "id": "bears_platform_repo_spec_docs_has_exact_docs_specialist",
-      "target": "/srv/bears/dev/platform/SPEC.md",
-      "expected_status": "matched"
-    },
-    {
-      "id": "bears_platform_desk_consumer_docs_has_exact_docs_specialist",
-      "target": "/srv/bears/dev/platform/docs/consumers/desk.md",
-      "expected_status": "matched"
-    },
-    {
-      "id": "bears_platform_docs_consumer_unknown_sibling_blocks",
-      "target": "/srv/bears/dev/platform/docs/consumers/unknown.md",
-      "expected_status": "ROLE_COVERAGE_BLOCKER",
-      "why_blocked": "unmapped"
-    },
-    {
-      "id": "bears_platform_provider_gateway_runtime_tests_has_exact_gateway_specialist",
-      "target": "/srv/bears/dev/platform/tests/test_provider_gateway_runtime.py",
-      "expected_status": "matched"
-    },
-    {
-      "id": "bears_gateway_desk_auth_propagation_tests_has_exact_gateway_specialist",
-      "target": "/srv/bears/dev/platform/tests/test_gateway_desk_auth_propagation.py",
-      "expected_status": "matched"
-    },
-    {
-      "id": "bears_platform_provider_gateway_unknown_test_sibling_blocks",
-      "target": "/srv/bears/dev/platform/tests/test_provider_gateway_unknown.py",
-      "expected_status": "ROLE_COVERAGE_BLOCKER",
-      "why_blocked": "unmapped"
-    },
-    {
-      "id": "bears_platform_ci_docs_has_exact_deploy_specialist",
-      "target": "/srv/bears/dev/platform/docs/ci",
-      "expected_status": "matched"
-    },
-    {
-      "id": "bears_platform_ci_docs_child_has_exact_deploy_specialist",
-      "target": "/srv/bears/dev/platform/docs/ci/gateway-required-checks.md",
-      "expected_status": "matched"
-    },
-    {
-      "id": "bears_platform_disabled_workflows_marker_stays_blocked",
-      "target": "/srv/bears/dev/platform/.github/workflows",
-      "expected_status": "ROLE_COVERAGE_BLOCKER",
-      "why_blocked": "unmapped"
-    },
-    {
-      "id": "bears_platform_disabled_workflow_file_has_exact_deploy_specialist",
-      "target": "/srv/bears/dev/platform/.github/workflows/gateway-required-checks.yml.disabled",
-      "expected_status": "matched"
-    },
-    {
-      "id": "bears_platform_gateway_validation_disabled_file_has_exact_deploy_specialist",
-      "target": "/srv/bears/dev/platform/.github/workflows/gateway-validation.yml.disabled",
-      "expected_status": "matched"
-    },
-    {
-      "id": "bears_platform_gateway_validation_disabled_file_child_stays_blocked",
-      "target": "/srv/bears/dev/platform/.github/workflows/gateway-validation.yml.disabled/child",
-      "expected_status": "ROLE_COVERAGE_BLOCKER",
-      "why_blocked": "unmapped"
-    },
-    {
-      "id": "bears_platform_gateway_validation_active_file_has_exact_deploy_specialist",
-      "target": "/srv/bears/dev/platform/.github/workflows/gateway-validation.yml",
-      "expected_status": "matched"
-    },
-    {
-      "id": "bears_platform_gateway_validation_active_file_child_stays_blocked",
-      "target": "/srv/bears/dev/platform/.github/workflows/gateway-validation.yml/child",
-      "expected_status": "ROLE_COVERAGE_BLOCKER",
-      "why_blocked": "unmapped"
-    },
-    {
-      "id": "bears_platform_enabled_workflow_sibling_stays_blocked",
-      "target": "/srv/bears/dev/platform/.github/workflows/publish-local-images.yml",
-      "expected_status": "ROLE_COVERAGE_BLOCKER",
-      "why_blocked": "unmapped"
-    },
-    {
-      "id": "bears_platform_github_actions_sibling_stays_blocked",
-      "target": "/srv/bears/dev/platform/.github/actions",
-      "expected_status": "ROLE_COVERAGE_BLOCKER",
-      "why_blocked": "unmapped"
-    },
-    {
-      "id": "missing_exact_target_emits_role_development",
-      "target": "tests/test_missing_auto_role_example.py",
-      "expected_status": "ROLE_COVERAGE_BLOCKER",
-      "required_packet_field": "role_development"
-    },
-    {
-      "id": "github_branch_protection_required_checks_has_exact_settings_specialist",
-      "target": "github_branch_protection_settings_bears_platform",
-      "expected_status": "matched"
-    },
-    {
-      "id": "github_branch_protection_parent_endpoint_stays_unmapped",
-      "target": "/repos/BearsCLOUD/bears-platform/branches/main/protection",
-      "expected_status": "ROLE_COVERAGE_BLOCKER",
-      "why_blocked": "unmapped"
-    },
-    {
-      "id": "theants_app_module_path_is_legacy_module_inside_apps_repo",
-      "target": "/srv/bears/dev/app/theants",
-      "expected_status": "matched",
-      "required_route_id": "theants_product_dev_layer",
-      "required_role": "bears-product-app-zone-engineer"
-    },
-    {
-      "id": "theants_old_dev_products_path_is_deprecated_archive_input",
-      "target": "/srv/bears/dev/products/theants",
-      "expected_status": "matched",
-      "required_route_id": "theants_product_dev_layer",
-      "required_role": "bears-product-app-zone-engineer"
-    }
-  ],
   "catalog_alignment_checks": [
     {
-      "target": "/srv/bears/legacy/seller/apps/auth_core",
       "expected_status": "matched",
-      "required_role": "bears-auth-platform-engineer"
+      "required_role": "bears-auth-platform-engineer",
+      "target": "/srv/bears/legacy/seller/apps/auth_core"
     },
     {
-      "target": "/srv/bears/dev/platform",
       "expected_status": "matched",
+      "required_role": "bears-platform-role-governor",
       "required_route_id": "bears_platform_repo_root",
-      "required_role": "bears-platform-role-governor"
+      "target": "/srv/bears/dev/platform"
     },
     {
-      "target": "BearsCLOUD/bears-platform",
       "expected_status": "matched",
+      "required_role": "bears-platform-role-governor",
       "required_route_id": "bears_platform_repo_root",
-      "required_role": "bears-platform-role-governor"
+      "target": "BearsCLOUD/bears-platform"
     },
     {
+      "expected_status": "ROLE_COVERAGE_BLOCKER",
       "target": "/srv/bears/deprecated",
-      "expected_status": "ROLE_COVERAGE_BLOCKER",
       "why_blocked": "unmapped"
     },
     {
-      "target": "/srv/bears/deprecated/legacy-2026-05-11/docs/docs-core/.git/config",
       "expected_status": "matched",
+      "required_role": "bears-deprecated-git-remote-hygiene-engineer",
       "required_route_id": "deprecated_local_git_remote_hygiene",
-      "required_role": "bears-deprecated-git-remote-hygiene-engineer"
+      "target": "/srv/bears/deprecated/legacy-2026-05-11/docs/docs-core/.git/config"
     },
     {
-      "target": "/srv/bears/deprecated/legacy-2026-05-11/docs/docs-mcp/repo/.git/config",
       "expected_status": "matched",
+      "required_role": "bears-deprecated-git-remote-hygiene-engineer",
       "required_route_id": "deprecated_local_git_remote_hygiene",
-      "required_role": "bears-deprecated-git-remote-hygiene-engineer"
+      "target": "/srv/bears/deprecated/legacy-2026-05-11/docs/docs-mcp/repo/.git/config"
     },
     {
-      "target": "/srv/bears/deprecated/legacy-2026-05-11/docs/docs-mcp/orphaned-from-docs-repo-20260419T1300Z/ad_stat/.git/config",
       "expected_status": "matched",
+      "required_role": "bears-deprecated-git-remote-hygiene-engineer",
       "required_route_id": "deprecated_local_git_remote_hygiene",
-      "required_role": "bears-deprecated-git-remote-hygiene-engineer"
+      "target": "/srv/bears/deprecated/legacy-2026-05-11/docs/docs-mcp/orphaned-from-docs-repo-20260419T1300Z/ad_stat/.git/config"
     },
     {
-      "target": "/srv/bears/legacy/seller/apps/gateway",
       "expected_status": "matched",
-      "required_role": "bears-gateway-platform-engineer"
+      "required_role": "bears-gateway-platform-engineer",
+      "target": "/srv/bears/legacy/seller/apps/gateway"
     },
     {
-      "target": "/srv/bears/dev/platform/src/bears_platform/auth",
       "expected_status": "matched",
+      "required_role": "bears-auth-platform-engineer",
       "required_route_id": "auth_core",
-      "required_role": "bears-auth-platform-engineer"
+      "target": "/srv/bears/dev/platform/src/bears_platform/auth"
     },
     {
-      "target": "tenant_registry",
       "expected_status": "matched",
+      "required_role": "bears-tenant-registry-platform-engineer",
       "required_route_id": "bears_platform_tenant_registry_surface",
-      "required_role": "bears-tenant-registry-platform-engineer"
+      "target": "tenant_registry"
     },
     {
-      "target": "tenant_registry/unknown_future_child",
       "expected_status": "ROLE_COVERAGE_BLOCKER",
+      "target": "tenant_registry/unknown_future_child",
       "why_blocked": "unmapped"
     },
     {
-      "target": "/srv/bears/dev/platform/src/bears_platform/tenant_registry",
       "expected_status": "matched",
+      "required_role": "bears-tenant-registry-platform-engineer",
       "required_route_id": "bears_platform_tenant_registry_surface",
-      "required_role": "bears-tenant-registry-platform-engineer"
+      "target": "/srv/bears/dev/platform/src/bears_platform/tenant_registry"
     },
     {
-      "target": "tests/test_tenant_registry_contracts.py",
       "expected_status": "matched",
+      "required_role": "bears-tenant-registry-platform-engineer",
       "required_route_id": "bears_platform_tenant_registry_contract_tests",
-      "required_role": "bears-tenant-registry-platform-engineer"
+      "target": "tests/test_tenant_registry_contracts.py"
     },
     {
-      "target": "tests/test_zone_registry_contracts.py",
       "expected_status": "matched",
+      "required_role": "bears-tenant-registry-platform-engineer",
       "required_route_id": "bears_platform_zone_registry_contract_tests",
-      "required_role": "bears-tenant-registry-platform-engineer"
+      "target": "tests/test_zone_registry_contracts.py"
     },
     {
-      "target": "tests/test_zone_registry_runtime.py",
       "expected_status": "matched",
+      "required_role": "bears-tenant-registry-platform-engineer",
       "required_route_id": "bears_platform_zone_registry_runtime_tests",
-      "required_role": "bears-tenant-registry-platform-engineer"
+      "target": "tests/test_zone_registry_runtime.py"
     },
     {
-      "target": "/srv/bears/dev/platform/tests/test_tenant_registry_runtime_contracts.py",
       "expected_status": "matched",
+      "required_role": "bears-tenant-registry-platform-engineer",
       "required_route_id": "bears_platform_tenant_registry_runtime_contract_tests",
-      "required_role": "bears-tenant-registry-platform-engineer"
+      "target": "/srv/bears/dev/platform/tests/test_tenant_registry_runtime_contracts.py"
     },
     {
-      "target": "/srv/bears/dev/platform/src/bears_platform/deploy",
       "expected_status": "matched",
+      "required_role": "bears-deploy-platform-engineer",
       "required_route_id": "cd_deploy_stage",
-      "required_role": "bears-deploy-platform-engineer"
+      "target": "/srv/bears/dev/platform/src/bears_platform/deploy"
     },
     {
-      "target": "/srv/bears/dev/platform/tests/test_deploy_contracts.py",
       "expected_status": "matched",
+      "required_role": "bears-deploy-platform-engineer",
       "required_route_id": "cd_deploy_stage_contract_tests",
-      "required_role": "bears-deploy-platform-engineer"
+      "target": "/srv/bears/dev/platform/tests/test_deploy_contracts.py"
     },
     {
-      "target": "/srv/bears/dev/platform/tests/test_auth_contracts.py",
       "expected_status": "matched",
+      "required_role": "bears-auth-platform-engineer",
       "required_route_id": "auth_core_contract_tests",
-      "required_role": "bears-auth-platform-engineer"
+      "target": "/srv/bears/dev/platform/tests/test_auth_contracts.py"
     },
     {
-      "target": "/srv/bears/dev/platform/docs/migration/auth-source-to-target-matrix.md",
       "expected_status": "matched",
+      "required_role": "bears-auth-platform-engineer",
       "required_route_id": "bears_platform_auth_feature_008_contract_scope",
-      "required_role": "bears-auth-platform-engineer"
+      "target": "/srv/bears/dev/platform/docs/migration/auth-source-to-target-matrix.md"
     },
     {
-      "target": "/srv/bears/dev/platform/tests/fixtures/auth_session_contracts.py",
       "expected_status": "matched",
+      "required_role": "bears-auth-platform-engineer",
       "required_route_id": "bears_platform_auth_feature_008_contract_scope",
-      "required_role": "bears-auth-platform-engineer"
+      "target": "/srv/bears/dev/platform/tests/fixtures/auth_session_contracts.py"
     },
     {
-      "target": "/srv/bears/dev/platform/tests/test_auth_session_contracts.py",
       "expected_status": "matched",
+      "required_role": "bears-auth-platform-engineer",
       "required_route_id": "bears_platform_auth_feature_008_contract_scope",
-      "required_role": "bears-auth-platform-engineer"
+      "target": "/srv/bears/dev/platform/tests/test_auth_session_contracts.py"
     },
     {
-      "target": "/srv/bears/dev/platform/tests/test_integration_token_contracts.py",
       "expected_status": "matched",
+      "required_role": "bears-auth-platform-engineer",
       "required_route_id": "bears_platform_auth_feature_008_contract_scope",
-      "required_role": "bears-auth-platform-engineer"
+      "target": "/srv/bears/dev/platform/tests/test_integration_token_contracts.py"
     },
     {
-      "target": "/srv/bears/dev/platform/tests/test_gateway_contracts.py",
       "expected_status": "matched",
+      "required_role": "bears-gateway-platform-engineer",
       "required_route_id": "bears_gateway_contract_tests",
-      "required_role": "bears-gateway-platform-engineer"
+      "target": "/srv/bears/dev/platform/tests/test_gateway_contracts.py"
     },
     {
-      "target": "/srv/bears/dev/platform/tests/test_gateway_runtime_contracts.py",
       "expected_status": "matched",
+      "required_role": "bears-gateway-platform-engineer",
       "required_route_id": "bears_gateway_runtime_contract_tests",
-      "required_role": "bears-gateway-platform-engineer"
+      "target": "/srv/bears/dev/platform/tests/test_gateway_runtime_contracts.py"
     },
     {
-      "target": "/srv/bears/dev/platform/docs/migration/gateway-legacy-route-matrix.md",
       "expected_status": "matched",
+      "required_role": "bears-gateway-platform-engineer",
       "required_route_id": "bears_gateway_feature_008_route_scope",
-      "required_role": "bears-gateway-platform-engineer"
+      "target": "/srv/bears/dev/platform/docs/migration/gateway-legacy-route-matrix.md"
     },
     {
-      "target": "/srv/bears/dev/platform/tests/fixtures/gateway_route_matrix.py",
       "expected_status": "matched",
+      "required_role": "bears-gateway-platform-engineer",
       "required_route_id": "bears_gateway_feature_008_route_scope",
-      "required_role": "bears-gateway-platform-engineer"
+      "target": "/srv/bears/dev/platform/tests/fixtures/gateway_route_matrix.py"
     },
     {
-      "target": "billing",
       "expected_status": "matched",
+      "required_role": "bears-payments-platform-engineer",
       "required_route_id": "bears_platform_billing_surface",
-      "required_role": "bears-payments-platform-engineer"
+      "target": "billing"
     },
     {
-      "target": "payments",
       "expected_status": "matched",
+      "required_role": "bears-payments-platform-engineer",
       "required_route_id": "bears_platform_billing_surface",
-      "required_role": "bears-payments-platform-engineer"
+      "target": "payments"
     },
     {
-      "target": "/srv/bears/dev/platform/tests/test_billing_contracts.py",
       "expected_status": "matched",
+      "required_role": "bears-payments-platform-engineer",
       "required_route_id": "bears_platform_billing_contract_tests",
-      "required_role": "bears-payments-platform-engineer"
+      "target": "/srv/bears/dev/platform/tests/test_billing_contracts.py"
     },
     {
-      "target": "/srv/bears/dev/platform/tests/test_billing_runtime_service.py",
       "expected_status": "matched",
+      "required_role": "bears-payments-platform-engineer",
       "required_route_id": "bears_platform_billing_runtime_service_contract_tests",
-      "required_role": "bears-payments-platform-engineer"
+      "target": "/srv/bears/dev/platform/tests/test_billing_runtime_service.py"
     },
     {
-      "target": "/srv/bears/dev/platform/docs/migration/billing-status-adapter-matrix.md",
       "expected_status": "matched",
+      "required_role": "bears-payments-platform-engineer",
       "required_route_id": "bears_platform_billing_feature_008_adapter_scope",
-      "required_role": "bears-payments-platform-engineer"
+      "target": "/srv/bears/dev/platform/docs/migration/billing-status-adapter-matrix.md"
     },
     {
-      "target": "/srv/bears/dev/platform/tests/fixtures/billing_status_adapters.py",
       "expected_status": "matched",
+      "required_role": "bears-payments-platform-engineer",
       "required_route_id": "bears_platform_billing_feature_008_adapter_scope",
-      "required_role": "bears-payments-platform-engineer"
+      "target": "/srv/bears/dev/platform/tests/fixtures/billing_status_adapters.py"
     },
     {
-      "target": "/srv/bears/legacy/seller/apps/cd_deploy_stage",
       "expected_status": "matched",
-      "required_role": "bears-deploy-platform-engineer"
+      "required_role": "bears-deploy-platform-engineer",
+      "target": "/srv/bears/legacy/seller/apps/cd_deploy_stage"
     },
     {
-      "target": "/srv/bears/legacy/seller/apps/payment_service",
       "expected_status": "matched",
-      "required_role": "bears-payments-platform-engineer"
+      "required_role": "bears-payments-platform-engineer",
+      "target": "/srv/bears/legacy/seller/apps/payment_service"
     },
     {
-      "target": "/srv/bears/plugins/bears/workflows/auth-gateway-deploy-core/workflow.yml",
       "expected_status": "matched",
-      "required_role": "bears-deploy-platform-engineer"
+      "required_role": "bears-deploy-platform-engineer",
+      "target": "/srv/bears/plugins/bears/workflows/auth-gateway-deploy-core/workflow.yml"
     },
     {
-      "target": "/srv/bears/dev/platform/AGENTS.md",
       "expected_status": "matched",
+      "required_role": "bears-platform-role-governor",
       "required_route_id": "bears_platform_repo_router_docs",
-      "required_role": "bears-platform-role-governor"
+      "target": "/srv/bears/dev/platform/AGENTS.md"
     },
     {
-      "target": "/srv/bears/dev/platform/docs/stage-rules.md",
       "expected_status": "matched",
+      "required_role": "bears-platform-role-governor",
       "required_route_id": "bears_platform_repo_router_docs",
-      "required_role": "bears-platform-role-governor"
+      "target": "/srv/bears/dev/platform/docs/stage-rules.md"
     },
     {
-      "target": "/srv/bears/plugins/bears/assets/catalog/session-workers-runtime.v1.json",
       "expected_status": "matched",
-      "required_role": "bears-session-worker-runtime-engineer"
+      "required_role": "bears-session-worker-runtime-engineer",
+      "target": "/srv/bears/plugins/bears/assets/catalog/session-workers-runtime.v1.json"
     },
     {
-      "target": "/srv/bears/plugins/bears/assets/catalog/role-gate-methodology.v1.json",
       "expected_status": "matched",
-      "required_role": "bears-platform-role-governor"
+      "required_role": "bears-platform-role-governor",
+      "target": "/srv/bears/plugins/bears/assets/catalog/role-gate-methodology.v1.json"
     },
     {
-      "target": "/srv/bears/projects/seller/apps",
       "expected_status": "ROLE_COVERAGE_BLOCKER",
+      "target": "/srv/bears/projects/seller/apps",
       "why_blocked": "parent_only"
     },
     {
-      "target": "/srv/bears/projects/seller/apps/unknown_future_app",
       "expected_status": "ROLE_COVERAGE_BLOCKER",
+      "target": "/srv/bears/projects/seller/apps/unknown_future_app",
       "why_blocked": "unmapped"
     },
     {
-      "target": "totally-unknown-platform-surface",
       "expected_status": "ROLE_COVERAGE_BLOCKER",
+      "target": "totally-unknown-platform-surface",
       "why_blocked": "unknown"
     },
     {
-      "target": "/srv/bears/plugins/bears-shadow",
       "expected_status": "ROLE_COVERAGE_BLOCKER",
+      "target": "/srv/bears/plugins/bears-shadow",
       "why_blocked": "unmapped"
     },
     {
-      "target": "/srv/bears/dev",
-      "expected_status": "matched",
-      "required_role": "bears-platform-role-governor"
-    },
-    {
-      "target": "kube",
-      "expected_status": "matched",
-      "required_role": "bears-deploy-platform-engineer"
-    },
-    {
-      "target": "/srv/bears/kubernetes",
-      "expected_status": "matched",
-      "required_role": "bears-deploy-platform-engineer",
-      "required_route_id": "kubernetes_deploy_core"
-    },
-    {
-      "target": "/srv/bears/plugins/bears",
       "expected_status": "matched",
       "required_role": "bears-platform-role-governor",
-      "required_route_id": "workspace_root_submodule_gitlinks"
+      "target": "/srv/bears/dev"
     },
     {
-      "target": "android-emulator",
       "expected_status": "matched",
-      "required_role": "bears-android-emulator-platform-engineer"
+      "required_role": "bears-deploy-platform-engineer",
+      "target": "kube"
     },
     {
-      "target": "/srv/bears/dev/platform/android-emulator",
       "expected_status": "matched",
-      "required_role": "bears-android-emulator-platform-engineer"
+      "required_role": "bears-deploy-platform-engineer",
+      "required_route_id": "kubernetes_deploy_core",
+      "target": "/srv/bears/kubernetes"
     },
     {
-      "target": "sentry",
+      "expected_status": "matched",
+      "required_role": "bears-platform-role-governor",
+      "required_route_id": "workspace_root_submodule_gitlinks",
+      "target": "/srv/bears/plugins/bears"
+    },
+    {
+      "expected_status": "matched",
+      "required_role": "bears-android-emulator-platform-engineer",
+      "target": "android-emulator"
+    },
+    {
+      "expected_status": "matched",
+      "required_role": "bears-android-emulator-platform-engineer",
+      "target": "/srv/bears/dev/platform/android-emulator"
+    },
+    {
       "expected_status": "matched",
       "required_role": "bears-observability-platform-engineer",
-      "required_route_id": "sentry_observability_226"
+      "required_route_id": "sentry_observability_226",
+      "target": "sentry"
     },
     {
-      "target": "/srv/bears/dev/quality/sentry-observability",
       "expected_status": "matched",
-      "required_role": "bears-observability-platform-engineer"
+      "required_role": "bears-observability-platform-engineer",
+      "target": "/srv/bears/dev/quality/sentry-observability"
     },
     {
-      "target": "/srv/bears/dev/products/theants",
       "expected_status": "matched",
       "required_role": "bears-product-app-zone-engineer",
-      "required_route_id": "theants_product_dev_layer"
-    },
-    {
-      "target": "/srv/bears/projects/theants",
-      "expected_status": "matched",
-      "required_role": "bears-product-app-zone-engineer"
-    },
-    {
-      "target": "/srv/bears/dev/quality/e2e",
-      "expected_status": "matched",
-      "required_role": "bears-analytics-quality-engineer"
-    },
-    {
-      "target": "/srv/bears/dev/ops/runbooks",
-      "expected_status": "matched",
-      "required_role": "bears-ops-runbook-engineer"
-    },
-    {
-      "target": "/srv/bears/dev/control/provenance",
-      "expected_status": "matched",
-      "required_role": "bears-platform-role-governor"
-    },
-    {
-      "target": "/srv/bears/dev/products",
-      "expected_status": "ROLE_COVERAGE_BLOCKER",
-      "why_blocked": "parent_only"
-    },
-    {
-      "target": "/srv/bears/dev/infrastructure",
-      "expected_status": "ROLE_COVERAGE_BLOCKER",
-      "why_blocked": "parent_only"
-    },
-    {
-      "target": "/srv/bears/projects",
-      "expected_status": "ROLE_COVERAGE_BLOCKER",
-      "why_blocked": "parent_only"
-    },
-    {
-      "target": "BearsCLOUD/bears_plugin",
-      "expected_status": "ROLE_COVERAGE_BLOCKER",
-      "why_blocked": "parent_only"
-    },
-    {
-      "target": "https://github.com/BearsCLOUD/bears_plugin",
-      "expected_status": "ROLE_COVERAGE_BLOCKER",
-      "why_blocked": "parent_only"
-    },
-    {
-      "target": "https://github.com/BearsCLOUD/bears_plugin.git",
-      "expected_status": "ROLE_COVERAGE_BLOCKER",
-      "why_blocked": "parent_only"
-    },
-    {
-      "target": "git@github.com:BearsCLOUD/bears_plugin.git",
-      "expected_status": "ROLE_COVERAGE_BLOCKER",
-      "why_blocked": "parent_only"
-    },
-    {
-      "target": "BearsCLOUD/bears-codex-workspace",
-      "expected_status": "ROLE_COVERAGE_BLOCKER",
-      "why_blocked": "parent_only"
-    },
-    {
-      "target": "https://github.com/BearsCLOUD/bears-codex-workspace",
-      "expected_status": "ROLE_COVERAGE_BLOCKER",
-      "why_blocked": "parent_only"
-    },
-    {
-      "target": "https://github.com/BearsCLOUD/bears-codex-workspace.git",
-      "expected_status": "ROLE_COVERAGE_BLOCKER",
-      "why_blocked": "parent_only"
-    },
-    {
-      "target": "git@github.com:BearsCLOUD/bears-codex-workspace.git",
-      "expected_status": "ROLE_COVERAGE_BLOCKER",
-      "why_blocked": "parent_only"
-    },
-    {
-      "target": "BearsCLOUD/not-bears-plugin",
-      "expected_status": "ROLE_COVERAGE_BLOCKER",
-      "why_blocked": "unmapped"
-    },
-    {
-      "target": "/srv/bears/.gitmodules",
-      "expected_status": "matched",
-      "required_role": "bears-platform-role-governor"
-    },
-    {
-      "target": "BearsCLOUD/bears-infra",
-      "expected_status": "matched",
-      "required_role": "bears-deploy-platform-engineer"
-    },
-    {
-      "target": "/srv/bears/dev/infrastructure/kubernetes",
-      "expected_status": "matched",
-      "required_route_id": "kubernetes_dev_core_router_layer",
-      "required_role": "bears-deploy-platform-engineer",
-      "semantics": "reference_router_only"
-    },
-    {
-      "target": "/srv/bears/kubernetes/contracts/kubernetes_deploy_core_contract.md",
-      "expected_status": "matched",
-      "required_role": "bears-deploy-platform-engineer"
-    },
-    {
-      "target": "/srv/bears/dev/contracts/subagent_start_packet.md",
-      "expected_status": "matched",
-      "required_route_id": "subagent_start_packet_contract",
-      "required_role": "bears-subagent-orchestration-engineer",
-      "semantics": "dev_core_subagent_handoff_contract"
-    },
-    {
-      "target": "/srv/bears/dev/contracts",
-      "expected_status": "ROLE_COVERAGE_BLOCKER",
-      "why_blocked": "parent_only"
-    },
-    {
-      "target": "/srv/bears/dev/platform/tests/fixtures/seller_route_pack.py",
-      "expected_status": "matched",
-      "required_route_id": "bears_gateway_seller_route_pack_fixture",
-      "required_role": "bears-gateway-platform-engineer"
-    },
-    {
-      "target": "/srv/bears/dev/platform/tests/test_gateway_auth_mode_map.py",
-      "expected_status": "matched",
-      "required_route_id": "bears_gateway_auth_mode_map_contract_tests",
-      "required_role": "bears-gateway-platform-engineer"
-    },
-    {
-      "target": "/srv/bears/dev/platform/tests/test_gateway_route_pack.py",
-      "expected_status": "matched",
-      "required_route_id": "bears_gateway_route_pack_contract_tests",
-      "required_role": "bears-gateway-platform-engineer"
-    },
-    {
-      "target": "/srv/bears/dev/platform/tests/test_gateway_tenant_registry_binding.py",
-      "expected_status": "matched",
-      "required_route_id": "bears_gateway_tenant_registry_binding_contract_tests",
-      "required_role": "bears-gateway-platform-engineer"
-    },
-    {
-      "target": "/srv/bears/dev/platform/tests/test_gateway_runtime_service.py",
-      "expected_status": "matched",
-      "required_route_id": "bears_gateway_runtime_service_contract_tests",
-      "required_role": "bears-gateway-platform-engineer"
-    },
-    {
-      "target": "/srv/bears/dev/platform/tests/test_billing_status_adapters.py",
-      "expected_status": "matched",
-      "required_route_id": "bears_platform_billing_status_adapter_contract_tests",
-      "required_role": "bears-payments-platform-engineer"
-    },
-    {
-      "target": "/srv/bears/dev/platform/tests/test_billing_idempotency.py",
-      "expected_status": "matched",
-      "required_route_id": "bears_platform_billing_idempotency_contract_tests",
-      "required_role": "bears-payments-platform-engineer"
-    },
-    {
-      "target": "/srv/bears/dev/platform/tests/test_billing_money_units.py",
-      "expected_status": "matched",
-      "required_route_id": "bears_platform_billing_money_units_contract_tests",
-      "required_role": "bears-payments-platform-engineer"
-    },
-    {
-      "target": "/srv/bears/dev/platform/tests/test_billing_processing_contracts.py",
-      "expected_status": "matched",
-      "required_route_id": "bears_platform_billing_processing_contract_tests",
-      "required_role": "bears-payments-platform-engineer"
-    },
-    {
-      "target": "/srv/bears/dev/app",
-      "expected_status": "matched",
-      "required_route_id": "product_apps_monorepo_root",
-      "required_role": "bears-product-app-zone-engineer"
-    },
-    {
-      "target": "/srv/bears/dev/registry",
-      "expected_status": "matched",
-      "required_route_id": "workspace_governance_canonical_plugin_docs",
-      "required_role": "bears-platform-role-governor"
-    },
-    {
-      "target": "/srv/bears/dev/app/desk",
-      "expected_status": "matched",
-      "required_route_id": "desk_product_dev_layer",
-      "required_role": "bears-product-app-zone-engineer"
-    },
-    {
-      "target": "/srv/bears/dev/platform/src/bears_platform/module_registry",
-      "expected_status": "matched",
-      "required_route_id": "bears_platform_module_registry_surface",
-      "required_role": "bears-wb-integration-platform-engineer"
-    },
-    {
-      "target": "/srv/bears/dev/platform/src/bears_platform/provider_gateway",
-      "expected_status": "matched",
-      "required_route_id": "bears_platform_provider_gateway_surface",
-      "required_role": "bears-gateway-platform-engineer"
-    },
-    {
-      "target": "/srv/bears/dev/platform/src/bears_platform/data_cache",
-      "expected_status": "matched",
-      "required_route_id": "bears_platform_data_cache_surface",
-      "required_role": "bears-wb-integration-platform-engineer"
-    },
-    {
-      "target": "/srv/bears/dev/platform/src/bears_platform/managed_backend",
-      "expected_status": "matched",
-      "required_route_id": "bears_platform_managed_backend_surface",
-      "required_role": "bears-wb-integration-platform-engineer"
-    },
-    {
-      "target": "/srv/bears/dev/platform/docs/runtime-implementation-packet-after-rotation.md",
-      "expected_status": "matched",
-      "required_route_id": "bears_platform_runtime_implementation_packet_after_rotation",
-      "required_role": "bears-telegram-platform-engineer"
-    },
-    {
-      "target": "/srv/bears/plugins/bears/AGENTS.md",
-      "expected_status": "matched",
-      "required_route_id": "platform_role_governance",
-      "required_role": "bears-platform-role-governor"
-    },
-    {
-      "target": "/srv/bears/plugins/bears/.github/ISSUE_TEMPLATE/config.yml",
-      "expected_status": "matched",
-      "required_route_id": "workflow_overlay_issue_templates",
-      "required_role": "bears-workflow-overlay-platform-engineer"
-    },
-    {
-      "target": "/srv/bears/plugins/bears/.github/ISSUE_TEMPLATE/bug_report.yml",
-      "expected_status": "matched",
-      "required_route_id": "workflow_overlay_issue_templates",
-      "required_role": "bears-workflow-overlay-platform-engineer"
-    },
-    {
-      "target": "tests/test_payments_worker_isolation_contract.py",
-      "expected_status": "matched",
-      "required_route_id": "bears_platform_payments_worker_isolation_contract_tests",
-      "required_role": "bears-payments-platform-engineer"
-    },
-    {
-      "target": "/srv/bears/dev/platform/tests/test_payments_worker_isolation_contract.py",
-      "expected_status": "matched",
-      "required_route_id": "bears_platform_payments_worker_isolation_contract_tests",
-      "required_role": "bears-payments-platform-engineer"
-    },
-    {
-      "target": "tests/fixtures/payments_worker_isolation.py",
-      "expected_status": "matched",
-      "required_route_id": "bears_platform_payments_worker_isolation_fixture",
-      "required_role": "bears-payments-platform-engineer"
-    },
-    {
-      "target": "/srv/bears/dev/platform/tests/fixtures/payments_worker_isolation.py",
-      "expected_status": "matched",
-      "required_route_id": "bears_platform_payments_worker_isolation_fixture",
-      "required_role": "bears-payments-platform-engineer"
-    },
-    {
-      "target": "/srv/bears/dev/platform/tests/test_data_cache_runtime.py",
-      "expected_status": "matched",
-      "required_route_id": "bears_platform_data_cache_runtime_tests",
-      "required_role": "bears-wb-integration-platform-engineer"
-    },
-    {
-      "target": "/srv/bears/dev/platform/tests/test_managed_backend_runtime.py",
-      "expected_status": "matched",
-      "required_route_id": "bears_platform_managed_backend_runtime_tests",
-      "required_role": "bears-wb-integration-platform-engineer"
-    },
-    {
-      "target": "/srv/bears/dev/platform/tests/test_runtime_status_views.py",
-      "expected_status": "matched",
-      "required_route_id": "bears_platform_managed_backend_runtime_status_views_tests",
-      "required_role": "bears-wb-integration-platform-engineer"
-    },
-    {
-      "target": "/srv/bears/dev/platform/tests/test_health.py",
-      "expected_status": "matched",
-      "required_route_id": "bears_platform_managed_backend_health_contract_tests",
-      "required_role": "bears-wb-integration-platform-engineer"
-    },
-    {
-      "target": "/srv/bears/dev/platform/README.md",
-      "expected_status": "matched",
-      "required_route_id": "bears_platform_repo_readme_docs",
-      "required_role": "bears-docs-maintainer"
-    },
-    {
-      "target": "/srv/bears/dev/platform/SPEC.md",
-      "expected_status": "matched",
-      "required_route_id": "bears_platform_repo_spec_docs",
-      "required_role": "bears-docs-maintainer"
-    },
-    {
-      "target": "/srv/bears/dev/platform/docs/consumers/desk.md",
-      "expected_status": "matched",
-      "required_route_id": "bears_platform_desk_consumer_docs",
-      "required_role": "bears-docs-maintainer"
-    },
-    {
-      "target": "/srv/bears/dev/platform/tests/test_provider_gateway_contracts.py",
-      "expected_status": "matched",
-      "required_route_id": "bears_platform_provider_gateway_contracts_tests",
-      "required_role": "bears-gateway-platform-engineer"
-    },
-    {
-      "target": "/srv/bears/dev/platform/tests/test_provider_gateway_runtime.py",
-      "expected_status": "matched",
-      "required_route_id": "bears_platform_provider_gateway_runtime_tests",
-      "required_role": "bears-gateway-platform-engineer"
-    },
-    {
-      "target": "/srv/bears/dev/platform/tests/test_gateway_desk_auth_propagation.py",
-      "expected_status": "matched",
-      "required_route_id": "bears_gateway_desk_auth_propagation_tests",
-      "required_role": "bears-gateway-platform-engineer"
-    },
-    {
-      "target": "/srv/bears/dev/platform/docs/ci",
-      "expected_status": "matched",
-      "required_route_id": "bears_platform_ci_docs",
-      "required_role": "bears-deploy-platform-engineer"
-    },
-    {
-      "target": "/srv/bears/dev/platform/docs/ci/gateway-required-checks.md",
-      "expected_status": "matched",
-      "required_route_id": "bears_platform_ci_docs",
-      "required_role": "bears-deploy-platform-engineer"
-    },
-    {
-      "target": "/srv/bears/dev/platform/.github/workflows",
-      "expected_status": "ROLE_COVERAGE_BLOCKER",
-      "why_blocked": "unmapped"
-    },
-    {
-      "target": "/srv/bears/dev/platform/.github/workflows/build-images.yml.disabled",
-      "expected_status": "matched",
-      "required_route_id": "bears_platform_disabled_workflow_planning",
-      "required_role": "bears-deploy-platform-engineer"
-    },
-    {
-      "target": "/srv/bears/dev/platform/.github/workflows/gateway-required-checks.yml.disabled",
-      "expected_status": "matched",
-      "required_route_id": "bears_platform_disabled_workflow_planning",
-      "required_role": "bears-deploy-platform-engineer"
-    },
-    {
-      "target": "/srv/bears/dev/platform/.github/workflows/gateway-validation.yml.disabled",
-      "expected_status": "matched",
-      "required_route_id": "bears_platform_disabled_workflow_planning",
-      "required_role": "bears-deploy-platform-engineer"
-    },
-    {
-      "target": "/srv/bears/dev/platform/.github/workflows/gateway-validation.yml",
-      "expected_status": "matched",
-      "required_route_id": "bears_platform_gateway_validation_workflow_governance",
-      "required_role": "bears-deploy-platform-engineer"
-    },
-    {
-      "target": "/srv/bears/dev/platform/.github/workflows/gateway-validation.yml/child",
-      "expected_status": "ROLE_COVERAGE_BLOCKER",
-      "why_blocked": "unmapped"
-    },
-    {
-      "target": "/srv/bears/dev/platform/docs/consumers/unknown.md",
-      "expected_status": "ROLE_COVERAGE_BLOCKER",
-      "why_blocked": "unmapped"
-    },
-    {
-      "target": "/srv/bears/dev/platform/tests/test_provider_gateway_unknown.py",
-      "expected_status": "ROLE_COVERAGE_BLOCKER",
-      "why_blocked": "unmapped"
-    },
-    {
-      "target": "/srv/bears/dev/platform/tests/test_gateway_unknown_sibling.py",
-      "expected_status": "ROLE_COVERAGE_BLOCKER",
-      "why_blocked": "unmapped"
-    },
-    {
-      "target": "/srv/bears/dev/platform/.github/workflows/publish-local-images.yml",
-      "expected_status": "ROLE_COVERAGE_BLOCKER",
-      "why_blocked": "unmapped"
-    },
-    {
-      "target": "/srv/bears/dev/platform/.github/workflows/unknown.yml",
-      "expected_status": "ROLE_COVERAGE_BLOCKER",
-      "why_blocked": "unmapped"
-    },
-    {
-      "target": "/srv/bears/dev/platform/.github/workflows/gateway-validation.yml.disabled/child",
-      "expected_status": "ROLE_COVERAGE_BLOCKER",
-      "why_blocked": "unmapped"
-    },
-    {
-      "target": "/srv/bears/dev/platform/.github/actions",
-      "expected_status": "ROLE_COVERAGE_BLOCKER",
-      "why_blocked": "unmapped"
-    },
-    {
-      "target": "github_branch_protection_settings_bears_platform",
-      "expected_status": "matched",
-      "required_route_id": "github_branch_protection_settings_bears_platform",
-      "required_role": "bears-github-branch-protection-settings-governor"
-    },
-    {
-      "target": "/repos/BearsCLOUD/bears-platform/branches/main/protection/required_status_checks",
-      "expected_status": "matched",
-      "required_route_id": "github_branch_protection_settings_bears_platform",
-      "required_role": "bears-github-branch-protection-settings-governor"
-    },
-    {
-      "target": "/repos/BearsCLOUD/bears-platform/branches/main/protection",
-      "expected_status": "ROLE_COVERAGE_BLOCKER",
-      "why_blocked": "unmapped"
-    },
-    {
-      "target": "/repos/BearsCLOUD/bears-platform/branches/develop/protection/required_status_checks",
-      "expected_status": "ROLE_COVERAGE_BLOCKER",
-      "why_blocked": "unmapped"
-    },
-    {
-      "target": "/repos/BearsCLOUD/other-repo/branches/main/protection/required_status_checks",
-      "expected_status": "ROLE_COVERAGE_BLOCKER",
-      "why_blocked": "unmapped"
-    },
-    {
-      "target": "/repos/BearsCLOUD/bears-platform/secrets/actions",
-      "expected_status": "ROLE_COVERAGE_BLOCKER",
-      "why_blocked": "unmapped"
-    },
-    {
-      "target": "/repos/BearsCLOUD/bears-platform/actions/permissions",
-      "expected_status": "ROLE_COVERAGE_BLOCKER",
-      "why_blocked": "unmapped"
-    },
-    {
-      "target": "BearsCLOUD/apps",
-      "expected_status": "matched",
-      "required_route_id": "product_apps_monorepo_root",
-      "required_role": "bears-product-app-zone-engineer"
-    },
-    {
-      "target": "https://github.com/BearsCLOUD/apps",
-      "expected_status": "matched",
-      "required_route_id": "product_apps_monorepo_root",
-      "required_role": "bears-product-app-zone-engineer"
-    },
-    {
-      "target": "/srv/bears/dev/app/apps",
-      "expected_status": "ROLE_COVERAGE_BLOCKER",
-      "why_blocked": "unmapped"
-    },
-    {
-      "target": "/srv/bears/dev/apps",
-      "expected_status": "ROLE_COVERAGE_BLOCKER",
-      "why_blocked": "unmapped"
-    },
-    {
-      "target": "/srv/bears/dev/app/newapp",
-      "expected_status": "ROLE_COVERAGE_BLOCKER",
-      "why_blocked": "unmapped"
-    },
-    {
-      "target": "/srv/bears/dev/app/theants",
-      "expected_status": "matched",
       "required_route_id": "theants_product_dev_layer",
-      "required_role": "bears-product-app-zone-engineer"
+      "target": "/srv/bears/dev/products/theants"
     },
     {
-      "target": "/srv/bears/dev/app/bears-ru",
       "expected_status": "matched",
+      "required_role": "bears-product-app-zone-engineer",
+      "target": "/srv/bears/projects/theants"
+    },
+    {
+      "expected_status": "matched",
+      "required_role": "bears-analytics-quality-engineer",
+      "target": "/srv/bears/dev/quality/e2e"
+    },
+    {
+      "expected_status": "matched",
+      "required_role": "bears-ops-runbook-engineer",
+      "target": "/srv/bears/dev/ops/runbooks"
+    },
+    {
+      "expected_status": "matched",
+      "required_role": "bears-platform-role-governor",
+      "target": "/srv/bears/dev/control/provenance"
+    },
+    {
+      "expected_status": "ROLE_COVERAGE_BLOCKER",
+      "target": "/srv/bears/dev/products",
+      "why_blocked": "parent_only"
+    },
+    {
+      "expected_status": "ROLE_COVERAGE_BLOCKER",
+      "target": "/srv/bears/dev/infrastructure",
+      "why_blocked": "parent_only"
+    },
+    {
+      "expected_status": "ROLE_COVERAGE_BLOCKER",
+      "target": "/srv/bears/projects",
+      "why_blocked": "parent_only"
+    },
+    {
+      "expected_status": "ROLE_COVERAGE_BLOCKER",
+      "target": "BearsCLOUD/bears_plugin",
+      "why_blocked": "parent_only"
+    },
+    {
+      "expected_status": "ROLE_COVERAGE_BLOCKER",
+      "target": "https://github.com/BearsCLOUD/bears_plugin",
+      "why_blocked": "parent_only"
+    },
+    {
+      "expected_status": "ROLE_COVERAGE_BLOCKER",
+      "target": "https://github.com/BearsCLOUD/bears_plugin.git",
+      "why_blocked": "parent_only"
+    },
+    {
+      "expected_status": "ROLE_COVERAGE_BLOCKER",
+      "target": "git@github.com:BearsCLOUD/bears_plugin.git",
+      "why_blocked": "parent_only"
+    },
+    {
+      "expected_status": "ROLE_COVERAGE_BLOCKER",
+      "target": "BearsCLOUD/bears-codex-workspace",
+      "why_blocked": "parent_only"
+    },
+    {
+      "expected_status": "ROLE_COVERAGE_BLOCKER",
+      "target": "https://github.com/BearsCLOUD/bears-codex-workspace",
+      "why_blocked": "parent_only"
+    },
+    {
+      "expected_status": "ROLE_COVERAGE_BLOCKER",
+      "target": "https://github.com/BearsCLOUD/bears-codex-workspace.git",
+      "why_blocked": "parent_only"
+    },
+    {
+      "expected_status": "ROLE_COVERAGE_BLOCKER",
+      "target": "git@github.com:BearsCLOUD/bears-codex-workspace.git",
+      "why_blocked": "parent_only"
+    },
+    {
+      "expected_status": "ROLE_COVERAGE_BLOCKER",
+      "target": "BearsCLOUD/not-bears-plugin",
+      "why_blocked": "unmapped"
+    },
+    {
+      "expected_status": "matched",
+      "required_role": "bears-platform-role-governor",
+      "target": "/srv/bears/.gitmodules"
+    },
+    {
+      "expected_status": "matched",
+      "required_role": "bears-deploy-platform-engineer",
+      "target": "BearsCLOUD/bears-infra"
+    },
+    {
+      "expected_status": "matched",
+      "required_role": "bears-deploy-platform-engineer",
+      "required_route_id": "kubernetes_dev_core_router_layer",
+      "semantics": "reference_router_only",
+      "target": "/srv/bears/dev/infrastructure/kubernetes"
+    },
+    {
+      "expected_status": "matched",
+      "required_role": "bears-deploy-platform-engineer",
+      "target": "/srv/bears/kubernetes/contracts/kubernetes_deploy_core_contract.md"
+    },
+    {
+      "expected_status": "matched",
+      "required_role": "bears-subagent-orchestration-engineer",
+      "required_route_id": "subagent_start_packet_contract",
+      "semantics": "dev_core_subagent_handoff_contract",
+      "target": "/srv/bears/dev/contracts/subagent_start_packet.md"
+    },
+    {
+      "expected_status": "ROLE_COVERAGE_BLOCKER",
+      "target": "/srv/bears/dev/contracts",
+      "why_blocked": "parent_only"
+    },
+    {
+      "expected_status": "matched",
+      "required_role": "bears-gateway-platform-engineer",
+      "required_route_id": "bears_gateway_seller_route_pack_fixture",
+      "target": "/srv/bears/dev/platform/tests/fixtures/seller_route_pack.py"
+    },
+    {
+      "expected_status": "matched",
+      "required_role": "bears-gateway-platform-engineer",
+      "required_route_id": "bears_gateway_auth_mode_map_contract_tests",
+      "target": "/srv/bears/dev/platform/tests/test_gateway_auth_mode_map.py"
+    },
+    {
+      "expected_status": "matched",
+      "required_role": "bears-gateway-platform-engineer",
+      "required_route_id": "bears_gateway_route_pack_contract_tests",
+      "target": "/srv/bears/dev/platform/tests/test_gateway_route_pack.py"
+    },
+    {
+      "expected_status": "matched",
+      "required_role": "bears-gateway-platform-engineer",
+      "required_route_id": "bears_gateway_tenant_registry_binding_contract_tests",
+      "target": "/srv/bears/dev/platform/tests/test_gateway_tenant_registry_binding.py"
+    },
+    {
+      "expected_status": "matched",
+      "required_role": "bears-gateway-platform-engineer",
+      "required_route_id": "bears_gateway_runtime_service_contract_tests",
+      "target": "/srv/bears/dev/platform/tests/test_gateway_runtime_service.py"
+    },
+    {
+      "expected_status": "matched",
+      "required_role": "bears-payments-platform-engineer",
+      "required_route_id": "bears_platform_billing_status_adapter_contract_tests",
+      "target": "/srv/bears/dev/platform/tests/test_billing_status_adapters.py"
+    },
+    {
+      "expected_status": "matched",
+      "required_role": "bears-payments-platform-engineer",
+      "required_route_id": "bears_platform_billing_idempotency_contract_tests",
+      "target": "/srv/bears/dev/platform/tests/test_billing_idempotency.py"
+    },
+    {
+      "expected_status": "matched",
+      "required_role": "bears-payments-platform-engineer",
+      "required_route_id": "bears_platform_billing_money_units_contract_tests",
+      "target": "/srv/bears/dev/platform/tests/test_billing_money_units.py"
+    },
+    {
+      "expected_status": "matched",
+      "required_role": "bears-payments-platform-engineer",
+      "required_route_id": "bears_platform_billing_processing_contract_tests",
+      "target": "/srv/bears/dev/platform/tests/test_billing_processing_contracts.py"
+    },
+    {
+      "expected_status": "matched",
+      "required_role": "bears-product-app-zone-engineer",
+      "required_route_id": "product_apps_monorepo_root",
+      "target": "/srv/bears/dev/app"
+    },
+    {
+      "expected_status": "matched",
+      "required_role": "bears-platform-role-governor",
+      "required_route_id": "workspace_governance_canonical_plugin_docs",
+      "target": "/srv/bears/dev/registry"
+    },
+    {
+      "expected_status": "matched",
+      "required_role": "bears-product-app-zone-engineer",
+      "required_route_id": "desk_product_dev_layer",
+      "target": "/srv/bears/dev/app/desk"
+    },
+    {
+      "expected_status": "matched",
+      "required_role": "bears-wb-integration-platform-engineer",
+      "required_route_id": "bears_platform_module_registry_surface",
+      "target": "/srv/bears/dev/platform/src/bears_platform/module_registry"
+    },
+    {
+      "expected_status": "matched",
+      "required_role": "bears-gateway-platform-engineer",
+      "required_route_id": "bears_platform_provider_gateway_surface",
+      "target": "/srv/bears/dev/platform/src/bears_platform/provider_gateway"
+    },
+    {
+      "expected_status": "matched",
+      "required_role": "bears-wb-integration-platform-engineer",
+      "required_route_id": "bears_platform_data_cache_surface",
+      "target": "/srv/bears/dev/platform/src/bears_platform/data_cache"
+    },
+    {
+      "expected_status": "matched",
+      "required_role": "bears-wb-integration-platform-engineer",
+      "required_route_id": "bears_platform_managed_backend_surface",
+      "target": "/srv/bears/dev/platform/src/bears_platform/managed_backend"
+    },
+    {
+      "expected_status": "matched",
+      "required_role": "bears-telegram-platform-engineer",
+      "required_route_id": "bears_platform_runtime_implementation_packet_after_rotation",
+      "target": "/srv/bears/dev/platform/docs/runtime-implementation-packet-after-rotation.md"
+    },
+    {
+      "expected_status": "matched",
+      "required_role": "bears-platform-role-governor",
+      "required_route_id": "platform_role_governance",
+      "target": "/srv/bears/plugins/bears/AGENTS.md"
+    },
+    {
+      "expected_status": "matched",
+      "required_role": "bears-workflow-overlay-platform-engineer",
+      "required_route_id": "workflow_overlay_issue_templates",
+      "target": "/srv/bears/plugins/bears/.github/ISSUE_TEMPLATE/config.yml"
+    },
+    {
+      "expected_status": "matched",
+      "required_role": "bears-workflow-overlay-platform-engineer",
+      "required_route_id": "workflow_overlay_issue_templates",
+      "target": "/srv/bears/plugins/bears/.github/ISSUE_TEMPLATE/bug_report.yml"
+    },
+    {
+      "expected_status": "matched",
+      "required_role": "bears-payments-platform-engineer",
+      "required_route_id": "bears_platform_payments_worker_isolation_contract_tests",
+      "target": "tests/test_payments_worker_isolation_contract.py"
+    },
+    {
+      "expected_status": "matched",
+      "required_role": "bears-payments-platform-engineer",
+      "required_route_id": "bears_platform_payments_worker_isolation_contract_tests",
+      "target": "/srv/bears/dev/platform/tests/test_payments_worker_isolation_contract.py"
+    },
+    {
+      "expected_status": "matched",
+      "required_role": "bears-payments-platform-engineer",
+      "required_route_id": "bears_platform_payments_worker_isolation_fixture",
+      "target": "tests/fixtures/payments_worker_isolation.py"
+    },
+    {
+      "expected_status": "matched",
+      "required_role": "bears-payments-platform-engineer",
+      "required_route_id": "bears_platform_payments_worker_isolation_fixture",
+      "target": "/srv/bears/dev/platform/tests/fixtures/payments_worker_isolation.py"
+    },
+    {
+      "expected_status": "matched",
+      "required_role": "bears-wb-integration-platform-engineer",
+      "required_route_id": "bears_platform_data_cache_runtime_tests",
+      "target": "/srv/bears/dev/platform/tests/test_data_cache_runtime.py"
+    },
+    {
+      "expected_status": "matched",
+      "required_role": "bears-wb-integration-platform-engineer",
+      "required_route_id": "bears_platform_managed_backend_runtime_tests",
+      "target": "/srv/bears/dev/platform/tests/test_managed_backend_runtime.py"
+    },
+    {
+      "expected_status": "matched",
+      "required_role": "bears-wb-integration-platform-engineer",
+      "required_route_id": "bears_platform_managed_backend_runtime_status_views_tests",
+      "target": "/srv/bears/dev/platform/tests/test_runtime_status_views.py"
+    },
+    {
+      "expected_status": "matched",
+      "required_role": "bears-wb-integration-platform-engineer",
+      "required_route_id": "bears_platform_managed_backend_health_contract_tests",
+      "target": "/srv/bears/dev/platform/tests/test_health.py"
+    },
+    {
+      "expected_status": "matched",
+      "required_role": "bears-docs-maintainer",
+      "required_route_id": "bears_platform_repo_readme_docs",
+      "target": "/srv/bears/dev/platform/README.md"
+    },
+    {
+      "expected_status": "matched",
+      "required_role": "bears-docs-maintainer",
+      "required_route_id": "bears_platform_repo_spec_docs",
+      "target": "/srv/bears/dev/platform/SPEC.md"
+    },
+    {
+      "expected_status": "matched",
+      "required_role": "bears-docs-maintainer",
+      "required_route_id": "bears_platform_desk_consumer_docs",
+      "target": "/srv/bears/dev/platform/docs/consumers/desk.md"
+    },
+    {
+      "expected_status": "matched",
+      "required_role": "bears-gateway-platform-engineer",
+      "required_route_id": "bears_platform_provider_gateway_contracts_tests",
+      "target": "/srv/bears/dev/platform/tests/test_provider_gateway_contracts.py"
+    },
+    {
+      "expected_status": "matched",
+      "required_role": "bears-gateway-platform-engineer",
+      "required_route_id": "bears_platform_provider_gateway_runtime_tests",
+      "target": "/srv/bears/dev/platform/tests/test_provider_gateway_runtime.py"
+    },
+    {
+      "expected_status": "matched",
+      "required_role": "bears-gateway-platform-engineer",
+      "required_route_id": "bears_gateway_desk_auth_propagation_tests",
+      "target": "/srv/bears/dev/platform/tests/test_gateway_desk_auth_propagation.py"
+    },
+    {
+      "expected_status": "matched",
+      "required_role": "bears-deploy-platform-engineer",
+      "required_route_id": "bears_platform_ci_docs",
+      "target": "/srv/bears/dev/platform/docs/ci"
+    },
+    {
+      "expected_status": "matched",
+      "required_role": "bears-deploy-platform-engineer",
+      "required_route_id": "bears_platform_ci_docs",
+      "target": "/srv/bears/dev/platform/docs/ci/gateway-required-checks.md"
+    },
+    {
+      "expected_status": "ROLE_COVERAGE_BLOCKER",
+      "target": "/srv/bears/dev/platform/.github/workflows",
+      "why_blocked": "unmapped"
+    },
+    {
+      "expected_status": "matched",
+      "required_role": "bears-deploy-platform-engineer",
+      "required_route_id": "bears_platform_disabled_workflow_planning",
+      "target": "/srv/bears/dev/platform/.github/workflows/build-images.yml.disabled"
+    },
+    {
+      "expected_status": "matched",
+      "required_role": "bears-deploy-platform-engineer",
+      "required_route_id": "bears_platform_disabled_workflow_planning",
+      "target": "/srv/bears/dev/platform/.github/workflows/gateway-required-checks.yml.disabled"
+    },
+    {
+      "expected_status": "matched",
+      "required_role": "bears-deploy-platform-engineer",
+      "required_route_id": "bears_platform_disabled_workflow_planning",
+      "target": "/srv/bears/dev/platform/.github/workflows/gateway-validation.yml.disabled"
+    },
+    {
+      "expected_status": "matched",
+      "required_role": "bears-deploy-platform-engineer",
+      "required_route_id": "bears_platform_gateway_validation_workflow_governance",
+      "target": "/srv/bears/dev/platform/.github/workflows/gateway-validation.yml"
+    },
+    {
+      "expected_status": "ROLE_COVERAGE_BLOCKER",
+      "target": "/srv/bears/dev/platform/.github/workflows/gateway-validation.yml/child",
+      "why_blocked": "unmapped"
+    },
+    {
+      "expected_status": "ROLE_COVERAGE_BLOCKER",
+      "target": "/srv/bears/dev/platform/docs/consumers/unknown.md",
+      "why_blocked": "unmapped"
+    },
+    {
+      "expected_status": "ROLE_COVERAGE_BLOCKER",
+      "target": "/srv/bears/dev/platform/tests/test_provider_gateway_unknown.py",
+      "why_blocked": "unmapped"
+    },
+    {
+      "expected_status": "ROLE_COVERAGE_BLOCKER",
+      "target": "/srv/bears/dev/platform/tests/test_gateway_unknown_sibling.py",
+      "why_blocked": "unmapped"
+    },
+    {
+      "expected_status": "ROLE_COVERAGE_BLOCKER",
+      "target": "/srv/bears/dev/platform/.github/workflows/publish-local-images.yml",
+      "why_blocked": "unmapped"
+    },
+    {
+      "expected_status": "ROLE_COVERAGE_BLOCKER",
+      "target": "/srv/bears/dev/platform/.github/workflows/unknown.yml",
+      "why_blocked": "unmapped"
+    },
+    {
+      "expected_status": "ROLE_COVERAGE_BLOCKER",
+      "target": "/srv/bears/dev/platform/.github/workflows/gateway-validation.yml.disabled/child",
+      "why_blocked": "unmapped"
+    },
+    {
+      "expected_status": "ROLE_COVERAGE_BLOCKER",
+      "target": "/srv/bears/dev/platform/.github/actions",
+      "why_blocked": "unmapped"
+    },
+    {
+      "expected_status": "matched",
+      "required_role": "bears-github-branch-protection-settings-governor",
+      "required_route_id": "github_branch_protection_settings_bears_platform",
+      "target": "github_branch_protection_settings_bears_platform"
+    },
+    {
+      "expected_status": "matched",
+      "required_role": "bears-github-branch-protection-settings-governor",
+      "required_route_id": "github_branch_protection_settings_bears_platform",
+      "target": "/repos/BearsCLOUD/bears-platform/branches/main/protection/required_status_checks"
+    },
+    {
+      "expected_status": "ROLE_COVERAGE_BLOCKER",
+      "target": "/repos/BearsCLOUD/bears-platform/branches/main/protection",
+      "why_blocked": "unmapped"
+    },
+    {
+      "expected_status": "ROLE_COVERAGE_BLOCKER",
+      "target": "/repos/BearsCLOUD/bears-platform/branches/develop/protection/required_status_checks",
+      "why_blocked": "unmapped"
+    },
+    {
+      "expected_status": "ROLE_COVERAGE_BLOCKER",
+      "target": "/repos/BearsCLOUD/other-repo/branches/main/protection/required_status_checks",
+      "why_blocked": "unmapped"
+    },
+    {
+      "expected_status": "ROLE_COVERAGE_BLOCKER",
+      "target": "/repos/BearsCLOUD/bears-platform/secrets/actions",
+      "why_blocked": "unmapped"
+    },
+    {
+      "expected_status": "ROLE_COVERAGE_BLOCKER",
+      "target": "/repos/BearsCLOUD/bears-platform/actions/permissions",
+      "why_blocked": "unmapped"
+    },
+    {
+      "expected_status": "matched",
+      "required_role": "bears-product-app-zone-engineer",
+      "required_route_id": "product_apps_monorepo_root",
+      "target": "BearsCLOUD/apps"
+    },
+    {
+      "expected_status": "matched",
+      "required_role": "bears-product-app-zone-engineer",
+      "required_route_id": "product_apps_monorepo_root",
+      "target": "https://github.com/BearsCLOUD/apps"
+    },
+    {
+      "expected_status": "ROLE_COVERAGE_BLOCKER",
+      "target": "/srv/bears/dev/app/newapp",
+      "why_blocked": "unmapped"
+    },
+    {
+      "expected_status": "matched",
+      "required_role": "bears-product-app-zone-engineer",
+      "required_route_id": "theants_product_dev_layer",
+      "target": "/srv/bears/dev/app/theants"
+    },
+    {
+      "expected_status": "matched",
+      "required_role": "bears-product-app-zone-engineer",
       "required_route_id": "bears_ru_brand_site_archive_source",
-      "required_role": "bears-product-app-zone-engineer"
+      "target": "/srv/bears/dev/app/bears-ru"
     },
     {
-      "target": "/srv/bears/dev/app/bearsapk",
       "expected_status": "matched",
+      "required_role": "bears-product-app-zone-engineer",
       "required_route_id": "bearsapk_android_app_archive_source",
-      "required_role": "bears-product-app-zone-engineer"
-    }
-  ],
-  "independent_control_audit": {
-    "required": true,
-    "auditor_role": "bears-platform-role-governor",
-    "must_confirm": [
-      "methodology is generic, not domain-specific",
-      "blocker rule is unambiguous",
-      "broad roles are invalidated",
-      "parent-only coverage cannot authorize edits",
-      "validators/tests/forward-tests pass",
-      "no product/runtime/deploy edits happened before role coverage",
-      "dev-core root and layer routes are exact",
-      "deprecated projects paths do not provide parent-scope implementation authority",
-      "Kubernetes .225 migration is blocked without truth contracts, read-only evidence, role coverage, and explicit operator approval",
-      ".226 Sentry and current infra runtime are future lanes only",
-      "plugin source-repo identity and workspace repo identity are parent-only classifiers, not implementation authority",
-      "source freshness preflight ran before blocker closeout",
-      "stale role-gate source is reported as STALE_ROLE_GATE_SOURCE with safe next action"
-    ]
-  },
-  "methodology_items": [
-    {
-      "id": "concrete_part",
-      "title": "Concrete part",
-      "rule": "Define the concrete part as the smallest explicit plugin-owned surface that fully contains the requested write scope through exact aliases or declared write roots; broad roots alone do not authorize implementation."
-    },
-    {
-      "id": "valid_specialist_role",
-      "title": "Valid primary role",
-      "rule": "A valid primary role must be plugin-owned, have a live TOML artifact, set role_kind=specialist or role_kind=helper, set primary_eligible=true, and declare bounded write scope, trust boundary, required validations, model, reasoning effort, sandbox mode, and developer instructions."
-    },
-    {
-      "id": "parent_role_insufficient",
-      "title": "Why parent role is insufficient",
-      "rule": "Parent, group, controller, or umbrella coverage is classification-only and cannot authorize a narrower child or mixed-scope write because it is broader than the requested write boundary."
-    },
-    {
-      "id": "broad_role_requires_decomposition",
-      "title": "When broad role is invalid",
-      "rule": "If the candidate role is broad, mixed-scope, controller/reviewer-only, or reachable only through parent/group matching, return invalid_broad_role and require decomposition before any implementation handoff."
-    },
-    {
-      "id": "choose_exactly_one_primary_role",
-      "title": "How to choose exactly one primary role",
-      "rule": "Resolve candidates from exact aliases and declared write roots only, prefer the longest exact concrete match, reject group-only matches, and return ambiguous_owner when more than one primary candidate remains. Dev-core targets under /srv/bears/dev must use exact layer aliases or declared write roots; deprecated /srv/bears/projects paths are transitional sources only. Source repository identities and submodule remotes are classification-only and must not widen write authority beyond exact submodule paths. Exact workspace submodule-root aliases may classify parent gitlink pointers only when the catalog names that exact root; /srv/bears/kubernetes is a kubernetes_deploy_core repo-root route, while /srv/bears/plugins/bears remains parent gitlink pointer only."
-    },
-    {
-      "id": "attach_supporting_security_qa_roles",
-      "title": "When to add supporting/security/QA roles",
-      "rule": "Attach supporting security or QA roles only after the primary role is selected, only for explicit risk flags, and only when the attached roles are reviewer-only rather than primary replacements."
-    },
-    {
-      "id": "exact_blocker_packet",
-      "title": "Exact blocker packet",
-      "rule": "Emit the exact ROLE_COVERAGE_BLOCKER packet with why_blocked, evidence_checked, blocked_edits, allowed_next_actions, required_role_shape, and decomposition_required whenever coverage is missing or invalid."
-    },
-    {
-      "id": "auto_role_development",
-      "title": "Automatic role development",
-      "rule": "A ROLE_COVERAGE_BLOCKER packet must include role-development metadata for the role-development lane, owned by bears-platform-role-governor, and expose role-development-plan rerun proof while implementation_handoff_allowed=false until a new exact primary specialist or helper role validates."
-    },
-    {
-      "id": "mandatory_validators",
-      "title": "Mandatory validators and tests",
-      "rule": "Run the deterministic validator and test set that proves one-primary-role routing, blocker behavior, reviewer-only attachments, and implementation-handoff blocking before any implementation may continue."
-    },
-    {
-      "id": "forward_tests",
-      "title": "Forward tests",
-      "rule": "Keep forward tests for child-under-group blocking, alias/path drift, one-primary-role stability during catalog growth, and broad fallback rejection so regressions fail closed. Forward tests must include /srv/bears/dev, Kubernetes, Android emulator .225, Sentry .226, and The Ants new and legacy paths, plugin source-repo identity blocking, and root workspace repo identity blocking."
-    },
-    {
-      "id": "independent_control_audit_evidence",
-      "title": "Independent control audit evidence",
-      "rule": "Record independent control audit evidence that shows the audit command, implementation handoff state, blocker proofs, validation results, and no product/runtime/deploy edits before role coverage closed."
-    },
-    {
-      "id": "source_freshness_preflight",
-      "title": "Source freshness preflight",
-      "rule": "Before ROLE_COVERAGE_BLOCKER closeout, record current plugin checkout SHA, root gitlink SHA, and root origin/main plugin gitlink SHA; if the requested mapping exists only in newer merged plugin state, emit STALE_ROLE_GATE_SOURCE and a safe next action instead of ROLE_COVERAGE_BLOCKER."
+      "target": "/srv/bears/dev/app/bearsapk"
     }
   ],
   "control_audit_evidence": {
-    "required_document": "docs/reference/role-gate-control-audit-evidence-2026-06-03.md",
     "must_record": [
       "selected concrete part and exactly one primary specialist or helper role",
       "exact blocker reasons covered by validators and forward tests",
@@ -1533,11 +902,45 @@
       "no product/runtime/deploy edits before role coverage",
       "source freshness preflight SHAs before blocker closeout",
       "STALE_ROLE_GATE_SOURCE versus true ROLE_COVERAGE_BLOCKER classification"
-    ]
+    ],
+    "required_document": "docs/reference/role-gate-control-audit-evidence-2026-06-03.md"
+  },
+  "definitions": {
+    "broad_role_invalid": "A role is invalid for primary ownership when it spans unrelated parts, is controller/reviewer-only, lacks a bounded write boundary, or can be selected only through fallback/prefix/group matching instead of an exact concrete mapping.",
+    "concrete_part": "The smallest explicit service, path, workflow, role-governance surface, runtime contract, or integration area that fully contains the requested write scope and is mapped by an exact plugin-owned catalog entry.",
+    "implementation_handoff": "The orchestrator-to-worker transition that allows product, platform, runtime, deploy, migration, or integration edits only after role routing and independent control audit pass.",
+    "parent_role_insufficient": "A parent, project-group, controller, or umbrella role may classify the request but cannot authorize edits for a child or mixed concrete surface because it is broader than the requested write scope.",
+    "primary_role": "The one plugin-owned specialist or helper role selected for the requested concrete part; supporting, security, QA, and reviewer roles can never replace it.",
+    "supporting_roles": "Reviewer-only or QA/security sidecar roles attached after the primary specialist or helper role is selected when trust, secret, external, production, deploy, or quality risk flags exist.",
+    "valid_specialist_role": "A plugin-owned role with an existing TOML artifact, role_kind=specialist, primary_eligible=true, exact concrete_scope, bounded allowed_write_boundary, explicit trust_boundary, required_validations, developer_instructions, model, model_reasoning_effort, and sandbox_mode."
   },
   "design_artifact_contract": {
-    "contract_id": "issue-22-design-artifact-contract",
     "artifact_path": "README.md#issue-22-design-artifact-contract",
+    "branch_behavior_requires_matrix_when_any_present": [
+      "behavior_branches",
+      "policy_branches",
+      "state_transitions",
+      "operator_paths"
+    ],
+    "contract_id": "issue-22-design-artifact-contract",
+    "durable_artifact": {
+      "with_spec_kit_packet": "design.md in the feature or spec directory",
+      "without_spec_kit_packet": "bounded section in the narrowest plugin docs or planning issue until a feature directory exists"
+    },
+    "implementation_packet": {
+      "rejection_status": "DESIGN_ARTIFACT_REQUIRED",
+      "required_fields": [
+        "change_type",
+        "design_required",
+        "design_artifact",
+        "design_skip",
+        "affected_artifacts",
+        "validator_impact",
+        "documentation_impact",
+        "test_plan",
+        "safety_boundaries"
+      ]
+    },
     "required_before": "research_prototype_design_before_plan_tasks_analyze_implementation",
     "required_for": [
       "workflow policy",
@@ -1566,16 +969,6 @@
       "open questions",
       "review gate condition"
     ],
-    "durable_artifact": {
-      "with_spec_kit_packet": "design.md in the feature or spec directory",
-      "without_spec_kit_packet": "bounded section in the narrowest plugin docs or planning issue until a feature directory exists"
-    },
-    "branch_behavior_requires_matrix_when_any_present": [
-      "behavior_branches",
-      "policy_branches",
-      "state_transitions",
-      "operator_paths"
-    ],
     "skip_policy": {
       "approved_skip": {
         "required_fields": [
@@ -1597,29 +990,624 @@
         ],
         "use": "Only one exact-file bugfix without boundary, runtime, deploy, restricted-data, public behavior, or contract/proof/schema change may skip design; contract/proof/schema indicators require Spec Kit or a non-interface rationale accepted by the route-specific checklist."
       }
-    },
-    "implementation_packet": {
-      "required_fields": [
-        "change_type",
-        "design_required",
-        "design_artifact",
-        "design_skip",
-        "affected_artifacts",
-        "validator_impact",
-        "documentation_impact",
-        "test_plan",
-        "safety_boundaries"
-      ],
-      "rejection_status": "DESIGN_ARTIFACT_REQUIRED"
     }
   },
+  "forbidden_before_coverage": [
+    "product code edits",
+    "platform implementation edits",
+    "runtime edits",
+    "deploy edits",
+    "migration edits",
+    "integration behavior edits"
+  ],
+  "forward_tests": [
+    {
+      "expected_status": "ROLE_COVERAGE_BLOCKER",
+      "id": "new_child_under_known_group_blocks",
+      "target": "/srv/bears/projects/seller/apps/unknown_future_app"
+    },
+    {
+      "expected_status": "ROLE_COVERAGE_BLOCKER",
+      "id": "alias_path_drift_does_not_widen",
+      "target": "/srv/bears/plugins/bears-shadow"
+    },
+    {
+      "expected_status": "matched",
+      "id": "catalog_growth_keeps_one_primary",
+      "target": "/srv/bears/plugins/bears/assets/catalog/platform-role-catalog.v1.json"
+    },
+    {
+      "expected_status": "ROLE_COVERAGE_BLOCKER",
+      "id": "broad_fallback_matching_cannot_reappear",
+      "target": "plugins/bears"
+    },
+    {
+      "expected_status": "matched",
+      "id": "workspace_root_kubernetes_gitlink_has_exact_governor",
+      "target": "/srv/bears/kubernetes"
+    },
+    {
+      "expected_status": "matched",
+      "id": "workspace_root_plugin_gitlink_has_exact_governor",
+      "target": "/srv/bears/plugins/bears"
+    },
+    {
+      "expected_status": "ROLE_COVERAGE_BLOCKER",
+      "id": "deprecated_root_stays_unmapped_until_exact_child_is_selected",
+      "target": "/srv/bears/deprecated"
+    },
+    {
+      "expected_status": "matched",
+      "id": "deprecated_docs_core_git_config_has_exact_specialist",
+      "target": "/srv/bears/deprecated/legacy-2026-05-11/docs/docs-core/.git/config"
+    },
+    {
+      "expected_status": "matched",
+      "id": "deprecated_docs_core_git_config_lock_has_exact_specialist",
+      "target": "/srv/bears/deprecated/legacy-2026-05-11/docs/docs-core/.git/config.lock"
+    },
+    {
+      "expected_status": "matched",
+      "id": "deprecated_docs_mcp_repo_git_config_has_exact_specialist",
+      "target": "/srv/bears/deprecated/legacy-2026-05-11/docs/docs-mcp/repo/.git/config"
+    },
+    {
+      "expected_status": "matched",
+      "id": "deprecated_docs_mcp_repo_git_config_lock_has_exact_specialist",
+      "target": "/srv/bears/deprecated/legacy-2026-05-11/docs/docs-mcp/repo/.git/config.lock"
+    },
+    {
+      "expected_status": "matched",
+      "id": "deprecated_ad_stat_git_config_has_exact_specialist",
+      "target": "/srv/bears/deprecated/legacy-2026-05-11/docs/docs-mcp/orphaned-from-docs-repo-20260419T1300Z/ad_stat/.git/config"
+    },
+    {
+      "expected_status": "matched",
+      "id": "deprecated_ad_stat_git_config_lock_has_exact_specialist",
+      "target": "/srv/bears/deprecated/legacy-2026-05-11/docs/docs-mcp/orphaned-from-docs-repo-20260419T1300Z/ad_stat/.git/config.lock"
+    },
+    {
+      "expected_status": "matched",
+      "id": "deploy_core_has_exact_specialist",
+      "target": "/srv/bears/plugins/bears/workflows/auth-gateway-deploy-core/workflow.yml"
+    },
+    {
+      "expected_status": "matched",
+      "id": "deploy_contract_test_has_exact_specialist",
+      "target": "/srv/bears/dev/platform/tests/test_deploy_contracts.py"
+    },
+    {
+      "expected_status": "matched",
+      "id": "auth_contract_test_has_exact_specialist",
+      "target": "/srv/bears/dev/platform/tests/test_auth_contracts.py"
+    },
+    {
+      "expected_status": "matched",
+      "id": "feature_008_auth_matrix_has_exact_specialist",
+      "target": "/srv/bears/dev/platform/docs/migration/auth-source-to-target-matrix.md"
+    },
+    {
+      "expected_status": "matched",
+      "id": "feature_008_auth_fixture_has_exact_specialist",
+      "target": "/srv/bears/dev/platform/tests/fixtures/auth_session_contracts.py"
+    },
+    {
+      "expected_status": "matched",
+      "id": "feature_008_auth_session_contract_test_has_exact_specialist",
+      "target": "/srv/bears/dev/platform/tests/test_auth_session_contracts.py"
+    },
+    {
+      "expected_status": "matched",
+      "id": "feature_008_auth_token_contract_test_has_exact_specialist",
+      "target": "/srv/bears/dev/platform/tests/test_integration_token_contracts.py"
+    },
+    {
+      "expected_status": "matched",
+      "id": "gateway_contract_test_has_exact_specialist",
+      "target": "/srv/bears/dev/platform/tests/test_gateway_contracts.py"
+    },
+    {
+      "expected_status": "matched",
+      "id": "gateway_runtime_contract_test_has_exact_specialist",
+      "target": "/srv/bears/dev/platform/tests/test_gateway_runtime_contracts.py"
+    },
+    {
+      "expected_status": "matched",
+      "id": "feature_008_gateway_route_matrix_has_exact_specialist",
+      "target": "/srv/bears/dev/platform/docs/migration/gateway-legacy-route-matrix.md"
+    },
+    {
+      "expected_status": "matched",
+      "id": "feature_008_gateway_route_fixture_has_exact_specialist",
+      "target": "/srv/bears/dev/platform/tests/fixtures/gateway_route_matrix.py"
+    },
+    {
+      "expected_status": "matched",
+      "id": "payments_alias_has_exact_specialist",
+      "target": "payments"
+    },
+    {
+      "expected_status": "matched",
+      "id": "billing_contract_test_has_exact_specialist",
+      "target": "/srv/bears/dev/platform/tests/test_billing_contracts.py"
+    },
+    {
+      "expected_status": "matched",
+      "id": "billing_runtime_service_contract_test_has_exact_specialist",
+      "target": "/srv/bears/dev/platform/tests/test_billing_runtime_service.py"
+    },
+    {
+      "expected_status": "matched",
+      "id": "feature_008_billing_adapter_matrix_has_exact_specialist",
+      "target": "/srv/bears/dev/platform/docs/migration/billing-status-adapter-matrix.md"
+    },
+    {
+      "expected_status": "matched",
+      "id": "feature_008_billing_adapter_fixture_has_exact_specialist",
+      "target": "/srv/bears/dev/platform/tests/fixtures/billing_status_adapters.py"
+    },
+    {
+      "expected_status": "matched",
+      "id": "session_runtime_has_exact_specialist",
+      "target": "/srv/bears/plugins/bears/assets/catalog/session-workers-runtime.v1.json"
+    },
+    {
+      "expected_status": "matched",
+      "id": "dev_core_root_has_exact_governance_role",
+      "target": "/srv/bears/dev"
+    },
+    {
+      "expected_status": "matched",
+      "id": "bears_platform_repo_root_has_exact_governance_role",
+      "target": "/srv/bears/dev/platform"
+    },
+    {
+      "expected_status": "matched",
+      "id": "bears_platform_repo_router_docs_have_exact_governance_role",
+      "target": "/srv/bears/dev/platform/AGENTS.md"
+    },
+    {
+      "expected_status": "matched",
+      "id": "tenant_registry_runtime_contract_test_has_exact_specialist",
+      "target": "/srv/bears/dev/platform/tests/test_tenant_registry_runtime_contracts.py"
+    },
+    {
+      "expected_status": "matched",
+      "id": "bears_platform_stage_rules_have_exact_governance_role",
+      "target": "/srv/bears/dev/platform/docs/stage-rules.md"
+    },
+    {
+      "expected_status": "matched",
+      "id": "kube_has_exact_deploy_core_role",
+      "target": "kube"
+    },
+    {
+      "expected_status": "matched",
+      "id": "android_emulator_has_exact_platform_role",
+      "target": "android-emulator"
+    },
+    {
+      "expected_status": "matched",
+      "id": "sentry_has_exact_observability_role",
+      "target": "sentry"
+    },
+    {
+      "expected_status": "matched",
+      "id": "theants_old_dev_products_path_has_deprecated_archive_route",
+      "required_role": "bears-product-app-zone-engineer",
+      "required_route_id": "theants_product_dev_layer",
+      "target": "/srv/bears/dev/products/theants"
+    },
+    {
+      "expected_status": "matched",
+      "id": "theants_legacy_source_has_transitional_product_role",
+      "required_role": "bears-product-app-zone-engineer",
+      "required_route_id": "theants_product_dev_layer",
+      "target": "/srv/bears/projects/theants"
+    },
+    {
+      "expected_status": "ROLE_COVERAGE_BLOCKER",
+      "id": "dev_products_group_stays_parent_only",
+      "target": "/srv/bears/dev/products"
+    },
+    {
+      "expected_status": "matched",
+      "id": "gateway_seller_route_pack_fixture_has_exact_specialist",
+      "target": "/srv/bears/dev/platform/tests/fixtures/seller_route_pack.py"
+    },
+    {
+      "expected_status": "matched",
+      "id": "gateway_auth_mode_map_contract_test_has_exact_specialist",
+      "target": "/srv/bears/dev/platform/tests/test_gateway_auth_mode_map.py"
+    },
+    {
+      "expected_status": "matched",
+      "id": "gateway_route_pack_contract_test_has_exact_specialist",
+      "target": "/srv/bears/dev/platform/tests/test_gateway_route_pack.py"
+    },
+    {
+      "expected_status": "matched",
+      "id": "gateway_tenant_registry_binding_contract_test_has_exact_specialist",
+      "target": "/srv/bears/dev/platform/tests/test_gateway_tenant_registry_binding.py"
+    },
+    {
+      "expected_status": "matched",
+      "id": "gateway_runtime_service_contract_test_has_exact_specialist",
+      "target": "/srv/bears/dev/platform/tests/test_gateway_runtime_service.py"
+    },
+    {
+      "expected_status": "matched",
+      "id": "billing_status_adapter_contract_test_has_exact_specialist",
+      "target": "/srv/bears/dev/platform/tests/test_billing_status_adapters.py"
+    },
+    {
+      "expected_status": "matched",
+      "id": "billing_idempotency_contract_test_has_exact_specialist",
+      "target": "/srv/bears/dev/platform/tests/test_billing_idempotency.py"
+    },
+    {
+      "expected_status": "matched",
+      "id": "billing_money_units_contract_test_has_exact_specialist",
+      "target": "/srv/bears/dev/platform/tests/test_billing_money_units.py"
+    },
+    {
+      "expected_status": "matched",
+      "id": "billing_processing_contract_test_has_exact_specialist",
+      "target": "/srv/bears/dev/platform/tests/test_billing_processing_contracts.py"
+    },
+    {
+      "expected_status": "matched",
+      "id": "product_apps_monorepo_root_has_exact_product_role",
+      "target": "/srv/bears/dev/app"
+    },
+    {
+      "expected_status": "matched",
+      "id": "workspace_registry_root_has_exact_governance_role",
+      "target": "/srv/bears/dev/registry"
+    },
+    {
+      "expected_status": "matched",
+      "id": "desk_product_dev_layer_has_exact_product_role",
+      "target": "/srv/bears/dev/app/desk"
+    },
+    {
+      "expected_status": "matched",
+      "id": "bears_platform_module_registry_has_exact_specialist",
+      "target": "/srv/bears/dev/platform/src/bears_platform/module_registry"
+    },
+    {
+      "expected_status": "matched",
+      "id": "bears_platform_provider_gateway_has_exact_specialist",
+      "target": "/srv/bears/dev/platform/src/bears_platform/provider_gateway"
+    },
+    {
+      "expected_status": "matched",
+      "id": "bears_platform_data_cache_has_exact_specialist",
+      "target": "/srv/bears/dev/platform/src/bears_platform/data_cache"
+    },
+    {
+      "expected_status": "matched",
+      "id": "bears_platform_managed_backend_has_exact_specialist",
+      "target": "/srv/bears/dev/platform/src/bears_platform/managed_backend"
+    },
+    {
+      "expected_status": "matched",
+      "id": "bears_platform_runtime_packet_doc_has_exact_specialist",
+      "target": "/srv/bears/dev/platform/docs/runtime-implementation-packet-after-rotation.md"
+    },
+    {
+      "expected_status": "matched",
+      "id": "plugin_issue_template_config_has_exact_specialist",
+      "target": "/srv/bears/plugins/bears/.github/ISSUE_TEMPLATE/config.yml"
+    },
+    {
+      "expected_status": "matched",
+      "id": "payments_worker_isolation_contract_tests_repo_relative_has_exact_specialist",
+      "target": "tests/test_payments_worker_isolation_contract.py"
+    },
+    {
+      "expected_status": "matched",
+      "id": "payments_worker_isolation_contract_tests_absolute_has_exact_specialist",
+      "target": "/srv/bears/dev/platform/tests/test_payments_worker_isolation_contract.py"
+    },
+    {
+      "expected_status": "matched",
+      "id": "payments_worker_isolation_fixture_repo_relative_has_exact_specialist",
+      "target": "tests/fixtures/payments_worker_isolation.py"
+    },
+    {
+      "expected_status": "matched",
+      "id": "payments_worker_isolation_fixture_absolute_has_exact_specialist",
+      "target": "/srv/bears/dev/platform/tests/fixtures/payments_worker_isolation.py"
+    },
+    {
+      "expected_status": "matched",
+      "id": "bears_platform_data_cache_runtime_tests_has_exact_specialist",
+      "target": "/srv/bears/dev/platform/tests/test_data_cache_runtime.py"
+    },
+    {
+      "expected_status": "matched",
+      "id": "bears_platform_managed_backend_runtime_tests_has_exact_specialist",
+      "target": "/srv/bears/dev/platform/tests/test_managed_backend_runtime.py"
+    },
+    {
+      "expected_status": "matched",
+      "id": "bears_platform_managed_backend_runtime_status_views_tests_has_exact_specialist",
+      "target": "/srv/bears/dev/platform/tests/test_runtime_status_views.py"
+    },
+    {
+      "expected_status": "matched",
+      "id": "bears_platform_managed_backend_health_contract_tests_has_exact_specialist",
+      "target": "/srv/bears/dev/platform/tests/test_health.py"
+    },
+    {
+      "expected_status": "matched",
+      "id": "bears_platform_repo_readme_docs_has_exact_docs_specialist",
+      "target": "/srv/bears/dev/platform/README.md"
+    },
+    {
+      "expected_status": "matched",
+      "id": "bears_platform_repo_spec_docs_has_exact_docs_specialist",
+      "target": "/srv/bears/dev/platform/SPEC.md"
+    },
+    {
+      "expected_status": "matched",
+      "id": "bears_platform_desk_consumer_docs_has_exact_docs_specialist",
+      "target": "/srv/bears/dev/platform/docs/consumers/desk.md"
+    },
+    {
+      "expected_status": "ROLE_COVERAGE_BLOCKER",
+      "id": "bears_platform_docs_consumer_unknown_sibling_blocks",
+      "target": "/srv/bears/dev/platform/docs/consumers/unknown.md",
+      "why_blocked": "unmapped"
+    },
+    {
+      "expected_status": "matched",
+      "id": "bears_platform_provider_gateway_runtime_tests_has_exact_gateway_specialist",
+      "target": "/srv/bears/dev/platform/tests/test_provider_gateway_runtime.py"
+    },
+    {
+      "expected_status": "matched",
+      "id": "bears_gateway_desk_auth_propagation_tests_has_exact_gateway_specialist",
+      "target": "/srv/bears/dev/platform/tests/test_gateway_desk_auth_propagation.py"
+    },
+    {
+      "expected_status": "ROLE_COVERAGE_BLOCKER",
+      "id": "bears_platform_provider_gateway_unknown_test_sibling_blocks",
+      "target": "/srv/bears/dev/platform/tests/test_provider_gateway_unknown.py",
+      "why_blocked": "unmapped"
+    },
+    {
+      "expected_status": "matched",
+      "id": "bears_platform_ci_docs_has_exact_deploy_specialist",
+      "target": "/srv/bears/dev/platform/docs/ci"
+    },
+    {
+      "expected_status": "matched",
+      "id": "bears_platform_ci_docs_child_has_exact_deploy_specialist",
+      "target": "/srv/bears/dev/platform/docs/ci/gateway-required-checks.md"
+    },
+    {
+      "expected_status": "ROLE_COVERAGE_BLOCKER",
+      "id": "bears_platform_disabled_workflows_marker_stays_blocked",
+      "target": "/srv/bears/dev/platform/.github/workflows",
+      "why_blocked": "unmapped"
+    },
+    {
+      "expected_status": "matched",
+      "id": "bears_platform_disabled_workflow_file_has_exact_deploy_specialist",
+      "target": "/srv/bears/dev/platform/.github/workflows/gateway-required-checks.yml.disabled"
+    },
+    {
+      "expected_status": "matched",
+      "id": "bears_platform_gateway_validation_disabled_file_has_exact_deploy_specialist",
+      "target": "/srv/bears/dev/platform/.github/workflows/gateway-validation.yml.disabled"
+    },
+    {
+      "expected_status": "ROLE_COVERAGE_BLOCKER",
+      "id": "bears_platform_gateway_validation_disabled_file_child_stays_blocked",
+      "target": "/srv/bears/dev/platform/.github/workflows/gateway-validation.yml.disabled/child",
+      "why_blocked": "unmapped"
+    },
+    {
+      "expected_status": "matched",
+      "id": "bears_platform_gateway_validation_active_file_has_exact_deploy_specialist",
+      "target": "/srv/bears/dev/platform/.github/workflows/gateway-validation.yml"
+    },
+    {
+      "expected_status": "ROLE_COVERAGE_BLOCKER",
+      "id": "bears_platform_gateway_validation_active_file_child_stays_blocked",
+      "target": "/srv/bears/dev/platform/.github/workflows/gateway-validation.yml/child",
+      "why_blocked": "unmapped"
+    },
+    {
+      "expected_status": "ROLE_COVERAGE_BLOCKER",
+      "id": "bears_platform_enabled_workflow_sibling_stays_blocked",
+      "target": "/srv/bears/dev/platform/.github/workflows/publish-local-images.yml",
+      "why_blocked": "unmapped"
+    },
+    {
+      "expected_status": "ROLE_COVERAGE_BLOCKER",
+      "id": "bears_platform_github_actions_sibling_stays_blocked",
+      "target": "/srv/bears/dev/platform/.github/actions",
+      "why_blocked": "unmapped"
+    },
+    {
+      "expected_status": "ROLE_COVERAGE_BLOCKER",
+      "id": "missing_exact_target_emits_role_development",
+      "required_packet_field": "role_development",
+      "target": "tests/test_missing_auto_role_example.py"
+    },
+    {
+      "expected_status": "matched",
+      "id": "github_branch_protection_required_checks_has_exact_settings_specialist",
+      "target": "github_branch_protection_settings_bears_platform"
+    },
+    {
+      "expected_status": "ROLE_COVERAGE_BLOCKER",
+      "id": "github_branch_protection_parent_endpoint_stays_unmapped",
+      "target": "/repos/BearsCLOUD/bears-platform/branches/main/protection",
+      "why_blocked": "unmapped"
+    },
+    {
+      "expected_status": "matched",
+      "id": "theants_app_module_path_is_legacy_module_inside_apps_repo",
+      "required_role": "bears-product-app-zone-engineer",
+      "required_route_id": "theants_product_dev_layer",
+      "target": "/srv/bears/dev/app/theants"
+    },
+    {
+      "expected_status": "matched",
+      "id": "theants_old_dev_products_path_is_deprecated_archive_input",
+      "required_role": "bears-product-app-zone-engineer",
+      "required_route_id": "theants_product_dev_layer",
+      "target": "/srv/bears/dev/products/theants"
+    }
+  ],
+  "independent_control_audit": {
+    "auditor_role": "bears-platform-role-governor",
+    "must_confirm": [
+      "methodology is generic, not domain-specific",
+      "blocker rule is unambiguous",
+      "broad roles are invalidated",
+      "parent-only coverage cannot authorize edits",
+      "validators/tests/forward-tests pass",
+      "no product/runtime/deploy edits happened before role coverage",
+      "dev-core root and layer routes are exact",
+      "deprecated projects paths do not provide parent-scope implementation authority",
+      "Kubernetes .225 migration is blocked without truth contracts, read-only evidence, role coverage, and explicit operator approval",
+      ".226 Sentry and current infra runtime are future lanes only",
+      "plugin source-repo identity and workspace repo identity are parent-only classifiers, not implementation authority",
+      "source freshness preflight ran before blocker closeout",
+      "stale role-gate source is reported as STALE_ROLE_GATE_SOURCE with safe next action"
+    ],
+    "required": true
+  },
+  "main_rule": "The orchestrator MUST block development with ROLE_COVERAGE_BLOCKER unless the requested concrete part has exactly one valid primary specialist or helper role at the same granularity as the requested write scope.",
+  "methodology_id": "bears-role-gate-methodology-v1",
+  "methodology_items": [
+    {
+      "id": "concrete_part",
+      "rule": "Define the concrete part as the smallest explicit plugin-owned surface that fully contains the requested write scope through exact aliases or declared write roots; broad roots alone do not authorize implementation.",
+      "title": "Concrete part"
+    },
+    {
+      "id": "valid_specialist_role",
+      "rule": "A valid primary role must be plugin-owned, have a live TOML artifact, set role_kind=specialist or role_kind=helper, set primary_eligible=true, and declare bounded write scope, trust boundary, required validations, model, reasoning effort, sandbox mode, and developer instructions.",
+      "title": "Valid primary role"
+    },
+    {
+      "id": "parent_role_insufficient",
+      "rule": "Parent, group, controller, or umbrella coverage is classification-only and cannot authorize a narrower child or mixed-scope write because it is broader than the requested write boundary.",
+      "title": "Why parent role is insufficient"
+    },
+    {
+      "id": "broad_role_requires_decomposition",
+      "rule": "If the candidate role is broad, mixed-scope, controller/reviewer-only, or reachable only through parent/group matching, return invalid_broad_role and require decomposition before any implementation handoff.",
+      "title": "When broad role is invalid"
+    },
+    {
+      "id": "choose_exactly_one_primary_role",
+      "rule": "Resolve candidates from exact aliases and declared write roots only, prefer the longest exact concrete match, reject group-only matches, and return ambiguous_owner when more than one primary candidate remains. Dev-core targets under /srv/bears/dev must use exact layer aliases or declared write roots; deprecated /srv/bears/projects paths are transitional sources only. Source repository identities and submodule remotes are classification-only and must not widen write authority beyond exact submodule paths. Exact workspace submodule-root aliases may classify parent gitlink pointers only when the catalog names that exact root; /srv/bears/kubernetes is a kubernetes_deploy_core repo-root route, while /srv/bears/plugins/bears remains parent gitlink pointer only.",
+      "title": "How to choose exactly one primary role"
+    },
+    {
+      "id": "attach_supporting_security_qa_roles",
+      "rule": "Attach supporting security or QA roles only after the primary role is selected, only for explicit risk flags, and only when the attached roles are reviewer-only rather than primary replacements.",
+      "title": "When to add supporting/security/QA roles"
+    },
+    {
+      "id": "exact_blocker_packet",
+      "rule": "Emit the exact ROLE_COVERAGE_BLOCKER packet with why_blocked, evidence_checked, blocked_edits, allowed_next_actions, required_role_shape, and decomposition_required whenever coverage is missing or invalid.",
+      "title": "Exact blocker packet"
+    },
+    {
+      "id": "auto_role_development",
+      "rule": "A ROLE_COVERAGE_BLOCKER packet must include role-development metadata for the role-development lane, owned by bears-platform-role-governor, and expose role-development-plan rerun proof while implementation_handoff_allowed=false until a new exact primary specialist or helper role validates.",
+      "title": "Automatic role development"
+    },
+    {
+      "id": "mandatory_validators",
+      "rule": "Run the deterministic validator and test set that proves one-primary-role routing, blocker behavior, reviewer-only attachments, and implementation-handoff blocking before any implementation may continue.",
+      "title": "Mandatory validators and tests"
+    },
+    {
+      "id": "forward_tests",
+      "rule": "Keep forward tests for child-under-group blocking, alias/path drift, one-primary-role stability during catalog growth, and broad fallback rejection so regressions fail closed. Forward tests must include /srv/bears/dev, Kubernetes, Android emulator .225, Sentry .226, and The Ants new and legacy paths, plugin source-repo identity blocking, and root workspace repo identity blocking.",
+      "title": "Forward tests"
+    },
+    {
+      "id": "independent_control_audit_evidence",
+      "rule": "Record independent control audit evidence that shows the audit command, implementation handoff state, blocker proofs, validation results, and no product/runtime/deploy edits before role coverage closed.",
+      "title": "Independent control audit evidence"
+    },
+    {
+      "id": "source_freshness_preflight",
+      "rule": "Before ROLE_COVERAGE_BLOCKER closeout, record current plugin checkout SHA, root gitlink SHA, and root origin/main plugin gitlink SHA; if the requested mapping exists only in newer merged plugin state, emit STALE_ROLE_GATE_SOURCE and a safe next action instead of ROLE_COVERAGE_BLOCKER.",
+      "title": "Source freshness preflight"
+    }
+  ],
+  "owner_plugin": "bears",
+  "required_validators": [
+    {
+      "command": "python3 scripts/platform_roles.py route /srv/bears/legacy/seller/apps/auth_core",
+      "id": "known_concrete_part_one_primary"
+    },
+    {
+      "command": "python3 -m unittest tests/test_platform_roles.py",
+      "id": "unknown_or_unmapped_blocks"
+    },
+    {
+      "command": "python3 scripts/platform_roles.py route /srv/bears/legacy/seller/apps",
+      "id": "parent_group_only_rejected"
+    },
+    {
+      "command": "python3 -m unittest tests/test_platform_roles.py",
+      "id": "overly_broad_role_rejected"
+    },
+    {
+      "command": "python3 scripts/platform_roles.py route plugins/bears",
+      "id": "decomposition_required_for_broad_scope"
+    },
+    {
+      "command": "python3 scripts/platform_roles.py route /srv/bears/legacy/seller/apps/auth_core",
+      "id": "supporting_roles_attach_on_risk"
+    },
+    {
+      "command": "python3 scripts/platform_roles.py audit /srv/bears/plugins/bears/assets/catalog/platform-role-catalog.v1.json",
+      "id": "handoff_blocked_before_validation"
+    },
+    {
+      "command": "python3 -m unittest tests/test_role_gate_methodology.py",
+      "id": "stale_source_distinguished_from_missing_coverage"
+    },
+    {
+      "command": "python3 scripts/platform_roles.py role-development-plan tests/test_missing_auto_role_example.py --json",
+      "id": "auto_role_development_plan_ready"
+    }
+  ],
+  "schema": "bears-role-gate-methodology.v1",
+  "selection_method": [
+    "Identify the requested concrete part from path, service, workflow, remote, dependency edge, and requested behavior.",
+    "Resolve candidates from exact aliases or declared write roots only; broad fallback matching is forbidden. Exact workspace submodule-root aliases may route parent gitlink pointers only and must not widen child working-tree authority.",
+    "Reject parent or group matches as parent_only blockers.",
+    "Reject controller, reviewer, or broad roles as invalid_broad_role blockers.",
+    "If exactly one valid primary specialist or helper role remains, attach reviewer-only supporting roles for risk flags and continue to audit.",
+    "Before closing a ROLE_COVERAGE_BLOCKER packet, run the source freshness preflight and distinguish STALE_ROLE_GATE_SOURCE from true missing coverage.",
+    "If zero or multiple primary roles remain, return the exact ROLE_COVERAGE_BLOCKER packet."
+  ],
   "source_freshness_preflight": {
+    "exact_role_policy": "Exact-role policy remains active; generic role substitution is forbidden even when source freshness is stale.",
+    "mapping_check": "If the requested mapping exists only in newer merged plugin state, classify the result as stale source instead of true missing role coverage.",
     "required_before": "Run after a route/audit packet would close with ROLE_COVERAGE_BLOCKER and before blocker closeout is reported to the operator.",
-    "status_on_stale_source": "STALE_ROLE_GATE_SOURCE",
     "required_sha_fields": [
       "current_plugin_checkout_sha",
       "root_gitlink_sha",
       "root_origin_main_plugin_gitlink_sha"
+    ],
+    "safe_next_actions": [
+      "sync plugin checkout",
+      "switch to a clean root-sync worktree"
     ],
     "stale_packet_fields": [
       "status",
@@ -1631,21 +1619,23 @@
       "safe_next_action",
       "exact_role_policy"
     ],
-    "mapping_check": "If the requested mapping exists only in newer merged plugin state, classify the result as stale source instead of true missing role coverage.",
-    "safe_next_actions": [
-      "sync plugin checkout",
-      "switch to a clean root-sync worktree"
-    ],
-    "exact_role_policy": "Exact-role policy remains active; generic role substitution is forbidden even when source freshness is stale."
+    "status_on_stale_source": "STALE_ROLE_GATE_SOURCE"
   },
+  "truth_control_work": {
+    "control": "Bears plugin",
+    "truth": "Spec Kit",
+    "work": "session workers"
+  },
+  "updated": "2026-06-19",
   "validation_command_policy": {
-    "working_directory": "/srv/bears/plugins/bears",
-    "canonical_unittest_command": "python3 -m unittest tests/test_platform_roles.py tests/test_role_gate_methodology.py",
     "blocked_unittest_patterns": [
       "python3 -m unittest /srv/bears/plugins/bears/tests/test_platform_roles.py /srv/bears/plugins/bears/tests/test_role_gate_methodology.py",
       "python3 -m unittest /srv/bears/plugins/bears/tests/test_platform_roles.py"
     ],
+    "canonical_unittest_command": "python3 -m unittest tests/test_platform_roles.py tests/test_role_gate_methodology.py",
     "failure_classification_rule": "If an absolute-path unittest command fails while the repo-relative command passes, report command_shape_failure, not test_assertion_failure.",
-    "handoff_rule": "Role-gate subagent handoffs must use repo-relative unittest paths from the declared working_directory."
-  }
+    "handoff_rule": "Role-gate subagent handoffs must use repo-relative unittest paths from the declared working_directory.",
+    "working_directory": "/srv/bears/plugins/bears"
+  },
+  "version": "1"
 }

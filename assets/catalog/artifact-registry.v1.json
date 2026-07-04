@@ -5676,108 +5676,6 @@
     },
     {
       "allowed_writers": [
-        "bears-telegram-platform-engineer"
-      ],
-      "artifact_type": "doc",
-      "changelog_required": false,
-      "decision_ref_required": false,
-      "git_tracked": true,
-      "lifecycle": "doc",
-      "owner_issue": "#bears-telegram-workflow",
-      "owner_role": "bears-telegram-platform-engineer",
-      "path": "skills/bears-telegram-workflow/references",
-      "source_of_truth_status": "canonical",
-      "validation": [
-        "python3 scripts/artifact_registry.py validate"
-      ]
-    },
-    {
-      "allowed_writers": [
-        "bears-telegram-platform-engineer"
-      ],
-      "artifact_type": "script",
-      "changelog_required": false,
-      "decision_ref_required": false,
-      "git_tracked": true,
-      "lifecycle": "script",
-      "owner_issue": "#bears-telegram-workflow",
-      "owner_role": "bears-telegram-platform-engineer",
-      "path": "skills/bears-telegram-workflow/scripts",
-      "source_of_truth_status": "canonical",
-      "validation": [
-        "python3 scripts/artifact_registry.py validate"
-      ]
-    },
-    {
-      "allowed_writers": [
-        "bears-telegram-platform-engineer"
-      ],
-      "artifact_type": "test",
-      "changelog_required": false,
-      "decision_ref_required": false,
-      "git_tracked": true,
-      "lifecycle": "test",
-      "owner_issue": "#bears-telegram-workflow",
-      "owner_role": "bears-telegram-platform-engineer",
-      "path": "skills/bears-telegram-workflow/tests",
-      "source_of_truth_status": "canonical",
-      "validation": [
-        "python3 scripts/artifact_registry.py validate"
-      ]
-    },
-    {
-      "allowed_writers": [
-        "bears-telegram-platform-engineer"
-      ],
-      "artifact_type": "doc",
-      "changelog_required": false,
-      "decision_ref_required": false,
-      "git_tracked": true,
-      "lifecycle": "doc",
-      "owner_issue": "#bears-telegram-workflow",
-      "owner_role": "bears-telegram-platform-engineer",
-      "path": "skills/bears-telegram-workflow/references/**",
-      "source_of_truth_status": "canonical",
-      "validation": [
-        "python3 scripts/artifact_registry.py validate"
-      ]
-    },
-    {
-      "allowed_writers": [
-        "bears-telegram-platform-engineer"
-      ],
-      "artifact_type": "script",
-      "changelog_required": false,
-      "decision_ref_required": false,
-      "git_tracked": true,
-      "lifecycle": "script",
-      "owner_issue": "#bears-telegram-workflow",
-      "owner_role": "bears-telegram-platform-engineer",
-      "path": "skills/bears-telegram-workflow/scripts/**",
-      "source_of_truth_status": "canonical",
-      "validation": [
-        "python3 scripts/artifact_registry.py validate"
-      ]
-    },
-    {
-      "allowed_writers": [
-        "bears-telegram-platform-engineer"
-      ],
-      "artifact_type": "test",
-      "changelog_required": false,
-      "decision_ref_required": false,
-      "git_tracked": true,
-      "lifecycle": "test",
-      "owner_issue": "#bears-telegram-workflow",
-      "owner_role": "bears-telegram-platform-engineer",
-      "path": "skills/bears-telegram-workflow/tests/**",
-      "source_of_truth_status": "canonical",
-      "validation": [
-        "python3 scripts/artifact_registry.py validate"
-      ]
-    },
-    {
-      "allowed_writers": [
         "bears-deploy-platform-engineer"
       ],
       "artifact_type": "doc",
@@ -7028,23 +6926,6 @@
       "lifecycle": "doc",
       "owner_issue": "operator-goal-github-project-planning",
       "owner_role": "bears-github-project-issues-orchestrator",
-      "path": "skills/github-project-planning/references/apps-migration-project.md",
-      "source_of_truth_status": "canonical",
-      "validation": [
-        "python3 scripts/artifact_registry.py validate"
-      ]
-    },
-    {
-      "allowed_writers": [
-        "bears-github-project-issues-orchestrator"
-      ],
-      "artifact_type": "doc",
-      "changelog_required": false,
-      "decision_ref_required": false,
-      "git_tracked": true,
-      "lifecycle": "doc",
-      "owner_issue": "operator-goal-github-project-planning",
-      "owner_role": "bears-github-project-issues-orchestrator",
       "path": "skills/app-constitution/SKILL.md",
       "source_of_truth_status": "canonical",
       "validation": [
@@ -7079,11 +6960,11 @@
       "lifecycle": "doc",
       "owner_issue": "operator-goal-github-project-planning",
       "owner_role": "bears-github-project-issues-orchestrator",
+      "path": "skills/app-research/SKILL.md",
       "source_of_truth_status": "canonical",
       "validation": [
         "python3 scripts/artifact_registry.py validate"
-      ],
-      "path": "skills/app-research/SKILL.md"
+      ]
     },
     {
       "allowed_writers": [
@@ -7096,11 +6977,11 @@
       "lifecycle": "doc",
       "owner_issue": "operator-goal-github-project-planning",
       "owner_role": "bears-github-project-issues-orchestrator",
+      "path": "skills/app-research/agents/openai.yaml",
       "source_of_truth_status": "canonical",
       "validation": [
         "python3 scripts/artifact_registry.py validate"
-      ],
-      "path": "skills/app-research/agents/openai.yaml"
+      ]
     },
     {
       "allowed_writers": [

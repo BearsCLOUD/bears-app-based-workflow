@@ -1,0 +1,72 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://bears.local/plugins/bears/schemas/workflow-policy.schema.json",
+  "title": "Bears plugin workflow policy packet",
+  "type": "object",
+  "required": [
+    "schema",
+    "status",
+    "target",
+    "owner_role",
+    "allowed_scope",
+    "forbidden_scope",
+    "evidence",
+    "recommendation"
+  ],
+  "properties": {
+    "schema": {
+      "type": "string",
+      "const": "bears-workflow-overlay.workflow-policy"
+    },
+    "version": {
+      "type": "string",
+      "enum": [
+        "1",
+        "1.0",
+        "v1"
+      ]
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pass",
+        "review",
+        "blocked"
+      ]
+    },
+    "target": {
+      "type": "string",
+      "minLength": 1
+    },
+    "owner_role": {
+      "type": "string",
+      "minLength": 1
+    },
+    "allowed_scope": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "forbidden_scope": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "evidence": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "recommendation": {
+      "type": "string",
+      "minLength": 1
+    }
+  },
+  "additionalProperties": false
+}

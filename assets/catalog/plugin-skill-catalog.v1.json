@@ -1,12 +1,12 @@
 {
   "active_skills": [
     {
-      "description": "Classify Bears workflow-overlay risks, blockers, and unblock paths.",
+      "description": "Classify plugin/non-app workflow-overlay risks, blockers, and unblock paths without acting as an app workflow gate.",
       "name": "bears-blocker-eval",
       "path": "skills/bears-blocker-eval"
     },
     {
-      "description": "Assess deploy, rollback, runtime, and secret impact for Bears workflow-overlay changes.",
+      "description": "Assess plugin/non-app deploy, rollback, runtime, and secret impact without acting as an app workflow gate.",
       "name": "bears-deploy-gate",
       "path": "skills/bears-deploy-gate"
     },
@@ -19,16 +19,6 @@
       "description": "Diagnose Codex desktop/app-server freezes, MCP fan-out, session growth, and safe evidence-first remediation planning.",
       "name": "bears-codex-health",
       "path": "skills/bears-codex-health"
-    },
-    {
-      "description": "Run Bears workflow-overlay governance routing checks before boundary edits.",
-      "name": "bears-governance-check",
-      "path": "skills/bears-governance-check"
-    },
-    {
-      "description": "Validate or emit Bears role-coverage packets and ROLE_COVERAGE_BLOCKER results.",
-      "name": "bears-role-gate",
-      "path": "skills/bears-role-gate"
     },
     {
       "description": "Validate Bears workflow-overlay skill, README, schema-packet, and workflow boundaries.",
@@ -71,7 +61,7 @@
       "path": "skills/app-plan"
     },
     {
-      "description": "Plan and administer Bears GitHub Projects, fields, views, issues, sub-issues, item hygiene, and planning PASS handoffs before app-dev development execution.",
+      "description": "Plan and administer non-app GitHub Projects, fields, views, issues, sub-issues, item hygiene, and planning PASS packets; app workflow planning belongs to app-plan.",
       "name": "github-project-planning",
       "path": "skills/github-project-planning"
     },
@@ -111,28 +101,7 @@
       "path": "skills/codex-telegram-operator-gate"
     }
   ],
-  "disabled_skills": [
-    {
-      "name": "bears-telegram-workflow",
-      "path": "skills/bears-telegram-workflow",
-      "reason": "Telegram workflow governance is preserved as an internal reference until active plugin discovery is re-enabled."
-    },
-    {
-      "name": "telegram-aiogram-migration",
-      "path": "skills/telegram-aiogram-migration",
-      "reason": "Aiogram migration governance is preserved as an internal reference until active plugin discovery is re-enabled."
-    },
-    {
-      "name": "telegram-plugin-skill-factory",
-      "path": "skills/telegram-plugin-skill-factory",
-      "reason": "Telegram skill-factory policy is preserved as an internal reference until active plugin discovery is re-enabled."
-    },
-    {
-      "name": "telegram-quality-testing",
-      "path": "skills/telegram-quality-testing",
-      "reason": "Telegram quality-testing guidance is preserved as an internal reference until active plugin discovery is re-enabled."
-    }
-  ],
+  "disabled_skills": [],
   "discovery_policy": {
     "active_skill_file": "SKILL.md",
     "disabled_skill_file": "SKILL.disabled.md",

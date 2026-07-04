@@ -19,18 +19,12 @@ EXPECTED_SKILL_PATHS = [
     "skills/bears-blocker-eval/SKILL.md",
     "skills/bears-deploy-gate/SKILL.md",
     "skills/bears-goal-prompt/SKILL.md",
-    "skills/bears-governance-check/SKILL.md",
-    "skills/bears-role-gate/SKILL.md",
-    "skills/bears-telegram-workflow/SKILL.disabled.md",
     "skills/bears-workflow-validate/SKILL.md",
     "skills/platform-role-governance/SKILL.md",
     "skills/project-mandate/SKILL.md",
     "skills/secret-factory/SKILL.md",
     "skills/speckit-bears-flow/SKILL.md",
     "skills/speckit-bears-research/SKILL.md",
-    "skills/telegram-aiogram-migration/SKILL.disabled.md",
-    "skills/telegram-plugin-skill-factory/SKILL.disabled.md",
-    "skills/telegram-quality-testing/SKILL.disabled.md",
     "skills/yandex360-dns/SKILL.md",
 ]
 EXPECTED_CATALOG_PATHS = [
@@ -47,10 +41,8 @@ EXPECTED_CATALOG_PATHS = [
     "assets/catalog/secret-factory.v1.json",
     "assets/catalog/session-workers-runtime.v1.json",
     "assets/catalog/subagent-orchestration-policy.v1.json",
-    "assets/catalog/telegram-workflow-catalog.v1.json",
     "assets/catalog/telegram-aiogram-migration-backlog.v1.json",
     "assets/catalog/telegram-runtime-readiness.v1.json",
-    "assets/catalog/telegram-plugin-skill-factory-policy.v1.json",
 ]
 EXPECTED_VALIDATOR_PATHS = [
     "scripts/agent_github_dev_cd.py",
@@ -67,11 +59,8 @@ EXPECTED_VALIDATOR_PATHS = [
     "scripts/session_workers_runtime.py",
     "scripts/skill_catalog.py",
     "scripts/subagent_orchestration_policy.py",
-    "scripts/telegram_catalog.py",
     "scripts/telegram_migration_backlog.py",
     "scripts/telegram_runtime_readiness.py",
-    "scripts/telegram_surface_inventory.py",
-    "scripts/telegram_skill_factory_policy.py",
     "scripts/validate_overlay.py",
 ]
 FORBIDDEN_TEXT_SNIPPETS = [
@@ -95,10 +84,6 @@ YANDEX_LIVE_DNS_FORBIDDEN_CLAIMS = [
     "live DNS",
 ]
 TELEGRAM_SKILL_DIRS = [
-    "skills/bears-telegram-workflow",
-    "skills/telegram-aiogram-migration",
-    "skills/telegram-plugin-skill-factory",
-    "skills/telegram-quality-testing",
 ]
 
 
@@ -224,13 +209,11 @@ class PluginManifestTests(unittest.TestCase):
         self.assertIn('Operator note: in this repo, "Telegram workflow" means governance rules', readme)
         self.assertIn("It does not mean a live Telegram bot, runtime, connector, product app, or MCP surface", readme)
         self.assertIn("disabled from active plugin skill discovery", readme)
-        self.assertIn("SKILL.disabled.md", readme)
+        self.assertNotIn("SKILL.disabled.md", readme)
         self.assertNotIn(
-            "- `skills/bears-telegram-workflow`",
             readme,
         )
         self.assertNotIn(
-            "- `skills/telegram-quality-testing`",
             readme,
         )
 

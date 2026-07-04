@@ -1750,9 +1750,29 @@
       "scope_id": "app-workflow-skill-rename",
       "status": "accepted",
       "unresolved_inputs": []
+    },
+    {
+      "affected_paths": [
+        "assets/catalog/telegram-plugin-skill-factory-policy.v1.json",
+        "assets/catalog/telegram-workflow-catalog.v1.json",
+        "scripts/telegram_catalog.py",
+        "scripts/telegram_skill_factory_policy.py",
+        "scripts/telegram_surface_inventory.py"
+      ],
+      "change_type": "policy",
+      "contradictions": [],
+      "decision": "Retire deleted Telegram disabled-skill catalog and helper surfaces from active plugin governance.",
+      "decision_id": "app-workflow-skill-boundary-cleanup-2026-07-04",
+      "owner_issue": "#bears-plugin-governance",
+      "owner_role": "bears-workflow-overlay-platform-engineer",
+      "rationale": "Disabled Telegram skill dirs were removed from skills/, so coupled catalog and helper files must not stay as active authoritative surfaces.",
+      "redaction": "safe",
+      "scope_id": "app-workflow-skill-boundaries",
+      "status": "accepted",
+      "unresolved_inputs": []
     }
   ],
   "schema": "bears-decision-ledger.v1",
-  "updated": "2026-07-03",
+  "updated": "2026-07-04",
   "version": "1"
 }

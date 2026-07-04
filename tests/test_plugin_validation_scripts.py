@@ -20,11 +20,8 @@ SCRIPT_PATHS = [
     PLUGIN_ROOT / "scripts" / "agent_github_dev_cd.py",
     PLUGIN_ROOT / "scripts" / "skill_catalog.py",
     PLUGIN_ROOT / "scripts" / "secret_factory.py",
-    PLUGIN_ROOT / "scripts" / "telegram_catalog.py",
     PLUGIN_ROOT / "scripts" / "telegram_migration_backlog.py",
     PLUGIN_ROOT / "scripts" / "telegram_runtime_readiness.py",
-    PLUGIN_ROOT / "scripts" / "telegram_surface_inventory.py",
-    PLUGIN_ROOT / "scripts" / "telegram_skill_factory_policy.py",
     PLUGIN_ROOT / "scripts" / "validate_overlay.py",
 ]
 

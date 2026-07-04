@@ -111,6 +111,6 @@ Do not use this flow to choose the organization's Project field model, create on
 
 ## Apps repo boundary
 
-For `BearsCLOUD/apps`, `apps` is the repository name and `/srv/bears/dev/app` is the local repo root. Do not create or route `/srv/bears/dev/app/apps`.
+For `BearsCLOUD/apps`, `apps` is the repository name and `/srv/bears/dev/app` is the local repo root.
 
 A Project-management policy may choose a canonical Project for `BearsCLOUD/apps`. This flow consumes that Project/Issue state and treats app directories or legacy source repos as work items, Issues, or sub-issues according to that policy.

@@ -8,12 +8,10 @@ Disabled skills expose only `SKILL.disabled.md`; they MUST NOT keep `SKILL.md`.
 
 ## Active skills
 
-- `skills/bears-blocker-eval` — Classify Bears workflow-overlay risks, blockers, and unblock paths.
-- `skills/bears-deploy-gate` — Assess deploy, rollback, runtime, and secret impact for Bears workflow-overlay changes.
+- `skills/bears-blocker-eval` — Classify plugin/non-app workflow-overlay risks, blockers, and unblock paths without acting as an app workflow gate.
+- `skills/bears-deploy-gate` — Assess plugin/non-app deploy, rollback, runtime, and secret impact without acting as an app workflow gate.
 - `skills/bears-goal-prompt` — Generate bounded and verifiable Codex goal prompts for Bears work.
 - `skills/bears-codex-health` — Diagnose Codex desktop/app-server freezes, MCP fan-out, session growth, and safe evidence-first remediation planning.
-- `skills/bears-governance-check` — Run Bears workflow-overlay governance routing checks before boundary edits.
-- `skills/bears-role-gate` — Validate or emit Bears role-coverage packets and ROLE_COVERAGE_BLOCKER results.
 - `skills/bears-workflow-validate` — Validate Bears workflow-overlay skill, README, schema-packet, and workflow boundaries.
 - `skills/platform-role-governance` — Enforce the canonical Bears plugin-owned platform role gate.
 - `skills/python-codeflow` — Independent reusable L3-local Python standard for bounded Python worker tasks.
@@ -22,7 +20,7 @@ Disabled skills expose only `SKILL.disabled.md`; they MUST NOT keep `SKILL.md`.
 - `skills/app-research` — Research external solutions, prior art, product logic, integrations, UI/UX patterns, providers, and market constraints for Bears app targets.
 - `skills/app-specify` — Create or update app specifications from operator intent, constitution rules, app-research evidence, and repo evidence.
 - `skills/app-plan` — Convert Bears app docs into GitHub Issues and Apps Project #20 items with app/platform/infra lane maps for app-dev execution.
-- `skills/github-project-planning` — Plan and administer Bears GitHub Projects, fields, views, issues, sub-issues, item hygiene, and planning PASS handoffs before app-dev development execution.
+- `skills/github-project-planning` — Plan and administer non-app GitHub Projects, fields, views, issues, sub-issues, item hygiene, and planning PASS packets; app workflow planning belongs to app-plan.
 - `skills/app-analyze` — Analyze app workflow artifacts, lane maps, dependencies, roles, proof requirements, and app-dev handoff for drift.
 - `skills/yandex360-dns` — DNS governance workflow for bears.ru through Yandex 360 using presence-only checks, dry-run plan review, and read-only governance evidence only.
 - `skills/bears-kubernetes-ops` — Perform Bears Kubernetes metadata checks, desired-state/local_cd deploy-boundary checks, secret-reference readiness, and dev-instance runtime placement guidance.
@@ -32,7 +30,3 @@ Disabled skills expose only `SKILL.disabled.md`; they MUST NOT keep `SKILL.md`.
 - `skills/codex-telegram-operator-gate` — Request bounded operator decisions, feedback waits, and safe file exchange through the configured codex-telegram MCP server without a Telegram PreToolUse hook.
 
 ## Disabled preserved skill docs
-- `skills/bears-telegram-workflow/SKILL.disabled.md` — Telegram workflow governance is preserved as an internal reference until active plugin discovery is re-enabled.
-- `skills/telegram-aiogram-migration/SKILL.disabled.md` — Aiogram migration governance is preserved as an internal reference until active plugin discovery is re-enabled.
-- `skills/telegram-plugin-skill-factory/SKILL.disabled.md` — Telegram skill-factory policy is preserved as an internal reference until active plugin discovery is re-enabled.
-- `skills/telegram-quality-testing/SKILL.disabled.md` — Telegram quality-testing guidance is preserved as an internal reference until active plugin discovery is re-enabled.

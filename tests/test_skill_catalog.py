@@ -68,10 +68,14 @@ class SkillCatalogTests(unittest.TestCase):
             catalog_dir = root / "assets/catalog"
             catalog_dir.mkdir(parents=True)
             shutil.copy2(CATALOG_PATH, catalog_dir / "plugin-skill-catalog.v1.json")
-            bad = root / "skills/telegram-quality-testing/SKILL.md"
-            bad.write_text("---\nname: telegram-quality-testing\ndescription: bad\n---\n")
+            bad_dir = root / "skills/disabled-example"
+            bad_dir.mkdir()
+            (bad_dir / "SKILL.disabled.md").write_text("---\nname: disabled-example\ndescription: disabled\n---\n")
+            (bad_dir / "SKILL.md").write_text("---\nname: disabled-example\ndescription: bad\n---\n")
+            catalog = json.loads(json.dumps(self.catalog))
+            catalog["disabled_skills"] = [{"name": "disabled-example", "path": "skills/disabled-example", "reason": "temporary disabled fixture"}]
 
-            errors = skill_catalog.validate_catalog(self.catalog, root)
+            errors = skill_catalog.validate_catalog(catalog, root)
 
         self.assertTrue(
             any("disabled skill must not expose SKILL.md" in error for error in errors),

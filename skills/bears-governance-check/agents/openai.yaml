@@ -1,4 +1,0 @@
-interface:
-  display_name: "Bears Governance Check"
-  short_description: "Route Bears workflow overlay governance"
-  default_prompt: "Use $bears-governance-check to produce a JSON-first policy packet and advisory route summary."

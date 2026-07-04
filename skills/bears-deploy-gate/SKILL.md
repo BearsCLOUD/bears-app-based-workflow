@@ -1,13 +1,17 @@
 ---
 name: bears-deploy-gate
-description: "Use to assess deploy, rollback, runtime, and secret impact for Bears workflow-overlay changes; emits or validates deploy-gate JSON before report-first review."
+description: "Use to assess plugin/non-app deploy, rollback, runtime, and secret impact for Bears workflow-overlay changes; emits or validates deploy-gate JSON and never acts as an app workflow gate."
 ---
 
 # Bears Deploy Gate
 
-Use this skill before Bears workflow-overlay changes that may affect deploy behavior, runtime surfaces, rollback complexity, or secret handling.
+Use this skill only before plugin/non-app Bears workflow-overlay changes that may affect deploy behavior, runtime surfaces, rollback complexity, or secret handling. App workflow infra/deploy planning belongs to `$app-plan`, `$app-analyze`, and the infra lane.
 
 This skill does not mutate deploy state. It is report-first and advisory unless a role gate returns `ROLE_COVERAGE_BLOCKER` or a higher-priority/user instruction stops the work.
+
+## Boundary
+
+Do not use this skill as an app gate, app PASS source, app execution blocker, or replacement for `app-plan`/`app-analyze`.
 
 ## Workflow
 

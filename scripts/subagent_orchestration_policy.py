@@ -41,7 +41,6 @@ REQUIRED_RULE_IDS = {
     "documentation-secret-safety-stage-boundary-audit",
     "user-information-capture-stage-boundary-audit",
     "audit-subagents-fresh-no-parent-context",
-    "project-mandate-owned-by-bears",
     "main-agent-orchestration-only",
     "parent-control-lane-actions",
     "no-subagent-mode-decision-table",

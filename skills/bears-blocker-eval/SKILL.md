@@ -1,13 +1,17 @@
 ---
 name: bears-blocker-eval
-description: "Use to classify Bears workflow-overlay risks, blockers, and unblock paths; emits or validates blocker-review JSON and keeps ordinary risks advisory."
+description: "Use to classify plugin/non-app Bears workflow-overlay risks, blockers, and unblock paths; emits or validates blocker-review JSON and never acts as an app workflow gate."
 ---
 
 # Bears Blocker Eval
 
-Use this skill when workflow-overlay work has raw failure signals, scope concerns, missing artifacts, or risk claims that must be separated into true blockers versus advisory risks.
+Use this skill only for plugin/non-app workflow-overlay work when raw failure signals, scope concerns, missing artifacts, or risk claims must be separated into true blockers versus advisory risks. App workflow findings belong to `$app-analyze`.
 
 This skill is report-first. It must not stop work by itself unless it is propagating a file-backed `ROLE_COVERAGE_BLOCKER` from the role gate or an explicit higher-priority/user stop.
+
+## Boundary
+
+Do not use this skill as an app gate, app PASS source, app execution blocker, or replacement for `app-plan`/`app-analyze`.
 
 ## Workflow
 

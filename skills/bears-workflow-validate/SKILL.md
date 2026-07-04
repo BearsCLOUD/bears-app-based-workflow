@@ -50,6 +50,27 @@ Agents may run exact `platform_roles.py route <changed-target>` and `platform_ro
 - Local commit validation owns `python3 scripts/validate_overlay.py --json validate --strict-overlay-skills --feature-dir /srv/bears/specs/005-telegram-workflow-plugin --require-artifacts`; manual execution requires operator approval.
 - Local commit validation owns `python3 -m unittest discover -s tests`; manual execution requires operator approval.
 
+
+## Minimal plugin policy packet
+
+Use this packet only for plugin/non-app workflow boundary checks after the retired governance-check split. Do not use it for app workflow; app work uses `$app-plan` and `$app-analyze`.
+
+```json
+{
+  "schema": "bears-workflow-overlay.workflow-policy",
+  "version": "1",
+  "status": "pass|review|blocked",
+  "target": "<plugin-or-non-app-target>",
+  "owner_role": "<route-selected role>",
+  "allowed_scope": ["<exact allowed paths/actions>"],
+  "forbidden_scope": ["app workflow", "product implementation", "runtime mutation", "secrets", "raw logs"],
+  "evidence": ["<paths or route/audit summaries>"],
+  "recommendation": "<next action>"
+}
+```
+
+Use `blocked` only for access, permission, missing role coverage, explicit operator stop, or missing owner proof.
+
 ## JSON artifact
 
 Emit this JSON artifact first:

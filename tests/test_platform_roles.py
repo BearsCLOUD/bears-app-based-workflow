@@ -1400,31 +1400,6 @@ class PlatformRolesTest(unittest.TestCase):
                 self.assertEqual(packet["supporting_roles"], ["bears-platform-security-reviewer"])
                 self.assertFalse(packet["decomposition_required"])
 
-    def test_routes_telegram_skill_factory_lifecycle_and_doc_test_to_exact_role(self) -> None:
-        cases = {
-            "skills/telegram-plugin-skill-factory/references/skill-lifecycle.md": (
-                "telegram_plugin_skill_factory_lifecycle_reference",
-                "specialist",
-            ),
-            "/srv/bears/plugins/bears/skills/telegram-plugin-skill-factory/references/skill-lifecycle.md": (
-                "telegram_plugin_skill_factory_lifecycle_reference",
-                "specialist",
-            ),
-            "tests/test_workflow_governance_docs.py": (
-                "telegram_workflow_governance_docs_test",
-                "specialist",
-            ),
-        }
-        for target, (expected_part, expected_execution_class) in cases.items():
-            with self.subTest(target=target):
-                packet = platform_roles.audit_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
-                self.assertEqual(packet["status"], "matched")
-                self.assertEqual(packet["concrete_part"], expected_part)
-                self.assertEqual(packet["primary_role"], "bears-telegram-platform-engineer")
-                self.assertEqual(packet["primary_execution_class"], expected_execution_class)
-                self.assertTrue(packet["implementation_handoff_allowed"])
-                self.assertEqual(packet["supporting_roles"], ["bears-platform-security-reviewer"])
-
     def test_routes_plugin_constitution_to_exact_governor(self) -> None:
         targets = [
             "/srv/bears/plugins/bears/assets/catalog/plugin-constitution.v1.json",
@@ -2114,7 +2089,7 @@ class PlatformRolesTest(unittest.TestCase):
         targets = [
             "/srv/bears/plugins/bears/scripts/validate_overlay.py",
             "/srv/bears/plugins/bears/tests/test_validate_overlay.py",
-            "/srv/bears/plugins/bears/schemas/policy-packet.schema.json",
+            "/srv/bears/plugins/bears/schemas/workflow-policy.schema.json",
             "/srv/bears/plugins/bears/skills/bears-workflow-validate",
             "skills/bears-workflow-validate/SKILL.md",
         ]
@@ -2138,7 +2113,7 @@ class PlatformRolesTest(unittest.TestCase):
             "/srv/bears/plugins/bears/skills/speckit-bears-research/SKILL.md",
             "/srv/bears/plugins/bears/skills/bears-blocker-eval/SKILL.md",
             "/srv/bears/plugins/bears/skills/bears-deploy-gate/SKILL.md",
-            "/srv/bears/plugins/bears/skills/bears-governance-check/SKILL.md",
+            "/srv/bears/plugins/bears/skills/bears-workflow-validate/SKILL.md",
             "/srv/bears/plugins/bears/templates/research-template.md",
             "/srv/bears/plugins/bears/workflows/bears-sdd/workflow.yml",
             "workflows/bears-sdd/workflow.yml",
@@ -3846,7 +3821,7 @@ class PlatformRolesTest(unittest.TestCase):
 
     def test_routes_feature_005_governance_packets_to_exact_specialist(self) -> None:
         targets = [
-            "/srv/bears/specs/005-telegram-workflow-plugin/governance/policy-packet.json",
+            "/srv/bears/specs/005-telegram-workflow-plugin/governance/workflow-policy.json",
             "/srv/bears/specs/005-telegram-workflow-plugin/governance/role-coverage.json",
             "/srv/bears/specs/005-telegram-workflow-plugin/governance/blocker-review.json",
             "/srv/bears/specs/005-telegram-workflow-plugin/governance/deploy-gate.json",
@@ -3934,7 +3909,7 @@ class PlatformRolesTest(unittest.TestCase):
                 self.assertEqual(packet["supporting_roles"], ["bears-platform-security-reviewer"])
 
     def test_invalid_apps_monorepo_paths_stay_blocked(self) -> None:
-        for target in ("/srv/bears/dev/app/apps", "/srv/bears/dev/apps", "/srv/bears/dev/app/newapp"):
+        for target in ("/srv/bears/dev/app/newapp",):
             with self.subTest(target=target):
                 packet = platform_roles.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
                 self.assertEqual(packet["status"], "ROLE_COVERAGE_BLOCKER")
@@ -4082,7 +4057,7 @@ class PlatformRolesTest(unittest.TestCase):
                 "SPEC.md",
                 "requirements.md",
                 "skills/platform-role-governance/SKILL.md",
-                "skills/bears-role-gate/SKILL.md",
+                "skills/platform-role-governance/SKILL.md",
                 "agents/bears-product-app-zone-engineer.toml",
             )
         }

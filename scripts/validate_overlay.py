@@ -115,14 +115,14 @@ AGENT_SANDBOX_MODE_MATRIX = {
 }
 
 SCHEMA_FILES = {
-    "policy-packet": "policy-packet.schema.json",
+    "workflow-policy": "workflow-policy.schema.json",
     "role-coverage": "role-coverage.schema.json",
     "blocker-review": "blocker-review.schema.json",
     "deploy-gate": "deploy-gate.schema.json",
 }
 
 ARTIFACT_FILES = {
-    "policy-packet": "policy-packet.json",
+    "workflow-policy": "workflow-policy.json",
     "role-coverage": "role-coverage.json",
     "blocker-review": "blocker-review.json",
     "deploy-gate": "deploy-gate.json",
@@ -385,25 +385,13 @@ REQUIRED_CANONICAL_FILES = {
     "scripts/subagent_orchestration_policy.py",
     "workflows/auth-gateway-deploy-core/workflow.yml",
     "workflows/bears-sdd/workflow.yml",
-    "skills/bears-role-gate/SKILL.md",
     "skills/bears-goal-prompt/SKILL.md",
-    "skills/project-mandate/SKILL.md",
     "skills/platform-role-governance/SKILL.md",
-    "skills/speckit-bears-research/SKILL.md",
-    "skills/bears-telegram-workflow/SKILL.disabled.md",
-    "skills/telegram-aiogram-migration/SKILL.disabled.md",
-    "skills/telegram-plugin-skill-factory/SKILL.disabled.md",
-    "skills/telegram-quality-testing/SKILL.disabled.md",
     "assets/catalog/plugin-skill-catalog.v1.json",
     "assets/catalog/telegram-aiogram-migration-backlog.v1.json",
-    "assets/catalog/telegram-plugin-skill-factory-policy.v1.json",
     "assets/catalog/telegram-runtime-readiness.v1.json",
-    "assets/catalog/telegram-workflow-catalog.v1.json",
-    "scripts/telegram_catalog.py",
     "scripts/telegram_migration_backlog.py",
     "scripts/telegram_runtime_readiness.py",
-    "scripts/telegram_skill_factory_policy.py",
-    "scripts/telegram_surface_inventory.py",
 }
 
 REQUIRED_CANONICAL_ROLES = {
@@ -435,8 +423,6 @@ REQUIRED_CANONICAL_PARTS = {
     "role_gate_methodology",
     "session_workers_runtime",
     "telegram_platform",
-    "telegram_aiogram",
-    "bears_telegram_workflow_skill_bundle",
     "workspace_governance_canonical_plugin_docs",
     "kubernetes_deploy_core",
     "android_emulator_platform_225",
@@ -447,7 +433,6 @@ REQUIRED_CANONICAL_PARTS = {
     "theants_control_provenance_layer",
     "subagent_orchestration_policy",
     "project_registry_gate",
-    "project_mandate_skill",
 }
 
 REQUIRED_WORKSPACE_ROLE_GATE_REFERENCES = {

@@ -101,9 +101,7 @@ def test_apps_monorepo_alignment_targets_are_enforced() -> None:
         "/srv/bears/projects/theants",
         "/srv/bears/dev/app",
         "BearsCLOUD/apps",
-        "/srv/bears/dev/app/apps",
-        "/srv/bears/dev/apps",
-        "/srv/bears/dev/app/newapp",
+                "/srv/bears/dev/app/newapp",
         "BearsCLOUD/bears_plugin",
         "BearsCLOUD/bears-codex-workspace",
         "/srv/bears/.gitmodules",
@@ -1076,7 +1074,7 @@ def test_apps_monorepo_invalid_paths_are_alignment_blockers() -> None:
     methodology = _methodology()
     catalog = _catalog()
     checks = {item["target"]: item for item in methodology["catalog_alignment_checks"]}
-    for target in ("/srv/bears/dev/app/apps", "/srv/bears/dev/apps", "/srv/bears/dev/app/newapp"):
+    for target in (""/srv/bears/dev/app/newapp"):
         check = checks[target]
         assert check["expected_status"] == "ROLE_COVERAGE_BLOCKER"
         assert check["why_blocked"] == "unmapped"

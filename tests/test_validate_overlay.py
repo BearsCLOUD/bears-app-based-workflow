@@ -631,14 +631,12 @@ def _write_canonical_fixture_assets(plugin_root: Path) -> None:
 
     for catalog_file in (
         "telegram-aiogram-migration-backlog.v1.json",
-        "telegram-plugin-skill-factory-policy.v1.json",
         "telegram-runtime-readiness.v1.json",
-        "telegram-workflow-catalog.v1.json",
     ):
         (catalog_dir / catalog_file).write_text("{}\n")
 
     for skill in (
-        "bears-role-gate",
+        "platform-role-governance",
         "bears-goal-prompt",
         "project-mandate",
         "platform-role-governance",
@@ -655,7 +653,7 @@ def _write_canonical_fixture_assets(plugin_root: Path) -> None:
         (skill_dir / "SKILL.disabled.md").write_text(f"---\nname: {skill}\ndescription: test\n---\n")
 
     active_skill_names = [
-        "bears-role-gate",
+        "platform-role-governance",
         "bears-goal-prompt",
         "project-mandate",
         "platform-role-governance",
@@ -999,7 +997,7 @@ def _write_policy_packet(path: Path) -> None:
     path.write_text(
         json.dumps(
             {
-                "schema": "bears-workflow-overlay.policy-packet",
+                "schema": "bears-workflow-overlay.workflow-policy",
                 "version": "1",
                 "status": "draft",
                 "project_router": "agent-router",
@@ -1575,7 +1573,7 @@ def test_validate_feature_schema_success(tmp_path: Path) -> None:
     governance_dir = feature_dir / "governance"
     governance_dir.mkdir()
 
-    _write_policy_packet(governance_dir / "policy-packet.json")
+    _write_policy_packet(governance_dir / "workflow-policy.json")
 
     errors_count, errors, _warnings = validate_all(
         plugin_root=plugin_root,
@@ -1671,7 +1669,7 @@ def test_validate_feature_artifacts_requires_governance_packets_and_analyze_pass
     plugin_root, feature_dir, workspace_root = _create_plugin_fixture(tmp_path)
     governance_dir = feature_dir / "governance"
     governance_dir.mkdir()
-    _write_policy_packet(governance_dir / "policy-packet.json")
+    _write_policy_packet(governance_dir / "workflow-policy.json")
 
     errors_count, errors, _ = validate_all(
         plugin_root=plugin_root,
@@ -1695,7 +1693,7 @@ def test_validate_feature_artifacts_tolerates_governance_directory(tmp_path: Pat
     plugin_root, feature_dir, workspace_root = _create_plugin_fixture(tmp_path)
     governance_dir = feature_dir / "governance"
     governance_dir.mkdir()
-    (governance_dir / "policy-packet.json").write_text("{}")
+    (governance_dir / "workflow-policy.json").write_text("{}")
     (governance_dir / "role-coverage.json").write_text("{}")
     (governance_dir / "blocker-review.json").write_text("{}")
     (governance_dir / "deploy-gate.json").write_text("{}")

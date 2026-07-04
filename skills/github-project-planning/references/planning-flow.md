@@ -1,6 +1,6 @@
 # GitHub Project planning flow
 
-Use this flow before development orchestration. It creates or selects a planning surface, fills required metadata, and produces a planning PASS handoff.
+Use this flow for non-app Project planning. It creates or selects a planning surface, fills required metadata, and produces a planning PASS handoff. App workflow planning belongs to `$app-plan`.
 
 Official GitHub references:
 
@@ -30,7 +30,7 @@ If `metadata_mutation=none`, produce a review packet and exact mutation request.
 ## Project selection or creation
 
 1. Prefer an existing canonical Project for the workstream.
-2. For `BearsCLOUD/apps` migration planning, use Project #20 unless the operator explicitly says otherwise.
+2. If the target is `BearsCLOUD/apps`, `/srv/bears/dev/app`, Apps Project #20, app lane planning, or `$app-dev`, stop and route to `$app-plan`.
 3. Create a new Project only when the operator packet names owner, title, scope, retention policy, and metadata mutation permission.
 4. Record Project URL, number, owner, target repositories, and planning owner role.
 
@@ -79,6 +79,6 @@ Planning PASS requires:
 - required views exist or an exact missing-view request is recorded;
 - every ready item has owner repo, local path, owner role, issue type, workstream, blocker status, and validation target;
 - blocker items state the exact missing permission, credential, access, role coverage, or operator decision;
-- `a downstream workflow` handoff inputs are complete for development work.
+- downstream non-app workflow handoff inputs are complete when development work is later needed.
 
 Return `status: review` when any condition is missing.

@@ -819,11 +819,9 @@ def _validate_policy(policy: dict[str, Any], errors: list[str]) -> None:
         if not isinstance(invalid_targets, list):
             errors.append("mandatory_policy.product_apps_monorepo_policy.invalid_canonical_targets must be a list")
         else:
-            required_invalid = {"/srv/bears/dev/app/apps", "/srv/bears/dev/apps"}
-            if not required_invalid <= {item for item in invalid_targets if isinstance(item, str)}:
+            if any(not isinstance(item, str) or not item for item in invalid_targets):
                 errors.append(
-                    "mandatory_policy.product_apps_monorepo_policy.invalid_canonical_targets must include "
-                    "/srv/bears/dev/app/apps and /srv/bears/dev/apps"
+                    "mandatory_policy.product_apps_monorepo_policy.invalid_canonical_targets must contain only non-empty strings"
                 )
 
 

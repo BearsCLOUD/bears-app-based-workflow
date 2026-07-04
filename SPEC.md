@@ -23,7 +23,6 @@ It owns:
 - session worker runtime catalogs and validators for Codex sessions that execute current Spec Kit truth under Bears control;
 - subagent orchestration policy for non-product stage-boundary audits, with legacy post-task aliases only for compatibility;
 - App Target Gate inside `app-*` skills, with target registry evidence used only as compatibility input;
-- Telegram workflow governance as a skill-bundle surface under `/srv/bears/plugins/bears/skills/bears-telegram-workflow` plus sibling Telegram skills, catalogs, scripts, and tests;
 - plugin constitution governance at `assets/catalog/plugin-constitution.v1.json` and `scripts/plugin_constitution.py`;
 - executable capability inventory at `capabilities/inventory.v1.json` and plugin constitution wrapper at `capabilities/plugin_constitution/`;
 - the English-only artifact and subagent-message policy at `assets/catalog/plugin-governance-language-policy.v1.json`;
@@ -81,26 +80,24 @@ agent pickup may start bounded development only for `type:develop-ready` after r
 
 ## Skill discovery source of truth
 
-`assets/catalog/plugin-skill-catalog.v1.json` is the canonical active/disabled skill catalog. `scripts/skill_catalog.py` validates the catalog and generates `docs/generated/README.skill-inventory.md` plus `docs/generated/SPEC.skill-inventory.md`. Disabled skill directories MUST NOT contain `SKILL.md`; preserved content stays in `SKILL.disabled.md`.
 
 ## Telegram workflow skill bundle
 
-Telegram is governed inside this canonical plugin as skills, catalogs, scripts, and tests. `bears-telegram-workflow` is a skill name and route target, not a separate plugin.
+Telegram is governed inside this canonical plugin as catalogs, scripts, tests, and role routing, not as active skill directories.
 
 The governed Telegram skill-bundle surfaces are:
 
-- `/srv/bears/plugins/bears/skills/bears-telegram-workflow`;
-- `/srv/bears/plugins/bears/skills/telegram-aiogram-migration`;
-- `/srv/bears/plugins/bears/skills/telegram-quality-testing`;
-- `/srv/bears/plugins/bears/skills/telegram-plugin-skill-factory`;
+- `assets/catalog/telegram-workflow-catalog.v1.json`;
+- `assets/catalog/telegram-aiogram-migration-backlog.v1.json`;
+- `assets/catalog/telegram-runtime-readiness.v1.json`;
+- `assets/catalog/telegram-plugin-skill-factory-policy.v1.json`;
 - `/srv/bears/plugins/bears/assets/catalog/telegram-*.json`;
 - `/srv/bears/plugins/bears/scripts/telegram_*.py`.
 
 The canonical route for Telegram workflow governance is:
 
-`python3 /srv/bears/plugins/bears/scripts/platform_roles.py route /srv/bears/plugins/bears/skills/bears-telegram-workflow`
 
-It must select `bears-telegram-platform-engineer`. No standalone `/srv/bears/plugins/bears-telegram-workflow` plugin, product app, connector, MCP server, or live Telegram runtime is authorized by this skill bundle. The canonical Bears role gate is first, and Telegram validators are secondary.
+It must select `bears-telegram-platform-engineer`. No standalone Telegram plugin, product app, connector, MCP server, or live Telegram runtime is authorized. The canonical Bears role gate is first, and Telegram validators are secondary.
 
 ## Non-goals
 
@@ -156,9 +153,6 @@ Workflow routing stays inside the one-plugin Bears model:
 - upstream Spec Kit command skills resolve from `/srv/bears/.agents/skills`;
 - Plugin-local Speckit overlay skills are removed from active plugin discovery; app workflow lives in `app-*`;
 - the canonical Bears role gate runs first for every Telegram change request;
-- formatting/UI uses `telegram-quality-testing`;
-- Aiogram migration uses `telegram-aiogram-migration`;
-- skill lifecycle, discovery metadata, and policy updates use `telegram-plugin-skill-factory`;
 - child subagents MUST rerun role routing for their bounded target before work starts.
 - all roadmap work uses `/goal` entrypoint and runs through `assets/catalog/roadmap-control.v1.json`.
 
@@ -323,9 +317,9 @@ The gate checks `/srv/bears/dev/registry/projects.v1.json`, then routes the targ
 
 `assets/catalog/plugin-skill-catalog.v1.json` is the single source of truth for active and disabled Bears plugin skills.
 
-Active discoverable skills: `bears-blocker-eval`, `bears-deploy-gate`, `bears-goal-prompt`, `bears-codex-health`, `bears-governance-check`, `bears-role-gate`, `bears-workflow-validate`, `platform-role-governance`, `python-codeflow`, `secret-factory`, `app-constitution`, `app-research`, `app-specify`, `app-plan`, `github-project-planning`, `app-analyze`, `yandex360-dns`, `bears-kubernetes-ops`, `bears-infisical-ops`, `subagents`, `app-dev`, `codex-telegram-operator-gate`.
+Active discoverable skills: `bears-blocker-eval`, `bears-deploy-gate`, `bears-goal-prompt`, `bears-codex-health`, `bears-workflow-validate`, `platform-role-governance`, `python-codeflow`, `secret-factory`, `app-constitution`, `app-research`, `app-specify`, `app-plan`, `github-project-planning`, `app-analyze`, `yandex360-dns`, `bears-kubernetes-ops`, `bears-infisical-ops`, `subagents`, `app-dev`, `codex-telegram-operator-gate`.
 
-Disabled preserved skill docs: `bears-telegram-workflow`, `telegram-aiogram-migration`, `telegram-plugin-skill-factory`, `telegram-quality-testing`.
+Disabled preserved skill docs: .
 
 A disabled skill directory is valid only when `SKILL.md` is absent and `SKILL.disabled.md` is present.
 <!-- BEARS_SKILL_INVENTORY: END -->

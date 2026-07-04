@@ -1,4 +1,0 @@
-interface:
-  display_name: "Bears Role Gate"
-  short_description: "Validate Bears workflow role coverage"
-  default_prompt: "Use $bears-role-gate to validate role coverage and emit ROLE_COVERAGE_BLOCKER only when coverage is missing."

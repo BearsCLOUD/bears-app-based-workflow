@@ -1,4 +1,0 @@
-interface:
-  display_name: "Bears Telegram Workflow"
-  short_description: "Route Bears Telegram bot work safely."
-  default_prompt: "Use $bears-telegram-workflow to route a Bears Telegram task through role gate and migration backlog."

@@ -70,6 +70,16 @@ RUNTIME_PROXY_REQUIRED_MARKERS = (
     "cleanup timeout event",
     "BearsCLOUD/apps#107",
     "3d1addaa6bab6579e93d9617d3d5ba81bdbd69aa",
+    "validation-conflict",
+    "blocked",
+    "objective-runtime-proof-required",
+    "needs-gitflow-closeout",
+    "latest checkpoint comments",
+    "CHECKPOINT_STATUS: BLOCKED / validation contract conflict before closeout",
+    "FAST_BLOCKER or metadata-only output before file-changing work",
+    "gitflow-ready is not permission to implement more code",
+    "parent-issued commit-closeout scope",
+    "BearsCLOUD/apps#110 lane 019f27ca-3d8d-7540-aa10-6edff4efcdf5",
 )
 ALLOWED_ASSIGNMENT_LANES = {"l2", "l3"}
 ASSIGNMENT_REQUIRED_FIELDS = {

@@ -50,6 +50,11 @@ The fallback runtime proxy must:
 - require each cleanup L2 packet to name exactly one cleanup target, one status proof command, and no issue metadata mutation unless explicitly assigned;
 - return parent-visible `CLEANUP_PASS` or `FAST_BLOCKER` before the parent cutoff; post-cutoff cleanup success is drift evidence only;
 - record the `BearsCLOUD/apps#105` and `BearsCLOUD/apps#110` cleanup timeout event as drift evidence, not a repeatable pattern;
+- inspect assigned Issue labels and latest checkpoint comments before L3 dispatch;
+- return `FAST_BLOCKER` or metadata-only output before file-changing work when labels include `validation-conflict`, `blocked`, `objective-runtime-proof-required`, or `needs-gitflow-closeout` without parent-issued commit-closeout scope;
+- treat `CHECKPOINT_STATUS: BLOCKED / validation contract conflict before closeout` as a no-L3 blocker;
+- treat `gitflow-ready` as parent gitflow closeout scope only, not permission to implement more code;
+- record `BearsCLOUD/apps#110` lane `019f27ca-3d8d-7540-aa10-6edff4efcdf5` as validation-conflict drift evidence only, not a repeatable pattern;
 - never report PASS after elapsed time greater than 300 seconds;
 - require exact new-file authorization from the Issue, sub-issue, or parent packet before any L3 creates a new file;
 - skip broad Project scans when the parent provides exact Issues and route/audit evidence;
@@ -57,12 +62,11 @@ The fallback runtime proxy must:
 
 ## Required gates
 
-Agent-local route gates:
+autoCI ownership checks:
 
-```bash
-python3 scripts/platform_roles.py route <target-path>
-python3 scripts/platform_roles.py audit <target-path>
-```
+- local commit validation selects `subagents_roles.route` and `subagents_roles.audit` for the changed target paths;
+- agents record computed owner roles and expected status names only;
+- manual route/audit runs require one exact operator-named command in the current turn.
 
 CI/local-commit-owned or operator-approved catalog validator:
 

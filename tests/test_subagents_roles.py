@@ -26,7 +26,7 @@ class PlatformRolesTest(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls) -> None:
-        cls.catalog = subagents_roless.load_json(PLUGIN_ROOT / "assets/catalog/subagents-roles-catalog.v1.json")
+        cls.catalog = subagents_roless.load_json(PLUGIN_ROOT / "assets/catalog/platform-role-catalog.v1.json")
 
     def test_catalog_validates(self) -> None:
         self.assertEqual(subagents_roless.validate_catalog(self.catalog, plugin_root=PLUGIN_ROOT), [])
@@ -202,7 +202,7 @@ class PlatformRolesTest(unittest.TestCase):
     def test_role_development_plan_noop_for_matched_target(self) -> None:
         packet = subagents_roless.role_development_plan(
             self.catalog,
-            "assets/catalog/subagents-roles-catalog.v1.json",
+            "assets/catalog/platform-role-catalog.v1.json",
             plugin_root=PLUGIN_ROOT,
         )
         self.assertEqual(packet["status"], "pass")
@@ -1351,9 +1351,9 @@ class PlatformRolesTest(unittest.TestCase):
 
     def test_routes_subagents_roles_governance_with_one_primary_role(self) -> None:
         targets = [
-            "/srv/bears/plugins/bears/assets/catalog/subagents-roles-catalog.v1.json",
+            "/srv/bears/plugins/bears/assets/catalog/platform-role-catalog.v1.json",
             "/srv/bears/plugins/bears/assets/catalog/plugin-governance-language-policy.v1.json",
-            "assets/catalog/subagents-roles-catalog.v1.json",
+            "assets/catalog/platform-role-catalog.v1.json",
             "plugins/bears/README.md",
         ]
         for target in targets:
@@ -1451,7 +1451,7 @@ class PlatformRolesTest(unittest.TestCase):
             "plugins/bears/SPEC.md",
             "plugins/bears/.codex-plugin/plugin.json",
             "plugins/bears/capabilities/subagents_roles",
-            "plugins/bears/assets/catalog/subagents-roles-catalog.v1.json",
+            "plugins/bears/assets/catalog/platform-role-catalog.v1.json",
             "plugins/bears/tests/test_subagents_roles.py",
             "plugins/bears/agents/README.md",
             "plugins/bears/agents/bears-subagents-roles-governor.toml",
@@ -1866,7 +1866,7 @@ class PlatformRolesTest(unittest.TestCase):
     def test_audit_allows_handoff_only_after_validation(self) -> None:
         packet = subagents_roless.audit_target(
             self.catalog,
-            "/srv/bears/plugins/bears/assets/catalog/subagents-roles-catalog.v1.json",
+            "/srv/bears/plugins/bears/assets/catalog/platform-role-catalog.v1.json",
             plugin_root=PLUGIN_ROOT,
         )
         self.assertEqual(packet["status"], "matched")
@@ -1878,14 +1878,14 @@ class PlatformRolesTest(unittest.TestCase):
         catalog["roles"][0].pop("role_kind")
         route_packet = subagents_roless.route_target(
             catalog,
-            "/srv/bears/plugins/bears/assets/catalog/subagents-roles-catalog.v1.json",
+            "/srv/bears/plugins/bears/assets/catalog/platform-role-catalog.v1.json",
             plugin_root=PLUGIN_ROOT,
         )
         self.assertEqual(route_packet["status"], "matched")
 
         audit_packet = subagents_roless.audit_target(
             catalog,
-            "/srv/bears/plugins/bears/assets/catalog/subagents-roles-catalog.v1.json",
+            "/srv/bears/plugins/bears/assets/catalog/platform-role-catalog.v1.json",
             plugin_root=PLUGIN_ROOT,
         )
         self.assertEqual(audit_packet["status"], "ROLE_COVERAGE_BLOCKER")
@@ -2794,7 +2794,7 @@ class PlatformRolesTest(unittest.TestCase):
                 break
         packet = subagents_roless.route_target(
             catalog,
-            "/srv/bears/plugins/bears/assets/catalog/subagents-roles-catalog.v1.json",
+            "/srv/bears/plugins/bears/assets/catalog/platform-role-catalog.v1.json",
             plugin_root=PLUGIN_ROOT,
         )
         self.assertEqual(packet["status"], "ROLE_COVERAGE_BLOCKER")
@@ -2808,7 +2808,7 @@ class PlatformRolesTest(unittest.TestCase):
                 break
         packet = subagents_roless.route_target(
             catalog,
-            "/srv/bears/plugins/bears/assets/catalog/subagents-roles-catalog.v1.json",
+            "/srv/bears/plugins/bears/assets/catalog/platform-role-catalog.v1.json",
             plugin_root=PLUGIN_ROOT,
         )
         self.assertEqual(packet["status"], "ROLE_COVERAGE_BLOCKER")
@@ -2819,7 +2819,7 @@ class PlatformRolesTest(unittest.TestCase):
         catalog["platform_parts"].append(
             {
                 "name": "subagents_roles_governance_shadow",
-                "aliases": ["/srv/bears/plugins/bears/assets/catalog/subagents-roles-catalog.v1.json"],
+                "aliases": ["/srv/bears/plugins/bears/assets/catalog/platform-role-catalog.v1.json"],
                 "group": "workflow",
                 "required_role": "bears-goal-prompt-generator",
                 "role_required": True,
@@ -2838,7 +2838,7 @@ class PlatformRolesTest(unittest.TestCase):
         )
         packet = subagents_roless.route_target(
             catalog,
-            "/srv/bears/plugins/bears/assets/catalog/subagents-roles-catalog.v1.json",
+            "/srv/bears/plugins/bears/assets/catalog/platform-role-catalog.v1.json",
             plugin_root=PLUGIN_ROOT,
         )
         self.assertEqual(packet["status"], "ROLE_COVERAGE_BLOCKER")

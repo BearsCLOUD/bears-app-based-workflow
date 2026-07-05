@@ -195,7 +195,7 @@ class ProjectRegistryGateTest(unittest.TestCase):
             plugin_root=PLUGIN_ROOT,
         )
         self.assertEqual(packet["status"], "matched")
-        self.assertEqual(packet["project_id"], "bears-workflow-plugin-yandex360-dns")
+        self.assertEqual(packet["project_id"], "bears-plugin-yandex360-dns")
         self.assertEqual(packet["primary_role"], "bears-infrastructure-network-engineer")
         self.assertTrue(packet["project_mandate_allowed"])
         self.assertFalse(packet["spec_required"])
@@ -204,8 +204,8 @@ class ProjectRegistryGateTest(unittest.TestCase):
         registry = copy.deepcopy(self.registry)
         registry["entries"].append(
             {
-                "id": "bears-workflow-plugin-root",
-                "name": "Bears workflow plugin canonical governance repo",
+                "id": "bears-plugin-root",
+                "name": "@Bears plugin canonical governance repo",
                 "kind": "plugin_governance",
                 "artifact_profile": "plugin_repo",
                 "status": "registered",
@@ -232,7 +232,7 @@ class ProjectRegistryGateTest(unittest.TestCase):
             plugin_root=PLUGIN_ROOT,
         )
         self.assertEqual(packet["status"], "matched")
-        self.assertEqual(packet["project_id"], "bears-workflow-plugin-root")
+        self.assertEqual(packet["project_id"], "bears-plugin-root")
         self.assertEqual(packet["primary_role"], "bears-subagents-roles-governor")
         self.assertEqual(packet["role_target"], "/srv/bears/plugins/bears/AGENTS.md")
         self.assertTrue(packet["project_mandate_allowed"])
@@ -685,7 +685,8 @@ class ProjectRegistryGateTest(unittest.TestCase):
         self.assertIn(".worktrees", packet["forbidden_scan_roots"])
         self.assertIn("runtime", packet["forbidden_scan_roots"])
         self.assertNotIn("required_artifacts", packet)
-        self.assertIn("/srv/bears/plugins/bears/skills/project-mandate/SKILL.md", packet["read_paths"])
+        self.assertEqual(packet["target"], "/srv/bears/plugins/bears/skills/project-mandate/SKILL.md")
+        self.assertIn("/srv/bears/plugins/bears/AGENTS.md", packet["read_paths"])
         self.assertNotIn("/srv/bears", packet["read_paths"])
 
     def test_mandate_packet_cli_renders_bounded_checklist(self) -> None:

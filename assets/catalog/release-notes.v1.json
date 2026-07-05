@@ -1470,10 +1470,35 @@
         "scripts/plugin_cache_sync.py",
         "tests/test_plugin_marketplace.py"
       ],
-      "impact": "Rename the installed @Bears marketplace key to bears-plugin so skill cache sync installs the canonical bears plugin instead of the old workflow-plugin marketplace.",
+      "impact": "Rename the installed @Bears marketplace key to bears-plugin so skill cache sync installs the canonical bears plugin instead of the previous marketplace.",
       "issue_ref": "#8",
       "validation": [
         "python3 scripts/local_commit_validation.py run --commit-sha <sha>"
+      ]
+    },
+    {
+      "affected_surfaces": [
+        "plugin_marketplace",
+        "plugin_cache_sync",
+        "workspace_naming"
+      ],
+      "date": "2026-07-05",
+      "files": [
+        "assets/catalog/agent-workflow-map.v1.json",
+        "assets/catalog/platform-role-catalog.v1.json",
+        "assets/catalog/release-notes.v1.json",
+        "docs/reference/governance-drift-summary.md",
+        "docs/reference/workflow-backlog-lane.md",
+        "tests/fixtures/deterministic_runners/good/cache-sync.json",
+        "tests/fixtures/projects.v1.json",
+        "tests/test_project_registry_gate.py"
+      ],
+      "impact": "Remove retired marketplace and repository naming from active @Bears plugin governance artifacts while keeping the canonical bears-plugin marketplace and BearsCLOUD/bears_plugin repository references.",
+      "issue_ref": "#8",
+      "validation": [
+        "python3 -m unittest tests/test_plugin_marketplace.py tests/test_plugin_cache_sync.py",
+        "python3 scripts/subagents_roles.py validate",
+        "python3 scripts/plugin_cache_sync.py validate-state"
       ]
     }
   ],

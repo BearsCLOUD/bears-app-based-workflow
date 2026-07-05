@@ -8,7 +8,7 @@ This artifact links the external-review audit package to GitHub issue #425.
 
 - Issue: #425
 - Title: `P0: Make issue state, changelog, and decisions first-class audit surfaces`
-- Repository: `BearsCLOUD/bears-codex-workflow-plugin`
+- Repository: `BearsCLOUD/bears_plugin`
 
 ## Repo-visible artifacts
 

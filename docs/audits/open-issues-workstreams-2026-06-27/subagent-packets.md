@@ -1,4 +1,4 @@
-# Open Issues Subagent Packets for `BearsCLOUD/bears-codex-workflow-plugin`
+# Open Issues Subagent Packets for `BearsCLOUD/bears_plugin`
 
 Use the workstreams from `open-issues-workstreams.md`.
 Rule: if a fix would break existing behavior, do not land code first; leave a comment on the issue with the breakage and reason.

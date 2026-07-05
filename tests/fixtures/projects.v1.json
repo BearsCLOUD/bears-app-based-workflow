@@ -40,8 +40,8 @@
       "tasks_path": null
     },
     {
-      "id": "bears-workflow-plugin-yandex360-dns",
-      "name": "Bears workflow plugin Yandex 360 DNS skill bundle",
+      "id": "bears-plugin-yandex360-dns",
+      "name": "@Bears plugin Yandex 360 DNS skill bundle",
       "kind": "plugin_skill",
       "artifact_profile": "plugin_repo",
       "status": "registered",

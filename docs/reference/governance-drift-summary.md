@@ -78,7 +78,7 @@ Drift means a checked runtime, repository, cache, CI, hook, connector, or agent 
 - W29: current-all-agent-audit-has-no-dedicated-spec-kit-packet
 - W30: role-route-validation-requires-manual-tests-that-local-policy-bans
 - W31: matching-hook-wrappers-hide-stale-hook-dependencies
-- W32: codex-plugin-list-does-not-report-bears-workflow-plugin
+- W32: codex-plugin-list-does-not-report-bears-plugin
 - W33: constitution-validators-do-not-prove-per-agent-principle-binding
 - W34: ten-canonical-agent-tomls-are-not-platform-role-backed
 - W35: plugin-hook-commands-depend-on-runtime-working-directory
@@ -183,7 +183,7 @@ Drift means a checked runtime, repository, cache, CI, hook, connector, or agent 
 - W134: decision-json-required-fields-do-not-match-decision-log-schema
 - W135: decision-log-closeout-proof-is-ignored-runtime-only
 - W136: plugin-install-command-does-not-match-active-marketplace-resolution
-- W137: active-plugin-list-still-omits-bears-workflow-plugin-after-source-cleanup
+- W137: active-plugin-list-still-omits-bears-plugin-after-source-cleanup
 - W138: user-agent-sync-passes-while-unmanaged-global-agents-remain-outside-governance
 - W139: agent-registration-sync-declares-disk-only-proof-without-active-tool-schema-verification
 - W140: principle-catalogs-are-not-bound-to-most-agent-prompts
@@ -199,7 +199,7 @@ Drift means a checked runtime, repository, cache, CI, hook, connector, or agent 
 - W150: plugin-spec-kit-feature-packet-is-missing
 - W151: manual-validation-command-policy-does-not-cover-all-authoritative-surfaces
 - W152: manual-validation-approval-marker-is-line-local-and-too-broad
-- W153: active-plugin-inventory-still-omits-bears-workflow-plugin
+- W153: active-plugin-inventory-still-omits-bears-plugin
 - W154: plugin-manifest-does-not-deliver-agent-registration
 - W155: active-bootstrap-instructions-do-not-load-plugin-principles
 - W156: constitution-principles-are-not-bound-across-agent-prompts

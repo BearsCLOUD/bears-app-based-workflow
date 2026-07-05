@@ -228,7 +228,7 @@
 - pre-task hook and task-start evidence: parent packet listed target, gate intent, and validation target; missing-data answers `none`; drift answers `none`; task-start authorization recorded by the parent assignment record
 - spawn and closeout evidence: fresh spawn with `fork_context=false`; closeout proof is the matched registry gate result for `/srv/bears/plugins/bears`
 - validation commands: `python3 scripts/project_registry_gate.py gate /srv/bears/plugins/bears`
-- validation evidence: `validation-report.md` records the matched gate result for project `bears-workflow-plugin-root`
+- validation evidence: `validation-report.md` records the matched gate result for project `bears-plugin-root`
 
 ### Packet 12 — full validation pass
 - assignment packet id: `apkt-019ea3d9-0c24-72c0-95df-ac8ccd012d49-validation-pass`

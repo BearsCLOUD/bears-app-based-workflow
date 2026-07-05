@@ -3,7 +3,7 @@
   "workflow_id": "codex-plugin-agent-workflow",
   "authority": {
     "primary_executable_process_authority": "assets/catalog/agent-workflow-map.v1.json",
-    "authority_scope": "Bears workflow plugin lifecycle order, transitions, review gates, state bindings, dirty triage, and subagent execution shape.",
+    "authority_scope": "@Bears plugin lifecycle order, transitions, review gates, state bindings, dirty triage, and subagent execution shape.",
     "non_authority_surfaces": [
       "docs/reference/agent-workflow-map.md",
       "README.md",

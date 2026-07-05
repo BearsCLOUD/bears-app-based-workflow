@@ -88,7 +88,7 @@
     400,
     403
   ],
-  "repository": "BearsCLOUD/bears-codex-workflow-plugin",
+  "repository": "BearsCLOUD/bears_plugin",
   "required_audit_chain": [
     "github_issue_state",
     "delivery_manifest",

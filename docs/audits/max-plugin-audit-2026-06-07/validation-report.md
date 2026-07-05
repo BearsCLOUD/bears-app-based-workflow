@@ -155,7 +155,7 @@ project registry ok: /srv/bears/dev/registry/projects.v1.json
 ```text
 status: matched
 target: /srv/bears/plugins/bears
-project_id: bears-workflow-plugin-root
+project_id: bears-plugin-root
 artifact_profile: plugin_repo
 primary_role: bears-subagents-roles-governor
 project_mandate_allowed: true

@@ -178,9 +178,9 @@
       "status": "pass"
     },
     "github_issue_state": {
-      "checked_command": "gh issue view 411 --repo BearsCLOUD/bears-codex-workflow-plugin --json number,state,url,closedAt,title",
+      "checked_command": "gh issue view 411 --repo BearsCLOUD/bears_plugin --json number,state,url,closedAt,title",
       "closed_at": "2026-06-25T13:12:22Z",
-      "reference": "https://github.com/BearsCLOUD/bears-codex-workflow-plugin/issues/411",
+      "reference": "https://github.com/BearsCLOUD/bears_plugin/issues/411",
       "state": "CLOSED",
       "status": "pass"
     },
@@ -196,7 +196,7 @@
   ],
   "generated_at": "2026-06-25T13:20:00Z",
   "issue_ref": "#411",
-  "repo": "BearsCLOUD/bears-codex-workflow-plugin",
+  "repo": "BearsCLOUD/bears_plugin",
   "runtime_evidence_refs": [
     "runtime/issue-reconciliation/old-open-backlog.v1.json",
     "runtime/deliveries/issue-411-p0-reconcile-old-open-backlog-af/delivery-manifest.v1.json"

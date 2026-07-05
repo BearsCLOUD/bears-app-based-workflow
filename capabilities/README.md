@@ -1,6 +1,6 @@
 # Bears Capability Inventory
 
-This directory owns the executable capability inventory for the Bears Codex workflow plugin.
+This directory owns the executable capability inventory for the @Bears plugin.
 
 ## Authority
 

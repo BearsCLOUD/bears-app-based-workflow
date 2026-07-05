@@ -1,4 +1,4 @@
-# Open Issues Workstreams for `BearsCLOUD/bears-codex-workflow-plugin`
+# Open Issues Workstreams for `BearsCLOUD/bears_plugin`
 
 Source input: all 109 open GitHub issues in the live repo snapshot on 2026-06-27T20:00:00Z.
 Rule: issues are backlog input, not source of truth. If a proposed fix would break existing functionality, keep the issue open and add a comment that says what breaks and why.

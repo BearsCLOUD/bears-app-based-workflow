@@ -37,7 +37,7 @@
 ### Spec Kit and role-gate proof
 
 - Active Spec Kit packet exists and stays green: `/srv/bears/specs/007-secret-factory-plugin/spec.md`, `plan.md`, `tasks.md:3-13`, and `governance/speckit-analyze.json:1-8`.
-- `python3 scripts/project_registry_gate.py gate /srv/bears/plugins/bears` returned `status: matched`, project `bears-workflow-plugin-root`.
+- `python3 scripts/project_registry_gate.py gate /srv/bears/plugins/bears` returned `status: matched`, project `bears-plugin-root`.
 - `python3 scripts/subagents_roles.py route /srv/bears/plugins/bears` and `audit /srv/bears/plugins/bears` both returned the expected `ROLE_COVERAGE_BLOCKER` with `why_blocked: parent_only`. This is the required broad-root classifier outcome, not a completion failure.
 - `python3 scripts/subagents_roles.py route /srv/bears/plugins/bears/assets/catalog/secret-factory.v1.json` and `audit ...` both matched `secret_factory_governance`, primary role `bears-secret-factory-engineer`, supporting reviewer `bears-platform-security-reviewer`, and `implementation_handoff_allowed: true`.
 - `python3 scripts/subagents_roles.py route /srv/bears/plugins/bears/docs/audits/max-plugin-audit-2026-06-07/final-independent-audit.md` and `audit ...` both matched `subagents_roles_governance` with `implementation_handoff_allowed: true`.

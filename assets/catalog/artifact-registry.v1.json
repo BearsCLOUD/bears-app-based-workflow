@@ -7696,6 +7696,23 @@
       "validation": [
         "python3 scripts/artifact_registry.py validate"
       ]
+    },
+    {
+      "allowed_writers": [
+        "bears-workflow-overlay-platform-engineer"
+      ],
+      "artifact_type": "script",
+      "changelog_required": false,
+      "decision_ref_required": false,
+      "git_tracked": true,
+      "lifecycle": "script",
+      "owner_issue": "#8",
+      "owner_role": "bears-workflow-overlay-platform-engineer",
+      "path": "scripts/validate_overlay.py",
+      "source_of_truth_status": "canonical",
+      "validation": [
+        "python3 scripts/artifact_registry.py validate"
+      ]
     }
   ],
   "schema": "bears-artifact-registry.v1",

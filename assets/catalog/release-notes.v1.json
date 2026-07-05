@@ -12,7 +12,8 @@
         "artifact_registry",
         "release_notes",
         "test_selection",
-        "pants_test_graph"
+        "pants_test_graph",
+        "validator_matrix"
       ],
       "date": "2026-07-05",
       "files": [
@@ -39,7 +40,8 @@
         "skills/app-research/SKILL.md",
         "skills/app-specify/SKILL.md",
         "tests/fixtures/app_functional_graph/",
-        "tests/test_app_functional_graph.py"
+        "tests/test_app_functional_graph.py",
+        "scripts/validate_overlay.py"
       ],
       "impact": "Adds app-functional-graph governance so app-plan creates ledger-bound tasks with functional graph refs and app-dev dispatches only validated ledger tasks; GitHub Issues are notification records instead of execution task sources.",
       "issue_ref": "#8",
@@ -51,7 +53,8 @@
         "python3 scripts/artifact_registry.py check-added-files --staged",
         "python3 scripts/release_notes_gate.py check --staged",
         "python3 scripts/test_selection.py validate",
-        "python3 scripts/pants_test_graph.py validate"
+        "python3 scripts/pants_test_graph.py validate",
+        "python3 -m unittest tests/test_validate_overlay.py"
       ]
     },
     {

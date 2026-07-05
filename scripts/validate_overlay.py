@@ -54,6 +54,7 @@ READ_ONLY_AGENT_SAFETY_MARKERS = (
 AGENT_SANDBOX_MODE_MATRIX = {
     "bears-analytics-quality-engineer.toml": "workspace-write",
     "bears-android-emulator-platform-engineer.toml": "workspace-write",
+    "bears-app-functional-graph-orchestrator.toml": "workspace-write",
     "bears-auth-platform-engineer.toml": "workspace-write",
     "bears-clarification-architect.toml": "read-only",
     "bears-codex-daemon-engineer.toml": "workspace-write",

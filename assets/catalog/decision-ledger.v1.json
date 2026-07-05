@@ -1886,6 +1886,22 @@
       "scope_id": "app-functional-graph",
       "status": "accepted",
       "unresolved_inputs": []
+    },
+    {
+      "affected_paths": [
+        "scripts/validate_overlay.py"
+      ],
+      "change_type": "validation",
+      "contradictions": [],
+      "decision": "Register app functional graph orchestrator in the agent sandbox matrix.",
+      "decision_id": "D-2026-07-05-008-app-functional-graph-validator-matrix",
+      "owner_issue": "#8",
+      "owner_role": "bears-workflow-overlay-platform-engineer",
+      "rationale": "The new helper role needs deterministic sandbox validation coverage in validate_overlay.",
+      "redaction": "safe",
+      "scope_id": "app-functional-graph",
+      "status": "accepted",
+      "unresolved_inputs": []
     }
   ],
   "schema": "bears-decision-ledger.v1",

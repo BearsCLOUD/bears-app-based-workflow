@@ -512,9 +512,38 @@
         "tests/test_release_notes_gate.py",
         "tests/test_test_selection.py"
       ]
+    },
+    {
+      "kind": "files",
+      "name": "governance-reference-docs",
+      "pants_target": "//:governance_reference_docs",
+      "patterns": [
+        "docs/reference/**",
+        "docs/audits/**"
+      ],
+      "tests": [
+        "tests/test_pants_test_graph.py",
+        "tests/test_test_selection.py",
+        "tests/test_validate_overlay.py"
+      ]
+    },
+    {
+      "kind": "files",
+      "name": "governance-fixtures-and-workflows",
+      "pants_target": "//:governance_fixtures_and_workflows",
+      "patterns": [
+        "tests/fixtures/**",
+        "workflows/**",
+        ".github/ISSUE_TEMPLATE/**"
+      ],
+      "tests": [
+        "tests/test_pants_test_graph.py",
+        "tests/test_test_selection.py",
+        "tests/test_plugin_manifests.py"
+      ]
     }
   ],
   "schema": "bears-pants-test-graph.v1",
-  "updated": "2026-07-03",
+  "updated": "2026-07-05",
   "version": "1"
 }

@@ -1315,6 +1315,25 @@
         "tests/test_release_notes_gate.py",
         "tests/test_test_selection.py"
       ]
+    },
+    {
+      "name": "subagents-roles-governance-surfaces",
+      "patterns": [
+        "assets/catalog/*.json",
+        "docs/reference/**",
+        "docs/audits/**",
+        "tests/fixtures/**",
+        "workflows/**",
+        ".github/ISSUE_TEMPLATE/**",
+        "scripts/*.py"
+      ],
+      "tests": [
+        "tests/test_test_selection.py",
+        "tests/test_pants_test_graph.py",
+        "tests/test_release_notes_gate.py",
+        "tests/test_plugin_manifests.py",
+        "tests/test_validate_overlay.py"
+      ]
     }
   ],
   "policy": {

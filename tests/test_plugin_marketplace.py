@@ -12,8 +12,8 @@ def test_git_backed_marketplace_points_to_plugin_root() -> None:
     marketplace_path = ROOT / ".agents" / "plugins" / "marketplace.json"
     marketplace = json.loads(marketplace_path.read_text())
 
-    assert marketplace["name"] == "bears-workflow-plugin"
-    assert marketplace["interface"]["displayName"] == "Bears Workflow Plugin"
+    assert marketplace["name"] == "bears-plugin"
+    assert marketplace["interface"]["displayName"] == "Bears Plugin"
 
     plugins = marketplace["plugins"]
     assert len(plugins) == 1

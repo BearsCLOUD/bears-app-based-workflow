@@ -1,7 +1,7 @@
 {
-  "name": "bears-workflow-plugin",
+  "name": "bears-plugin",
   "interface": {
-    "displayName": "Bears Workflow Plugin"
+    "displayName": "Bears Plugin"
   },
   "plugins": [
     {

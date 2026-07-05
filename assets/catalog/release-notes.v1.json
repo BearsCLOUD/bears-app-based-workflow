@@ -1454,6 +1454,27 @@
       "validation": [
         "python3 scripts/local_commit_validation.py run --commit-sha <sha>"
       ]
+    },
+    {
+      "affected_surfaces": [
+        "plugin_marketplace",
+        "plugin_cache_sync",
+        "app_functional_graph_skill_install"
+      ],
+      "date": "2026-07-05",
+      "files": [
+        ".agents/plugins/marketplace.json",
+        "README.md",
+        "assets/catalog/plugin-cache-sync.v1.json",
+        "assets/catalog/release-notes.v1.json",
+        "scripts/plugin_cache_sync.py",
+        "tests/test_plugin_marketplace.py"
+      ],
+      "impact": "Rename the installed @Bears marketplace key to bears-plugin so skill cache sync installs the canonical bears plugin instead of the old workflow-plugin marketplace.",
+      "issue_ref": "#8",
+      "validation": [
+        "python3 scripts/local_commit_validation.py run --commit-sha <sha>"
+      ]
     }
   ],
   "exemptions": [],

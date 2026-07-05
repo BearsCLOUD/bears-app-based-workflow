@@ -48,8 +48,8 @@
     "required_local_proof": "runtime/local-commit-validation/<main_sha>.json"
   },
   "sync_commands": [
-    "codex plugin marketplace upgrade bears-workflow-plugin --json",
-    "codex plugin add bears@bears-workflow-plugin --json"
+    "codex plugin marketplace upgrade bears-plugin --json",
+    "codex plugin add bears@bears-plugin --json"
   ],
   "verify": {
     "local_commit_validation_status_equals": "pass",

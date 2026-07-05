@@ -1902,6 +1902,22 @@
       "scope_id": "app-functional-graph",
       "status": "accepted",
       "unresolved_inputs": []
+    },
+    {
+      "affected_paths": [
+        "assets/catalog/plugin-cache-sync.v1.json"
+      ],
+      "change_type": "validation",
+      "contradictions": [],
+      "decision": "Use bears-plugin as the canonical @Bears marketplace key for plugin cache sync and installation.",
+      "decision_id": "DEC-20260705-bears-plugin-marketplace-key",
+      "owner_issue": "#8",
+      "owner_role": "bears-deploy-platform-engineer",
+      "rationale": "The old bears-workflow-plugin marketplace key pointed installed cache and upgrade attempts at stale workflow-plugin naming while the canonical plugin repository is BearsCLOUD/bears_plugin.",
+      "redaction": "safe",
+      "scope_id": "plugin-cache-sync",
+      "status": "accepted",
+      "unresolved_inputs": []
     }
   ],
   "schema": "bears-decision-ledger.v1",

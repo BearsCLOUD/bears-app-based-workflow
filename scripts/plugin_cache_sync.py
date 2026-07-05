@@ -19,8 +19,8 @@ DEFAULT_BRANCH = "main"
 DEFAULT_STATE_PATH = PLUGIN_ROOT / "runtime/plugin-cache-sync/plugin-cache-sync-state.v1.json"
 DEFAULT_LOCAL_VALIDATION_ROOT = PLUGIN_ROOT / "runtime/local-commit-validation"
 DEFAULT_VALIDATION_STATE_ROOT = PLUGIN_ROOT / "runtime/validation-state"
-DEFAULT_CACHE_PATH = Path.home() / ".codex/plugins/cache/bears-workflow-plugin/bears/0.1.0"
-DEFAULT_MARKETPLACE_ROOT = Path.home() / ".codex/.tmp/marketplaces/bears-workflow-plugin"
+DEFAULT_CACHE_PATH = Path.home() / ".codex/plugins/cache/bears-plugin/bears/0.1.0"
+DEFAULT_MARKETPLACE_ROOT = Path.home() / ".codex/.tmp/marketplaces/bears-plugin"
 DEFAULT_PLUGIN_MANIFEST = DEFAULT_CACHE_PATH / ".codex-plugin/plugin.json"
 SCHEMA = "bears-plugin-cache-sync-state.v1"
 WORKSPACE_HYGIENE_POLICY = "assets/catalog/workspace-hygiene.v1.json"
@@ -210,8 +210,8 @@ def copy_source_commit_to_cache(expected_sha: str, cache_path: Path) -> dict[str
 def sync_cache(expected_sha: str, cache_path: Path, *, max_attempts: int) -> tuple[dict[str, Any], list[dict[str, Any]]]:
     attempts: list[dict[str, Any]] = []
     commands = [
-        ["codex", "plugin", "marketplace", "upgrade", "bears-workflow-plugin", "--json"],
-        ["codex", "plugin", "add", "bears@bears-workflow-plugin", "--json"],
+        ["codex", "plugin", "marketplace", "upgrade", "bears-plugin", "--json"],
+        ["codex", "plugin", "add", "bears@bears-plugin", "--json"],
     ]
     for attempt in range(1, max_attempts + 1):
         attempt_record: dict[str, Any] = {"attempt": attempt, "commands": []}

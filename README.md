@@ -249,7 +249,7 @@ Reference: `docs/reference/agent-registration-sync.md`.
 - Plugin workflow task commits land on `main`; PR/review/branch-dependent closeout is not a workflow authority.
 - The git `pre-commit` hook runs `python3 scripts/local_commit_validation.py run --staged` to block failing staged changes. The git `post-commit` hook runs `python3 scripts/local_commit_validation.py run --commit-sha HEAD` and writes `runtime/local-commit-validation/<commit_sha>.json` for exact-SHA proof.
 - `.github/workflows/validate.yml` runs diagnostics on `main` push. `workflow_dispatch` with `emergency_full_suite=true` remains operator-only full-suite diagnostics.
-- Local Codex cache sync starts only after exact `main` commit has local commit validation `status=pass`. The watcher runs `codex plugin marketplace upgrade bears-workflow-plugin --json` and `codex plugin add bears@bears-workflow-plugin --json`.
+- Local Codex cache sync starts only after exact `main` commit has local commit validation `status=pass`. The watcher runs `codex plugin marketplace upgrade bears-plugin --json` and `codex plugin add bears@bears-plugin --json`.
 - Closeout requires `runtime/local-commit-validation/<main_sha>.json` with `status=pass`, plus `runtime/plugin-cache-sync/plugin-cache-sync-state.v1.json` with `delivery_complete=true`, exact installed cache SHA equal to `main_sha`, and effective hooks proof for `hooks.json` plus `hooks/`. The `Stop` hook blocks only explicit closeout intent when delivery is incomplete; it does not commit, push, run tests, or run validators.
 - Local validation failure, sync failure, missing hooks, workflow defect, deferred dirty, or runtime degradation creates a row in `assets/catalog/tech-debt-matrix.v1.json`; closure requires exact local validation proof and plugin cache sync state evidence.
 
@@ -523,7 +523,7 @@ Layer split:
 
 When a plugin skill, workflow, catalog path, capability inventory, role route, validator, or manifest claim changes, sync `.codex-plugin/plugin.json`, README inventory, catalog aliases, validators, and tests in the same lifecycle stage. Superseded checks must name the active replacement validation command.
 
-Git-backed local plugin updates use `.agents/plugins/marketplace.json` from this repository. Add the marketplace with `codex plugin marketplace add git@github.com:BearsCLOUD/bears_plugin.git --ref main`, install `bears@bears-workflow-plugin`, and refresh with `codex plugin marketplace upgrade bears-workflow-plugin`. Restart Codex after upgrade. Do not rely on manual cache copy as the normal update path.
+Git-backed local plugin updates use `.agents/plugins/marketplace.json` from this repository. Add the marketplace with `codex plugin marketplace add git@github.com:BearsCLOUD/bears_plugin.git --ref main`, install `bears@bears-plugin`, and refresh with `codex plugin marketplace upgrade bears-plugin`. Restart Codex after upgrade. Do not rely on manual cache copy as the normal update path.
 
 When those steps are split across Codex sessions, the sessions are treated as workers rather than memory. The Bears plugin owns the lane/state/scope packet contract, while current Spec Kit artifacts remain the truth source. `/speckit-implement` is one controlled implementation lane, not a global executor.
 

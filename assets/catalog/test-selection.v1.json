@@ -1338,6 +1338,28 @@
         "tests/test_release_notes_gate.py",
         "tests/test_plugin_manifests.py"
       ]
+    },
+    {
+      "name": "app-functional-graph",
+      "patterns": [
+        "scripts/app_functional_graph.py",
+        "assets/schemas/app-functional-graph.v1.schema.json",
+        "assets/schemas/app-task-ledger.v1.schema.json",
+        "skills/app-functional-graph/**",
+        "skills/app-plan/SKILL.md",
+        "skills/app-dev/SKILL.md",
+        "skills/app-dev/references/github-project-issue-flow.md",
+        "skills/app-analyze/SKILL.md",
+        "agents/bears-app-functional-graph-orchestrator.toml",
+        "tests/fixtures/app_functional_graph/**"
+      ],
+      "tests": [
+        "tests/test_app_functional_graph.py",
+        "tests/test_skill_catalog.py",
+        "tests/test_test_selection.py",
+        "tests/test_pants_test_graph.py",
+        "tests/test_subagents_roles.py"
+      ]
     }
   ],
   "policy": {

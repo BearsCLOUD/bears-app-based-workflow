@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://bears.local/schemas/app-task-ledger.v1.schema.json",
+  "title": "Bears app task ledger",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "version", "app", "app_directory", "tasks"],
+  "properties": {
+    "schema": {"const": "app-task-ledger.v1"},
+    "version": {"type": "string"},
+    "app": {"type": "string", "minLength": 1},
+    "app_directory": {"type": "string", "minLength": 1},
+    "updated": {"type": "string"},
+    "tasks": {"type": "array", "items": {"$ref": "#/$defs/task"}}
+  },
+  "$defs": {
+    "task": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["task_id", "title", "status", "target_layer", "lane", "owner_role", "functionality_refs", "graph_node_refs", "allowed_paths", "dependencies", "project_refs", "notification_refs", "commit_sha", "status_matrix", "critic_confirmation", "evidence_refs"],
+      "properties": {
+        "task_id": {"type": "string", "minLength": 1},
+        "title": {"type": "string"},
+        "status": {"enum": ["planned", "ready", "in_progress", "done", "blocked", "legacy_unbound"]},
+        "target_layer": {"enum": ["app", "platform", "infra"]},
+        "lane": {"type": "string", "minLength": 1},
+        "owner_role": {"type": "string", "minLength": 1},
+        "functionality_refs": {"type": "array", "items": {"type": "string"}},
+        "graph_node_refs": {"type": "array", "items": {"type": "string"}},
+        "graph_edge_refs": {"type": "array", "items": {"type": "string"}},
+        "allowed_paths": {"type": "array", "items": {"type": "string"}},
+        "dependencies": {"type": "array", "items": {"type": "string"}},
+        "project_refs": {"type": "array", "items": {"type": "string"}},
+        "notification_refs": {"type": "array", "items": {"$ref": "#/$defs/notification"}},
+        "commit_sha": {"type": "string"},
+        "status_matrix": {"type": "array", "items": {"type": "string"}},
+        "critic_confirmation": {"type": "string"},
+        "evidence_refs": {"type": "array", "items": {"type": "string"}},
+        "functional_scope": {"type": "string"},
+        "reason": {"type": "string"},
+        "updated": {"type": "string"}
+      }
+    },
+    "notification": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["issue_url", "reason"],
+      "properties": {
+        "issue_url": {"type": "string", "minLength": 1},
+        "reason": {"enum": ["blocker", "incident", "bug", "operator-question"]}
+      }
+    }
+  }
+}

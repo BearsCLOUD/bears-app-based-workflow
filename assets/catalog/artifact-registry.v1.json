@@ -7390,6 +7390,312 @@
       "validation": [
         "python3 scripts/artifact_registry.py validate"
       ]
+    },
+    {
+      "allowed_writers": [
+        "bears-workflow-overlay-platform-engineer"
+      ],
+      "artifact_type": "doc",
+      "changelog_required": false,
+      "decision_ref_required": false,
+      "git_tracked": true,
+      "lifecycle": "doc",
+      "owner_issue": "#8",
+      "owner_role": "bears-workflow-overlay-platform-engineer",
+      "path": "skills/app-functional-graph",
+      "source_of_truth_status": "canonical",
+      "validation": [
+        "python3 scripts/artifact_registry.py validate"
+      ]
+    },
+    {
+      "allowed_writers": [
+        "bears-workflow-overlay-platform-engineer"
+      ],
+      "artifact_type": "script",
+      "changelog_required": false,
+      "decision_ref_required": false,
+      "git_tracked": true,
+      "lifecycle": "script",
+      "owner_issue": "#8",
+      "owner_role": "bears-workflow-overlay-platform-engineer",
+      "path": "scripts/app_functional_graph.py",
+      "source_of_truth_status": "canonical",
+      "validation": [
+        "python3 scripts/artifact_registry.py validate"
+      ]
+    },
+    {
+      "allowed_writers": [
+        "bears-workflow-overlay-platform-engineer"
+      ],
+      "artifact_type": "schema",
+      "changelog_required": false,
+      "decision_ref_required": false,
+      "git_tracked": true,
+      "lifecycle": "schema",
+      "owner_issue": "#8",
+      "owner_role": "bears-workflow-overlay-platform-engineer",
+      "path": "assets/schemas/app-functional-graph.v1.schema.json",
+      "source_of_truth_status": "canonical",
+      "validation": [
+        "python3 scripts/artifact_registry.py validate"
+      ]
+    },
+    {
+      "allowed_writers": [
+        "bears-workflow-overlay-platform-engineer"
+      ],
+      "artifact_type": "schema",
+      "changelog_required": false,
+      "decision_ref_required": false,
+      "git_tracked": true,
+      "lifecycle": "schema",
+      "owner_issue": "#8",
+      "owner_role": "bears-workflow-overlay-platform-engineer",
+      "path": "assets/schemas/app-task-ledger.v1.schema.json",
+      "source_of_truth_status": "canonical",
+      "validation": [
+        "python3 scripts/artifact_registry.py validate"
+      ]
+    },
+    {
+      "allowed_writers": [
+        "bears-workflow-overlay-platform-engineer"
+      ],
+      "artifact_type": "test",
+      "changelog_required": false,
+      "decision_ref_required": false,
+      "git_tracked": true,
+      "lifecycle": "test",
+      "owner_issue": "#8",
+      "owner_role": "bears-workflow-overlay-platform-engineer",
+      "path": "tests/test_app_functional_graph.py",
+      "source_of_truth_status": "canonical",
+      "validation": [
+        "python3 scripts/artifact_registry.py validate"
+      ]
+    },
+    {
+      "allowed_writers": [
+        "bears-workflow-overlay-platform-engineer"
+      ],
+      "artifact_type": "fixture",
+      "changelog_required": false,
+      "decision_ref_required": false,
+      "git_tracked": true,
+      "lifecycle": "fixture",
+      "owner_issue": "#8",
+      "owner_role": "bears-workflow-overlay-platform-engineer",
+      "path": "tests/fixtures/app_functional_graph",
+      "source_of_truth_status": "canonical",
+      "validation": [
+        "python3 scripts/artifact_registry.py validate"
+      ]
+    },
+    {
+      "allowed_writers": [
+        "bears-workflow-overlay-platform-engineer"
+      ],
+      "artifact_type": "doc",
+      "changelog_required": false,
+      "decision_ref_required": false,
+      "git_tracked": true,
+      "lifecycle": "doc",
+      "owner_issue": "#8",
+      "owner_role": "bears-workflow-overlay-platform-engineer",
+      "path": "agents/bears-app-functional-graph-orchestrator.toml",
+      "source_of_truth_status": "canonical",
+      "validation": [
+        "python3 scripts/artifact_registry.py validate"
+      ]
+    },
+    {
+      "allowed_writers": [
+        "bears-workflow-overlay-platform-engineer"
+      ],
+      "artifact_type": "doc",
+      "changelog_required": false,
+      "decision_ref_required": false,
+      "git_tracked": true,
+      "lifecycle": "doc",
+      "owner_issue": "#8",
+      "owner_role": "bears-workflow-overlay-platform-engineer",
+      "path": "skills/app-dev/agents/openai.yaml",
+      "source_of_truth_status": "canonical",
+      "validation": [
+        "python3 scripts/artifact_registry.py validate"
+      ]
+    },
+    {
+      "allowed_writers": [
+        "bears-workflow-overlay-platform-engineer"
+      ],
+      "artifact_type": "doc",
+      "changelog_required": false,
+      "decision_ref_required": false,
+      "git_tracked": true,
+      "lifecycle": "doc",
+      "owner_issue": "#8",
+      "owner_role": "bears-workflow-overlay-platform-engineer",
+      "path": "skills/app-functional-graph/SKILL.md",
+      "source_of_truth_status": "canonical",
+      "validation": [
+        "python3 scripts/artifact_registry.py validate"
+      ]
+    },
+    {
+      "allowed_writers": [
+        "bears-workflow-overlay-platform-engineer"
+      ],
+      "artifact_type": "doc",
+      "changelog_required": false,
+      "decision_ref_required": false,
+      "git_tracked": true,
+      "lifecycle": "doc",
+      "owner_issue": "#8",
+      "owner_role": "bears-workflow-overlay-platform-engineer",
+      "path": "skills/app-functional-graph/agents/openai.yaml",
+      "source_of_truth_status": "canonical",
+      "validation": [
+        "python3 scripts/artifact_registry.py validate"
+      ]
+    },
+    {
+      "allowed_writers": [
+        "bears-workflow-overlay-platform-engineer"
+      ],
+      "artifact_type": "fixture",
+      "changelog_required": false,
+      "decision_ref_required": false,
+      "git_tracked": true,
+      "lifecycle": "fixture",
+      "owner_issue": "#8",
+      "owner_role": "bears-workflow-overlay-platform-engineer",
+      "path": "tests/fixtures/app_functional_graph/invalid_missing_functionality/docs/app-functional-graph.v1.json",
+      "source_of_truth_status": "canonical",
+      "validation": [
+        "python3 scripts/artifact_registry.py validate"
+      ]
+    },
+    {
+      "allowed_writers": [
+        "bears-workflow-overlay-platform-engineer"
+      ],
+      "artifact_type": "fixture",
+      "changelog_required": false,
+      "decision_ref_required": false,
+      "git_tracked": true,
+      "lifecycle": "fixture",
+      "owner_issue": "#8",
+      "owner_role": "bears-workflow-overlay-platform-engineer",
+      "path": "tests/fixtures/app_functional_graph/invalid_missing_functionality/docs/app-task-ledger.v1.json",
+      "source_of_truth_status": "canonical",
+      "validation": [
+        "python3 scripts/artifact_registry.py validate"
+      ]
+    },
+    {
+      "allowed_writers": [
+        "bears-workflow-overlay-platform-engineer"
+      ],
+      "artifact_type": "fixture",
+      "changelog_required": false,
+      "decision_ref_required": false,
+      "git_tracked": true,
+      "lifecycle": "fixture",
+      "owner_issue": "#8",
+      "owner_role": "bears-workflow-overlay-platform-engineer",
+      "path": "tests/fixtures/app_functional_graph/invalid_missing_node/docs/app-functional-graph.v1.json",
+      "source_of_truth_status": "canonical",
+      "validation": [
+        "python3 scripts/artifact_registry.py validate"
+      ]
+    },
+    {
+      "allowed_writers": [
+        "bears-workflow-overlay-platform-engineer"
+      ],
+      "artifact_type": "fixture",
+      "changelog_required": false,
+      "decision_ref_required": false,
+      "git_tracked": true,
+      "lifecycle": "fixture",
+      "owner_issue": "#8",
+      "owner_role": "bears-workflow-overlay-platform-engineer",
+      "path": "tests/fixtures/app_functional_graph/invalid_missing_node/docs/app-task-ledger.v1.json",
+      "source_of_truth_status": "canonical",
+      "validation": [
+        "python3 scripts/artifact_registry.py validate"
+      ]
+    },
+    {
+      "allowed_writers": [
+        "bears-workflow-overlay-platform-engineer"
+      ],
+      "artifact_type": "fixture",
+      "changelog_required": false,
+      "decision_ref_required": false,
+      "git_tracked": true,
+      "lifecycle": "fixture",
+      "owner_issue": "#8",
+      "owner_role": "bears-workflow-overlay-platform-engineer",
+      "path": "tests/fixtures/app_functional_graph/invalid_secret_ref/docs/app-functional-graph.v1.json",
+      "source_of_truth_status": "canonical",
+      "validation": [
+        "python3 scripts/artifact_registry.py validate"
+      ]
+    },
+    {
+      "allowed_writers": [
+        "bears-workflow-overlay-platform-engineer"
+      ],
+      "artifact_type": "fixture",
+      "changelog_required": false,
+      "decision_ref_required": false,
+      "git_tracked": true,
+      "lifecycle": "fixture",
+      "owner_issue": "#8",
+      "owner_role": "bears-workflow-overlay-platform-engineer",
+      "path": "tests/fixtures/app_functional_graph/invalid_secret_ref/docs/app-task-ledger.v1.json",
+      "source_of_truth_status": "canonical",
+      "validation": [
+        "python3 scripts/artifact_registry.py validate"
+      ]
+    },
+    {
+      "allowed_writers": [
+        "bears-workflow-overlay-platform-engineer"
+      ],
+      "artifact_type": "fixture",
+      "changelog_required": false,
+      "decision_ref_required": false,
+      "git_tracked": true,
+      "lifecycle": "fixture",
+      "owner_issue": "#8",
+      "owner_role": "bears-workflow-overlay-platform-engineer",
+      "path": "tests/fixtures/app_functional_graph/valid_app/docs/app-functional-graph.v1.json",
+      "source_of_truth_status": "canonical",
+      "validation": [
+        "python3 scripts/artifact_registry.py validate"
+      ]
+    },
+    {
+      "allowed_writers": [
+        "bears-workflow-overlay-platform-engineer"
+      ],
+      "artifact_type": "fixture",
+      "changelog_required": false,
+      "decision_ref_required": false,
+      "git_tracked": true,
+      "lifecycle": "fixture",
+      "owner_issue": "#8",
+      "owner_role": "bears-workflow-overlay-platform-engineer",
+      "path": "tests/fixtures/app_functional_graph/valid_app/docs/app-task-ledger.v1.json",
+      "source_of_truth_status": "canonical",
+      "validation": [
+        "python3 scripts/artifact_registry.py validate"
+      ]
     }
   ],
   "schema": "bears-artifact-registry.v1",

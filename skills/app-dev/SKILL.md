@@ -1,11 +1,11 @@
 ---
 name: app-dev
-description: "Execute app-plan tasks from GitHub Project/Issues. Parent controls L2 lane orchestrators, L2 controls helpers and L3 workers, and L3 critic confirms each task before done."
+description: "Execute app-task-ledger tasks produced by app-plan. Parent controls L2 lane orchestrators, L2 controls helpers and L3 workers, L3 critic confirms each task before done, and GitHub Issues are manual notification records only."
 ---
 
 # App Dev
 
-`app` means one Bears product application directory under `/srv/bears/dev/app` or the `BearsCLOUD/apps` repository. `project` means only a GitHub Project board with linked Issues and metadata fields. Use `repo`, `path`, `target`, `workspace surface`, or `app directory` for filesystem ownership.
+`app` means one Bears product application directory under `/srv/bears/dev/app` or the `BearsCLOUD/apps` repository. `project` means only a GitHub Project board with linked items and metadata fields. Use `repo`, `path`, `target`, `workspace surface`, or `app directory` for filesystem ownership.
 
 ## App Target Gate
 
@@ -21,21 +21,19 @@ Every app-* skill starts with this gate:
 - Use target-named reads when target packets name paths.
 - If a request crosses layers, keep the layers separate and pass them to `$app-plan` as separate lanes.
 
-Use this skill to execute dependency-ready `app-plan` tasks after `$app-analyze` returns `pass` or the operator explicitly approves advisory execution.
+Use this skill to execute dependency-ready `app-task-ledger` tasks after `$app-analyze` returns `pass` or the operator explicitly approves advisory execution.
 
-`task` means one bounded app-plan work unit. `wave` means one parent-dispatched batch of dependency-ready tasks that may run in parallel only when repos and target sets do not overlap.
+`task` means one bounded app-plan work unit in `docs/app-task-ledger.v1.json`. `wave` means one parent-dispatched batch of dependency-ready tasks that may run in parallel only when repos and target sets do not overlap.
 
 ## Required topology
 
 - Parent/L1 controls only L2 lane orchestrators and wave boundaries.
-- L2 orchestrators control Project/Issue state, decomposition, helper subagents, and L3 assignments for their lane.
+- L2 orchestrators control Project item state, ledger updates, decomposition, helper subagents, and L3 assignments for their lane.
 - L2 may spawn helper subagents only through `$subagents`; helpers support metadata, decomposition, evidence gathering, or packet shaping.
-- L3 workers implement one task with `model=gpt-5.4-mini` and `reasoning=high` unless the task packet names a stricter model.
+- L3 workers implement one ledger task with `model=gpt-5.4-mini` and `reasoning=high` unless the task packet names a stricter model.
 - L3 critic uses `model=gpt-5.5`, `reasoning=high`, no parent/start context, and receives only the task plus review objective.
 - L3 critic confirms 100% task completion before `done`; it never controls L2 and never edits files.
 - `python-codeflow` applies inside L3 worker packets when Python files are changed.
-
-
 
 ## Plugin target mode
 
@@ -44,8 +42,8 @@ Use `target_layer=plugin` when app-style flow helps a plugin governance or workf
 - `app-constitution` creates or updates a plugin governance baseline, not a retired standalone artifact.
 - `app-research` gathers current plugin source, generated inventory, route/audit, runtime, GitHub, or install/update evidence.
 - `app-specify` writes plugin-local requirements or specification docs for plugin behavior.
-- `app-plan` creates plugin repo Issues and plugin-local task packets; for `@Bears`, use `BearsCLOUD/bears_plugin` issue metadata.
-- `app-analyze` checks drift across plugin baseline, specs, task packets, route/audit evidence, role-principle ledger, and issue metadata.
+- `app-plan` creates plugin-local task packets; for `@Bears`, use `BearsCLOUD/bears_plugin` metadata only when the operator authorizes metadata mutation.
+- `app-analyze` checks drift across plugin baseline, specs, task packets, route/audit evidence, role-principle ledger, and metadata.
 - `app-dev` executes bounded plugin task packets through selected `@Bears` roles, skills, or subagents and updates the ledger when role principles change.
 - Plugin-target `task` and `wave` keep the app-dev meanings, with plugin repo/path ownership instead of product app ownership.
 
@@ -53,35 +51,40 @@ Use `target_layer=plugin` when app-style flow helps a plugin governance or workf
 
 Allowed:
 
-- Read `app-plan.project-task-packet`, `app-analysis.packet`, GitHub Project/Issue metadata, route evidence, target docs, and task-owned files.
+- Read `app-plan.project-task-packet`, `app-analysis.packet`, app functional graph, app task ledger, Project item metadata, route evidence, target docs, and task-owned files.
 - Start L2 lane orchestrators for `app`, `platform`, `infra`, and any sub-lanes already defined by `$app-plan`.
-- Dispatch L3 workers only from decision-complete task packets.
-- Update Project/Issue state only from L2 with concrete worker, critic, commit, and status evidence.
+- Dispatch L3 workers only from `ready` ledger tasks with valid `functionality_refs` and `graph_node_refs`.
+- Update task ledger and Project item state only from L2 with concrete worker, critic, commit, and status evidence.
+- Record GitHub Issue URLs only in `notification_refs` after explicit manual notification authorization.
 
 Forbidden:
 
 - Parent/L1 implementation edits.
 - L3 controlling L2.
-- Inventing layer or lane boundaries not present in `app-plan.project-task-packet`.
-- Combining unrelated layers, repos, target sets, providers, or roles into one task.
+- Reading GitHub Issues as execution task source.
+- Inventing layer or lane boundaries not present in `app-plan.project-task-packet` and app task ledger.
+- Combining unrelated layers, repos, target sets, providers, roles, functionality refs, or graph node refs into one task.
 - Runtime, Kubernetes desired-state, repo-setting, secret, `.env`, production-data, raw-log, or raw-chat mutation unless the exact task and role own that layer.
 - Direct CI/CD, Dagger, local_cd, or Kubernetes trigger commands from app-dev; app-dev consumes automatic status evidence only.
 
 ## Execution loop
 
-This skill uses the same conceptual loop as implementation-by-task workflows: read task, dispatch owner, collect evidence, run independent critic, close task. It does not call or depend on upstream `speckit-implement`.
+This skill uses the same conceptual loop as implementation-by-task workflows: read ledger task, dispatch owner, collect evidence, run independent critic, close task. It does not call or depend on upstream `speckit-implement`.
 
 1. Run the App Target Gate for the packet.
 2. Read `app-analysis.packet`; stop unless handoff is ready or operator approved advisory execution.
-3. Group dependency-ready tasks into a wave by non-overlapping repo/path targets.
-4. Start or reuse one L2 orchestrator per lane in the packet.
-5. Send each L2 only its lane tasks, dependencies, allowed Project/Issue mutations, helper rules, and closeout format.
-6. L2 may use `$subagents` helpers for decomposition or metadata support, then dispatches L3 workers for ready tasks.
-7. Each L3 worker returns changed files, commit/push evidence or exact blocker, Project/Issue evidence, and task completion claim.
-8. L2 dispatches one L3 critic per completed task. The critic receives only the task and review objective.
-9. L2 marks task `done` only after critic confirms 100% completion.
-10. Parent integrates L2 closeout packets, advances the next wave, and reports remaining blockers or drift.
+3. Read `docs/app-functional-graph.v1.json` and `docs/app-task-ledger.v1.json`.
+4. Validate graph and ledger through `$app-functional-graph` before wave grouping.
+5. Group dependency-ready ledger tasks into a wave by non-overlapping repo/path targets and graph node refs.
+6. Start or reuse one L2 orchestrator per lane in the packet.
+7. Send each L2 only its lane tasks, dependencies, graph refs, allowed Project item mutations, helper rules, and closeout format.
+8. L2 may use `$subagents` helpers for decomposition or metadata support, then dispatches L3 workers for ready ledger tasks.
+9. Each L3 worker returns changed files, commit/push evidence or exact blocker, ledger evidence, Project item evidence when used, and task completion claim.
+10. L2 dispatches one L3 critic per completed task. The critic receives only the task and review objective.
+11. L2 marks task `done` only after critic confirms 100% completion and the ledger has commit/evidence refs.
+12. Parent integrates L2 closeout packets, advances the next wave, and reports remaining blockers or drift.
 
+Hard rule: no valid ledger task means no L3 dispatch.
 
 ## L3 autoCI/CD status matrix
 
@@ -91,7 +94,7 @@ Rules:
 
 - The matrix applies only to L3 workers. L2 may continue lane orchestration while automatic statuses are pending.
 - One `task` closes through one L3-owned commit. Split the task when a second commit would be needed.
-- L3 closeout must name the commit SHA, push proof, and expected status names from the task packet.
+- L3 closeout must name the task id, commit SHA, push proof, expected status names, and ledger update result.
 - Fast CI statuses are automatic after commit or push. Agents must not create, dispatch, or run local check layers to prove completion.
 - Full product proof is a fixed Dagger objective-runtime-proof scenario, followed by Kubernetes `kubernetes_deployment` plus `local_cd` evidence when live proof is required.
 - Tests, validators, schemas, lint, static checks, and local host processes may be internal safety guardrails only. They are never PASS evidence.
@@ -103,12 +106,15 @@ Required L3 status packet:
 {
   "schema": "app-dev.l3-status-matrix",
   "version": "1",
-  "task": "<issue url>",
+  "task_id": "<app-T001>",
+  "functionality_refs": ["<app>.<functionality>"],
+  "graph_node_refs": ["<app>.<functionality>.<node>"],
   "commit_sha": "<sha>",
   "push_proof": "<url or exact ref>",
   "fast_statuses": ["<status name>"],
   "full_proof": "dagger-objective-runtime-proof:<scenario>|none",
   "live_proof": "kubernetes_deployment+local_cd|none",
+  "task_ledger_update": "done|blocked",
   "l2_blocking": false
 }
 ```
@@ -122,10 +128,14 @@ Required L3 status packet:
   "lane": "<lane id>",
   "layer": "app|platform|infra",
   "repo": "<repo path>",
-  "tasks": ["<issue urls>"],
-  "allowed_project_mutations": ["status", "comments", "dependency links", "field updates named by app-plan"],
+  "functional_graph": "<app directory>/docs/app-functional-graph.v1.json",
+  "task_ledger": "<app directory>/docs/app-task-ledger.v1.json",
+  "tasks": [
+    {"task_id": "<app-T001>", "functionality_refs": ["<id>"], "graph_node_refs": ["<id>"], "allowed_paths": ["<paths>"]}
+  ],
+  "allowed_project_mutations": ["status", "field updates named by app-plan"],
   "helper_policy": "Use $subagents for L2 helpers only; helpers do not implement.",
-  "completion": "all assigned tasks have L3 commit evidence, automatic status matrix evidence, and L3 critic confirmation"
+  "completion": "all assigned tasks have L3 commit evidence, automatic status matrix evidence, ledger updates, and L3 critic confirmation"
 }
 ```
 
@@ -137,10 +147,10 @@ Required L3 status packet:
   "version": "1",
   "wave": "<wave id>",
   "status": "done|partial|blocked",
-  "tasks_done": ["<issue urls>"],
-  "tasks_blocked": [{"issue": "<url>", "blocker": "<exact blocker>", "owner": "<role>"}],
-  "critic_confirmations": [{"issue": "<url>", "critic": "<agent id>", "result": "confirmed|rejected"}],
-  "status_matrices": [{"issue": "<url>", "commit_sha": "<sha>", "l2_blocking": false}],
-  "next_wave_ready": ["<issue urls>"]
+  "tasks_done": ["<task ids>"],
+  "tasks_blocked": [{"task_id": "<id>", "blocker": "<exact blocker>", "owner": "<role>"}],
+  "critic_confirmations": [{"task_id": "<id>", "critic": "<agent id>", "result": "confirmed|rejected"}],
+  "status_matrices": [{"task_id": "<id>", "commit_sha": "<sha>", "task_ledger_update": "done|blocked", "l2_blocking": false}],
+  "next_wave_ready": ["<task ids>"]
 }
 ```

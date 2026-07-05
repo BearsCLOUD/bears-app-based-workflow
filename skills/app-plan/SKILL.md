@@ -1,11 +1,11 @@
 ---
 name: app-plan
-description: "Convert Bears app documentation into concrete GitHub Issues and Apps Project #20 items. Use when app docs must become app-dev tasks with exact app/platform/infra lanes, paths, roles, dependencies, and handoff."
+description: "Convert Bears app documentation into app-task-ledger execution tasks and Apps Project #20 status items. Use when app docs must become app-dev tasks with exact functionality refs, app/platform/infra lanes, paths, roles, dependencies, and handoff; GitHub Issues are manual notifications only."
 ---
 
 # App Plan
 
-`app` means one Bears product application directory under `/srv/bears/dev/app` or the `BearsCLOUD/apps` repository. `project` means only a GitHub Project board with linked Issues and metadata fields. Use `repo`, `path`, `target`, `workspace surface`, or `app directory` for filesystem ownership.
+`app` means one Bears product application directory under `/srv/bears/dev/app` or the `BearsCLOUD/apps` repository. `project` means only a GitHub Project board with linked items and metadata fields. Use `repo`, `path`, `target`, `workspace surface`, or `app directory` for filesystem ownership.
 
 ## App Target Gate
 
@@ -21,11 +21,9 @@ Every app-* skill starts with this gate:
 - Use target-named reads when target packets name paths.
 - If a request crosses layers, keep the layers separate and pass them to `$app-plan` as separate lanes.
 
-Use this skill to convert app docs into GitHub Issues and Apps Project #20 items for `$app-dev`.
+Use this skill to convert app docs into app-local ledger tasks for `$app-dev` and Project #20 planning/status refs.
 
-The output is applied GitHub metadata: concrete Issues in `BearsCLOUD/apps`, Project #20 items, filled fields, dependencies, lane map, and ready handoff input for `$app-dev`.
-
-
+For `target_layer=app`, run `$app-functional-graph` before creating execution tasks.
 
 ## Plugin target mode
 
@@ -34,8 +32,8 @@ Use `target_layer=plugin` when app-style flow helps a plugin governance or workf
 - `app-constitution` creates or updates a plugin governance baseline, not a retired standalone artifact.
 - `app-research` gathers current plugin source, generated inventory, route/audit, runtime, GitHub, or install/update evidence.
 - `app-specify` writes plugin-local requirements or specification docs for plugin behavior.
-- `app-plan` creates plugin repo Issues and plugin-local task packets; for `@Bears`, use `BearsCLOUD/bears_plugin` issue metadata.
-- `app-analyze` checks drift across plugin baseline, specs, task packets, route/audit evidence, role-principle ledger, and issue metadata.
+- `app-plan` creates plugin-local task packets; for `@Bears`, use `BearsCLOUD/bears_plugin` metadata only when the operator authorizes metadata mutation.
+- `app-analyze` checks drift across plugin baseline, specs, task packets, route/audit evidence, role-principle ledger, and metadata.
 - `app-dev` executes bounded plugin task packets through selected `@Bears` roles, skills, or subagents and updates the ledger when role principles change.
 - Plugin-target `task` and `wave` keep the app-dev meanings, with plugin repo/path ownership instead of product app ownership.
 
@@ -43,16 +41,19 @@ Use `target_layer=plugin` when app-style flow helps a plugin governance or workf
 
 Allowed:
 
-- Read `/srv/bears/AGENTS.md`, nearest app `AGENTS.md`, app constitution, app-research packet, app spec/docs, existing GitHub Project #20 metadata, existing Issues, and route evidence.
-- Create or update bounded GitHub Issues, sub-issues, Project item links, Project item fields, labels, milestones, dependencies, and evidence comments in `BearsCLOUD/apps` and Apps Project #20.
-- Create only decomposition, dependency, acceptance, proof, schema-packet, blocker, lane, and handoff metadata needed by `$app-dev`.
+- Read `/srv/bears/AGENTS.md`, nearest app `AGENTS.md`, app constitution, app-research packet, app spec/docs, app functional graph, app task ledger, Apps Project #20 metadata, and route evidence.
+- Create or update app-local `docs/app-functional-graph.v1.json` and `docs/app-task-ledger.v1.json` through `$app-functional-graph`.
+- Create or update Project item refs as planning/status metadata linked to `task_id` and `functionality_ref`.
+- Create decomposition, dependency, acceptance, proof, schema-packet, lane, and handoff metadata needed by `$app-dev`.
+- Record GitHub Issue URLs only in `notification_refs` after explicit manual notification authorization.
 
 Forbidden:
 
 - Implementation file edits, including schema skeleton files or generated product contract files.
+- Automatic GitHub Issue creation for execution tasks.
 - Runtime, Kubernetes desired-state, provider account, repo-setting, branch-protection, environment, webhook, secret, variable, `.env`, production-data, raw-log, or raw-chat mutation.
-- Product behavior decisions not stated by docs, `$app-research`, schema packets, or route evidence.
-- Broad Issues that require a worker to choose architecture, scope, files, role, proof, or dependency order.
+- Product behavior decisions not stated by docs, `$app-research`, schema packets, functional graph, or route evidence.
+- Broad tasks that require a worker to choose architecture, scope, files, role, proof, or dependency order.
 
 ## Defaults
 
@@ -63,6 +64,8 @@ Forbidden:
 - Execution skill: `$app-dev`.
 - Execution unit: `task`.
 - Parallel batch: `wave`.
+- Functional graph: `docs/app-functional-graph.v1.json`.
+- Task ledger: `docs/app-task-ledger.v1.json`.
 
 ## Required inputs
 
@@ -70,7 +73,9 @@ Forbidden:
 - `app-constitution.packet` or explicit approved gap.
 - `app-specification.packet`.
 - `app-research.packet` when the risk gate matched.
-- GitHub access to `BearsCLOUD/apps` and Apps Project #20.
+- App functional graph or permission to create it through `$app-functional-graph`.
+- App task ledger or permission to create it through `$app-functional-graph`.
+- GitHub Project access when Project status refs are requested.
 
 ## Lane map rules
 
@@ -84,26 +89,31 @@ Every task belongs to one layer and one lane:
 
 ## Task rules
 
-One GitHub Issue is one app-dev task.
+One `app-task-ledger` task is one `$app-dev` execution task.
 
-Every execution Issue must include:
+Every execution task must include:
 
+- `task_id`;
 - exact app directory;
 - layer and lane;
 - exact repo and local path;
 - exact allowed file/path list;
 - exact forbidden paths;
 - route-selected @Bears role;
+- `functionality_refs` from `docs/app-functional-graph.v1.json`;
+- `graph_node_refs` from `docs/app-functional-graph.v1.json`;
+- `graph_edge_refs` when edge behavior changes;
 - source doc references with section names;
 - acceptance criteria checklist;
 - L3 autoCI/CD status matrix names from automatic CI/check metadata or commit closeout expectation;
-- dependency Issue URLs;
-- completion proof: changed files, one commit SHA, push proof, status matrix evidence, Project status update, and closeout comment.
+- dependency task ids;
+- completion proof: changed files, one commit SHA, push proof, status matrix evidence, Project status update when used, and closeout comment.
 
-Split an Issue whenever repo, path, write scope, role, proof source, dependency order, platform boundary, infra boundary, or restricted-data boundary differs.
+Split a task whenever repo, path, write scope, role, proof source, dependency order, functionality ref, graph node ref, platform boundary, infra boundary, or restricted-data boundary differs.
 
-Block broad work instead of creating an execution Issue when docs do not make the task decision-complete. Forbidden broad titles include `implement backend`, `make UI`, `finish MVP`, `integrate platform`, and any equivalent title without exact files, behavior, acceptance, proof, and role.
+Block broad work instead of creating an execution task when docs and graph do not make the task decision-complete. Forbidden broad titles include `implement backend`, `make UI`, `finish MVP`, `integrate platform`, and any equivalent title without exact files, behavior, acceptance, proof, role, `functionality_refs`, and `graph_node_refs`.
 
+GitHub Issue rule: `app-plan` may create a GitHub Issue only after explicit manual notification authorization. Store the URL in `notification_refs` with reason `blocker`, `incident`, `bug`, or `operator-question`.
 
 ## Product schema packets
 
@@ -113,9 +123,9 @@ Rules:
 
 - `app-plan` may design schema packets to make parallel L3 work decision-complete.
 - `app-plan` must not create schema skeleton files, generated contracts, migrations, validators, or tests.
-- Each schema packet must become one or more L3 materialization tasks owned by `$app-dev`.
-- Schema packets may define names, owner layer, app directory, consumers, allowed paths, forbidden paths, dependencies, and status matrix expectations.
-- If a schema shape is not decision-complete, create a blocker Issue instead of an execution Issue.
+- Each schema packet must become one or more L3 materialization tasks in the app task ledger.
+- Schema packets may define names, owner layer, app directory, consumers, allowed paths, forbidden paths, dependencies, functionality refs, graph node refs, and status matrix expectations.
+- If a schema shape is not decision-complete, create a ledger task with `status=blocked` or record a manual notification Issue after authorization.
 
 Schema packet shape:
 
@@ -126,22 +136,25 @@ Schema packet shape:
   "name": "<schema or contract name>",
   "owner_layer": "app|platform|infra",
   "app_directory": "<exact app directory or none>",
-  "consumers": ["<consumer path or issue>"],
+  "consumers": ["<consumer path or task_id>"],
   "allowed_paths": ["<future file paths>"],
   "forbidden_paths": ["<paths>"],
-  "materialization_tasks": ["<issue urls>"],
+  "functionality_refs": ["<app>.<functionality>"],
+  "graph_node_refs": ["<app>.<functionality>.<node>"],
+  "materialization_tasks": ["<task ids>"],
   "status_matrix": ["<automatic status names>"]
 }
 ```
 
 ## L3 goal block
 
-Each execution Issue must include:
+Each execution task must provide this block to `$app-dev`:
 
 ```markdown
 ## L3 goal
 /goal
 unit=task
+task_id=<app-T001>
 lane=<app|platform|infra|sub-lane>
 layer=<app|platform|infra>
 role=<route-selected @Bears role>
@@ -150,26 +163,32 @@ reasoning=high
 repo=<exact repo path>
 owner_repo=<GitHub repo>
 app_directory=<exact app directory or none>
+functional_graph=<app directory>/docs/app-functional-graph.v1.json
+task_ledger=<app directory>/docs/app-task-ledger.v1.json
+functionality_refs=<ids>
+graph_node_refs=<ids>
+graph_edge_refs=<ids or none>
 target=<exact files/paths>
 allowed_actions=<bounded list>
 forbidden_actions=<bounded list>
-acceptance_criteria=<checklist copied from this issue>
+acceptance_criteria=<checklist copied from ledger task>
 proof=<automatic status matrix or commit closeout expectation>
-completion_criteria=changed files, one commit SHA, push proof, status matrix evidence, Project status update, closeout comment
+completion_criteria=changed files, one commit SHA, push proof, status matrix evidence, ledger update, Project status update when used, closeout comment
 ```
 
-If any field cannot be filled exactly, create a blocker Issue instead of an execution Issue.
+If any field cannot be filled exactly, create a blocked ledger task instead of a ready execution task.
 
 ## Workflow
 
 1. Run the App Target Gate.
-2. Read target constitution, app-research packet when required, spec, docs, and existing Project/Issue state.
-3. Build the lane map first: app, platform, infra, plus optional sub-lanes with disjoint paths.
-4. Convert requirements into decision-complete tasks.
-5. Create dependencies so app-dev waves can run only dependency-ready, non-overlapping tasks.
-6. Ensure every task has one role, one layer, one lane, one repo boundary, one L3 status matrix, and one proof requirement.
-7. Emit `app-plan.project-task-packet`.
-8. Run `$app-analyze` before handing execution to `$app-dev`.
+2. Read target constitution, app-research packet when required, spec, docs, existing functional graph, task ledger, and Project state when used.
+3. Use `$app-functional-graph` to initialize or update graph and ledger.
+4. Build the lane map first: app, platform, infra, plus optional sub-lanes with disjoint paths.
+5. Convert requirements into decision-complete ledger tasks with functionality refs and graph node refs.
+6. Create dependencies so `$app-dev` waves can run only dependency-ready, non-overlapping tasks.
+7. Ensure every task has one role, one layer, one lane, one repo boundary, one L3 status matrix, one proof requirement, and valid graph refs.
+8. Emit `app-plan.project-task-packet`.
+9. Run `$app-analyze` before handing execution to `$app-dev`.
 
 ## Packet
 
@@ -182,17 +201,19 @@ If any field cannot be filled exactly, create a blocker Issue instead of an exec
   "owner_repo": "BearsCLOUD/apps",
   "target": "<exact app docs path>",
   "app_directory": "<exact app directory>",
+  "functional_graph": "<app directory>/docs/app-functional-graph.v1.json",
+  "task_ledger": "<app directory>/docs/app-task-ledger.v1.json",
   "lane_map": [
-    {"layer": "app|platform|infra", "lane": "<lane id>", "repo": "<repo path>", "target_paths": ["<paths>"], "parallel_group": "<group id>", "dependencies": ["<issue urls>"]}
+    {"layer": "app|platform|infra", "lane": "<lane id>", "repo": "<repo path>", "target_paths": ["<paths>"], "parallel_group": "<group id>", "dependencies": ["<task ids>"]}
   ],
-  "issues": [
-    {"url": "<issue url>", "task_id": "<id>", "layer": "app|platform|infra", "lane": "<lane id>", "role": "<@Bears role>", "dependencies": ["<issue urls>"], "status_matrix": ["<automatic status names>"], "status": "ready|blocked"}
+  "tasks": [
+    {"task_id": "<id>", "layer": "app|platform|infra", "lane": "<lane id>", "role": "<@Bears role>", "functionality_refs": ["<id>"], "graph_node_refs": ["<id>"], "graph_edge_refs": [], "dependencies": ["<task ids>"], "project_refs": [], "notification_refs": [], "status_matrix": ["<automatic status names>"], "status": "ready|blocked"}
   ],
   "product_schema_packets": [
-    {"name": "<schema or contract name>", "owner_layer": "app|platform|infra", "materialization_tasks": ["<issue urls>"], "status_matrix": ["<automatic status names>"]}
+    {"name": "<schema or contract name>", "owner_layer": "app|platform|infra", "functionality_refs": ["<id>"], "graph_node_refs": ["<id>"], "materialization_tasks": ["<task ids>"], "status_matrix": ["<automatic status names>"]}
   ],
   "blocked_requirements": ["<requirement ids and reason>"],
   "execution_skill": "app-dev",
-  "recommendation": "Run $app-analyze, then hand ready items to $app-dev."
+  "recommendation": "Run $app-analyze, then hand ready ledger tasks to $app-dev."
 }
 ```

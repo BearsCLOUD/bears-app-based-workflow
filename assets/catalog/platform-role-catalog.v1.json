@@ -491,7 +491,8 @@
       "development_workflow_packet_validator",
       "subagents_roles_governance",
       "workflow_overlay_core_plugin_surface",
-      "agentic_enterprise_workflow_governance"
+      "agentic_enterprise_workflow_governance",
+      "github_project_subagents_metadata_surface"
     ],
     "root_planning_drift_targets": [
       "/srv/bears/.specify",
@@ -9335,68 +9336,55 @@
       "aliases": [
         "app-dev",
         "project-dev-subagents",
-        "github-project-issues-orchestration",
         "skills/app-dev",
         "skills/app-dev/SKILL.md",
         "skills/app-dev/references/github-project-issue-flow.md",
         "/srv/bears/plugins/bears/skills/app-dev",
         "/srv/bears/plugins/bears/skills/app-dev/SKILL.md",
         "/srv/bears/plugins/bears/skills/app-dev/references/github-project-issue-flow.md",
-        "agents/bears-github-project-issues-orchestrator.toml",
-        "plugins/bears/agents/bears-github-project-issues-orchestrator.toml",
-        "/srv/bears/plugins/bears/agents/bears-github-project-issues-orchestrator.toml",
-        "assets/catalog/github-project-subagents.v1.json",
-        "assets/schemas/github-project-subagents.v1.schema.json",
-        "scripts/github_project_subagents.py",
-        "docs/reference/github-project-subagents.md",
-        "/srv/bears/plugins/bears/assets/catalog/github-project-subagents.v1.json",
-        "/srv/bears/plugins/bears/assets/schemas/github-project-subagents.v1.schema.json",
-        "/srv/bears/plugins/bears/scripts/github_project_subagents.py",
-        "/srv/bears/plugins/bears/docs/reference/github-project-subagents.md"
+        "agents/bears-app-functional-graph-orchestrator.toml",
+        "plugins/bears/agents/bears-app-functional-graph-orchestrator.toml",
+        "/srv/bears/plugins/bears/agents/bears-app-functional-graph-orchestrator.toml"
       ],
-      "allowed_write_boundary": "Only /srv/bears/plugins/bears/skills/app-dev/**, /srv/bears/plugins/bears/agents/bears-github-project-issues-orchestrator.toml, /srv/bears/plugins/bears/assets/catalog/github-project-subagents.v1.json, /srv/bears/plugins/bears/assets/schemas/github-project-subagents.v1.schema.json, /srv/bears/plugins/bears/scripts/github_project_subagents.py, and /srv/bears/plugins/bears/docs/reference/github-project-subagents.md; no GitHub Project field-model planning/admin skill edits, product, runtime, deploy, product app, MCP, connector, provider, repository settings, branch protection, secrets, production data, raw logs, raw chats, or raw VPN configs.",
-      "concrete_scope": "Exact App Dev skill, GitHub project/issue flow reference, and GitHub Projects/Issues orchestrator role artifact for project-driven L2/L3 development orchestration from already prepared Project/Issue state.",
+      "allowed_write_boundary": "Only /srv/bears/plugins/bears/skills/app-dev/**, /srv/bears/plugins/bears/agents/bears-app-functional-graph-orchestrator.toml, app functional graph script/schema/test surfaces, and bounded Project status metadata references; no GitHub Issue execution-task creation, product, runtime, deploy, product app, MCP, connector, provider, repository settings, branch protection, secrets, production data, raw logs, raw chats, or raw VPN configs.",
+      "concrete_scope": "Exact App Dev skill, app task ledger flow reference, and app functional graph orchestrator role artifact for ledger-driven L2/L3 development orchestration from validated functional graph and task ledger state.",
       "decomposition_required": false,
       "group": "workflow",
       "name": "app-dev_skill_governance",
       "no_role_policy": "blocker",
       "part_kind": "concrete",
-      "required_role": "bears-github-project-issues-orchestrator",
+      "required_role": "bears-app-functional-graph-orchestrator",
       "required_validations": [
+        "python3 -m unittest tests/test_app_functional_graph.py",
+        "python3 scripts/app_functional_graph.py validate --app-dir <app-directory>",
         "python3 scripts/github_project_subagents.py validate",
         "python3 scripts/subagents_roles.py route skills/app-dev",
         "python3 scripts/subagents_roles.py audit skills/app-dev",
-        "python3 scripts/subagents_roles.py route agents/bears-github-project-issues-orchestrator.toml",
-        "python3 scripts/subagents_roles.py audit agents/bears-github-project-issues-orchestrator.toml",
+        "python3 scripts/subagents_roles.py route agents/bears-app-functional-graph-orchestrator.toml",
+        "python3 scripts/subagents_roles.py audit agents/bears-app-functional-graph-orchestrator.toml",
         "python3 scripts/subagents_roles.py validate",
         "python3 scripts/skill_catalog.py validate"
       ],
       "reviewer_triggers": [
         "GitHub Project mutation authority change",
-        "Issue closeout authority change",
         "L2 or L3 delegation authority change",
         "role-gap blocker authority change",
-        "restricted-data boundary change"
+        "restricted-data boundary change",
+        "functional graph dispatch authority change",
+        "app task ledger dispatch authority change",
+        "notification Issue authority change"
       ],
       "role_required": true,
       "source": "skills/app-dev/SKILL.md",
       "supporting_roles": [
         "bears-platform-security-reviewer"
       ],
-      "trust_boundary": "This surface consumes prepared GitHub Project/Issue state for metadata-backed L2/L3 development orchestration. GitHub Project planning/admin policy belongs to github_project_planning_skill_governance.",
+      "trust_boundary": "This surface consumes app functional graph and app task ledger state for metadata-backed L2/L3 development orchestration. GitHub Projects are planning/status metadata; GitHub Issues are notification records only.",
       "write_roots": [
         "/srv/bears/plugins/bears/skills/app-dev",
         "skills/app-dev",
-        "/srv/bears/plugins/bears/agents/bears-github-project-issues-orchestrator.toml",
-        "agents/bears-github-project-issues-orchestrator.toml",
-        "/srv/bears/plugins/bears/assets/catalog/github-project-subagents.v1.json",
-        "assets/catalog/github-project-subagents.v1.json",
-        "/srv/bears/plugins/bears/assets/schemas/github-project-subagents.v1.schema.json",
-        "assets/schemas/github-project-subagents.v1.schema.json",
-        "/srv/bears/plugins/bears/scripts/github_project_subagents.py",
-        "scripts/github_project_subagents.py",
-        "/srv/bears/plugins/bears/docs/reference/github-project-subagents.md",
-        "docs/reference/github-project-subagents.md"
+        "/srv/bears/plugins/bears/agents/bears-app-functional-graph-orchestrator.toml",
+        "agents/bears-app-functional-graph-orchestrator.toml"
       ]
     },
     {
@@ -10135,10 +10123,28 @@
         "/srv/bears/plugins/bears/skills/app-research/SKILL.md",
         "tests/test_plugin_manifests.py",
         "plugins/bears/tests/test_plugin_manifests.py",
-        "/srv/bears/plugins/bears/tests/test_plugin_manifests.py"
+        "/srv/bears/plugins/bears/tests/test_plugin_manifests.py",
+        "app-functional-graph",
+        "skills/app-functional-graph",
+        "skills/app-functional-graph/SKILL.md",
+        "plugins/bears/skills/app-functional-graph",
+        "plugins/bears/skills/app-functional-graph/SKILL.md",
+        "/srv/bears/plugins/bears/skills/app-functional-graph",
+        "/srv/bears/plugins/bears/skills/app-functional-graph/SKILL.md",
+        "skills/app-functional-graph/agents/openai.yaml",
+        "scripts/app_functional_graph.py",
+        "/srv/bears/plugins/bears/scripts/app_functional_graph.py",
+        "assets/schemas/app-functional-graph.v1.schema.json",
+        "assets/schemas/app-task-ledger.v1.schema.json",
+        "/srv/bears/plugins/bears/assets/schemas/app-functional-graph.v1.schema.json",
+        "/srv/bears/plugins/bears/assets/schemas/app-task-ledger.v1.schema.json",
+        "tests/test_app_functional_graph.py",
+        "tests/fixtures/app_functional_graph",
+        "/srv/bears/plugins/bears/tests/test_app_functional_graph.py",
+        "/srv/bears/plugins/bears/tests/fixtures/app_functional_graph"
       ],
       "allowed_write_boundary": "Only listed canonical plugin core manifest, app workflow skills and minimal workflow policy docs, workflows, templates, and core governance agent TOML files; no product/runtime/local_cd/kubernetes_deployment/integration edits, no standalone plugin restoration, no tracked .specify generated files, no upstream speckit-* skill vendoring.",
-      "concrete_scope": "Canonical workflow-overlay core plugin packaging, app workflow skills, app-research, app constitution/specification/planning/analysis skills, workflows, templates, and core governance agent TOML files.",
+      "concrete_scope": "Canonical workflow-overlay core plugin packaging, app workflow skills, app functional graph and task ledger governance, app-research, app constitution/specification/planning/analysis skills, workflows, templates, and core governance agent TOML files.",
       "decomposition_required": false,
       "group": "workflow",
       "name": "workflow_overlay_core_plugin_surface",
@@ -10193,7 +10199,22 @@
         "skills/app-research",
         "tests/test_plugin_manifests.py",
         "plugins/bears/tests/test_plugin_manifests.py",
-        "/srv/bears/plugins/bears/tests/test_plugin_manifests.py"
+        "/srv/bears/plugins/bears/tests/test_plugin_manifests.py",
+        "skills/app-functional-graph",
+        "skills/app-functional-graph/SKILL.md",
+        "/srv/bears/plugins/bears/skills/app-functional-graph",
+        "/srv/bears/plugins/bears/skills/app-functional-graph/SKILL.md",
+        "skills/app-functional-graph/agents/openai.yaml",
+        "scripts/app_functional_graph.py",
+        "/srv/bears/plugins/bears/scripts/app_functional_graph.py",
+        "assets/schemas/app-functional-graph.v1.schema.json",
+        "assets/schemas/app-task-ledger.v1.schema.json",
+        "/srv/bears/plugins/bears/assets/schemas/app-functional-graph.v1.schema.json",
+        "/srv/bears/plugins/bears/assets/schemas/app-task-ledger.v1.schema.json",
+        "tests/test_app_functional_graph.py",
+        "tests/fixtures/app_functional_graph",
+        "/srv/bears/plugins/bears/tests/test_app_functional_graph.py",
+        "/srv/bears/plugins/bears/tests/fixtures/app_functional_graph"
       ]
     },
     {
@@ -10277,6 +10298,60 @@
         "/srv/bears/plugins/bears/hooks/_agentic_enterprise_hook_common.py",
         "/srv/bears/plugins/bears/tests/fixtures/agentic_enterprise_workflow",
         "/srv/bears/plugins/bears/tests/test_agentic_enterprise_workflow.py"
+      ]
+    },
+    {
+      "aliases": [
+        "github-project-subagents",
+        "github_project_subagents",
+        "github-project-issues-orchestration",
+        "agents/bears-github-project-issues-orchestrator.toml",
+        "plugins/bears/agents/bears-github-project-issues-orchestrator.toml",
+        "/srv/bears/plugins/bears/agents/bears-github-project-issues-orchestrator.toml",
+        "assets/catalog/github-project-subagents.v1.json",
+        "assets/schemas/github-project-subagents.v1.schema.json",
+        "scripts/github_project_subagents.py",
+        "docs/reference/github-project-subagents.md",
+        "/srv/bears/plugins/bears/assets/catalog/github-project-subagents.v1.json",
+        "/srv/bears/plugins/bears/assets/schemas/github-project-subagents.v1.schema.json",
+        "/srv/bears/plugins/bears/scripts/github_project_subagents.py",
+        "/srv/bears/plugins/bears/docs/reference/github-project-subagents.md"
+      ],
+      "allowed_write_boundary": "Only GitHub Project metadata helper role, catalog, schema, script, and reference docs; no product/runtime/local_cd/kubernetes_deployment edits and no GitHub Issue execution-task creation.",
+      "concrete_scope": "GitHub Project and notification metadata helper role, catalog, schema, script, and reference docs. This surface owns Project/status metadata and notification references; app execution identity belongs to app task ledger.",
+      "decomposition_required": false,
+      "group": "workflow",
+      "name": "github_project_subagents_metadata_surface",
+      "no_role_policy": "blocker",
+      "part_kind": "concrete",
+      "required_role": "bears-github-project-issues-orchestrator",
+      "required_validations": [
+        "python3 scripts/github_project_subagents.py validate",
+        "python3 scripts/subagents_roles.py validate"
+      ],
+      "reviewer_triggers": [
+        "GitHub Project mutation authority change",
+        "notification Issue authority change",
+        "role-gap blocker authority change",
+        "restricted-data boundary change"
+      ],
+      "role_required": true,
+      "source": "agents/bears-github-project-issues-orchestrator.toml",
+      "supporting_roles": [
+        "bears-platform-security-reviewer"
+      ],
+      "trust_boundary": "This surface may read or update GitHub Project/status metadata and authorized notification refs. It does not own app-dev execution task identity.",
+      "write_roots": [
+        "/srv/bears/plugins/bears/agents/bears-github-project-issues-orchestrator.toml",
+        "agents/bears-github-project-issues-orchestrator.toml",
+        "/srv/bears/plugins/bears/assets/catalog/github-project-subagents.v1.json",
+        "assets/catalog/github-project-subagents.v1.json",
+        "/srv/bears/plugins/bears/assets/schemas/github-project-subagents.v1.schema.json",
+        "assets/schemas/github-project-subagents.v1.schema.json",
+        "/srv/bears/plugins/bears/scripts/github_project_subagents.py",
+        "scripts/github_project_subagents.py",
+        "/srv/bears/plugins/bears/docs/reference/github-project-subagents.md",
+        "docs/reference/github-project-subagents.md"
       ]
     }
   ],
@@ -11909,6 +11984,37 @@
       "role_kind": "helper",
       "sandbox_mode": "workspace-write",
       "scope": "GitHub Projects, Issues, sub-issues, PR metadata, Actions metadata, Releases metadata, and L3 @Bears assignment packets for project-driven development orchestration."
+    },
+    {
+      "agent_file": "agents/bears-app-functional-graph-orchestrator.toml",
+      "allowed_write_zones": [
+        "dev/app/<app>/docs/app-functional-graph.v1.json when assigned by app-plan or app-dev and route/audit coverage allows the app path",
+        "dev/app/<app>/docs/app-task-ledger.v1.json when assigned by app-plan or app-dev and route/audit coverage allows the app path",
+        "plugin-local app-functional-graph skill, schema, script, and test surfaces when assigned through @Bears plugin governance"
+      ],
+      "developer_instructions_profile": "app-functional-graph-orchestrator",
+      "evidence_required": [
+        "app functional graph validation packet",
+        "app task ledger validation packet",
+        "route/audit packet for every target path",
+        "critic confirmation and commit/runtime proof for done tasks"
+      ],
+      "execution_class": "helper",
+      "forbidden_actions": [
+        "product implementation",
+        "automatic GitHub Issue creation for execution tasks",
+        "GitHub Issues as execution task identity",
+        "secret access",
+        "runtime/deploy mutation"
+      ],
+      "handoff_contract": "/srv/bears/dev/contracts/subagent_start_packet.md",
+      "model": "gpt-5.5",
+      "model_reasoning_effort": "medium",
+      "name": "bears-app-functional-graph-orchestrator",
+      "primary_eligible": true,
+      "role_kind": "helper",
+      "sandbox_mode": "workspace-write",
+      "scope": "Bears app functional graph, app task ledger, Project status metadata, notification refs, and L2/L3 app-dev assignment packets."
     }
   ],
   "route_regression_checks": [
@@ -14554,26 +14660,26 @@
     },
     {
       "expected_status": "matched",
-      "required_role": "bears-github-project-issues-orchestrator",
+      "required_role": "bears-app-functional-graph-orchestrator",
       "required_route_id": "app-dev_skill_governance",
       "target": "skills/app-dev"
     },
     {
       "expected_status": "matched",
       "required_role": "bears-github-project-issues-orchestrator",
-      "required_route_id": "app-dev_skill_governance",
+      "required_route_id": "github_project_subagents_metadata_surface",
       "target": "/srv/bears/plugins/bears/agents/bears-github-project-issues-orchestrator.toml"
     },
     {
       "expected_status": "matched",
       "required_role": "bears-github-project-issues-orchestrator",
-      "required_route_id": "app-dev_skill_governance",
+      "required_route_id": "github_project_subagents_metadata_surface",
       "target": "scripts/github_project_subagents.py"
     },
     {
       "expected_status": "matched",
       "required_role": "bears-github-project-issues-orchestrator",
-      "required_route_id": "app-dev_skill_governance",
+      "required_route_id": "github_project_subagents_metadata_surface",
       "target": "assets/catalog/github-project-subagents.v1.json"
     },
     {
@@ -14939,6 +15045,21 @@
       "required_role": "bears-subagents-roles-governor",
       "required_route_id": "subagents_roles_governance",
       "target": "docs/audits/subagents-roles/role-principle-ledger.v1.json"
+    },
+    {
+      "expected_status": "matched",
+      "required_role": "bears-workflow-overlay-platform-engineer",
+      "target": "skills/app-functional-graph/SKILL.md"
+    },
+    {
+      "expected_status": "matched",
+      "required_role": "bears-workflow-overlay-platform-engineer",
+      "target": "scripts/app_functional_graph.py"
+    },
+    {
+      "expected_status": "matched",
+      "required_role": "bears-app-functional-graph-orchestrator",
+      "target": "agents/bears-app-functional-graph-orchestrator.toml"
     }
   ],
   "schema": "bears-platform-role-catalog.v1",

@@ -1,4 +1,4 @@
 interface:
   display_name: "App Analyze"
-  short_description: "Check app handoff readiness"
-  default_prompt: "Use $app-analyze to check App Target Gate, constitution, research, spec, Project items, Issues, lanes, roles, proof requirements, dependencies, and app-dev handoff."
+  short_description: "Check app graph and ledger drift."
+  default_prompt: "Use $app-analyze to check App Target Gate, constitution, research, spec, app functional graph, app task ledger, Project status refs, notification refs, lanes, roles, proof requirements, dependencies, and app-dev handoff."

@@ -1868,6 +1868,24 @@
       "scope_id": "subagents-roles-governance-migration",
       "status": "accepted",
       "unresolved_inputs": []
+    },
+    {
+      "affected_paths": [
+        "assets/schemas/app-functional-graph.v1.schema.json",
+        "assets/schemas/app-task-ledger.v1.schema.json",
+        "scripts/app_functional_graph.py"
+      ],
+      "change_type": "workflow",
+      "contradictions": [],
+      "decision": "Add app functional graph and app task ledger helper surfaces for app-plan and app-dev.",
+      "decision_id": "D-2026-07-05-008-app-functional-graph",
+      "owner_issue": "#8",
+      "owner_role": "bears-workflow-overlay-platform-engineer",
+      "rationale": "App execution tasks need machine-readable functionality refs, graph node refs, async/API/state refs, and notification-only Issue handling before L2/L3 dispatch.",
+      "redaction": "safe",
+      "scope_id": "app-functional-graph",
+      "status": "accepted",
+      "unresolved_inputs": []
     }
   ],
   "schema": "bears-decision-ledger.v1",

@@ -317,7 +317,7 @@ The gate checks `/srv/bears/dev/registry/projects.v1.json`, then routes the targ
 
 `assets/catalog/plugin-skill-catalog.v1.json` is the single source of truth for active Bears plugin skills.
 
-Active discoverable skills: `bears-blocker-eval`, `bears-deploy-gate`, `bears-goal-prompt`, `bears-codex-health`, `bears-plugin-update`, `subagents-roles`, `bears-agents`, `python-codeflow`, `secret-factory`, `app-constitution`, `app-research`, `app-specify`, `app-plan`, `github-project-planning`, `app-analyze`, `yandex360-dns`, `bears-kubernetes-ops`, `bears-infisical-ops`, `subagents`, `app-dev`, `codex-telegram-operator-gate`.
+Active discoverable skills: `bears-blocker-eval`, `bears-deploy-gate`, `bears-goal-prompt`, `bears-codex-health`, `bears-plugin-update`, `subagents-roles`, `bears-agents`, `python-codeflow`, `secret-factory`, `app-constitution`, `app-research`, `app-specify`, `app-functional-graph`, `app-plan`, `github-project-planning`, `app-analyze`, `yandex360-dns`, `bears-kubernetes-ops`, `bears-infisical-ops`, `subagents`, `app-dev`, `codex-telegram-operator-gate`.
 <!-- BEARS_SKILL_INVENTORY: END -->
 
 Canonical agent workflow map: `assets/catalog/agent-workflow-map.v1.json`.

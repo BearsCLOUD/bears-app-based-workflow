@@ -2,6 +2,60 @@
   "entries": [
     {
       "affected_surfaces": [
+        "app-functional-graph_skill",
+        "app-plan_skill",
+        "app-dev_skill",
+        "app-analyze_skill",
+        "app_task_ledger",
+        "platform_role_catalog",
+        "plugin_skill_catalog",
+        "artifact_registry",
+        "release_notes",
+        "test_selection",
+        "pants_test_graph"
+      ],
+      "date": "2026-07-05",
+      "files": [
+        "agents/bears-app-functional-graph-orchestrator.toml",
+        "assets/catalog/artifact-registry.v1.json",
+        "assets/catalog/pants-test-graph.v1.json",
+        "assets/catalog/platform-role-catalog.v1.json",
+        "assets/catalog/plugin-skill-catalog.v1.json",
+        "assets/catalog/release-notes.v1.json",
+        "assets/catalog/test-selection.v1.json",
+        "assets/schemas/app-functional-graph.v1.schema.json",
+        "assets/schemas/app-task-ledger.v1.schema.json",
+        "scripts/app_functional_graph.py",
+        "skills/app-functional-graph/SKILL.md",
+        "skills/app-functional-graph/agents/openai.yaml",
+        "skills/app-plan/SKILL.md",
+        "skills/app-plan/agents/openai.yaml",
+        "skills/app-dev/SKILL.md",
+        "skills/app-dev/agents/openai.yaml",
+        "skills/app-dev/references/github-project-issue-flow.md",
+        "skills/app-analyze/SKILL.md",
+        "skills/app-analyze/agents/openai.yaml",
+        "skills/app-constitution/SKILL.md",
+        "skills/app-research/SKILL.md",
+        "skills/app-specify/SKILL.md",
+        "tests/fixtures/app_functional_graph/",
+        "tests/test_app_functional_graph.py"
+      ],
+      "impact": "Adds app-functional-graph governance so app-plan creates ledger-bound tasks with functional graph refs and app-dev dispatches only validated ledger tasks; GitHub Issues are notification records instead of execution task sources.",
+      "issue_ref": "#8",
+      "validation": [
+        "python3 scripts/app_functional_graph.py validate --app-dir <app-directory>",
+        "python3 -m unittest tests/test_app_functional_graph.py",
+        "python3 scripts/subagents_roles.py validate",
+        "python3 scripts/skill_catalog.py generate --check",
+        "python3 scripts/artifact_registry.py check-added-files --staged",
+        "python3 scripts/release_notes_gate.py check --staged",
+        "python3 scripts/test_selection.py validate",
+        "python3 scripts/pants_test_graph.py validate"
+      ]
+    },
+    {
+      "affected_surfaces": [
         "github_project_subagents_catalog",
         "app-dev_skill",
         "github_project_issues_orchestrator",

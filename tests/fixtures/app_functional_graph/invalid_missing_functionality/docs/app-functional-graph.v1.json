@@ -1,0 +1,38 @@
+{
+  "schema": "app-functional-graph.v1",
+  "version": "1",
+  "app": "valid_app",
+  "owner_repo": "BearsCLOUD/apps",
+  "app_directory": "__APP_DIR__",
+  "updated": "2026-07-05T00:00:00+00:00",
+  "source_docs": [],
+  "functionalities": [
+    {
+      "id": "valid_app.lead_capture_submit",
+      "title": "Lead capture submit",
+      "status": "active",
+      "owner_layer": "app",
+      "owner_role": "bears-product-app-zone-engineer",
+      "entrypoints": ["web:/lead-form"],
+      "nodes": [
+        {"id": "validate_input", "kind": "domain_rule", "owner_layer": "app", "target_paths": ["valid_app/src/lead.py"], "input_refs": [], "output_refs": [], "side_effects": [], "evidence_refs": []},
+        {"id": "submit_lead", "kind": "api_call", "owner_layer": "app", "target_paths": ["valid_app/src/lead.py"], "input_refs": [], "output_refs": [], "side_effects": ["lead_record"], "evidence_refs": []},
+        {"id": "notify_owner", "kind": "worker", "owner_layer": "app", "target_paths": ["valid_app/src/notifications.py"], "input_refs": [], "output_refs": [], "side_effects": ["notification"], "evidence_refs": []}
+      ],
+      "edges": [
+        {"from": "validate_input", "to": "submit_lead", "trigger": "valid_input", "mode": "sync", "condition": "input accepted"},
+        {"from": "submit_lead", "to": "notify_owner", "trigger": "lead_saved", "mode": "async", "condition": "lead stored"}
+      ],
+      "async_cycles": [
+        {"id": "notify_retry", "trigger_node_ref": "submit_lead", "worker_node_ref": "notify_owner", "trigger": "lead_saved", "max_attempts": 3, "backoff": "exponential", "exit_conditions": ["sent", "dead_letter"]}
+      ],
+      "api_calls": [
+        {"id": "submit_lead_api", "caller_node_ref": "submit_lead", "provider": "internal", "method": "POST", "endpoint_ref": "lead.submit", "auth_ref": "none", "timeout_ms": 10000, "retry_policy_ref": "none"}
+      ],
+      "state_transitions": [],
+      "acceptance": ["lead stored"],
+      "proof_refs": [],
+      "task_refs": ["valid_app-T001"]
+    }
+  ]
+}

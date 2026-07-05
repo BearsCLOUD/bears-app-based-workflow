@@ -1,0 +1,36 @@
+{
+  "app": "valid_app",
+  "app_directory": "__APP_DIR__",
+  "schema": "app-task-ledger.v1",
+  "tasks": [
+    {
+      "allowed_paths": [
+        "valid_app/src/lead.py"
+      ],
+      "commit_sha": "none",
+      "critic_confirmation": "none",
+      "dependencies": [],
+      "evidence_refs": [],
+      "functionality_refs": [
+        "valid_app.missing"
+      ],
+      "graph_edge_refs": [],
+      "graph_node_refs": [
+        "valid_app.lead_capture_submit.validate_input"
+      ],
+      "lane": "app",
+      "notification_refs": [],
+      "owner_role": "bears-product-app-zone-engineer",
+      "project_refs": [
+        "project-item:PVTI_123"
+      ],
+      "status": "ready",
+      "status_matrix": [],
+      "target_layer": "app",
+      "task_id": "valid_app-T001",
+      "title": "Implement lead submit validation"
+    }
+  ],
+  "updated": "2026-07-05T00:00:00+00:00",
+  "version": "1"
+}

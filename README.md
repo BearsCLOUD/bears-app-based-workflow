@@ -553,14 +553,15 @@ Active skills expose `SKILL.md` and are discoverable by the plugin loader.
 - `skills/app-constitution` — Create or update one Bears app constitution with target, owner, layer map, artifact map, and drift handling.
 - `skills/app-research` — Research external solutions, prior art, product logic, integrations, UI/UX patterns, providers, and market constraints for Bears app targets.
 - `skills/app-specify` — Create or update app specifications from operator intent, constitution rules, app-research evidence, and repo evidence.
-- `skills/app-plan` — Convert Bears app docs into GitHub Issues and Apps Project #20 items with app/platform/infra lane maps for app-dev execution.
+- `skills/app-functional-graph` — Create, update, validate, and consume app-local functional graph and app task ledger files for app-plan and app-dev.
+- `skills/app-plan` — Convert Bears app docs into app task ledger tasks and Apps Project #20 status items with functional graph refs.
 - `skills/github-project-planning` — Plan and administer non-app GitHub Projects, fields, views, issues, sub-issues, item hygiene, and planning PASS packets; app workflow planning belongs to app-plan.
-- `skills/app-analyze` — Analyze app workflow artifacts, lane maps, dependencies, roles, proof requirements, and app-dev handoff for drift.
+- `skills/app-analyze` — Analyze app workflow artifacts, functional graph, task ledger, lane maps, roles, proof requirements, and app-dev handoff for drift.
 - `skills/yandex360-dns` — DNS governance workflow for bears.ru through Yandex 360 using presence-only checks, dry-run plan review, and read-only governance evidence only.
 - `skills/bears-kubernetes-ops` — Perform Bears Kubernetes metadata checks, desired-state/local_cd deploy-boundary checks, secret-reference readiness, and dev-instance runtime placement guidance.
 - `skills/bears-infisical-ops` — Perform Bears Infisical names-only readiness, ExternalSecret provider handoff, and Telegram session custody checks without exposing secret values.
 - `skills/subagents` — Govern Bears subagent selection, L2/L3 delegation, parent-control-only mode, gitflow closeout lanes, and evidence packets.
-- `skills/app-dev` — Execute app-plan tasks through L2 lane orchestrators, L2 helpers, L3 workers, and L3 critics.
+- `skills/app-dev` — Execute app task ledger tasks through L2 lane orchestrators, L2 helpers, L3 workers, and L3 critics.
 - `skills/codex-telegram-operator-gate` — Request bounded operator decisions, feedback waits, and safe file exchange through the configured codex-telegram MCP server without a Telegram PreToolUse hook.
 <!-- BEARS_SKILL_INVENTORY: END -->
 

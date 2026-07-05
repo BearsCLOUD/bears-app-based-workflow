@@ -61,7 +61,12 @@
       "path": "skills/app-specify"
     },
     {
-      "description": "Convert Bears app docs into GitHub Issues and Apps Project #20 items with app/platform/infra lane maps for app-dev execution.",
+      "description": "Create, update, validate, and consume app-local functional graph and app task ledger files for app-plan and app-dev.",
+      "name": "app-functional-graph",
+      "path": "skills/app-functional-graph"
+    },
+    {
+      "description": "Convert Bears app docs into app task ledger tasks and Apps Project #20 status items with functional graph refs.",
       "name": "app-plan",
       "path": "skills/app-plan"
     },
@@ -71,7 +76,7 @@
       "path": "skills/github-project-planning"
     },
     {
-      "description": "Analyze app workflow artifacts, lane maps, dependencies, roles, proof requirements, and app-dev handoff for drift.",
+      "description": "Analyze app workflow artifacts, functional graph, task ledger, lane maps, roles, proof requirements, and app-dev handoff for drift.",
       "name": "app-analyze",
       "path": "skills/app-analyze"
     },
@@ -96,7 +101,7 @@
       "path": "skills/subagents"
     },
     {
-      "description": "Execute app-plan tasks through L2 lane orchestrators, L2 helpers, L3 workers, and L3 critics.",
+      "description": "Execute app task ledger tasks through L2 lane orchestrators, L2 helpers, L3 workers, and L3 critics.",
       "name": "app-dev",
       "path": "skills/app-dev"
     },

@@ -5,7 +5,7 @@ description: "Create or update app specifications and functional documentation f
 
 # App Specify
 
-`app` means one Bears product application directory under `/srv/bears/dev/app` or the `BearsCLOUD/apps` repository. `project` means only a GitHub Project board with linked Issues and metadata fields. Use `repo`, `path`, `target`, `workspace surface`, or `app directory` for filesystem ownership.
+`app` means one Bears product application directory under `/srv/bears/dev/app` or the `BearsCLOUD/apps` repository. `project` means only a GitHub Project board with linked metadata fields. GitHub Issues are notification records for blockers, incidents, bugs, or operator questions; they are not execution tasks. Use `repo`, `path`, `target`, `workspace surface`, or `app directory` for filesystem ownership.
 
 ## App Target Gate
 
@@ -34,8 +34,8 @@ Use `target_layer=plugin` when app-style flow helps a plugin governance or workf
 - `app-constitution` creates or updates a plugin governance baseline, not a retired standalone artifact.
 - `app-research` gathers current plugin source, generated inventory, route/audit, runtime, GitHub, or install/update evidence.
 - `app-specify` writes plugin-local requirements or specification docs for plugin behavior.
-- `app-plan` creates plugin repo Issues and plugin-local task packets; for `@Bears`, use `BearsCLOUD/bears_plugin` issue metadata.
-- `app-analyze` checks drift across plugin baseline, specs, task packets, route/audit evidence, role-principle ledger, and issue metadata.
+- `app-plan` creates plugin-local task packets; for `@Bears`, use `BearsCLOUD/bears_plugin` Project metadata when authorized.
+- `app-analyze` checks drift across plugin baseline, specs, task packets, route/audit evidence, role-principle ledger, Project metadata, and notification refs.
 - `app-dev` executes bounded plugin task packets through selected `@Bears` roles, skills, or subagents and updates the ledger when role principles change.
 - Plugin-target `task` and `wave` keep the app-dev meanings, with plugin repo/path ownership instead of product app ownership.
 
@@ -43,7 +43,7 @@ Use `target_layer=plugin` when app-style flow helps a plugin governance or workf
 
 Allowed:
 
-- Read nearest `AGENTS.md`, constitution, app-research packet, README, SPEC, requirements, current docs, route evidence, and relevant GitHub Project or Issue metadata.
+- Read nearest `AGENTS.md`, constitution, app-research packet, README, SPEC, requirements, current docs, app functional graph, app task ledger, route evidence, relevant GitHub Project status metadata, and notification refs.
 - Create or update `spec.md`, feature docs, operator docs, user docs, or README sections in the owning repo path.
 - Produce acceptance criteria and proof expectations for `$app-plan`.
 

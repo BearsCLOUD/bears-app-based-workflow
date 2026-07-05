@@ -100,7 +100,6 @@
         ".agents/plugins/marketplace.json",
         "README.md",
         "SPEC.md",
-        "requirements.md",
         "skills/**",
         "assets/catalog/plugin-skill-catalog.v1.json",
         "docs/generated/*.skill-inventory.md",
@@ -525,8 +524,7 @@
       ],
       "tests": [
         "tests/test_pants_test_graph.py",
-        "tests/test_test_selection.py",
-        "tests/test_validate_overlay.py"
+        "tests/test_test_selection.py"
       ]
     },
     {
@@ -545,6 +543,19 @@
         "tests/test_pants_test_graph.py",
         "tests/test_test_selection.py",
         "tests/test_plugin_manifests.py"
+      ]
+    },
+    {
+      "kind": "files",
+      "name": "plugin-requirements-doc",
+      "pants_target": "//:plugin_requirements_doc",
+      "patterns": [
+        "requirements.md"
+      ],
+      "tests": [
+        "tests/test_plugin_manifests.py",
+        "tests/test_pants_test_graph.py",
+        "tests/test_test_selection.py"
       ]
     }
   ],

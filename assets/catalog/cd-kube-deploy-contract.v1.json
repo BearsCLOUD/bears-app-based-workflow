@@ -36,6 +36,10 @@
     {
       "application": "dagger-engine",
       "descriptor": "local_cd/applications/dagger-engine.v1.json"
+    },
+    {
+      "application": "egress-gateway",
+      "descriptor": "local_cd/applications/egress-gateway.v1.json"
     }
   ],
   "evidence": {

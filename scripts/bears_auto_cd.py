@@ -90,6 +90,11 @@ EXECUTOR_LOCAL_BUILD_DEFAULTS: dict[str, dict[str, Any]] = {
         "dockerfile": "Dockerfile",
         "clear_proxy_build_args": False,
     },
+    "egress-gateway": {
+        "context_path": "images/egress-gateway",
+        "dockerfile": "Dockerfile",
+        "clear_proxy_build_args": False,
+    },
 }
 SOURCE_SYNC_EXCLUDES = {
     ".git",

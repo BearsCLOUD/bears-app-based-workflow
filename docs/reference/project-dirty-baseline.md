@@ -50,7 +50,7 @@ python3 scripts/project_dirty_baseline.py capture --root <concrete-repo-root> --
 This gate never replaces:
 
 ```bash
-python3 scripts/platform_roles.py route <target>
+python3 scripts/subagents_roles.py route <target>
 ```
 
 Any later implementation handoff must still pass the exact route for the concrete write target and then follow the nearest local project gates.

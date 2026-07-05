@@ -485,7 +485,7 @@ def validate_catalog(catalog: dict[str, Any], role_catalog: dict[str, Any]) -> l
                 unknown_roles = sorted(set(lane["allowed_roles"]) - roles)
                 if unknown_roles:
                     errors.append(
-                        f"worker_lanes[{index}].allowed_roles unknown in platform role catalog: {', '.join(unknown_roles)}"
+                        f"worker_lanes[{index}].allowed_roles unknown in subagents roles catalog: {', '.join(unknown_roles)}"
                     )
             _require_string_list(lane.get("artifact_focus"), f"worker_lanes[{index}].artifact_focus", errors)
         if lane_names != REQUIRED_LANES:
@@ -1150,7 +1150,7 @@ def _validate_worker(
     if not _require_string(role, f"{path}.registered_role", errors):
         return None
     if role not in role_names:
-        errors.append(f"{path}.registered_role must exist in platform role catalog")
+        errors.append(f"{path}.registered_role must exist in subagents roles catalog")
     else:
         allowed_roles = set(lane_map[lane].get("allowed_roles", []))
         if role not in allowed_roles:
@@ -1480,7 +1480,7 @@ def render_summary(catalog: dict[str, Any]) -> str:
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--catalog", default=str(DEFAULT_CATALOG), help="session workers runtime catalog path")
-    parser.add_argument("--role-catalog", default=str(DEFAULT_ROLE_CATALOG), help="platform role catalog path")
+    parser.add_argument("--role-catalog", default=str(DEFAULT_ROLE_CATALOG), help="subagents roles catalog path")
     sub = parser.add_subparsers(dest="command", required=True)
     sub.add_parser("validate", help="validate catalog only")
     validate_runtime_parser = sub.add_parser("validate-runtime", help="validate a runtime directory")

@@ -140,8 +140,8 @@ permission:
     "/srv/bears/**": ask
   bash:
     "*": ask
-    "python3 /srv/bears/plugins/bears/scripts/platform_roles.py route *": allow
-    "python3 /srv/bears/plugins/bears/scripts/platform_roles.py audit *": allow
+    "python3 /srv/bears/plugins/bears/scripts/subagents_roles.py route *": allow
+    "python3 /srv/bears/plugins/bears/scripts/subagents_roles.py audit *": allow
   external_directory:
     "*": deny
     "/srv/bears/**": allow

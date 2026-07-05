@@ -1,5 +1,5 @@
 {
-  "capability_id": "plugin-constitution",
+  "capability_id": "subagents-roles",
   "case": "pilot-fixture-presence-valid",
   "expected_status": "pass",
   "requires_fail_fixture": true,

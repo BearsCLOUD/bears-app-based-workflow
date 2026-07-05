@@ -232,30 +232,30 @@ def _role_name_from_value(value: Any) -> str | None:
 def load_platform_role_catalog_roles(
     catalog_path: Path = PLATFORM_ROLE_CATALOG,
 ) -> tuple[set[str], set[str], list[str]]:
-    """Load platform role catalog role declarations and references."""
+    """Load subagents roles catalog role declarations and references."""
     errors: list[str] = []
     try:
         data = json.loads(catalog_path.read_text(encoding="utf-8"))
     except OSError as exc:
-        return set(), set(), [f"platform role catalog read error: {catalog_path}: {exc}"]
+        return set(), set(), [f"subagents roles catalog read error: {catalog_path}: {exc}"]
     except json.JSONDecodeError as exc:
-        return set(), set(), [f"platform role catalog JSON parse error: {catalog_path}: {exc}"]
+        return set(), set(), [f"subagents roles catalog JSON parse error: {catalog_path}: {exc}"]
 
     if not isinstance(data, dict):
-        return set(), set(), ["platform role catalog root must be a JSON object"]
+        return set(), set(), ["subagents roles catalog root must be a JSON object"]
 
     declared_roles: set[str] = set()
     roles = data.get("roles")
     if not isinstance(roles, list):
-        errors.append("platform role catalog roles must be a list")
+        errors.append("subagents roles catalog roles must be a list")
     else:
         for index, role in enumerate(roles):
             if not isinstance(role, dict):
-                errors.append(f"platform role catalog roles[{index}] must be an object")
+                errors.append(f"subagents roles catalog roles[{index}] must be an object")
                 continue
             name = _role_name_from_value(role.get("name"))
             if name is None:
-                errors.append(f"platform role catalog roles[{index}] missing name")
+                errors.append(f"subagents roles catalog roles[{index}] missing name")
                 continue
             declared_roles.add(name)
 
@@ -263,11 +263,11 @@ def load_platform_role_catalog_roles(
 
     platform_parts = data.get("platform_parts", [])
     if not isinstance(platform_parts, list):
-        errors.append("platform role catalog platform_parts must be a list")
+        errors.append("subagents roles catalog platform_parts must be a list")
     else:
         for index, part in enumerate(platform_parts):
             if not isinstance(part, dict):
-                errors.append(f"platform role catalog platform_parts[{index}] must be an object")
+                errors.append(f"subagents roles catalog platform_parts[{index}] must be an object")
                 continue
             required_role = _role_name_from_value(part.get("required_role"))
             if required_role:
@@ -276,21 +276,21 @@ def load_platform_role_catalog_roles(
 
     workflow_routes = data.get("workflow_routes", [])
     if not isinstance(workflow_routes, list):
-        errors.append("platform role catalog workflow_routes must be a list")
+        errors.append("subagents roles catalog workflow_routes must be a list")
     else:
         for index, route in enumerate(workflow_routes):
             if not isinstance(route, dict):
-                errors.append(f"platform role catalog workflow_routes[{index}] must be an object")
+                errors.append(f"subagents roles catalog workflow_routes[{index}] must be an object")
                 continue
             referenced_roles.update(_role_names_from_list(route.get("required_roles")))
 
     route_regression_checks = data.get("route_regression_checks", [])
     if not isinstance(route_regression_checks, list):
-        errors.append("platform role catalog route_regression_checks must be a list")
+        errors.append("subagents roles catalog route_regression_checks must be a list")
     else:
         for index, check in enumerate(route_regression_checks):
             if not isinstance(check, dict):
-                errors.append(f"platform role catalog route_regression_checks[{index}] must be an object")
+                errors.append(f"subagents roles catalog route_regression_checks[{index}] must be an object")
                 continue
             for field in ("required_role", "expected_role"):
                 role_name = _role_name_from_value(check.get(field))
@@ -319,16 +319,16 @@ def _expected_mapping_primary_eligible(coverage_kind: str | None) -> bool | None
 def load_platform_role_catalog_agent_classification(
     catalog_path: Path = PLATFORM_ROLE_CATALOG,
 ) -> tuple[dict[str, dict[str, Any]], list[str]]:
-    """Load expected top-level agent classifications from the platform role catalog."""
+    """Load expected top-level agent classifications from the subagents roles catalog."""
     errors: list[str] = []
     try:
         data = json.loads(catalog_path.read_text(encoding="utf-8"))
     except OSError as exc:
-        return {}, [f"platform role catalog read error: {catalog_path}: {exc}"]
+        return {}, [f"subagents roles catalog read error: {catalog_path}: {exc}"]
     except json.JSONDecodeError as exc:
-        return {}, [f"platform role catalog JSON parse error: {catalog_path}: {exc}"]
+        return {}, [f"subagents roles catalog JSON parse error: {catalog_path}: {exc}"]
     if not isinstance(data, dict):
-        return {}, ["platform role catalog root must be a JSON object"]
+        return {}, ["subagents roles catalog root must be a JSON object"]
 
     expected: dict[str, dict[str, Any]] = {}
     roles = data.get("roles", [])

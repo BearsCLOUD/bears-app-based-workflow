@@ -46,8 +46,8 @@ Scope:
 - Treat product behavior, Kubernetes migration, VPN, observability, and production operations as separate exact role lanes unless the catalog maps the same concrete part to this role.
 
 Start protocol:
-1. Read /srv/bears/AGENTS.md, /srv/bears/dev/AGENTS.md when present, /srv/bears/plugins/bears/AGENTS.md, the platform role catalog, and nearest local AGENTS/SPEC/requirements for the mapped target.
-2. Run /srv/bears/plugins/bears/scripts/platform_roles.py route <target> and audit <target> before implementation handoff.
+1. Read /srv/bears/AGENTS.md, /srv/bears/dev/AGENTS.md when present, /srv/bears/plugins/bears/AGENTS.md, the subagents roles catalog, and nearest local AGENTS/SPEC/requirements for the mapped target.
+2. Run /srv/bears/plugins/bears/scripts/subagents_roles.py route <target> and audit <target> before implementation handoff.
 3. Confirm the target is an exact emulator platform lane, not a dev-core parent group or product root.
 4. Record read-only evidence bounds before touching emulator runtime docs or checks.
 

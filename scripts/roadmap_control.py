@@ -89,7 +89,7 @@ EXPECTED_MAIN_AGENT_FORBIDDEN_ACTIONS = (
 REQUIRED_EXPLICIT_CONTROLLER_ROLES = {
     "bears-deploy-platform-engineer",
     "bears-subagent-orchestration-engineer",
-    "bears-platform-role-governor",
+    "bears-subagents-roles-governor",
 }
 REQUIRED_AUDIT_FIELDS = {
     "audit_id",
@@ -125,9 +125,9 @@ REQUIRED_REUSE_COMPATIBILITY = {
     "validation_target_compatible",
 }
 REQUIRED_VALIDATION_COMMANDS = {
-    "python3 scripts/platform_roles.py validate",
+    "python3 scripts/subagents_roles.py validate",
     "python3 scripts/roadmap_control.py validate",
-    "python3 -m unittest tests/test_roadmap_control.py tests/test_platform_roles.py",
+    "python3 -m unittest tests/test_roadmap_control.py tests/test_subagents_roles.py",
 }
 EXPECTED_PHASE_MAP: dict[str, dict[str, Any]] = {
     "phase-1-route-and-baseline": {
@@ -1109,7 +1109,7 @@ def validate_catalog(
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--catalog", type=Path, default=DEFAULT_CATALOG, help="roadmap control catalog path")
-    parser.add_argument("--role-catalog", type=Path, default=DEFAULT_ROLE_CATALOG, help="platform role catalog path")
+    parser.add_argument("--role-catalog", type=Path, default=DEFAULT_ROLE_CATALOG, help="subagents roles catalog path")
     parser.add_argument("--subagent-policy", type=Path, default=DEFAULT_SUBAGENT_POLICY, help="subagent orchestration policy path")
     subparsers = parser.add_subparsers(dest="command", required=True)
     subparsers.add_parser("validate", help="validate the roadmap control catalog")

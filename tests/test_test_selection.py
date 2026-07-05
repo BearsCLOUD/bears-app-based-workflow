@@ -54,13 +54,13 @@ class TestSelectionPolicyTest(unittest.TestCase):
 
     def test_platform_role_change_selects_fast_tests_without_slow_tests(self) -> None:
         selection = module.selected_tests(
-            self._args(changed_file=["scripts/platform_roles.py"], tier="fast"),
+            self._args(changed_file=["scripts/subagents_roles.py"], tier="fast"),
             self.catalog,
         )
         self.assertEqual(selection["selector_confidence"], "high")
         self.assertIn("tests/test_plugin_validation_scripts.py", selection["tests"])
-        self.assertNotIn("tests/test_platform_roles.py", selection["tests"])
-        self.assertIn("tests/test_platform_roles.py", selection["slow_tests_deferred"])
+        self.assertNotIn("tests/test_subagents_roles.py", selection["tests"])
+        self.assertIn("tests/test_subagents_roles.py", selection["slow_tests_deferred"])
 
     def test_agent_registration_sync_change_maps_to_platform_role_lane(self) -> None:
         selection = module.selected_tests(
@@ -292,7 +292,7 @@ class TestSelectionPolicyTest(unittest.TestCase):
         slow = module.selected_tests(self._args(suite="slow", tier=None), self.catalog)["tests"]
         full = module.selected_tests(self._args(suite="full", tier=None), self.catalog)["tests"]
         self.assertTrue(set(slow).issubset(full))
-        self.assertIn("tests/test_platform_roles.py", slow)
+        self.assertIn("tests/test_subagents_roles.py", slow)
         self.assertIn("tests/test_plugin_manifests.py", full)
 
     def test_github_workflow_keeps_operator_only_diagnostics(self) -> None:

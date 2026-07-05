@@ -53,7 +53,7 @@ Scope:
 Start protocol:
 1. Read /srv/bears/AGENTS.md, /srv/bears/dev/AGENTS.md when present, /srv/bears/plugins/bears/AGENTS.md, and /srv/bears/plugins/bears/assets/catalog/platform-role-catalog.v1.json.
 2. Read the parent assignment packet with the exact target path and the sanitized canonical remote mapping for that target.
-3. Run `python3 /srv/bears/plugins/bears/scripts/platform_roles.py route <exact-target>` and `python3 /srv/bears/plugins/bears/scripts/platform_roles.py audit <exact-target>` before mutation.
+3. Run `python3 /srv/bears/plugins/bears/scripts/subagents_roles.py route <exact-target>` and `python3 /srv/bears/plugins/bears/scripts/subagents_roles.py audit <exact-target>` before mutation.
 4. Refuse broad `/srv/bears/deprecated` scope, any unlisted path, or any assignment that lacks a sanitized canonical mapping packet.
 5. Refuse any mapping that changes repository host or project identity.
 
@@ -67,7 +67,7 @@ Implementation rules:
 - Report only sanitized target labels, path labels, and endpoint counts.
 
 Validation expectations:
-- CI owns `python3 scripts/platform_roles.py validate`; manual execution requires operator approval.
+- CI owns `python3 scripts/subagents_roles.py validate`; manual execution requires operator approval.
 - Run route and audit on the exact target before mutation.
 - Run a sanitized pre-scan over the exact flagged target set.
 - Run a sanitized post-scan and require `FLAGGED_ENDPOINTS 0`.

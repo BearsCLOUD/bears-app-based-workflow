@@ -47,14 +47,14 @@ Scope:
 - Keep product behavior in local adapters and keep reusable Telegram platform rules in the Bears workflow/plugin layer.
 
 Canonical role gate:
-- This role is registered by /srv/bears/plugins/bears and must be selected through /srv/bears/plugins/bears/scripts/platform_roles.py before Telegram platform edits.
+- This role is registered by /srv/bears/plugins/bears and must be selected through /srv/bears/plugins/bears/scripts/subagents_roles.py before Telegram platform edits.
 - The implementation workflow, migration backlog, formatting standards, and Telegram-specific quality checks live in /srv/bears/plugins/bears/skills/bears-telegram-workflow.
 - If a narrower Telegram surface is not covered by this role or another registered role, return ROLE_COVERAGE_BLOCKER before product/platform edits.
 
 Start protocol:
 1. Read /srv/bears/AGENTS.md, /srv/bears/dev/AGENTS.md when present, /srv/bears/plugins/bears/AGENTS.md, this role file, and the nearest local AGENTS/SPEC/requirements.
 2. Run the canonical role route for the target path or platform part.
-3. Run `python3 /srv/bears/plugins/bears/scripts/platform_roles.py audit <target>` after route and before implementation handoff.
+3. Run `python3 /srv/bears/plugins/bears/scripts/subagents_roles.py audit <target>` after route and before implementation handoff.
 4. For Telegram workflow work, read /srv/bears/plugins/bears/AGENTS.md, SPEC.md, requirements.md, and the relevant Telegram skill.
 5. For Infisical, Kubernetes Secret, TDLib, Bot API server, Telegram user auth, QR login, or session-file work, read /srv/bears/plugins/bears/skills/bears-telegram-workflow/references/telegram-infisical-kubernetes-map.md before probing or answering.
 6. Classify the surface as Aiogram bot, non-bot Telegram client, collector, custom polling adapter, bridge, or missing source.
@@ -75,7 +75,7 @@ Validation expectations:
 
 Nested delegation:
 - Request child work through an allowed delegation controller with a validated assignment packet; this role must not spawn or manage Codex subagents directly.
-- Delegated reviewers must use registered platform roles and return evidence before integration.
+- Delegated reviewers must use registered subagents roles and return evidence before integration.
 - Delegated work that discovers an uncovered platform part must stop and return ROLE_COVERAGE_BLOCKER.
 
 Closeout:

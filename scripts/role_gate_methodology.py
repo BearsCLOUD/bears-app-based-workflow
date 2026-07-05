@@ -76,14 +76,14 @@ REQUIRED_ROLE_DEVELOPMENT_FIELDS = [
     "unsafe_implementation_policy",
 ]
 ROLE_DEVELOPMENT_REQUIRED_VALIDATIONS = [
-    "python3 scripts/platform_roles.py validate",
+    "python3 scripts/subagents_roles.py validate",
     "python3 scripts/role_gate_methodology.py validate",
-    "python3 -m unittest tests/test_platform_roles.py tests/test_role_gate_methodology.py",
+    "python3 -m unittest tests/test_subagents_roles.py tests/test_role_gate_methodology.py",
 ]
 ROLE_DEVELOPMENT_RERUN_COMMANDS = [
-    "python3 scripts/platform_roles.py route <target>",
-    "python3 scripts/platform_roles.py audit <target>",
-    "python3 scripts/platform_roles.py role-development-plan <target> --json",
+    "python3 scripts/subagents_roles.py route <target>",
+    "python3 scripts/subagents_roles.py audit <target>",
+    "python3 scripts/subagents_roles.py role-development-plan <target> --json",
 ]
 ROLE_DEVELOPMENT_TERMINAL_BLOCKER_CONDITIONS = [
     "role_development_attempts_exhausted",
@@ -114,7 +114,7 @@ REQUIRED_METHODOLOGY_ITEMS = [
     ("exact_blocker_packet", ("ROLE_COVERAGE_BLOCKER", "required_role_shape", "decomposition_required")),
     (
         "auto_role_development",
-        ("role-development", "bears-platform-role-governor", "role-development-plan", "implementation_handoff_allowed=false"),
+        ("role-development", "bears-subagents-roles-governor", "role-development-plan", "implementation_handoff_allowed=false"),
     ),
     ("mandatory_validators", ("validator", "test")),
     ("forward_tests", ("child-under-group", "alias/path drift", "one-primary-role", "broad fallback")),
@@ -437,7 +437,7 @@ def validate_validation_command_policy(policy: Any, path: str = "validation_comm
     if not isinstance(canonical, str) or not canonical.strip():
         errors.append(f"{path}.canonical_unittest_command must be a non-empty string")
     else:
-        if canonical != "python3 -m unittest tests/test_platform_roles.py tests/test_role_gate_methodology.py":
+        if canonical != "python3 -m unittest tests/test_subagents_roles.py tests/test_role_gate_methodology.py":
             errors.append(f"{path}.canonical_unittest_command must use repo-relative test paths")
         if "/srv/bears/plugins/bears/tests/" in canonical:
             errors.append(f"{path}.canonical_unittest_command must not use absolute test paths")
@@ -723,8 +723,8 @@ def validate_methodology(methodology: dict[str, Any]) -> list[str]:
                 errors.append("blocker_packet.role_development.required_fields must match canonical role-development shape")
             if role_development.get("lane") != "role-development":
                 errors.append("blocker_packet.role_development.lane must be role-development")
-            if role_development.get("owner_role") != "bears-platform-role-governor":
-                errors.append("blocker_packet.role_development.owner_role must be bears-platform-role-governor")
+            if role_development.get("owner_role") != "bears-subagents-roles-governor":
+                errors.append("blocker_packet.role_development.owner_role must be bears-subagents-roles-governor")
             max_attempts = role_development.get("max_attempts")
             if not isinstance(max_attempts, int) or not 1 <= max_attempts <= 3:
                 errors.append("blocker_packet.role_development.max_attempts must be an integer from 1 to 3")
@@ -780,8 +780,8 @@ def validate_methodology(methodology: dict[str, Any]) -> list[str]:
     if audit is not None:
         if audit.get("required") is not True:
             errors.append("independent_control_audit.required must be true")
-        if audit.get("auditor_role") != "bears-platform-role-governor":
-            errors.append("independent_control_audit.auditor_role must be bears-platform-role-governor")
+        if audit.get("auditor_role") != "bears-subagents-roles-governor":
+            errors.append("independent_control_audit.auditor_role must be bears-subagents-roles-governor")
         confirmations = set(_string_list(audit.get("must_confirm")))
         missing = sorted(REQUIRED_AUDIT_CONFIRMATIONS - confirmations)
         if missing:
@@ -824,7 +824,7 @@ def validate_catalog_alignment(methodology: dict[str, Any], role_catalog: dict[s
             pass
 
     catalog_errors = platform_roles.validate_catalog(role_catalog, plugin_root=plugin_root)
-    errors.extend(f"platform role catalog: {error}" for error in catalog_errors)
+    errors.extend(f"subagents roles catalog: {error}" for error in catalog_errors)
 
     policy = role_catalog.get("mandatory_policy")
     if isinstance(policy, dict):
@@ -913,7 +913,7 @@ def render_summary(methodology: dict[str, Any]) -> str:
         f"owner_plugin: {methodology.get('owner_plugin')}",
         "status: enforceable",
         f"blocker_reasons: {', '.join(BLOCKER_REASONS)}",
-        f"auditor_role: {audit.get('auditor_role', 'bears-platform-role-governor')}",
+        f"auditor_role: {audit.get('auditor_role', 'bears-subagents-roles-governor')}",
     ]
     return "\n".join(lines)
 
@@ -921,7 +921,7 @@ def render_summary(methodology: dict[str, Any]) -> str:
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--methodology", default=str(DEFAULT_METHODOLOGY), help="role-gate methodology catalog path")
-    parser.add_argument("--role-catalog", default=str(DEFAULT_ROLE_CATALOG), help="platform role catalog path")
+    parser.add_argument("--role-catalog", default=str(DEFAULT_ROLE_CATALOG), help="subagents roles catalog path")
     sub = parser.add_subparsers(dest="command", required=True)
     sub.add_parser("validate", help="validate methodology and catalog alignment")
     sub.add_parser("summary", help="print compact methodology summary")

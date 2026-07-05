@@ -11,7 +11,7 @@ Use this skill when an agent must create a Bears-approved generated value and pl
 
 1. Read `/srv/bears/plugins/bears/AGENTS.md`, `assets/catalog/secret-factory.v1.json`, and `docs/reference/secret-factory.md`.
 2. Run the role route for the concrete Secret Factory target:
-   `python3 /srv/bears/plugins/bears/scripts/platform_roles.py route /srv/bears/plugins/bears/assets/catalog/secret-factory.v1.json`
+   `python3 /srv/bears/plugins/bears/scripts/subagents_roles.py route /srv/bears/plugins/bears/assets/catalog/secret-factory.v1.json`
 3. Accept only a request JSON file with keys `secret_name`, `kind`, and optional `secret_path`, `bytes`, or `length`.
 4. Reject any request file containing `secret_value`, `token`, `credential`, or `private_key` fields.
 5. Treat `assets/catalog/secret-factory.v1.json:request_schema` as the parser contract and fail closed on schema/runtime drift.
@@ -54,9 +54,9 @@ Use this skill when an agent must create a Bears-approved generated value and pl
 
 ## Validation
 
-- Local commit validation owns `python3 scripts/platform_roles.py validate`; manual execution requires operator approval.
+- Local commit validation owns `python3 scripts/subagents_roles.py validate`; manual execution requires operator approval.
 - Local commit validation owns `python3 scripts/secret_factory.py validate`; manual execution requires operator approval.
-- Agents may run `python3 scripts/platform_roles.py route /srv/bears/plugins/bears/assets/catalog/secret-factory.v1.json`.
-- Agents may run `python3 scripts/platform_roles.py audit /srv/bears/plugins/bears/assets/catalog/secret-factory.v1.json`.
-- Local commit validation owns `python3 -m unittest tests/test_secret_factory.py tests/test_platform_roles.py`; manual execution requires operator approval.
+- Agents may run `python3 scripts/subagents_roles.py route /srv/bears/plugins/bears/assets/catalog/secret-factory.v1.json`.
+- Agents may run `python3 scripts/subagents_roles.py audit /srv/bears/plugins/bears/assets/catalog/secret-factory.v1.json`.
+- Local commit validation owns `python3 -m unittest tests/test_secret_factory.py tests/test_subagents_roles.py`; manual execution requires operator approval.
 - Local commit validation owns `python3 scripts/validate_overlay.py --json validate --strict-overlay-skills`; manual execution requires operator approval.

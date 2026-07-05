@@ -40,7 +40,7 @@ body:
       description: Select the earliest canonical lifecycle gate affected before implementation starts.
       options:
         - Route gate
-        - Constitution gate
+        - Subagents-roles gate
         - Research gate
         - Prototype gate
         - Design gate

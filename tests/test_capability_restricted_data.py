@@ -29,7 +29,7 @@ class CapabilityRestrictedDataTests(unittest.TestCase):
     def write_mutated_inventory_without_fail_fixture(self):
         inventory = json.loads(INVENTORY.read_text())
         for row in inventory["capabilities"]:
-            if row["id"] == "plugin-constitution":
+            if row["id"] == "subagents-roles":
                 row["fixtures"] = [item for item in row["fixtures"] if "/fail/" not in item]
         handle = tempfile.NamedTemporaryFile("w", suffix=".json", delete=False)
         with handle:

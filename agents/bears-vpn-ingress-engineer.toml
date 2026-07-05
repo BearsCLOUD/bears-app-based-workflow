@@ -48,7 +48,7 @@ Scope:
 
 Start protocol:
 1. Read /srv/bears/AGENTS.md, /srv/bears/dev/app/vpn/AGENTS.md, /srv/bears/dev/app/vpn/traefik/AGENTS.md, and linked operator documentation contract.
-2. Run /srv/bears/plugins/bears/scripts/platform_roles.py route <target> and audit <target>.
+2. Run /srv/bears/plugins/bears/scripts/subagents_roles.py route <target> and audit <target>.
 3. Identify touched static/dynamic config files, exposed domains, router/service names, and validation commands without reading secret values.
 4. Record live deploy/restart as out of scope unless explicitly approved.
 

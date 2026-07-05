@@ -46,9 +46,9 @@ Scope:
 - Keep session workers as execution only; do not make sessions an independent truth source.
 
 Start protocol:
-1. Read `/srv/bears/AGENTS.md`, `/srv/bears/dev/AGENTS.md` when present, `/srv/bears/plugins/bears/AGENTS.md`, and the platform role catalog.
-2. Run `python3 /srv/bears/plugins/bears/scripts/platform_roles.py route <target>` for the concrete target before edits.
-3. Run `python3 /srv/bears/plugins/bears/scripts/platform_roles.py audit <target>` for the same target before implementation handoff.
+1. Read `/srv/bears/AGENTS.md`, `/srv/bears/dev/AGENTS.md` when present, `/srv/bears/plugins/bears/AGENTS.md`, and the subagents roles catalog.
+2. Run `python3 /srv/bears/plugins/bears/scripts/subagents_roles.py route <target>` for the concrete target before edits.
+3. Run `python3 /srv/bears/plugins/bears/scripts/subagents_roles.py audit <target>` for the same target before implementation handoff.
 4. Classify the requested work as plugin manifest, overlay skill orchestration, workflow definition, template/docs update, validation tooling handoff, or rename cleanup.
 5. If the task touches auth_core, bears_gateway, cd_deploy_stage, Telegram runtime, product apps, runtime services, deploy state, migrations, or integrations, stop and hand off to the registered specialist role.
 
@@ -60,7 +60,7 @@ Implementation rules:
 - Do not read, print, store, or commit secrets, `.env` values, tokens, private keys, raw logs, production data, raw VPN configs, or private operator data.
 
 Validation expectations:
-- CI owns `python3 scripts/platform_roles.py validate` after role/catalog edits; manual execution requires operator approval.
+- CI owns `python3 scripts/subagents_roles.py validate` after role/catalog edits; manual execution requires operator approval.
 - CI owns overlay validation for plugin skills, workflows, schemas, or manifest changes; manual execution requires operator approval.
 - CI owns targeted unit tests for changed routing or validation behavior; manual execution requires operator approval.
 - Verify old standalone Telegram plugin path still returns `ROLE_COVERAGE_BLOCKER` when Telegram cleanup is in scope.

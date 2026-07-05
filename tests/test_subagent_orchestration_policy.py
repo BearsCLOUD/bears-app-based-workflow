@@ -93,7 +93,7 @@ class SubagentOrchestrationPolicyTest(unittest.TestCase):
         "overlay_validate",
         "roadmap_validate",
         "git_discipline_validate",
-        "plugin_constitution_validate",
+        "subagents_roles_validate",
         "role_gate_methodology_validate",
         "session_workers_runtime_validate",
         "agent_github_dev_cd_validate",
@@ -593,7 +593,7 @@ class SubagentOrchestrationPolicyTest(unittest.TestCase):
         request = {
             "reuse_requested": True,
             "worker_state": "reusable",
-            "worker_role": "bears-platform-role-governor",
+            "worker_role": "bears-subagents-roles-governor",
             "requested_role": "bears-subagent-orchestration-engineer",
             "worker_repo_boundary": "/srv/bears/plugins/bears",
             "requested_repo_boundary": "/srv/bears/plugins/bears",
@@ -604,7 +604,7 @@ class SubagentOrchestrationPolicyTest(unittest.TestCase):
             "lane_inherit_parent_context": True,
             "compact_continuation_packet": {
                 "worker_id": "worker-issue-15",
-                "role": "bears-platform-role-governor",
+                "role": "bears-subagents-roles-governor",
                 "repo_boundary": "/srv/bears/plugins/bears",
                 "write_scope": "README.md",
                 "last_assignment_packet_id": "assign-issue-15",
@@ -760,7 +760,7 @@ class SubagentOrchestrationPolicyTest(unittest.TestCase):
 
     def test_rejects_wrong_post_task_audit_role(self) -> None:
         packet = copy.deepcopy(self.policy)
-        packet["non_product_post_task_audit"]["required_subagents"][0]["role"] = "bears-platform-role-governor"
+        packet["non_product_post_task_audit"]["required_subagents"][0]["role"] = "bears-subagents-roles-governor"
         errors = policy_module.validate_policy(packet)
         self.assertTrue(any("plugin-fit-audit role" in error for error in errors))
 
@@ -984,7 +984,7 @@ class SubagentOrchestrationPolicyTest(unittest.TestCase):
         packet["orchestration_model"]["validation_hook_runner"]["allowed_hooks"].append({
             "hook_id": "unknown_hook",
             "command_id": "unknown_hook",
-            "script": "scripts/platform_roles.py",
+            "script": "scripts/subagents_roles.py",
             "args": ["validate"],
             "target_required": False,
         })
@@ -2811,7 +2811,7 @@ class SubagentOrchestrationPolicyTest(unittest.TestCase):
         packet = {
             "controller_id": "workflow-delegation-controller",
             "parent role route": "bears-subagent-orchestration-engineer",
-            "child role": "bears-platform-role-governor",
+            "child role": "bears-subagents-roles-governor",
             "child lane": "plugin policy review",
             "write scope or read-only scope": "read-only policy review",
             "validation command": "python3 scripts/subagent_orchestration_policy.py validate",
@@ -2837,7 +2837,7 @@ class SubagentOrchestrationPolicyTest(unittest.TestCase):
         packet = {
             "controller_id": "workflow-delegation-controller",
             "parent role route": "bears-subagent-orchestration-engineer",
-            "child role": "bears-platform-role-governor",
+            "child role": "bears-subagents-roles-governor",
             "child lane": "plugin policy review",
             "write scope or read-only scope": "read-only policy review",
             "validation command": "python3 scripts/subagent_orchestration_policy.py validate",
@@ -2856,7 +2856,7 @@ class SubagentOrchestrationPolicyTest(unittest.TestCase):
         packet = {
             "controller_id": "workflow-delegation-controller",
             "parent role route": "bears-subagent-orchestration-engineer",
-            "child role": "bears-platform-role-governor",
+            "child role": "bears-subagents-roles-governor",
             "child lane": "plugin policy review",
             "write scope or read-only scope": "read-only policy review",
             "validation command": "python3 scripts/subagent_orchestration_policy.py validate",
@@ -2884,7 +2884,7 @@ class SubagentOrchestrationPolicyTest(unittest.TestCase):
         packet = {
             "controller_id": "workflow-delegation-controller",
             "parent role route": "bears-subagent-orchestration-engineer",
-            "child role": "bears-platform-role-governor",
+            "child role": "bears-subagents-roles-governor",
             "child lane": "plugin policy review",
             "write scope or read-only scope": "read-only policy review",
             "validation command": "python3 scripts/subagent_orchestration_policy.py validate",
@@ -3034,7 +3034,7 @@ class SubagentOrchestrationPolicyTest(unittest.TestCase):
         packet = {
             "controller_id": "workflow-delegation-controller",
             "parent role route": "bears-subagent-orchestration-engineer",
-            "child role": "bears-platform-role-governor",
+            "child role": "bears-subagents-roles-governor",
             "child lane": "plugin policy review",
             "write scope or read-only scope": "read-only policy review",
             "validation command": "python3 scripts/subagent_orchestration_policy.py validate",
@@ -3374,7 +3374,7 @@ class SubagentOrchestrationPolicyTest(unittest.TestCase):
         self.assertTrue(guard["required"])
         self.assertTrue(guard["fail_closed_by_default"])
         self.assertIn("bears-platform-security-reviewer", guard["read_only_reviewer_roles"])
-        self.assertIn("bears-platform-role-governor", guard["governor_roles"])
+        self.assertIn("bears-subagents-roles-governor", guard["governor_roles"])
         self.assertTrue(
             set(policy_module.REQUIRED_PR_MUTATION_ACTIONS).issubset(
                 set(guard["writable_pr_actions"])
@@ -3500,7 +3500,7 @@ class SubagentOrchestrationPolicyTest(unittest.TestCase):
 
     def test_blocks_governor_writable_pr_task_without_writer_lane(self) -> None:
         assignment = {
-            "role": "bears-platform-role-governor",
+            "role": "bears-subagents-roles-governor",
             "pr_task": True,
             "pr_actions": ["merge", "rebase", "delete branch", "push", "title edit", "body edit"],
         }
@@ -3528,14 +3528,14 @@ class SubagentOrchestrationPolicyTest(unittest.TestCase):
             {
                 "id": "governor-pr-writer-lane",
                 "writable_pr_tasks": True,
-                "roles": ["bears-platform-role-governor"],
+                "roles": ["bears-subagents-roles-governor"],
                 "allowed_actions": ["pr_label"],
                 "policy_reference": "operator-approved-writer-lane",
             }
         ]
         self.assertEqual(policy_module.validate_policy(packet), [])
         assignment = {
-            "role": "bears-platform-role-governor",
+            "role": "bears-subagents-roles-governor",
             "pr_task": True,
             "pr_writer_lane_id": "governor-pr-writer-lane",
             "pr_actions": ["label"],
@@ -3678,7 +3678,7 @@ class SubagentOrchestrationPolicyTest(unittest.TestCase):
         packet = {
             "controller_id": "workflow-delegation-controller",
             "parent role route": "bears-subagent-orchestration-engineer",
-            "child role": "bears-platform-role-governor",
+            "child role": "bears-subagents-roles-governor",
             "child lane": "plugin policy review",
             "write scope or read-only scope": "read-only policy review",
             "validation command": "python3 scripts/subagent_orchestration_policy.py validate",

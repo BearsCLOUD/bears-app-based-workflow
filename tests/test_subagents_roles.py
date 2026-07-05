@@ -13,11 +13,11 @@ import unittest
 from pathlib import Path
 
 PLUGIN_ROOT = Path(__file__).resolve().parents[1]
-SCRIPT_PATH = PLUGIN_ROOT / "scripts" / "platform_roles.py"
-spec = importlib.util.spec_from_file_location("platform_roles", SCRIPT_PATH)
-platform_roles = importlib.util.module_from_spec(spec)
+SCRIPT_PATH = PLUGIN_ROOT / "scripts" / "subagents_roles.py"
+spec = importlib.util.spec_from_file_location("subagents_roless", SCRIPT_PATH)
+subagents_roless = importlib.util.module_from_spec(spec)
 assert spec.loader is not None
-spec.loader.exec_module(platform_roles)  # type: ignore[arg-type]
+spec.loader.exec_module(subagents_roless)  # type: ignore[arg-type]
 
 
 class PlatformRolesTest(unittest.TestCase):
@@ -26,10 +26,10 @@ class PlatformRolesTest(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls) -> None:
-        cls.catalog = platform_roles.load_json(PLUGIN_ROOT / "assets/catalog/platform-role-catalog.v1.json")
+        cls.catalog = subagents_roless.load_json(PLUGIN_ROOT / "assets/catalog/subagents-roles-catalog.v1.json")
 
     def test_catalog_validates(self) -> None:
-        self.assertEqual(platform_roles.validate_catalog(self.catalog, plugin_root=PLUGIN_ROOT), [])
+        self.assertEqual(subagents_roless.validate_catalog(self.catalog, plugin_root=PLUGIN_ROOT), [])
 
     def test_catalog_validation_rejects_stale_route_check_route_id(self) -> None:
         catalog = copy.deepcopy(self.catalog)
@@ -37,7 +37,7 @@ class PlatformRolesTest(unittest.TestCase):
             if check["target"] == "/srv/bears/kubernetes":
                 check["required_route_id"] = "workspace_root_submodule_gitlinks"
                 break
-        errors = platform_roles.validate_catalog(catalog, plugin_root=PLUGIN_ROOT)
+        errors = subagents_roless.validate_catalog(catalog, plugin_root=PLUGIN_ROOT)
         self.assertTrue(
             any(
                 "route check /srv/bears/kubernetes: expected route workspace_root_submodule_gitlinks, "
@@ -49,8 +49,8 @@ class PlatformRolesTest(unittest.TestCase):
     def test_cli_validate_route_audit_success_have_clean_stderr(self) -> None:
         cases = (
             (("validate",), 0),
-            (("route", "scripts/platform_roles.py"), 0),
-            (("audit", "scripts/platform_roles.py"), 0),
+            (("route", "scripts/subagents_roles.py"), 0),
+            (("audit", "scripts/subagents_roles.py"), 0),
         )
         for command, expected_code in cases:
             with self.subTest(command=command):
@@ -68,23 +68,23 @@ class PlatformRolesTest(unittest.TestCase):
 
     def test_route_packets_label_ci_owned_validation_inventory(self) -> None:
         targets = (
-            "scripts/platform_roles.py",
+            "scripts/subagents_roles.py",
             "agents/bears-docs-maintainer.toml",
         )
         for target in targets:
             with self.subTest(target=target):
-                packet = platform_roles.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
+                packet = subagents_roless.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
                 self.assertEqual(packet["status"], "matched")
                 self.assertIn(packet["primary_execution_class"], {"helper", "specialist"})
-                self.assertIn("python3 scripts/platform_roles.py validate", packet["validation_required"])
+                self.assertIn("python3 scripts/subagents_roles.py validate", packet["validation_required"])
                 self.assertIn(
-                    "python3 scripts/platform_roles.py validate",
+                    "python3 scripts/subagents_roles.py validate",
                     packet["validation_required_ci_owned"],
                 )
                 self.assertFalse(packet["manual_execution_requires_operator_approval"])
                 self.assertIn("route/audit gates are agent-local", packet["validation_execution_policy"])
                 self.assertTrue(
-                    all("platform_roles.py audit " in item for item in packet["validation_required_agent_local"])
+                    all("subagents_roles.py audit " in item for item in packet["validation_required_agent_local"])
                 )
                 self.assertFalse(
                     any("unittest" in item for item in packet["validation_required_agent_local"])
@@ -94,8 +94,8 @@ class PlatformRolesTest(unittest.TestCase):
                 )
 
     def test_render_packet_uses_ci_owned_validation_labels(self) -> None:
-        packet = platform_roles.route_target(self.catalog, "scripts/platform_roles.py", plugin_root=PLUGIN_ROOT)
-        rendered = platform_roles.render_packet(packet)
+        packet = subagents_roless.route_target(self.catalog, "scripts/subagents_roles.py", plugin_root=PLUGIN_ROOT)
+        rendered = subagents_roless.render_packet(packet)
         self.assertIn("validation_required_inventory:", rendered)
         self.assertIn("primary_execution_class:", rendered)
         self.assertIn("validation_required_agent_local:", rendered)
@@ -107,19 +107,19 @@ class PlatformRolesTest(unittest.TestCase):
 
     def test_role_execution_class_is_valid_and_independent(self) -> None:
         role_index = {role["name"]: role for role in self.catalog["roles"]}
-        self.assertEqual(role_index["bears-platform-role-governor"]["role_kind"], "specialist")
-        self.assertEqual(role_index["bears-platform-role-governor"]["execution_class"], "helper")
+        self.assertEqual(role_index["bears-subagents-roles-governor"]["role_kind"], "specialist")
+        self.assertEqual(role_index["bears-subagents-roles-governor"]["execution_class"], "helper")
         self.assertEqual(role_index["bears-auth-platform-engineer"]["execution_class"], "specialist")
 
         catalog = copy.deepcopy(self.catalog)
         catalog["roles"][0].pop("execution_class")
-        errors = platform_roles.validate_catalog(catalog, plugin_root=PLUGIN_ROOT)
+        errors = subagents_roless.validate_catalog(catalog, plugin_root=PLUGIN_ROOT)
         self.assertTrue(any("missing fields" in error and "execution_class" in error for error in errors))
 
         catalog = copy.deepcopy(self.catalog)
         role = next(item for item in catalog["roles"] if item["name"] == "bears-workflow-overlay-controller")
         role["execution_class"] = "specialist"
-        errors = platform_roles.validate_catalog(catalog, plugin_root=PLUGIN_ROOT)
+        errors = subagents_roless.validate_catalog(catalog, plugin_root=PLUGIN_ROOT)
         self.assertTrue(any("orchestrator must set execution_class=helper" in error for error in errors))
 
     def test_all_agent_tomls_have_catalog_or_profile_mapping_coverage(self) -> None:
@@ -145,7 +145,7 @@ class PlatformRolesTest(unittest.TestCase):
             for mapping in catalog["agent_profile_mappings"]
             if mapping["agent_file"] != "agents/deploy-impact-gate.toml"
         ]
-        errors = platform_roles.validate_catalog(catalog, plugin_root=PLUGIN_ROOT)
+        errors = subagents_roless.validate_catalog(catalog, plugin_root=PLUGIN_ROOT)
         self.assertTrue(
             any(
                 "agents/*.toml coverage mismatch" in error
@@ -156,7 +156,7 @@ class PlatformRolesTest(unittest.TestCase):
 
     def test_missing_route_and_audit_include_role_development_metadata(self) -> None:
         target = "tests/test_missing_auto_role_example.py"
-        for router in (platform_roles.route_target, platform_roles.audit_target):
+        for router in (subagents_roless.route_target, subagents_roless.audit_target):
             with self.subTest(router=router.__name__):
                 packet = router(self.catalog, target, plugin_root=PLUGIN_ROOT)
                 self.assertEqual(packet["status"], "ROLE_COVERAGE_BLOCKER")
@@ -164,19 +164,19 @@ class PlatformRolesTest(unittest.TestCase):
                 self.assertFalse(packet.get("implementation_handoff_allowed", False))
                 role_development = packet["role_development"]
                 self.assertEqual(role_development["lane"], "role-development")
-                self.assertEqual(role_development["owner_role"], "bears-platform-role-governor")
+                self.assertEqual(role_development["owner_role"], "bears-subagents-roles-governor")
                 self.assertEqual(role_development["max_attempts"], 2)
                 self.assertIn("agents/*.toml", role_development["allowed_write_scope"])
-                self.assertIn("python3 scripts/platform_roles.py validate", role_development["required_validations"])
+                self.assertIn("python3 scripts/subagents_roles.py validate", role_development["required_validations"])
                 self.assertIn(
-                    "python3 scripts/platform_roles.py role-development-plan <target> --json",
+                    "python3 scripts/subagents_roles.py role-development-plan <target> --json",
                     role_development["rerun_commands"],
                 )
                 self.assertIn("owner_conflict", role_development["terminal_blocker_conditions"])
 
     def test_role_development_plan_ready_for_unmapped_exact_path(self) -> None:
         target = "tests/test_missing_auto_role_example.py"
-        packet = platform_roles.role_development_plan(self.catalog, target, plugin_root=PLUGIN_ROOT)
+        packet = subagents_roless.role_development_plan(self.catalog, target, plugin_root=PLUGIN_ROOT)
         self.assertEqual(packet["status"], "ready")
         self.assertEqual(packet["lane"], "role-development")
         self.assertEqual(packet["action"], "spawn_role_development_worker")
@@ -200,9 +200,9 @@ class PlatformRolesTest(unittest.TestCase):
         self.assertEqual(cli_packet["action"], "spawn_role_development_worker")
 
     def test_role_development_plan_noop_for_matched_target(self) -> None:
-        packet = platform_roles.role_development_plan(
+        packet = subagents_roless.role_development_plan(
             self.catalog,
-            "assets/catalog/platform-role-catalog.v1.json",
+            "assets/catalog/subagents-roles-catalog.v1.json",
             plugin_root=PLUGIN_ROOT,
         )
         self.assertEqual(packet["status"], "pass")
@@ -212,7 +212,7 @@ class PlatformRolesTest(unittest.TestCase):
 
     def test_workspace_root_github_actions_workflow_routes_to_exact_config_role(self) -> None:
         target = "/srv/bears/.github/workflows/workspace-gitlink-ci.yml"
-        for router in (platform_roles.route_target, platform_roles.audit_target):
+        for router in (subagents_roless.route_target, subagents_roless.audit_target):
             with self.subTest(router=router.__name__):
                 packet = router(self.catalog, target, plugin_root=PLUGIN_ROOT)
                 self.assertEqual(packet["status"], "matched")
@@ -228,17 +228,17 @@ class PlatformRolesTest(unittest.TestCase):
                     "no runtime mutation, no provider mutation, no Kubernetes mutation, no Infisical mutation, "
                     "no product, frontend, mobile, or UI mutation, and no secret access.",
                 )
-                if router is platform_roles.audit_target:
+                if router is subagents_roless.audit_target:
                     self.assertTrue(packet["implementation_handoff_allowed"])
 
-        plan = platform_roles.role_development_plan(self.catalog, target, plugin_root=PLUGIN_ROOT)
+        plan = subagents_roless.role_development_plan(self.catalog, target, plugin_root=PLUGIN_ROOT)
         self.assertEqual(plan["status"], "pass")
         self.assertEqual(plan["action"], "noop")
         self.assertTrue(plan["implementation_handoff_allowed"])
 
     def test_workspace_root_github_actions_workflow_child_stays_unmapped(self) -> None:
         target = "/srv/bears/.github/workflows/workspace-gitlink-ci.yml/child"
-        packet = platform_roles.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
+        packet = subagents_roless.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
         self.assertEqual(packet["status"], "ROLE_COVERAGE_BLOCKER")
         self.assertEqual(packet["why_blocked"], "unmapped")
         self.assertNotIn("primary_role", packet)
@@ -246,30 +246,30 @@ class PlatformRolesTest(unittest.TestCase):
 
     def test_infisical_ops_skill_routes_to_kubernetes_secret_reference_governance(self) -> None:
         target = "/srv/bears/plugins/bears/skills/bears-infisical-ops/SKILL.md"
-        for router in (platform_roles.route_target, platform_roles.audit_target):
+        for router in (subagents_roless.route_target, subagents_roless.audit_target):
             with self.subTest(router=router.__name__):
                 packet = router(self.catalog, target, plugin_root=PLUGIN_ROOT)
                 self.assertEqual(packet["status"], "matched")
                 self.assertEqual(packet["concrete_part"], "kubernetes_deploy_core")
                 self.assertEqual(packet["primary_role"], "bears-deploy-platform-engineer")
                 self.assertIn("Infisical is custody and injection only", packet["trust_boundary"])
-                if router is platform_roles.audit_target:
+                if router is subagents_roless.audit_target:
                     self.assertTrue(packet["implementation_handoff_allowed"])
 
     def test_python_codeflow_skill_routes_to_python_tooling_governance(self) -> None:
         target = "/srv/bears/plugins/bears/skills/python-codeflow/SKILL.md"
-        for router in (platform_roles.route_target, platform_roles.audit_target):
+        for router in (subagents_roless.route_target, subagents_roless.audit_target):
             with self.subTest(router=router.__name__):
                 packet = router(self.catalog, target, plugin_root=PLUGIN_ROOT)
                 self.assertEqual(packet["status"], "matched")
                 self.assertEqual(packet["concrete_part"], "workflow_overlay_python_dev_tooling")
                 self.assertEqual(packet["primary_role"], "bears-workflow-overlay-platform-engineer")
                 self.assertIn("python-codeflow skill", packet["allowed_write_boundary"])
-                if router is platform_roles.audit_target:
+                if router is subagents_roless.audit_target:
                     self.assertTrue(packet["implementation_handoff_allowed"])
 
     def test_parent_group_broad_path_still_cannot_authorize_implementation(self) -> None:
-        packet = platform_roles.role_development_plan(self.catalog, "plugins/bears", plugin_root=PLUGIN_ROOT)
+        packet = subagents_roless.role_development_plan(self.catalog, "plugins/bears", plugin_root=PLUGIN_ROOT)
         self.assertEqual(packet["status"], "needs_exact_target")
         self.assertEqual(packet["action"], "decompose_to_exact_write_scope")
         self.assertFalse(packet["implementation_handoff_allowed"])
@@ -279,20 +279,20 @@ class PlatformRolesTest(unittest.TestCase):
 
     def test_owner_conflict_is_reserved_terminal_role_development_blocker(self) -> None:
         catalog = copy.deepcopy(self.catalog)
-        original = next(part for part in catalog["platform_parts"] if part["name"] == "platform_role_governance")
+        original = next(part for part in catalog["platform_parts"] if part["name"] == "subagents_roles_governance")
         conflicting = copy.deepcopy(original)
-        conflicting["name"] = "platform_role_governance_conflicting_owner"
+        conflicting["name"] = "subagents_roles_governance_conflicting_owner"
         catalog["platform_parts"].append(conflicting)
         catalog["mandatory_policy"]["role_required_for"].append(conflicting["name"])
 
-        packet = platform_roles.role_development_plan(catalog, "scripts/platform_roles.py", plugin_root=PLUGIN_ROOT)
+        packet = subagents_roless.role_development_plan(catalog, "scripts/subagents_roles.py", plugin_root=PLUGIN_ROOT)
         self.assertEqual(packet["status"], "terminal_blocker")
         self.assertEqual(packet["action"], "stop_for_owner_conflict")
         self.assertTrue(packet["terminal_blocker"])
         self.assertEqual(packet["route"]["why_blocked"], "ambiguous_owner")
 
     def test_cli_missing_catalog_has_stable_stderr_for_validate_route_audit(self) -> None:
-        missing_catalog = PLUGIN_ROOT / "tmp-missing-platform-role-catalog.json"
+        missing_catalog = PLUGIN_ROOT / "tmp-missing-subagents-roles-catalog.json"
         expected_error = f"ERROR: catalog not found: {missing_catalog}"
         cases = (
             ("validate",),
@@ -370,12 +370,12 @@ class PlatformRolesTest(unittest.TestCase):
                 "bears-git-workflow-helper",
             ),
             "bears-kubernetes-data-platform-engineer.toml": (
-                "kubernetes_data_platform_role_metadata",
-                "bears-platform-role-governor",
+                "kubernetes_data_subagents_roles_metadata",
+                "bears-subagents-roles-governor",
             ),
             "bears-machine-first-execution-kernel-engineer.toml": (
                 "machine_first_execution_kernel_role_metadata",
-                "bears-platform-role-governor",
+                "bears-subagents-roles-governor",
             ),
             "bears-token-budget-helper.toml": (
                 "token_budget_helper_role_metadata",
@@ -431,20 +431,20 @@ class PlatformRolesTest(unittest.TestCase):
             ),
             "bears-docs-maintainer.toml": (
                 "docs_maintainer_role_metadata",
-                "bears-platform-role-governor",
+                "bears-subagents-roles-governor",
             ),
             "bears-gateway-platform-engineer.toml": ("bears_gateway", "bears-gateway-platform-engineer"),
             "bears-github-actions-access-settings-governor.toml": (
-                "platform_role_governance",
-                "bears-platform-role-governor",
+                "subagents_roles_governance",
+                "bears-subagents-roles-governor",
             ),
             "bears-github-actions-secrets-governor.toml": (
-                "platform_role_governance",
-                "bears-platform-role-governor",
+                "subagents_roles_governance",
+                "bears-subagents-roles-governor",
             ),
             "bears-github-branch-protection-settings-governor.toml": (
-                "platform_role_governance",
-                "bears-platform-role-governor",
+                "subagents_roles_governance",
+                "bears-subagents-roles-governor",
             ),
             "bears-github-project-issues-orchestrator.toml": (
                 "app-dev_skill_governance",
@@ -457,11 +457,11 @@ class PlatformRolesTest(unittest.TestCase):
             "bears-goal-prompt-generator.toml": ("goal_prompt_generator", "bears-goal-prompt-generator"),
             "bears-infrastructure-network-engineer.toml": (
                 "infrastructure_network_role_metadata",
-                "bears-platform-role-governor",
+                "bears-subagents-roles-governor",
             ),
             "bears-notifications-platform-engineer.toml": (
-                "platform_role_governance",
-                "bears-platform-role-governor",
+                "subagents_roles_governance",
+                "bears-subagents-roles-governor",
             ),
             "bears-observability-platform-engineer.toml": (
                 "sentry_observability_226",
@@ -471,17 +471,17 @@ class PlatformRolesTest(unittest.TestCase):
                 "theants_ops_runbooks_layer",
                 "bears-ops-runbook-engineer",
             ),
-            "bears-plugin-constitution-governor.toml": (
-                "plugin_constitution_governance",
-                "bears-plugin-constitution-governor",
+            "bears-subagents-roles-governor.toml": (
+                "subagents_roles_governance",
+                "bears-subagents-roles-governor",
             ),
-            "bears-platform-role-governor.toml": (
-                "platform_role_governance",
-                "bears-platform-role-governor",
+            "bears-subagents-roles-governor.toml": (
+                "subagents_roles_governance",
+                "bears-subagents-roles-governor",
             ),
             "bears-platform-security-reviewer.toml": (
-                "platform_role_governance",
-                "bears-platform-role-governor",
+                "subagents_roles_governance",
+                "bears-subagents-roles-governor",
             ),
             "bears-product-app-zone-engineer.toml": (
                 "theants_product_dev_layer",
@@ -489,23 +489,23 @@ class PlatformRolesTest(unittest.TestCase):
             ),
             "bears-vpn-bot-engineer.toml": (
                 "vpn_specialist_role_metadata",
-                "bears-platform-role-governor",
+                "bears-subagents-roles-governor",
             ),
             "bears-vpn-client-app-engineer.toml": (
                 "vpn_specialist_role_metadata",
-                "bears-platform-role-governor",
+                "bears-subagents-roles-governor",
             ),
             "bears-vpn-ingress-engineer.toml": (
                 "vpn_specialist_role_metadata",
-                "bears-platform-role-governor",
+                "bears-subagents-roles-governor",
             ),
             "bears-vpn-project-governance-engineer.toml": (
                 "vpn_specialist_role_metadata",
-                "bears-platform-role-governor",
+                "bears-subagents-roles-governor",
             ),
             "bears-vpn-proxy-engineer.toml": (
                 "vpn_specialist_role_metadata",
-                "bears-platform-role-governor",
+                "bears-subagents-roles-governor",
             ),
             "bears-secret-factory-engineer.toml": (
                 "secret_factory_governance",
@@ -529,11 +529,11 @@ class PlatformRolesTest(unittest.TestCase):
             ),
             "bears-vpn-runtime-engineer.toml": (
                 "vpn_runtime_role_metadata",
-                "bears-platform-role-governor",
+                "bears-subagents-roles-governor",
             ),
             "bears-wb-integration-platform-engineer.toml": (
-                "platform_role_governance",
-                "bears-platform-role-governor",
+                "subagents_roles_governance",
+                "bears-subagents-roles-governor",
             ),
             "bears-workflow-overlay-platform-engineer.toml": (
                 "workflow_overlay_core_plugin_surface",
@@ -569,7 +569,7 @@ class PlatformRolesTest(unittest.TestCase):
         for filename, (expected_part, expected_role) in expected.items():
             target = PLUGIN_ROOT / "agents" / filename
             with self.subTest(target=str(target)):
-                packet = platform_roles.route_target(
+                packet = subagents_roless.route_target(
                     self.catalog,
                     str(target),
                     plugin_root=PLUGIN_ROOT,
@@ -581,7 +581,7 @@ class PlatformRolesTest(unittest.TestCase):
 
     def test_git_workflow_helper_exact_file_routes_to_helper_role(self) -> None:
         target = "/srv/bears/plugins/bears/agents/bears-git-workflow-helper.toml"
-        for router in (platform_roles.route_target, platform_roles.audit_target):
+        for router in (subagents_roless.route_target, subagents_roless.audit_target):
             with self.subTest(router=router.__name__):
                 packet = router(self.catalog, target, plugin_root=PLUGIN_ROOT)
                 self.assertEqual(packet["status"], "matched")
@@ -594,7 +594,7 @@ class PlatformRolesTest(unittest.TestCase):
                 self.assertIn("no product, runtime, deployment", packet["allowed_write_boundary"])
 
     def test_goal_agent_helper_purposes_route_to_explicit_helper_roles(self) -> None:
-        workflow = platform_roles.load_json(PLUGIN_ROOT / "assets/catalog/agentic-enterprise-workflow.v1.json")
+        workflow = subagents_roless.load_json(PLUGIN_ROOT / "assets/catalog/agentic-enterprise-workflow.v1.json")
         purposes: set[str] = set()
         for mode in workflow["goal_agent_modes"].values():
             for helper_key in ("helper_agents", "l2_helper_agents"):
@@ -618,7 +618,7 @@ class PlatformRolesTest(unittest.TestCase):
                 self.assertTrue(role["primary_eligible"])
                 self.assertEqual(role["model"], "gpt-5.4-mini")
 
-                packet = platform_roles.route_target(self.catalog, purpose, plugin_root=PLUGIN_ROOT)
+                packet = subagents_roless.route_target(self.catalog, purpose, plugin_root=PLUGIN_ROOT)
                 self.assertEqual(packet["status"], "matched")
                 self.assertEqual(packet["primary_role"], expected_role)
                 self.assertEqual(packet["primary_execution_class"], "helper")
@@ -694,7 +694,7 @@ class PlatformRolesTest(unittest.TestCase):
         }
         for target, (expected_part, expected_role) in cases.items():
             with self.subTest(target=target):
-                packet = platform_roles.route_target(self.catalog, target)
+                packet = subagents_roless.route_target(self.catalog, target)
                 self.assertEqual(packet["status"], "matched")
                 self.assertEqual(packet["concrete_part"], expected_part)
                 self.assertEqual(packet["primary_role"], expected_role)
@@ -710,7 +710,7 @@ class PlatformRolesTest(unittest.TestCase):
         ]
         for target in targets:
             with self.subTest(target=target):
-                packet = platform_roles.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
+                packet = subagents_roless.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
                 self.assertEqual(packet["status"], "ROLE_COVERAGE_BLOCKER")
                 self.assertEqual(packet["why_blocked"], "unmapped")
                 self.assertNotIn("primary_role", packet)
@@ -732,7 +732,7 @@ class PlatformRolesTest(unittest.TestCase):
         }
         for target, (expected_part, expected_role) in cases.items():
             with self.subTest(target=target):
-                packet = platform_roles.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
+                packet = subagents_roless.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
                 self.assertEqual(packet["status"], "matched")
                 self.assertEqual(packet["concrete_part"], expected_part)
                 self.assertEqual(packet["primary_role"], expected_role)
@@ -740,7 +740,7 @@ class PlatformRolesTest(unittest.TestCase):
 
     def test_routes_auth_contract_test_file_to_exact_auth_specialist(self) -> None:
         target = "/srv/bears/dev/platform/tests/test_auth_contracts.py"
-        for router in (platform_roles.route_target, platform_roles.audit_target):
+        for router in (subagents_roless.route_target, subagents_roless.audit_target):
             with self.subTest(router=router.__name__):
                 packet = router(self.catalog, target, plugin_root=PLUGIN_ROOT)
                 self.assertEqual(packet["status"], "matched")
@@ -752,7 +752,7 @@ class PlatformRolesTest(unittest.TestCase):
                 self.assertIn("auth-core contract test coverage", packet["allowed_write_boundary"])
                 self.assertNotIn("/srv/bears/projects/seller/apps", packet["allowed_write_boundary"])
 
-        broad_tests = platform_roles.route_target(
+        broad_tests = subagents_roless.route_target(
             self.catalog,
             "/srv/bears/dev/platform/tests",
             plugin_root=PLUGIN_ROOT,
@@ -763,7 +763,7 @@ class PlatformRolesTest(unittest.TestCase):
 
     def test_routes_gateway_contract_test_file_to_exact_gateway_specialist(self) -> None:
         target = "/srv/bears/dev/platform/tests/test_gateway_contracts.py"
-        for router in (platform_roles.route_target, platform_roles.audit_target):
+        for router in (subagents_roless.route_target, subagents_roless.audit_target):
             with self.subTest(router=router.__name__):
                 packet = router(self.catalog, target, plugin_root=PLUGIN_ROOT)
                 self.assertEqual(packet["status"], "matched")
@@ -775,7 +775,7 @@ class PlatformRolesTest(unittest.TestCase):
                 self.assertIn("gateway-core contract test coverage", packet["allowed_write_boundary"])
                 self.assertNotIn("/srv/bears/projects/seller/apps", packet["allowed_write_boundary"])
 
-        broad_tests = platform_roles.route_target(
+        broad_tests = subagents_roless.route_target(
             self.catalog,
             "/srv/bears/dev/platform/tests",
             plugin_root=PLUGIN_ROOT,
@@ -786,7 +786,7 @@ class PlatformRolesTest(unittest.TestCase):
 
     def test_routes_gateway_runtime_contract_test_file_to_exact_gateway_specialist(self) -> None:
         target = "/srv/bears/dev/platform/tests/test_gateway_runtime_contracts.py"
-        for router in (platform_roles.route_target, platform_roles.audit_target):
+        for router in (subagents_roless.route_target, subagents_roless.audit_target):
             with self.subTest(router=router.__name__):
                 packet = router(self.catalog, target, plugin_root=PLUGIN_ROOT)
                 self.assertEqual(packet["status"], "matched")
@@ -799,7 +799,7 @@ class PlatformRolesTest(unittest.TestCase):
 
     def test_routes_gateway_seller_route_pack_fixture_to_exact_gateway_specialist(self) -> None:
         target = "/srv/bears/dev/platform/tests/fixtures/seller_route_pack.py"
-        for router in (platform_roles.route_target, platform_roles.audit_target):
+        for router in (subagents_roless.route_target, subagents_roless.audit_target):
             with self.subTest(router=router.__name__):
                 packet = router(self.catalog, target, plugin_root=PLUGIN_ROOT)
                 self.assertEqual(packet["status"], "matched")
@@ -811,7 +811,7 @@ class PlatformRolesTest(unittest.TestCase):
                 self.assertIn("seller-consumer route-pack fixture coverage", packet["allowed_write_boundary"])
                 self.assertIn("never a gateway core dependency", packet["allowed_write_boundary"])
 
-        broad_fixtures = platform_roles.route_target(
+        broad_fixtures = subagents_roless.route_target(
             self.catalog,
             "/srv/bears/dev/platform/tests/fixtures",
             plugin_root=PLUGIN_ROOT,
@@ -822,7 +822,7 @@ class PlatformRolesTest(unittest.TestCase):
 
     def test_routes_gateway_route_pack_test_file_to_exact_gateway_specialist(self) -> None:
         target = "/srv/bears/dev/platform/tests/test_gateway_route_pack.py"
-        for router in (platform_roles.route_target, platform_roles.audit_target):
+        for router in (subagents_roless.route_target, subagents_roless.audit_target):
             with self.subTest(router=router.__name__):
                 packet = router(self.catalog, target, plugin_root=PLUGIN_ROOT)
                 self.assertEqual(packet["status"], "matched")
@@ -835,7 +835,7 @@ class PlatformRolesTest(unittest.TestCase):
 
     def test_routes_gateway_auth_mode_map_test_file_to_exact_gateway_specialist(self) -> None:
         target = "/srv/bears/dev/platform/tests/test_gateway_auth_mode_map.py"
-        for router in (platform_roles.route_target, platform_roles.audit_target):
+        for router in (subagents_roless.route_target, subagents_roless.audit_target):
             with self.subTest(router=router.__name__):
                 packet = router(self.catalog, target, plugin_root=PLUGIN_ROOT)
                 self.assertEqual(packet["status"], "matched")
@@ -848,7 +848,7 @@ class PlatformRolesTest(unittest.TestCase):
 
     def test_routes_gateway_tenant_registry_binding_test_file_to_exact_gateway_specialist(self) -> None:
         target = "/srv/bears/dev/platform/tests/test_gateway_tenant_registry_binding.py"
-        for router in (platform_roles.route_target, platform_roles.audit_target):
+        for router in (subagents_roless.route_target, subagents_roless.audit_target):
             with self.subTest(router=router.__name__):
                 packet = router(self.catalog, target, plugin_root=PLUGIN_ROOT)
                 self.assertEqual(packet["status"], "matched")
@@ -861,7 +861,7 @@ class PlatformRolesTest(unittest.TestCase):
 
     def test_routes_gateway_runtime_service_test_file_to_exact_gateway_specialist(self) -> None:
         target = "/srv/bears/dev/platform/tests/test_gateway_runtime_service.py"
-        for router in (platform_roles.route_target, platform_roles.audit_target):
+        for router in (subagents_roless.route_target, subagents_roless.audit_target):
             with self.subTest(router=router.__name__):
                 packet = router(self.catalog, target, plugin_root=PLUGIN_ROOT)
                 self.assertEqual(packet["status"], "matched")
@@ -879,7 +879,7 @@ class PlatformRolesTest(unittest.TestCase):
             "/srv/bears/dev/platform/src/bears_platform/tenant_registry",
         )
         for target in targets:
-            for router in (platform_roles.route_target, platform_roles.audit_target):
+            for router in (subagents_roless.route_target, subagents_roless.audit_target):
                 with self.subTest(target=target, router=router.__name__):
                     packet = router(self.catalog, target, plugin_root=PLUGIN_ROOT)
                     self.assertEqual(packet["status"], "matched")
@@ -896,7 +896,7 @@ class PlatformRolesTest(unittest.TestCase):
 
     def test_tenant_registry_alias_path_drift_stays_unmapped(self) -> None:
         target = "tenant_registry/unknown_future_child"
-        for router in (platform_roles.route_target, platform_roles.audit_target):
+        for router in (subagents_roless.route_target, subagents_roless.audit_target):
             with self.subTest(router=router.__name__):
                 packet = router(self.catalog, target, plugin_root=PLUGIN_ROOT)
                 self.assertEqual(packet["status"], "ROLE_COVERAGE_BLOCKER")
@@ -905,7 +905,7 @@ class PlatformRolesTest(unittest.TestCase):
 
     def test_routes_tenant_registry_runtime_contract_test_file_to_exact_tenant_registry_specialist(self) -> None:
         target = "/srv/bears/dev/platform/tests/test_tenant_registry_runtime_contracts.py"
-        for router in (platform_roles.route_target, platform_roles.audit_target):
+        for router in (subagents_roless.route_target, subagents_roless.audit_target):
             with self.subTest(router=router.__name__):
                 packet = router(self.catalog, target, plugin_root=PLUGIN_ROOT)
                 self.assertEqual(packet["status"], "matched")
@@ -924,7 +924,7 @@ class PlatformRolesTest(unittest.TestCase):
             "tests/test_zone_registry_runtime.py": "bears_platform_zone_registry_runtime_tests",
         }
         for target, expected_part in cases.items():
-            for router in (platform_roles.route_target, platform_roles.audit_target):
+            for router in (subagents_roless.route_target, subagents_roless.audit_target):
                 with self.subTest(target=target, router=router.__name__):
                     packet = router(self.catalog, target, plugin_root=PLUGIN_ROOT)
                     self.assertEqual(packet["status"], "matched")
@@ -937,7 +937,7 @@ class PlatformRolesTest(unittest.TestCase):
 
     def test_pr128_registry_test_unknown_sibling_stays_unmapped(self) -> None:
         target = "tests/test_zone_registry_unknown_future.py"
-        for router in (platform_roles.route_target, platform_roles.audit_target):
+        for router in (subagents_roless.route_target, subagents_roless.audit_target):
             with self.subTest(router=router.__name__):
                 packet = router(self.catalog, target, plugin_root=PLUGIN_ROOT)
                 self.assertEqual(packet["status"], "ROLE_COVERAGE_BLOCKER")
@@ -946,7 +946,7 @@ class PlatformRolesTest(unittest.TestCase):
 
     def test_routes_deploy_contract_test_file_to_exact_deploy_specialist(self) -> None:
         target = "/srv/bears/dev/platform/tests/test_deploy_contracts.py"
-        for router in (platform_roles.route_target, platform_roles.audit_target):
+        for router in (subagents_roless.route_target, subagents_roless.audit_target):
             with self.subTest(router=router.__name__):
                 packet = router(self.catalog, target, plugin_root=PLUGIN_ROOT)
                 self.assertEqual(packet["status"], "matched")
@@ -958,7 +958,7 @@ class PlatformRolesTest(unittest.TestCase):
                 self.assertIn("deploy-core contract test coverage", packet["allowed_write_boundary"])
                 self.assertNotIn("/srv/bears/projects/seller/apps", packet["allowed_write_boundary"])
 
-        broad_tests = platform_roles.route_target(
+        broad_tests = subagents_roless.route_target(
             self.catalog,
             "/srv/bears/dev/platform/tests",
             plugin_root=PLUGIN_ROOT,
@@ -969,7 +969,7 @@ class PlatformRolesTest(unittest.TestCase):
 
     def test_routes_billing_contract_test_file_to_exact_payments_specialist(self) -> None:
         target = "/srv/bears/dev/platform/tests/test_billing_contracts.py"
-        for router in (platform_roles.route_target, platform_roles.audit_target):
+        for router in (subagents_roless.route_target, subagents_roless.audit_target):
             with self.subTest(router=router.__name__):
                 packet = router(self.catalog, target, plugin_root=PLUGIN_ROOT)
                 self.assertEqual(packet["status"], "matched")
@@ -981,7 +981,7 @@ class PlatformRolesTest(unittest.TestCase):
                 self.assertIn("universal billing contract test coverage", packet["allowed_write_boundary"])
                 self.assertNotIn("/srv/bears/projects/seller/apps", packet["allowed_write_boundary"])
 
-        broad_tests = platform_roles.route_target(
+        broad_tests = subagents_roless.route_target(
             self.catalog,
             "/srv/bears/dev/platform/tests",
             plugin_root=PLUGIN_ROOT,
@@ -992,7 +992,7 @@ class PlatformRolesTest(unittest.TestCase):
 
     def test_routes_billing_runtime_service_test_file_to_exact_payments_specialist(self) -> None:
         target = "/srv/bears/dev/platform/tests/test_billing_runtime_service.py"
-        for router in (platform_roles.route_target, platform_roles.audit_target):
+        for router in (subagents_roless.route_target, subagents_roless.audit_target):
             with self.subTest(router=router.__name__):
                 packet = router(self.catalog, target, plugin_root=PLUGIN_ROOT)
                 self.assertEqual(packet["status"], "matched")
@@ -1006,7 +1006,7 @@ class PlatformRolesTest(unittest.TestCase):
 
     def test_routes_billing_processing_contract_test_file_to_exact_payments_specialist(self) -> None:
         target = "/srv/bears/dev/platform/tests/test_billing_processing_contracts.py"
-        for router in (platform_roles.route_target, platform_roles.audit_target):
+        for router in (subagents_roless.route_target, subagents_roless.audit_target):
             with self.subTest(router=router.__name__):
                 packet = router(self.catalog, target, plugin_root=PLUGIN_ROOT)
                 self.assertEqual(packet["status"], "matched")
@@ -1020,7 +1020,7 @@ class PlatformRolesTest(unittest.TestCase):
 
     def test_routes_billing_status_adapter_test_file_to_exact_payments_specialist(self) -> None:
         target = "/srv/bears/dev/platform/tests/test_billing_status_adapters.py"
-        for router in (platform_roles.route_target, platform_roles.audit_target):
+        for router in (subagents_roless.route_target, subagents_roless.audit_target):
             with self.subTest(router=router.__name__):
                 packet = router(self.catalog, target, plugin_root=PLUGIN_ROOT)
                 self.assertEqual(packet["status"], "matched")
@@ -1034,7 +1034,7 @@ class PlatformRolesTest(unittest.TestCase):
 
     def test_routes_billing_idempotency_test_file_to_exact_payments_specialist(self) -> None:
         target = "/srv/bears/dev/platform/tests/test_billing_idempotency.py"
-        for router in (platform_roles.route_target, platform_roles.audit_target):
+        for router in (subagents_roless.route_target, subagents_roless.audit_target):
             with self.subTest(router=router.__name__):
                 packet = router(self.catalog, target, plugin_root=PLUGIN_ROOT)
                 self.assertEqual(packet["status"], "matched")
@@ -1048,7 +1048,7 @@ class PlatformRolesTest(unittest.TestCase):
 
     def test_routes_billing_money_units_test_file_to_exact_payments_specialist(self) -> None:
         target = "/srv/bears/dev/platform/tests/test_billing_money_units.py"
-        for router in (platform_roles.route_target, platform_roles.audit_target):
+        for router in (subagents_roless.route_target, subagents_roless.audit_target):
             with self.subTest(router=router.__name__):
                 packet = router(self.catalog, target, plugin_root=PLUGIN_ROOT)
                 self.assertEqual(packet["status"], "matched")
@@ -1080,7 +1080,7 @@ class PlatformRolesTest(unittest.TestCase):
             ),
         }
         for target, (part_name, boundary_text) in cases.items():
-            for router in (platform_roles.route_target, platform_roles.audit_target):
+            for router in (subagents_roless.route_target, subagents_roless.audit_target):
                 with self.subTest(target=target, router=router.__name__):
                     packet = router(self.catalog, target, plugin_root=PLUGIN_ROOT)
                     self.assertEqual(packet["status"], "matched")
@@ -1113,7 +1113,7 @@ class PlatformRolesTest(unittest.TestCase):
             ),
         }
         for target, (part_name, boundary_text) in cases.items():
-            for router in (platform_roles.route_target, platform_roles.audit_target):
+            for router in (subagents_roless.route_target, subagents_roless.audit_target):
                 with self.subTest(target=target, router=router.__name__):
                     packet = router(self.catalog, target, plugin_root=PLUGIN_ROOT)
                     self.assertEqual(packet["status"], "matched")
@@ -1127,10 +1127,10 @@ class PlatformRolesTest(unittest.TestCase):
                     self.assertIn("live runtime", packet["allowed_write_boundary"])
                     self.assertIn("secret", packet["allowed_write_boundary"])
                     self.assertNotIn("seller default", packet["allowed_write_boundary"])
-                    if router is platform_roles.audit_target:
+                    if router is subagents_roless.audit_target:
                         self.assertTrue(packet["implementation_handoff_allowed"])
 
-        broad_tests = platform_roles.route_target(
+        broad_tests = subagents_roless.route_target(
             self.catalog,
             "/srv/bears/dev/platform/tests",
             plugin_root=PLUGIN_ROOT,
@@ -1145,7 +1145,7 @@ class PlatformRolesTest(unittest.TestCase):
             for item in self.catalog["workflow_routes"]
             if item["workflow_id"] == "auth-gateway-deploy-core"
         )
-        self.assertEqual(route["required_route_targets"], platform_roles.AUTH_GATEWAY_DEPLOY_CORE_PARTS)
+        self.assertEqual(route["required_route_targets"], subagents_roless.AUTH_GATEWAY_DEPLOY_CORE_PARTS)
         for target in route["required_route_targets"].values():
             self.assertNotIn("/srv/bears/projects/seller/apps/", target)
 
@@ -1221,7 +1221,7 @@ class PlatformRolesTest(unittest.TestCase):
             ),
         }
         for target, (expected_part, expected_role) in cases.items():
-            for router in (platform_roles.route_target, platform_roles.audit_target):
+            for router in (subagents_roless.route_target, subagents_roless.audit_target):
                 with self.subTest(target=target, router=router.__name__):
                     packet = router(self.catalog, target, plugin_root=PLUGIN_ROOT)
                     self.assertEqual(packet["status"], "matched")
@@ -1235,7 +1235,7 @@ class PlatformRolesTest(unittest.TestCase):
             "/srv/bears/dev/app/codex-telegram/src/codex_telegram_mcp/server.py",
         ):
             with self.subTest(target=target):
-                packet = platform_roles.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
+                packet = subagents_roless.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
                 self.assertEqual(packet["status"], "matched")
                 self.assertEqual(packet["concrete_part"], "telegram_platform")
                 self.assertEqual(packet["primary_role"], "bears-telegram-platform-engineer")
@@ -1245,7 +1245,7 @@ class PlatformRolesTest(unittest.TestCase):
             "/srv/bears/dev/app/codexdaemon",
             "/srv/bears/dev/app/codexdaemon/AGENTS.md",
         ):
-            for router in (platform_roles.route_target, platform_roles.audit_target):
+            for router in (subagents_roless.route_target, subagents_roless.audit_target):
                 with self.subTest(target=target, router=router.__name__):
                     packet = router(self.catalog, target, plugin_root=PLUGIN_ROOT)
                     self.assertEqual(packet["status"], "matched")
@@ -1255,7 +1255,7 @@ class PlatformRolesTest(unittest.TestCase):
                     self.assertIn("codexdaemon runtime only", packet["trust_boundary"])
                     self.assertIn("@Bears policy/catalog/CD edits", packet["trust_boundary"])
                     self.assertNotIn("/srv/bears/dev/platform", packet["allowed_write_boundary"])
-                    if router is platform_roles.audit_target:
+                    if router is subagents_roless.audit_target:
                         self.assertTrue(packet["implementation_handoff_allowed"])
 
     def test_routes_leadgen_product_to_product_app_zone_not_bearstg(self) -> None:
@@ -1263,7 +1263,7 @@ class PlatformRolesTest(unittest.TestCase):
             "/srv/bears/dev/app/leadgen",
             "/srv/bears/dev/app/leadgen/AGENTS.md",
         ):
-            for router in (platform_roles.route_target, platform_roles.audit_target):
+            for router in (subagents_roless.route_target, subagents_roless.audit_target):
                 with self.subTest(target=target, router=router.__name__):
                     packet = router(self.catalog, target, plugin_root=PLUGIN_ROOT)
                     self.assertEqual(packet["status"], "matched")
@@ -1284,12 +1284,12 @@ class PlatformRolesTest(unittest.TestCase):
                         "/srv/bears/plugins/bearstg",
                         packet["allowed_write_boundary"],
                     )
-                    if router is platform_roles.audit_target:
+                    if router is subagents_roless.audit_target:
                         self.assertTrue(packet["implementation_handoff_allowed"])
 
     def test_bearstg_mcp_plugin_routes_to_telegram_specialist(self) -> None:
         target = "/srv/bears/plugins/bearstg"
-        for router in (platform_roles.route_target, platform_roles.audit_target):
+        for router in (subagents_roless.route_target, subagents_roless.audit_target):
             with self.subTest(router=router.__name__):
                 packet = router(self.catalog, target, plugin_root=PLUGIN_ROOT)
                 self.assertEqual(packet["status"], "matched")
@@ -1299,11 +1299,11 @@ class PlatformRolesTest(unittest.TestCase):
                     "bears-telegram-platform-engineer",
                 )
                 self.assertFalse(packet["decomposition_required"])
-                if router is platform_roles.audit_target:
+                if router is subagents_roless.audit_target:
                     self.assertTrue(packet["implementation_handoff_allowed"])
 
     def test_dev_workspace_codex_telegram_does_not_authorize_product_adapter(self) -> None:
-        packet = platform_roles.route_target(
+        packet = subagents_roless.route_target(
             self.catalog,
             "/srv/bears/dev/workspace/codex-telegram",
             plugin_root=PLUGIN_ROOT,
@@ -1320,7 +1320,7 @@ class PlatformRolesTest(unittest.TestCase):
         ]
         for target in targets:
             with self.subTest(target=target):
-                packet = platform_roles.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
+                packet = subagents_roless.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
                 self.assertEqual(packet["status"], "ROLE_COVERAGE_BLOCKER")
                 self.assertEqual(packet["why_blocked"], "unmapped")
                 self.assertNotIn("primary_role", packet)
@@ -1331,7 +1331,7 @@ class PlatformRolesTest(unittest.TestCase):
             "/srv/bears/dev/app/vpn/runtime",
         ):
             with self.subTest(target=target):
-                packet = platform_roles.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
+                packet = subagents_roless.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
                 self.assertEqual(packet["status"], "ROLE_COVERAGE_BLOCKER")
                 self.assertEqual(packet["why_blocked"], "unmapped")
                 self.assertNotIn("primary_role", packet)
@@ -1344,39 +1344,39 @@ class PlatformRolesTest(unittest.TestCase):
         }
         for target, expected_part in cases.items():
             with self.subTest(target=target):
-                packet = platform_roles.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
+                packet = subagents_roless.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
                 self.assertEqual(packet["status"], "matched")
                 self.assertEqual(packet["concrete_part"], expected_part)
                 self.assertNotEqual(packet["concrete_part"], "vpn_project_root")
 
-    def test_routes_platform_role_governance_with_one_primary_role(self) -> None:
+    def test_routes_subagents_roles_governance_with_one_primary_role(self) -> None:
         targets = [
-            "/srv/bears/plugins/bears/assets/catalog/platform-role-catalog.v1.json",
+            "/srv/bears/plugins/bears/assets/catalog/subagents-roles-catalog.v1.json",
             "/srv/bears/plugins/bears/assets/catalog/plugin-governance-language-policy.v1.json",
-            "assets/catalog/platform-role-catalog.v1.json",
+            "assets/catalog/subagents-roles-catalog.v1.json",
             "plugins/bears/README.md",
         ]
         for target in targets:
             with self.subTest(target=target):
-                packet = platform_roles.route_target(self.catalog, target)
+                packet = subagents_roless.route_target(self.catalog, target)
                 self.assertEqual(packet["status"], "matched")
-                self.assertEqual(packet["concrete_part"], "platform_role_governance")
-                self.assertEqual(packet["primary_role"], "bears-platform-role-governor")
+                self.assertEqual(packet["concrete_part"], "subagents_roles_governance")
+                self.assertEqual(packet["primary_role"], "bears-subagents-roles-governor")
                 self.assertIn("bears-platform-security-reviewer", packet["supporting_roles"])
 
     def test_routes_shorthand_aliases_to_exact_one_primary_role(self) -> None:
         cases = {
             "plugin-governance-language-policy": (
-                "platform_role_governance",
-                "bears-platform-role-governor",
+                "subagents_roles_governance",
+                "bears-subagents-roles-governor",
             ),
-            "plugin-constitution": (
-                "plugin_constitution_governance",
-                "bears-plugin-constitution-governor",
+            "subagents-roles": (
+                "subagents_roles_governance",
+                "bears-subagents-roles-governor",
             ),
-            "plugin_constitution_governance": (
-                "plugin_constitution_governance",
-                "bears-plugin-constitution-governor",
+            "subagents_roles_governance": (
+                "subagents_roles_governance",
+                "bears-subagents-roles-governor",
             ),
             "plugin-skill-catalog": (
                 "workflow_overlay_skill_inventory",
@@ -1393,68 +1393,68 @@ class PlatformRolesTest(unittest.TestCase):
         }
         for target, (expected_part, expected_role) in cases.items():
             with self.subTest(target=target):
-                packet = platform_roles.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
+                packet = subagents_roless.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
                 self.assertEqual(packet["status"], "matched")
                 self.assertEqual(packet["concrete_part"], expected_part)
                 self.assertEqual(packet["primary_role"], expected_role)
                 self.assertEqual(packet["supporting_roles"], ["bears-platform-security-reviewer"])
                 self.assertFalse(packet["decomposition_required"])
 
-    def test_routes_plugin_constitution_to_exact_governor(self) -> None:
+    def test_routes_subagents_roles_to_exact_governor(self) -> None:
         targets = [
-            "/srv/bears/plugins/bears/assets/catalog/plugin-constitution.v1.json",
-            "assets/catalog/plugin-constitution.v1.json",
-            "/srv/bears/plugins/bears/scripts/plugin_constitution.py",
-            "scripts/plugin_constitution.py",
-            "/srv/bears/plugins/bears/docs/reference/plugin-constitution.md",
-            "docs/reference/plugin-constitution.md",
-            "/srv/bears/plugins/bears/tests/test_plugin_constitution.py",
-            "tests/test_plugin_constitution.py",
-            "/srv/bears/plugins/bears/agents/bears-plugin-constitution-governor.toml",
-            "agents/bears-plugin-constitution-governor.toml",
+            "/srv/bears/plugins/bears/assets/catalog/subagents-roles.v1.json",
+            "assets/catalog/subagents-roles.v1.json",
+            "/srv/bears/plugins/bears/scripts/subagents_roles.py",
+            "scripts/subagents_roles.py",
+            "/srv/bears/plugins/bears/docs/reference/subagents-roles.md",
+            "docs/reference/subagents-roles.md",
+            "/srv/bears/plugins/bears/tests/test_subagents_roles.py",
+            "tests/test_subagents_roles.py",
+            "/srv/bears/plugins/bears/agents/bears-subagents-roles-governor.toml",
+            "agents/bears-subagents-roles-governor.toml",
         ]
         for target in targets:
             with self.subTest(target=target):
-                packet = platform_roles.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
+                packet = subagents_roless.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
                 self.assertEqual(packet["status"], "matched")
-                self.assertEqual(packet["concrete_part"], "plugin_constitution_governance")
-                self.assertEqual(packet["primary_role"], "bears-plugin-constitution-governor")
+                self.assertEqual(packet["concrete_part"], "subagents_roles_governance")
+                self.assertEqual(packet["primary_role"], "bears-subagents-roles-governor")
                 self.assertEqual(packet["supporting_roles"], ["bears-platform-security-reviewer"])
                 self.assertFalse(packet["decomposition_required"])
 
-                audit_packet = platform_roles.audit_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
+                audit_packet = subagents_roless.audit_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
                 self.assertEqual(audit_packet["status"], "matched")
                 self.assertTrue(audit_packet["implementation_handoff_allowed"])
 
-    def test_routes_agents_readme_to_platform_role_governance(self) -> None:
+    def test_routes_agents_readme_to_subagents_roles_governance(self) -> None:
         targets = [
             "/srv/bears/plugins/bears/agents/README.md",
             "agents/README.md",
         ]
         for target in targets:
             with self.subTest(target=target):
-                packet = platform_roles.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
+                packet = subagents_roless.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
                 self.assertEqual(packet["status"], "matched")
-                self.assertEqual(packet["concrete_part"], "platform_role_governance")
-                self.assertEqual(packet["primary_role"], "bears-platform-role-governor")
+                self.assertEqual(packet["concrete_part"], "subagents_roles_governance")
+                self.assertEqual(packet["primary_role"], "bears-subagents-roles-governor")
                 self.assertIn("bears-platform-security-reviewer", packet["supporting_roles"])
 
-    def test_plugin_constitution_role_uses_machine_checkable_write_zones(self) -> None:
-        role = next(item for item in self.catalog["roles"] if item["name"] == "bears-plugin-constitution-governor")
+    def test_subagents_roles_role_uses_machine_checkable_write_zones(self) -> None:
+        role = next(item for item in self.catalog["roles"] if item["name"] == "bears-subagents-roles-governor")
         expected = {
-            "plugins/bears/assets/catalog/plugin-constitution.v1.json",
-            "plugins/bears/scripts/plugin_constitution.py",
-            "plugins/bears/docs/reference/plugin-constitution.md",
-            "plugins/bears/tests/test_plugin_constitution.py",
+            "plugins/bears/assets/catalog/subagents-roles.v1.json",
+            "plugins/bears/scripts/subagents_roles.py",
+            "plugins/bears/docs/reference/subagents-roles.md",
+            "plugins/bears/tests/test_subagents_roles.py",
             "plugins/bears/README.md",
             "plugins/bears/AGENTS.md",
             "plugins/bears/SPEC.md",
             "plugins/bears/.codex-plugin/plugin.json",
-            "plugins/bears/capabilities/plugin_constitution",
-            "plugins/bears/assets/catalog/platform-role-catalog.v1.json",
-            "plugins/bears/tests/test_platform_roles.py",
+            "plugins/bears/capabilities/subagents_roles",
+            "plugins/bears/assets/catalog/subagents-roles-catalog.v1.json",
+            "plugins/bears/tests/test_subagents_roles.py",
             "plugins/bears/agents/README.md",
-            "plugins/bears/agents/bears-plugin-constitution-governor.toml",
+            "plugins/bears/agents/bears-subagents-roles-governor.toml",
         }
         self.assertEqual(set(role["allowed_write_zones"]), expected)
         for zone in role["allowed_write_zones"]:
@@ -1471,7 +1471,7 @@ class PlatformRolesTest(unittest.TestCase):
         self.assertEqual(role["sandbox_mode"], "read-only")
         self.assertEqual(set(role["allowed_write_zones"]), {"no_write_authority"})
         self.assertTrue(
-            platform_roles.REVIEWER_REQUIRED_FORBIDDEN_ACTIONS.issubset(
+            subagents_roless.REVIEWER_REQUIRED_FORBIDDEN_ACTIONS.issubset(
                 set(role["forbidden_actions"])
             )
         )
@@ -1487,21 +1487,21 @@ class PlatformRolesTest(unittest.TestCase):
         role["forbidden_actions"] = [
             "repo-local writes unless explicitly assigned a docs-only write scope"
         ]
-        errors = platform_roles.validate_catalog(packet, plugin_root=PLUGIN_ROOT)
+        errors = subagents_roless.validate_catalog(packet, plugin_root=PLUGIN_ROOT)
         self.assertTrue(any("allowed_write_zones" in error for error in errors), errors)
         self.assertTrue(any("write-scope exceptions" in error for error in errors), errors)
 
-    def test_routes_plugin_audit_artifacts_to_platform_role_governance(self) -> None:
+    def test_routes_plugin_audit_artifacts_to_subagents_roles_governance(self) -> None:
         targets = [
             "/srv/bears/plugins/bears/docs/audits/max-plugin-audit-2026-06-07/security-trust-audit.md",
             "docs/audits/max-plugin-audit-2026-06-07/security-trust-audit.md",
         ]
         for target in targets:
             with self.subTest(target=target):
-                packet = platform_roles.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
+                packet = subagents_roless.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
                 self.assertEqual(packet["status"], "matched")
-                self.assertEqual(packet["concrete_part"], "platform_role_governance")
-                self.assertEqual(packet["primary_role"], "bears-platform-role-governor")
+                self.assertEqual(packet["concrete_part"], "subagents_roles_governance")
+                self.assertEqual(packet["primary_role"], "bears-subagents-roles-governor")
                 self.assertEqual(packet["supporting_roles"], ["bears-platform-security-reviewer"])
                 self.assertFalse(packet["decomposition_required"])
 
@@ -1514,7 +1514,7 @@ class PlatformRolesTest(unittest.TestCase):
         missing_from_readme = sorted(set(actual) - set(listed))
         for filename in missing_from_readme:
             with self.subTest(filename=filename):
-                packet = platform_roles.route_target(
+                packet = subagents_roless.route_target(
                     self.catalog,
                     str((PLUGIN_ROOT / "agents" / filename).resolve()),
                     plugin_root=PLUGIN_ROOT,
@@ -1525,13 +1525,13 @@ class PlatformRolesTest(unittest.TestCase):
         role = tomllib.loads((PLUGIN_ROOT / "agents" / "bears-secret-factory-engineer.toml").read_text(encoding="utf-8"))
         instructions = role["developer_instructions"]
         required_commands = [
-            "python3 /srv/bears/plugins/bears/scripts/platform_roles.py route /srv/bears/plugins/bears/assets/catalog/secret-factory.v1.json",
-            "python3 /srv/bears/plugins/bears/scripts/platform_roles.py audit /srv/bears/plugins/bears/assets/catalog/secret-factory.v1.json",
-            "python3 scripts/platform_roles.py validate",
-            "python3 scripts/platform_roles.py route /srv/bears/plugins/bears/assets/catalog/secret-factory.v1.json",
-            "python3 scripts/platform_roles.py audit /srv/bears/plugins/bears/assets/catalog/secret-factory.v1.json",
+            "python3 /srv/bears/plugins/bears/scripts/subagents_roles.py route /srv/bears/plugins/bears/assets/catalog/secret-factory.v1.json",
+            "python3 /srv/bears/plugins/bears/scripts/subagents_roles.py audit /srv/bears/plugins/bears/assets/catalog/secret-factory.v1.json",
+            "python3 scripts/subagents_roles.py validate",
+            "python3 scripts/subagents_roles.py route /srv/bears/plugins/bears/assets/catalog/secret-factory.v1.json",
+            "python3 scripts/subagents_roles.py audit /srv/bears/plugins/bears/assets/catalog/secret-factory.v1.json",
             "python3 scripts/secret_factory.py validate",
-            "python3 -m unittest tests/test_secret_factory.py tests/test_platform_roles.py",
+            "python3 -m unittest tests/test_secret_factory.py tests/test_subagents_roles.py",
         ]
         for command in required_commands:
             with self.subTest(command=command):
@@ -1539,14 +1539,14 @@ class PlatformRolesTest(unittest.TestCase):
 
     def test_routes_secret_factory_aliases_have_exact_validation_required_chain(self) -> None:
         target = "/srv/bears/plugins/bears/assets/catalog/secret-factory.v1.json"
-        packet = platform_roles.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
+        packet = subagents_roless.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
         self.assertEqual(packet["status"], "matched")
         expected = [
-            "python3 scripts/platform_roles.py validate",
-            "python3 scripts/platform_roles.py route /srv/bears/plugins/bears/assets/catalog/secret-factory.v1.json",
-            "python3 scripts/platform_roles.py audit /srv/bears/plugins/bears/assets/catalog/secret-factory.v1.json",
+            "python3 scripts/subagents_roles.py validate",
+            "python3 scripts/subagents_roles.py route /srv/bears/plugins/bears/assets/catalog/secret-factory.v1.json",
+            "python3 scripts/subagents_roles.py audit /srv/bears/plugins/bears/assets/catalog/secret-factory.v1.json",
             "python3 scripts/secret_factory.py validate",
-            "python3 -m unittest tests/test_secret_factory.py tests/test_platform_roles.py",
+            "python3 -m unittest tests/test_secret_factory.py tests/test_subagents_roles.py",
         ]
         self.assertEqual(packet["validation_required"], expected)
 
@@ -1562,7 +1562,7 @@ class PlatformRolesTest(unittest.TestCase):
         ]
         for target in targets:
             with self.subTest(target=target):
-                packet = platform_roles.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
+                packet = subagents_roless.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
                 self.assertEqual(packet["status"], "matched")
                 self.assertEqual(packet["concrete_part"], "secret_factory_governance")
                 self.assertEqual(packet["primary_role"], "bears-secret-factory-engineer")
@@ -1577,10 +1577,10 @@ class PlatformRolesTest(unittest.TestCase):
         ]
         for target in targets:
             with self.subTest(target=target):
-                packet = platform_roles.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
+                packet = subagents_roless.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
                 self.assertEqual(packet["status"], "matched")
                 self.assertEqual(packet["concrete_part"], "project_dirty_baseline")
-                self.assertEqual(packet["primary_role"], "bears-platform-role-governor")
+                self.assertEqual(packet["primary_role"], "bears-subagents-roles-governor")
                 self.assertEqual(packet["supporting_roles"], ["bears-platform-security-reviewer"])
                 self.assertFalse(packet["decomposition_required"])
 
@@ -1595,7 +1595,7 @@ class PlatformRolesTest(unittest.TestCase):
         ]
         for target in targets:
             with self.subTest(target=target):
-                packet = platform_roles.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
+                packet = subagents_roless.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
                 self.assertEqual(packet["status"], "matched")
                 self.assertEqual(packet["concrete_part"], "agent_github_dev_cd_flow")
                 self.assertEqual(packet["primary_role"], "bears-deploy-platform-engineer")
@@ -1620,7 +1620,7 @@ class PlatformRolesTest(unittest.TestCase):
         ]
         for target in targets:
             with self.subTest(target=target):
-                packet = platform_roles.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
+                packet = subagents_roless.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
                 self.assertEqual(packet["status"], "matched")
                 self.assertEqual(packet["concrete_part"], "subagent_orchestration_policy")
                 self.assertEqual(packet["primary_role"], "bears-subagent-orchestration-engineer")
@@ -1629,7 +1629,7 @@ class PlatformRolesTest(unittest.TestCase):
 
     def test_routes_subagent_start_packet_contract_to_exact_specialist(self) -> None:
         target = "/srv/bears/dev/contracts/subagent_start_packet.md"
-        packet = platform_roles.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
+        packet = subagents_roless.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
         self.assertEqual(packet["status"], "matched")
         self.assertEqual(packet["concrete_part"], "subagent_start_packet_contract")
         self.assertEqual(packet["primary_role"], "bears-subagent-orchestration-engineer")
@@ -1638,7 +1638,7 @@ class PlatformRolesTest(unittest.TestCase):
         self.assertIn("no broad /srv/bears/dev/contracts authority", packet["allowed_write_boundary"])
         self.assertFalse(packet["decomposition_required"])
 
-        audit_packet = platform_roles.audit_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
+        audit_packet = subagents_roless.audit_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
         self.assertEqual(audit_packet["status"], "matched")
         self.assertTrue(audit_packet["implementation_handoff_allowed"])
 
@@ -1649,27 +1649,27 @@ class PlatformRolesTest(unittest.TestCase):
             "/srv/bears/dev/contracts/subagent_start_packet.md",
         ):
             with self.subTest(target=target):
-                packet = platform_roles.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
+                packet = subagents_roless.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
                 self.assertEqual(packet["status"], "matched")
 
     def test_default_evidence_paths_do_not_require_missing_dev_router(self) -> None:
-        self.assertNotIn("/srv/bears/dev/AGENTS.md", platform_roles.DEFAULT_EVIDENCE_PATHS)
+        self.assertNotIn("/srv/bears/dev/AGENTS.md", subagents_roless.DEFAULT_EVIDENCE_PATHS)
 
     def test_blocker_evidence_checked_filters_missing_paths(self) -> None:
         existing = str(PLUGIN_ROOT / "AGENTS.md")
         missing = "/srv/bears/dev/contracts/missing-evidence-path.md"
-        original = list(platform_roles.DEFAULT_EVIDENCE_PATHS)
+        original = list(subagents_roless.DEFAULT_EVIDENCE_PATHS)
         try:
-            platform_roles.DEFAULT_EVIDENCE_PATHS = [existing, missing]
-            packet = platform_roles.route_target(self.catalog, "plugins/bears", plugin_root=PLUGIN_ROOT)
+            subagents_roless.DEFAULT_EVIDENCE_PATHS = [existing, missing]
+            packet = subagents_roless.route_target(self.catalog, "plugins/bears", plugin_root=PLUGIN_ROOT)
         finally:
-            platform_roles.DEFAULT_EVIDENCE_PATHS = original
+            subagents_roless.DEFAULT_EVIDENCE_PATHS = original
         self.assertEqual(packet["status"], "ROLE_COVERAGE_BLOCKER")
         self.assertIn(existing, packet["evidence_checked"])
         self.assertNotIn(missing, packet["evidence_checked"])
 
     def test_broad_dev_contracts_route_stays_blocked(self) -> None:
-        packet = platform_roles.route_target(self.catalog, "/srv/bears/dev/contracts", plugin_root=PLUGIN_ROOT)
+        packet = subagents_roless.route_target(self.catalog, "/srv/bears/dev/contracts", plugin_root=PLUGIN_ROOT)
         self.assertEqual(packet["status"], "ROLE_COVERAGE_BLOCKER")
         self.assertIn(packet["why_blocked"], {"parent_only", "unmapped"})
         self.assertTrue(packet["decomposition_required"])
@@ -1685,10 +1685,10 @@ class PlatformRolesTest(unittest.TestCase):
         }
         for target, expected_part in cases.items():
             with self.subTest(target=target):
-                packet = platform_roles.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
+                packet = subagents_roless.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
                 self.assertEqual(packet["status"], "matched")
                 self.assertEqual(packet["concrete_part"], expected_part)
-                self.assertEqual(packet["primary_role"], "bears-platform-role-governor")
+                self.assertEqual(packet["primary_role"], "bears-subagents-roles-governor")
                 self.assertIn("bears-platform-security-reviewer", packet["supporting_roles"])
                 self.assertFalse(packet["decomposition_required"])
 
@@ -1702,10 +1702,10 @@ class PlatformRolesTest(unittest.TestCase):
         }
         for target, expected_part in cases.items():
             with self.subTest(target=target):
-                packet = platform_roles.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
+                packet = subagents_roless.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
                 self.assertEqual(packet["status"], "matched")
                 self.assertEqual(packet["concrete_part"], expected_part)
-                self.assertEqual(packet["primary_role"], "bears-platform-role-governor")
+                self.assertEqual(packet["primary_role"], "bears-subagents-roles-governor")
                 self.assertEqual(packet["supporting_roles"], ["bears-platform-security-reviewer"])
                 self.assertFalse(packet["decomposition_required"])
 
@@ -1715,16 +1715,16 @@ class PlatformRolesTest(unittest.TestCase):
             "/srv/bears/control-plane/workspace-control/tests/test_agent_reviewer_roles.py",
         )
         for target in cases:
-            for router in (platform_roles.route_target, platform_roles.audit_target):
+            for router in (subagents_roless.route_target, subagents_roless.audit_target):
                 with self.subTest(target=target, router=router.__name__):
                     packet = router(self.catalog, target, plugin_root=PLUGIN_ROOT)
                     self.assertEqual(packet["status"], "matched")
                     self.assertEqual(packet["concrete_part"], "workspace_control_agent_reviewer_role_tests")
-                    self.assertEqual(packet["primary_role"], "bears-platform-role-governor")
+                    self.assertEqual(packet["primary_role"], "bears-subagents-roles-governor")
                     self.assertEqual(packet["supporting_roles"], ["bears-platform-security-reviewer"])
                     self.assertFalse(packet["decomposition_required"])
 
-    def test_routes_t110_feature_006_spec_and_governance_to_telegram_platform_role(self) -> None:
+    def test_routes_t110_feature_006_spec_and_governance_to_telegram_subagents_roles(self) -> None:
         cases = (
             "/srv/bears/specs/006-bears-platform-telegram/spec.md",
             "/srv/bears/specs/006-bears-platform-telegram/plan.md",
@@ -1732,7 +1732,7 @@ class PlatformRolesTest(unittest.TestCase):
             "/srv/bears/specs/006-bears-platform-telegram/governance/t110-hygiene.md",
         )
         for target in cases:
-            for router in (platform_roles.route_target, platform_roles.audit_target):
+            for router in (subagents_roless.route_target, subagents_roless.audit_target):
                 with self.subTest(target=target, router=router.__name__):
                     packet = router(self.catalog, target, plugin_root=PLUGIN_ROOT)
                     self.assertEqual(packet["status"], "matched")
@@ -1756,7 +1756,7 @@ class PlatformRolesTest(unittest.TestCase):
         }
         for target, expected_part in cases.items():
             with self.subTest(target=target):
-                packet = platform_roles.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
+                packet = subagents_roless.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
                 self.assertEqual(packet["status"], "matched")
                 self.assertEqual(packet["concrete_part"], expected_part)
                 self.assertEqual(packet["primary_role"], "bears-infrastructure-network-engineer")
@@ -1766,12 +1766,12 @@ class PlatformRolesTest(unittest.TestCase):
     def test_yandex360_dns_route_audit_output_is_apply_disabled(self) -> None:
         target = "/srv/bears/plugins/bears/skills/yandex360-dns"
         cases = (
-            ("route", platform_roles.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)),
-            ("audit", platform_roles.audit_target(self.catalog, target, plugin_root=PLUGIN_ROOT)),
+            ("route", subagents_roless.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)),
+            ("audit", subagents_roless.audit_target(self.catalog, target, plugin_root=PLUGIN_ROOT)),
         )
         for command, packet in cases:
             with self.subTest(command=command):
-                rendered = platform_roles.render_packet(packet)
+                rendered = subagents_roless.render_packet(packet)
                 self.assertNotIn("DNS writes require", rendered)
                 self.assertNotIn("before writes", rendered)
                 self.assertIn("dry-run/presence-only", rendered)
@@ -1782,7 +1782,7 @@ class PlatformRolesTest(unittest.TestCase):
     def test_dev_network_path_stays_unmapped(self) -> None:
         for target in ["/srv/bears/dev/network", "/srv/bears/dev/network/anything"]:
             with self.subTest(target=target):
-                packet = platform_roles.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
+                packet = subagents_roless.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
                 self.assertEqual(packet["status"], "ROLE_COVERAGE_BLOCKER")
                 self.assertEqual(packet["why_blocked"], "unmapped")
                 self.assertNotIn("primary_role", packet)
@@ -1794,12 +1794,12 @@ class PlatformRolesTest(unittest.TestCase):
         ]
         for target in targets:
             with self.subTest(target=target):
-                route_packet = platform_roles.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
+                route_packet = subagents_roless.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
                 self.assertEqual(route_packet["status"], "ROLE_COVERAGE_BLOCKER")
                 self.assertEqual(route_packet["why_blocked"], "unmapped")
                 self.assertNotIn("primary_role", route_packet)
 
-                audit_packet = platform_roles.audit_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
+                audit_packet = subagents_roless.audit_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
                 self.assertEqual(audit_packet["status"], "ROLE_COVERAGE_BLOCKER")
                 self.assertEqual(audit_packet["why_blocked"], "unmapped")
 
@@ -1813,7 +1813,7 @@ class PlatformRolesTest(unittest.TestCase):
 
         for target in [*config_targets, *lock_targets]:
             with self.subTest(target=target):
-                route_packet = platform_roles.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
+                route_packet = subagents_roless.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
                 self.assertEqual(route_packet["status"], "matched")
                 self.assertEqual(route_packet["concrete_part"], "deprecated_local_git_remote_hygiene")
                 self.assertEqual(route_packet["primary_role"], "bears-deprecated-git-remote-hygiene-engineer")
@@ -1821,31 +1821,31 @@ class PlatformRolesTest(unittest.TestCase):
                 self.assertIn(".git/config.lock", route_packet["allowed_write_boundary"])
                 self.assertIn("FLAGGED_ENDPOINTS 0", "\n".join(route_packet["validation_required"]))
 
-                audit_packet = platform_roles.audit_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
+                audit_packet = subagents_roless.audit_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
                 self.assertEqual(audit_packet["status"], "matched")
                 self.assertEqual(audit_packet["concrete_part"], "deprecated_local_git_remote_hygiene")
                 self.assertTrue(audit_packet["implementation_handoff_allowed"])
 
         for target in ["/srv/bears/deprecated", "/srv/bears/deprecated/legacy-2026-05-11"]:
             with self.subTest(target=target):
-                route_packet = platform_roles.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
+                route_packet = subagents_roless.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
                 self.assertEqual(route_packet["status"], "ROLE_COVERAGE_BLOCKER")
                 self.assertEqual(route_packet["why_blocked"], "unmapped")
-                audit_packet = platform_roles.audit_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
+                audit_packet = subagents_roless.audit_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
                 self.assertEqual(audit_packet["status"], "ROLE_COVERAGE_BLOCKER")
                 self.assertFalse(audit_packet["implementation_handoff_allowed"])
 
     def test_routes_infrastructure_role_metadata_to_governor(self) -> None:
         target = "/srv/bears/plugins/bears/agents/bears-infrastructure-network-engineer.toml"
-        packet = platform_roles.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
+        packet = subagents_roless.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
         self.assertEqual(packet["status"], "matched")
         self.assertEqual(packet["concrete_part"], "infrastructure_network_role_metadata")
-        self.assertEqual(packet["primary_role"], "bears-platform-role-governor")
+        self.assertEqual(packet["primary_role"], "bears-subagents-roles-governor")
         self.assertEqual(packet["supporting_roles"], ["bears-platform-security-reviewer"])
         self.assertFalse(packet["decomposition_required"])
 
     def test_legacy_infra_mcp_alias_is_blocked(self) -> None:
-        packet = platform_roles.route_target(self.catalog, "infra MCP", plugin_root=PLUGIN_ROOT)
+        packet = subagents_roless.route_target(self.catalog, "infra MCP", plugin_root=PLUGIN_ROOT)
         self.assertEqual(packet["status"], "ROLE_COVERAGE_BLOCKER")
         self.assertEqual(packet["why_blocked"], "unknown")
         self.assertTrue(packet["decomposition_required"])
@@ -1864,28 +1864,28 @@ class PlatformRolesTest(unittest.TestCase):
                 self.assertEqual(role["model"], expected_model)
 
     def test_audit_allows_handoff_only_after_validation(self) -> None:
-        packet = platform_roles.audit_target(
+        packet = subagents_roless.audit_target(
             self.catalog,
-            "/srv/bears/plugins/bears/assets/catalog/platform-role-catalog.v1.json",
+            "/srv/bears/plugins/bears/assets/catalog/subagents-roles-catalog.v1.json",
             plugin_root=PLUGIN_ROOT,
         )
         self.assertEqual(packet["status"], "matched")
         self.assertTrue(packet["implementation_handoff_allowed"])
-        self.assertEqual(packet["independent_control_audit"]["auditor_role"], "bears-platform-role-governor")
+        self.assertEqual(packet["independent_control_audit"]["auditor_role"], "bears-subagents-roles-governor")
 
     def test_validation_failure_blocks_implementation_handoff(self) -> None:
         catalog = copy.deepcopy(self.catalog)
         catalog["roles"][0].pop("role_kind")
-        route_packet = platform_roles.route_target(
+        route_packet = subagents_roless.route_target(
             catalog,
-            "/srv/bears/plugins/bears/assets/catalog/platform-role-catalog.v1.json",
+            "/srv/bears/plugins/bears/assets/catalog/subagents-roles-catalog.v1.json",
             plugin_root=PLUGIN_ROOT,
         )
         self.assertEqual(route_packet["status"], "matched")
 
-        audit_packet = platform_roles.audit_target(
+        audit_packet = subagents_roless.audit_target(
             catalog,
-            "/srv/bears/plugins/bears/assets/catalog/platform-role-catalog.v1.json",
+            "/srv/bears/plugins/bears/assets/catalog/subagents-roles-catalog.v1.json",
             plugin_root=PLUGIN_ROOT,
         )
         self.assertEqual(audit_packet["status"], "ROLE_COVERAGE_BLOCKER")
@@ -1895,7 +1895,7 @@ class PlatformRolesTest(unittest.TestCase):
     def test_validation_rejects_role_required_for_parity_drift(self) -> None:
         catalog = copy.deepcopy(self.catalog)
         catalog["mandatory_policy"]["role_required_for"].remove("telegram_runtime_readiness_catalog")
-        errors = platform_roles.validate_catalog(catalog, plugin_root=PLUGIN_ROOT)
+        errors = subagents_roless.validate_catalog(catalog, plugin_root=PLUGIN_ROOT)
         self.assertTrue(
             any("mandatory_policy.role_required_for parity mismatch" in error for error in errors)
         )
@@ -1912,7 +1912,7 @@ class PlatformRolesTest(unittest.TestCase):
                     "/srv/bears/legacy/seller/apps/cd_deploy_stage"
                 )
                 break
-        errors = platform_roles.validate_catalog(catalog, plugin_root=PLUGIN_ROOT)
+        errors = subagents_roless.validate_catalog(catalog, plugin_root=PLUGIN_ROOT)
         self.assertTrue(any("no-seller-bound-core" in error for error in errors))
 
     def test_validation_rejects_unrouteable_role_agent_file(self) -> None:
@@ -1930,7 +1930,7 @@ class PlatformRolesTest(unittest.TestCase):
                     if "bears-auth-platform-engineer.toml" not in root
                 ]
                 break
-        errors = platform_roles.validate_catalog(catalog, plugin_root=PLUGIN_ROOT)
+        errors = subagents_roless.validate_catalog(catalog, plugin_root=PLUGIN_ROOT)
         self.assertTrue(
             any(
                 "role agent_file must route to a matched concrete part: "
@@ -1946,7 +1946,7 @@ class PlatformRolesTest(unittest.TestCase):
             target = plugin_root / "agents" / "bears-git-workflow-helper.toml"
             text = target.read_text(encoding="utf-8").replace('execution_class = "helper"\n', "")
             target.write_text(text, encoding="utf-8")
-            errors = platform_roles.validate_catalog(copy.deepcopy(self.catalog), plugin_root=plugin_root)
+            errors = subagents_roless.validate_catalog(copy.deepcopy(self.catalog), plugin_root=plugin_root)
         self.assertTrue(
             any(
                 "agents/bears-git-workflow-helper.toml: missing role classification fields" in error
@@ -1960,7 +1960,7 @@ class PlatformRolesTest(unittest.TestCase):
             if role["name"] == "bears-git-workflow-helper":
                 role["execution_class"] = "specialist"
                 break
-        errors = platform_roles.validate_catalog(catalog, plugin_root=PLUGIN_ROOT)
+        errors = subagents_roless.validate_catalog(catalog, plugin_root=PLUGIN_ROOT)
         self.assertTrue(
             any(
                 "agents/bears-git-workflow-helper.toml: execution_class 'helper' must match expected 'specialist'"
@@ -1973,13 +1973,13 @@ class PlatformRolesTest(unittest.TestCase):
         catalog = copy.deepcopy(self.catalog)
         target_file = catalog["agent_profile_mappings"][0]["agent_file"]
         catalog["agent_profile_mappings"][0]["execution_class"] = "specialist"
-        errors = platform_roles.validate_catalog(catalog, plugin_root=PLUGIN_ROOT)
+        errors = subagents_roless.validate_catalog(catalog, plugin_root=PLUGIN_ROOT)
         self.assertTrue(
             any(f"{target_file}: execution_class 'helper' must match expected 'specialist'" in error for error in errors)
         )
 
     def test_relative_plugin_root_routes_to_parent_only_governance_router(self) -> None:
-        packet = platform_roles.route_target(self.catalog, "plugins/bears", plugin_root=PLUGIN_ROOT)
+        packet = subagents_roless.route_target(self.catalog, "plugins/bears", plugin_root=PLUGIN_ROOT)
         self.assertEqual(packet["status"], "ROLE_COVERAGE_BLOCKER")
         self.assertEqual(packet["why_blocked"], "parent_only")
         self.assertEqual(packet["matched_platform_part"], "bears_plugin")
@@ -1989,13 +1989,13 @@ class PlatformRolesTest(unittest.TestCase):
 
     def test_plugin_root_submodule_gitlink_routes_to_exact_governor(self) -> None:
         target = "/srv/bears/plugins/bears"
-        packet = platform_roles.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
+        packet = subagents_roless.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
         self.assertEqual(packet["status"], "matched")
         self.assertEqual(packet["concrete_part"], "workspace_root_submodule_gitlinks")
-        self.assertEqual(packet["primary_role"], "bears-platform-role-governor")
+        self.assertEqual(packet["primary_role"], "bears-subagents-roles-governor")
         self.assertIn("parent /srv/bears Git gitlink pointer entry", packet["allowed_write_boundary"])
         self.assertIn("no child working-tree files", packet["allowed_write_boundary"])
-        audit_packet = platform_roles.audit_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
+        audit_packet = subagents_roless.audit_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
         self.assertEqual(audit_packet["status"], "matched")
         self.assertTrue(audit_packet["implementation_handoff_allowed"])
 
@@ -2005,13 +2005,13 @@ class PlatformRolesTest(unittest.TestCase):
             "/srv/bears/kubernetes/scripts/validate_serverspace_wrapper_dry_run.py",
         ):
             with self.subTest(target=target):
-                packet = platform_roles.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
+                packet = subagents_roless.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
                 self.assertEqual(packet["status"], "matched")
                 self.assertEqual(packet["concrete_part"], "kubernetes_deploy_core")
                 self.assertEqual(packet["primary_role"], "bears-deploy-platform-engineer")
                 self.assertIn("/srv/bears/kubernetes", packet["allowed_write_boundary"])
                 self.assertNotIn("gitlink pointer", packet["allowed_write_boundary"])
-                audit_packet = platform_roles.audit_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
+                audit_packet = subagents_roless.audit_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
                 self.assertEqual(audit_packet["status"], "matched")
                 self.assertTrue(audit_packet["implementation_handoff_allowed"])
 
@@ -2024,7 +2024,7 @@ class PlatformRolesTest(unittest.TestCase):
         ]
         for target in targets:
             with self.subTest(target=target):
-                packet = platform_roles.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
+                packet = subagents_roless.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
                 self.assertEqual(packet["status"], "ROLE_COVERAGE_BLOCKER")
                 self.assertEqual(packet["why_blocked"], "parent_only")
                 self.assertTrue(packet["decomposition_required"])
@@ -2038,7 +2038,7 @@ class PlatformRolesTest(unittest.TestCase):
         ]
         for target in targets:
             with self.subTest(target=target):
-                packet = platform_roles.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
+                packet = subagents_roless.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
                 self.assertEqual(packet["status"], "ROLE_COVERAGE_BLOCKER")
                 self.assertEqual(packet["why_blocked"], "parent_only")
                 self.assertTrue(packet["decomposition_required"])
@@ -2049,12 +2049,12 @@ class PlatformRolesTest(unittest.TestCase):
             "https://github.com/BearsCLOUD/not-bears-plugin",
         ):
             with self.subTest(target=target):
-                packet = platform_roles.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
+                packet = subagents_roless.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
                 self.assertEqual(packet["status"], "ROLE_COVERAGE_BLOCKER")
                 self.assertEqual(packet["why_blocked"], "unmapped")
 
     def test_deploy_core_routes_to_exact_deploy_specialist(self) -> None:
-        packet = platform_roles.route_target(
+        packet = subagents_roless.route_target(
             self.catalog,
             "/srv/bears/plugins/bears/workflows/auth-gateway-deploy-core/workflow.yml",
             plugin_root=PLUGIN_ROOT,
@@ -2078,7 +2078,7 @@ class PlatformRolesTest(unittest.TestCase):
         ]
         for target in targets:
             with self.subTest(target=target):
-                packet = platform_roles.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
+                packet = subagents_roless.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
                 self.assertEqual(packet["status"], "matched")
                 self.assertEqual(packet["concrete_part"], "auth_gateway_deploy_core")
                 self.assertEqual(packet["primary_role"], "bears-deploy-platform-engineer")
@@ -2095,7 +2095,7 @@ class PlatformRolesTest(unittest.TestCase):
         ]
         for target in targets:
             with self.subTest(target=target):
-                packet = platform_roles.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
+                packet = subagents_roless.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
                 self.assertEqual(packet["status"], "matched")
                 self.assertEqual(packet["concrete_part"], "bears_plugin_update_governance")
                 self.assertEqual(
@@ -2122,7 +2122,7 @@ class PlatformRolesTest(unittest.TestCase):
         ]
         for target in targets:
             with self.subTest(target=target):
-                packet = platform_roles.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
+                packet = subagents_roless.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
                 self.assertEqual(packet["status"], "matched")
                 self.assertEqual(packet["concrete_part"], "workflow_overlay_core_plugin_surface")
                 self.assertEqual(packet["primary_role"], "bears-workflow-overlay-platform-engineer")
@@ -2141,7 +2141,7 @@ class PlatformRolesTest(unittest.TestCase):
         ]
         for target in targets:
             with self.subTest(target=target):
-                packet = platform_roles.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
+                packet = subagents_roless.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
                 self.assertEqual(packet["status"], "matched")
                 self.assertEqual(packet["concrete_part"], "codex_health_diagnostics")
                 self.assertEqual(packet["primary_role"], "bears-codex-health-engineer")
@@ -2159,14 +2159,14 @@ class PlatformRolesTest(unittest.TestCase):
         ]
         for target in targets:
             with self.subTest(target=target):
-                packet = platform_roles.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
+                packet = subagents_roless.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
                 self.assertEqual(packet["status"], "matched")
                 self.assertEqual(packet["concrete_part"], "workflow_overlay_python_dev_tooling")
                 self.assertEqual(packet["primary_role"], "bears-workflow-overlay-platform-engineer")
                 self.assertIn("bears-platform-security-reviewer", packet["supporting_roles"])
                 self.assertFalse(packet["decomposition_required"])
 
-                audit_packet = platform_roles.audit_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
+                audit_packet = subagents_roless.audit_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
                 self.assertEqual(audit_packet["status"], "matched")
                 self.assertTrue(audit_packet["implementation_handoff_allowed"])
 
@@ -2179,7 +2179,7 @@ class PlatformRolesTest(unittest.TestCase):
         ]
         for target in targets:
             with self.subTest(target=target):
-                packet = platform_roles.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
+                packet = subagents_roless.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
                 self.assertEqual(packet["status"], "matched")
                 self.assertEqual(packet["concrete_part"], "bears_platform_python_package_metadata")
                 self.assertEqual(packet["primary_role"], "bears-deploy-platform-engineer")
@@ -2187,7 +2187,7 @@ class PlatformRolesTest(unittest.TestCase):
                 self.assertIn("no source code", packet["allowed_write_boundary"])
                 self.assertFalse(packet["decomposition_required"])
 
-                audit_packet = platform_roles.audit_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
+                audit_packet = subagents_roless.audit_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
                 self.assertEqual(audit_packet["status"], "matched")
                 self.assertTrue(audit_packet["implementation_handoff_allowed"])
 
@@ -2198,13 +2198,13 @@ class PlatformRolesTest(unittest.TestCase):
         ]
         for target in targets:
             with self.subTest(target=target):
-                packet = platform_roles.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
+                packet = subagents_roless.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
                 self.assertEqual(packet["status"], "matched")
                 self.assertEqual(packet["concrete_part"], "bears_platform_worktrees_archive")
-                self.assertEqual(packet["primary_role"], "bears-platform-role-governor")
+                self.assertEqual(packet["primary_role"], "bears-subagents-roles-governor")
                 self.assertIn("preserved checkout storage", packet["allowed_write_boundary"])
 
-                audit_packet = platform_roles.audit_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
+                audit_packet = subagents_roless.audit_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
                 self.assertEqual(audit_packet["status"], "matched")
                 self.assertTrue(audit_packet["implementation_handoff_allowed"])
 
@@ -2218,7 +2218,7 @@ class PlatformRolesTest(unittest.TestCase):
             "/srv/bears/.worktrees/bears-platform-gateway-authoring-20260615/tests/test_provider_gateway_runtime.py",
         ]
         for target in targets:
-            for router in (platform_roles.route_target, platform_roles.audit_target):
+            for router in (subagents_roless.route_target, subagents_roless.audit_target):
                 with self.subTest(target=target, router=router.__name__):
                     packet = router(self.catalog, target, plugin_root=PLUGIN_ROOT)
                     self.assertEqual(packet["status"], "ROLE_COVERAGE_BLOCKER")
@@ -2247,7 +2247,7 @@ class PlatformRolesTest(unittest.TestCase):
             ),
         }
         for target, expected_part in service_targets.items():
-            for router in (platform_roles.route_target, platform_roles.audit_target):
+            for router in (subagents_roless.route_target, subagents_roless.audit_target):
                 with self.subTest(target=target, router=router.__name__):
                     packet = router(self.catalog, target, plugin_root=PLUGIN_ROOT)
                     self.assertEqual(packet["status"], "matched")
@@ -2255,17 +2255,17 @@ class PlatformRolesTest(unittest.TestCase):
                     self.assertEqual(packet["primary_role"], "bears-kubernetes-data-platform-engineer")
                     self.assertEqual(packet["supporting_roles"], ["bears-platform-security-reviewer"])
                     self.assertFalse(packet["decomposition_required"])
-                    if router is platform_roles.audit_target:
+                    if router is subagents_roless.audit_target:
                         self.assertTrue(packet["implementation_handoff_allowed"])
 
         package_root = "/srv/bears/kubernetes/manifests/bears-platform-stateful-backend-dev"
-        for router in (platform_roles.route_target, platform_roles.audit_target):
+        for router in (subagents_roless.route_target, subagents_roless.audit_target):
             with self.subTest(target=package_root, router=router.__name__):
                 packet = router(self.catalog, package_root, plugin_root=PLUGIN_ROOT)
                 self.assertEqual(packet["status"], "matched")
                 self.assertEqual(packet["concrete_part"], "kubernetes_deploy_core")
                 self.assertEqual(packet["primary_role"], "bears-deploy-platform-engineer")
-                if router is platform_roles.audit_target:
+                if router is subagents_roless.audit_target:
                     self.assertTrue(packet["implementation_handoff_allowed"])
 
         parent_targets = [
@@ -2273,7 +2273,7 @@ class PlatformRolesTest(unittest.TestCase):
             "/srv/bears/kubernetes/manifests/bears-platform-stateful-backend-dev/base/unknown.yaml",
         ]
         for target in parent_targets:
-            for router in (platform_roles.route_target, platform_roles.audit_target):
+            for router in (subagents_roless.route_target, subagents_roless.audit_target):
                 with self.subTest(target=target, router=router.__name__):
                     packet = router(self.catalog, target, plugin_root=PLUGIN_ROOT)
                     self.assertEqual(packet["status"], "ROLE_COVERAGE_BLOCKER")
@@ -2285,21 +2285,21 @@ class PlatformRolesTest(unittest.TestCase):
                     self.assertFalse(packet.get("implementation_handoff_allowed", False))
                     self.assertNotIn("primary_role", packet)
 
-    def test_routes_git_discipline_to_platform_role_governor(self) -> None:
+    def test_routes_git_discipline_to_subagents_roles_governor(self) -> None:
         targets = [
             "/srv/bears/plugins/bears/scripts/git_discipline.py",
             "scripts/git_discipline.py",
         ]
         for target in targets:
             with self.subTest(target=target):
-                packet = platform_roles.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
+                packet = subagents_roless.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
                 self.assertEqual(packet["status"], "matched")
                 self.assertEqual(packet["concrete_part"], "git_discipline")
-                self.assertEqual(packet["primary_role"], "bears-platform-role-governor")
+                self.assertEqual(packet["primary_role"], "bears-subagents-roles-governor")
                 self.assertIn("bears-platform-security-reviewer", packet["supporting_roles"])
                 self.assertFalse(packet["decomposition_required"])
 
-                audit_packet = platform_roles.audit_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
+                audit_packet = subagents_roless.audit_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
                 self.assertEqual(audit_packet["status"], "matched")
                 self.assertTrue(audit_packet["implementation_handoff_allowed"])
 
@@ -2311,14 +2311,14 @@ class PlatformRolesTest(unittest.TestCase):
         ]
         for target in targets:
             with self.subTest(target=target):
-                packet = platform_roles.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
+                packet = subagents_roless.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
                 self.assertEqual(packet["status"], "matched")
                 self.assertEqual(packet["concrete_part"], "agent_workflow_map")
                 self.assertEqual(packet["primary_role"], "bears-development-workflow-orchestrator")
                 self.assertIn("bears-platform-security-reviewer", packet["supporting_roles"])
                 self.assertFalse(packet["decomposition_required"])
 
-                audit_packet = platform_roles.audit_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
+                audit_packet = subagents_roless.audit_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
                 self.assertEqual(audit_packet["status"], "matched")
                 self.assertTrue(audit_packet["implementation_handoff_allowed"])
 
@@ -2329,7 +2329,7 @@ class PlatformRolesTest(unittest.TestCase):
         ]
         for target in targets:
             with self.subTest(target=target):
-                packet = platform_roles.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
+                packet = subagents_roless.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
                 self.assertEqual(packet["status"], "matched")
                 self.assertEqual(packet["concrete_part"], "workflow_overlay_validation_ci_workflow")
                 self.assertEqual(packet["primary_role"], "bears-deploy-platform-engineer")
@@ -2345,7 +2345,7 @@ class PlatformRolesTest(unittest.TestCase):
                 )
                 self.assertFalse(packet["decomposition_required"])
 
-                audit_packet = platform_roles.audit_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
+                audit_packet = subagents_roless.audit_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
                 self.assertEqual(audit_packet["status"], "matched")
                 self.assertTrue(audit_packet["implementation_handoff_allowed"])
 
@@ -2356,7 +2356,7 @@ class PlatformRolesTest(unittest.TestCase):
             "https://api.github.com/repos/BearsCLOUD/bears_plugin/actions/permissions/access",
         ]
         for target in targets:
-            for router in (platform_roles.route_target, platform_roles.audit_target):
+            for router in (subagents_roless.route_target, subagents_roless.audit_target):
                 with self.subTest(target=target, router=router.__name__):
                     packet = router(self.catalog, target, plugin_root=PLUGIN_ROOT)
                     self.assertEqual(packet["status"], "matched")
@@ -2378,7 +2378,7 @@ class PlatformRolesTest(unittest.TestCase):
                     self.assertNotIn("org-access", packet["allowed_write_boundary"])
                     self.assertTrue(any("rollback access_level=none" in trigger for trigger in packet["reviewer_triggers"]))
                     self.assertFalse(packet["decomposition_required"])
-                    if router is platform_roles.audit_target:
+                    if router is subagents_roless.audit_target:
                         self.assertTrue(packet["implementation_handoff_allowed"])
 
     def test_nearby_github_settings_endpoints_remain_blocked(self) -> None:
@@ -2391,17 +2391,17 @@ class PlatformRolesTest(unittest.TestCase):
             "/repos/BearsCLOUD/bears_plugin/settings",
         ]
         for target in targets:
-            for router in (platform_roles.route_target, platform_roles.audit_target):
+            for router in (subagents_roless.route_target, subagents_roless.audit_target):
                 with self.subTest(target=target, router=router.__name__):
                     packet = router(self.catalog, target, plugin_root=PLUGIN_ROOT)
                     self.assertEqual(packet["status"], "ROLE_COVERAGE_BLOCKER")
                     self.assertEqual(packet["why_blocked"], "unmapped")
                     self.assertNotIn("primary_role", packet)
-                    if router is platform_roles.audit_target:
+                    if router is subagents_roless.audit_target:
                         self.assertFalse(packet["implementation_handoff_allowed"])
 
     def test_plugin_root_audit_blocks_broad_root_handoff(self) -> None:
-        audit_packet = platform_roles.audit_target(self.catalog, "plugins/bears", plugin_root=PLUGIN_ROOT)
+        audit_packet = subagents_roless.audit_target(self.catalog, "plugins/bears", plugin_root=PLUGIN_ROOT)
         self.assertEqual(audit_packet["status"], "ROLE_COVERAGE_BLOCKER")
         self.assertEqual(audit_packet["why_blocked"], "parent_only")
         self.assertEqual(audit_packet["matched_platform_part"], "bears_plugin")
@@ -2413,11 +2413,11 @@ class PlatformRolesTest(unittest.TestCase):
         )
 
     def test_plugin_root_children_still_require_narrower_exact_parts(self) -> None:
-        packet = platform_roles.route_target(self.catalog, "plugins/bears", plugin_root=PLUGIN_ROOT)
+        packet = subagents_roless.route_target(self.catalog, "plugins/bears", plugin_root=PLUGIN_ROOT)
         self.assertEqual(packet["status"], "ROLE_COVERAGE_BLOCKER")
         self.assertEqual(packet["why_blocked"], "parent_only")
         self.assertEqual(packet["matched_platform_part"], "bears_plugin")
-        child_packet = platform_roles.route_target(
+        child_packet = subagents_roless.route_target(
             self.catalog,
             "/srv/bears/plugins/bears/workflows/unmapped-child/workflow.yml",
             plugin_root=PLUGIN_ROOT,
@@ -2427,7 +2427,7 @@ class PlatformRolesTest(unittest.TestCase):
         self.assertTrue(child_packet["decomposition_required"])
 
     def test_broad_plugin_root_cannot_substitute_for_exact_child_surfaces(self) -> None:
-        root_packet = platform_roles.audit_target(self.catalog, "plugins/bears", plugin_root=PLUGIN_ROOT)
+        root_packet = subagents_roless.audit_target(self.catalog, "plugins/bears", plugin_root=PLUGIN_ROOT)
         self.assertEqual(root_packet["status"], "ROLE_COVERAGE_BLOCKER")
         self.assertFalse(root_packet["implementation_handoff_allowed"])
 
@@ -2442,19 +2442,19 @@ class PlatformRolesTest(unittest.TestCase):
             ),
             "/srv/bears/plugins/bears/scripts/git_discipline.py": (
                 "git_discipline",
-                "bears-platform-role-governor",
+                "bears-subagents-roles-governor",
             ),
             "/srv/bears/plugins/bears/scripts/roadmap_control.py": (
                 "roadmap_control",
                 "bears-workflow-overlay-platform-engineer",
             ),
             "/srv/bears/plugins/bears/assets/catalog/plugin-governance-language-policy.v1.json": (
-                "platform_role_governance",
-                "bears-platform-role-governor",
+                "subagents_roles_governance",
+                "bears-subagents-roles-governor",
             ),
-            "/srv/bears/plugins/bears/assets/catalog/plugin-constitution.v1.json": (
-                "plugin_constitution_governance",
-                "bears-plugin-constitution-governor",
+            "/srv/bears/plugins/bears/assets/catalog/subagents-roles.v1.json": (
+                "subagents_roles_governance",
+                "bears-subagents-roles-governor",
             ),
             "/srv/bears/plugins/bears/assets/catalog/telegram-runtime-readiness.v1.json": (
                 "telegram_runtime_readiness_catalog",
@@ -2467,7 +2467,7 @@ class PlatformRolesTest(unittest.TestCase):
         }
         for target, (expected_part, expected_role) in cases.items():
             with self.subTest(target=target):
-                packet = platform_roles.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
+                packet = subagents_roless.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
                 self.assertEqual(packet["status"], "matched")
                 self.assertEqual(packet["concrete_part"], expected_part)
                 self.assertEqual(packet["primary_role"], expected_role)
@@ -2486,7 +2486,7 @@ class PlatformRolesTest(unittest.TestCase):
             "gateway-required-checks / diff-check",
         ]
         for target in targets:
-            for router in (platform_roles.route_target, platform_roles.audit_target):
+            for router in (subagents_roless.route_target, subagents_roless.audit_target):
                 with self.subTest(target=target, router=router.__name__):
                     packet = router(self.catalog, target, plugin_root=PLUGIN_ROOT)
                     self.assertEqual(packet["status"], "matched")
@@ -2506,7 +2506,7 @@ class PlatformRolesTest(unittest.TestCase):
                     self.assertIn("Live GitHub mutation remains blocked", packet["trust_boundary"])
                     self.assertTrue(any("required-status-check" in trigger for trigger in packet["reviewer_triggers"]))
                     self.assertFalse(packet["decomposition_required"])
-                    if router is platform_roles.audit_target:
+                    if router is subagents_roless.audit_target:
                         self.assertTrue(packet["implementation_handoff_allowed"])
 
     def test_nearby_github_branch_protection_endpoints_remain_blocked(self) -> None:
@@ -2532,56 +2532,56 @@ class PlatformRolesTest(unittest.TestCase):
             "/repos/BearsCLOUD/bears_plugin/branches/main/protection",
         ]
         for target in targets:
-            for router in (platform_roles.route_target, platform_roles.audit_target):
+            for router in (subagents_roless.route_target, subagents_roless.audit_target):
                 with self.subTest(target=target, router=router.__name__):
                     packet = router(self.catalog, target, plugin_root=PLUGIN_ROOT)
                     self.assertEqual(packet["status"], "ROLE_COVERAGE_BLOCKER")
                     self.assertEqual(packet["why_blocked"], "unmapped")
                     self.assertNotIn("primary_role", packet)
-                    if router is platform_roles.audit_target:
+                    if router is subagents_roless.audit_target:
                         self.assertFalse(packet["implementation_handoff_allowed"])
 
-    def test_plugin_constitution_capability_routes_to_exact_constitution_role(self) -> None:
+    def test_subagents_roles_capability_routes_to_exact_constitution_role(self) -> None:
         targets = [
-            "/srv/bears/plugins/bears/capabilities/plugin_constitution",
-            "/srv/bears/plugins/bears/capabilities/plugin_constitution/capability.json",
-            "capabilities/plugin_constitution/AGENTS.md",
-            "capabilities/plugin_constitution/README.md",
-            "capabilities/plugin_constitution/__init__.py",
-            "capabilities/plugin_constitution/fixtures/fail/catalog.invalid.json",
-            "capabilities/plugin_constitution/fixtures/pass/catalog.valid.json",
-            "capabilities/plugin_constitution/schemas/validation-result.schema.json",
-            "capabilities/plugin_constitution/scripts/validate.py",
-            "capabilities/plugin_constitution/tests/test_validate.py",
+            "/srv/bears/plugins/bears/capabilities/subagents_roles",
+            "/srv/bears/plugins/bears/capabilities/subagents_roles/capability.json",
+            "capabilities/subagents_roles/AGENTS.md",
+            "capabilities/subagents_roles/README.md",
+            "capabilities/subagents_roles/__init__.py",
+            "capabilities/subagents_roles/fixtures/fail/catalog.invalid.json",
+            "capabilities/subagents_roles/fixtures/pass/catalog.valid.json",
+            "capabilities/subagents_roles/schemas/validation-result.schema.json",
+            "capabilities/subagents_roles/scripts/validate.py",
+            "capabilities/subagents_roles/tests/test_validate.py",
         ]
         for target in targets:
-            for router in (platform_roles.route_target, platform_roles.audit_target):
+            for router in (subagents_roless.route_target, subagents_roless.audit_target):
                 with self.subTest(target=target, router=router.__name__):
                     packet = router(self.catalog, target, plugin_root=PLUGIN_ROOT)
                     self.assertEqual(packet["status"], "matched")
-                    self.assertEqual(packet["concrete_part"], "plugin_constitution_governance")
-                    self.assertEqual(packet["primary_role"], "bears-plugin-constitution-governor")
+                    self.assertEqual(packet["concrete_part"], "subagents_roles_governance")
+                    self.assertEqual(packet["primary_role"], "bears-subagents-roles-governor")
                     self.assertEqual(packet["supporting_roles"], ["bears-platform-security-reviewer"])
                     self.assertIn(
-                        "/srv/bears/plugins/bears/capabilities/plugin_constitution/**",
+                        "/srv/bears/plugins/bears/capabilities/subagents_roles/**",
                         packet["allowed_write_boundary"],
                     )
-                    if router is platform_roles.audit_target:
+                    if router is subagents_roless.audit_target:
                         self.assertTrue(packet["implementation_handoff_allowed"])
 
     def test_plugin_parent_paths_do_not_authorize_capability_broad_handoff(self) -> None:
-        relative_root = platform_roles.audit_target(self.catalog, "plugins/bears", plugin_root=PLUGIN_ROOT)
+        relative_root = subagents_roless.audit_target(self.catalog, "plugins/bears", plugin_root=PLUGIN_ROOT)
         self.assertEqual(relative_root["status"], "ROLE_COVERAGE_BLOCKER")
         self.assertEqual(relative_root["why_blocked"], "parent_only")
         self.assertFalse(relative_root["implementation_handoff_allowed"])
 
-        absolute_root = platform_roles.audit_target(self.catalog, "/srv/bears/plugins/bears", plugin_root=PLUGIN_ROOT)
+        absolute_root = subagents_roless.audit_target(self.catalog, "/srv/bears/plugins/bears", plugin_root=PLUGIN_ROOT)
         self.assertEqual(absolute_root["status"], "matched")
         self.assertEqual(absolute_root["concrete_part"], "workspace_root_submodule_gitlinks")
         self.assertIn("no child working-tree files inside either submodule", absolute_root["allowed_write_boundary"])
-        self.assertNotIn("capabilities/plugin_constitution", absolute_root["allowed_write_boundary"])
+        self.assertNotIn("capabilities/subagents_roles", absolute_root["allowed_write_boundary"])
 
-        capability_parent = platform_roles.audit_target(
+        capability_parent = subagents_roless.audit_target(
             self.catalog,
             "/srv/bears/plugins/bears/capabilities",
             plugin_root=PLUGIN_ROOT,
@@ -2623,7 +2623,7 @@ class PlatformRolesTest(unittest.TestCase):
             "tests/fixtures/capability_layout/refactor_gate",
         ]
         for target in targets:
-            for router in (platform_roles.route_target, platform_roles.audit_target):
+            for router in (subagents_roless.route_target, subagents_roless.audit_target):
                 with self.subTest(target=target, router=router.__name__):
                     packet = router(self.catalog, target, plugin_root=PLUGIN_ROOT)
                     self.assertEqual(packet["status"], "matched")
@@ -2636,7 +2636,7 @@ class PlatformRolesTest(unittest.TestCase):
                     self.assertNotIn("/srv/bears/plugins/bears/tests/**", packet["allowed_write_boundary"])
                     self.assertNotIn("/srv/bears/plugins/bears/tests/fixtures/**", packet["allowed_write_boundary"])
                     self.assertFalse(packet["decomposition_required"])
-                    if router is platform_roles.audit_target:
+                    if router is subagents_roless.audit_target:
                         self.assertTrue(packet["implementation_handoff_allowed"])
 
         broad_targets = {
@@ -2648,13 +2648,13 @@ class PlatformRolesTest(unittest.TestCase):
             "/srv/bears/plugins/bears/tests/fixtures/capability_layout": "parent_only",
         }
         for broad_target, why_blocked in broad_targets.items():
-            for router in (platform_roles.route_target, platform_roles.audit_target):
+            for router in (subagents_roless.route_target, subagents_roless.audit_target):
                 with self.subTest(broad_target=broad_target, router=router.__name__):
                     packet = router(self.catalog, broad_target, plugin_root=PLUGIN_ROOT)
                     self.assertEqual(packet["status"], "ROLE_COVERAGE_BLOCKER")
                     self.assertEqual(packet["why_blocked"], why_blocked)
                     self.assertNotIn("primary_role", packet)
-                    if router is platform_roles.audit_target:
+                    if router is subagents_roless.audit_target:
                         self.assertFalse(packet["implementation_handoff_allowed"])
 
     def test_routes_subagent_orchestration_fixtures_to_exact_subagent_specialist(self) -> None:
@@ -2663,7 +2663,7 @@ class PlatformRolesTest(unittest.TestCase):
             "/srv/bears/plugins/bears/tests/fixtures/subagent_orchestration_policy/*.json",
         ]
         for target in targets:
-            for router in (platform_roles.route_target, platform_roles.audit_target):
+            for router in (subagents_roless.route_target, subagents_roless.audit_target):
                 with self.subTest(target=target, router=router.__name__):
                     packet = router(self.catalog, target, plugin_root=PLUGIN_ROOT)
                     self.assertEqual(packet["status"], "matched")
@@ -2672,7 +2672,7 @@ class PlatformRolesTest(unittest.TestCase):
                     self.assertEqual(packet["supporting_roles"], ["bears-platform-security-reviewer"])
                     self.assertIn("tests/fixtures/subagent_orchestration_policy/**", packet["allowed_write_boundary"])
                     self.assertFalse(packet["decomposition_required"])
-                    if router is platform_roles.audit_target:
+                    if router is subagents_roless.audit_target:
                         self.assertTrue(packet["implementation_handoff_allowed"])
 
 
@@ -2686,7 +2686,7 @@ class PlatformRolesTest(unittest.TestCase):
         ]
         for target in targets:
             with self.subTest(target=target):
-                packet = platform_roles.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
+                packet = subagents_roless.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
                 self.assertEqual(packet["status"], "matched")
                 self.assertEqual(packet["concrete_part"], "workflow_overlay_skill_inventory")
                 self.assertEqual(packet["primary_role"], "bears-workflow-overlay-platform-engineer")
@@ -2702,14 +2702,14 @@ class PlatformRolesTest(unittest.TestCase):
         ]
         for target in targets:
             with self.subTest(target=target):
-                packet = platform_roles.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
+                packet = subagents_roless.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
                 self.assertEqual(packet["status"], "matched")
                 self.assertEqual(packet["concrete_part"], "roadmap_control")
                 self.assertEqual(packet["primary_role"], "bears-workflow-overlay-platform-engineer")
                 self.assertIn("bears-platform-security-reviewer", packet["supporting_roles"])
                 self.assertFalse(packet["decomposition_required"])
 
-                audit_packet = platform_roles.audit_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
+                audit_packet = subagents_roless.audit_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
                 self.assertEqual(audit_packet["status"], "matched")
                 self.assertTrue(audit_packet["implementation_handoff_allowed"])
 
@@ -2719,7 +2719,7 @@ class PlatformRolesTest(unittest.TestCase):
             "/srv/bears/plugins/bears/docs/reference/workflow-backlog-lane.md",
         ]
         for target in targets:
-            for router in (platform_roles.route_target, platform_roles.audit_target):
+            for router in (subagents_roless.route_target, subagents_roless.audit_target):
                 with self.subTest(target=target, router=router.__name__):
                     packet = router(self.catalog, target, plugin_root=PLUGIN_ROOT)
                     self.assertEqual(packet["status"], "matched")
@@ -2729,11 +2729,11 @@ class PlatformRolesTest(unittest.TestCase):
                     self.assertIn("operator-approved and local-commit-owned", packet["trust_boundary"])
                     self.assertIn("Only docs/reference/workflow-backlog-lane.md", packet["allowed_write_boundary"])
                     self.assertFalse(packet["decomposition_required"])
-                    if router is platform_roles.audit_target:
+                    if router is subagents_roless.audit_target:
                         self.assertTrue(packet["implementation_handoff_allowed"])
 
     def test_child_under_group_blocks(self) -> None:
-        packet = platform_roles.route_target(
+        packet = subagents_roless.route_target(
             self.catalog,
             "/srv/bears/plugins/bears/workflows/unmapped-child/workflow.yml",
             plugin_root=PLUGIN_ROOT,
@@ -2745,7 +2745,7 @@ class PlatformRolesTest(unittest.TestCase):
     def test_parent_project_group_blocks(self) -> None:
         for target in ("/srv/bears/legacy/seller/apps", "/srv/bears/projects/seller/apps"):
             with self.subTest(target=target):
-                packet = platform_roles.route_target(
+                packet = subagents_roless.route_target(
                     self.catalog,
                     target,
                     plugin_root=PLUGIN_ROOT,
@@ -2754,7 +2754,7 @@ class PlatformRolesTest(unittest.TestCase):
                 self.assertEqual(packet["why_blocked"], "parent_only")
 
     def test_broad_projects_root_still_blocks(self) -> None:
-        packet = platform_roles.route_target(
+        packet = subagents_roless.route_target(
             self.catalog,
             "/srv/bears/projects",
             plugin_root=PLUGIN_ROOT,
@@ -2764,7 +2764,7 @@ class PlatformRolesTest(unittest.TestCase):
         self.assertTrue(packet["decomposition_required"])
 
     def test_legacy_telegram_workflow_plugin_root_stays_blocked(self) -> None:
-        packet = platform_roles.route_target(
+        packet = subagents_roless.route_target(
             self.catalog,
             "/srv/bears/plugins/bears-telegram-workflow",
             plugin_root=PLUGIN_ROOT,
@@ -2773,12 +2773,12 @@ class PlatformRolesTest(unittest.TestCase):
         self.assertEqual(packet["why_blocked"], "unmapped")
 
     def test_unknown_target_blocks(self) -> None:
-        packet = platform_roles.route_target(self.catalog, "totally-unknown-platform-surface", plugin_root=PLUGIN_ROOT)
+        packet = subagents_roless.route_target(self.catalog, "totally-unknown-platform-surface", plugin_root=PLUGIN_ROOT)
         self.assertEqual(packet["status"], "ROLE_COVERAGE_BLOCKER")
         self.assertEqual(packet["why_blocked"], "unknown")
 
     def test_unmapped_target_blocks(self) -> None:
-        packet = platform_roles.route_target(
+        packet = subagents_roless.route_target(
             self.catalog,
             "/srv/bears/projects/seller/apps/unknown_future_app",
             plugin_root=PLUGIN_ROOT,
@@ -2789,12 +2789,12 @@ class PlatformRolesTest(unittest.TestCase):
     def test_missing_role_artifact_blocks(self) -> None:
         catalog = copy.deepcopy(self.catalog)
         for part in catalog["platform_parts"]:
-            if part["name"] == "platform_role_governance":
+            if part["name"] == "subagents_roles_governance":
                 part["required_role"] = "bears-missing-role"
                 break
-        packet = platform_roles.route_target(
+        packet = subagents_roless.route_target(
             catalog,
-            "/srv/bears/plugins/bears/assets/catalog/platform-role-catalog.v1.json",
+            "/srv/bears/plugins/bears/assets/catalog/subagents-roles-catalog.v1.json",
             plugin_root=PLUGIN_ROOT,
         )
         self.assertEqual(packet["status"], "ROLE_COVERAGE_BLOCKER")
@@ -2803,12 +2803,12 @@ class PlatformRolesTest(unittest.TestCase):
     def test_invalid_broad_role_blocks(self) -> None:
         catalog = copy.deepcopy(self.catalog)
         for part in catalog["platform_parts"]:
-            if part["name"] == "platform_role_governance":
+            if part["name"] == "subagents_roles_governance":
                 part["required_role"] = "bears-workflow-overlay-controller"
                 break
-        packet = platform_roles.route_target(
+        packet = subagents_roless.route_target(
             catalog,
-            "/srv/bears/plugins/bears/assets/catalog/platform-role-catalog.v1.json",
+            "/srv/bears/plugins/bears/assets/catalog/subagents-roles-catalog.v1.json",
             plugin_root=PLUGIN_ROOT,
         )
         self.assertEqual(packet["status"], "ROLE_COVERAGE_BLOCKER")
@@ -2818,8 +2818,8 @@ class PlatformRolesTest(unittest.TestCase):
         catalog = copy.deepcopy(self.catalog)
         catalog["platform_parts"].append(
             {
-                "name": "platform_role_governance_shadow",
-                "aliases": ["/srv/bears/plugins/bears/assets/catalog/platform-role-catalog.v1.json"],
+                "name": "subagents_roles_governance_shadow",
+                "aliases": ["/srv/bears/plugins/bears/assets/catalog/subagents-roles-catalog.v1.json"],
                 "group": "workflow",
                 "required_role": "bears-goal-prompt-generator",
                 "role_required": True,
@@ -2836,21 +2836,21 @@ class PlatformRolesTest(unittest.TestCase):
                 "decomposition_required": False,
             }
         )
-        packet = platform_roles.route_target(
+        packet = subagents_roless.route_target(
             catalog,
-            "/srv/bears/plugins/bears/assets/catalog/platform-role-catalog.v1.json",
+            "/srv/bears/plugins/bears/assets/catalog/subagents-roles-catalog.v1.json",
             plugin_root=PLUGIN_ROOT,
         )
         self.assertEqual(packet["status"], "ROLE_COVERAGE_BLOCKER")
         self.assertEqual(packet["why_blocked"], "ambiguous_owner")
 
     def test_alias_path_drift_cannot_widen_coverage(self) -> None:
-        packet = platform_roles.route_target(self.catalog, "/srv/bears/plugins/bears-shadow", plugin_root=PLUGIN_ROOT)
+        packet = subagents_roless.route_target(self.catalog, "/srv/bears/plugins/bears-shadow", plugin_root=PLUGIN_ROOT)
         self.assertEqual(packet["status"], "ROLE_COVERAGE_BLOCKER")
         self.assertEqual(packet["why_blocked"], "unmapped")
 
     def test_exact_gitlab_aliases_do_not_widen_host_coverage(self) -> None:
-        packet = platform_roles.route_target(
+        packet = subagents_roless.route_target(
             self.catalog,
             "https://bears.gitlab.yandexcloud.net/bears/unknown_future_app",
             plugin_root=PLUGIN_ROOT,
@@ -2859,7 +2859,7 @@ class PlatformRolesTest(unittest.TestCase):
         self.assertEqual(packet["why_blocked"], "unmapped")
 
     def test_routes_session_worker_runtime_to_exact_specialist(self) -> None:
-        packet = platform_roles.route_target(
+        packet = subagents_roless.route_target(
             self.catalog,
             "/srv/bears/plugins/bears/assets/catalog/session-workers-runtime.v1.json",
             plugin_root=PLUGIN_ROOT,
@@ -2880,7 +2880,7 @@ class PlatformRolesTest(unittest.TestCase):
         ]
         for target in targets:
             with self.subTest(target=target):
-                packet = platform_roles.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
+                packet = subagents_roless.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
                 self.assertEqual(packet["status"], "matched")
                 self.assertEqual(packet["concrete_part"], "codex_workspace_configuration")
                 self.assertEqual(packet["primary_role"], "bears-codex-workspace-config-engineer")
@@ -2897,7 +2897,7 @@ class PlatformRolesTest(unittest.TestCase):
             "/srv/bears/control-plane/infisical/selfhost/docker-compose.prod.yml",
         ]
         for target in targets:
-            for router in (platform_roles.route_target, platform_roles.audit_target):
+            for router in (subagents_roless.route_target, subagents_roless.audit_target):
                 with self.subTest(target=target, router=router.__name__):
                     packet = router(self.catalog, target, plugin_root=PLUGIN_ROOT)
                     self.assertEqual(packet["status"], "matched")
@@ -2910,7 +2910,7 @@ class PlatformRolesTest(unittest.TestCase):
                     self.assertIn("ExternalSecret/ClusterSecretStore", packet["trust_boundary"])
                     self.assertIn("not secret custody", packet["trust_boundary"])
                     self.assertIn("not a deployment path", packet["trust_boundary"])
-                    if router is platform_roles.audit_target:
+                    if router is subagents_roless.audit_target:
                         self.assertTrue(packet["implementation_handoff_allowed"])
 
     def test_infisical_control_plane_bridge_secret_outputs_stay_unmapped(self) -> None:
@@ -2922,7 +2922,7 @@ class PlatformRolesTest(unittest.TestCase):
         ]
         for target in blocked_targets:
             with self.subTest(target=target):
-                packet = platform_roles.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
+                packet = subagents_roless.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
                 self.assertEqual(packet["status"], "ROLE_COVERAGE_BLOCKER")
                 self.assertEqual(packet["why_blocked"], "unmapped")
                 self.assertNotIn("primary_role", packet)
@@ -2946,7 +2946,7 @@ class PlatformRolesTest(unittest.TestCase):
         ]
         for target in targets:
             with self.subTest(target=target):
-                packet = platform_roles.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
+                packet = subagents_roless.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
                 self.assertEqual(packet["status"], "matched")
                 self.assertEqual(packet["concrete_part"], "agent_orchestrator_github_autoscan")
                 self.assertEqual(packet["primary_role"], "bears-codex-workspace-config-engineer")
@@ -2962,7 +2962,7 @@ class PlatformRolesTest(unittest.TestCase):
         ]
         for target in targets:
             with self.subTest(target=target):
-                packet = platform_roles.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
+                packet = subagents_roless.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
                 self.assertEqual(packet["status"], "matched")
                 self.assertEqual(packet["concrete_part"], "agent_orchestrator_codex_session_watchdog")
                 self.assertEqual(packet["primary_role"], "bears-codex-workspace-config-engineer")
@@ -2971,7 +2971,7 @@ class PlatformRolesTest(unittest.TestCase):
                 self.assertIn("dry-run performs no mutation", packet["trust_boundary"])
 
     def test_unmapped_child_under_codex_workspace_configuration_still_blocks(self) -> None:
-        packet = platform_roles.route_target(
+        packet = subagents_roless.route_target(
             self.catalog,
             "/srv/bears/.codex/tmp/unmapped-child",
             plugin_root=PLUGIN_ROOT,
@@ -2988,28 +2988,28 @@ class PlatformRolesTest(unittest.TestCase):
             "/srv/bears/dev",
             "/srv/bears/dev/WORKSPACE.md",
             "/srv/bears/dev/contracts/repository_creation_gate.md",
-            "/srv/bears/dev/contracts/platform_role_gate_contract.md",
+            "/srv/bears/dev/contracts/subagents_roles_gate_contract.md",
             "/srv/bears/dev/docs/reference/telegram-surface-map.md",
             "/srv/bears/contracts/workspace_control_contract.md",
         ]
         for target in targets:
             with self.subTest(target=target):
-                packet = platform_roles.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
+                packet = subagents_roless.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
                 self.assertEqual(packet["status"], "matched")
                 self.assertEqual(packet["concrete_part"], "workspace_governance_canonical_plugin_docs")
-                self.assertEqual(packet["primary_role"], "bears-platform-role-governor")
+                self.assertEqual(packet["primary_role"], "bears-subagents-roles-governor")
                 self.assertIn("bears-platform-security-reviewer", packet["supporting_roles"])
 
     def test_routes_workspace_canonical_names_docs_to_docs_maintainer(self) -> None:
         for target in ("/srv/bears/docs/CANONICAL_NAMES.md", "docs/CANONICAL_NAMES.md"):
-            for router in (platform_roles.route_target, platform_roles.audit_target):
+            for router in (subagents_roless.route_target, subagents_roless.audit_target):
                 with self.subTest(target=target, router=router.__name__):
                     packet = router(self.catalog, target, plugin_root=PLUGIN_ROOT)
                     self.assertEqual(packet["status"], "matched")
                     self.assertEqual(packet["concrete_part"], "workspace_canonical_names_docs")
                     self.assertEqual(packet["primary_role"], "bears-docs-maintainer")
                     self.assertEqual(packet["supporting_roles"], ["bears-platform-security-reviewer"])
-                    if router is platform_roles.audit_target:
+                    if router is subagents_roless.audit_target:
                         self.assertTrue(packet["implementation_handoff_allowed"])
 
     def test_top_level_projects_docs_are_blocked_compatibility_references(self) -> None:
@@ -3020,7 +3020,7 @@ class PlatformRolesTest(unittest.TestCase):
         ]
         for target in targets:
             with self.subTest(target=target):
-                packet = platform_roles.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
+                packet = subagents_roless.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
                 self.assertEqual(packet["status"], "ROLE_COVERAGE_BLOCKER")
                 self.assertEqual(packet["why_blocked"], "parent_only")
                 self.assertTrue(packet["decomposition_required"])
@@ -3036,7 +3036,7 @@ class PlatformRolesTest(unittest.TestCase):
         ]
         for target in targets:
             with self.subTest(target=target):
-                packet = platform_roles.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
+                packet = subagents_roless.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
                 self.assertEqual(packet["status"], "ROLE_COVERAGE_BLOCKER")
                 self.assertEqual(packet["why_blocked"], "parent_only")
                 self.assertTrue(packet["decomposition_required"])
@@ -3102,7 +3102,7 @@ class PlatformRolesTest(unittest.TestCase):
             ),
             "/srv/bears/dev/control/provenance": (
                 "theants_control_provenance_layer",
-                "bears-platform-role-governor",
+                "bears-subagents-roles-governor",
             ),
             "current-infra-runtime": (
                 "current_infra_runtime_future_kube_lane",
@@ -3111,7 +3111,7 @@ class PlatformRolesTest(unittest.TestCase):
         }
         for target, (expected_part, expected_role) in cases.items():
             with self.subTest(target=target):
-                packet = platform_roles.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
+                packet = subagents_roless.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
                 self.assertEqual(packet["status"], "matched")
                 self.assertEqual(packet["concrete_part"], expected_part)
                 self.assertEqual(packet["primary_role"], expected_role)
@@ -3130,7 +3130,7 @@ class PlatformRolesTest(unittest.TestCase):
             ),
         }
         for target, (expected_part, expected_role) in cases.items():
-            for router in (platform_roles.route_target, platform_roles.audit_target):
+            for router in (subagents_roless.route_target, subagents_roless.audit_target):
                 with self.subTest(target=target, router=router.__name__):
                     packet = router(self.catalog, target, plugin_root=PLUGIN_ROOT)
                     self.assertEqual(packet["status"], "matched")
@@ -3138,7 +3138,7 @@ class PlatformRolesTest(unittest.TestCase):
                     self.assertEqual(packet["primary_role"], expected_role)
                     self.assertEqual(packet["supporting_roles"], ["bears-platform-security-reviewer"])
                     self.assertFalse(packet["decomposition_required"])
-                    if router is platform_roles.audit_target:
+                    if router is subagents_roless.audit_target:
                         self.assertTrue(packet["implementation_handoff_allowed"])
 
     def test_routes_telegram_dev_core_platform_aliases_to_exact_role(self) -> None:
@@ -3148,7 +3148,7 @@ class PlatformRolesTest(unittest.TestCase):
         ]
         for target in targets:
             with self.subTest(target=target):
-                packet = platform_roles.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
+                packet = subagents_roless.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
                 self.assertEqual(packet["status"], "matched")
                 self.assertEqual(packet["concrete_part"], "telegram_platform_dev_layer")
                 self.assertEqual(packet["primary_role"], "bears-telegram-platform-engineer")
@@ -3166,23 +3166,23 @@ class PlatformRolesTest(unittest.TestCase):
         ]
         for target in targets:
             with self.subTest(target=target):
-                packet = platform_roles.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
+                packet = subagents_roless.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
                 self.assertEqual(packet["status"], "matched")
                 self.assertEqual(packet["concrete_part"], "bears_platform_repo_root")
-                self.assertEqual(packet["primary_role"], "bears-platform-role-governor")
+                self.assertEqual(packet["primary_role"], "bears-subagents-roles-governor")
                 self.assertEqual(packet["supporting_roles"], ["bears-platform-security-reviewer"])
                 self.assertFalse(packet["decomposition_required"])
 
     def test_routes_platform_migration_docs_to_docs_maintainer(self) -> None:
         target = "/srv/bears/dev/platform/docs/migration/platform-source-inventory.md"
-        route_packet = platform_roles.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
+        route_packet = subagents_roless.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
         self.assertEqual(route_packet["status"], "matched")
         self.assertEqual(route_packet["concrete_part"], "bears_platform_migration_docs")
         self.assertEqual(route_packet["primary_role"], "bears-docs-maintainer")
         self.assertEqual(route_packet["supporting_roles"], ["bears-platform-security-reviewer"])
         self.assertIn("seller", route_packet["trust_boundary"].lower())
 
-        audit_packet = platform_roles.audit_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
+        audit_packet = subagents_roless.audit_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
         self.assertEqual(audit_packet["status"], "matched")
         self.assertEqual(audit_packet["primary_role"], "bears-docs-maintainer")
         self.assertTrue(audit_packet["implementation_handoff_allowed"])
@@ -3195,10 +3195,10 @@ class PlatformRolesTest(unittest.TestCase):
         ]
         for target in targets:
             with self.subTest(target=target):
-                packet = platform_roles.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
+                packet = subagents_roless.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
                 self.assertEqual(packet["status"], "matched")
                 self.assertEqual(packet["concrete_part"], "docs_maintainer_role_metadata")
-                self.assertEqual(packet["primary_role"], "bears-platform-role-governor")
+                self.assertEqual(packet["primary_role"], "bears-subagents-roles-governor")
                 self.assertIn("role metadata", packet["allowed_write_boundary"])
                 self.assertNotIn("migration docs/**", packet["allowed_write_boundary"])
 
@@ -3209,7 +3209,7 @@ class PlatformRolesTest(unittest.TestCase):
         ]
         for target in targets:
             with self.subTest(target=target):
-                packet = platform_roles.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
+                packet = subagents_roless.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
                 self.assertEqual(packet["status"], "matched")
                 self.assertEqual(packet["concrete_part"], "codex_workspace_configuration")
                 self.assertEqual(packet["primary_role"], "bears-codex-workspace-config-engineer")
@@ -3221,16 +3221,16 @@ class PlatformRolesTest(unittest.TestCase):
         ]
         for target in targets:
             with self.subTest(target=target):
-                packet = platform_roles.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
+                packet = subagents_roless.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
                 self.assertEqual(packet["status"], "matched")
                 self.assertEqual(packet["concrete_part"], "bears_platform_repo_router_docs")
-                self.assertEqual(packet["primary_role"], "bears-platform-role-governor")
+                self.assertEqual(packet["primary_role"], "bears-subagents-roles-governor")
                 self.assertEqual(packet["supporting_roles"], ["bears-platform-security-reviewer"])
                 self.assertFalse(packet["decomposition_required"])
 
-                audit_packet = platform_roles.audit_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
+                audit_packet = subagents_roless.audit_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
                 self.assertEqual(audit_packet["status"], "matched")
-                self.assertEqual(audit_packet["primary_role"], "bears-platform-role-governor")
+                self.assertEqual(audit_packet["primary_role"], "bears-subagents-roles-governor")
                 self.assertTrue(audit_packet["implementation_handoff_allowed"])
 
     def test_routes_feature_008_auth_exact_files_to_auth_role(self) -> None:
@@ -3242,14 +3242,14 @@ class PlatformRolesTest(unittest.TestCase):
         ]
         for target in targets:
             with self.subTest(target=target):
-                packet = platform_roles.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
+                packet = subagents_roless.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
                 self.assertEqual(packet["status"], "matched")
                 self.assertEqual(packet["concrete_part"], "bears_platform_auth_feature_008_contract_scope")
                 self.assertEqual(packet["primary_role"], "bears-auth-platform-engineer")
                 self.assertEqual(packet["supporting_roles"], ["bears-platform-security-reviewer"])
                 self.assertFalse(packet["decomposition_required"])
 
-                audit_packet = platform_roles.audit_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
+                audit_packet = subagents_roless.audit_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
                 self.assertEqual(audit_packet["status"], "matched")
                 self.assertEqual(audit_packet["primary_role"], "bears-auth-platform-engineer")
                 self.assertTrue(audit_packet["implementation_handoff_allowed"])
@@ -3261,14 +3261,14 @@ class PlatformRolesTest(unittest.TestCase):
         ]
         for target in targets:
             with self.subTest(target=target):
-                packet = platform_roles.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
+                packet = subagents_roless.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
                 self.assertEqual(packet["status"], "matched")
                 self.assertEqual(packet["concrete_part"], "bears_gateway_feature_008_route_scope")
                 self.assertEqual(packet["primary_role"], "bears-gateway-platform-engineer")
                 self.assertEqual(packet["supporting_roles"], ["bears-platform-security-reviewer"])
                 self.assertFalse(packet["decomposition_required"])
 
-                audit_packet = platform_roles.audit_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
+                audit_packet = subagents_roless.audit_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
                 self.assertEqual(audit_packet["status"], "matched")
                 self.assertEqual(audit_packet["primary_role"], "bears-gateway-platform-engineer")
                 self.assertTrue(audit_packet["implementation_handoff_allowed"])
@@ -3280,50 +3280,50 @@ class PlatformRolesTest(unittest.TestCase):
         ]
         for target in targets:
             with self.subTest(target=target):
-                packet = platform_roles.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
+                packet = subagents_roless.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
                 self.assertEqual(packet["status"], "matched")
                 self.assertEqual(packet["concrete_part"], "bears_platform_billing_feature_008_adapter_scope")
                 self.assertEqual(packet["primary_role"], "bears-payments-platform-engineer")
                 self.assertEqual(packet["supporting_roles"], ["bears-platform-security-reviewer"])
                 self.assertFalse(packet["decomposition_required"])
 
-                audit_packet = platform_roles.audit_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
+                audit_packet = subagents_roless.audit_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
                 self.assertEqual(audit_packet["status"], "matched")
                 self.assertEqual(audit_packet["primary_role"], "bears-payments-platform-engineer")
                 self.assertTrue(audit_packet["implementation_handoff_allowed"])
 
-    def test_routes_feature_008_plan_to_platform_role_governor(self) -> None:
+    def test_routes_feature_008_plan_to_subagents_roles_governor(self) -> None:
         target = "/srv/bears/specs/008-bears-platform-core-migration/plan.md"
-        route_packet = platform_roles.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
+        route_packet = subagents_roless.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
         self.assertEqual(route_packet["status"], "matched")
         self.assertEqual(route_packet["concrete_part"], "platform_core_migration_feature_008_plan")
-        self.assertEqual(route_packet["primary_role"], "bears-platform-role-governor")
+        self.assertEqual(route_packet["primary_role"], "bears-subagents-roles-governor")
         self.assertEqual(route_packet["supporting_roles"], ["bears-platform-security-reviewer"])
         self.assertIn(target, route_packet["allowed_write_boundary"])
         self.assertIn("seller", route_packet["trust_boundary"].lower())
 
-        audit_packet = platform_roles.audit_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
+        audit_packet = subagents_roless.audit_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
         self.assertEqual(audit_packet["status"], "matched")
-        self.assertEqual(audit_packet["primary_role"], "bears-platform-role-governor")
+        self.assertEqual(audit_packet["primary_role"], "bears-subagents-roles-governor")
         self.assertTrue(audit_packet["implementation_handoff_allowed"])
 
-    def test_routes_feature_008_tasks_plan_to_platform_role_governor(self) -> None:
+    def test_routes_feature_008_tasks_plan_to_subagents_roles_governor(self) -> None:
         target = "/srv/bears/specs/008-bears-platform-core-migration/tasks.md"
-        route_packet = platform_roles.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
+        route_packet = subagents_roless.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
         self.assertEqual(route_packet["status"], "matched")
         self.assertEqual(route_packet["concrete_part"], "platform_core_migration_feature_008_tasks_plan")
-        self.assertEqual(route_packet["primary_role"], "bears-platform-role-governor")
+        self.assertEqual(route_packet["primary_role"], "bears-subagents-roles-governor")
         self.assertEqual(route_packet["supporting_roles"], ["bears-platform-security-reviewer"])
         self.assertIn("seller", route_packet["trust_boundary"].lower())
 
-        audit_packet = platform_roles.audit_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
+        audit_packet = subagents_roless.audit_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
         self.assertEqual(audit_packet["status"], "matched")
-        self.assertEqual(audit_packet["primary_role"], "bears-platform-role-governor")
+        self.assertEqual(audit_packet["primary_role"], "bears-subagents-roles-governor")
         self.assertTrue(audit_packet["implementation_handoff_allowed"])
 
     def test_feature_006_root_routes_to_exact_telegram_workspace_lane(self) -> None:
         target = "/srv/bears/specs/006-bears-platform-telegram"
-        for router in (platform_roles.route_target, platform_roles.audit_target):
+        for router in (subagents_roless.route_target, subagents_roless.audit_target):
             with self.subTest(router=router.__name__):
                 packet = router(self.catalog, target, plugin_root=PLUGIN_ROOT)
                 self.assertEqual(packet["status"], "matched")
@@ -3336,12 +3336,12 @@ class PlatformRolesTest(unittest.TestCase):
                 self.assertIn("no runtime", packet["allowed_write_boundary"])
                 self.assertIn("no live deploy", packet["allowed_write_boundary"])
                 self.assertIn("no live Telegram", packet["allowed_write_boundary"])
-                if router is platform_roles.audit_target:
+                if router is subagents_roless.audit_target:
                     self.assertTrue(packet["implementation_handoff_allowed"])
 
     def test_routes_bears_platform_telegram_subtree_to_telegram_role(self) -> None:
         target = "/srv/bears/dev/platform/telegram/AGENTS.md"
-        packet = platform_roles.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
+        packet = subagents_roless.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
         self.assertEqual(packet["status"], "matched")
         self.assertEqual(packet["concrete_part"], "telegram_platform_dev_layer")
         self.assertEqual(packet["primary_role"], "bears-telegram-platform-engineer")
@@ -3361,7 +3361,7 @@ class PlatformRolesTest(unittest.TestCase):
         }
         for target, (expected_part, expected_boundary) in cases.items():
             with self.subTest(target=target):
-                packet = platform_roles.route_target(
+                packet = subagents_roless.route_target(
                     self.catalog,
                     target,
                     plugin_root=PLUGIN_ROOT,
@@ -3376,7 +3376,7 @@ class PlatformRolesTest(unittest.TestCase):
                 self.assertFalse(packet["decomposition_required"])
                 self.assertIn(expected_boundary, packet["allowed_write_boundary"])
 
-                audit_packet = platform_roles.audit_target(
+                audit_packet = subagents_roless.audit_target(
                     self.catalog,
                     target,
                     plugin_root=PLUGIN_ROOT,
@@ -3386,14 +3386,14 @@ class PlatformRolesTest(unittest.TestCase):
 
     def test_routes_bears_platform_gateway_child_to_gateway_role(self) -> None:
         target = "/srv/bears/dev/platform/src/bears_platform/gateway"
-        packet = platform_roles.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
+        packet = subagents_roless.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
         self.assertEqual(packet["status"], "matched")
         self.assertEqual(packet["concrete_part"], "bears_gateway")
         self.assertEqual(packet["primary_role"], "bears-gateway-platform-engineer")
         self.assertEqual(packet["supporting_roles"], ["bears-platform-security-reviewer"])
         self.assertFalse(packet["decomposition_required"])
 
-        audit_packet = platform_roles.audit_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
+        audit_packet = subagents_roless.audit_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
         self.assertEqual(audit_packet["status"], "matched")
         self.assertTrue(audit_packet["implementation_handoff_allowed"])
         self.assertEqual(audit_packet["primary_role"], "bears-gateway-platform-engineer")
@@ -3404,7 +3404,7 @@ class PlatformRolesTest(unittest.TestCase):
 
     def test_routes_bears_platform_auth_runtime_contract_test_to_auth_role(self) -> None:
         target = "/srv/bears/dev/platform/tests/test_auth_runtime_contracts.py"
-        packet = platform_roles.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
+        packet = subagents_roless.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
         self.assertEqual(packet["status"], "matched")
         self.assertEqual(packet["concrete_part"], "auth_core_runtime_contract_tests")
         self.assertEqual(packet["primary_role"], "bears-auth-platform-engineer")
@@ -3413,7 +3413,7 @@ class PlatformRolesTest(unittest.TestCase):
         self.assertIn(target, packet["allowed_write_boundary"])
         self.assertNotIn("tests/**", packet["allowed_write_boundary"])
 
-        audit_packet = platform_roles.audit_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
+        audit_packet = subagents_roless.audit_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
         self.assertEqual(audit_packet["status"], "matched")
         self.assertTrue(audit_packet["implementation_handoff_allowed"])
         self.assertEqual(audit_packet["primary_role"], "bears-auth-platform-engineer")
@@ -3424,14 +3424,14 @@ class PlatformRolesTest(unittest.TestCase):
 
     def test_routes_bears_platform_auth_child_to_auth_role(self) -> None:
         target = "/srv/bears/dev/platform/src/bears_platform/auth"
-        packet = platform_roles.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
+        packet = subagents_roless.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
         self.assertEqual(packet["status"], "matched")
         self.assertEqual(packet["concrete_part"], "auth_core")
         self.assertEqual(packet["primary_role"], "bears-auth-platform-engineer")
         self.assertEqual(packet["supporting_roles"], ["bears-platform-security-reviewer"])
         self.assertFalse(packet["decomposition_required"])
 
-        audit_packet = platform_roles.audit_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
+        audit_packet = subagents_roless.audit_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
         self.assertEqual(audit_packet["status"], "matched")
         self.assertTrue(audit_packet["implementation_handoff_allowed"])
         self.assertEqual(audit_packet["primary_role"], "bears-auth-platform-engineer")
@@ -3449,7 +3449,7 @@ class PlatformRolesTest(unittest.TestCase):
         ]
         for target in targets:
             with self.subTest(target=target):
-                packet = platform_roles.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
+                packet = subagents_roless.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
                 self.assertEqual(packet["status"], "matched")
                 self.assertEqual(packet["concrete_part"], "payment_service_legacy_source")
                 self.assertEqual(packet["primary_role"], "bears-payments-platform-engineer")
@@ -3458,7 +3458,7 @@ class PlatformRolesTest(unittest.TestCase):
                 self.assertIn("only as a legacy source", packet["allowed_write_boundary"])
                 self.assertNotIn("/srv/bears/dev/platform/src/bears_platform/billing", packet["allowed_write_boundary"])
 
-        seller_audit = platform_roles.audit_target(
+        seller_audit = subagents_roless.audit_target(
             self.catalog,
             "/srv/bears/legacy/seller/apps/payment_service",
             plugin_root=PLUGIN_ROOT,
@@ -3479,7 +3479,7 @@ class PlatformRolesTest(unittest.TestCase):
         ]
         for target in targets:
             with self.subTest(target=target):
-                packet = platform_roles.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
+                packet = subagents_roless.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
                 self.assertEqual(packet["status"], "matched")
                 self.assertEqual(packet["concrete_part"], "bears_platform_billing_surface")
                 self.assertEqual(packet["primary_role"], "bears-payments-platform-engineer")
@@ -3487,7 +3487,7 @@ class PlatformRolesTest(unittest.TestCase):
                 self.assertFalse(packet["decomposition_required"])
                 self.assertNotIn("/srv/bears/projects/seller/apps/payment_service", packet["allowed_write_boundary"])
 
-        billing_audit = platform_roles.audit_target(
+        billing_audit = subagents_roless.audit_target(
             self.catalog,
             "/srv/bears/dev/platform/billing/payments",
             plugin_root=PLUGIN_ROOT,
@@ -3503,7 +3503,7 @@ class PlatformRolesTest(unittest.TestCase):
 
     def test_routes_plain_payments_alias_to_universal_payments_role(self) -> None:
         for alias in ("billing", "payments"):
-            for router in (platform_roles.route_target, platform_roles.audit_target):
+            for router in (subagents_roless.route_target, subagents_roless.audit_target):
                 with self.subTest(alias=alias, router=router.__name__):
                     packet = router(self.catalog, alias, plugin_root=PLUGIN_ROOT)
                     self.assertEqual(packet["status"], "matched")
@@ -3514,7 +3514,7 @@ class PlatformRolesTest(unittest.TestCase):
                     self.assertNotIn("/srv/bears/projects/seller/apps/payment_service", packet["allowed_write_boundary"])
                     self.assertNotIn("/srv/bears/legacy/seller/apps/payment_service", packet["allowed_write_boundary"])
 
-        audit_packet = platform_roles.audit_target(self.catalog, "billing", plugin_root=PLUGIN_ROOT)
+        audit_packet = subagents_roless.audit_target(self.catalog, "billing", plugin_root=PLUGIN_ROOT)
         self.assertEqual(audit_packet["status"], "matched")
         self.assertTrue(audit_packet["implementation_handoff_allowed"])
         self.assertEqual(audit_packet["concrete_part"], "bears_platform_billing_surface")
@@ -3530,7 +3530,7 @@ class PlatformRolesTest(unittest.TestCase):
             "/srv/bears/dev/platform/tests/test_integration_runtime_contracts.py": "bears_platform_integration_runtime_contract_tests",
         }
         for target, expected_part in targets.items():
-            for router in (platform_roles.route_target, platform_roles.audit_target):
+            for router in (subagents_roless.route_target, subagents_roless.audit_target):
                 with self.subTest(target=target, router=router.__name__):
                     packet = router(self.catalog, target, plugin_root=PLUGIN_ROOT)
                     self.assertEqual(packet["status"], "matched")
@@ -3542,7 +3542,7 @@ class PlatformRolesTest(unittest.TestCase):
                     self.assertIn("universal integration-token broker test coverage", packet["allowed_write_boundary"])
                     self.assertNotIn("/srv/bears/projects/seller/apps", packet["allowed_write_boundary"])
 
-        broad_tests = platform_roles.route_target(
+        broad_tests = subagents_roless.route_target(
             self.catalog,
             "/srv/bears/dev/platform/tests",
             plugin_root=PLUGIN_ROOT,
@@ -3554,7 +3554,7 @@ class PlatformRolesTest(unittest.TestCase):
 
     def test_routes_t907_provider_adapter_stage_packet_to_telegram_role(self) -> None:
         target = "/srv/bears/specs/006-bears-platform-telegram/governance/github-pr-t907-provider-adapter-contracts-stage-evidence.json"
-        for router in (platform_roles.route_target, platform_roles.audit_target):
+        for router in (subagents_roless.route_target, subagents_roless.audit_target):
             with self.subTest(router=router.__name__):
                 packet = router(self.catalog, target, plugin_root=PLUGIN_ROOT)
                 self.assertEqual(packet["status"], "matched")
@@ -3570,7 +3570,7 @@ class PlatformRolesTest(unittest.TestCase):
 
     def test_routes_pr36_local_source_ref_merge_stage_packet_to_deploy_role(self) -> None:
         target = "/srv/bears/specs/006-bears-platform-telegram/governance/github-pr36-t903-local-source-ref-merge-stage-evidence.json"
-        for router in (platform_roles.route_target, platform_roles.audit_target):
+        for router in (subagents_roless.route_target, subagents_roless.audit_target):
             with self.subTest(router=router.__name__):
                 packet = router(self.catalog, target, plugin_root=PLUGIN_ROOT)
                 self.assertEqual(packet["status"], "matched")
@@ -3587,7 +3587,7 @@ class PlatformRolesTest(unittest.TestCase):
 
     def test_routes_t903_local_image_cache_remediation_evidence_to_deploy_role(self) -> None:
         target = "/srv/bears/specs/006-bears-platform-telegram/governance/t903-local-image-cache-remediation-evidence.json"
-        for router in (platform_roles.route_target, platform_roles.audit_target):
+        for router in (subagents_roless.route_target, subagents_roless.audit_target):
             with self.subTest(router=router.__name__):
                 packet = router(self.catalog, target, plugin_root=PLUGIN_ROOT)
                 self.assertEqual(packet["status"], "matched")
@@ -3609,7 +3609,7 @@ class PlatformRolesTest(unittest.TestCase):
             "/srv/bears/specs/006-bears-platform-telegram/governance/nonprod-validation-checklist.md",
         ]
         for target in targets:
-            for router in (platform_roles.route_target, platform_roles.audit_target):
+            for router in (subagents_roless.route_target, subagents_roless.audit_target):
                 with self.subTest(target=target, router=router.__name__):
                     packet = router(self.catalog, target, plugin_root=PLUGIN_ROOT)
                     self.assertEqual(packet["status"], "matched")
@@ -3631,7 +3631,7 @@ class PlatformRolesTest(unittest.TestCase):
             "/srv/bears/specs/006-bears-platform-telegram/governance/live-telegram-checklist.md",
         ]
         for target in targets:
-            for router in (platform_roles.route_target, platform_roles.audit_target):
+            for router in (subagents_roless.route_target, subagents_roless.audit_target):
                 with self.subTest(target=target, router=router.__name__):
                     packet = router(self.catalog, target, plugin_root=PLUGIN_ROOT)
                     self.assertEqual(packet["status"], "matched")
@@ -3650,14 +3650,14 @@ class PlatformRolesTest(unittest.TestCase):
 
     def test_routes_bears_platform_integration_tokens_child_to_wb_role(self) -> None:
         target = "/srv/bears/dev/platform/src/bears_platform/integration_tokens"
-        packet = platform_roles.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
+        packet = subagents_roless.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
         self.assertEqual(packet["status"], "matched")
         self.assertEqual(packet["concrete_part"], "bears_platform_integration_tokens_surface")
         self.assertEqual(packet["primary_role"], "bears-wb-integration-platform-engineer")
         self.assertEqual(packet["supporting_roles"], ["bears-platform-security-reviewer"])
         self.assertFalse(packet["decomposition_required"])
 
-        audit_packet = platform_roles.audit_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
+        audit_packet = subagents_roless.audit_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
         self.assertEqual(audit_packet["status"], "matched")
         self.assertTrue(audit_packet["implementation_handoff_allowed"])
         self.assertEqual(audit_packet["primary_role"], "bears-wb-integration-platform-engineer")
@@ -3669,13 +3669,13 @@ class PlatformRolesTest(unittest.TestCase):
     def test_audit_allows_theants_new_and_legacy_paths_after_validation(self) -> None:
         for target in ("/srv/bears/dev/app/theants", "/srv/bears/projects/theants"):
             with self.subTest(target=target):
-                packet = platform_roles.audit_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
+                packet = subagents_roless.audit_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
                 self.assertEqual(packet["status"], "matched")
                 self.assertTrue(packet["implementation_handoff_allowed"])
                 self.assertEqual(packet["primary_role"], "bears-product-app-zone-engineer")
 
     def test_kubernetes_deploy_core_policy_records_repo_boundary_and_subagent_rule(self) -> None:
-        packet = platform_roles.route_target(
+        packet = subagents_roless.route_target(
             self.catalog,
             "/srv/bears/kubernetes/contracts/kubernetes_deploy_core_contract.md",
             plugin_root=PLUGIN_ROOT,
@@ -3691,14 +3691,14 @@ class PlatformRolesTest(unittest.TestCase):
         self.assertIn("manual approval gates", packet["trust_boundary"])
 
     def test_old_dev_kubernetes_lane_is_not_a_writable_shim(self) -> None:
-        packet = platform_roles.route_target(self.catalog, "/srv/bears/dev/infrastructure/kubernetes", plugin_root=PLUGIN_ROOT)
+        packet = subagents_roless.route_target(self.catalog, "/srv/bears/dev/infrastructure/kubernetes", plugin_root=PLUGIN_ROOT)
         self.assertEqual(packet["status"], "matched")
         self.assertEqual(packet["concrete_part"], "kubernetes_dev_core_router_layer")
         self.assertEqual(packet["primary_role"], "bears-deploy-platform-engineer")
         self.assertIn("reference/router docs", packet["allowed_write_boundary"])
         self.assertIn("/srv/bears/kubernetes", packet["allowed_write_boundary"])
         self.assertIn("no Kubernetes production mutation", packet["allowed_write_boundary"])
-        audit_packet = platform_roles.audit_target(
+        audit_packet = subagents_roless.audit_target(
             self.catalog,
             "/srv/bears/dev/infrastructure/kubernetes",
             plugin_root=PLUGIN_ROOT,
@@ -3707,7 +3707,7 @@ class PlatformRolesTest(unittest.TestCase):
         self.assertTrue(audit_packet["implementation_handoff_allowed"])
 
     def test_dev_infrastructure_parent_stays_blocked_without_child_route(self) -> None:
-        packet = platform_roles.audit_target(self.catalog, "/srv/bears/dev/infrastructure", plugin_root=PLUGIN_ROOT)
+        packet = subagents_roless.audit_target(self.catalog, "/srv/bears/dev/infrastructure", plugin_root=PLUGIN_ROOT)
         self.assertEqual(packet["status"], "ROLE_COVERAGE_BLOCKER")
         self.assertEqual(packet["why_blocked"], "parent_only")
         self.assertTrue(packet["decomposition_required"])
@@ -3715,7 +3715,7 @@ class PlatformRolesTest(unittest.TestCase):
 
     def test_sentry_alias_routes_to_observability_runtime_plugin_surface(self) -> None:
         targets = ["sentry", "sentry-runtime-plugin", "/srv/bears/runtime-plugins/sentry"]
-        for router in (platform_roles.route_target, platform_roles.audit_target):
+        for router in (subagents_roless.route_target, subagents_roless.audit_target):
             for target in targets:
                 with self.subTest(router=router.__name__, target=target):
                     packet = router(self.catalog, target, plugin_root=PLUGIN_ROOT)
@@ -3752,16 +3752,16 @@ class PlatformRolesTest(unittest.TestCase):
         self.assertIn("runtime-plugin code stays outside /srv/bears/plugins/bears", part["required_validations"])
 
     def test_routes_role_gate_methodology_to_governor(self) -> None:
-        packet = platform_roles.route_target(
+        packet = subagents_roless.route_target(
             self.catalog,
             "/srv/bears/plugins/bears/assets/catalog/role-gate-methodology.v1.json",
             plugin_root=PLUGIN_ROOT,
         )
         self.assertEqual(packet["status"], "matched")
-        self.assertEqual(packet["primary_role"], "bears-platform-role-governor")
+        self.assertEqual(packet["primary_role"], "bears-subagents-roles-governor")
 
     def test_routes_telegram_runtime_readiness_catalog_to_exact_specialist(self) -> None:
-        packet = platform_roles.route_target(
+        packet = subagents_roless.route_target(
             self.catalog,
             "/srv/bears/plugins/bears/assets/catalog/telegram-runtime-readiness.v1.json",
             plugin_root=PLUGIN_ROOT,
@@ -3780,7 +3780,7 @@ class PlatformRolesTest(unittest.TestCase):
         }
         for target, expected_part in cases.items():
             with self.subTest(target=target):
-                packet = platform_roles.route_target(
+                packet = subagents_roless.route_target(
                     self.catalog,
                     target,
                     plugin_root=PLUGIN_ROOT,
@@ -3791,7 +3791,7 @@ class PlatformRolesTest(unittest.TestCase):
                 self.assertIn("bears-platform-security-reviewer", packet["supporting_roles"])
 
     def test_routes_feature_005_spec_truth_layer_to_exact_specialist(self) -> None:
-        packet = platform_roles.route_target(
+        packet = subagents_roless.route_target(
             self.catalog,
             "/srv/bears/specs/005-telegram-workflow-plugin/spec.md",
             plugin_root=PLUGIN_ROOT,
@@ -3808,7 +3808,7 @@ class PlatformRolesTest(unittest.TestCase):
         ]
         for target in targets:
             with self.subTest(target=target):
-                packet = platform_roles.route_target(
+                packet = subagents_roless.route_target(
                     self.catalog,
                     target,
                     plugin_root=PLUGIN_ROOT,
@@ -3827,7 +3827,7 @@ class PlatformRolesTest(unittest.TestCase):
         ]
         for target in targets:
             with self.subTest(target=target):
-                packet = platform_roles.route_target(
+                packet = subagents_roless.route_target(
                     self.catalog,
                     target,
                     plugin_root=PLUGIN_ROOT,
@@ -3844,7 +3844,7 @@ class PlatformRolesTest(unittest.TestCase):
         ]
         for target in targets:
             with self.subTest(target=target):
-                packet = platform_roles.route_target(
+                packet = subagents_roless.route_target(
                     self.catalog,
                     target,
                     plugin_root=PLUGIN_ROOT,
@@ -3855,7 +3855,7 @@ class PlatformRolesTest(unittest.TestCase):
                 self.assertIn("bears-platform-security-reviewer", packet["supporting_roles"])
 
     def test_audit_feature_005_checklist_handoff_is_allowed_after_validation(self) -> None:
-        packet = platform_roles.audit_target(
+        packet = subagents_roless.audit_target(
             self.catalog,
             "/srv/bears/specs/005-telegram-workflow-plugin/checklists/feature.json",
             plugin_root=PLUGIN_ROOT,
@@ -3865,7 +3865,7 @@ class PlatformRolesTest(unittest.TestCase):
         self.assertEqual(packet["primary_role"], "bears-telegram-platform-engineer")
 
     def test_unmapped_child_under_feature_005_truth_layer_still_blocks(self) -> None:
-        packet = platform_roles.route_target(
+        packet = subagents_roless.route_target(
             self.catalog,
             "/srv/bears/specs/005-telegram-workflow-plugin/notes.md",
             plugin_root=PLUGIN_ROOT,
@@ -3874,7 +3874,7 @@ class PlatformRolesTest(unittest.TestCase):
         self.assertEqual(packet["why_blocked"], "unmapped")
 
     def test_legacy_telegram_plugin_root_stays_blocked(self) -> None:
-        packet = platform_roles.route_target(
+        packet = subagents_roless.route_target(
             self.catalog,
             "/srv/bears/plugins/bears-telegram-workflow",
             plugin_root=PLUGIN_ROOT,
@@ -3894,14 +3894,14 @@ class PlatformRolesTest(unittest.TestCase):
         ]
         for target in targets:
             with self.subTest(target=target):
-                packet = platform_roles.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
+                packet = subagents_roless.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
                 self.assertEqual(packet["status"], "matched")
                 self.assertEqual(packet["primary_role"], "bears-telegram-platform-engineer")
 
     def test_product_apps_monorepo_root_routes_to_exact_product_role(self) -> None:
         for target in ("/srv/bears/dev/app", "BearsCLOUD/apps"):
             with self.subTest(target=target):
-                packet = platform_roles.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
+                packet = subagents_roless.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
                 self.assertEqual(packet["status"], "matched")
                 self.assertEqual(packet["concrete_part"], "product_apps_monorepo_root")
                 self.assertEqual(packet["primary_role"], "bears-product-app-zone-engineer")
@@ -3910,7 +3910,7 @@ class PlatformRolesTest(unittest.TestCase):
     def test_invalid_apps_monorepo_paths_stay_blocked(self) -> None:
         for target in ("/srv/bears/dev/app/newapp",):
             with self.subTest(target=target):
-                packet = platform_roles.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
+                packet = subagents_roless.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
                 self.assertEqual(packet["status"], "ROLE_COVERAGE_BLOCKER")
                 self.assertEqual(packet["why_blocked"], "unmapped")
 
@@ -3934,7 +3934,7 @@ class PlatformRolesTest(unittest.TestCase):
         }
         for target, (part, role) in expected.items():
             with self.subTest(target=target):
-                packet = platform_roles.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
+                packet = subagents_roless.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
                 self.assertEqual(packet["status"], "matched")
                 self.assertEqual(packet["concrete_part"], part)
                 self.assertEqual(packet["primary_role"], role)
@@ -3949,7 +3949,7 @@ class PlatformRolesTest(unittest.TestCase):
         catalog["platform_parts"].append(part)
         catalog["mandatory_policy"]["role_required_for"].append("future_standalone_product_app")
 
-        errors = platform_roles.validate_catalog(catalog, plugin_root=PLUGIN_ROOT)
+        errors = subagents_roless.validate_catalog(catalog, plugin_root=PLUGIN_ROOT)
 
         self.assertTrue(
             any(
@@ -3973,7 +3973,7 @@ class PlatformRolesTest(unittest.TestCase):
         catalog["platform_parts"].append(part)
         catalog["mandatory_policy"]["role_required_for"].append("future_canonical_product_app")
 
-        errors = platform_roles.validate_catalog(catalog, plugin_root=PLUGIN_ROOT)
+        errors = subagents_roless.validate_catalog(catalog, plugin_root=PLUGIN_ROOT)
 
         self.assertTrue(
             any(
@@ -3988,7 +3988,7 @@ class PlatformRolesTest(unittest.TestCase):
         part = next(item for item in catalog["platform_parts"] if item["name"] == "desk_product_dev_layer")
         part["legacy_compatibility"]["deprecated_refs"] = []
 
-        errors = platform_roles.validate_catalog(catalog, plugin_root=PLUGIN_ROOT)
+        errors = subagents_roless.validate_catalog(catalog, plugin_root=PLUGIN_ROOT)
 
         self.assertTrue(
             any(
@@ -4021,7 +4021,7 @@ class PlatformRolesTest(unittest.TestCase):
         part = next(item for item in catalog["platform_parts"] if item["name"] == "desk_product_dev_layer")
         part["legacy_compatibility"].pop("infra_local_cd_safety_invariant", None)
 
-        errors = platform_roles.validate_catalog(catalog, plugin_root=PLUGIN_ROOT)
+        errors = subagents_roless.validate_catalog(catalog, plugin_root=PLUGIN_ROOT)
 
         self.assertTrue(
             any(
@@ -4032,16 +4032,16 @@ class PlatformRolesTest(unittest.TestCase):
         )
 
     def test_platform_repo_root_stays_outside_apps_archive_workflow(self) -> None:
-        packet = platform_roles.route_target(self.catalog, "/srv/bears/dev/platform", plugin_root=PLUGIN_ROOT)
+        packet = subagents_roless.route_target(self.catalog, "/srv/bears/dev/platform", plugin_root=PLUGIN_ROOT)
         self.assertEqual(packet["status"], "matched")
         self.assertEqual(packet["concrete_part"], "bears_platform_repo_root")
-        self.assertEqual(packet["primary_role"], "bears-platform-role-governor")
+        self.assertEqual(packet["primary_role"], "bears-subagents-roles-governor")
 
         catalog = copy.deepcopy(self.catalog)
         platform_part = next(item for item in catalog["platform_parts"] if item["name"] == "bears_platform_repo_root")
         platform_part["aliases"].append("BearsCLOUD/platform-temp")
 
-        errors = platform_roles.validate_catalog(catalog, plugin_root=PLUGIN_ROOT)
+        errors = subagents_roless.validate_catalog(catalog, plugin_root=PLUGIN_ROOT)
 
         self.assertFalse(
             any("bears_platform_repo_root old app route must declare legacy_compatibility" in error for error in errors)
@@ -4055,8 +4055,8 @@ class PlatformRolesTest(unittest.TestCase):
                 "README.md",
                 "SPEC.md",
                 "requirements.md",
-                "skills/platform-role-governance/SKILL.md",
-                "skills/platform-role-governance/SKILL.md",
+                "skills/subagents-roles/SKILL.md",
+                "skills/subagents-roles/SKILL.md",
                 "agents/bears-product-app-zone-engineer.toml",
             )
         }
@@ -4075,18 +4075,18 @@ class PlatformRolesTest(unittest.TestCase):
                     self.assertIn("archive", text)
 
     def test_dev_registry_root_routes_to_exact_workspace_governance_docs(self) -> None:
-        for router in (platform_roles.route_target, platform_roles.audit_target):
+        for router in (subagents_roless.route_target, subagents_roless.audit_target):
             with self.subTest(router=router.__name__):
                 packet = router(self.catalog, "/srv/bears/dev/registry", plugin_root=PLUGIN_ROOT)
                 self.assertEqual(packet["status"], "matched")
                 self.assertEqual(packet["concrete_part"], "workspace_governance_canonical_plugin_docs")
-                self.assertEqual(packet["primary_role"], "bears-platform-role-governor")
+                self.assertEqual(packet["primary_role"], "bears-subagents-roles-governor")
                 self.assertEqual(packet["supporting_roles"], ["bears-platform-security-reviewer"])
-                self.assertTrue(packet["implementation_handoff_allowed"] if router is platform_roles.audit_target else True)
+                self.assertTrue(packet["implementation_handoff_allowed"] if router is subagents_roless.audit_target else True)
 
     def test_desk_product_dev_layer_routes_to_exact_product_role(self) -> None:
         target = "/srv/bears/dev/app/desk"
-        for router in (platform_roles.route_target, platform_roles.audit_target):
+        for router in (subagents_roless.route_target, subagents_roless.audit_target):
             with self.subTest(router=router.__name__):
                 packet = router(self.catalog, target, plugin_root=PLUGIN_ROOT)
                 self.assertEqual(packet["status"], "matched")
@@ -4116,7 +4116,7 @@ class PlatformRolesTest(unittest.TestCase):
             ),
         }
         for target, (expected_part, expected_role) in cases.items():
-            for router in (platform_roles.route_target, platform_roles.audit_target):
+            for router in (subagents_roless.route_target, subagents_roless.audit_target):
                 with self.subTest(target=target, router=router.__name__):
                     packet = router(self.catalog, target, plugin_root=PLUGIN_ROOT)
                     self.assertEqual(packet["status"], "matched")
@@ -4128,7 +4128,7 @@ class PlatformRolesTest(unittest.TestCase):
 
     def test_runtime_packet_doc_routes_to_exact_telegram_role_with_security_reviewer(self) -> None:
         target = "/srv/bears/dev/platform/docs/runtime-implementation-packet-after-rotation.md"
-        for router in (platform_roles.route_target, platform_roles.audit_target):
+        for router in (subagents_roless.route_target, subagents_roless.audit_target):
             with self.subTest(router=router.__name__):
                 packet = router(self.catalog, target, plugin_root=PLUGIN_ROOT)
                 self.assertEqual(packet["status"], "matched")
@@ -4138,14 +4138,14 @@ class PlatformRolesTest(unittest.TestCase):
                 self.assertIn("secret/redaction boundary change", packet["reviewer_triggers"])
 
     def test_plugin_root_gitlink_and_child_file_routes_are_disambiguated(self) -> None:
-        root_packet = platform_roles.route_target(self.catalog, "/srv/bears/plugins/bears", plugin_root=PLUGIN_ROOT)
-        child_packet = platform_roles.route_target(self.catalog, "/srv/bears/plugins/bears/AGENTS.md", plugin_root=PLUGIN_ROOT)
-        child_audit = platform_roles.audit_target(self.catalog, "/srv/bears/plugins/bears/AGENTS.md", plugin_root=PLUGIN_ROOT)
+        root_packet = subagents_roless.route_target(self.catalog, "/srv/bears/plugins/bears", plugin_root=PLUGIN_ROOT)
+        child_packet = subagents_roless.route_target(self.catalog, "/srv/bears/plugins/bears/AGENTS.md", plugin_root=PLUGIN_ROOT)
+        child_audit = subagents_roless.audit_target(self.catalog, "/srv/bears/plugins/bears/AGENTS.md", plugin_root=PLUGIN_ROOT)
         self.assertEqual(root_packet["status"], "matched")
         self.assertEqual(root_packet["concrete_part"], "workspace_root_submodule_gitlinks")
         self.assertEqual(child_packet["status"], "matched")
-        self.assertEqual(child_packet["concrete_part"], "platform_role_governance")
-        self.assertEqual(child_packet["primary_role"], "bears-platform-role-governor")
+        self.assertEqual(child_packet["concrete_part"], "subagents_roles_governance")
+        self.assertEqual(child_packet["primary_role"], "bears-subagents-roles-governor")
         self.assertEqual(child_audit["status"], "matched")
         self.assertTrue(child_audit["implementation_handoff_allowed"])
 
@@ -4155,7 +4155,7 @@ class PlatformRolesTest(unittest.TestCase):
             "/srv/bears/plugins/bears/.github/ISSUE_TEMPLATE/bug_report.yml",
         ]
         for target in targets:
-            for router in (platform_roles.route_target, platform_roles.audit_target):
+            for router in (subagents_roless.route_target, subagents_roless.audit_target):
                 with self.subTest(target=target, router=router.__name__):
                     packet = router(self.catalog, target, plugin_root=PLUGIN_ROOT)
                     self.assertEqual(packet["status"], "matched")
@@ -4174,7 +4174,7 @@ class PlatformRolesTest(unittest.TestCase):
             "/srv/bears/dev/platform/tests/test_notifications_runtime.py": "bears_platform_notifications_runtime_tests",
         }
         for target, expected_part in cases.items():
-            for router in (platform_roles.route_target, platform_roles.audit_target):
+            for router in (subagents_roless.route_target, subagents_roless.audit_target):
                 with self.subTest(target=target, router=router.__name__):
                     packet = router(self.catalog, target, plugin_root=PLUGIN_ROOT)
                     self.assertEqual(packet["status"], "matched")
@@ -4204,7 +4204,7 @@ class PlatformRolesTest(unittest.TestCase):
             ),
         }
         for target, (expected_part, expected_role) in cases.items():
-            for router in (platform_roles.route_target, platform_roles.audit_target):
+            for router in (subagents_roless.route_target, subagents_roless.audit_target):
                 with self.subTest(target=target, router=router.__name__):
                     packet = router(self.catalog, target, plugin_root=PLUGIN_ROOT)
                     self.assertEqual(packet["status"], "matched")
@@ -4268,7 +4268,7 @@ class PlatformRolesTest(unittest.TestCase):
             ),
         }
         for target, (expected_part, expected_role, boundary_text) in cases.items():
-            for router in (platform_roles.route_target, platform_roles.audit_target):
+            for router in (subagents_roless.route_target, subagents_roless.audit_target):
                 with self.subTest(target=target, router=router.__name__):
                     packet = router(self.catalog, target, plugin_root=PLUGIN_ROOT)
                     self.assertEqual(packet["status"], "matched")
@@ -4291,7 +4291,7 @@ class PlatformRolesTest(unittest.TestCase):
             "/srv/bears/dev/platform/.github/actions",
         ]
         for target in blocked_targets:
-            packet = platform_roles.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
+            packet = subagents_roless.route_target(self.catalog, target, plugin_root=PLUGIN_ROOT)
             with self.subTest(target=target):
                 self.assertEqual(packet["status"], "ROLE_COVERAGE_BLOCKER")
                 self.assertEqual(packet["why_blocked"], "unmapped")

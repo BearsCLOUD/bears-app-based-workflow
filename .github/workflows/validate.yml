@@ -92,8 +92,8 @@ jobs:
         run: python3 scripts/ci_requirements.py validate-workflow --workflow .github/workflows/validate.yml --catalog assets/catalog/ci-requirements.v1.json
       - name: Enforce test category catalog
         run: python3 scripts/ci_requirements.py enforce-test-categories --catalog assets/catalog/ci-requirements.v1.json --root .
-      - name: Validate plugin constitution
-        run: python3 scripts/plugin_constitution.py validate
+      - name: Validate subagents roles
+        run: python3 scripts/subagents_roles.py validate
       - name: Validate plugin cache sync fixture
         run: python3 scripts/plugin_cache_sync.py validate-state --state tests/fixtures/plugin_cache_sync/plugin-cache-sync-state.valid.json
       - name: Validate workflow technical debt matrix
@@ -150,7 +150,7 @@ jobs:
       - name: Install dependencies
         run: python3 -m pip install -r requirements-dev.txt
       - name: Validate role catalog
-        run: python3 scripts/platform_roles.py validate
+        run: python3 scripts/subagents_roles.py validate
       - name: Validate agent workflow map
         run: python3 scripts/agent_workflow_map.py validate
       - name: Validate role-gate methodology

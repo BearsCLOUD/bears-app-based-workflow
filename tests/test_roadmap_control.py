@@ -239,7 +239,7 @@ class RoadmapControlTest(unittest.TestCase):
 
     def test_rejects_phase_role_drift(self) -> None:
         catalog = copy.deepcopy(self.catalog)
-        catalog["roadmap_for_this_objective"]["phases"][1]["role"] = "bears-platform-role-governor"
+        catalog["roadmap_for_this_objective"]["phases"][1]["role"] = "bears-subagents-roles-governor"
         errors = self.validate(catalog)
         self.assertTrue(
             any(
@@ -276,10 +276,10 @@ class RoadmapControlTest(unittest.TestCase):
 
     def test_rejects_missing_role_catalog_validation_command(self) -> None:
         catalog = copy.deepcopy(self.catalog)
-        catalog["validation"]["commands"].remove("python3 scripts/platform_roles.py validate")
+        catalog["validation"]["commands"].remove("python3 scripts/subagents_roles.py validate")
         errors = self.validate(catalog)
         self.assertTrue(
-            any("validation.commands missing fields: python3 scripts/platform_roles.py validate" in error for error in errors)
+            any("validation.commands missing fields: python3 scripts/subagents_roles.py validate" in error for error in errors)
         )
 
 

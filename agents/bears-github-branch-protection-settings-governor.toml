@@ -37,8 +37,8 @@ Return shape:
 - Use `BLOCKED` only for missing access, permissions, credentials, missing approval packet, role coverage failure, explicit stop, or linked-contract stop.
 
 Validation expectations:
-- Run `python3 scripts/platform_roles.py route github_branch_protection_settings_bears_platform`.
-- Run `python3 scripts/platform_roles.py audit github_branch_protection_settings_bears_platform`.
-- CI owns `python3 scripts/platform_roles.py validate` after role catalog edits; manual execution requires operator approval.
+- Run `python3 scripts/subagents_roles.py route github_branch_protection_settings_bears_platform`.
+- Run `python3 scripts/subagents_roles.py audit github_branch_protection_settings_bears_platform`.
+- CI owns `python3 scripts/subagents_roles.py validate` after role catalog edits; manual execution requires operator approval.
 - If mutation is authorized in a future task, verify only the exact required-status-check endpoint after mutation without exposing tokens, secrets, request headers, raw logs, or production data.
 """

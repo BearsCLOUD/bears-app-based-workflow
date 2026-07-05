@@ -227,7 +227,7 @@ def validate_workflow(workflow: dict[str, Any], catalog: dict[str, Any]) -> list
         "python3 scripts/ci_requirements.py validate-workflow",
         "python3 scripts/ci_requirements.py enforce-test-categories",
         "hooks.json",
-        "python3 scripts/platform_roles.py validate",
+        "python3 scripts/subagents_roles.py validate",
         "python3 scripts/plugin_cache_sync.py validate-state",
         "python3 scripts/agentic_enterprise_workflow.py validate",
         "python3 scripts/git_discipline.py validate",

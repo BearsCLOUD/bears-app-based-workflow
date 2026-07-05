@@ -58,10 +58,10 @@
     },
     {
       "kind": "files",
-      "name": "platform-role-gate-action",
+      "name": "subagents-roles-gate-action",
       "pants_target": "//:platform_role_gate_action_files",
       "patterns": [
-        "actions/platform-role-gate/action.yml"
+        "actions/subagents-roles-gate/action.yml"
       ],
       "tests": [
         "tests/test_platform_role_gate_action.py",
@@ -327,7 +327,7 @@
       ],
       "tests": [
         "tests/test_clarification_architect_role.py",
-        "tests/test_platform_roles.py",
+        "tests/test_subagents_roles.py",
         "tests/test_validate_overlay.py",
         "tests/test_bears_doctor.py",
         "tests/test_artifact_registry.py",
@@ -379,7 +379,7 @@
       ],
       "tests": [
         "tests/test_auth_gateway_deploy_readiness.py",
-        "tests/test_platform_roles.py",
+        "tests/test_subagents_roles.py",
         "tests/test_validate_overlay.py",
         "tests/test_test_selection.py",
         "tests/test_pants_test_graph.py"

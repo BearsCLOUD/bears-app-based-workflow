@@ -7140,39 +7140,39 @@
       "allowed_writers": [
         "bears-plugin-update-engineer"
       ],
+      "artifact_type": "catalog",
       "changelog_required": false,
       "decision_ref_required": false,
       "git_tracked": true,
-      "lifecycle": "config",
+      "lifecycle": "catalog",
       "owner_issue": "operator-goal-plugin-update-refactor",
       "owner_role": "bears-plugin-update-engineer",
+      "path": "skills/bears-plugin-update/plugin-update.config.v1.json",
       "source_of_truth_status": "canonical",
       "validation": [
         "python3 scripts/artifact_registry.py validate"
-      ],
-      "artifact_type": "catalog",
-      "path": "skills/bears-plugin-update/plugin-update.config.v1.json"
+      ]
     },
     {
       "allowed_writers": [
         "bears-plugin-update-engineer"
       ],
+      "artifact_type": "schema",
       "changelog_required": false,
       "decision_ref_required": false,
       "git_tracked": true,
-      "lifecycle": "config",
+      "lifecycle": "schema",
       "owner_issue": "operator-goal-plugin-update-refactor",
       "owner_role": "bears-plugin-update-engineer",
+      "path": "skills/bears-plugin-update/plugin-update.config.v1.schema.json",
       "source_of_truth_status": "canonical",
       "validation": [
         "python3 scripts/artifact_registry.py validate"
-      ],
-      "artifact_type": "schema",
-      "path": "skills/bears-plugin-update/plugin-update.config.v1.schema.json"
+      ]
     },
     {
       "allowed_writers": [
-        "bears-platform-role-governor"
+        "bears-subagents-roles-governor"
       ],
       "artifact_type": "doc",
       "changelog_required": false,
@@ -7180,8 +7180,212 @@
       "git_tracked": true,
       "lifecycle": "doc",
       "owner_issue": "operator-goal-plugin-update-refactor",
-      "owner_role": "bears-platform-role-governor",
+      "owner_role": "bears-subagents-roles-governor",
       "path": "skills/bears-agents/SKILL.md",
+      "source_of_truth_status": "canonical",
+      "validation": [
+        "python3 scripts/artifact_registry.py validate"
+      ]
+    },
+    {
+      "allowed_writers": [
+        "bears-subagents-roles-governor"
+      ],
+      "artifact_type": "doc",
+      "changelog_required": false,
+      "decision_ref_required": false,
+      "git_tracked": true,
+      "lifecycle": "doc",
+      "owner_issue": "operator-goal-subagents-roles-governance-migration",
+      "owner_role": "bears-subagents-roles-governor",
+      "path": "agents/bears-subagents-roles-governor.toml",
+      "source_of_truth_status": "canonical",
+      "validation": [
+        "python3 scripts/artifact_registry.py validate"
+      ]
+    },
+    {
+      "allowed_writers": [
+        "bears-subagents-roles-governor"
+      ],
+      "artifact_type": "doc",
+      "changelog_required": false,
+      "decision_ref_required": false,
+      "git_tracked": true,
+      "lifecycle": "doc",
+      "owner_issue": "operator-goal-subagents-roles-governance-migration",
+      "owner_role": "bears-subagents-roles-governor",
+      "path": "docs/audits/subagents-roles/role-principle-ledger.v1.json",
+      "source_of_truth_status": "canonical",
+      "validation": [
+        "python3 scripts/artifact_registry.py validate"
+      ]
+    },
+    {
+      "allowed_writers": [
+        "bears-subagents-roles-governor"
+      ],
+      "artifact_type": "doc",
+      "changelog_required": false,
+      "decision_ref_required": false,
+      "git_tracked": true,
+      "lifecycle": "doc",
+      "owner_issue": "operator-goal-subagents-roles-governance-migration",
+      "owner_role": "bears-subagents-roles-governor",
+      "path": "docs/reference/subagents-roles.md",
+      "source_of_truth_status": "canonical",
+      "validation": [
+        "python3 scripts/artifact_registry.py validate"
+      ]
+    },
+    {
+      "allowed_writers": [
+        "bears-subagents-roles-governor"
+      ],
+      "artifact_type": "script",
+      "changelog_required": false,
+      "decision_ref_required": false,
+      "git_tracked": true,
+      "lifecycle": "script",
+      "owner_issue": "operator-goal-subagents-roles-governance-migration",
+      "owner_role": "bears-subagents-roles-governor",
+      "path": "scripts/subagents_roles.py",
+      "source_of_truth_status": "canonical",
+      "validation": [
+        "python3 scripts/artifact_registry.py validate"
+      ]
+    },
+    {
+      "allowed_writers": [
+        "bears-subagents-roles-governor"
+      ],
+      "artifact_type": "doc",
+      "changelog_required": false,
+      "decision_ref_required": false,
+      "git_tracked": true,
+      "lifecycle": "doc",
+      "owner_issue": "operator-goal-subagents-roles-governance-migration",
+      "owner_role": "bears-subagents-roles-governor",
+      "path": "skills/subagents-roles/SKILL.md",
+      "source_of_truth_status": "canonical",
+      "validation": [
+        "python3 scripts/artifact_registry.py validate"
+      ]
+    },
+    {
+      "allowed_writers": [
+        "bears-subagents-roles-governor"
+      ],
+      "artifact_type": "doc",
+      "changelog_required": false,
+      "decision_ref_required": false,
+      "git_tracked": true,
+      "lifecycle": "doc",
+      "owner_issue": "operator-goal-subagents-roles-governance-migration",
+      "owner_role": "bears-subagents-roles-governor",
+      "path": "skills/subagents-roles/agents/openai.yaml",
+      "source_of_truth_status": "canonical",
+      "validation": [
+        "python3 scripts/artifact_registry.py validate"
+      ]
+    },
+    {
+      "allowed_writers": [
+        "bears-subagents-roles-governor"
+      ],
+      "artifact_type": "doc",
+      "changelog_required": false,
+      "decision_ref_required": false,
+      "git_tracked": true,
+      "lifecycle": "doc",
+      "owner_issue": "operator-goal-subagents-roles-governance-migration",
+      "owner_role": "bears-subagents-roles-governor",
+      "path": "skills/subagents-roles/references/positive-planning-language.md",
+      "source_of_truth_status": "canonical",
+      "validation": [
+        "python3 scripts/artifact_registry.py validate"
+      ]
+    },
+    {
+      "allowed_writers": [
+        "bears-subagents-roles-governor"
+      ],
+      "artifact_type": "doc",
+      "changelog_required": false,
+      "decision_ref_required": false,
+      "git_tracked": true,
+      "lifecycle": "doc",
+      "owner_issue": "operator-goal-subagents-roles-governance-migration",
+      "owner_role": "bears-subagents-roles-governor",
+      "path": "skills/subagents-roles/references/repeatable-process-automation.md",
+      "source_of_truth_status": "canonical",
+      "validation": [
+        "python3 scripts/artifact_registry.py validate"
+      ]
+    },
+    {
+      "allowed_writers": [
+        "bears-subagents-roles-governor"
+      ],
+      "artifact_type": "doc",
+      "changelog_required": false,
+      "decision_ref_required": false,
+      "git_tracked": true,
+      "lifecycle": "doc",
+      "owner_issue": "operator-goal-subagents-roles-governance-migration",
+      "owner_role": "bears-subagents-roles-governor",
+      "path": "skills/subagents-roles/references/role-principle-ledger.md",
+      "source_of_truth_status": "canonical",
+      "validation": [
+        "python3 scripts/artifact_registry.py validate"
+      ]
+    },
+    {
+      "allowed_writers": [
+        "bears-subagents-roles-governor"
+      ],
+      "artifact_type": "doc",
+      "changelog_required": false,
+      "decision_ref_required": false,
+      "git_tracked": true,
+      "lifecycle": "doc",
+      "owner_issue": "operator-goal-subagents-roles-governance-migration",
+      "owner_role": "bears-subagents-roles-governor",
+      "path": "skills/subagents-roles/references/role-start-packet.md",
+      "source_of_truth_status": "canonical",
+      "validation": [
+        "python3 scripts/artifact_registry.py validate"
+      ]
+    },
+    {
+      "allowed_writers": [
+        "bears-subagents-roles-governor"
+      ],
+      "artifact_type": "doc",
+      "changelog_required": false,
+      "decision_ref_required": false,
+      "git_tracked": true,
+      "lifecycle": "doc",
+      "owner_issue": "operator-goal-subagents-roles-governance-migration",
+      "owner_role": "bears-subagents-roles-governor",
+      "path": "skills/subagents-roles/references/runtime-result-efficiency.md",
+      "source_of_truth_status": "canonical",
+      "validation": [
+        "python3 scripts/artifact_registry.py validate"
+      ]
+    },
+    {
+      "allowed_writers": [
+        "bears-subagents-roles-governor"
+      ],
+      "artifact_type": "doc",
+      "changelog_required": false,
+      "decision_ref_required": false,
+      "git_tracked": true,
+      "lifecycle": "doc",
+      "owner_issue": "operator-goal-subagents-roles-governance-migration",
+      "owner_role": "bears-subagents-roles-governor",
+      "path": "skills/subagents-roles/references/well-specified-artifacts.md",
       "source_of_truth_status": "canonical",
       "validation": [
         "python3 scripts/artifact_registry.py validate"
@@ -7189,6 +7393,6 @@
     }
   ],
   "schema": "bears-artifact-registry.v1",
-  "updated": "2026-07-04",
+  "updated": "2026-07-05",
   "version": "1"
 }

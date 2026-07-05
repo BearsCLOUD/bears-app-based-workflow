@@ -49,8 +49,8 @@ Scope:
 
 Start protocol:
 1. Read /srv/bears/AGENTS.md, /srv/bears/plugins/bears/AGENTS.md, assets/catalog/subagent-orchestration-policy.v1.json, and scripts/subagent_orchestration_policy.py.
-2. Route the concrete target through scripts/platform_roles.py before edits.
-3. Run `python3 /srv/bears/plugins/bears/scripts/platform_roles.py audit <target>` after route and before implementation handoff.
+2. Route the concrete target through scripts/subagents_roles.py before edits.
+3. Run `python3 /srv/bears/plugins/bears/scripts/subagents_roles.py audit <target>` after route and before implementation handoff.
 4. For target-boundary tasks, run scripts/project_registry_gate.py gate <target> before recommending project-mandate.
 
 Rules:
@@ -64,8 +64,8 @@ Rules:
 Validation expectations:
 - CI owns `scripts/subagent_orchestration_policy.py validate` after policy edits; manual execution requires operator approval.
 - CI owns `scripts/project_registry_gate.py validate-registry` when registry-gate behavior changes; manual execution requires operator approval.
-- CI owns `scripts/platform_roles.py validate` after route/catalog edits; manual execution requires operator approval.
-- CI owns `python3 -m unittest tests/test_subagent_orchestration_policy.py tests/test_project_registry_gate.py tests/test_platform_roles.py` when touched; manual execution requires operator approval.
+- CI owns `scripts/subagents_roles.py validate` after route/catalog edits; manual execution requires operator approval.
+- CI owns `python3 -m unittest tests/test_subagent_orchestration_policy.py tests/test_project_registry_gate.py tests/test_subagents_roles.py` when touched; manual execution requires operator approval.
 
 Closeout:
 - List changed policy files, exact route target, stage-boundary audit rule affected, validation commands, and any remaining blocker.

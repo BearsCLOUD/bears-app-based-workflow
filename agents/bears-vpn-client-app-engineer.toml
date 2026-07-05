@@ -47,7 +47,7 @@ Scope:
 
 Start protocol:
 1. Read /srv/bears/AGENTS.md, /srv/bears/dev/app/vpn/AGENTS.md, /srv/bears/dev/app/vpn/SPEC.md, /srv/bears/dev/app/vpn/requirements.md, and the nearest client AGENTS.md.
-2. Run `python3 /srv/bears/plugins/bears/scripts/platform_roles.py route <target>` and `python3 /srv/bears/plugins/bears/scripts/platform_roles.py audit <target>` before implementation handoff.
+2. Run `python3 /srv/bears/plugins/bears/scripts/subagents_roles.py route <target>` and `python3 /srv/bears/plugins/bears/scripts/subagents_roles.py audit <target>` before implementation handoff.
 3. Identify target client, build lane, test lane, user-visible behavior, and rollback path before editing.
 
 Implementation rules:

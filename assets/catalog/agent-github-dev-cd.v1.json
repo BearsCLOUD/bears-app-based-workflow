@@ -9,8 +9,8 @@
   "workflow": "/srv/bears/plugins/bears/workflows/agent-github-dev-cd/workflow.yml",
   "validation": {
     "commands": [
-      "python3 scripts/platform_roles.py validate",
-      "python3 scripts/platform_roles.py route /srv/bears/plugins/bears/assets/catalog/agent-github-dev-cd.v1.json",
+      "python3 scripts/subagents_roles.py validate",
+      "python3 scripts/subagents_roles.py route /srv/bears/plugins/bears/assets/catalog/agent-github-dev-cd.v1.json",
       "python3 scripts/agent_github_dev_cd.py validate",
       "python3 scripts/ci_requirements.py validate-workflow --workflow .github/workflows/validate.yml --catalog assets/catalog/ci-requirements.v1.json",
       "python3 scripts/test_selection.py validate",
@@ -209,7 +209,7 @@
       ],
       "canonical_gate_options": [
         "Route gate",
-        "Constitution gate",
+        "Subagents-roles gate",
         "Research gate",
         "Prototype gate",
         "Design gate",
@@ -340,7 +340,7 @@
     "validation_workflow": "/srv/bears/plugins/bears/.github/workflows/validate.yml",
     "required_commands": [
       "python3 scripts/ci_requirements.py validate-workflow",
-      "python3 scripts/platform_roles.py validate",
+      "python3 scripts/subagents_roles.py validate",
       "python3 scripts/validate_overlay.py --json validate --strict-overlay-skills",
       "python3 scripts/test_selection.py validate"
     ],

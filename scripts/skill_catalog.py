@@ -13,7 +13,7 @@ from typing import Any
 PLUGIN_ROOT = Path(__file__).resolve().parents[1]
 CATALOG_PATH = PLUGIN_ROOT / "assets" / "catalog" / "plugin-skill-catalog.v1.json"
 ROLE_CATALOG_PATH = PLUGIN_ROOT / "assets" / "catalog" / "platform-role-catalog.v1.json"
-ROLE_ROUTER_PATH = PLUGIN_ROOT / "scripts" / "platform_roles.py"
+ROLE_ROUTER_PATH = PLUGIN_ROOT / "scripts" / "subagents_roles.py"
 ACTIVE_FILE = "SKILL.md"
 DISABLED_FILE = "SKILL.disabled.md"
 INVENTORY_START = "<!-- BEARS_SKILL_INVENTORY: START -->"
@@ -103,7 +103,7 @@ def validate_active_skill_route_coverage(
     role_errors = platform_roles.validate_catalog(role_catalog, plugin_root=plugin_root)
     errors: list[str] = []
     if role_errors:
-        errors.append("platform role catalog invalid while checking active skill routes: " + "; ".join(role_errors))
+        errors.append("subagents roles catalog invalid while checking active skill routes: " + "; ".join(role_errors))
         return errors
     for entry in catalog.get("active_skills", []):
         if not isinstance(entry, dict) or not isinstance(entry.get("path"), str):

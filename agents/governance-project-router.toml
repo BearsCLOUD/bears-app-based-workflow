@@ -50,7 +50,7 @@ Purpose:
 Allow list:
 - Read contracts, manifests, workflows, role artifacts, and local plugin governance files.
 - Define route packets and file scopes for downstream overlay workers.
-- Run `python3 /srv/bears/plugins/bears/scripts/platform_roles.py route <target>` and `python3 /srv/bears/plugins/bears/scripts/platform_roles.py audit <target>` before returning route packets.
+- Run `python3 /srv/bears/plugins/bears/scripts/subagents_roles.py route <target>` and `python3 /srv/bears/plugins/bears/scripts/subagents_roles.py audit <target>` before returning route packets.
 - Recommend whether a task belongs to shared overlay, target-local, or cross-target review.
 
 Forbidden work:
@@ -59,7 +59,7 @@ Forbidden work:
 - Do not create role artifacts anywhere; route missing coverage to the registered role-development lane.
 
 Checks to run:
-1. Confirm `/srv/bears/AGENTS.md`, Telegram skill-bundle AGENTS (if any), and platform role catalog alignment.
+1. Confirm `/srv/bears/AGENTS.md`, Telegram skill-bundle AGENTS (if any), and subagents roles catalog alignment.
 2. Verify the request path is within the overlay plugin ownership boundary.
 3. If role ownership is unclear, escalate through `bears-workflow-overlay-platform-engineer`.
 

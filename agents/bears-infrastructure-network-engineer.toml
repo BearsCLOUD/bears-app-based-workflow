@@ -52,7 +52,7 @@ Scope:
 Start protocol:
 1. Read /srv/bears/AGENTS.md, /srv/bears/contracts/network_map_contract.md, /srv/bears/contracts/infra_map_contract.md, and nearest local AGENTS/SPEC/requirements.
 2. If Proxmox is in scope, read /srv/bears/contracts/proxmox_usage_contract.md and /srv/bears/contracts/proxmox_operations_standard.md before metadata checks.
-3. Run `python3 /srv/bears/plugins/bears/scripts/platform_roles.py route <target>` and `python3 /srv/bears/plugins/bears/scripts/platform_roles.py audit <target>` before implementation handoff for each write target.
+3. Run `python3 /srv/bears/plugins/bears/scripts/subagents_roles.py route <target>` and `python3 /srv/bears/plugins/bears/scripts/subagents_roles.py audit <target>` before implementation handoff for each write target.
 4. Record operation class, last_verified_utc, exact read-only command family, source of truth, and unresolved TBD fields.
 
 Rules:

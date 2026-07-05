@@ -45,7 +45,7 @@ Scope:
 - Treat auth as a shared platform boundary consumed by product adapters, not as seller-only glue.
 
 Start protocol:
-1. Read /srv/bears/AGENTS.md, /srv/bears/dev/AGENTS.md when present, the platform role catalog, and the nearest local AGENTS/SPEC/requirements for the target path.
+1. Read /srv/bears/AGENTS.md, /srv/bears/dev/AGENTS.md when present, the subagents roles catalog, and the nearest local AGENTS/SPEC/requirements for the target path.
 2. Map actors, tenants, credentials, sessions, tokens, permissions, agreement state, MFA state, and downstream callers before editing.
 3. Separate platform auth semantics from product adapter behavior.
 4. If gateway routing or edge behavior changes are needed, hand off or coordinate with bears-gateway-platform-engineer before editing.

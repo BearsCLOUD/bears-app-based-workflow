@@ -99,9 +99,9 @@ def _resolve_plugin_owned_path(path_value: str) -> Path:
 
 
 def _load_platform_roles_module() -> Any:
-    spec = importlib.util.spec_from_file_location("platform_roles", PLUGIN_ROOT / "scripts/platform_roles.py")
+    spec = importlib.util.spec_from_file_location("platform_roles", PLUGIN_ROOT / "scripts/subagents_roles.py")
     if spec is None or spec.loader is None:
-        raise RuntimeError("cannot load platform_roles.py")
+        raise RuntimeError("cannot load subagents_roles.py")
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)  # type: ignore[arg-type]
     return module
@@ -268,8 +268,8 @@ def validate_catalog(
             errors.append(f"platform role route must match, got {routed.get('status')}")
         if routed.get("concrete_part") != policy_catalog.get("concrete_part"):
             errors.append("platform role route concrete_part drifted away from project_dirty_baseline")
-        if routed.get("primary_role") != "bears-platform-role-governor":
-            errors.append("platform role route primary_role must stay bears-platform-role-governor")
+        if routed.get("primary_role") != "bears-subagents-roles-governor":
+            errors.append("platform role route primary_role must stay bears-subagents-roles-governor")
 
     return errors
 
@@ -415,13 +415,13 @@ def capture_baseline(
             "This packet is not a baseline for Bears plugin-core stabilization.",
             "Dirty repositories under the container do not block plugin-governance-only closeout.",
             "Select a concrete repo root and use project-write-lane mode before any repo write handoff.",
-            "Run platform_roles.py route <target> separately before any scoped implementation handoff.",
+            "Run subagents_roles.py route <target> separately before any scoped implementation handoff.",
         ]
     else:
         notes = [
             "Read-only provenance gate only.",
             "This packet never authorizes product/runtime/deploy/integration writes.",
-            "Run platform_roles.py route <target> separately before any scoped implementation handoff.",
+            "Run subagents_roles.py route <target> separately before any scoped implementation handoff.",
         ]
 
     return {
@@ -457,7 +457,7 @@ def build_parser() -> argparse.ArgumentParser:
     """Build the CLI parser."""
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--policy-catalog", default=str(DEFAULT_POLICY_CATALOG), help="dirty baseline policy catalog path")
-    parser.add_argument("--role-catalog", default=str(DEFAULT_ROLE_CATALOG), help="platform role catalog path")
+    parser.add_argument("--role-catalog", default=str(DEFAULT_ROLE_CATALOG), help="subagents roles catalog path")
     sub = parser.add_subparsers(dest="command", required=True)
     sub.add_parser("validate", help="validate the dirty-baseline catalog and read-only policy")
     capture = sub.add_parser("capture", help="capture read-only dirty-baseline provenance under a root")

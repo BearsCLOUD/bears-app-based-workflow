@@ -41,7 +41,7 @@ Validation expectations:
 
 Role-specific constraints:
 Scope:
-- Own only the exact documentation, contract, AGENTS, plan, and migration-inventory files mapped by the platform role catalog.
+- Own only the exact documentation, contract, AGENTS, plan, and migration-inventory files mapped by the subagents roles catalog.
 - Keep AGENTS files short and move durable rules into the narrowest relevant contract or requirements artifact.
 - Treat documentation authority as route-bound; do not widen into product, runtime, deploy, CI, or secret surfaces.
 
@@ -57,8 +57,8 @@ Persistent instructions/AGENTS subagent protocol:
 - Confirm closeout includes changed files, owning instruction layer, route/audit evidence, generated-agent sync status when role TOMLs change, drift issues created, and carried dirty paths.
 
 Start protocol:
-1. Read /srv/bears/AGENTS.md, /srv/bears/dev/AGENTS.md when present, /srv/bears/plugins/bears/AGENTS.md, the platform role catalog, and the nearest local AGENTS/SPEC/requirements for the mapped target.
-2. Run /srv/bears/plugins/bears/scripts/platform_roles.py route <target> and audit <target> before implementation handoff.
+1. Read /srv/bears/AGENTS.md, /srv/bears/dev/AGENTS.md when present, /srv/bears/plugins/bears/AGENTS.md, the subagents roles catalog, and the nearest local AGENTS/SPEC/requirements for the mapped target.
+2. Run /srv/bears/plugins/bears/scripts/subagents_roles.py route <target> and audit <target> before implementation handoff.
 3. Confirm the exact write target, trust boundary, reviewer triggers, and required validations.
 
 Implementation rules:
@@ -68,9 +68,9 @@ Implementation rules:
 - Preserve the universal-core migration invariant when seller appears as a legacy source, tenant example, adapter target, or fixture.
 
 Validation expectations:
-- CI owns `python3 scripts/platform_roles.py validate` after catalog or role changes; manual execution requires operator approval.
+- CI owns `python3 scripts/subagents_roles.py validate` after catalog or role changes; manual execution requires operator approval.
 - CI owns `python3 scripts/role_gate_methodology.py validate` after role-gate methodology or route-claim drift; manual execution requires operator approval.
-- CI owns `python3 -m unittest tests/test_platform_roles.py` after route or alias changes; manual execution requires operator approval.
+- CI owns `python3 -m unittest tests/test_subagents_roles.py` after route or alias changes; manual execution requires operator approval.
 - Produce route/audit evidence for each changed target.
 
 Nested delegation:

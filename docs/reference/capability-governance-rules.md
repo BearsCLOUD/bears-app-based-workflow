@@ -56,7 +56,7 @@ Relevant executable checks:
 
 - `python3 scripts/tech_debt_matrix.py validate`
 - `python3 scripts/tech_debt_matrix.py status --json`
-- `python3 scripts/platform_roles.py route <target>`
-- `python3 scripts/platform_roles.py audit <target>`
+- `python3 scripts/subagents_roles.py route <target>`
+- `python3 scripts/subagents_roles.py audit <target>`
 
 This file remains a rule index only. It is not a closure register, audit log, runtime proof, CI proof, or cache-sync proof.

@@ -101,11 +101,11 @@ class SecretFactoryTests(unittest.TestCase):
 
     def test_catalog_validation_commands_cover_full_control_chain(self) -> None:
         expected = [
-            "python3 scripts/platform_roles.py validate",
-            "python3 scripts/platform_roles.py route /srv/bears/plugins/bears/assets/catalog/secret-factory.v1.json",
-            "python3 scripts/platform_roles.py audit /srv/bears/plugins/bears/assets/catalog/secret-factory.v1.json",
+            "python3 scripts/subagents_roles.py validate",
+            "python3 scripts/subagents_roles.py route /srv/bears/plugins/bears/assets/catalog/secret-factory.v1.json",
+            "python3 scripts/subagents_roles.py audit /srv/bears/plugins/bears/assets/catalog/secret-factory.v1.json",
             "python3 scripts/secret_factory.py validate",
-            "python3 -m unittest tests/test_secret_factory.py tests/test_platform_roles.py",
+            "python3 -m unittest tests/test_secret_factory.py tests/test_subagents_roles.py",
             "python3 scripts/validate_overlay.py --json validate --strict-overlay-skills",
         ]
         self.assertEqual(self.catalog["validation"]["commands"], expected)

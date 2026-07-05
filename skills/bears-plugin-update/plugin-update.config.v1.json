@@ -28,7 +28,7 @@
   },
   "sequential_audit_review": {
     "triggers": [
-      "assets/catalog/plugin-constitution.v1.json",
+      "assets/catalog/platform-role-catalog.v1.json",
       "skills/bears-plugin-update/SKILL.md"
     ],
     "exemptions": [

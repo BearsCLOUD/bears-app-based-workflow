@@ -135,13 +135,13 @@
       "commands": [
         [
           "python3",
-          "scripts/platform_roles.py",
+          "scripts/subagents_roles.py",
           "route",
           "machine-first-execution-kernel"
         ],
         [
           "python3",
-          "scripts/platform_roles.py",
+          "scripts/subagents_roles.py",
           "audit",
           "machine-first-execution-kernel"
         ]

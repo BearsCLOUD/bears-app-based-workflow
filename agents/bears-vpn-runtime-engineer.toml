@@ -47,7 +47,7 @@ Scope:
 
 Start protocol:
 1. Read /srv/bears/AGENTS.md, /srv/bears/dev/app/vpn/AGENTS.md, /srv/bears/dev/app/vpn/SPEC.md, /srv/bears/dev/app/vpn/requirements.md, and the nearest contour AGENTS.md; use /srv/bears/projects/vpn only as legacy route evidence when that exact compatibility target is assigned.
-2. Run /srv/bears/plugins/bears/scripts/platform_roles.py route <target> and audit <target> before implementation handoff.
+2. Run /srv/bears/plugins/bears/scripts/subagents_roles.py route <target> and audit <target> before implementation handoff.
 3. Identify the live contour with read-only docker inspect, docker ps, ss, wg or awg state, and compose provenance before runtime-affecting edits.
 4. Record exact write roots, validation commands, rollback path, and operator approval state before any runtime mutation.
 

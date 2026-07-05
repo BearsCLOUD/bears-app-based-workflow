@@ -152,9 +152,9 @@
       "evidence_required": true
     },
     "constitution_gate": {
-      "purpose": "Check plugin constitution before research and implementation.",
+      "purpose": "Check subagents roles before research and implementation.",
       "required_inputs": [
-        "plugin-constitution.v1.json",
+        "subagents-roles.v1.json",
         "route_decision"
       ],
       "required_outputs": [

@@ -1,5 +1,5 @@
 {
-  "capability_id": "plugin-constitution",
+  "capability_id": "subagents-roles",
   "case": "pilot-missing-fail-fixture",
   "expected_code": "PARITY_FAIL_FIXTURE_REQUIRED",
   "mutation": "remove all /fail/ fixture registrations from the inventory row",

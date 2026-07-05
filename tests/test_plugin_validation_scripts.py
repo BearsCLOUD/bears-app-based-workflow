@@ -9,8 +9,8 @@ from unittest import TestCase, main
 
 PLUGIN_ROOT = Path(__file__).resolve().parents[1]
 SCRIPT_PATHS = [
-    PLUGIN_ROOT / "scripts" / "platform_roles.py",
-    PLUGIN_ROOT / "scripts" / "plugin_constitution.py",
+    PLUGIN_ROOT / "scripts" / "subagents_roles.py",
+    PLUGIN_ROOT / "scripts" / "subagents_roles.py",
     PLUGIN_ROOT / "scripts" / "role_gate_methodology.py",
     PLUGIN_ROOT / "scripts" / "project_registry_gate.py",
     PLUGIN_ROOT / "scripts" / "subagent_orchestration_policy.py",
@@ -46,7 +46,7 @@ class ValidationEntrypointTests(TestCase):
         "overlay_validate",
         "roadmap_validate",
         "git_discipline_validate",
-        "plugin_constitution_validate",
+        "subagents_roles_validate",
         "role_gate_methodology_validate",
         "session_workers_runtime_validate",
         "agent_github_dev_cd_validate",

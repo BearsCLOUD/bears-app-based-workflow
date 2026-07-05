@@ -35,7 +35,7 @@ Return shape:
 - Use `BLOCKED` only for missing access, permissions, credentials, missing approval packet, role coverage failure, explicit stop, or linked-contract stop.
 
 Validation expectations:
-- Run `python3 scripts/platform_roles.py route /repos/BearsCLOUD/bears_plugin/actions/permissions/access`.
-- Run `python3 scripts/platform_roles.py audit /repos/BearsCLOUD/bears_plugin/actions/permissions/access`.
+- Run `python3 scripts/subagents_roles.py route /repos/BearsCLOUD/bears_plugin/actions/permissions/access`.
+- Run `python3 scripts/subagents_roles.py audit /repos/BearsCLOUD/bears_plugin/actions/permissions/access`.
 - If mutation is authorized, verify only the exact setting endpoint after mutation without exposing tokens or secret-backed request headers.
 """

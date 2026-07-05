@@ -68,7 +68,7 @@ class AgentGithubDevCdValidationTests(unittest.TestCase):
             "constitution_evidence": {
                 "status": "pass",
                 "evidence_path": "docs/evidence/constitution.md",
-                "command": "python3 scripts/plugin_constitution.py validate",
+                "command": "python3 scripts/subagents_roles.py validate",
                 "result": "exit 0",
             },
             "research_evidence": {
@@ -912,7 +912,7 @@ jobs:
   schema-catalog-validation:
     runs-on: ubuntu-latest
     steps:
-      - run: python3 scripts/platform_roles.py validate
+      - run: python3 scripts/subagents_roles.py validate
   hook-policy-validation:
     runs-on: ubuntu-latest
     steps:
@@ -921,7 +921,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - run: |
-          python3 scripts/platform_roles.py validate
+          python3 scripts/subagents_roles.py validate
           python3 scripts/validate_overlay.py --json validate --strict-overlay-skills
           python3 scripts/test_selection.py validate
           python3 scripts/test_selection.py run
@@ -1431,7 +1431,7 @@ jobs:
         self.assertIn("NONZERO_RC_NOT_PROPAGATED", payload["reasons"])
 
     def test_lint_command_snippet_blocks_validator_shape_drift(self) -> None:
-        command = "python3 -m py_compile scripts/preflight-nonprod.sh && python3 scripts/platform_roles.py route/audit scripts/git_discipline.py"
+        command = "python3 -m py_compile scripts/preflight-nonprod.sh && python3 scripts/subagents_roles.py route/audit scripts/git_discipline.py"
 
         payload = agent_cd.lint_command_snippet(command)
 

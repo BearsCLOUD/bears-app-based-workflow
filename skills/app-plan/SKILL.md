@@ -11,18 +11,33 @@ description: "Convert Bears app documentation into concrete GitHub Issues and Ap
 
 Every app-* skill starts with this gate:
 
-- Name one exact app directory or app docs path.
-- Classify each target as exactly one layer: `app`, `platform`, or `infra`.
-- `app` layer belongs to `BearsCLOUD/apps` and one app directory under `/srv/bears/dev/app`.
-- `platform` layer belongs to `/srv/bears/dev/platform`.
-- `infra` layer belongs to `/srv/bears/kubernetes`.
+- Name one exact app directory, app docs path, plugin path, platform path, or infra path.
+- Classify each target as exactly one `target_layer`: `app`, `platform`, `infra`, or `plugin`.
+- `app` belongs to `BearsCLOUD/apps` and one app directory under `/srv/bears/dev/app`.
+- `platform` belongs to `/srv/bears/dev/platform`.
+- `infra` belongs to `/srv/bears/kubernetes`.
+- `plugin` belongs to `plugins/<plugin>`; for `@Bears`, use `/srv/bears/plugins/bears` plus `subagents-roles` route/audit.
 - Legacy child repos and `/srv/bears/projects` are evidence only.
-- Broad workspace scans are forbidden when target packets name paths.
+- Use target-named reads when target packets name paths.
 - If a request crosses layers, keep the layers separate and pass them to `$app-plan` as separate lanes.
 
 Use this skill to convert app docs into GitHub Issues and Apps Project #20 items for `$app-dev`.
 
 The output is applied GitHub metadata: concrete Issues in `BearsCLOUD/apps`, Project #20 items, filled fields, dependencies, lane map, and ready handoff input for `$app-dev`.
+
+
+
+## Plugin target mode
+
+Use `target_layer=plugin` when app-style flow helps a plugin governance or workflow change.
+
+- `app-constitution` creates or updates a plugin governance baseline, not a retired standalone artifact.
+- `app-research` gathers current plugin source, generated inventory, route/audit, runtime, GitHub, or install/update evidence.
+- `app-specify` writes plugin-local requirements or specification docs for plugin behavior.
+- `app-plan` creates plugin repo Issues and plugin-local task packets; for `@Bears`, use `BearsCLOUD/bears_plugin` issue metadata.
+- `app-analyze` checks drift across plugin baseline, specs, task packets, route/audit evidence, role-principle ledger, and issue metadata.
+- `app-dev` executes bounded plugin task packets through selected `@Bears` roles, skills, or subagents and updates the ledger when role principles change.
+- Plugin-target `task` and `wave` keep the app-dev meanings, with plugin repo/path ownership instead of product app ownership.
 
 ## Boundary
 

@@ -845,7 +845,7 @@
       "approval_status": "not-requested",
       "security_signoff": "required",
       "validation_plan": [
-        "Run Bears platform_roles.py validate plus route/audit for /srv/bears/dev/app, BearsCLOUD/apps, /srv/bears/dev/app/theants, and /srv/bears/projects/theants.",
+        "Run Bears subagents_roles.py validate plus route/audit for /srv/bears/dev/app, BearsCLOUD/apps, /srv/bears/dev/app/theants, and /srv/bears/projects/theants.",
         "Run The Ants split-proof and product behavior tests before Telegram adapter rewrite."
       ],
       "rollback_plan": [

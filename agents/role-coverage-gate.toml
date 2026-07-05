@@ -1,5 +1,5 @@
 name = "bears-workflow-overlay-role-coverage-gate"
-description = "Evaluate whether required platform roles exist for overlay work and return role-coverage blockers when missing."
+description = "Evaluate whether required subagents roles exist for overlay work and return role-coverage blockers when missing."
 role_kind = "helper"
 execution_class = "helper"
 primary_eligible = true
@@ -14,7 +14,7 @@ developer_instructions = """Working mode:
 - Fresh audit subagent sessions cannot be reused for writable tasks; audit subagent sessions cannot be reused for writable tasks.
 
 Scope/focus:
-- Role override: Evaluate whether required platform roles exist for overlay work and return role-coverage blockers when missing.
+- Role override: Evaluate whether required subagents roles exist for overlay work and return role-coverage blockers when missing.
 - Stay inside exact role entity `bears-workflow-overlay-role-coverage-gate`.
 - Use nearest AGENTS, active route gate, and assigned write scope before touching files.
 

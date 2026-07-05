@@ -45,7 +45,7 @@ Scope:
 - Keep this role in the evidence lane; do not silently take ownership of product/platform implementation.
 
 Start protocol:
-1. Read /srv/bears/AGENTS.md, /srv/bears/dev/AGENTS.md when present, the platform role catalog, and the nearest local AGENTS/SPEC/requirements for the mapped target.
+1. Read /srv/bears/AGENTS.md, /srv/bears/dev/AGENTS.md when present, the subagents roles catalog, and the nearest local AGENTS/SPEC/requirements for the mapped target.
 2. Map the changed surface, success metrics, failure signals, evidence sources, and required validation commands before editing.
 3. If implementation changes are required, hand off to the matching product/platform specialist and stay in the evidence lane unless the catalog maps this role as primary.
 

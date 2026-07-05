@@ -9,7 +9,7 @@ This evidence packet covers only the plugin-governance implementation slice unde
 Independent control audit worker:
 
 - worker id: `019e8e1c-3871-7843-9ce4-c0246ab0401e`
-- role: `bears-platform-role-governor`
+- role: `bears-subagents-roles-governor`
 - write policy: read-only audit, no file edits requested
 
 ## Implementation-slice boundaries
@@ -50,21 +50,21 @@ Forbidden writes in this slice:
 The role-gate methodology itself routes to exactly one primary specialist role:
 
 ```bash
-python3 scripts/platform_roles.py audit /srv/bears/plugins/bears/assets/catalog/role-gate-methodology.v1.json
+python3 scripts/subagents_roles.py audit /srv/bears/plugins/bears/assets/catalog/role-gate-methodology.v1.json
 ```
 
 Expected result:
 
 - `status: matched`
 - `concrete_part: role_gate_methodology`
-- `primary_role: bears-platform-role-governor`
+- `primary_role: bears-subagents-roles-governor`
 - `implementation_handoff_allowed: true`
-- `independent_control_audit.auditor_role: bears-platform-role-governor`
+- `independent_control_audit.auditor_role: bears-subagents-roles-governor`
 
 The session-worker runtime routes to exactly one primary specialist role:
 
 ```bash
-python3 scripts/platform_roles.py route /srv/bears/plugins/bears/assets/catalog/session-workers-runtime.v1.json
+python3 scripts/subagents_roles.py route /srv/bears/plugins/bears/assets/catalog/session-workers-runtime.v1.json
 ```
 
 Expected result:
@@ -76,7 +76,7 @@ Expected result:
 The deploy core workflow artifact routes to exactly one primary specialist role:
 
 ```bash
-python3 scripts/platform_roles.py route /srv/bears/plugins/bears/workflows/auth-gateway-deploy-core/workflow.yml
+python3 scripts/subagents_roles.py route /srv/bears/plugins/bears/workflows/auth-gateway-deploy-core/workflow.yml
 ```
 
 Expected result:
@@ -90,8 +90,8 @@ Expected result:
 Parent/group-only coverage must block:
 
 ```bash
-python3 scripts/platform_roles.py route /srv/bears/projects/seller/apps
-python3 scripts/platform_roles.py route /srv/bears/plugins/bears
+python3 scripts/subagents_roles.py route /srv/bears/projects/seller/apps
+python3 scripts/subagents_roles.py route /srv/bears/plugins/bears
 ```
 
 Both must return:
@@ -102,7 +102,7 @@ Both must return:
 Alias/path drift must not widen coverage:
 
 ```bash
-python3 scripts/platform_roles.py route /srv/bears/plugins/bears-shadow
+python3 scripts/subagents_roles.py route /srv/bears/plugins/bears-shadow
 ```
 
 Expected result:
@@ -113,7 +113,7 @@ Expected result:
 Unknown concrete part must block:
 
 ```bash
-python3 scripts/platform_roles.py route totally-unknown-platform-surface
+python3 scripts/subagents_roles.py route totally-unknown-platform-surface
 ```
 
 Expected result:
@@ -124,7 +124,7 @@ Expected result:
 Broad/plugin-root scope must decompose before implementation:
 
 ```bash
-python3 scripts/platform_roles.py route /srv/bears/plugins/bears
+python3 scripts/subagents_roles.py route /srv/bears/plugins/bears
 ```
 
 Expected result:
@@ -139,10 +139,10 @@ The command block below is a 2026-06-03 evidence record. It is not a current loc
 
 ```bash
 PYTHONDONTWRITEBYTECODE=1 python3 scripts/role_gate_methodology.py validate
-PYTHONDONTWRITEBYTECODE=1 python3 scripts/platform_roles.py validate
-PYTHONDONTWRITEBYTECODE=1 python3 scripts/platform_roles.py audit /srv/bears/plugins/bears/assets/catalog/role-gate-methodology.v1.json
+PYTHONDONTWRITEBYTECODE=1 python3 scripts/subagents_roles.py validate
+PYTHONDONTWRITEBYTECODE=1 python3 scripts/subagents_roles.py audit /srv/bears/plugins/bears/assets/catalog/role-gate-methodology.v1.json
 # historical unittest evidence only; do not run locally without operator approval
-PYTHONDONTWRITEBYTECODE=1 python3 -m unittest tests/test_role_gate_methodology.py tests/test_platform_roles.py
+PYTHONDONTWRITEBYTECODE=1 python3 -m unittest tests/test_role_gate_methodology.py tests/test_subagents_roles.py
 # historical unittest evidence only; do not run locally without operator approval
 PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tests
 ```
@@ -150,7 +150,7 @@ PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tests
 Historical implementation-slice result:
 
 - deterministic validators for role-gate methodology and platform-role catalog passed
-- `platform_roles.py audit ...role-gate-methodology.v1.json`: matched, handoff allowed
+- `subagents_roles.py audit ...role-gate-methodology.v1.json`: matched, handoff allowed
 - targeted `unittest`: pass
 - historical full `python3 -m unittest discover -s tests` evidence: pass (`Ran 92 tests`, `OK`)
 

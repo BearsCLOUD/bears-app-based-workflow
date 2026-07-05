@@ -20,7 +20,7 @@ EXPECTED_SKILL_PATHS = [
     "skills/bears-deploy-gate/SKILL.md",
     "skills/bears-goal-prompt/SKILL.md",
     "skills/bears-plugin-update/SKILL.md",
-    "skills/platform-role-governance/SKILL.md",
+    "skills/subagents-roles/SKILL.md",
     "skills/bears-agents/SKILL.md",
     "skills/secret-factory/SKILL.md",
     "skills/app-constitution/SKILL.md",
@@ -38,7 +38,7 @@ EXPECTED_CATALOG_PATHS = [
     "assets/catalog/auth-gateway-deploy-readiness.v1.json",
     "assets/catalog/git-discipline.v1.json",
     "assets/catalog/platform-role-catalog.v1.json",
-    "assets/catalog/plugin-constitution.v1.json",
+    "assets/catalog/platform-role-catalog.v1.json",
     "assets/catalog/plugin-governance-language-policy.v1.json",
     "assets/catalog/plugin-skill-catalog.v1.json",
     "assets/catalog/project-dirty-baseline.v1.json",
@@ -55,8 +55,8 @@ EXPECTED_VALIDATOR_PATHS = [
     "scripts/agent_registration_sync.py",
     "scripts/auth_gateway_deploy_readiness.py",
     "scripts/git_discipline.py",
-    "scripts/platform_roles.py",
-    "scripts/plugin_constitution.py",
+    "scripts/subagents_roles.py",
+    "scripts/subagents_roles.py",
     "scripts/project_dirty_baseline.py",
     "scripts/project_registry_gate.py",
     "scripts/roadmap_control.py",
@@ -237,7 +237,7 @@ class PluginManifestTests(unittest.TestCase):
     def test_requirements_cover_active_governance_surfaces(self):
         requirements = (PLUGIN_ROOT / "requirements.md").read_text(encoding="utf-8").lower()
         required_fragments = [
-            "plugin constitution gate",
+            "subagents roles gate",
             "validation hook runner",
             "readme.md and spec.md owner-document skill inventories",
             "requirements and active inventory",

@@ -48,7 +48,7 @@ Scope:
 Start protocol:
 1. Read /srv/bears/AGENTS.md, /srv/bears/dev/app/vpn/AGENTS.md, /srv/bears/dev/app/vpn/SPEC.md, /srv/bears/dev/app/vpn/requirements.md, and the active Spec Kit lane.
 2. Run /srv/bears/plugins/bears/scripts/project_registry_gate.py gate /srv/bears/dev/app/vpn.
-3. Run `python3 /srv/bears/plugins/bears/scripts/platform_roles.py route <target>` and `python3 /srv/bears/plugins/bears/scripts/platform_roles.py audit <target>` before implementation handoff.
+3. Run `python3 /srv/bears/plugins/bears/scripts/subagents_roles.py route <target>` and `python3 /srv/bears/plugins/bears/scripts/subagents_roles.py audit <target>` before implementation handoff.
 4. Identify whether the request is governance-only or needs a child specialist handoff before editing.
 
 Implementation rules:

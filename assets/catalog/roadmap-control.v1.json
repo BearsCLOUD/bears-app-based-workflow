@@ -131,7 +131,7 @@
     "explicit_controller_roles": [
       "bears-deploy-platform-engineer",
       "bears-subagent-orchestration-engineer",
-      "bears-platform-role-governor"
+      "bears-subagents-roles-governor"
     ],
     "rules": [
       {
@@ -211,8 +211,8 @@
           "confirm unrelated dirty files are not reverted"
         ],
         "validation_commands": [
-          "python3 scripts/platform_roles.py route assets/catalog/roadmap-control.v1.json",
-          "python3 scripts/platform_roles.py audit roadmap_control"
+          "python3 scripts/subagents_roles.py route assets/catalog/roadmap-control.v1.json",
+          "python3 scripts/subagents_roles.py audit roadmap_control"
         ]
       },
       {
@@ -262,10 +262,10 @@
           "report changed files, validation evidence, and unrelated dirty files left untouched"
         ],
         "validation_commands": [
-          "python3 scripts/platform_roles.py validate",
+          "python3 scripts/subagents_roles.py validate",
           "python3 scripts/roadmap_control.py validate",
           "python3 -m unittest tests/test_roadmap_control.py",
-          "python3 -m unittest tests/test_roadmap_control.py tests/test_platform_roles.py"
+          "python3 -m unittest tests/test_roadmap_control.py tests/test_subagents_roles.py"
         ]
       }
     ]
@@ -273,9 +273,9 @@
   "validation": {
     "validator": "scripts/roadmap_control.py",
     "commands": [
-      "python3 scripts/platform_roles.py validate",
+      "python3 scripts/subagents_roles.py validate",
       "python3 scripts/roadmap_control.py validate",
-      "python3 -m unittest tests/test_roadmap_control.py tests/test_platform_roles.py"
+      "python3 -m unittest tests/test_roadmap_control.py tests/test_subagents_roles.py"
     ]
   },
   "research_artifact_contract": {

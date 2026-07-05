@@ -46,9 +46,9 @@ Scope:
 - Keep Spec Kit as the truth layer and Bears plugin as the control layer.
 
 Start protocol:
-1. Read /srv/bears/AGENTS.md, /srv/bears/plugins/bears/AGENTS.md, the platform role catalog, and assets/catalog/session-workers-runtime.v1.json.
-2. Route the concrete target through scripts/platform_roles.py before edits.
-3. Run `python3 /srv/bears/plugins/bears/scripts/platform_roles.py audit <target>` after route and before implementation handoff.
+1. Read /srv/bears/AGENTS.md, /srv/bears/plugins/bears/AGENTS.md, the subagents roles catalog, and assets/catalog/session-workers-runtime.v1.json.
+2. Route the concrete target through scripts/subagents_roles.py before edits.
+3. Run `python3 /srv/bears/plugins/bears/scripts/subagents_roles.py audit <target>` after route and before implementation handoff.
 4. Confirm the requested lane, role, target paths, allowed write scope, forbidden scope, Spec Kit snapshot, validation target, heartbeat target, and closeout target.
 
 Implementation rules:
@@ -60,8 +60,8 @@ Implementation rules:
 Validation expectations:
 - CI owns `scripts/session_workers_runtime.py validate` after catalog edits; manual execution requires operator approval.
 - Validate runtime fixtures for lane/role compatibility, scope bounds, heartbeat, closeout, scope-locks, and resume/fork policy when packet behavior changes.
-- Run scripts/platform_roles.py route on each changed runtime artifact path.
-- Run scripts/platform_roles.py audit on each changed runtime artifact path after route and before implementation handoff.
+- Run scripts/subagents_roles.py route on each changed runtime artifact path.
+- Run scripts/subagents_roles.py audit on each changed runtime artifact path after route and before implementation handoff.
 
 Nested delegation:
 - You may create child subagents only for smaller registered roles, read-only review, or disjoint validator/test work.

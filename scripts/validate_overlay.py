@@ -76,9 +76,9 @@ AGENT_SANDBOX_MODE_MATRIX = {
     "bears-observability-platform-engineer.toml": "workspace-write",
     "bears-ops-runbook-engineer.toml": "workspace-write",
     "bears-payments-platform-engineer.toml": "workspace-write",
-    "bears-platform-role-governor.toml": "workspace-write",
+    "bears-subagents-roles-governor.toml": "workspace-write",
     "bears-platform-security-reviewer.toml": "read-only",
-    "bears-plugin-constitution-governor.toml": "workspace-write",
+    "bears-subagents-roles-governor.toml": "workspace-write",
     "bears-product-app-zone-engineer.toml": "workspace-write",
     "bears-review-fix-helper.toml": "workspace-write",
     "bears-secret-factory-engineer.toml": "workspace-write",
@@ -212,7 +212,7 @@ SPEC_KIT_ANALYZE_FIELDS = {
     "plan_path": "plan.md",
     "tasks_path": "tasks.md",
 }
-PLUGIN_CONSTITUTION_FILE = "assets/catalog/plugin-constitution.v1.json"
+SUBAGENTS_ROLES_CATALOG_FILE = "assets/catalog/platform-role-catalog.v1.json"
 BEARS_SDD_WORKFLOW_FILE = "workflows/bears-sdd/workflow.yml"
 BEARS_SDD_WORKFLOW_ID = "bears-sdd"
 BEARS_SDD_CONTRACT_KEY = "workflow_contracts"
@@ -232,7 +232,7 @@ DEFAULT_BEARS_SDD_WORKFLOW_CONTRACT = {
     "research_skip_required_inputs": ["research_skip_evidence"],
     "step_required_fragments": {
         "route-gate": ["bears.governance.check"],
-        "constitution-gate": [PLUGIN_CONSTITUTION_FILE],
+        "constitution-gate": [SUBAGENTS_ROLES_CATALOG_FILE],
         "research": ["speckit.bears.research"],
         "prototype-gate": ["prototype.md or spike.md"],
         "design-artifact-gate": ["design.md"],
@@ -245,7 +245,7 @@ DEFAULT_BEARS_SDD_WORKFLOW_CONTRACT = {
 }
 WORKFLOW_DESCRIPTION_FRAGMENTS = [
     "route gate",
-    "constitution gate",
+    "subagents-roles gate",
     "research",
     "prototype",
     "design",
@@ -366,7 +366,7 @@ REQUIRED_CANONICAL_FILES = {
     "SPEC.md",
     "requirements.md",
     "assets/catalog/auth-gateway-deploy-readiness.v1.json",
-    "assets/catalog/plugin-constitution.v1.json",
+    "assets/catalog/platform-role-catalog.v1.json",
     "assets/catalog/plugin-governance-language-policy.v1.json",
     "assets/catalog/platform-role-catalog.v1.json",
     "assets/catalog/role-gate-methodology.v1.json",
@@ -377,7 +377,7 @@ REQUIRED_CANONICAL_FILES = {
     "docs/generated/README.skill-inventory.md",
     "docs/generated/SPEC.skill-inventory.md",
     "scripts/auth_gateway_deploy_readiness.py",
-    "scripts/platform_roles.py",
+    "scripts/subagents_roles.py",
     "scripts/project_registry_gate.py",
     "scripts/role_gate_methodology.py",
     "scripts/session_workers_runtime.py",
@@ -386,7 +386,7 @@ REQUIRED_CANONICAL_FILES = {
     "workflows/auth-gateway-deploy-core/workflow.yml",
     "workflows/bears-sdd/workflow.yml",
     "skills/bears-goal-prompt/SKILL.md",
-    "skills/platform-role-governance/SKILL.md",
+    "skills/subagents-roles/SKILL.md",
     "assets/catalog/plugin-skill-catalog.v1.json",
     "assets/catalog/telegram-aiogram-migration-backlog.v1.json",
     "assets/catalog/telegram-runtime-readiness.v1.json",
@@ -395,7 +395,7 @@ REQUIRED_CANONICAL_FILES = {
 }
 
 REQUIRED_CANONICAL_ROLES = {
-    "bears-platform-role-governor",
+    "bears-subagents-roles-governor",
     "bears-auth-platform-engineer",
     "bears-gateway-platform-engineer",
     "bears-deploy-platform-engineer",
@@ -418,7 +418,7 @@ REQUIRED_CANONICAL_PARTS = {
     "cd_deploy_stage",
     "auth_gateway_deploy_core",
     "bears_plugin",
-    "platform_role_governance",
+    "subagents_roles_governance",
     "goal_prompt_generator",
     "role_gate_methodology",
     "session_workers_runtime",
@@ -438,17 +438,17 @@ REQUIRED_CANONICAL_PARTS = {
 REQUIRED_WORKSPACE_ROLE_GATE_REFERENCES = {
     "dev/WORKSPACE.md": [
         "/srv/bears/plugins/bears/assets/catalog/platform-role-catalog.v1.json",
-        "/srv/bears/plugins/bears/scripts/platform_roles.py validate",
+        "/srv/bears/plugins/bears/scripts/subagents_roles.py validate",
     ],
     "dev/PROJECTS.md": [
         "/srv/bears/plugins/bears/assets/catalog/platform-role-catalog.v1.json",
-        "/srv/bears/plugins/bears/scripts/platform_roles.py validate",
+        "/srv/bears/plugins/bears/scripts/subagents_roles.py validate",
     ],
 }
 
 FORBIDDEN_SHARED_ROLE_GATE_REFERENCES = (
     "/srv/bears/plugins/bears-telegram-workflow/assets/catalog/platform-role-catalog.v1.json",
-    "/srv/bears/plugins/bears-telegram-workflow/scripts/platform_roles.py",
+    "/srv/bears/plugins/bears-telegram-workflow/scripts/subagents_roles.py",
 )
 
 REQUIRED_ISSUE_FORM_FIELDS = {
@@ -921,17 +921,17 @@ def _string_items(value: Any) -> list[str]:
 
 
 def _load_bears_sdd_contract(plugin_root: Path) -> tuple[dict[str, Any] | None, list[str]]:
-    path = plugin_root / PLUGIN_CONSTITUTION_FILE
+    path = plugin_root / SUBAGENTS_ROLES_CATALOG_FILE
     if not path.is_file():
         return dict(DEFAULT_BEARS_SDD_WORKFLOW_CONTRACT), []
 
     try:
         constitution = json.loads(path.read_text(encoding="utf-8"))
     except Exception as exc:  # noqa: BLE001
-        return None, [f"cannot parse Bears SDD canonical workflow source {PLUGIN_CONSTITUTION_FILE}: {exc}"]
+        return None, [f"cannot parse Bears SDD canonical workflow source {SUBAGENTS_ROLES_CATALOG_FILE}: {exc}"]
 
     if not isinstance(constitution, dict):
-        return None, [f"{PLUGIN_CONSTITUTION_FILE} root must be an object"]
+        return None, [f"{SUBAGENTS_ROLES_CATALOG_FILE} root must be an object"]
 
     contracts = constitution.get(BEARS_SDD_CONTRACT_KEY)
     if not isinstance(contracts, dict):
@@ -939,7 +939,7 @@ def _load_bears_sdd_contract(plugin_root: Path) -> tuple[dict[str, Any] | None, 
 
     contract = contracts.get(BEARS_SDD_WORKFLOW_ID)
     if not isinstance(contract, dict):
-        return None, [f"{PLUGIN_CONSTITUTION_FILE} missing {BEARS_SDD_CONTRACT_KEY}.{BEARS_SDD_WORKFLOW_ID}"]
+        return None, [f"{SUBAGENTS_ROLES_CATALOG_FILE} missing {BEARS_SDD_CONTRACT_KEY}.{BEARS_SDD_WORKFLOW_ID}"]
 
     return contract, []
 
@@ -968,7 +968,7 @@ def validate_bears_sdd_workflow_parity(plugin_root: Path) -> list[str]:
     required_order = _string_items(contract.get("required_order"))
     if not required_order:
         errors.append(
-            f"{PLUGIN_CONSTITUTION_FILE} {BEARS_SDD_CONTRACT_KEY}.{BEARS_SDD_WORKFLOW_ID}.required_order must be a non-empty string list"
+            f"{SUBAGENTS_ROLES_CATALOG_FILE} {BEARS_SDD_CONTRACT_KEY}.{BEARS_SDD_WORKFLOW_ID}.required_order must be a non-empty string list"
         )
         return errors
 
@@ -1020,7 +1020,7 @@ def validate_bears_sdd_workflow_parity(plugin_root: Path) -> list[str]:
     if ordered_positions != sorted(ordered_positions):
         errors.append(
             "bears-sdd workflow gate order does not match canonical lifecycle from "
-            f"{PLUGIN_CONSTITUTION_FILE}"
+            f"{SUBAGENTS_ROLES_CATALOG_FILE}"
         )
 
     inputs = workflow_payload.get("inputs")
@@ -1050,7 +1050,7 @@ def validate_bears_sdd_workflow_parity(plugin_root: Path) -> list[str]:
     fragment_map = contract.get("step_required_fragments")
     if not isinstance(fragment_map, dict):
         errors.append(
-            f"{PLUGIN_CONSTITUTION_FILE} {BEARS_SDD_CONTRACT_KEY}.{BEARS_SDD_WORKFLOW_ID}.step_required_fragments must be an object"
+            f"{SUBAGENTS_ROLES_CATALOG_FILE} {BEARS_SDD_CONTRACT_KEY}.{BEARS_SDD_WORKFLOW_ID}.step_required_fragments must be an object"
         )
         return errors
 
@@ -1134,17 +1134,17 @@ def validate_canonical_owner_assets(plugin_root: Path) -> list[str]:
     try:
         catalog = json.loads(catalog_path.read_text())
     except Exception as exc:  # noqa: BLE001
-        errors.append(f"cannot parse platform role catalog: {exc}")
+        errors.append(f"cannot parse subagents roles catalog: {exc}")
         return errors
 
     if not isinstance(catalog, dict):
-        errors.append("platform role catalog root must be an object")
+        errors.append("subagents roles catalog root must be an object")
         return errors
 
     if catalog.get("schema") != "bears-platform-role-catalog.v1":
-        errors.append("platform role catalog schema must be bears-platform-role-catalog.v1")
+        errors.append("subagents roles catalog schema must be bears-platform-role-catalog.v1")
     if catalog.get("owner_plugin") != "bears":
-        errors.append("platform role catalog owner_plugin must be bears")
+        errors.append("subagents roles catalog owner_plugin must be bears")
     errors.extend(validate_plugin_governance_language_policy(plugin_root))
     errors.extend(validate_governance_markdown_links(plugin_root))
 
@@ -1155,7 +1155,7 @@ def validate_canonical_owner_assets(plugin_root: Path) -> list[str]:
     }
     missing_roles = sorted(REQUIRED_CANONICAL_ROLES - role_names)
     if missing_roles:
-        errors.append("platform role catalog missing canonical roles: " + ", ".join(missing_roles))
+        errors.append("subagents roles catalog missing canonical roles: " + ", ".join(missing_roles))
 
     part_names = {
         part.get("name")
@@ -1164,7 +1164,7 @@ def validate_canonical_owner_assets(plugin_root: Path) -> list[str]:
     }
     missing_parts = sorted(REQUIRED_CANONICAL_PARTS - part_names)
     if missing_parts:
-        errors.append("platform role catalog missing canonical parts: " + ", ".join(missing_parts))
+        errors.append("subagents roles catalog missing canonical parts: " + ", ".join(missing_parts))
 
     workflow_routes = [
         route
@@ -1172,7 +1172,7 @@ def validate_canonical_owner_assets(plugin_root: Path) -> list[str]:
         if isinstance(route, dict) and route.get("workflow_id") == "auth-gateway-deploy-core"
     ]
     if not workflow_routes:
-        errors.append("platform role catalog missing auth-gateway-deploy-core workflow route")
+        errors.append("subagents roles catalog missing auth-gateway-deploy-core workflow route")
     else:
         ordered_parts = workflow_routes[0].get("ordered_parts")
         if ordered_parts != ["auth_core", "bears_gateway", "cd_deploy_stage"]:

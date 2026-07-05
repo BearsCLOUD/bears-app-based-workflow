@@ -29,7 +29,7 @@ TARGET_CAPABILITY_IDS = [
     "roadmap-control",
     "goal-prompt-generation",
     "git-discipline",
-    "plugin-constitution",
+    "subagents-roles",
     "validation-hooks",
     "agent-registration-sync",
     "agent-github-dev-cd",

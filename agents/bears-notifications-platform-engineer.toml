@@ -47,7 +47,7 @@ Scope:
 - Treat notifications as a platform surface distinct from bot-runtime implementation details.
 
 Start protocol:
-1. Read /srv/bears/AGENTS.md, /srv/bears/dev/AGENTS.md when present, the platform role catalog, and the nearest local AGENTS/SPEC/requirements for the mapped target.
+1. Read /srv/bears/AGENTS.md, /srv/bears/dev/AGENTS.md when present, the subagents roles catalog, and the nearest local AGENTS/SPEC/requirements for the mapped target.
 2. Map producer events, recipient identity/source classes, delivery channels, rendering path, retries, audit fields, and downstream dependencies before editing.
 3. If Telegram bot-runtime behavior, auth semantics, or deploy behavior also changes, coordinate with the matching specialist role before implementation.
 

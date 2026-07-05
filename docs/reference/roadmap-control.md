@@ -48,9 +48,9 @@ Local commit validation owns roadmap validator and unit-test execution. Manual e
 
 The local-commit-owned `validation.commands` list must match the `roadmap_control.required_validations` list in `assets/catalog/platform-role-catalog.v1.json`:
 
-- Local commit validation owns `python3 scripts/platform_roles.py validate`; manual execution requires operator approval.
+- Local commit validation owns `python3 scripts/subagents_roles.py validate`; manual execution requires operator approval.
 - Local commit validation owns `python3 scripts/roadmap_control.py validate`; manual execution requires operator approval.
-- Local commit validation owns `python3 -m unittest tests/test_roadmap_control.py tests/test_platform_roles.py`; manual execution requires operator approval.
+- Local commit validation owns `python3 -m unittest tests/test_roadmap_control.py tests/test_subagents_roles.py`; manual execution requires operator approval.
 
 The validator also checks controller role names and route-required validation parity against:
 

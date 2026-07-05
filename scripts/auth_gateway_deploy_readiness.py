@@ -56,7 +56,7 @@ SECRET_VALUE_PATTERNS = [
 
 
 def _load_platform_roles() -> Any:
-    module_path = PLUGIN_ROOT / "scripts/platform_roles.py"
+    module_path = PLUGIN_ROOT / "scripts/subagents_roles.py"
     spec = importlib.util.spec_from_file_location("platform_roles", module_path)
     if spec is None or spec.loader is None:  # pragma: no cover - defensive
         raise RuntimeError(f"cannot load {module_path}")
@@ -412,7 +412,7 @@ def render_summary(packet: dict[str, Any]) -> str:
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--packet", default=str(DEFAULT_PACKET), help="readiness packet path")
-    parser.add_argument("--catalog", default=str(DEFAULT_CATALOG), help="platform role catalog path")
+    parser.add_argument("--catalog", default=str(DEFAULT_CATALOG), help="subagents roles catalog path")
     parser.add_argument(
         "--check-files",
         action="store_true",

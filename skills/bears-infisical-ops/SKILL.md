@@ -112,7 +112,7 @@ Runtime handoff chain:
 Infisical path/key name -> ExternalSecret -> Kubernetes Secret key name -> workload env name -> runtime health proof
 ```
 
-Every step is names-only. A missing step blocks only the dependent live proof and must be routed to the owner named by `platform_roles.py route <exact-path>`.
+Every step is names-only. A missing step blocks only the dependent live proof and must be routed to the owner named by `subagents_roles.py route <exact-path>`.
 
 ## Dev platform data-service names
 

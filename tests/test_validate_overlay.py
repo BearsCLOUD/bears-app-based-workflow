@@ -105,12 +105,12 @@ def test_manual_validation_language_rejects_direct_repo_test_command(tmp_path: P
     )
     (plugin_root / "requirements.md").write_text(
         "| ID | Requirement | Evidence / check |\n"
-        "| BP-X | Routing drift stays covered. | `python3 -m unittest tests/test_platform_roles.py`. |\n"
+        "| BP-X | Routing drift stays covered. | `python3 -m unittest tests/test_subagents_roles.py`. |\n"
     )
     (plugin_root / "agents" / "sample.toml").write_text(
         'developer_instructions = """\n'
         "Validation expectations:\n"
-        "- Run python3 scripts/platform_roles.py validate after routing changes.\n"
+        "- Run python3 scripts/subagents_roles.py validate after routing changes.\n"
         '"""\n'
     )
     (plugin_root / "skills" / "sample" / "SKILL.md").write_text(
@@ -128,12 +128,12 @@ def test_manual_validation_language_allows_route_audit_and_static_checks(tmp_pat
     (plugin_root / "agents").mkdir(parents=True)
     (plugin_root / "skills" / "sample").mkdir(parents=True)
     (plugin_root / "AGENTS.md").write_text(
-        "Agent-local gates: `python3 scripts/platform_roles.py route target`; "
-        "`python3 scripts/platform_roles.py audit target`.\n"
+        "Agent-local gates: `python3 scripts/subagents_roles.py route target`; "
+        "`python3 scripts/subagents_roles.py audit target`.\n"
     )
     (plugin_root / "requirements.md").write_text(
-        "Allowed route/audit gates: `python3 scripts/platform_roles.py route target`; "
-        "`python3 scripts/platform_roles.py audit target`.\n"
+        "Allowed route/audit gates: `python3 scripts/subagents_roles.py route target`; "
+        "`python3 scripts/subagents_roles.py audit target`.\n"
         "Allowed static file-shape check: "
         "`python3 scripts/validate_overlay.py --json scan-static-safety --path requirements.md`.\n"
     )
@@ -152,8 +152,8 @@ def test_manual_validation_language_allows_local_commit_owned_or_operator_approv
         "manual execution requires operator approval.\n"
     )
     (plugin_root / "requirements.md").write_text(
-        "Local-commit-owned validators/tests: `python3 scripts/platform_roles.py validate` and "
-        "`python3 -m unittest tests/test_platform_roles.py`; "
+        "Local-commit-owned validators/tests: `python3 scripts/subagents_roles.py validate` and "
+        "`python3 -m unittest tests/test_subagents_roles.py`; "
         "manual execution requires operator approval.\n"
     )
     (plugin_root / "agents" / "sample.toml").write_text(
@@ -421,7 +421,7 @@ def _write_workspace_reference_docs(workspace_root: Path) -> None:
     dev_root = workspace_root / "dev"
     dev_root.mkdir(parents=True, exist_ok=True)
     canonical_catalog = "/srv/bears/plugins/bears/assets/catalog/platform-role-catalog.v1.json"
-    canonical_validator = "/srv/bears/plugins/bears/scripts/platform_roles.py validate"
+    canonical_validator = "/srv/bears/plugins/bears/scripts/subagents_roles.py validate"
     (dev_root / "WORKSPACE.md").write_text(
         f"Use {canonical_catalog}; validate with {canonical_validator}.\n"
     )
@@ -479,7 +479,7 @@ def _write_issue_template_assets(plugin_root: Path) -> None:
                             "description": "Select the earliest gate affected before implementation starts.",
                             "options": [
                                 "Route gate",
-                                "Constitution gate",
+                                "Subagents-roles gate",
                                 "Research gate",
                                 "Prototype or design gate",
                                 "Spec Kit gate",
@@ -575,13 +575,13 @@ def _write_canonical_fixture_assets(plugin_root: Path) -> None:
     docs_reference = plugin_root / "docs" / "reference"
     for path in (scripts, workflows, bears_sdd_workflows, catalog_dir, docs_reference):
         path.mkdir(parents=True, exist_ok=True)
-    (scripts / "platform_roles.py").write_text("#!/usr/bin/env python3\n")
+    (scripts / "subagents_roles.py").write_text("#!/usr/bin/env python3\n")
     (scripts / "validate_overlay.py").write_text("#!/usr/bin/env python3\n")
     (scripts / "roadmap_control.py").write_text("#!/usr/bin/env python3\n")
     (scripts / "git_discipline.py").write_text("#!/usr/bin/env python3\n")
     (scripts / "auth_gateway_deploy_readiness.py").write_text("#!/usr/bin/env python3\n")
     (scripts / "project_registry_gate.py").write_text("#!/usr/bin/env python3\n")
-    (scripts / "plugin_constitution.py").write_text("#!/usr/bin/env python3\n")
+    (scripts / "subagents_roles.py").write_text("#!/usr/bin/env python3\n")
     (scripts / "agent_github_dev_cd.py").write_text("#!/usr/bin/env python3\n")
     (scripts / "secret_factory.py").write_text("#!/usr/bin/env python3\n")
     (scripts / "subagent_orchestration_policy.py").write_text(
@@ -636,7 +636,7 @@ def _write_canonical_fixture_assets(plugin_root: Path) -> None:
         (catalog_dir / catalog_file).write_text("{}\n")
 
     for skill in (
-        "platform-role-governance",
+        "subagents-roles",
         "bears-goal-prompt",
         "app-constitution",
         "app-specify",
@@ -657,7 +657,7 @@ def _write_canonical_fixture_assets(plugin_root: Path) -> None:
         (skill_dir / "SKILL.disabled.md").write_text(f"---\nname: {skill}\ndescription: test\n---\n")
 
     active_skill_names = [
-        "platform-role-governance",
+        "subagents-roles",
         "bears-goal-prompt",
         "app-constitution",
         "app-specify",
@@ -701,7 +701,7 @@ def _write_canonical_fixture_assets(plugin_root: Path) -> None:
     _module.generate(skill_catalog, plugin_root)
 
     role_names = [
-        "bears-platform-role-governor",
+        "bears-subagents-roles-governor",
         "bears-auth-platform-engineer",
         "bears-gateway-platform-engineer",
         "bears-deploy-platform-engineer",
@@ -727,7 +727,7 @@ def _write_canonical_fixture_assets(plugin_root: Path) -> None:
             {"name": "cd_deploy_stage"},
             {"name": "auth_gateway_deploy_core"},
             {"name": "bears_plugin"},
-            {"name": "platform_role_governance"},
+            {"name": "subagents_roles_governance"},
             {"name": "goal_prompt_generator"},
             {"name": "role_gate_methodology"},
             {"name": "session_workers_runtime"},
@@ -754,8 +754,8 @@ def _write_canonical_fixture_assets(plugin_root: Path) -> None:
         ],
     }
     (catalog_dir / "platform-role-catalog.v1.json").write_text(json.dumps(catalog))
-    (catalog_dir / "plugin-constitution.v1.json").write_text(
-        (PLUGIN_ROOT / "assets" / "catalog" / "plugin-constitution.v1.json").read_text()
+    (catalog_dir / "subagents-roles.v1.json").write_text(
+        (PLUGIN_ROOT / "assets" / "catalog" / "subagents-roles.v1.json").read_text()
     )
     (catalog_dir / "auth-gateway-deploy-readiness.v1.json").write_text(
         (PLUGIN_ROOT / "assets" / "catalog" / "auth-gateway-deploy-readiness.v1.json").read_text()
@@ -1509,7 +1509,7 @@ def test_validate_bears_sdd_workflow_parity_rejects_stale_description(tmp_path: 
 
     errors = module.validate_bears_sdd_workflow_parity(plugin_root)
 
-    assert any("workflow.description missing lifecycle fragment: constitution gate" in error for error in errors)
+    assert any("workflow.description missing lifecycle fragment: subagents-roles gate" in error for error in errors)
     assert any("old route gate to Spec Kit packet wording" in error for error in errors)
 
 
@@ -1657,7 +1657,7 @@ def test_validate_catches_stale_shared_dev_role_gate_refs(tmp_path: Path) -> Non
     plugin_root, feature_dir, workspace_root = _create_plugin_fixture(tmp_path)
     stale = (
         "/srv/bears/plugins/bears-telegram-workflow/assets/catalog/platform-role-catalog.v1.json "
-        "/srv/bears/plugins/bears-telegram-workflow/scripts/platform_roles.py validate\n"
+        "/srv/bears/plugins/bears-telegram-workflow/scripts/subagents_roles.py validate\n"
     )
     (workspace_root / "dev" / "WORKSPACE.md").write_text(stale)
 

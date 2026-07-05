@@ -36,6 +36,6 @@ Use optional fields only when the Project needs them:
 | Target date | Date | Roadmap view. |
 | Release | Text | GitHub Release or version tag. |
 | Parent issue | Text | Parent issue URL when sub-issue UI is unavailable. |
-| Route target | Text | Exact path for `platform_roles.py route/audit`. |
+| Route target | Text | Exact path for `subagents_roles.py route/audit`. |
 | Consumer workflow | Single select | `github-project-planning` or another named consumer workflow. |
 | Mutation authorization | Single select | none, read-only, authorized | External metadata mutation gate. |

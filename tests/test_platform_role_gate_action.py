@@ -9,7 +9,7 @@ from pathlib import Path
 import yaml
 
 PLUGIN_ROOT = Path(__file__).resolve().parents[1]
-ACTION_PATH = PLUGIN_ROOT / "actions" / "platform-role-gate" / "action.yml"
+ACTION_PATH = PLUGIN_ROOT / "actions" / "subagents-roles-gate" / "action.yml"
 
 
 class PlatformRoleGateActionTests(unittest.TestCase):
@@ -97,10 +97,10 @@ class PlatformRoleGateActionTests(unittest.TestCase):
 
     def test_action_mirrors_pr143_role_gate_commands(self) -> None:
         script = self.run_script
-        self.assertIn('python3 "${plugin_root}/scripts/platform_roles.py" validate', script)
+        self.assertIn('python3 "${plugin_root}/scripts/subagents_roles.py" validate', script)
         self.assertIn('python3 "${plugin_root}/scripts/role_gate_methodology.py" validate', script)
-        self.assertIn('python3 "${plugin_root}/scripts/platform_roles.py" route "${route_target}"', script)
-        self.assertIn('python3 "${plugin_root}/scripts/platform_roles.py" audit "${route_target}"', script)
+        self.assertIn('python3 "${plugin_root}/scripts/subagents_roles.py" route "${route_target}"', script)
+        self.assertIn('python3 "${plugin_root}/scripts/subagents_roles.py" audit "${route_target}"', script)
         self.assertIn('route_target="${platform_route_root}/${target}"', script)
         self.assertIn('platform_repo_root="${workspace_root}/${platform_repo_root}"', script)
         self.assertIn('plugin_root="$(cd "${action_root}/../.." && pwd -P)"', script)

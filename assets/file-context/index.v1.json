@@ -1826,9 +1826,9 @@
       "authority_topic": null,
       "changelog_refs": [],
       "classes": [],
-      "context_id": "fc:assets:catalog:plugin-constitution-v1-json",
+      "context_id": "fc:assets:catalog:subagents-roles-v1-json",
       "contracts": [
-        "bears-plugin-constitution.v1"
+        "bears-subagents-roles.v1"
       ],
       "decision_refs": [],
       "functions": [],
@@ -1836,12 +1836,12 @@
       "language": "json",
       "last_verified_commit": "34d421cfd49f1eea3e5af947f1a5d278f60b500a",
       "owner_role": "bears-machine-first-execution-kernel-engineer",
-      "path": "assets/catalog/plugin-constitution.v1.json",
+      "path": "assets/catalog/platform-role-catalog.v1.json",
       "prompt_hints": [
         "Use this context record before reading the full source file."
       ],
       "public_interfaces": [],
-      "purpose": "bears-plugin-constitution.v1",
+      "purpose": "bears-subagents-roles.v1",
       "read_policy": "summary_first",
       "reads": [],
       "related_contexts": [],
@@ -7979,7 +7979,7 @@
       "authority_topic": null,
       "changelog_refs": [],
       "classes": [],
-      "context_id": "fc:docs:reference:plugin-constitution-md",
+      "context_id": "fc:docs:reference:subagents-roles-md",
       "contracts": [],
       "decision_refs": [],
       "functions": [],
@@ -7987,7 +7987,7 @@
       "language": "markdown",
       "last_verified_commit": "34d421cfd49f1eea3e5af947f1a5d278f60b500a",
       "owner_role": "bears-machine-first-execution-kernel-engineer",
-      "path": "docs/reference/plugin-constitution.md",
+      "path": "docs/reference/subagents-roles.md",
       "prompt_hints": [
         "Use this context record before reading the full source file."
       ],
@@ -12727,7 +12727,7 @@
       "language": "python",
       "last_verified_commit": "34d421cfd49f1eea3e5af947f1a5d278f60b500a",
       "owner_role": "bears-machine-first-execution-kernel-engineer",
-      "path": "scripts/platform_roles.py",
+      "path": "scripts/subagents_roles.py",
       "prompt_hints": [
         "Use this context record before reading the full source file."
       ],
@@ -12744,7 +12744,7 @@
         "route_target",
         "validate_catalog"
       ],
-      "purpose": "Validate, route, and audit Bears plugin-owned platform roles.",
+      "purpose": "Validate, route, and audit Bears plugin-owned subagents roles.",
       "read_policy": "summary_first",
       "reads": [],
       "related_contexts": [],
@@ -12854,7 +12854,7 @@
       "authority_topic": null,
       "changelog_refs": [],
       "classes": [],
-      "context_id": "fc:scripts:plugin-constitution-py",
+      "context_id": "fc:scripts:subagents-roles-py",
       "contracts": [],
       "decision_refs": [],
       "functions": [
@@ -12884,7 +12884,7 @@
       "language": "python",
       "last_verified_commit": "34d421cfd49f1eea3e5af947f1a5d278f60b500a",
       "owner_role": "bears-machine-first-execution-kernel-engineer",
-      "path": "scripts/plugin_constitution.py",
+      "path": "scripts/subagents_roles.py",
       "prompt_hints": [
         "Use this context record before reading the full source file."
       ],
@@ -12901,7 +12901,7 @@
         "validate_file_coverage",
         "validate_surface_policy"
       ],
-      "purpose": "Validate the Bears plugin constitution catalog and inspect change packets.",
+      "purpose": "Validate the Bears subagents roles catalog and inspect change packets.",
       "read_policy": "summary_first",
       "reads": [],
       "related_contexts": [],

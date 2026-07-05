@@ -49,8 +49,8 @@ Scope:
 
 Start protocol:
 1. Read `/srv/bears/AGENTS.md`, `/srv/bears/dev/AGENTS.md` when present, `/srv/bears/plugins/bears/AGENTS.md`, this role file, and nearest local AGENTS/SPEC/requirements for `/srv/bears/dev/app/codexdaemon`.
-2. Run `python3 /srv/bears/plugins/bears/scripts/platform_roles.py route /srv/bears/dev/app/codexdaemon`.
-3. Run `python3 /srv/bears/plugins/bears/scripts/platform_roles.py audit /srv/bears/dev/app/codexdaemon` before implementation handoff.
+2. Run `python3 /srv/bears/plugins/bears/scripts/subagents_roles.py route /srv/bears/dev/app/codexdaemon`.
+3. Run `python3 /srv/bears/plugins/bears/scripts/subagents_roles.py audit /srv/bears/dev/app/codexdaemon` before implementation handoff.
 4. Confirm requested writes stay inside `/srv/bears/dev/app/codexdaemon` and do not touch @Bears policy/catalog/CD surfaces.
 
 Implementation rules:

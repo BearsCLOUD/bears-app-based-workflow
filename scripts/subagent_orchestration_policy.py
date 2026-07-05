@@ -102,9 +102,9 @@ ALLOWED_REASONING_EFFORTS = {"medium", "high"}
 EXPECTED_CODEX_REASONING_ALIASES = {"operator_wording_middle": "medium"}
 REQUIRED_POST_TASK_AUDITS = {
     "plugin-fit-audit": "bears-workflow-overlay-platform-engineer",
-    "new-functionality-drift-audit": "bears-platform-role-governor",
+    "new-functionality-drift-audit": "bears-subagents-roles-governor",
     "documentation-secret-safety-audit": "bears-platform-security-reviewer",
-    "user-information-capture-audit": "bears-platform-role-governor",
+    "user-information-capture-audit": "bears-subagents-roles-governor",
 }
 LEGACY_AUDIT_RULE_ALIASES = {
     "non-product-post-task-audit-subagents": "stage-boundary-audits-only",
@@ -127,11 +127,11 @@ REQUIRED_DELEGATION_CONTROLLERS = {
     },
     "workflow-delegation-controller": {
         "role": "bears-subagent-orchestration-engineer",
-        "must_spawn": {"bears-platform-role-governor", "bears-platform-security-reviewer"},
+        "must_spawn": {"bears-subagents-roles-governor", "bears-platform-security-reviewer"},
         "must_lanes": {"plugin policy review"},
     },
     "governance-delegation-controller": {
-        "role": "bears-platform-role-governor",
+        "role": "bears-subagents-roles-governor",
         "must_spawn": {"bears-explorer", "bears-docs-maintainer"},
         "must_lanes": {"registry consistency audit"},
     },
@@ -1240,19 +1240,19 @@ NO_SUBAGENT_BLOCKED_CASES = {
 REQUIRED_VALIDATION_HOOKS = {
     "platform_roles_validate": {
         "command_id": "platform_roles_validate",
-        "script": "scripts/platform_roles.py",
+        "script": "scripts/subagents_roles.py",
         "args": ("validate",),
         "target_required": False,
     },
     "role_route": {
         "command_id": "platform_roles_route",
-        "script": "scripts/platform_roles.py",
+        "script": "scripts/subagents_roles.py",
         "args": ("route", "{validation_target}"),
         "target_required": True,
     },
     "role_audit": {
         "command_id": "platform_roles_audit",
-        "script": "scripts/platform_roles.py",
+        "script": "scripts/subagents_roles.py",
         "args": ("audit", "{validation_target}"),
         "target_required": True,
     },
@@ -1286,9 +1286,9 @@ REQUIRED_VALIDATION_HOOKS = {
         "args": ("validate",),
         "target_required": False,
     },
-    "plugin_constitution_validate": {
-        "command_id": "plugin_constitution_validate",
-        "script": "scripts/plugin_constitution.py",
+    "subagents_roles_validate": {
+        "command_id": "subagents_roles_validate",
+        "script": "scripts/subagents_roles.py",
         "args": ("validate",),
         "target_required": False,
     },
@@ -1492,9 +1492,9 @@ def load_toml(path: Path) -> dict[str, Any]:
 
 
 def _load_platform_roles_module() -> Any:
-    spec = importlib.util.spec_from_file_location("platform_roles", PLUGIN_ROOT / "scripts/platform_roles.py")
+    spec = importlib.util.spec_from_file_location("platform_roles", PLUGIN_ROOT / "scripts/subagents_roles.py")
     if spec is None or spec.loader is None:
-        raise RuntimeError("cannot load platform_roles.py")
+        raise RuntimeError("cannot load subagents_roles.py")
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)  # type: ignore[arg-type]
     return module
@@ -4123,7 +4123,7 @@ def _validate_pr_task_role_action_guard(orchestration: dict[str, Any]) -> list[s
             + ", ".join(missing_roles)
         )
     missing_governors = sorted(
-        {"bears-platform-role-governor", "bears-plugin-constitution-governor"}
+        {"bears-subagents-roles-governor", "bears-subagents-roles-governor"}
         - _as_string_set(guard.get("governor_roles"))
     )
     if missing_governors:
@@ -5674,16 +5674,16 @@ def _validate_lifecycle(policy: dict[str, Any]) -> list[str]:
         if missing:
             errors.append("lifecycle.stages missing: " + ", ".join(missing))
         if list(stages) != required_stages:
-            errors.append("lifecycle.stages must match canonical plugin constitution lifecycle order")
+            errors.append("lifecycle.stages must match canonical subagents roles lifecycle order")
         constitution: dict[str, Any] = {}
         try:
-            constitution = load_json(DEFAULT_POLICY.parent / "plugin-constitution.v1.json")
+            constitution = load_json(DEFAULT_POLICY.parent / "subagents-roles.v1.json")
         except Exception:  # noqa: BLE001
             constitution = {}
         if constitution:
             constitution_order = constitution.get("decision_rules", {}).get("lifecycle_order")
             if isinstance(constitution_order, list) and list(stages) != constitution_order:
-                errors.append("lifecycle.stages drift from plugin constitution decision_rules.lifecycle_order")
+                errors.append("lifecycle.stages drift from subagents roles decision_rules.lifecycle_order")
         if "constitution_gate" in stages and "research_gate" in stages:
             if stages.index("constitution_gate") > stages.index("research_gate"):
                 errors.append("lifecycle.stages must place constitution_gate before research_gate")
@@ -7146,7 +7146,7 @@ def batch_role_gate(paths: list[str], policy: dict[str, Any]) -> dict[str, Any]:
                 "path": target_path,
                 "missing_role": route.get("required_role") or route.get("primary_role") or "unmapped",
                 "catalog_target": "assets/catalog/platform-role-catalog.v1.json",
-                "validator_command": "python3 scripts/platform_roles.py validate",
+                "validator_command": "python3 scripts/subagents_roles.py validate",
             }
         )
     return {

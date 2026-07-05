@@ -506,7 +506,7 @@
       "decision": "Require a read-only plugin-worktree-preflight gate before @Bears plugin edits.",
       "decision_id": "D-2026-06-25-402-plugin-worktree-preflight",
       "owner_issue": "#402",
-      "owner_role": "bears-platform-role-governor",
+      "owner_role": "bears-subagents-roles-governor",
       "rationale": "Future @Bears plugin tasks must fail fast when cwd, git toplevel, or core.worktree does not point at /srv/bears/plugins/bears, instead of discovering the drift at closeout.",
       "redaction": "safe",
       "scope_id": "machine-first-execution-kernel",
@@ -1375,7 +1375,7 @@
     },
     {
       "affected_paths": [
-        "actions/platform-role-gate/action.yml",
+        "actions/subagents-roles-gate/action.yml",
         "agents/README.md",
         "agents/bears-kubernetes-data-platform-engineer.toml",
         "assets/catalog/artifact-registry.v1.json",
@@ -1386,7 +1386,7 @@
         "assets/catalog/role-gate-methodology.v1.json",
         "assets/catalog/test-selection.v1.json",
         "scripts/auth_gateway_deploy_readiness.py",
-        "scripts/platform_roles.py",
+        "scripts/subagents_roles.py",
         "scripts/validate_overlay.py"
       ],
       "change_type": "role",
@@ -1394,10 +1394,10 @@
       "decision": "Accept canonical /srv/bears/dev/platform route ownership plus exact Kubernetes data-service, daemon, ledger, and archive-manifest route registration without widening runtime, deployment, secret, or product-source authority.",
       "decision_id": "D-2026-06-27-380-platform-route-registration",
       "owner_issue": "#380",
-      "owner_role": "bears-platform-role-governor",
+      "owner_role": "bears-subagents-roles-governor",
       "rationale": "The role gate must prevent legacy platform path drift and broad parent fallback while allowing only exact service lanes and route-registration metadata to proceed through local commit validation.",
       "redaction": "safe",
-      "scope_id": "platform-role-governance",
+      "scope_id": "subagents-roles",
       "status": "accepted",
       "unresolved_inputs": []
     },
@@ -1455,7 +1455,7 @@
       "decision": "Route Telegram product-app migration catalogs through the canonical BearsCLOUD/apps product-app repository and treat old The Ants catalog references as migration/archive evidence.",
       "decision_id": "D-2026-07-02-apps-monorepo-telegram-catalogs",
       "owner_issue": "operator-goal-apps-monorepo-policy",
-      "owner_role": "bears-platform-role-governor",
+      "owner_role": "bears-subagents-roles-governor",
       "rationale": "The apps monorepo policy requires old product app repositories and catalog issue routing to link to BearsCLOUD/apps instead of preserving separate canonical app repositories.",
       "redaction": "safe",
       "scope_id": "product-apps-monorepo-policy",
@@ -1488,7 +1488,7 @@
       "decision": "Accept apps consolidation governance updates across plugin role profiles, local_cd policy, subagent orchestration policy, and Codex Telegram operator feedback workflow.",
       "decision_id": "D-2026-07-02-apps-consolidation-governance",
       "owner_issue": "operator-goal-apps-monorepo-policy",
-      "owner_role": "bears-platform-role-governor",
+      "owner_role": "bears-subagents-roles-governor",
       "rationale": "The apps monorepo consolidation requires plugin governance to prevent nested apps paths, route product-app source into BearsCLOUD/apps, keep runtime deployment under Kubernetes desired state and local_cd, and use skill-driven codex-telegram MCP operator feedback instead of a PreToolUse hook.",
       "redaction": "safe",
       "scope_id": "product-apps-monorepo-policy",
@@ -1627,7 +1627,7 @@
         "assets/catalog/platform-role-catalog.v1.json",
         "scripts/skill_catalog.py",
         "tests/test_skill_catalog.py",
-        "tests/test_platform_roles.py",
+        "tests/test_subagents_roles.py",
         "AGENTS.md",
         "README.md",
         "skills/bears-infisical-ops/SKILL.md"
@@ -1656,7 +1656,7 @@
       "decision": "Project mandate uses a small registry-gated mandate-packet for one target and must not build a workspace artifact inventory.",
       "decision_id": "D-2026-07-02-011-project-mandate-bounded-packet",
       "owner_issue": "#11",
-      "owner_role": "bears-platform-role-governor",
+      "owner_role": "bears-subagents-roles-governor",
       "rationale": "Agents were getting stuck because the skill asked for broad checks; the packet now gives exact read_paths and forbids workspace scans.",
       "redaction": "safe",
       "scope_id": "project-mandate-bounded-packet",
@@ -1683,7 +1683,7 @@
     },
     {
       "affected_paths": [
-        "assets/catalog/plugin-constitution.v1.json",
+        "assets/catalog/platform-role-catalog.v1.json",
         "assets/catalog/plugin-governance-language-policy.v1.json",
         "assets/catalog/project-dirty-baseline.v1.json",
         "assets/catalog/roadmap-control.v1.json",
@@ -1838,9 +1838,39 @@
       "scope_id": "app-workflow-ci-boundaries",
       "status": "accepted",
       "unresolved_inputs": []
+    },
+    {
+      "affected_paths": [
+        "assets/catalog/agent-workflow-map.v1.json",
+        "assets/catalog/plugin-constitution.v1.json",
+        "assets/catalog/secret-factory.v1.json",
+        "assets/catalog/session-workers-runtime.v1.json",
+        "scripts/agent_registration_sync.py",
+        "scripts/capability_layout.py",
+        "scripts/platform[_]roles.py",
+        "scripts/plugin[_]constitution.py",
+        "scripts/roadmap_control.py",
+        "scripts/role_gate_methodology.py",
+        "scripts/session_workers_runtime.py",
+        "scripts/subagents_roles.py",
+        "assets/catalog/platform-role-catalog.v1.json",
+        "assets/catalog/decision-ledger.v1.json",
+        "assets/catalog/artifact-registry.v1.json"
+      ],
+      "change_type": "workflow",
+      "contradictions": [],
+      "decision": "Retire the standalone legacy constitution layer and make subagents-roles the executable role governance owner with route, audit, and ledger commands.",
+      "decision_id": "subagents-roles-governance-migration-2026-07-05",
+      "owner_issue": "operator-goal-subagents-roles-governance-migration",
+      "owner_role": "bears-subagents-roles-governor",
+      "rationale": "The operator-approved migration removes duplicate legacy constitution authority, keeps repeatable role governance in executable @Bears surfaces, and records principle coverage in a tracked ledger.",
+      "redaction": "safe",
+      "scope_id": "subagents-roles-governance-migration",
+      "status": "accepted",
+      "unresolved_inputs": []
     }
   ],
   "schema": "bears-decision-ledger.v1",
-  "updated": "2026-07-04",
+  "updated": "2026-07-05",
   "version": "1"
 }

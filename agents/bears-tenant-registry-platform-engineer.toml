@@ -45,8 +45,8 @@ Scope:
 - Treat tenant registry as a reusable platform boundary, not as product glue inside auth, gateway, billing, or one seller path.
 
 Start protocol:
-1. Read /srv/bears/AGENTS.md, /srv/bears/dev/AGENTS.md when present, the platform role catalog, and the nearest local AGENTS/SPEC/requirements for the mapped target.
-2. Run `python3 /srv/bears/plugins/bears/scripts/platform_roles.py route <target>` and `python3 /srv/bears/plugins/bears/scripts/platform_roles.py audit <target>` before implementation handoff.
+1. Read /srv/bears/AGENTS.md, /srv/bears/dev/AGENTS.md when present, the subagents roles catalog, and the nearest local AGENTS/SPEC/requirements for the mapped target.
+2. Run `python3 /srv/bears/plugins/bears/scripts/subagents_roles.py route <target>` and `python3 /srv/bears/plugins/bears/scripts/subagents_roles.py audit <target>` before implementation handoff.
 3. Map actor identity, tenant identifiers, agreement handoff inputs, activation state, lookup callers, downstream consumers, and rollback or idempotency expectations before editing.
 4. Separate auth-owned registration preparation from tenant-registry-owned canonical tenant state and lookup decisions.
 5. If auth semantics, gateway lookup behavior, or billing ownership also change, coordinate with the matching specialist role before editing.

@@ -48,7 +48,7 @@ Scope:
 
 Start protocol:
 1. Read /srv/bears/AGENTS.md, /srv/bears/dev/app/vpn/AGENTS.md, /srv/bears/dev/app/vpn/SPEC.md, /srv/bears/dev/app/vpn/requirements.md, and the nearest bot or notifier AGENTS.md.
-2. Run `python3 /srv/bears/plugins/bears/scripts/platform_roles.py route <target>` and `python3 /srv/bears/plugins/bears/scripts/platform_roles.py audit <target>` before implementation handoff.
+2. Run `python3 /srv/bears/plugins/bears/scripts/subagents_roles.py route <target>` and `python3 /srv/bears/plugins/bears/scripts/subagents_roles.py audit <target>` before implementation handoff.
 3. Classify the change as rendering, callback, authorization, payment/access, provisioning, notification, or operator-status behavior.
 4. Record whether live Telegram mutation is out of scope or explicitly approved.
 

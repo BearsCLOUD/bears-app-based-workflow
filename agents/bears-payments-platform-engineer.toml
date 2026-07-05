@@ -47,7 +47,7 @@ Scope:
 - Treat payments as a universal platform boundary. Seller and seller.bears.ru may appear only as tenant, consumer, adapter, or legacy-source references.
 
 Start protocol:
-1. Read /srv/bears/AGENTS.md, /srv/bears/dev/AGENTS.md when present, the platform role catalog, and the nearest local AGENTS/SPEC/requirements for the mapped target.
+1. Read /srv/bears/AGENTS.md, /srv/bears/dev/AGENTS.md when present, the subagents roles catalog, and the nearest local AGENTS/SPEC/requirements for the mapped target.
 2. Map payer or actor identity, order or invoice references, provider boundaries, callback flow, state transitions, retries, idempotency keys, entitlements, and downstream consumers before editing.
 3. Separate provider-specific or seller-specific behavior from provider-neutral platform contracts.
 4. If auth, gateway, or deploy behavior also changes, coordinate with the matching specialist role before implementation.

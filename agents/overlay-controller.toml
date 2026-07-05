@@ -44,7 +44,7 @@ Goal:
 - Orchestrate the overlay governance sequence without adding runtime or product changes.
 
 Sequence:
-1. Run `python3 /srv/bears/plugins/bears/scripts/platform_roles.py route <target>` and `python3 /srv/bears/plugins/bears/scripts/platform_roles.py audit <target>` before assignment handoff via target owner.
+1. Run `python3 /srv/bears/plugins/bears/scripts/subagents_roles.py route <target>` and `python3 /srv/bears/plugins/bears/scripts/subagents_roles.py audit <target>` before assignment handoff via target owner.
 2. Run role-coverage gate.
 3. Resolve blockers and classify impact.
 4. Request CI-owned schema validation or explicit operator-approved manual execution for governance artifacts.

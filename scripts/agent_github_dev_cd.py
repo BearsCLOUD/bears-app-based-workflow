@@ -124,7 +124,7 @@ REQUIRED_POLICY_FIELDS = {
 }
 REQUIRED_CI_COMMANDS = {
     "python3 scripts/ci_requirements.py validate-workflow",
-    "python3 scripts/platform_roles.py validate",
+    "python3 scripts/subagents_roles.py validate",
     "python3 scripts/validate_overlay.py --json validate --strict-overlay-skills",
     "python3 scripts/test_selection.py validate",
 }
@@ -404,7 +404,7 @@ ISSUE_TEMPLATE_REQUIRED_DEVELOP_READY_FIELD_IDS = (
 )
 ISSUE_TEMPLATE_CANONICAL_GATE_OPTIONS = (
     "Route gate",
-    "Constitution gate",
+    "Subagents-roles gate",
     "Research gate",
     "Prototype gate",
     "Design gate",
@@ -767,9 +767,9 @@ def _load_yaml_mapping(path: Path) -> dict[str, Any]:
 def _load_platform_roles_module() -> Any:
     import importlib.util
 
-    spec = importlib.util.spec_from_file_location("platform_roles", PLUGIN_ROOT / "scripts/platform_roles.py")
+    spec = importlib.util.spec_from_file_location("platform_roles", PLUGIN_ROOT / "scripts/subagents_roles.py")
     if spec is None or spec.loader is None:
-        raise RuntimeError("cannot load platform_roles.py")
+        raise RuntimeError("cannot load subagents_roles.py")
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)  # type: ignore[arg-type]
     return module

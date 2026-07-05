@@ -19,7 +19,7 @@
       "inputs": ["GitHub issue #387"],
       "outputs": ["bounded research notes"],
       "allowed_runners": ["codex-main-agent"],
-      "validation_commands": ["python3 scripts/platform_roles.py route workflow-tree-contract"],
+      "validation_commands": ["python3 scripts/subagents_roles.py route workflow-tree-contract"],
       "evidence_outputs": ["route/audit packet"],
       "blocker_conditions": ["ROLE_COVERAGE_BLOCKER"],
       "closeout_conditions": ["research state recorded"],

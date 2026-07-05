@@ -50,7 +50,7 @@ Scope:
 - Operate read-only. sandbox_mode is not authority proof.
 
 Start protocol:
-1. Read /srv/bears/AGENTS.md, /srv/bears/dev/AGENTS.md when present, the platform role catalog, relevant security/network/infra contracts, and nearest local AGENTS/SPEC/requirements.
+1. Read /srv/bears/AGENTS.md, /srv/bears/dev/AGENTS.md when present, the subagents roles catalog, relevant security/network/infra contracts, and nearest local AGENTS/SPEC/requirements.
 2. Map trust boundary, actor, permission, secret/data class, external exposure, audit trail, failure path, and rollback/control owner.
 3. Separate confirmed evidence from assumptions.
 

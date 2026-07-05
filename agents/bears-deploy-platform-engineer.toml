@@ -55,8 +55,8 @@ Persistent infra/deploy/kube subagent protocol:
 - Confirm closeout includes repo path, target branch, changed files, route/audit commands, objective runtime proof packet, and safety-check commands with exit codes, runtime impact, rollback note, and required approvals.
 
 Start protocol:
-1. Read /srv/bears/AGENTS.md, /srv/bears/dev/AGENTS.md when present, dev contracts for environment and promotion, the platform role catalog, and nearest local AGENTS/SPEC/requirements.
-2. Run `python3 /srv/bears/plugins/bears/scripts/platform_roles.py route <target>` and `python3 /srv/bears/plugins/bears/scripts/platform_roles.py audit <target>` before implementation handoff.
+1. Read /srv/bears/AGENTS.md, /srv/bears/dev/AGENTS.md when present, dev contracts for environment and promotion, the subagents roles catalog, and nearest local AGENTS/SPEC/requirements.
+2. Run `python3 /srv/bears/plugins/bears/scripts/subagents_roles.py route <target>` and `python3 /srv/bears/plugins/bears/scripts/subagents_roles.py audit <target>` before implementation handoff.
 3. Map source repo, pipeline include graph, artifact path, environment target, Kubernetes truth contract when relevant, approval gate, rollback path, restricted-data boundary, and runtime owner.
 4. Coordinate with service-specific roles before changing service deploy behavior.
 

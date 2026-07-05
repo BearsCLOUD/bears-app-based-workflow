@@ -149,7 +149,7 @@ def test_plugin_root_submodule_gitlink_alignment_is_matched() -> None:
     check = checks["/srv/bears/plugins/bears"]
     assert check["expected_status"] == "matched"
     assert check["required_route_id"] == "workspace_root_submodule_gitlinks"
-    assert check["required_role"] == "bears-platform-role-governor"
+    assert check["required_role"] == "bears-subagents-roles-governor"
 
     errors = module.validate_catalog_alignment(methodology, catalog, plugin_root=PLUGIN_ROOT)
     assert errors == []
@@ -261,12 +261,12 @@ def test_bears_platform_repo_root_alignment_is_matched() -> None:
     exact_check = checks["/srv/bears/dev/platform"]
     assert exact_check["expected_status"] == "matched"
     assert exact_check["required_route_id"] == "bears_platform_repo_root"
-    assert exact_check["required_role"] == "bears-platform-role-governor"
+    assert exact_check["required_role"] == "bears-subagents-roles-governor"
 
     repo_check = checks["BearsCLOUD/bears-platform"]
     assert repo_check["expected_status"] == "matched"
     assert repo_check["required_route_id"] == "bears_platform_repo_root"
-    assert repo_check["required_role"] == "bears-platform-role-governor"
+    assert repo_check["required_role"] == "bears-subagents-roles-governor"
 
     errors = module.validate_catalog_alignment(methodology, catalog, plugin_root=PLUGIN_ROOT)
     assert errors == []
@@ -284,7 +284,7 @@ def test_bears_platform_repo_router_docs_alignment_is_matched() -> None:
         check = checks[target]
         assert check["expected_status"] == "matched"
         assert check["required_route_id"] == "bears_platform_repo_router_docs"
-        assert check["required_role"] == "bears-platform-role-governor"
+        assert check["required_role"] == "bears-subagents-roles-governor"
 
     errors = module.validate_catalog_alignment(methodology, catalog, plugin_root=PLUGIN_ROOT)
     assert errors == []
@@ -807,14 +807,14 @@ def test_issue77_validation_command_policy_uses_repo_relative_unittest_command()
     assert errors == []
     policy = methodology["validation_command_policy"]
     assert policy["working_directory"] == "/srv/bears/plugins/bears"
-    assert policy["canonical_unittest_command"] == "python3 -m unittest tests/test_platform_roles.py tests/test_role_gate_methodology.py"
+    assert policy["canonical_unittest_command"] == "python3 -m unittest tests/test_subagents_roles.py tests/test_role_gate_methodology.py"
     assert "/srv/bears/plugins/bears/tests/" not in policy["canonical_unittest_command"]
 
 
 def test_issue77_validation_command_policy_rejects_absolute_unittest_command() -> None:
     methodology = _methodology()
     policy = dict(methodology["validation_command_policy"])
-    policy["canonical_unittest_command"] = "python3 -m unittest /srv/bears/plugins/bears/tests/test_platform_roles.py"
+    policy["canonical_unittest_command"] = "python3 -m unittest /srv/bears/plugins/bears/tests/test_subagents_roles.py"
     errors = module.validate_validation_command_policy(policy)
     assert any("repo-relative test paths" in error for error in errors)
 
@@ -849,9 +849,9 @@ class Issue22RoleGateMethodologyUnittest(unittest.TestCase):
         catalog = _catalog()
         role_development = methodology["blocker_packet"]["role_development"]
         self.assertEqual(role_development["lane"], "role-development")
-        self.assertEqual(role_development["owner_role"], "bears-platform-role-governor")
+        self.assertEqual(role_development["owner_role"], "bears-subagents-roles-governor")
         self.assertIn(
-            "python3 scripts/platform_roles.py role-development-plan <target> --json",
+            "python3 scripts/subagents_roles.py role-development-plan <target> --json",
             role_development["rerun_commands"],
         )
         self.assertEqual([], module.validate_methodology(methodology))
@@ -1091,7 +1091,7 @@ def test_dev_registry_root_alignment_is_matched() -> None:
     check = checks["/srv/bears/dev/registry"]
     assert check["expected_status"] == "matched"
     assert check["required_route_id"] == "workspace_governance_canonical_plugin_docs"
-    assert check["required_role"] == "bears-platform-role-governor"
+    assert check["required_role"] == "bears-subagents-roles-governor"
 
     errors = module.validate_catalog_alignment(methodology, catalog, plugin_root=PLUGIN_ROOT)
     assert errors == []
@@ -1256,8 +1256,8 @@ def test_runtime_packet_doc_and_issue_templates_alignment_is_matched() -> None:
 
     child_check = checks["/srv/bears/plugins/bears/AGENTS.md"]
     assert child_check["expected_status"] == "matched"
-    assert child_check["required_route_id"] == "platform_role_governance"
-    assert child_check["required_role"] == "bears-platform-role-governor"
+    assert child_check["required_route_id"] == "subagents_roles_governance"
+    assert child_check["required_role"] == "bears-subagents-roles-governor"
 
     template_check = checks["/srv/bears/plugins/bears/.github/ISSUE_TEMPLATE/config.yml"]
     assert template_check["expected_status"] == "matched"

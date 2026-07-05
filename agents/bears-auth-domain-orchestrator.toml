@@ -54,5 +54,5 @@ Return shape:
 Validation expectations:
 - Agent-local checks stay limited to route/audit plus static file-shape, redaction, and review checks.
 - CI owns `python3 scripts/development_workflow_validate.py validate` for workflow packet changes; manual execution requires operator approval.
-- CI owns `python3 scripts/platform_roles.py validate` after agent or role catalog changes; manual execution requires operator approval.
+- CI owns `python3 scripts/subagents_roles.py validate` after agent or role catalog changes; manual execution requires operator approval.
 """

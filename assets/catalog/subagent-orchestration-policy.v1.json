@@ -421,7 +421,7 @@
           "Which validator proves the route and drift state"
         ],
         "purpose": "Check the new functionality against registered roles, route gates, registries, and boundary docs.",
-        "role": "bears-platform-role-governor",
+        "role": "bears-subagents-roles-governor",
         "spawn_fresh": true
       },
       {
@@ -461,7 +461,7 @@
           "Which plugin, dev-core, workspace, infra, or product doc should own each fact"
         ],
         "purpose": "Assess user-provided facts for drift and record stable facts in the narrowest durable owner.",
-        "role": "bears-platform-role-governor",
+        "role": "bears-subagents-roles-governor",
         "spawn_fresh": true
       }
     ],
@@ -630,7 +630,7 @@
         "may_spawn_roles": [
           "bears-explorer",
           "bears-docs-maintainer",
-          "bears-platform-role-governor",
+          "bears-subagents-roles-governor",
           "bears-platform-security-reviewer"
         ],
         "required_packet_fields": [
@@ -684,7 +684,7 @@
           "closeout evidence",
           "validation hook result"
         ],
-        "role": "bears-platform-role-governor"
+        "role": "bears-subagents-roles-governor"
       },
       {
         "forbidden": [
@@ -1636,7 +1636,7 @@
       "who_may_spawn": [
         "bears-deploy-platform-engineer",
         "bears-subagent-orchestration-engineer",
-        "bears-platform-role-governor",
+        "bears-subagents-roles-governor",
         "l2-platform-domain-orchestrator",
         "l2-gitops-domain-orchestrator",
         "l2-infra-domain-orchestrator",
@@ -1798,7 +1798,7 @@
         "update_rule": "Search by deduplication_key before create; update the existing open issue when the key matches; create one new issue only when no open issue matches."
       },
       "hard_stop_conditions": [
-        "ROLE_COVERAGE_BLOCKER from the canonical platform role gate",
+        "ROLE_COVERAGE_BLOCKER from the canonical subagents roles gate",
         "restricted data read, print, storage, or issue body exposure attempt",
         "write outside the assigned allowed write scope",
         "production mutation without explicit operator approval and owning deploy gate",
@@ -1949,8 +1949,8 @@
       },
       "fail_closed_by_default": true,
       "governor_roles": [
-        "bears-platform-role-governor",
-        "bears-plugin-constitution-governor"
+        "bears-subagents-roles-governor",
+        "bears-subagents-roles-governor"
       ],
       "governor_writer_lanes": [],
       "read_only_pr_actions": [
@@ -2193,7 +2193,7 @@
           ],
           "command_id": "platform_roles_route",
           "hook_id": "role_route",
-          "script": "scripts/platform_roles.py",
+          "script": "scripts/subagents_roles.py",
           "target_required": true
         },
         {
@@ -2203,7 +2203,7 @@
           ],
           "command_id": "platform_roles_audit",
           "hook_id": "role_audit",
-          "script": "scripts/platform_roles.py",
+          "script": "scripts/subagents_roles.py",
           "target_required": true
         },
         {
@@ -2260,16 +2260,16 @@
           ],
           "command_id": "platform_roles_validate",
           "hook_id": "platform_roles_validate",
-          "script": "scripts/platform_roles.py",
+          "script": "scripts/subagents_roles.py",
           "target_required": false
         },
         {
           "args": [
             "validate"
           ],
-          "command_id": "plugin_constitution_validate",
-          "hook_id": "plugin_constitution_validate",
-          "script": "scripts/plugin_constitution.py",
+          "command_id": "subagents_roles_validate",
+          "hook_id": "subagents_roles_validate",
+          "script": "scripts/subagents_roles.py",
           "target_required": false
         },
         {
@@ -2740,7 +2740,7 @@
   },
   "routing_order": [
     "route gate and exact route classification",
-    "constitution gate before research for plugin governance changes",
+    "subagents-roles gate before research for plugin governance changes",
     "research gate for new, broad, risky, or drift-prone changes",
     "prototype gate for new interaction or runtime behavior",
     "design artifact gate before Spec Kit plan, tasks, analyze, and implementation",
@@ -2753,7 +2753,7 @@
   "rules": [
     {
       "id": "role-gate-first",
-      "rule": "Run route gate first, then Spec Kit gate when required, then /srv/bears/plugins/bears/scripts/platform_roles.py route <target> before platform-part implementation or delegated subagent work. Missing coverage is ROLE_COVERAGE_BLOCKER.",
+      "rule": "Run route gate first, then Spec Kit gate when required, then /srv/bears/plugins/bears/scripts/subagents_roles.py route <target> before platform-part implementation or delegated subagent work. Missing coverage is ROLE_COVERAGE_BLOCKER.",
       "status": "mandatory"
     },
     {
@@ -2933,7 +2933,7 @@
     },
     {
       "id": "constitution-gate-before-research",
-      "rule": "Run route gate first, then plugin constitution gate before research, prototype, design, Spec Kit, role gate, bounded delegated execution, validation, or stage-boundary audit for plugin governance changes.",
+      "rule": "Run route gate first, then subagents roles gate before research, prototype, design, Spec Kit, role gate, bounded delegated execution, validation, or stage-boundary audit for plugin governance changes.",
       "status": "mandatory"
     },
     {

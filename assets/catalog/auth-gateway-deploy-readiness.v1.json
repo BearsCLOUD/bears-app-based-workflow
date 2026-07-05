@@ -41,7 +41,7 @@
       "primary_role": "bears-auth-platform-engineer",
       "supporting_roles": [
         "bears-platform-security-reviewer",
-        "bears-platform-role-governor"
+        "bears-subagents-roles-governor"
       ],
       "readiness_status": "blocked",
       "artifact_gate": "open",
@@ -79,8 +79,8 @@
         "Automated auth tests cover success, unauthorized, forbidden, and replay/invalid bootstrap paths without secret values."
       ],
       "safe_validation_commands": [
-        "python3 /srv/bears/plugins/bears/scripts/platform_roles.py route /srv/bears/dev/platform/src/bears_platform/auth",
-        "cd /srv/bears/plugins/bears && python3 scripts/platform_roles.py validate",
+        "python3 /srv/bears/plugins/bears/scripts/subagents_roles.py route /srv/bears/dev/platform/src/bears_platform/auth",
+        "cd /srv/bears/plugins/bears && python3 scripts/subagents_roles.py validate",
         "cd /srv/bears/plugins/bears && python3 scripts/auth_gateway_deploy_readiness.py validate"
       ],
       "rollback_plan": {
@@ -126,7 +126,7 @@
       "supporting_roles": [
         "bears-auth-platform-engineer",
         "bears-platform-security-reviewer",
-        "bears-platform-role-governor"
+        "bears-subagents-roles-governor"
       ],
       "readiness_status": "documented-baseline",
       "artifact_gate": "open",
@@ -169,10 +169,10 @@
         "Stable 401, 403, 504, and WebSocket auth rejection behavior is covered by automated tests."
       ],
       "safe_validation_commands": [
-        "python3 /srv/bears/plugins/bears/scripts/platform_roles.py route /srv/bears/dev/platform/src/bears_platform/gateway",
-        "cd /srv/bears/plugins/bears && python3 scripts/platform_roles.py validate",
+        "python3 /srv/bears/plugins/bears/scripts/subagents_roles.py route /srv/bears/dev/platform/src/bears_platform/gateway",
+        "cd /srv/bears/plugins/bears && python3 scripts/subagents_roles.py validate",
         "cd /srv/bears/plugins/bears && python3 scripts/auth_gateway_deploy_readiness.py validate",
-        "cd /srv/bears/plugins/bears && python3 -m unittest tests/test_auth_gateway_deploy_readiness.py tests/test_platform_roles.py"
+        "cd /srv/bears/plugins/bears && python3 -m unittest tests/test_auth_gateway_deploy_readiness.py tests/test_subagents_roles.py"
       ],
       "rollback_plan": {
         "status": "not-ready",
@@ -213,7 +213,7 @@
       "primary_role": "bears-deploy-platform-engineer",
       "supporting_roles": [
         "bears-platform-security-reviewer",
-        "bears-platform-role-governor"
+        "bears-subagents-roles-governor"
       ],
       "readiness_status": "validated-read-only-baseline",
       "artifact_gate": "open",
@@ -256,8 +256,8 @@
         "Post-deploy evidence proves the promoted service state without exposing secrets or production data."
       ],
       "safe_validation_commands": [
-        "python3 /srv/bears/plugins/bears/scripts/platform_roles.py route /srv/bears/dev/platform/src/bears_platform/deploy",
-        "cd /srv/bears/plugins/bears && python3 scripts/platform_roles.py validate",
+        "python3 /srv/bears/plugins/bears/scripts/subagents_roles.py route /srv/bears/dev/platform/src/bears_platform/deploy",
+        "cd /srv/bears/plugins/bears && python3 scripts/subagents_roles.py validate",
         "cd /srv/bears/plugins/bears && python3 scripts/auth_gateway_deploy_readiness.py validate",
         "cd /srv/bears/plugins/bears && python3 scripts/validate_overlay.py --json validate --strict-overlay-skills"
       ],

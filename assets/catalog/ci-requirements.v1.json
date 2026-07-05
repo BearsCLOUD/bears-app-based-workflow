@@ -303,7 +303,7 @@
         "category": "fast"
       },
       {
-        "path": "tests/test_platform_roles.py",
+        "path": "tests/test_subagents_roles.py",
         "category": "fast"
       },
       {
@@ -311,7 +311,7 @@
         "category": "fast"
       },
       {
-        "path": "tests/test_plugin_constitution.py",
+        "path": "tests/test_subagents_roles.py",
         "category": "fast"
       },
       {

@@ -25,7 +25,7 @@ Proceed with this skill only for `central_plugin_config` facts. Route `target_ag
 4. When a configured trigger path changes and no configured exemption matches, perform sequential audit-review before implementation edits.
 5. Build the audit manifest from git-tracked files plus untracked-unignored files under the plugin root, sorted by path.
 6. Classify manifest entries as `text_file`, `generated_file`, `directory`, or `binary_or_non_text`.
-7. Review text files line by line against the current plugin constitution and this skill.
+7. Review text files line by line against the current subagents roles and this skill.
 8. Record directory child inventory and generated-file generator source.
 9. Add only implementation tasks found by the audit-review; keep existing tasks unchanged.
 10. Sync generated plugin inventory when the skill catalog changes.

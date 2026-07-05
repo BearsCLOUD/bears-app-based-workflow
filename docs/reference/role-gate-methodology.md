@@ -40,7 +40,7 @@ Product code, platform implementation, runtime, deploy, migration, and integrati
 
 ## Blocker packet
 
-Use the exact packet defined in `assets/catalog/role-gate-methodology.v1.json` and emitted by `scripts/platform_roles.py route <target>`.
+Use the exact packet defined in `assets/catalog/role-gate-methodology.v1.json` and emitted by `scripts/subagents_roles.py route <target>`.
 
 ```yaml
 status: ROLE_COVERAGE_BLOCKER
@@ -97,7 +97,7 @@ Do not authorize generic role substitution.
 Local commit validation owns these checks:
 
 - `python3 scripts/role_gate_methodology.py validate`; manual execution requires operator approval.
-- `python3 scripts/platform_roles.py validate`; manual execution requires operator approval.
-- `python3 -m unittest tests/test_role_gate_methodology.py tests/test_platform_roles.py`; manual execution requires operator approval.
+- `python3 scripts/subagents_roles.py validate`; manual execution requires operator approval.
+- `python3 -m unittest tests/test_role_gate_methodology.py tests/test_subagents_roles.py`; manual execution requires operator approval.
 
 Independent audit is complete only when the control reviewer confirms every criterion listed in `independent_control_audit.must_confirm` and the evidence document named by `control_audit_evidence.required_document` is current for the implementation slice.

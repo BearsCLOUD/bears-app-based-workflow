@@ -292,9 +292,9 @@ def _resolve_plugin_owned_path(path_value: str) -> Path:
 def _load_platform_roles_module() -> Any:
     import importlib.util
 
-    spec = importlib.util.spec_from_file_location("platform_roles", PLUGIN_ROOT / "scripts/platform_roles.py")
+    spec = importlib.util.spec_from_file_location("platform_roles", PLUGIN_ROOT / "scripts/subagents_roles.py")
     if spec is None or spec.loader is None:
-        raise RuntimeError("cannot load platform_roles.py")
+        raise RuntimeError("cannot load subagents_roles.py")
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)  # type: ignore[arg-type]
     return module
@@ -697,8 +697,8 @@ def validate_catalog(
                 errors.append("git discipline validator route must match")
             if route.get("concrete_part") != CONCRETE_PART:
                 errors.append(f"git discipline validator must route to {CONCRETE_PART}")
-            if route.get("primary_role") != "bears-platform-role-governor":
-                errors.append("git discipline validator must route to bears-platform-role-governor")
+            if route.get("primary_role") != "bears-subagents-roles-governor":
+                errors.append("git discipline validator must route to bears-subagents-roles-governor")
 
     return errors
 

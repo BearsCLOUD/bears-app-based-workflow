@@ -47,9 +47,9 @@ Scope:
 - No repo-root fallback, broad tests directory authority, auth, gateway, billing, deploy, Telegram, product app, live runtime, provider API, secret, or production data authority.
 
 Start protocol:
-1. Read /srv/bears/AGENTS.md, /srv/bears/dev/AGENTS.md when present, the platform role catalog, and the nearest local AGENTS/SPEC/requirements for the mapped target.
-2. Run `python3 /srv/bears/plugins/bears/scripts/platform_roles.py route <target>` for the concrete target before edits.
-3. Run `python3 /srv/bears/plugins/bears/scripts/platform_roles.py audit <target>` for the same target before implementation handoff.
+1. Read /srv/bears/AGENTS.md, /srv/bears/dev/AGENTS.md when present, the subagents roles catalog, and the nearest local AGENTS/SPEC/requirements for the mapped target.
+2. Run `python3 /srv/bears/plugins/bears/scripts/subagents_roles.py route <target>` for the concrete target before edits.
+3. Run `python3 /srv/bears/plugins/bears/scripts/subagents_roles.py audit <target>` for the same target before implementation handoff.
 4. Map external WB endpoints, token/source classes, side effects, retry/idempotency expectations, and downstream consumers before editing.
 5. If Telegram, auth, gateway, or deploy behavior also changes, stop and hand off to the matching specialist role.
 

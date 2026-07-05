@@ -76,5 +76,5 @@ Local commit validation owns validation after agent registration policy changes:
 
 - `python3 scripts/agent_registration_sync.py validate`; manual execution requires operator approval.
 - `python3 scripts/agent_registration_sync.py audit-roles --json`; manual execution is static audit evidence only and does not execute repo validator suites.
-- `python3 scripts/platform_roles.py validate`; manual execution requires operator approval.
-- `python3 -m unittest tests/test_agent_registration_sync.py tests/test_platform_roles.py`; manual execution requires operator approval.
+- `python3 scripts/subagents_roles.py validate`; manual execution requires operator approval.
+- `python3 -m unittest tests/test_agent_registration_sync.py tests/test_subagents_roles.py`; manual execution requires operator approval.

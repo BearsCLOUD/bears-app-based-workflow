@@ -2,7 +2,7 @@
 
 This file lists every current governance drift finding from `docs/reference/capability-governance-rules.md`.
 
-Drift means a checked runtime, repository, cache, CI, hook, connector, or agent surface differs from the stated Bears workflow, plugin constitution, or governance principle.
+Drift means a checked runtime, repository, cache, CI, hook, connector, or agent surface differs from the stated Bears workflow, subagents roles, or governance principle.
 
 ## Rollup
 
@@ -56,7 +56,7 @@ Drift means a checked runtime, repository, cache, CI, hook, connector, or agent 
 - W7: principles-validate-but-agent-binding-is-not-complete-proof
 - W8: new-audit-artifact-path-is-unmapped
 - W9: principles-bind-to-layers-not-agent-identities
-- W10: plugin-constitution-not-visible-in-most-agent-prompts
+- W10: subagents-roles-not-visible-in-most-agent-prompts
 - W11: active-agent-inventory-is-not-owned-by-plugin
 - W12: marketplace-and-installed-cache-sha-are-stale
 - W13: bounded-runtime-evidence-tooling-gap
@@ -112,7 +112,7 @@ Drift means a checked runtime, repository, cache, CI, hook, connector, or agent 
 - W63: non-bears-global-agent-prompts-lack-bears-governance-markers
 - W64: principle-catalog-validation-does-not-bind-principles-to-agent-prompts
 - W65: agentic-constitution-role-scopes-are-layer-labels-not-agent-identities
-- W66: plugin-constitution-gate-does-not-cover-active-environment-agents
+- W66: subagents-roles-gate-does-not-cover-active-environment-agents
 - W67: active-bears-skills-do-not-define-all-agent-or-principle-binding
 - W68: report-first-skills-are-not-runtime-enforcement
 - W69: plugin-manifest-claims-runtime-guard-delivery-without-active-skill-proof
@@ -242,14 +242,14 @@ Drift means a checked runtime, repository, cache, CI, hook, connector, or agent 
 - W193: role-scoped-principles-do-not-bind-to-active-agent-names
 - W194: scope-matrix-owner-lineage-is-not-cross-checked-against-principle-scopes
 - W195: decision-log-records-do-not-carry-principle-or-gate-evidence
-- W196: plugin-constitution-change-packet-is-not-required-for-audit-doc-edits
+- W196: subagents-roles-change-packet-is-not-required-for-audit-doc-edits
 - W197: active-project-hooks-reference-missing-current-plugin-scripts
 - W198: active-project-session-hook-still-prompts-l2-spawn-packets
 - W199: cache-sync-effective-hooks-proof-does-not-execute-active-hooks
 - W200: active-project-hooks-use-a-different-hook-contract-than-plugin-hooks
 - W201: workflow-governance-doc-findings-do-not-trigger-workflow-validators
 - W202: ci-summary-success-does-not-mean-required-governance-jobs-ran
-- W203: plugin-constitution-file-coverage-omits-capability-governance-rules
+- W203: subagents-roles-file-coverage-omits-capability-governance-rules
 - W204: ci-requirements-path-policy-explicitly-allows-diagnostics-to-skip-governance-jobs
 - W205: local-source-conformance-is-unverifiable-while-governance-files-are-dirty
 - W206: dirty-catalog-and-test-edits-can-change-role-coverage-without-cache-proof

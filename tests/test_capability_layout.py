@@ -71,7 +71,7 @@ class CapabilityLayoutTests(unittest.TestCase):
         self.assertEqual(payload["capability_count"], payload["target_capability_count"])
         self.assertEqual(payload["mapped_active_skill_count"], payload["active_skill_count"])
 
-    def test_validate_checks_plugin_constitution_package(self):
+    def test_validate_checks_subagents_roles_package(self):
         result, payload = self.run_layout("validate", "--json")
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertEqual(payload["status"], "pass")

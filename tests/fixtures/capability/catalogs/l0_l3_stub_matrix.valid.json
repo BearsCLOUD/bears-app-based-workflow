@@ -397,7 +397,7 @@
         ],
         "prompt_authority_sources": [
           "AGENTS.md",
-          "assets/catalog/plugin-constitution.v1.json"
+          "assets/catalog/platform-role-catalog.v1.json"
         ],
         "role_profile": "contract-schema",
         "validators_run": []

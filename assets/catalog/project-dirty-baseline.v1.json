@@ -8,8 +8,8 @@
   "reference_doc": "/srv/bears/plugins/bears/docs/reference/project-dirty-baseline.md",
   "validation": {
     "commands": [
-      "python3 scripts/platform_roles.py validate",
-      "python3 scripts/platform_roles.py route /srv/bears/plugins/bears/scripts/project_dirty_baseline.py",
+      "python3 scripts/subagents_roles.py validate",
+      "python3 scripts/subagents_roles.py route /srv/bears/plugins/bears/scripts/project_dirty_baseline.py",
       "python3 scripts/project_dirty_baseline.py validate",
       "python3 -m unittest discover -s tests"
     ],

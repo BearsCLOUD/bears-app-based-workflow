@@ -1,4 +1,4 @@
-name: Bears platform role gate
+name: Bears subagents roles gate
 description: "Runs Bears role-gate checks from the private action checkout. Caller workflows need permissions: contents: read and no secrets."
 inputs:
   platform-repo-root:
@@ -76,7 +76,7 @@ runs:
           echo "Bears plugin action path is missing: ${action_root}" >&2
           exit 1
         fi
-        if [[ ! -f "${plugin_root}/scripts/platform_roles.py" ]]; then
+        if [[ ! -f "${plugin_root}/scripts/subagents_roles.py" ]]; then
           echo "Bears plugin scripts are missing under action repository root: ${plugin_root}" >&2
           exit 1
         fi
@@ -85,7 +85,7 @@ runs:
           exit 1
         fi
 
-        python3 "${plugin_root}/scripts/platform_roles.py" validate
+        python3 "${plugin_root}/scripts/subagents_roles.py" validate
         python3 "${plugin_root}/scripts/role_gate_methodology.py" validate
 
         case "${BEARS_REQUIRE_TARGET_FILES}" in
@@ -115,6 +115,6 @@ runs:
             exit 1
           fi
 
-          python3 "${plugin_root}/scripts/platform_roles.py" route "${route_target}"
-          python3 "${plugin_root}/scripts/platform_roles.py" audit "${route_target}"
+          python3 "${plugin_root}/scripts/subagents_roles.py" route "${route_target}"
+          python3 "${plugin_root}/scripts/subagents_roles.py" audit "${route_target}"
         done <<< "${BEARS_PLATFORM_ROLE_TARGETS}"

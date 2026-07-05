@@ -196,7 +196,7 @@ issue_type_flow:
       - verify_agent_pickup_dry_run
       canonical_gate_options:
       - Route gate
-      - Constitution gate
+      - Subagents-roles gate
       - Research gate
       - Prototype gate
       - Design gate

@@ -51,8 +51,8 @@ Scope:
 - Coordinate with `bears-platform-security-reviewer` for secret-reference, network policy, persistence, data-retention, external exposure, and rollback risk.
 
 Start protocol:
-1. Read `/srv/bears/AGENTS.md`, `/srv/bears/kubernetes/AGENTS.md`, `/srv/bears/plugins/bears/AGENTS.md`, the platform role catalog, and the nearest local router artifacts for the requested path.
-2. Run `python3 /srv/bears/plugins/bears/scripts/platform_roles.py route <target>` and `python3 /srv/bears/plugins/bears/scripts/platform_roles.py audit <target>` for the concrete target before implementation handoff.
+1. Read `/srv/bears/AGENTS.md`, `/srv/bears/kubernetes/AGENTS.md`, `/srv/bears/plugins/bears/AGENTS.md`, the subagents roles catalog, and the nearest local router artifacts for the requested path.
+2. Run `python3 /srv/bears/plugins/bears/scripts/subagents_roles.py route <target>` and `python3 /srv/bears/plugins/bears/scripts/subagents_roles.py audit <target>` for the concrete target before implementation handoff.
 3. Map namespace, workload, image digest, service name, PVC name, ExternalSecret name, secret key names, NetworkPolicy path, health probe, rollback path, and Git/CD activation owner.
 4. If the task touches product worker source, migrations, schema, provider API, or live runtime mutation, stop and hand off to the matching specialist role.
 

@@ -90,7 +90,7 @@ def load_json(path: Path) -> dict[str, Any]:
 
 
 def load_platform_roles_module():
-    script = PLUGIN_ROOT / "scripts/platform_roles.py"
+    script = PLUGIN_ROOT / "scripts/subagents_roles.py"
     spec = importlib.util.spec_from_file_location("platform_roles", script)
     if spec is None or spec.loader is None:
         raise RuntimeError(f"cannot load {script}")
@@ -265,7 +265,7 @@ def build_registration_blocker(target: str) -> dict[str, Any]:
         "allowed_next_actions": [
             "add the project to /srv/bears/dev/PROJECTS.md",
             "add the machine entry to /srv/bears/dev/registry/projects.v1.json",
-            "route the project through platform_roles.py",
+            "route the project through subagents_roles.py",
             "rerun project_registry_gate.py validate-registry",
         ],
         "project_mandate_allowed": False,
@@ -596,7 +596,7 @@ def render_packet(packet: dict[str, Any]) -> str:
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--registry", default=str(DEFAULT_REGISTRY), help="project registry path")
-    parser.add_argument("--role-catalog", default=str(DEFAULT_ROLE_CATALOG), help="platform role catalog path")
+    parser.add_argument("--role-catalog", default=str(DEFAULT_ROLE_CATALOG), help="subagents roles catalog path")
     parser.add_argument("--json", action="store_true", help="print JSON packet")
     parser.add_argument(
         "--allow-missing-external-registry",

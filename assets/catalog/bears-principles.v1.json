@@ -36,7 +36,7 @@
       "status": "active",
       "severity": "blocking",
       "rule": "A platform surface without exact role coverage must stop at role-development actions.",
-      "validator": "scripts/platform_roles.py audit <target>",
+      "validator": "scripts/subagents_roles.py audit <target>",
       "decision_required_when": ["new platform surface", "new validator surface"],
       "exceptions": []
     },

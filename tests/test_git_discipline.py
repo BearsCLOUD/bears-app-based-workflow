@@ -794,7 +794,7 @@ class GitDisciplineTests(unittest.TestCase):
                     {
                         "branches": {
                             "codex/squash-merged": {
-                                "owner": "bears-platform-role-governor",
+                                "owner": "bears-subagents-roles-governor",
                                 "cleanup_plan_proof": True,
                                 "worker_state": "completed",
                             }
@@ -815,7 +815,7 @@ class GitDisciplineTests(unittest.TestCase):
                     {
                         "branches": {
                             "codex/squash-merged": {
-                                "owner": "bears-platform-role-governor",
+                                "owner": "bears-subagents-roles-governor",
                                 "cleanup_plan_proof": True,
                                 "cleanup_phase": "closeout",
                             }
@@ -953,7 +953,7 @@ class GitDisciplineTests(unittest.TestCase):
                     {
                         "branches": {
                             "codex/useful-abandoned": {
-                                "owner": "bears-platform-role-governor",
+                                "owner": "bears-subagents-roles-governor",
                                 "worker_state": "abandoned",
                                 "useful_abandoned_code": True,
                             }
@@ -1051,7 +1051,7 @@ class GitDisciplineTests(unittest.TestCase):
                     {
                         "branches": {
                             "codex/remote-merged": {
-                                "owner": "bears-platform-role-governor",
+                                "owner": "bears-subagents-roles-governor",
                                 "cleanup_plan_proof": True,
                                 "cleanup_phase": "merge_ready",
                                 "cleanup_authority": {"remote_delete": True},
@@ -1144,7 +1144,7 @@ class GitDisciplineTests(unittest.TestCase):
                     {
                         "branches": {
                             "codex/merged-leftover": {
-                                "owner": "bears-platform-role-governor",
+                                "owner": "bears-subagents-roles-governor",
                                 "cleanup_plan_proof": True,
                                 "cleanup_phase": "closeout",
                             }

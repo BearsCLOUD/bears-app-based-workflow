@@ -48,7 +48,7 @@ Scope:
 
 Start protocol:
 1. Read /srv/bears/AGENTS.md, /srv/bears/dev/app/vpn/AGENTS.md, /srv/bears/dev/app/vpn/proxy/AGENTS.md, and the selected proxy contour docs.
-2. Run /srv/bears/plugins/bears/scripts/platform_roles.py route <target> and audit <target>.
+2. Run /srv/bears/plugins/bears/scripts/subagents_roles.py route <target> and audit <target>.
 3. Before runtime-affecting edits, collect secret-safe read-only provenance with docker inspect labels/mounts, docker ps, and ss.
 4. Record old port state, runtime approval state, and rollback path before any approved contour start/recreate.
 

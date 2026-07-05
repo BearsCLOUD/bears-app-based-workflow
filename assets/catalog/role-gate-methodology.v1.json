@@ -73,16 +73,16 @@
         "agents/*.toml",
         "assets/catalog/platform-role-catalog.v1.json",
         "assets/catalog/role-gate-methodology.v1.json",
-        "scripts/platform_roles.py",
+        "scripts/subagents_roles.py",
         "scripts/role_gate_methodology.py",
-        "tests/test_platform_roles.py",
+        "tests/test_subagents_roles.py",
         "tests/test_role_gate_methodology.py",
         "AGENTS.md",
         "docs/reference/capability-governance-rules.md"
       ],
       "lane": "role-development",
       "max_attempts": 2,
-      "owner_role": "bears-platform-role-governor",
+      "owner_role": "bears-subagents-roles-governor",
       "required_fields": [
         "lane",
         "owner_role",
@@ -94,14 +94,14 @@
         "unsafe_implementation_policy"
       ],
       "required_validations": [
-        "python3 scripts/platform_roles.py validate",
+        "python3 scripts/subagents_roles.py validate",
         "python3 scripts/role_gate_methodology.py validate",
-        "python3 -m unittest tests/test_platform_roles.py tests/test_role_gate_methodology.py"
+        "python3 -m unittest tests/test_subagents_roles.py tests/test_role_gate_methodology.py"
       ],
       "rerun_commands": [
-        "python3 scripts/platform_roles.py route <target>",
-        "python3 scripts/platform_roles.py audit <target>",
-        "python3 scripts/platform_roles.py role-development-plan <target> --json"
+        "python3 scripts/subagents_roles.py route <target>",
+        "python3 scripts/subagents_roles.py audit <target>",
+        "python3 scripts/subagents_roles.py role-development-plan <target> --json"
       ],
       "terminal_blocker_conditions": [
         "role_development_attempts_exhausted",
@@ -128,13 +128,13 @@
     },
     {
       "expected_status": "matched",
-      "required_role": "bears-platform-role-governor",
+      "required_role": "bears-subagents-roles-governor",
       "required_route_id": "bears_platform_repo_root",
       "target": "/srv/bears/dev/platform"
     },
     {
       "expected_status": "matched",
-      "required_role": "bears-platform-role-governor",
+      "required_role": "bears-subagents-roles-governor",
       "required_route_id": "bears_platform_repo_root",
       "target": "BearsCLOUD/bears-platform"
     },
@@ -332,13 +332,13 @@
     },
     {
       "expected_status": "matched",
-      "required_role": "bears-platform-role-governor",
+      "required_role": "bears-subagents-roles-governor",
       "required_route_id": "bears_platform_repo_router_docs",
       "target": "/srv/bears/dev/platform/AGENTS.md"
     },
     {
       "expected_status": "matched",
-      "required_role": "bears-platform-role-governor",
+      "required_role": "bears-subagents-roles-governor",
       "required_route_id": "bears_platform_repo_router_docs",
       "target": "/srv/bears/dev/platform/docs/stage-rules.md"
     },
@@ -349,7 +349,7 @@
     },
     {
       "expected_status": "matched",
-      "required_role": "bears-platform-role-governor",
+      "required_role": "bears-subagents-roles-governor",
       "target": "/srv/bears/plugins/bears/assets/catalog/role-gate-methodology.v1.json"
     },
     {
@@ -374,7 +374,7 @@
     },
     {
       "expected_status": "matched",
-      "required_role": "bears-platform-role-governor",
+      "required_role": "bears-subagents-roles-governor",
       "target": "/srv/bears/dev"
     },
     {
@@ -390,7 +390,7 @@
     },
     {
       "expected_status": "matched",
-      "required_role": "bears-platform-role-governor",
+      "required_role": "bears-subagents-roles-governor",
       "required_route_id": "workspace_root_submodule_gitlinks",
       "target": "/srv/bears/plugins/bears"
     },
@@ -438,7 +438,7 @@
     },
     {
       "expected_status": "matched",
-      "required_role": "bears-platform-role-governor",
+      "required_role": "bears-subagents-roles-governor",
       "target": "/srv/bears/dev/control/provenance"
     },
     {
@@ -503,7 +503,7 @@
     },
     {
       "expected_status": "matched",
-      "required_role": "bears-platform-role-governor",
+      "required_role": "bears-subagents-roles-governor",
       "target": "/srv/bears/.gitmodules"
     },
     {
@@ -597,7 +597,7 @@
     },
     {
       "expected_status": "matched",
-      "required_role": "bears-platform-role-governor",
+      "required_role": "bears-subagents-roles-governor",
       "required_route_id": "workspace_governance_canonical_plugin_docs",
       "target": "/srv/bears/dev/registry"
     },
@@ -639,8 +639,8 @@
     },
     {
       "expected_status": "matched",
-      "required_role": "bears-platform-role-governor",
-      "required_route_id": "platform_role_governance",
+      "required_role": "bears-subagents-roles-governor",
+      "required_route_id": "subagents_roles_governance",
       "target": "/srv/bears/plugins/bears/AGENTS.md"
     },
     {
@@ -1465,7 +1465,7 @@
     }
   ],
   "independent_control_audit": {
-    "auditor_role": "bears-platform-role-governor",
+    "auditor_role": "bears-subagents-roles-governor",
     "must_confirm": [
       "methodology is generic, not domain-specific",
       "blocker rule is unambiguous",
@@ -1523,7 +1523,7 @@
     },
     {
       "id": "auto_role_development",
-      "rule": "A ROLE_COVERAGE_BLOCKER packet must include role-development metadata for the role-development lane, owned by bears-platform-role-governor, and expose role-development-plan rerun proof while implementation_handoff_allowed=false until a new exact primary specialist or helper role validates.",
+      "rule": "A ROLE_COVERAGE_BLOCKER packet must include role-development metadata for the role-development lane, owned by bears-subagents-roles-governor, and expose role-development-plan rerun proof while implementation_handoff_allowed=false until a new exact primary specialist or helper role validates.",
       "title": "Automatic role development"
     },
     {
@@ -1550,31 +1550,31 @@
   "owner_plugin": "bears",
   "required_validators": [
     {
-      "command": "python3 scripts/platform_roles.py route /srv/bears/legacy/seller/apps/auth_core",
+      "command": "python3 scripts/subagents_roles.py route /srv/bears/legacy/seller/apps/auth_core",
       "id": "known_concrete_part_one_primary"
     },
     {
-      "command": "python3 -m unittest tests/test_platform_roles.py",
+      "command": "python3 -m unittest tests/test_subagents_roles.py",
       "id": "unknown_or_unmapped_blocks"
     },
     {
-      "command": "python3 scripts/platform_roles.py route /srv/bears/legacy/seller/apps",
+      "command": "python3 scripts/subagents_roles.py route /srv/bears/legacy/seller/apps",
       "id": "parent_group_only_rejected"
     },
     {
-      "command": "python3 -m unittest tests/test_platform_roles.py",
+      "command": "python3 -m unittest tests/test_subagents_roles.py",
       "id": "overly_broad_role_rejected"
     },
     {
-      "command": "python3 scripts/platform_roles.py route plugins/bears",
+      "command": "python3 scripts/subagents_roles.py route plugins/bears",
       "id": "decomposition_required_for_broad_scope"
     },
     {
-      "command": "python3 scripts/platform_roles.py route /srv/bears/legacy/seller/apps/auth_core",
+      "command": "python3 scripts/subagents_roles.py route /srv/bears/legacy/seller/apps/auth_core",
       "id": "supporting_roles_attach_on_risk"
     },
     {
-      "command": "python3 scripts/platform_roles.py audit /srv/bears/plugins/bears/assets/catalog/platform-role-catalog.v1.json",
+      "command": "python3 scripts/subagents_roles.py audit /srv/bears/plugins/bears/assets/catalog/platform-role-catalog.v1.json",
       "id": "handoff_blocked_before_validation"
     },
     {
@@ -1582,7 +1582,7 @@
       "id": "stale_source_distinguished_from_missing_coverage"
     },
     {
-      "command": "python3 scripts/platform_roles.py role-development-plan tests/test_missing_auto_role_example.py --json",
+      "command": "python3 scripts/subagents_roles.py role-development-plan tests/test_missing_auto_role_example.py --json",
       "id": "auto_role_development_plan_ready"
     }
   ],
@@ -1629,10 +1629,10 @@
   "updated": "2026-06-19",
   "validation_command_policy": {
     "blocked_unittest_patterns": [
-      "python3 -m unittest /srv/bears/plugins/bears/tests/test_platform_roles.py /srv/bears/plugins/bears/tests/test_role_gate_methodology.py",
-      "python3 -m unittest /srv/bears/plugins/bears/tests/test_platform_roles.py"
+      "python3 -m unittest /srv/bears/plugins/bears/tests/test_subagents_roles.py /srv/bears/plugins/bears/tests/test_role_gate_methodology.py",
+      "python3 -m unittest /srv/bears/plugins/bears/tests/test_subagents_roles.py"
     ],
-    "canonical_unittest_command": "python3 -m unittest tests/test_platform_roles.py tests/test_role_gate_methodology.py",
+    "canonical_unittest_command": "python3 -m unittest tests/test_subagents_roles.py tests/test_role_gate_methodology.py",
     "failure_classification_rule": "If an absolute-path unittest command fails while the repo-relative command passes, report command_shape_failure, not test_assertion_failure.",
     "handoff_rule": "Role-gate subagent handoffs must use repo-relative unittest paths from the declared working_directory.",
     "working_directory": "/srv/bears/plugins/bears"

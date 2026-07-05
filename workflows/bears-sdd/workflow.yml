@@ -4,7 +4,7 @@ workflow:
   name: "Bears Spec Kit Full Cycle"
   version: "0.1.0"
   author: "Bears Workspace"
-  description: "Runs route gate → constitution gate → research → prototype gate → design gate → Spec Kit gate → role gate → task-scoped subagents → validation → stage-boundary audit for Bears projects."
+  description: "Runs route gate → subagents-roles gate → research → prototype gate → design gate → Spec Kit gate → role gate → task-scoped subagents → validation → stage-boundary audit for Bears projects."
 
 requires:
   speckit_version: ">=0.8.13"
@@ -47,7 +47,7 @@ steps:
 
   - id: constitution-gate
     type: gate
-    message: "Check assets/catalog/plugin-constitution.v1.json before research; reject missing packet fields or invalid status."
+    message: "Check assets/catalog/platform-role-catalog.v1.json before research; reject missing packet fields or invalid status."
     options: [approve, reject]
     on_reject: abort
 

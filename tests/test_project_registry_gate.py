@@ -183,7 +183,7 @@ class ProjectRegistryGateTest(unittest.TestCase):
                 )
                 self.assertEqual(packet["status"], "matched")
                 self.assertEqual(packet["project_id"], "workspace-control-agent-reviewer-role-tests")
-                self.assertEqual(packet["primary_role"], "bears-platform-role-governor")
+                self.assertEqual(packet["primary_role"], "bears-subagents-roles-governor")
                 self.assertEqual(packet["role_target"], "/srv/bears/control-plane/workspace-control/tests")
                 self.assertTrue(packet["project_mandate_allowed"])
                 self.assertFalse(packet["spec_required"])
@@ -222,7 +222,7 @@ class ProjectRegistryGateTest(unittest.TestCase):
                 "classification": "canonical_plugin_governance_repo",
                 "canonical_remote": "BearsCLOUD/bears_plugin",
                 "root_owned_payload": False,
-                "primary_role": "bears-platform-role-governor",
+                "primary_role": "bears-subagents-roles-governor",
                 "supporting_roles": ["bears-platform-security-reviewer"],
             }
         )
@@ -233,7 +233,7 @@ class ProjectRegistryGateTest(unittest.TestCase):
         )
         self.assertEqual(packet["status"], "matched")
         self.assertEqual(packet["project_id"], "bears-workflow-plugin-root")
-        self.assertEqual(packet["primary_role"], "bears-platform-role-governor")
+        self.assertEqual(packet["primary_role"], "bears-subagents-roles-governor")
         self.assertEqual(packet["role_target"], "/srv/bears/plugins/bears/AGENTS.md")
         self.assertTrue(packet["project_mandate_allowed"])
         self.assertIs(packet["spec_required"], False)
@@ -333,7 +333,7 @@ class ProjectRegistryGateTest(unittest.TestCase):
             }
         )
         is_file_patch, read_text_patch = _patch_spec_files(
-            "# Tasks\n- [ ] bears-platform-role-governor handles registered local checkout repo-root governance.\n"
+            "# Tasks\n- [ ] bears-subagents-roles-governor handles registered local checkout repo-root governance.\n"
         )
         with is_file_patch, read_text_patch:
             packet = project_registry_gate.gate_project_mandate(
@@ -343,7 +343,7 @@ class ProjectRegistryGateTest(unittest.TestCase):
             )
         self.assertEqual(packet["status"], "matched")
         self.assertEqual(packet["project_id"], "bears-platform-local-checkout")
-        self.assertEqual(packet["primary_role"], "bears-platform-role-governor")
+        self.assertEqual(packet["primary_role"], "bears-subagents-roles-governor")
         self.assertEqual(packet["concrete_part"], "bears_platform_repo_root")
         self.assertTrue(packet["project_mandate_allowed"])
 
@@ -668,7 +668,7 @@ class ProjectRegistryGateTest(unittest.TestCase):
             plugin_root=PLUGIN_ROOT,
         )
         self.assertEqual(packet["status"], "matched")
-        self.assertEqual(packet["primary_role"], "bears-platform-role-governor")
+        self.assertEqual(packet["primary_role"], "bears-subagents-roles-governor")
 
 
     def test_mandate_packet_is_target_bound_and_forbids_workspace_scan(self) -> None:
@@ -729,7 +729,7 @@ class ProjectRegistryGateTest(unittest.TestCase):
                 )
                 self.assertEqual(packet["status"], "matched")
                 self.assertEqual(packet["project_id"], expected_project_id)
-                self.assertEqual(packet["primary_role"], "bears-platform-role-governor")
+                self.assertEqual(packet["primary_role"], "bears-subagents-roles-governor")
                 self.assertTrue(packet["project_mandate_allowed"])
                 self.assertIs(packet["spec_required"], False)
                 self.assertIsNone(packet["spec_path"])

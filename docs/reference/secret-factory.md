@@ -151,9 +151,9 @@ Local commit validation owns these static safety checks unless the operator appr
 
 ## Validation commands
 
-- Local commit validation owns `python3 scripts/platform_roles.py validate`; manual execution requires operator approval.
+- Local commit validation owns `python3 scripts/subagents_roles.py validate`; manual execution requires operator approval.
 - Local commit validation owns `python3 scripts/secret_factory.py validate`; manual execution requires operator approval.
-- Agents may run `python3 scripts/platform_roles.py route /srv/bears/plugins/bears/assets/catalog/secret-factory.v1.json`.
-- Agents may run `python3 scripts/platform_roles.py audit /srv/bears/plugins/bears/assets/catalog/secret-factory.v1.json`.
-- Local commit validation owns `python3 -m unittest tests/test_secret_factory.py tests/test_platform_roles.py`; manual execution requires operator approval.
+- Agents may run `python3 scripts/subagents_roles.py route /srv/bears/plugins/bears/assets/catalog/secret-factory.v1.json`.
+- Agents may run `python3 scripts/subagents_roles.py audit /srv/bears/plugins/bears/assets/catalog/secret-factory.v1.json`.
+- Local commit validation owns `python3 -m unittest tests/test_secret_factory.py tests/test_subagents_roles.py`; manual execution requires operator approval.
 - Local commit validation owns `python3 scripts/validate_overlay.py --json validate --strict-overlay-skills`; manual execution requires operator approval.

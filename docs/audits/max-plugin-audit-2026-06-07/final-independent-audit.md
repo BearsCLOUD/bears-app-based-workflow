@@ -38,10 +38,10 @@
 
 - Active Spec Kit packet exists and stays green: `/srv/bears/specs/007-secret-factory-plugin/spec.md`, `plan.md`, `tasks.md:3-13`, and `governance/speckit-analyze.json:1-8`.
 - `python3 scripts/project_registry_gate.py gate /srv/bears/plugins/bears` returned `status: matched`, project `bears-workflow-plugin-root`.
-- `python3 scripts/platform_roles.py route /srv/bears/plugins/bears` and `audit /srv/bears/plugins/bears` both returned the expected `ROLE_COVERAGE_BLOCKER` with `why_blocked: parent_only`. This is the required broad-root classifier outcome, not a completion failure.
-- `python3 scripts/platform_roles.py route /srv/bears/plugins/bears/assets/catalog/secret-factory.v1.json` and `audit ...` both matched `secret_factory_governance`, primary role `bears-secret-factory-engineer`, supporting reviewer `bears-platform-security-reviewer`, and `implementation_handoff_allowed: true`.
-- `python3 scripts/platform_roles.py route /srv/bears/plugins/bears/docs/audits/max-plugin-audit-2026-06-07/final-independent-audit.md` and `audit ...` both matched `platform_role_governance` with `implementation_handoff_allowed: true`.
-- `python3 scripts/platform_roles.py route /srv/bears/dev/contracts/subagent_start_packet.md` and `audit ...` both matched `subagent_start_packet_contract` with `implementation_handoff_allowed: true`.
+- `python3 scripts/subagents_roles.py route /srv/bears/plugins/bears` and `audit /srv/bears/plugins/bears` both returned the expected `ROLE_COVERAGE_BLOCKER` with `why_blocked: parent_only`. This is the required broad-root classifier outcome, not a completion failure.
+- `python3 scripts/subagents_roles.py route /srv/bears/plugins/bears/assets/catalog/secret-factory.v1.json` and `audit ...` both matched `secret_factory_governance`, primary role `bears-secret-factory-engineer`, supporting reviewer `bears-platform-security-reviewer`, and `implementation_handoff_allowed: true`.
+- `python3 scripts/subagents_roles.py route /srv/bears/plugins/bears/docs/audits/max-plugin-audit-2026-06-07/final-independent-audit.md` and `audit ...` both matched `subagents_roles_governance` with `implementation_handoff_allowed: true`.
+- `python3 scripts/subagents_roles.py route /srv/bears/dev/contracts/subagent_start_packet.md` and `audit ...` both matched `subagent_start_packet_contract` with `implementation_handoff_allowed: true`.
 
 ### Targeted closure checks
 
@@ -68,7 +68,7 @@
 - **F-05 rechecked closed.** Mandatory refusal classes are declared in `assets/catalog/secret-factory.v1.json:95-102`, enforced in `scripts/secret_factory.py:232-235`, and tested in `tests/test_secret_factory.py:163-169`; live provider-handoff rerun returned `HANDOFF_REQUIRED` with exit `2` and no value-bearing output.
 - **F-06 rechecked closed.** Default-bound validation is implemented in `scripts/secret_factory.py:91-113` and covered in `tests/test_secret_factory.py:171-187`.
 - **F-07 rechecked closed.** Password alphabet parity is declared in `assets/catalog/secret-factory.v1.json:55-60`, enforced in `scripts/secret_factory.py:114-116`, and covered in `tests/test_secret_factory.py:189-201`.
-- **F-09 closed.** Governed audit write roots include `docs/audits` in `assets/catalog/platform-role-catalog.v1.json:1008-1029`; route regression coverage exists in `tests/test_platform_roles.py:317-329`; live route/audit for the final audit artifact matched `platform_role_governance`.
+- **F-09 closed.** Governed audit write roots include `docs/audits` in `assets/catalog/platform-role-catalog.v1.json:1008-1029`; route regression coverage exists in `tests/test_subagents_roles.py:317-329`; live route/audit for the final audit artifact matched `subagents_roles_governance`.
 - **F-10 closed.** Git-discipline exception roots are declared in `assets/catalog/git-discipline.v1.json`; exact-root allow and sibling deny coverage passed in `tests/test_git_discipline.py`; live `python3 scripts/git_discipline.py inspect --repo /srv/bears/plugins/bears --json` returned `status=GIT_DISCIPLINE_READY`, `secret_like_paths=[]`, `raw_log_like_paths=[]`, `operator_review_required=false`, `untracked_count=15`.
 
 ### `B-01` through `B-05` proof
@@ -76,8 +76,8 @@
 - `subagent-execution-evidence.md:233-279` now records deterministic packet ids, separated `codex_agent_type` vs `bears_control_role`, explicit spawn policy status, synced packet closure text, and the current validation summary `PASS 16 FAIL 0 BLOCKED 0` with `403` tests.
 - `/srv/bears/dev/contracts/subagent_start_packet.md:9-48` exists and remains the canonical handoff contract.
 - `/srv/bears/dev/AGENTS.md:18-21` exists and routes the subagent contract path explicitly.
-- `scripts/platform_roles.py:287-297` filters `evidence_checked` to existing paths only.
-- `tests/test_platform_roles.py:439-469` covers both exact subagent-contract routing and blocker evidence filtering.
+- `scripts/subagents_roles.py:287-297` filters `evidence_checked` to existing paths only.
+- `tests/test_subagents_roles.py:439-469` covers both exact subagent-contract routing and blocker evidence filtering.
 
 ### Validation-report currency and drift checks
 
@@ -89,7 +89,7 @@
 ## Exact commands rerun
 
 ```bash
-python3 scripts/platform_roles.py validate
+python3 scripts/subagents_roles.py validate
 python3 scripts/role_gate_methodology.py validate
 python3 scripts/roadmap_control.py validate
 python3 scripts/session_workers_runtime.py validate
@@ -105,15 +105,15 @@ python3 scripts/validate_overlay.py --json validate --strict-overlay-skills --fe
 python3 scripts/validate_overlay.py --json validate --strict-overlay-skills
 python3 -m unittest discover -s tests
 python3 scripts/git_discipline.py inspect --repo /srv/bears/plugins/bears --json
-python3 scripts/platform_roles.py route /srv/bears/plugins/bears
-python3 scripts/platform_roles.py audit /srv/bears/plugins/bears
-python3 scripts/platform_roles.py route /srv/bears/plugins/bears/assets/catalog/secret-factory.v1.json
-python3 scripts/platform_roles.py audit /srv/bears/plugins/bears/assets/catalog/secret-factory.v1.json
-python3 scripts/platform_roles.py route /srv/bears/plugins/bears/docs/audits/max-plugin-audit-2026-06-07/final-independent-audit.md
-python3 scripts/platform_roles.py audit /srv/bears/plugins/bears/docs/audits/max-plugin-audit-2026-06-07/final-independent-audit.md
-python3 scripts/platform_roles.py route /srv/bears/dev/AGENTS.md
-python3 scripts/platform_roles.py route /srv/bears/dev/contracts/subagent_start_packet.md
-python3 scripts/platform_roles.py audit /srv/bears/dev/contracts/subagent_start_packet.md
+python3 scripts/subagents_roles.py route /srv/bears/plugins/bears
+python3 scripts/subagents_roles.py audit /srv/bears/plugins/bears
+python3 scripts/subagents_roles.py route /srv/bears/plugins/bears/assets/catalog/secret-factory.v1.json
+python3 scripts/subagents_roles.py audit /srv/bears/plugins/bears/assets/catalog/secret-factory.v1.json
+python3 scripts/subagents_roles.py route /srv/bears/plugins/bears/docs/audits/max-plugin-audit-2026-06-07/final-independent-audit.md
+python3 scripts/subagents_roles.py audit /srv/bears/plugins/bears/docs/audits/max-plugin-audit-2026-06-07/final-independent-audit.md
+python3 scripts/subagents_roles.py route /srv/bears/dev/AGENTS.md
+python3 scripts/subagents_roles.py route /srv/bears/dev/contracts/subagent_start_packet.md
+python3 scripts/subagents_roles.py audit /srv/bears/dev/contracts/subagent_start_packet.md
 python3 - <<'PY' ... referenced-audit-file existence scan
 python3 - <<'PY' ... live unsupported-field/provider-handoff/INFISICAL_API_URL probes
 python3 - <<'PY' ... stale-marker scan across current audit artifacts

@@ -48,8 +48,8 @@ Scope:
 - Treat product implementation, Kubernetes migration, and production telemetry mutation as separate approval-gated lanes.
 
 Start protocol:
-1. Read /srv/bears/AGENTS.md, /srv/bears/dev/AGENTS.md when present, /srv/bears/plugins/bears/AGENTS.md, the platform role catalog, and nearest local AGENTS/SPEC/requirements for the mapped target.
-2. Run `python3 /srv/bears/plugins/bears/scripts/platform_roles.py route <target>` and `python3 /srv/bears/plugins/bears/scripts/platform_roles.py audit <target>` before implementation handoff.
+1. Read /srv/bears/AGENTS.md, /srv/bears/dev/AGENTS.md when present, /srv/bears/plugins/bears/AGENTS.md, the subagents roles catalog, and nearest local AGENTS/SPEC/requirements for the mapped target.
+2. Run `python3 /srv/bears/plugins/bears/scripts/subagents_roles.py route <target>` and `python3 /srv/bears/plugins/bears/scripts/subagents_roles.py audit <target>` before implementation handoff.
 3. Confirm the target is exact observability coverage or exact Sentry runtime-plugin governance, not a product, deploy, or dev-core parent path.
 4. Define redaction rules and evidence bounds before recording observability facts.
 

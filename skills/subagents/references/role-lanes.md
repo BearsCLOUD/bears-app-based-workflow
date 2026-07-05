@@ -15,7 +15,7 @@ L2 orchestrators may create L3 assignments and role-gap blocker packets. They mu
 
 ## L3 execution lanes
 
-Pick the exact primary role returned by `platform_roles.py route` and `audit`. L3 workers use `gpt-5.4-mini` with `high` reasoning unless the operator explicitly names another model. Keep each L3 slice to one repo, one issue/project item set, one measurable output, and one validation path.
+Pick the exact primary role returned by `subagents_roles.py route` and `audit`. L3 workers use `gpt-5.4-mini` with `high` reasoning unless the operator explicitly names another model. Keep each L3 slice to one repo, one issue/project item set, one measurable output, and one validation path.
 
 ## GitHub planning lanes
 

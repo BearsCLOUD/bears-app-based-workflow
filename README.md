@@ -12,7 +12,7 @@ Standalone `bears-speckit` plugin or layer claims are deprecated. The canonical 
 
 Entity terms are hard policy: `app` means a product application source under `/srv/bears/dev/app` or `BearsCLOUD/apps`; `project` means a GitHub Project planning board with linked Issues and metadata fields. Use `target`, `registered target`, `repo`, `path`, `workspace surface`, or `app directory` for filesystem/source ownership.
 
-Use exact child paths with `scripts/platform_roles.py route` and `scripts/platform_roles.py audit`. Parent paths that only classify a group must not authorize implementation.
+Use exact child paths with `scripts/subagents_roles.py route` and `scripts/subagents_roles.py audit`. Parent paths that only classify a group must not authorize implementation.
 
 Infisical is custody and injection only. Kubernetes desired state plus `local_cd` owns runtime software proof. `/srv/bears/control-plane/infisical` is bootstrap or preflight support, not runtime deployment evidence.
 
@@ -24,7 +24,7 @@ It adds Bears-specific orchestration for:
 - UI/UX-friendly interface research;
 - requirements checklists before planning;
 - explicit review gates;
-- deterministic plugin constitution gate before research;
+- deterministic subagents roles gate before research;
 - deterministic prototype/spike gate before design, plan, tasks, analyze, and implementation;
 - deterministic design artifact gate before plan, tasks, analyze, and implementation;
 - analyze/drift review before implementation;
@@ -52,39 +52,39 @@ It adds Bears-specific orchestration for:
 
 ## Canonical platform role governance
 
-`plugins/bears` is the canonical owner for shared Bears platform role governance and the only Codex plugin authorized for this Bears governance model. Use `scripts/platform_roles.py` and `assets/catalog/platform-role-catalog.v1.json` before platform-part implementation or subagent delegation. Missing specialist coverage is `ROLE_COVERAGE_BLOCKER`.
+`plugins/bears` is the canonical owner for shared Bears platform role governance and the only Codex plugin authorized for this Bears governance model. Use `scripts/subagents_roles.py` and `assets/catalog/platform-role-catalog.v1.json` before platform-part implementation or subagent delegation. Missing specialist coverage is `ROLE_COVERAGE_BLOCKER`.
 
 Exact absolute `/srv/bears/plugins/bears` means the parent `/srv/bears` gitlink pointer only and routes to `workspace_root_submodule_gitlinks`. Relative `plugins/bears` and source-repo identities such as `BearsCLOUD/bears_plugin` are decomposition-only classifiers. Neither target may authorize child working-tree implementation. For implementation or audit, target an exact child file or child lane such as `/srv/bears/plugins/bears/AGENTS.md`, `assets/catalog/platform-role-catalog.v1.json`, `.github/ISSUE_TEMPLATE/config.yml`, `.github/workflows/validate.yml`, `scripts/git_discipline.py`, `scripts/roadmap_control.py`, `assets/catalog/telegram-runtime-readiness.v1.json`, or `scripts/skill_catalog.py`.
 
 `assets/catalog/plugin-governance-language-policy.v1.json` is the hard language and wording policy for this plugin. Artifacts and subagent messages must use English only. Wording must stay strict, concise, and entity-bound. Do not use generic `deploy` when the entity is `local_cd` or `kubernetes_deployment`. Do not add sample, example, or illustrative sections.
 
-`assets/catalog/plugin-constitution.v1.json` is the hard constitution gate for this plugin. Run `scripts/plugin_constitution.py validate` for catalog, doc, README, manifest, and tests coverage. Run `scripts/plugin_constitution.py inspect-change --packet <path>` for a change packet. The gate fails closed when required fields are missing or `status` is not `pass`, `fail`, or `needs-redesign`.
+`assets/catalog/platform-role-catalog.v1.json` is the role-principle governance gate for this plugin. Run `scripts/subagents_roles.py validate` for catalog, doc, README, manifest, and tests coverage. Run `scripts/subagents_roles.py ledger-audit` for a change packet. The gate fails closed when required fields are missing or `status` is not `pass`, `fail`, or `needs-redesign`.
 
 Repo-proof validation is deterministic and repo-only. It scans the configured governance artifacts and policy docs. It does not claim live runtime chat proof.
 
 Executable lifecycle authority: `assets/catalog/agent-workflow-map.v1.json`. Validate it with `python3 scripts/agent_workflow_map.py validate` after workflow-map, lifecycle, gate, state-binding, or workflow documentation changes. The map defines the lifecycle order, `global_review` / `fix_wave` loop, blocking gates, worker-state paths, and hook automation policy.
 
-The executable map preserves the constitution sequence: route gate -> constitution gate -> research gate.
+The executable map preserves the constitution sequence: route gate -> subagents-roles gate -> research gate.
 
 Intermediate stages record evidence and continue orchestration. Subagents may close intermediate tasks. Global review gates closeout and merge-ready decisions. `closeout`, `merge_ready`, and `cleanup` are blocking gates. Root workflow-state is an aggregate and index only; each worker writes `runtime/agent-workflow/<goal_id>/workers/<worker_id>/worker-state.v1.json`. Runtime hooks are not registered or enabled without hook trust and effective-hooks proof.
 
 Small exact-file bugfixes may skip the full Spec Kit packet only when they do not change boundaries, runtime, deploy, restricted-data handling, or public behavior. Repo split, infra, plugin, Kubernetes, and migration work must follow the executable map.
 
-## Plugin constitution gate
+## Subagents roles gate
 
-`plugin-constitution` validates the Bears plugin source boundary before research starts.
+`subagents-roles` validates the Bears plugin source boundary before research starts.
 
 Technical terms:
 
-- constitution gate: the policy check after route gate and before research gate.
+- subagents-roles gate: the policy check after route gate and before research gate.
 - change-check packet: a JSON file that records changed surfaces, agent impact, context plan, validation, operator boundary, cost, and status.
 - fail closed: reject the change when required proof is missing.
 
 Constitution checklist:
 
 - Route gate names the exact child target.
-- Packet names `/srv/bears/plugins/bears/assets/catalog/plugin-constitution.v1.json` or route/audit evidence.
-- Changed surfaces stay inside exact plugin constitution governance paths.
+- Packet names `/srv/bears/plugins/bears/assets/catalog/platform-role-catalog.v1.json` or route/audit evidence.
+- Changed surfaces stay inside exact subagents roles governance paths.
 - Lifecycle proof states `after route_gate and before research_gate`.
 - Change stays inside `/srv/bears/plugins/bears`.
 - Product apps, connectors, MCP servers, runtime services, product behavior, and production mutation paths are absent.
@@ -96,8 +96,8 @@ Constitution checklist:
 
 Validation entrypoints:
 
-- `python3 scripts/plugin_constitution.py validate`
-- `python3 scripts/plugin_constitution.py inspect-change --packet <path>`
+- `python3 scripts/subagents_roles.py validate`
+- `python3 scripts/subagents_roles.py ledger-audit`
 
 Constitution check:
 
@@ -201,7 +201,7 @@ The three catalogs expose one `issue-22-design-artifact-contract`. The three val
 | --- | --- |
 | bears-workflow-overlay-platform-engineer | `assets/catalog/roadmap-control.v1.json`, `scripts/roadmap_control.py`, `tests/test_roadmap_control.py`, `.codex-plugin/plugin.json`, `skills/app-constitution/SKILL.md`, `skills/app-research/SKILL.md`, `skills/app-specify/SKILL.md`, `skills/app-plan/SKILL.md`, `skills/app-analyze/SKILL.md` |
 | bears-subagent-orchestration-engineer | `assets/catalog/subagent-orchestration-policy.v1.json`, `scripts/subagent_orchestration_policy.py`, `tests/test_subagent_orchestration_policy.py` |
-| bears-platform-role-governor | `README.md`, `AGENTS.md`, `assets/catalog/role-gate-methodology.v1.json`, `scripts/role_gate_methodology.py`, `tests/test_role_gate_methodology.py` |
+| bears-subagents-roles-governor | `README.md`, `AGENTS.md`, `assets/catalog/role-gate-methodology.v1.json`, `scripts/role_gate_methodology.py`, `tests/test_role_gate_methodology.py` |
 
 ### Validator impact
 
@@ -279,12 +279,12 @@ Reference: `docs/reference/agent-registration-sync.md`.
 
 The universal invariant is strict: the orchestrator must block development unless the requested concrete part has exactly one valid primary specialist or helper role at the same granularity as the requested write scope. Group, parent, controller, or reviewer coverage is never enough for child implementation.
 
-Agent role classification is executable. Every `agents/*.toml` file declares top-level `role_kind`, `execution_class`, and `primary_eligible`; `scripts/platform_roles.py` and `scripts/agent_registration_sync.py` compare those values to the catalog role or profile mapping before closeout. `scripts/agent_registration_sync.py` also requires each `developer_instructions` block to name its own agent, include the exact `- Role override: <description>` line, and pass the sequential `audit-roles` packet.
+Agent role classification is executable. Every `agents/*.toml` file declares top-level `role_kind`, `execution_class`, and `primary_eligible`; `scripts/subagents_roles.py` and `scripts/agent_registration_sync.py` compare those values to the catalog role or profile mapping before closeout. `scripts/agent_registration_sync.py` also requires each `developer_instructions` block to name its own agent, include the exact `- Role override: <description>` line, and pass the sequential `audit-roles` packet.
 
 Use:
 
-- `python3 scripts/platform_roles.py route <target>` for deterministic classification.
-- `python3 scripts/platform_roles.py audit <target>` before implementation handoff; handoff remains blocked until validation passes.
+- `python3 scripts/subagents_roles.py route <target>` for deterministic classification.
+- `python3 scripts/subagents_roles.py audit <target>` before implementation handoff; handoff remains blocked until validation passes.
 - `python3 scripts/role_gate_methodology.py validate` to prove the universal blocker methodology and catalog alignment.
 - `python3 scripts/project_registry_gate.py gate <target>` only when App Target Gate needs compatibility registry evidence. Missing registration is `PROJECT_REGISTRATION_BLOCKER`.
 - `python3 scripts/subagent_orchestration_policy.py validate` after non-product closeout or subagent policy edits.
@@ -310,7 +310,7 @@ Compatibility migration routing is exact:
 - `sentry` routes to the `.226` Sentry/observability future lane and governed Sentry runtime-plugin capability design.
 - `/srv/bears/dev/app` is the canonical product-app repo root for `BearsCLOUD/apps`; `/srv/bears/dev/app/theants` is an app directory or migration/archive route, not a separate canonical repository.
 - `/srv/bears/dev/app/vpn` routes to `bears-vpn-project-governance-engineer` for VPN project governance/specs; `/srv/bears/dev/app/vpn/androidapp` and `winapp` route to `bears-vpn-client-app-engineer`; `vpnbot` and exact VPN Telegram notifier files route to `bears-vpn-bot-engineer`; `amnezia-split` and `wireguard-amnezia` route to `bears-vpn-runtime-engineer`; disabled/offline `proxy` routes to `bears-vpn-proxy-engineer`; `traefik` routes to `bears-vpn-ingress-engineer` for GitFlow-only ingress config review.
-- Feature 006 `spec.md`, `plan.md`, and `governance/` route to `bears-telegram-platform-engineer`; `/srv/bears/control-plane/workspace-control/tests` routes to `bears-platform-role-governor` for agent reviewer role test governance.
+- Feature 006 `spec.md`, `plan.md`, and `governance/` route to `bears-telegram-platform-engineer`; `/srv/bears/control-plane/workspace-control/tests` routes to `bears-subagents-roles-governor` for agent reviewer role test governance.
 
 Kubernetes production CD for registered Bears infra targets is governed by `assets/catalog/git-deploy-contract.v1.json`, `assets/catalog/cd-kube-deploy-contract.v1.json`, and `scripts/bears_auto_cd.py`. The Git contract owns `dev` to `main` merge policy and target mapping. The CD contract owns only what deploys, from where, and the ordered Kubernetes actions. Production apply is automatic from the infra repo `main` GitHub Actions path; local agents do not run the deploy.
 
@@ -461,9 +461,9 @@ Telegram workflow governance still lives inside this canonical plugin as interna
 
 Validation for this surface uses the full chain:
 
-- `python3 scripts/platform_roles.py validate`
-- `python3 scripts/platform_roles.py route /srv/bears/plugins/bears/assets/catalog/secret-factory.v1.json`
-- `python3 scripts/platform_roles.py audit /srv/bears/plugins/bears/assets/catalog/secret-factory.v1.json`
+- `python3 scripts/subagents_roles.py validate`
+- `python3 scripts/subagents_roles.py route /srv/bears/plugins/bears/assets/catalog/secret-factory.v1.json`
+- `python3 scripts/subagents_roles.py audit /srv/bears/plugins/bears/assets/catalog/secret-factory.v1.json`
 - `python3 scripts/secret_factory.py validate`
 - `python3 scripts/validate_overlay.py --json validate --strict-overlay-skills`
 
@@ -484,7 +484,7 @@ Use executable catalogs and validators as the inventory authority:
 - role inventory: `assets/catalog/platform-role-catalog.v1.json`;
 - workflow authority: `assets/catalog/agent-workflow-map.v1.json`;
 - CI policy: `assets/catalog/ci-requirements.v1.json`;
-- plugin boundary: `assets/catalog/plugin-constitution.v1.json`, `scripts/plugin_constitution.py`, and `docs/reference/plugin-constitution.md`.
+- plugin boundary: `assets/catalog/platform-role-catalog.v1.json`, `scripts/subagents_roles.py`, and `docs/reference/subagents-roles.md`.
 - overlay validator: `scripts/validate_overlay.py`.
 
 Additional reader references:
@@ -500,7 +500,7 @@ Additional reader references:
 
 ## Private action caller requirements
 
-`actions/platform-role-gate/action.yml` requires caller workflow `permissions: contents: read` so GitHub can fetch this private action repository. The action does not perform checkout or clone, and does not require secrets, tokens, provider settings, runtime access, or production data. `platform-repo-root` must resolve under `GITHUB_WORKSPACE`; absolute paths outside that workspace and relative escapes are rejected before target file checks.
+`actions/subagents-roles-gate/action.yml` requires caller workflow `permissions: contents: read` so GitHub can fetch this private action repository. The action does not perform checkout or clone, and does not require secrets, tokens, provider settings, runtime access, or production data. `platform-repo-root` must resolve under `GITHUB_WORKSPACE`; absolute paths outside that workspace and relative escapes are rejected before target file checks.
 
 Required caller permission block:
 
@@ -546,7 +546,7 @@ Active skills expose `SKILL.md` and are discoverable by the plugin loader.
 - `skills/bears-goal-prompt` — Generate bounded and verifiable Codex goal prompts for Bears work.
 - `skills/bears-codex-health` — Diagnose Codex desktop/app-server freezes, MCP fan-out, session growth, and safe evidence-first remediation planning.
 - `skills/bears-plugin-update` — Govern @Bears plugin updates through skill-local config, route/audit ownership discovery, sequential audit-review packets, and generated inventory sync.
-- `skills/platform-role-governance` — Enforce the canonical Bears plugin-owned platform role gate.
+- `skills/subagents-roles` — Govern @Bears subagents-roles route/audit coverage, role-principle ledger, and role-safe subagent coordination.
 - `skills/bears-agents` — Govern @Bears role lifecycle, role coverage gaps, role TOML updates, and registration drift.
 - `skills/python-codeflow` — Independent reusable L3-local Python standard for bounded Python worker tasks.
 - `skills/secret-factory` — Govern write-only local secret generation and Infisical creation with provider handoff refusals.

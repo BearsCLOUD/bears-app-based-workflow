@@ -31,7 +31,7 @@ The current `/srv/bears/plugins/bears` state passes the requested live validatio
 
 | ID | Family | Oracle | Command/procedure | Status | Evidence | Notes |
 | --- | --- | --- | --- | --- | --- | --- |
-| C01 | catalog-validator | contract | `python3 scripts/platform_roles.py validate` | PASS | exit `0` | role catalog valid |
+| C01 | catalog-validator | contract | `python3 scripts/subagents_roles.py validate` | PASS | exit `0` | role catalog valid |
 | C02 | catalog-validator | contract | `python3 scripts/role_gate_methodology.py validate` | PASS | exit `0` | role gate methodology valid |
 | C03 | catalog-validator | contract | `python3 scripts/roadmap_control.py validate` | PASS | exit `0` | roadmap control valid |
 | C04 | catalog-validator | contract | `python3 scripts/session_workers_runtime.py validate` | PASS | exit `0` | session worker runtime valid |
@@ -50,14 +50,14 @@ The current `/srv/bears/plugins/bears` state passes the requested live validatio
 
 ## Execution evidence
 
-### C01 — `python3 scripts/platform_roles.py validate`
+### C01 — `python3 scripts/subagents_roles.py validate`
 
 - Classification: `PASS`
 - Exit code: `0`
 - Stdout:
 
 ```text
-platform role catalog ok: /srv/bears/plugins/bears/assets/catalog/platform-role-catalog.v1.json
+subagents roles catalog ok: /srv/bears/plugins/bears/assets/catalog/platform-role-catalog.v1.json
 ```
 
 - Stderr: empty
@@ -157,7 +157,7 @@ status: matched
 target: /srv/bears/plugins/bears
 project_id: bears-workflow-plugin-root
 artifact_profile: plugin_repo
-primary_role: bears-platform-role-governor
+primary_role: bears-subagents-roles-governor
 project_mandate_allowed: true
 spec_required: false
 spec_path: null
@@ -308,7 +308,7 @@ OK
       "status": " M"
     },
     {
-      "path": "scripts/platform_roles.py",
+      "path": "scripts/subagents_roles.py",
       "status": " M"
     },
     {
@@ -316,7 +316,7 @@ OK
       "status": " M"
     },
     {
-      "path": "tests/test_platform_roles.py",
+      "path": "tests/test_subagents_roles.py",
       "status": " M"
     },
     {

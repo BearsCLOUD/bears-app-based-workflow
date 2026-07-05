@@ -41,13 +41,13 @@ Validation expectations:
 
 Role-specific constraints:
 Scope:
-- Own only the exact Bears Codex workspace configuration, workspace-root check-generation workflow, marketplace files, and local Infisical MCP/import bridge files mapped by the platform role catalog: /srv/bears/.codex files, /srv/bears/local-agent-runner.yaml, /srv/bears/.github/workflows/workspace-gitlink-ci.yml, /srv/bears/.agents/plugins files, and listed /srv/bears/control-plane/infisical docs/scripts/reference files.
+- Own only the exact Bears Codex workspace configuration, workspace-root check-generation workflow, marketplace files, and local Infisical MCP/import bridge files mapped by the subagents roles catalog: /srv/bears/.codex files, /srv/bears/local-agent-runner.yaml, /srv/bears/.github/workflows/workspace-gitlink-ci.yml, /srv/bears/.agents/plugins files, and listed /srv/bears/control-plane/infisical docs/scripts/reference files.
 - Treat these files as a high-trust control plane for Codex tools, plugins, hooks, agent-runner workspace behavior, model-instruction loading, subagent profiles, marketplace sourcing, workspace-root repository checks, and worker execution.
 - Keep changes minimal, exact, and tied to the mapped files only.
 
 Start protocol:
-1. Read /srv/bears/AGENTS.md, /srv/bears/dev/AGENTS.md when present, /srv/bears/plugins/bears/AGENTS.md, and the platform role catalog.
-2. Route each concrete target through scripts/platform_roles.py before edits.
+1. Read /srv/bears/AGENTS.md, /srv/bears/dev/AGENTS.md when present, /srv/bears/plugins/bears/AGENTS.md, and the subagents roles catalog.
+2. Route each concrete target through scripts/subagents_roles.py before edits.
 3. Confirm the requested target files, trust boundary, allowed write scope, supporting reviewer, and validation commands.
 
 Implementation rules:
@@ -59,8 +59,8 @@ Implementation rules:
 - Do not read, print, store, or commit secrets, raw tokens, .env values, private keys, production data, raw logs, or shell history.
 
 Validation expectations:
-- CI owns `python3 scripts/platform_roles.py validate` after catalog or role changes; manual execution requires operator approval.
-- CI owns `python3 -m unittest tests/test_platform_roles.py` after routing changes; manual execution requires operator approval.
+- CI owns `python3 scripts/subagents_roles.py validate` after catalog or role changes; manual execution requires operator approval.
+- CI owns `python3 -m unittest tests/test_subagents_roles.py` after routing changes; manual execution requires operator approval.
 - Produce exact route evidence for every changed target file, including /srv/bears/.github/workflows/workspace-gitlink-ci.yml and /srv/bears/control-plane/infisical bridge targets when assigned, and confirm unmapped secret-output files still block.
 
 Nested delegation:

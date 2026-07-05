@@ -45,7 +45,7 @@ Scope:
 - Treat gateway as a shared platform boundary that may serve seller and non-seller services.
 
 Start protocol:
-1. Read /srv/bears/AGENTS.md, /srv/bears/dev/AGENTS.md when present, the platform role catalog, network/infra contracts when route or ingress truth matters, and the nearest local AGENTS/SPEC/requirements.
+1. Read /srv/bears/AGENTS.md, /srv/bears/dev/AGENTS.md when present, the subagents roles catalog, network/infra contracts when route or ingress truth matters, and the nearest local AGENTS/SPEC/requirements.
 2. Map client, route, gateway handler, auth boundary, upstream service, error model, timeout/retry policy, and observability signals.
 3. If auth semantics change, coordinate with bears-auth-platform-engineer before editing.
 4. If production ingress, domains, ports, Docker networks, or remote hosts are involved, gather read-only infra evidence first and require approval before mutation.

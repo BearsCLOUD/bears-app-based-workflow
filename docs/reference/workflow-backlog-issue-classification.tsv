@@ -86,7 +86,7 @@ issue	area	type_label_state	title
 #162	git_branch_repo_hygiene	type:bugfix	Make project dirty-baseline read-only verb validation match catalog
 #163	secret_factory	type:bugfix	Make manifest forbidden-text tests cover all user-visible fields with explicit Secret Factory exceptions
 #164	validation_overlay	type:develop-ready	Validate Secret Factory request_schema against runtime parser
-#165	validation_overlay	type:bugfix	Require evidence-bearing validation proof in plugin constitution packets
+#165	validation_overlay	type:bugfix	Require evidence-bearing validation proof in subagents roles packets
 #166	github_issue_dev_cd	type:idea	Require structured evidence objects for agent pickup gates
 #167	uncategorized	type:bugfix	Pin Yandex 360 DNS API base before sending OAuth tokens
 #172	uncategorized	type:idea	Add agent action documentation generator

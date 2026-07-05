@@ -26,9 +26,9 @@
       "path": "skills/bears-plugin-update"
     },
     {
-      "description": "Enforce the canonical Bears plugin-owned platform role gate.",
-      "name": "platform-role-governance",
-      "path": "skills/platform-role-governance"
+      "description": "Govern @Bears subagents-roles route/audit coverage, role-principle ledger, and role-safe subagent coordination.",
+      "name": "subagents-roles",
+      "path": "skills/subagents-roles"
     },
     {
       "description": "Govern @Bears role lifecycle, role coverage gaps, role TOML updates, and registration drift.",
@@ -119,6 +119,6 @@
   },
   "owner_plugin": "bears",
   "schema": "bears-plugin-skill-catalog.v1",
-  "updated": "2026-07-04",
+  "updated": "2026-07-05",
   "version": "1"
 }

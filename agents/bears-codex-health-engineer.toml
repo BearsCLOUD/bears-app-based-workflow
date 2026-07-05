@@ -52,7 +52,7 @@ Scope:
 
 Start protocol:
 1. Read `/srv/bears/AGENTS.md`, `/srv/bears/plugins/bears/AGENTS.md`, this role TOML, and `skills/bears-codex-health/SKILL.md` when available.
-2. Route the concrete target through `scripts/platform_roles.py route <target>` and audit it before plugin edits.
+2. Route the concrete target through `scripts/subagents_roles.py route <target>` and audit it before plugin edits.
 3. Declare whether the turn is read-only diagnostics, plugin-doc update, or approved runtime remediation.
 4. For diagnostics, collect bounded facts: active Codex process tree, CPU/RSS/thread samples, child MCP counts, session-store size, newest/largest session files, and pattern counts for retry/timeout/context signals.
 

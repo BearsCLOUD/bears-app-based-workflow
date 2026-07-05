@@ -16,7 +16,7 @@ Changed surfaces reviewed:
 - `tests/test_git_discipline.py`
 - `assets/catalog/git-discipline.v1.json`
 - `assets/catalog/platform-role-catalog.v1.json`
-- `tests/test_platform_roles.py`
+- `tests/test_subagents_roles.py`
 - sync surfaces required by the new governance lane: `.codex-plugin/plugin.json`, `README.md`, `SPEC.md`, `requirements.md`, `agents/README.md`, `assets/catalog/plugin-skill-catalog.v1.json`, `docs/generated/README.skill-inventory.md`, `docs/generated/SPEC.skill-inventory.md`
 
 Excluded from scope: unrelated audit artifacts already present in the worktree.
@@ -33,13 +33,13 @@ Repository state and diff:
 Validators and tests executed:
 
 - `python3 scripts/secret_factory.py validate`
-- `python3 scripts/platform_roles.py validate`
-- `python3 scripts/platform_roles.py route /srv/bears/plugins/bears/assets/catalog/secret-factory.v1.json`
-- `python3 scripts/platform_roles.py audit /srv/bears/plugins/bears/assets/catalog/secret-factory.v1.json`
+- `python3 scripts/subagents_roles.py validate`
+- `python3 scripts/subagents_roles.py route /srv/bears/plugins/bears/assets/catalog/secret-factory.v1.json`
+- `python3 scripts/subagents_roles.py audit /srv/bears/plugins/bears/assets/catalog/secret-factory.v1.json`
 - `python3 scripts/git_discipline.py validate`
 - `python3 scripts/skill_catalog.py validate && python3 scripts/skill_catalog.py generate --check`
 - `python3 scripts/validate_overlay.py --json validate --strict-overlay-skills`
-- `python3 -m unittest tests.test_secret_factory tests.test_git_discipline tests.test_platform_roles`
+- `python3 -m unittest tests.test_secret_factory tests.test_git_discipline tests.test_subagents_roles`
 - direct CLI normal/failure probes for `scripts/secret_factory.py create --dry-run` and `plan`
 - direct negative probes:
   - request file containing camelCase `secretValue`
@@ -55,7 +55,7 @@ Files inspected with line references:
 - `tests/test_git_discipline.py`
 - `assets/catalog/git-discipline.v1.json`
 - `assets/catalog/platform-role-catalog.v1.json`
-- `tests/test_platform_roles.py`
+- `tests/test_subagents_roles.py`
 - `assets/catalog/plugin-skill-catalog.v1.json`
 - `docs/generated/README.skill-inventory.md`
 - `docs/generated/SPEC.skill-inventory.md`
@@ -73,18 +73,18 @@ Files inspected with line references:
 
 1. **Secret Factory role routing is wired correctly and independently auditable.**
    - Catalog entry: `assets/catalog/platform-role-catalog.v1.json:1039-1082`
-   - Route tests: `tests/test_platform_roles.py:322-338`
+   - Route tests: `tests/test_subagents_roles.py:322-338`
    - Runtime evidence:
-     - `python3 scripts/platform_roles.py validate` → PASS
-     - `python3 scripts/platform_roles.py route /srv/bears/plugins/bears/assets/catalog/secret-factory.v1.json` → `status: matched`, `primary_role: bears-secret-factory-engineer`
-     - `python3 scripts/platform_roles.py audit /srv/bears/plugins/bears/assets/catalog/secret-factory.v1.json` → `implementation_handoff_allowed: true`
+     - `python3 scripts/subagents_roles.py validate` → PASS
+     - `python3 scripts/subagents_roles.py route /srv/bears/plugins/bears/assets/catalog/secret-factory.v1.json` → `status: matched`, `primary_role: bears-secret-factory-engineer`
+     - `python3 scripts/subagents_roles.py audit /srv/bears/plugins/bears/assets/catalog/secret-factory.v1.json` → `implementation_handoff_allowed: true`
 
 2. **The git-discipline exception logic does not over-whitelist adjacent files.**
    - Implementation: `scripts/git_discipline.py:252-296`
    - Tests: `tests/test_git_discipline.py:94-135`
    - Validation evidence:
      - `python3 scripts/git_discipline.py validate` → PASS
-     - `python3 -m unittest tests.test_secret_factory tests.test_git_discipline tests.test_platform_roles` → PASS (`Ran 98 tests in 7.235s`)
+     - `python3 -m unittest tests.test_secret_factory tests.test_git_discipline tests.test_subagents_roles` → PASS (`Ran 98 tests in 7.235s`)
    - The added test proves `skills/secret-factory/SKILL.md` is exempt while `skills/secret-factory/notes.txt` still triggers operator review.
 
 3. **Skill discovery and sync surfaces were updated consistently for the new lane.**
@@ -107,4 +107,4 @@ Files inspected with line references:
 
 ## Residual risk
 
-- `scripts/secret_factory.py` is already 417 lines, `scripts/git_discipline.py` is 402 lines, and `tests/test_platform_roles.py` is 1378 lines. No immediate defect was proven from size alone, but these files are above the 400-line review threshold from the active Python codeflow guidance and will become harder to audit if more behavior is added without splitting.
+- `scripts/secret_factory.py` is already 417 lines, `scripts/git_discipline.py` is 402 lines, and `tests/test_subagents_roles.py` is 1378 lines. No immediate defect was proven from size alone, but these files are above the 400-line review threshold from the active Python codeflow guidance and will become harder to audit if more behavior is added without splitting.

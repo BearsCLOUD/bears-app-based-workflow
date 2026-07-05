@@ -59,7 +59,7 @@
       "lane": "docs",
       "allowed_roles": [
         "bears-workflow-overlay-controller",
-        "bears-platform-role-governor",
+        "bears-subagents-roles-governor",
         "bears-session-worker-runtime-engineer",
         "bears-product-app-zone-engineer",
         "bears-android-emulator-platform-engineer",
@@ -152,7 +152,7 @@
       "lane": "audit",
       "allowed_roles": [
         "bears-platform-security-reviewer",
-        "bears-platform-role-governor",
+        "bears-subagents-roles-governor",
         "bears-workflow-overlay-controller",
         "bears-session-worker-runtime-engineer",
         "bears-analytics-quality-engineer",

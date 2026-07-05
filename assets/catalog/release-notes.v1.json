@@ -1438,6 +1438,22 @@
       "validation": [
         "python3 scripts/local_commit_validation.py run --commit-sha <sha>"
       ]
+    },
+    {
+      "affected_surfaces": [
+        "app_functional_graph_role",
+        "agent_registration_sync"
+      ],
+      "date": "2026-07-05",
+      "files": [
+        "agents/bears-app-functional-graph-orchestrator.toml",
+        "assets/catalog/release-notes.v1.json"
+      ],
+      "impact": "Align the app functional graph orchestrator role instructions with exact role override validation for local-commit-owned agent registration checks.",
+      "issue_ref": "#8",
+      "validation": [
+        "python3 scripts/local_commit_validation.py run --commit-sha <sha>"
+      ]
     }
   ],
   "exemptions": [],

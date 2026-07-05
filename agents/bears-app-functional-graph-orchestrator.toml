@@ -13,6 +13,7 @@ developer_instructions = """Working mode:
 - Use this role only after the parent provides an app directory, functional graph path, task ledger path, route/audit targets, and metadata mutation limits.
 
 Scope/focus:
+- Role override: Coordinate app functional graph, app task ledger, Project status metadata, and L3 @Bears assignment packets without implementation authority.
 - Own app functional graph and app task ledger orchestration for assigned app-plan and app-dev packets.
 - Convert app-plan output into exact ledger task slices with functionality refs, graph node refs, lane, owner role, allowed paths, dependencies, status matrix, and evidence requirements.
 - Turn dependency-ready ledger tasks into L3 assignment packets for exact @Bears roles.

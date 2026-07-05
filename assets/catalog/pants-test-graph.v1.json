@@ -519,7 +519,9 @@
       "pants_target": "//:governance_reference_docs",
       "patterns": [
         "docs/reference/**",
-        "docs/audits/**"
+        "docs/audits/max-plugin-audit-2026-06-07/**",
+        "docs/audits/subagents-roles/**",
+        "docs/audits/capability-v2/**"
       ],
       "tests": [
         "tests/test_pants_test_graph.py",
@@ -532,7 +534,10 @@
       "name": "governance-fixtures-and-workflows",
       "pants_target": "//:governance_fixtures_and_workflows",
       "patterns": [
-        "tests/fixtures/**",
+        "tests/fixtures/capability/**",
+        "tests/fixtures/capability_layout/**",
+        "tests/fixtures/projects.v1.json",
+        "tests/fixtures/workflow_tree/**",
         "workflows/**",
         ".github/ISSUE_TEMPLATE/**"
       ],

@@ -1352,9 +1352,10 @@
       "files": [
         "assets/catalog/pants-test-graph.v1.json",
         "assets/catalog/release-notes.v1.json",
-        "assets/catalog/test-selection.v1.json"
+        "assets/catalog/test-selection.v1.json",
+        "scripts/platform_roles.py"
       ],
-      "impact": "Add subagents-roles validation selector coverage so local commit validation can map governance docs, audits, fixtures, workflows, catalogs, and scripts to executable autoCI checks.",
+      "impact": "Add subagents-roles validation selector coverage and keep the compatibility shim import-safe so local commit validation can map governance docs, audits, fixtures, workflows, catalogs, and scripts to executable autoCI checks.",
       "issue_ref": "#8",
       "validation": [
         "python3 scripts/local_commit_validation.py run --commit-sha <sha>"

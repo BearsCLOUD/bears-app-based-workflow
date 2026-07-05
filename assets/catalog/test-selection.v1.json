@@ -1321,8 +1321,13 @@
       "patterns": [
         "assets/catalog/*.json",
         "docs/reference/**",
-        "docs/audits/**",
-        "tests/fixtures/**",
+        "docs/audits/max-plugin-audit-2026-06-07/**",
+        "docs/audits/subagents-roles/**",
+        "docs/audits/capability-v2/**",
+        "tests/fixtures/capability/**",
+        "tests/fixtures/capability_layout/**",
+        "tests/fixtures/projects.v1.json",
+        "tests/fixtures/workflow_tree/**",
         "workflows/**",
         ".github/ISSUE_TEMPLATE/**",
         "scripts/*.py"

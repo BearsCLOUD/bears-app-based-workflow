@@ -115,6 +115,10 @@
         "category": "fast"
       },
       {
+        "path": "tests/test_app_functional_graph.py",
+        "category": "fast"
+      },
+      {
         "path": "tests/test_artifact_registry.py",
         "category": "fast"
       },

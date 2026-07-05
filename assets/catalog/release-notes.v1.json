@@ -1418,6 +1418,26 @@
       "validation": [
         "python3 scripts/local_commit_validation.py run --commit-sha <sha>"
       ]
+    },
+    {
+      "affected_surfaces": [
+        "app_functional_graph",
+        "ci_requirements",
+        "subagents_roles_governor",
+        "validate_overlay"
+      ],
+      "date": "2026-07-05",
+      "files": [
+        "agents/bears-subagents-roles-governor.toml",
+        "assets/catalog/ci-requirements.v1.json",
+        "assets/catalog/release-notes.v1.json",
+        "skills/app-functional-graph/SKILL.md"
+      ],
+      "impact": "Register app functional graph tests in autoCI selection and align agent-facing instructions with local-commit-owned validation wording.",
+      "issue_ref": "#8",
+      "validation": [
+        "python3 scripts/local_commit_validation.py run --commit-sha <sha>"
+      ]
     }
   ],
   "exemptions": [],

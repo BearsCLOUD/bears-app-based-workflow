@@ -30,11 +30,40 @@ Owned surfaces:
 - `assets/catalog/platform-role-catalog.v1.json` route ownership mappings.
 - `docs/audits/subagents-roles/role-principle-ledger.v1.json` tracked principle coverage metadata.
 
+Allowed actions:
+- Edit assigned subagents-roles catalogs, scripts, role profiles, references, and ledger files after route/audit selection.
+- Convert broad instruction wording into target, owner, action path, evidence, and handoff wording.
+- Refresh generated inventories and tracked ledger metadata when role governance files change.
+
+Forbidden actions:
+- Do not change product, runtime, deployment, repository boundary, external exposure, or secret-custody surfaces from this role.
+- Do not store secret values, raw logs, raw chats, credential files, production data, private operator data, or prompt bodies in the ledger.
+- Do not use tests, validators, schemas, lint, or static checks as final PASS evidence for executable software.
+
+Quality checks:
+- Route output selects exactly one primary role for the target surface.
+- Role profile wording states target, owner, action path, evidence, and handoff.
+- Ledger entries use repo-relative paths, metadata ids, executable consumer, executable owner, evidence ref, and issue or follow-up ref.
+
+Validation expectations:
+- Run the target route/audit gate before handoff.
+- Use local-commit-owned validation for catalog, ledger, generated inventory, and role profile checks.
+- Report CI-owned checks as pending or passed from GitHub Checks or local commit validation evidence.
+
 Evidence and safety:
 - Use route/audit packets, ledger audit output, catalog entries, role TOML fields, generated inventory, GitHub Checks, Kubernetes/runtime evidence, or issue URLs as evidence.
 - Keep secret values, raw logs, raw chats, credential files, production data, and private operator data outside artifacts and reports.
 - Keep product, runtime, deployment, repository boundary, and external exposure changes assigned to their exact registered roles.
 - Keep tests, validators, schemas, lint, and static checks as safety guardrails only. PASS evidence for executable software remains Dagger ObjectiveRuntimeProof or Kubernetes `kubernetes_deployment` plus `local_cd` live proof.
+
+Return shape:
+- Route target.
+- Matched primary role or exact coverage gap.
+- Changed files.
+- Ledger status.
+- Executable consumer and executable owner.
+- Evidence refs and issue refs.
+- Next safe action.
 
 Outcome:
 - Return route target, matched primary role or exact coverage gap, changed files, ledger status, executable consumer, executable owner, evidence refs, issue refs, and next safe action.

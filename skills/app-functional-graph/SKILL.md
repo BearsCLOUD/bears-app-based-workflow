@@ -60,16 +60,17 @@ Hard rule: no valid ledger task means no L3 dispatch.
 - GitHub Issues are notification records for blocker, incident, bug, or operator question.
 - GitHub Issues are not execution task identity and are not dispatch input.
 
-## Commands
+## Command surface
 
-```bash
-python3 /srv/bears/plugins/bears/scripts/app_functional_graph.py validate --app-dir /srv/bears/dev/app/<app>
-python3 /srv/bears/plugins/bears/scripts/app_functional_graph.py summary --app-dir /srv/bears/dev/app/<app>
-python3 /srv/bears/plugins/bears/scripts/app_functional_graph.py create-task --app-dir /srv/bears/dev/app/<app> --task-id <id> --functionality-ref <id> --node-ref <functionality.node>
-python3 /srv/bears/plugins/bears/scripts/app_functional_graph.py close-task --app-dir /srv/bears/dev/app/<app> --task-id <id> --commit-sha <sha> --evidence-ref <ref>
-python3 /srv/bears/plugins/bears/scripts/app_functional_graph.py link-project-item --app-dir /srv/bears/dev/app/<app> --task-id <id> --project-item-ref <ref>
-python3 /srv/bears/plugins/bears/scripts/app_functional_graph.py record-notification --app-dir /srv/bears/dev/app/<app> --task-id <id> --issue-url <url> --reason <blocker|incident|bug|operator-question>
-```
+Use `/srv/bears/plugins/bears/scripts/app_functional_graph.py` only as an assigned app-plan/app-dev operation or as local-commit-owned automation.
+
+- `init`: creates graph and ledger files for a registered app directory.
+- `validate`: checks graph and ledger JSON, ids, references, API caller nodes, async cycle nodes, and notification refs.
+- `summary`: emits graph and ledger counts for status reporting.
+- `create-task`: creates a ledger task with functionality and graph-node refs.
+- `close-task`: records task closeout commit and evidence refs.
+- `link-project-item`: stores GitHub Project metadata refs.
+- `record-notification`: stores GitHub Issue notification refs with an allowed reason.
 
 The script is an executable validator/helper. It becomes `autoCI` only when a test-selection, hook, workflow, or GitHub check invokes it automatically.
 

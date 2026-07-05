@@ -45,7 +45,7 @@
 - Keep artifacts and contracts in English.
 - Keep this file as a router. Do not duplicate full role, Git, branch, subagent, CD, deploy, or closeout policy here.
 - `assets/catalog/*.v1.json` owns machine policy. `scripts/*.py`, `hooks/*.py`, `skills/*/SKILL.md`, and tests enforce it.
-- Run `python3 scripts/subagents_roles.py route <exact-path>` and `python3 scripts/subagents_roles.py audit <exact-path>` before plugin changes.
+- Do not run route/audit manually before plugin changes. Role coverage runs through `autoCI` or local commit validation, and plans record only the computed owner role and expected status names.
 - `kubernetes_deployment` is valid only with Kubernetes desired state and `local_cd`. Local host processes, local `infisical run`, manual `kubectl apply`, and manual secret injection are not final live PASS evidence.
 - Infisical is secret custody and environment injection only. Runtime software proof must pass through Kubernetes refs, workload evidence, and health proof.
 - `control-plane/infisical` is bootstrap or preflight support only; it is not the runtime desired-state owner.
@@ -77,9 +77,9 @@
 - If any role, skill, catalog, hook, issue packet, or docs surface still uses validation-layer acceptance, migrate it to Dagger objective runtime proof or remove the obsolete reference.
 
 ## Safety checks
-- Route/audit gates are agent-local ownership checks; they are not PASS evidence.
-- Local commit validation owns blocking plugin test proof.
-- Agents must not run repo validator suites or tests manually unless the operator names one command.
+- Route/audit gates are `autoCI` ownership checks; agents do not run them manually unless the operator names one exact command.
+- Local commit validation owns blocking plugin route/audit, validator, and test proof.
+- Agents must not run route/audit, repo validator suites, or tests manually unless the operator names one exact command.
 - Repo suites, tests, validators, schemas, lint, Docker checks, Kubernetes checks, browser checks, and ad hoc checks are safety-only unless a human explicitly requests one named command.
 - Closeout proof must cite `runtime/local-commit-validation/<main_sha>.json` after the commit exists.
 - Plugin closeout for app/platform behavior must cite an ObjectiveRuntimeProof packet or final Kubernetes live proof, not validation artifacts.

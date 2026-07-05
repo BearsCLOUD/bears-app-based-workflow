@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import argparse
 import json
 import shutil
 import tempfile
@@ -75,6 +76,60 @@ class AppFunctionalGraphTests(unittest.TestCase):
             ledger_path.write_text(json.dumps(ledger, indent=2, sort_keys=True) + "\n", encoding="utf-8")
             packet = afg.validate_app(app_dir)
         self.assertEqual(packet["status"], "pass", packet["errors"])
+
+    def test_ready_task_requires_autoci_zone_and_expected_status(self) -> None:
+        temp, app_dir = self._copy_fixture("valid_app")
+        with temp:
+            ledger_path = app_dir / "docs" / afg.LEDGER_NAME
+            ledger = json.loads(ledger_path.read_text(encoding="utf-8"))
+            ledger["tasks"][0]["autoci_zones"] = []
+            ledger["tasks"][0]["expected_statuses"] = []
+            ledger_path.write_text(json.dumps(ledger, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+            packet = afg.validate_app(app_dir)
+        self.assertEqual(packet["status"], "fail")
+        self.assertTrue(any("requires autoci_zones" in error for error in packet["errors"]))
+        self.assertTrue(any("requires expected_statuses" in error for error in packet["errors"]))
+
+    def test_l3_claim_and_mark_task_status_update_only_assigned_task(self) -> None:
+        temp, app_dir = self._copy_fixture("valid_app")
+        original_app_root = afg.APP_ROOT
+        with temp:
+            afg.APP_ROOT = app_dir.parent
+            try:
+                claim_code = afg.command_claim_task(
+                    argparse.Namespace(
+                        app_dir=app_dir.as_posix(),
+                        task_id="valid_app-T001",
+                        worker_id="worker-1",
+                        worker_role="bears-product-app-zone-engineer",
+                    )
+                )
+                mark_code = afg.command_mark_task_status(
+                    argparse.Namespace(
+                        app_dir=app_dir.as_posix(),
+                        task_id="valid_app-T001",
+                        status="done",
+                        worker_id="worker-1",
+                        worker_role="bears-product-app-zone-engineer",
+                        commit_sha="a" * 40,
+                        evidence_ref=["dagger://proof/app"],
+                        status_evidence_ref=["github-status://fast"],
+                        expected_status=["app.autoCI.fast"],
+                    )
+                )
+            finally:
+                afg.APP_ROOT = original_app_root
+            ledger = json.loads((app_dir / "docs" / afg.LEDGER_NAME).read_text(encoding="utf-8"))
+        task = ledger["tasks"][0]
+        self.assertEqual(claim_code, 0)
+        self.assertEqual(mark_code, 0)
+        self.assertEqual(task["status"], "done")
+        self.assertEqual(task["worker_id"], "worker-1")
+        self.assertEqual(task["commit_sha"], "a" * 40)
+        self.assertIn("github-status://fast", task["status_evidence_refs"])
+        self.assertIn("dagger://proof/app", task["evidence_refs"])
+        self.assertNotEqual(task["started_at"], "none")
+        self.assertNotEqual(task["closed_at"], "none")
 
 
 if __name__ == "__main__":

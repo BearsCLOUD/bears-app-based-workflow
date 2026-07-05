@@ -36,11 +36,11 @@ Use with `$app-plan` before execution task creation.
 
 1. Read app specification, research, nearest `AGENTS.md`, and existing graph and ledger.
 2. Create or update one functionality for each executable product behavior.
-3. Create ledger tasks with `task_id`, `functionality_refs`, `graph_node_refs`, lane, role, paths, dependencies, Project refs, and evidence fields.
+3. Create ledger tasks with `task_id`, `functionality_refs`, `graph_node_refs`, lane, role, paths, dependencies, `autoci_zones`, `expected_statuses`, Project refs, and evidence fields.
 4. Link GitHub Project items through `project_refs` only.
 5. Create GitHub Issues only after explicit manual notification authorization; store those URLs in `notification_refs` with a reason.
 
-Hard rule: an execution task with `status=ready`, `in_progress`, or `done` must have `functionality_refs` and `graph_node_refs`.
+Hard rule: an execution task with `status=ready`, `in_progress`, `done`, `blocked`, or `needs-review` must have `functionality_refs`, `graph_node_refs`, `autoci_zones`, and `expected_statuses`.
 
 ### Dev mode
 
@@ -48,11 +48,11 @@ Use with `$app-dev` before L3 dispatch and after L3 closeout.
 
 1. Validate graph and ledger.
 2. Dispatch only ledger tasks with `status=ready` and valid refs.
-3. Pass `task_id`, `functionality_refs`, `graph_node_refs`, `allowed_paths`, and `task_ledger` to L3.
+3. Pass `task_id`, `functionality_refs`, `graph_node_refs`, `allowed_paths`, `autoci_zones`, `expected_statuses`, and `task_ledger` to L3.
 4. Keep L3 edits inside task paths and graph node scope.
-5. Record commit, evidence, and critic result in the ledger after closeout.
+5. L3 records claim and closeout status in the ledger through assigned task commands, including commit, status evidence, and proof refs.
 
-Hard rule: no valid ledger task means no L3 dispatch.
+Hard rule: no valid ledger task with computed autoCI zones means no L3 dispatch.
 
 ## GitHub surfaces
 
@@ -67,8 +67,10 @@ Use `/srv/bears/plugins/bears/scripts/app_functional_graph.py` only as an assign
 - `init`: creates graph and ledger files for a registered app directory.
 - `validate`: checks graph and ledger JSON, ids, references, API caller nodes, async cycle nodes, and notification refs.
 - `summary`: emits graph and ledger counts for status reporting.
-- `create-task`: creates a ledger task with functionality and graph-node refs.
-- `close-task`: records task closeout commit and evidence refs.
+- `create-task`: creates a ledger task with functionality refs, graph-node refs, autoCI zones, and expected statuses.
+- `claim-task`: lets the assigned L3 worker mark one ready task `in_progress`.
+- `mark-task-status`: lets the assigned L3 worker mark one task `done`, `blocked`, or `needs-review` with commit, evidence, and status evidence refs.
+- `close-task`: legacy closeout command for commit and evidence refs.
 - `link-project-item`: stores GitHub Project metadata refs.
 - `record-notification`: stores GitHub Issue notification refs with an allowed reason.
 
@@ -76,6 +78,6 @@ The script is an executable validator/helper. It becomes `autoCI` only when a te
 
 ## Output rules
 
-- Store ids, paths, refs, status, commit ids, and evidence refs only.
+- Store ids, paths, refs, status, worker id, worker role, timestamps, commit ids, autoCI zones, status names, and evidence refs only.
 - Do not store secret values, env values, tokens, raw logs, raw chats, provider payloads, or production data.
 - Use positive action wording: target, owner, action path, evidence, and handoff.

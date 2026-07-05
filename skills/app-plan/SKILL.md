@@ -16,7 +16,7 @@ Every app-* skill starts with this gate:
 - `app` belongs to `BearsCLOUD/apps` and one app directory under `/srv/bears/dev/app`.
 - `platform` belongs to `/srv/bears/dev/platform`.
 - `infra` belongs to `/srv/bears/kubernetes`.
-- `plugin` belongs to `plugins/<plugin>`; for `@Bears`, use `/srv/bears/plugins/bears` plus `subagents-roles` route/audit.
+- `plugin` belongs to `plugins/<plugin>`; for `@Bears`, use `/srv/bears/plugins/bears` plus computed `subagents-roles` owner and expected autoCI status.
 - Legacy child repos and `/srv/bears/projects` are evidence only.
 - Use target-named reads when target packets name paths.
 - If a request crosses layers, keep the layers separate and pass them to `$app-plan` as separate lanes.
@@ -30,10 +30,10 @@ For `target_layer=app`, run `$app-functional-graph` before creating execution ta
 Use `target_layer=plugin` when app-style flow helps a plugin governance or workflow change.
 
 - `app-constitution` creates or updates a plugin governance baseline, not a retired standalone artifact.
-- `app-research` gathers current plugin source, generated inventory, route/audit, runtime, GitHub, or install/update evidence.
+- `app-research` gathers current plugin source, generated inventory, computed role ownership, runtime, GitHub, or install/update evidence.
 - `app-specify` writes plugin-local requirements or specification docs for plugin behavior.
 - `app-plan` creates plugin-local task packets; for `@Bears`, use `BearsCLOUD/bears_plugin` metadata only when the operator authorizes metadata mutation.
-- `app-analyze` checks drift across plugin baseline, specs, task packets, route/audit evidence, role-principle ledger, and metadata.
+- `app-analyze` checks drift across plugin baseline, specs, task packets, computed role ownership, role-principle ledger, and metadata.
 - `app-dev` executes bounded plugin task packets through selected `@Bears` roles, skills, or subagents and updates the ledger when role principles change.
 - Plugin-target `task` and `wave` keep the app-dev meanings, with plugin repo/path ownership instead of product app ownership.
 
@@ -105,9 +105,9 @@ Every execution task must include:
 - `graph_edge_refs` when edge behavior changes;
 - source doc references with section names;
 - acceptance criteria checklist;
-- L3 autoCI/CD status matrix names from automatic CI/check metadata or commit closeout expectation;
+- `autoci_zones` computed from the autoCI graph and `expected_statuses` for automatic status evidence;
 - dependency task ids;
-- completion proof: changed files, one commit SHA, push proof, status matrix evidence, Project status update when used, and closeout comment.
+- completion proof: changed files, one commit SHA, push proof, status evidence refs, Project status update when used, and closeout comment.
 
 Split a task whenever repo, path, write scope, role, proof source, dependency order, functionality ref, graph node ref, platform boundary, infra boundary, or restricted-data boundary differs.
 

@@ -16,7 +16,7 @@ Every app-* skill starts with this gate:
 - `app` belongs to `BearsCLOUD/apps` and one app directory under `/srv/bears/dev/app`.
 - `platform` belongs to `/srv/bears/dev/platform`.
 - `infra` belongs to `/srv/bears/kubernetes`.
-- `plugin` belongs to `plugins/<plugin>`; for `@Bears`, use `/srv/bears/plugins/bears` plus `subagents-roles` route/audit.
+- `plugin` belongs to `plugins/<plugin>`; for `@Bears`, use `/srv/bears/plugins/bears` plus computed `subagents-roles` owner and expected autoCI status.
 - Legacy child repos and `/srv/bears/projects` are evidence only.
 - Use target-named reads when target packets name paths.
 - If a request crosses layers, keep the layers separate and pass them to `$app-plan` as separate lanes.
@@ -28,7 +28,7 @@ Use this skill to execute dependency-ready `app-task-ledger` tasks after `$app-a
 ## Required topology
 
 - Parent/L1 controls only L2 lane orchestrators and wave boundaries.
-- L2 orchestrators control Project item state, ledger updates, decomposition, helper subagents, and L3 assignments for their lane.
+- L2 orchestrators control Project item state, decomposition, helper subagents, and L3 assignments for their lane.
 - L2 may spawn helper subagents only through `$subagents`; helpers support metadata, decomposition, evidence gathering, or packet shaping.
 - L3 workers implement one ledger task with `model=gpt-5.4-mini` and `reasoning=high` unless the task packet names a stricter model.
 - L3 critic uses `model=gpt-5.5`, `reasoning=high`, no parent/start context, and receives only the task plus review objective.
@@ -40,10 +40,10 @@ Use this skill to execute dependency-ready `app-task-ledger` tasks after `$app-a
 Use `target_layer=plugin` when app-style flow helps a plugin governance or workflow change.
 
 - `app-constitution` creates or updates a plugin governance baseline, not a retired standalone artifact.
-- `app-research` gathers current plugin source, generated inventory, route/audit, runtime, GitHub, or install/update evidence.
+- `app-research` gathers current plugin source, generated inventory, computed role ownership, runtime, GitHub, or install/update evidence.
 - `app-specify` writes plugin-local requirements or specification docs for plugin behavior.
 - `app-plan` creates plugin-local task packets; for `@Bears`, use `BearsCLOUD/bears_plugin` metadata only when the operator authorizes metadata mutation.
-- `app-analyze` checks drift across plugin baseline, specs, task packets, route/audit evidence, role-principle ledger, and metadata.
+- `app-analyze` checks drift across plugin baseline, specs, task packets, computed role ownership, role-principle ledger, and metadata.
 - `app-dev` executes bounded plugin task packets through selected `@Bears` roles, skills, or subagents and updates the ledger when role principles change.
 - Plugin-target `task` and `wave` keep the app-dev meanings, with plugin repo/path ownership instead of product app ownership.
 
@@ -53,8 +53,8 @@ Allowed:
 
 - Read `app-plan.project-task-packet`, `app-analysis.packet`, app functional graph, app task ledger, Project item metadata, route evidence, target docs, and task-owned files.
 - Start L2 lane orchestrators for `app`, `platform`, `infra`, and any sub-lanes already defined by `$app-plan`.
-- Dispatch L3 workers only from `ready` ledger tasks with valid `functionality_refs` and `graph_node_refs`.
-- Update task ledger and Project item state only from L2 with concrete worker, critic, commit, and status evidence.
+- Dispatch L3 workers only from `ready` ledger tasks with valid `functionality_refs`, `graph_node_refs`, `autoci_zones`, and `expected_statuses`.
+- L3 workers update only their assigned ledger task through `$app-functional-graph` `claim-task` and `mark-task-status`; L2 updates Project item state from concrete worker, critic, commit, and status evidence.
 - Record GitHub Issue URLs only in `notification_refs` after explicit manual notification authorization.
 
 Forbidden:
@@ -74,14 +74,14 @@ This skill uses the same conceptual loop as implementation-by-task workflows: re
 1. Run the App Target Gate for the packet.
 2. Read `app-analysis.packet`; stop unless handoff is ready or operator approved advisory execution.
 3. Read `docs/app-functional-graph.v1.json` and `docs/app-task-ledger.v1.json`.
-4. Validate graph and ledger through `$app-functional-graph` before wave grouping.
+4. Validate graph and ledger through `$app-functional-graph` before wave grouping; each ready task needs computed autoCI zones.
 5. Group dependency-ready ledger tasks into a wave by non-overlapping repo/path targets and graph node refs.
 6. Start or reuse one L2 orchestrator per lane in the packet.
 7. Send each L2 only its lane tasks, dependencies, graph refs, allowed Project item mutations, helper rules, and closeout format.
 8. L2 may use `$subagents` helpers for decomposition or metadata support, then dispatches L3 workers for ready ledger tasks.
-9. Each L3 worker returns changed files, commit/push evidence or exact blocker, ledger evidence, Project item evidence when used, and task completion claim.
+9. Each L3 worker claims its task, implements only that task, marks its ledger task status, and returns changed files, commit/push evidence or exact blocker, ledger evidence, Project item evidence when used, and task completion claim.
 10. L2 dispatches one L3 critic per completed task. The critic receives only the task and review objective.
-11. L2 marks task `done` only after critic confirms 100% completion and the ledger has commit/evidence refs.
+11. L2 accepts task `done` only after L3 has marked ledger status and critic confirms 100% completion with commit/evidence refs.
 12. Parent integrates L2 closeout packets, advances the next wave, and reports remaining blockers or drift.
 
 Hard rule: no valid ledger task means no L3 dispatch.
@@ -111,10 +111,12 @@ Required L3 status packet:
   "graph_node_refs": ["<app>.<functionality>.<node>"],
   "commit_sha": "<sha>",
   "push_proof": "<url or exact ref>",
-  "fast_statuses": ["<status name>"],
+  "autoci_zones": ["<zone id>"],
+  "expected_statuses": ["<status name>"],
+  "status_evidence_refs": ["<proof ref>"],
   "full_proof": "dagger-objective-runtime-proof:<scenario>|none",
   "live_proof": "kubernetes_deployment+local_cd|none",
-  "task_ledger_update": "done|blocked",
+  "task_ledger_update": "done|blocked|needs-review",
   "l2_blocking": false
 }
 ```
@@ -131,7 +133,7 @@ Required L3 status packet:
   "functional_graph": "<app directory>/docs/app-functional-graph.v1.json",
   "task_ledger": "<app directory>/docs/app-task-ledger.v1.json",
   "tasks": [
-    {"task_id": "<app-T001>", "functionality_refs": ["<id>"], "graph_node_refs": ["<id>"], "allowed_paths": ["<paths>"]}
+    {"task_id": "<app-T001>", "functionality_refs": ["<id>"], "graph_node_refs": ["<id>"], "allowed_paths": ["<paths>"], "autoci_zones": ["<zone id>"]}
   ],
   "allowed_project_mutations": ["status", "field updates named by app-plan"],
   "helper_policy": "Use $subagents for L2 helpers only; helpers do not implement.",

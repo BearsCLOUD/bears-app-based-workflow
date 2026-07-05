@@ -1918,6 +1918,33 @@
       "scope_id": "plugin-cache-sync",
       "status": "accepted",
       "unresolved_inputs": []
+    },
+    {
+      "affected_paths": [
+        "assets/catalog/autoci-graph.v1.json",
+        "assets/catalog/pants-test-graph.v1.json",
+        "assets/catalog/platform-role-catalog.v1.json",
+        "assets/catalog/test-selection.v1.json",
+        "scripts/app_functional_graph.py",
+        "scripts/local_commit_validation.py",
+        "skills/app-dev/SKILL.md",
+        "skills/app-functional-graph/SKILL.md",
+        "skills/app-plan/SKILL.md",
+        "tests/fixtures/app_functional_graph/**",
+        "tests/test_app_functional_graph.py",
+        "tests/test_local_commit_validation.py"
+      ],
+      "change_type": "workflow",
+      "contradictions": [],
+      "decision": "Add autoCI graph zone selection to app task ledgers and local commit validation; agents record computed zones and expected status names while autoCI owns execution.",
+      "decision_id": "DEC-20260705-autoci-graph-ledger-status",
+      "owner_issue": "operator-goal-dirty-drift-cleanup",
+      "owner_role": "bears-deploy-platform-engineer",
+      "rationale": "The operator cleanup plan moves manual route, test, and validator decisions into automatic CI/local commit validation and requires app ledgers to carry machine-readable status expectations.",
+      "redaction": "safe",
+      "scope_id": "autoci-graph-ledger-status",
+      "status": "accepted",
+      "unresolved_inputs": []
     }
   ],
   "schema": "bears-decision-ledger.v1",

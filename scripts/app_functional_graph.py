@@ -15,7 +15,8 @@ PLUGIN_ROOT = Path(__file__).resolve().parents[1]
 APP_ROOT = Path("/srv/bears/dev/app")
 GRAPH_NAME = "app-functional-graph.v1.json"
 LEDGER_NAME = "app-task-ledger.v1.json"
-EXECUTION_STATUSES = {"ready", "in_progress", "done"}
+EXECUTION_STATUSES = {"ready", "in_progress", "done", "blocked", "needs-review"}
+AUTOCI_GRAPH_PATH = PLUGIN_ROOT / "assets/catalog/autoci-graph.v1.json"
 NOTIFICATION_REASONS = {"blocker", "incident", "bug", "operator-question"}
 SECRET_VALUE_PATTERNS = (
     re.compile(r"[A-Za-z0-9_\-]{32,}"),
@@ -92,6 +93,58 @@ def empty_ledger(app_dir: Path) -> dict[str, Any]:
 
 def list_items(value: Any) -> list[Any]:
     return value if isinstance(value, list) else []
+
+
+def load_autoci_graph() -> dict[str, Any]:
+    if not AUTOCI_GRAPH_PATH.is_file():
+        return {"schema": "autoci-graph.v1", "zones": []}
+    return load_json(AUTOCI_GRAPH_PATH)
+
+
+def normalize_task_path(app_dir: Path, raw_path: str) -> str:
+    value = str(raw_path).strip()
+    if not value:
+        return value
+    path = Path(value)
+    if path.is_absolute():
+        try:
+            return path.resolve().relative_to(app_dir).as_posix()
+        except ValueError:
+            return path.as_posix()
+    app_prefix = f"{app_name(app_dir)}/"
+    if value.startswith(app_prefix):
+        return value[len(app_prefix) :]
+    return value
+
+
+def pattern_matches(pattern: str, path: str) -> bool:
+    from fnmatch import fnmatch
+
+    return fnmatch(path, pattern)
+
+
+def autoci_zones_for_paths(paths: list[str], app_dir: Path, graph: dict[str, Any] | None = None) -> list[str]:
+    graph = graph or load_autoci_graph()
+    zones: set[str] = set()
+    normalized = [normalize_task_path(app_dir, path) for path in paths if str(path).strip()]
+    for zone in list_items(graph.get("zones")):
+        if not isinstance(zone, dict):
+            continue
+        zid = str(zone.get("id", ""))
+        patterns = [str(item) for item in list_items(zone.get("path_patterns"))]
+        if zid and any(pattern_matches(pattern, path) for path in normalized for pattern in patterns):
+            zones.add(zid)
+    return sorted(zones)
+
+
+def expected_statuses_for_zones(zone_ids: list[str], graph: dict[str, Any] | None = None) -> list[str]:
+    graph = graph or load_autoci_graph()
+    expected: set[str] = set()
+    wanted = set(zone_ids)
+    for zone in list_items(graph.get("zones")):
+        if isinstance(zone, dict) and str(zone.get("id", "")) in wanted:
+            expected.update(str(item) for item in list_items(zone.get("expected_statuses")) if str(item))
+    return sorted(expected)
 
 
 def node_key(functionality_id: str, node_id: str) -> str:
@@ -228,6 +281,10 @@ def validate_ledger(ledger: dict[str, Any], graph: dict[str, Any], app_dir: Path
                 errors.append(f"{tid} status {status} requires functionality_refs")
             if not node_ref_values:
                 errors.append(f"{tid} status {status} requires graph_node_refs")
+            if not list_items(task.get("autoci_zones")):
+                errors.append(f"{tid} status {status} requires autoci_zones")
+            if not list_items(task.get("expected_statuses")):
+                errors.append(f"{tid} status {status} requires expected_statuses")
         if status == "legacy_unbound" and (functionality_refs or node_ref_values):
             errors.append(f"{tid} legacy_unbound must not carry execution refs")
         if not functionality_refs and task.get("functional_scope") == "none":
@@ -339,6 +396,9 @@ def command_create_task(args: argparse.Namespace) -> int:
         raise SystemExit(f"task already exists: {args.task_id}")
     except KeyError:
         pass
+    graph_catalog = load_autoci_graph()
+    zones = sorted(set(args.autoci_zone or autoci_zones_for_paths(args.allowed_path, app_dir, graph_catalog)))
+    expected_statuses = sorted(set(args.expected_status or expected_statuses_for_zones(zones, graph_catalog)))
     task = {
         "task_id": args.task_id,
         "title": args.title or args.task_id,
@@ -350,6 +410,13 @@ def command_create_task(args: argparse.Namespace) -> int:
         "graph_node_refs": [args.node_ref],
         "graph_edge_refs": [],
         "allowed_paths": args.allowed_path,
+        "autoci_zones": zones,
+        "expected_statuses": expected_statuses,
+        "status_evidence_refs": [],
+        "worker_role": "none",
+        "worker_id": "none",
+        "started_at": "none",
+        "closed_at": "none",
         "dependencies": args.dependency,
         "project_refs": [],
         "notification_refs": [],
@@ -391,6 +458,59 @@ def command_audit_task_packet(args: argparse.Namespace) -> int:
                 errors.append(f"packet graph_node_ref missing from graph: {ref}")
     print(json.dumps({"schema": "app-functional-graph.task-packet-audit.v1", "status": "pass" if not errors else "fail", "errors": errors}, indent=2, sort_keys=True))
     return 0 if not errors else 1
+
+
+def command_claim_task(args: argparse.Namespace) -> int:
+    app_dir = app_dir_path(args.app_dir)
+    ledger = load_json(ledger_path(app_dir))
+    task = find_task(ledger, args.task_id)
+    current = str(task.get("status", ""))
+    if current not in {"ready", "in_progress"}:
+        raise SystemExit(f"task must be ready or in_progress to claim: {args.task_id}")
+    if current == "in_progress" and task.get("worker_id") not in {"none", args.worker_id}:
+        raise SystemExit(f"task already claimed by another worker: {task.get('worker_id')}")
+    task["status"] = "in_progress"
+    task["worker_id"] = args.worker_id
+    task["worker_role"] = args.worker_role
+    if task.get("started_at") in {None, "", "none"}:
+        task["started_at"] = utc_now()
+    task["updated"] = utc_now()
+    ledger["updated"] = utc_now()
+    write_json(ledger_path(app_dir), ledger)
+    packet = validate_app(app_dir)
+    print(json.dumps({"schema": "app-functional-graph.task-claimed.v1", "status": packet["status"], "task_id": args.task_id, "errors": packet["errors"]}, indent=2, sort_keys=True))
+    return 0 if packet["status"] == "pass" else 1
+
+
+def command_mark_task_status(args: argparse.Namespace) -> int:
+    app_dir = app_dir_path(args.app_dir)
+    ledger = load_json(ledger_path(app_dir))
+    task = find_task(ledger, args.task_id)
+    if args.worker_id and task.get("worker_id") not in {"none", args.worker_id}:
+        raise SystemExit(f"task worker mismatch: {task.get('worker_id')}")
+    task["status"] = args.status
+    if args.worker_id:
+        task["worker_id"] = args.worker_id
+    if args.worker_role:
+        task["worker_role"] = args.worker_role
+    if args.commit_sha:
+        task["commit_sha"] = args.commit_sha
+    for evidence_ref in args.evidence_ref:
+        if evidence_ref not in task.setdefault("evidence_refs", []):
+            task["evidence_refs"].append(evidence_ref)
+    for status_ref in args.status_evidence_ref:
+        if status_ref not in task.setdefault("status_evidence_refs", []):
+            task["status_evidence_refs"].append(status_ref)
+    if args.expected_status:
+        task["expected_statuses"] = sorted(set(list_items(task.get("expected_statuses")) + args.expected_status))
+    if args.status in {"done", "blocked", "needs-review"}:
+        task["closed_at"] = utc_now()
+    task["updated"] = utc_now()
+    ledger["updated"] = utc_now()
+    write_json(ledger_path(app_dir), ledger)
+    packet = validate_app(app_dir)
+    print(json.dumps({"schema": "app-functional-graph.task-status-marked.v1", "status": packet["status"], "task_id": args.task_id, "errors": packet["errors"]}, indent=2, sort_keys=True))
+    return 0 if packet["status"] == "pass" else 1
 
 
 def command_close_task(args: argparse.Namespace) -> int:
@@ -455,16 +575,35 @@ def build_parser() -> argparse.ArgumentParser:
     create.add_argument("--functionality-ref", required=True)
     create.add_argument("--node-ref", required=True)
     create.add_argument("--title")
-    create.add_argument("--target-layer", default="app", choices=["app", "platform", "infra"])
+    create.add_argument("--target-layer", default="app", choices=["app", "platform", "infra", "plugin"])
     create.add_argument("--lane", default="app")
     create.add_argument("--owner-role", default="bears-product-app-zone-engineer")
     create.add_argument("--allowed-path", action="append", default=[])
     create.add_argument("--dependency", action="append", default=[])
+    create.add_argument("--autoci-zone", action="append", default=[])
+    create.add_argument("--expected-status", action="append", default=[])
     create.set_defaults(func=command_create_task)
     audit = sub.add_parser("audit-task-packet")
     audit.add_argument("--app-dir", required=True)
     audit.add_argument("--packet", required=True)
     audit.set_defaults(func=command_audit_task_packet)
+    claim = sub.add_parser("claim-task")
+    claim.add_argument("--app-dir", required=True)
+    claim.add_argument("--task-id", required=True)
+    claim.add_argument("--worker-id", required=True)
+    claim.add_argument("--worker-role", required=True)
+    claim.set_defaults(func=command_claim_task)
+    mark = sub.add_parser("mark-task-status")
+    mark.add_argument("--app-dir", required=True)
+    mark.add_argument("--task-id", required=True)
+    mark.add_argument("--status", required=True, choices=["done", "blocked", "needs-review"])
+    mark.add_argument("--worker-id")
+    mark.add_argument("--worker-role")
+    mark.add_argument("--commit-sha")
+    mark.add_argument("--evidence-ref", action="append", default=[])
+    mark.add_argument("--status-evidence-ref", action="append", default=[])
+    mark.add_argument("--expected-status", action="append", default=[])
+    mark.set_defaults(func=command_mark_task_status)
     close = sub.add_parser("close-task")
     close.add_argument("--app-dir", required=True)
     close.add_argument("--task-id", required=True)

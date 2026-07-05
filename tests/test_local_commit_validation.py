@@ -84,6 +84,32 @@ class LocalCommitValidationTests(unittest.TestCase):
             )
         self.assertEqual(code, 0)
 
+    def test_select_autoci_zones_maps_app_paths_to_zone_names(self) -> None:
+        packet = local_commit_validation.select_autoci_zones(
+            ["src/lead.py", "docs/app-task-ledger.v1.json"],
+            {
+                "schema": "autoci-graph.v1",
+                "zones": [
+                    {"id": "app-source", "path_patterns": ["src/**"], "expected_statuses": ["app.autoCI.fast"]},
+                    {"id": "app-functional-graph", "path_patterns": ["docs/app-task-ledger.v1.json"], "expected_statuses": ["app-functional-graph.validate"]},
+                ],
+            },
+        )
+        self.assertEqual(packet["status"], "pass")
+        self.assertEqual(packet["zones"], ["app-functional-graph", "app-source"])
+        self.assertEqual(packet["expected_statuses"], ["app-functional-graph.validate", "app.autoCI.fast"])
+
+    def test_validation_plan_includes_autoci_zone_selection(self) -> None:
+        plan = local_commit_validation.validation_plan(
+            changed_files=["src/lead.py"],
+            selection={"selector_confidence": "high", "tests": ["tests/test_app_functional_graph.py"], "unmatched": []},
+            pants_impacted={"status": "pass", "tests": [], "unmatched": []},
+            autoci_selection={"schema": "autoci-zone-selection.v1", "status": "pass", "zones": ["app-source"], "expected_statuses": ["app.autoCI.fast"], "matched": {"src/lead.py": ["app-source"]}, "unmatched": []},
+        )
+        self.assertEqual(plan["status"], "pass")
+        self.assertEqual(plan["autoCI_zones"], ["app-source"])
+        self.assertEqual(plan["autoCI_expected_statuses"], ["app.autoCI.fast"])
+
 
 if __name__ == "__main__":
     unittest.main()

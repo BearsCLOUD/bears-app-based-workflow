@@ -8434,10 +8434,13 @@
         "/srv/bears/plugins/bears/scripts/local_commit_validation.py",
         "tests/test_local_commit_validation.py",
         "plugins/bears/tests/test_local_commit_validation.py",
-        "/srv/bears/plugins/bears/tests/test_local_commit_validation.py"
+        "/srv/bears/plugins/bears/tests/test_local_commit_validation.py",
+        "assets/catalog/autoci-graph.v1.json",
+        "plugins/bears/assets/catalog/autoci-graph.v1.json",
+        "/srv/bears/plugins/bears/assets/catalog/autoci-graph.v1.json"
       ],
-      "allowed_write_boundary": "Only listed plugin cache sync and local commit validation files inside /srv/bears/plugins/bears; no apps, connectors, MCP servers, runtime services, production mutation, GitHub settings mutation, secret access, raw logs, raw chat, raw VPN configs, shell history, credentials, or production data.",
-      "concrete_scope": "Exact plugin cache sync catalog, state schema, controller script, local commit validation script, and route coverage test file for main-only plugin delivery closeout.",
+      "allowed_write_boundary": "Only listed plugin cache sync, local commit validation, and autoCI graph files inside /srv/bears/plugins/bears; no apps, connectors, MCP servers, runtime services, production mutation, GitHub settings mutation, secret access, raw logs, raw chat, raw VPN configs, shell history, credentials, or production data.",
+      "concrete_scope": "Exact plugin cache sync catalog, state schema, controller script, local commit validation script, autoCI graph catalog, and route coverage test file for main-only plugin delivery closeout and automatic check-zone selection.",
       "decomposition_required": false,
       "group": "workflow",
       "name": "plugin_cache_sync_governance",
@@ -8454,20 +8457,23 @@
         "python3 -m unittest tests/test_plugin_cache_sync.py tests/test_subagents_roles.py",
         "python3 scripts/subagents_roles.py route scripts/local_commit_validation.py",
         "python3 scripts/subagents_roles.py audit scripts/local_commit_validation.py",
-        "python3 -m py_compile scripts/local_commit_validation.py"
+        "python3 -m py_compile scripts/local_commit_validation.py",
+        "python3 scripts/subagents_roles.py route assets/catalog/autoci-graph.v1.json",
+        "python3 scripts/subagents_roles.py audit assets/catalog/autoci-graph.v1.json"
       ],
       "reviewer_triggers": [
         "main-only cache sync closeout rule change",
         "effective hooks proof rule change",
         "local plugin cache write boundary change",
-        "restricted-data boundary change"
+        "restricted-data boundary change",
+        "autoCI graph zone or expected-status mapping change"
       ],
       "role_required": true,
       "source": "/srv/bears/plugins/bears/assets/catalog/plugin-cache-sync.v1.json",
       "supporting_roles": [
         "bears-platform-security-reviewer"
       ],
-      "trust_boundary": "Plugin cache sync controls main-only delivery closeout, effective hook proof, and local plugin cache state; changes can affect future agent execution but must remain metadata, validator, and local cache synchronization governance only.",
+      "trust_boundary": "Plugin cache sync, local commit validation, and autoCI graph metadata affect future agent closeout and check-zone selection; changes must remain metadata, validator, and local cache synchronization governance only.",
       "write_roots": [
         "/srv/bears/plugins/bears/assets/catalog/plugin-cache-sync.v1.json",
         "/srv/bears/plugins/bears/assets/schemas/plugin-cache-sync-state.v1.schema.json",
@@ -8481,7 +8487,9 @@
         "scripts/local_commit_validation.py",
         "tests/test_local_commit_validation.py",
         "plugins/bears/tests/test_local_commit_validation.py",
-        "/srv/bears/plugins/bears/tests/test_local_commit_validation.py"
+        "/srv/bears/plugins/bears/tests/test_local_commit_validation.py",
+        "assets/catalog/autoci-graph.v1.json",
+        "/srv/bears/plugins/bears/assets/catalog/autoci-graph.v1.json"
       ]
     },
     {
@@ -15104,10 +15112,20 @@
       "expected_status": "matched",
       "required_role": "bears-app-functional-graph-orchestrator",
       "target": "agents/bears-app-functional-graph-orchestrator.toml"
+    },
+    {
+      "expected_status": "matched",
+      "required_role": "bears-deploy-platform-engineer",
+      "target": "assets/catalog/autoci-graph.v1.json"
+    },
+    {
+      "expected_status": "matched",
+      "required_role": "bears-deploy-platform-engineer",
+      "target": "/srv/bears/plugins/bears/assets/catalog/autoci-graph.v1.json"
     }
   ],
   "schema": "bears-platform-role-catalog.v1",
-  "updated": "2026-07-05",
+  "updated": "2026-07-05T21:58:41Z",
   "version": "1",
   "workflow_routes": [
     {

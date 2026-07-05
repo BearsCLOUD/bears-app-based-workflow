@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import json
+from fnmatch import fnmatch
 import os
 import stat
 import subprocess
@@ -13,6 +14,7 @@ from pathlib import Path
 from typing import Any
 
 PLUGIN_ROOT = Path(__file__).resolve().parents[1]
+AUTOCI_GRAPH_PATH = PLUGIN_ROOT / "assets/catalog/autoci-graph.v1.json"
 DEFAULT_STATE_ROOT = PLUGIN_ROOT / "runtime/local-commit-validation"
 SCHEMA = "bears-local-commit-validation.v1"
 EMPTY_TREE_SHA = "4b825dc642cb6eb9a060e54bf8d69288fbee4904"
@@ -138,11 +140,51 @@ def _unmatched_from(packet: dict[str, Any]) -> list[str]:
     return sorted({str(path) for path in packet.get("unmatched", []) if str(path)})
 
 
+def load_autoci_graph() -> dict[str, Any]:
+    if not AUTOCI_GRAPH_PATH.is_file():
+        return {"schema": "autoci-graph.v1", "zones": []}
+    try:
+        data = json.loads(AUTOCI_GRAPH_PATH.read_text(encoding="utf-8"))
+    except json.JSONDecodeError:
+        return {"schema": "autoci-graph.v1", "zones": []}
+    return data if isinstance(data, dict) else {"schema": "autoci-graph.v1", "zones": []}
+
+
+def select_autoci_zones(changed_files: list[str], graph: dict[str, Any] | None = None) -> dict[str, Any]:
+    graph = graph or load_autoci_graph()
+    zones: list[dict[str, Any]] = [zone for zone in graph.get("zones", []) if isinstance(zone, dict)]
+    matched: dict[str, list[str]] = {}
+    expected_statuses: set[str] = set()
+    unmatched: list[str] = []
+    for path in sorted({str(item) for item in changed_files if str(item)}):
+        path_zones: list[str] = []
+        for zone in zones:
+            zid = str(zone.get("id", ""))
+            patterns = [str(item) for item in zone.get("path_patterns", []) if str(item)]
+            if zid and any(fnmatch(path, pattern) for pattern in patterns):
+                path_zones.append(zid)
+                expected_statuses.update(str(item) for item in zone.get("expected_statuses", []) if str(item))
+        if path_zones:
+            matched[path] = sorted(set(path_zones))
+        elif path.startswith("/srv/bears/dev/app/"):
+            # App-local task paths are usually repo-relative before commit; keep absolute app paths fail-closed.
+            unmatched.append(path)
+    return {
+        "schema": "autoci-zone-selection.v1",
+        "status": "pass" if not unmatched else "fail",
+        "zones": sorted({zone for zones_for_path in matched.values() for zone in zones_for_path}),
+        "matched": matched,
+        "unmatched": unmatched,
+        "expected_statuses": sorted(expected_statuses),
+    }
+
+
 def validation_plan(
     *,
     changed_files: list[str],
     selection: dict[str, Any],
     pants_impacted: dict[str, Any],
+    autoci_selection: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Build the enforced validation plan from Pants graph and test-selection."""
     pants_unmatched = _unmatched_from(pants_impacted)
@@ -180,6 +222,9 @@ def validation_plan(
             "requires_full_suite": bool(selection.get("requires_full_suite", False)),
         },
         "tests": planned_tests,
+        "autoCI_zones": (autoci_selection or {}).get("zones", []),
+        "autoCI_expected_statuses": (autoci_selection or {}).get("expected_statuses", []),
+        "autoCI_selection": autoci_selection or {"schema": "autoci-zone-selection.v1", "status": "not_applicable", "zones": [], "matched": {}, "unmatched": []},
         "uncovered_changed_files": uncovered,
         "errors": errors,
     }
@@ -254,7 +299,8 @@ def run_validation(args: argparse.Namespace) -> int:
     pants_cmd = pants_impacted_command(args, diff_range, changed_files)
     pants_code, pants_stdout, pants_stderr = run_command(pants_cmd, timeout=120)
     pants_impacted = _json_or_error(pants_stdout, fallback={"status": "fail", "errors": ["pants impacted output is not JSON"], "tests": [], "unmatched": changed_files})
-    plan = validation_plan(changed_files=changed_files, selection=selection, pants_impacted=pants_impacted)
+    autoci_selection = select_autoci_zones(changed_files)
+    plan = validation_plan(changed_files=changed_files, selection=selection, pants_impacted=pants_impacted, autoci_selection=autoci_selection)
     if list_code != 0:
         plan["errors"].append("test-selection list failed")
         plan["status"] = "fail"
@@ -291,6 +337,8 @@ def run_validation(args: argparse.Namespace) -> int:
         "requires_full_suite": bool(selection.get("requires_full_suite", False) or pants_impacted.get("requires_full_suite", False)),
         "full_suite_advisory_only": False,
         "tests": plan.get("tests", []),
+        "autoCI_zones": plan.get("autoCI_zones", []),
+        "autoCI_expected_statuses": plan.get("autoCI_expected_statuses", []),
         "validation_plan": plan,
         "pants_impacted": pants_impacted,
         "slow_tests_deferred": selection.get("slow_tests_deferred", []),
@@ -309,7 +357,7 @@ def run_validation(args: argparse.Namespace) -> int:
         "summary": "dry-run validation plan passed" if status == "dry_run" else (compact_output(pants_stdout + run_stdout + release_stdout + authority_stdout, pants_stderr + run_stderr + release_stderr + authority_stderr) if status == "fail" else "validation plan, impacted tests, release notes gate, and authority map passed"),
     }
     path = write_proof(Path(args.state_root), packet)
-    print(json.dumps({"status": status, "proof_path": str(path), "commit_sha": commit_sha, "tests": packet["tests"]}, indent=2, sort_keys=True))
+    print(json.dumps({"status": status, "proof_path": str(path), "commit_sha": commit_sha, "tests": packet["tests"], "autoCI_zones": packet["autoCI_zones"]}, indent=2, sort_keys=True))
     return 0 if status in {"pass", "dry_run"} else 1
 
 

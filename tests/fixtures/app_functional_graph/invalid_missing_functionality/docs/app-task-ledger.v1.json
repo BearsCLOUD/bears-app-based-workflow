@@ -7,10 +7,17 @@
       "allowed_paths": [
         "valid_app/src/lead.py"
       ],
+      "autoci_zones": [
+        "app-source"
+      ],
+      "closed_at": "none",
       "commit_sha": "none",
       "critic_confirmation": "none",
       "dependencies": [],
       "evidence_refs": [],
+      "expected_statuses": [
+        "app.autoCI.fast"
+      ],
       "functionality_refs": [
         "valid_app.missing"
       ],
@@ -24,11 +31,15 @@
       "project_refs": [
         "project-item:PVTI_123"
       ],
+      "started_at": "none",
       "status": "ready",
+      "status_evidence_refs": [],
       "status_matrix": [],
       "target_layer": "app",
       "task_id": "valid_app-T001",
-      "title": "Implement lead submit validation"
+      "title": "Implement lead submit validation",
+      "worker_id": "none",
+      "worker_role": "none"
     }
   ],
   "updated": "2026-07-05T00:00:00+00:00",

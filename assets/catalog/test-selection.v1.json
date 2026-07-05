@@ -251,10 +251,12 @@
       "patterns": [
         "scripts/test_selection.py",
         "assets/catalog/test-selection.v1.json",
-        "assets/schemas/test-selection.v1.schema.json"
+        "assets/schemas/test-selection.v1.schema.json",
+        "assets/catalog/autoci-graph.v1.json"
       ],
       "tests": [
-        "tests/test_test_selection.py"
+        "tests/test_test_selection.py",
+        "tests/test_local_commit_validation.py"
       ]
     },
     {
@@ -1351,14 +1353,17 @@
         "skills/app-dev/references/github-project-issue-flow.md",
         "skills/app-analyze/SKILL.md",
         "agents/bears-app-functional-graph-orchestrator.toml",
-        "tests/fixtures/app_functional_graph/**"
+        "tests/fixtures/app_functional_graph/**",
+        "assets/catalog/autoci-graph.v1.json",
+        "scripts/local_commit_validation.py"
       ],
       "tests": [
         "tests/test_app_functional_graph.py",
         "tests/test_skill_catalog.py",
         "tests/test_test_selection.py",
         "tests/test_pants_test_graph.py",
-        "tests/test_subagents_roles.py"
+        "tests/test_subagents_roles.py",
+        "tests/test_local_commit_validation.py"
       ]
     }
   ],

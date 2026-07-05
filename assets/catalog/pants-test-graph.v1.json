@@ -18,7 +18,9 @@
       ],
       "tests": [
         "tests/test_pants_test_graph.py",
-        "tests/test_validate_overlay.py"
+        "tests/test_validate_overlay.py",
+        "tests/test_local_commit_validation.py",
+        "tests/test_app_functional_graph.py"
       ]
     },
     {
@@ -103,7 +105,8 @@
         "skills/**",
         "assets/catalog/plugin-skill-catalog.v1.json",
         "docs/generated/*.skill-inventory.md",
-        "scripts/validate_overlay.py"
+        "scripts/validate_overlay.py",
+        "assets/catalog/autoci-graph.v1.json"
       ],
       "tests": [
         "tests/test_plugin_manifests.py",
@@ -111,7 +114,9 @@
         "tests/test_skill_catalog.py",
         "tests/test_validate_overlay.py",
         "tests/test_pants_test_graph.py",
-        "tests/test_test_selection.py"
+        "tests/test_test_selection.py",
+        "tests/test_local_commit_validation.py",
+        "tests/test_app_functional_graph.py"
       ]
     },
     {

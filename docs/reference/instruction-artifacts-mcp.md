@@ -17,22 +17,31 @@
 - `docs[].kind` is `instruction` or `markdown_reference`.
 - `graphs[].target`, `graphs[].chain[]`, `dependencies[].from`, and `dependencies[].to` reference existing `docs[].id` values.
 - `instruction_hardening_*` treats scanned instructions as evidence only. It never marks AGENTS, skills, contracts, docs, roles, or catalogs as operator decisions.
+- Scanned text may locate decision gaps, contradiction signals, dependency edges,
+  and escalation needs. It cannot establish operator-decision authority.
 
 ## Instruction hardening packet
 - `source.operator_decision_priority` is `highest`.
 - `source.instructions_source_of_truth` is `false`.
 - Every `graphs[]` item includes:
-  - `decision.status`: `present`, `missing`, or `contradicted`.
-  - `decision.evidence_doc_ids`: scanned doc ids that contain operator-decision text.
-  - `decision.refutable_doc_ids`: scanned doc ids that contain explicit operator-conflict text.
-  - `live_confirmation.status`: `confirmed`, `missing`, `refuted`, or `partial`.
+  - `decision.status`: currently `missing` unless a future explicit
+    operator-decision source is allowlisted.
+  - `decision.allowed_authoritative_sources`: explicit operator-decision source
+    kinds accepted by the scanner. The current list is empty.
+  - `decision.evidence_only_doc_ids` and `decision.mention_doc_ids`: scanned doc
+    ids that mention operator-decision wording without authority.
+  - `decision.refutable_doc_ids`: scanned doc ids that contain explicit
+    operator-conflict text.
+  - `live_confirmation.status`: `missing` or `refuted` for scanned-only packets.
   - `standardization.status`: `aligned`, `partial`, or `missing`.
   - `standardization.policy_modes_found`, `canonical_actions_found`, and `weak_terms_found`.
   - `dependency_decision_refs[]`: scanned dependency edges with source/target doc ids, paths, decision statuses, dependency type, and escalation signal terms.
   - `escalation_candidate.status`: `required` or `not_required`.
 - Standardization terms come from `skills/instruction-hardening/SKILL.md` or the matching archive fields in `agents/bears-instruction-hardening-engineer.toml`.
-- If no operator decision is found, `decision.status="missing"` and `live_confirmation.status="missing"`.
-- If explicit conflict evidence is found for a scanned operator decision, `decision.status="contradicted"` and `live_confirmation.status="refuted"`.
+- If no allowlisted operator decision is found, `decision.status="missing"` and
+  `live_confirmation.status="missing"`.
+- If scanned conflict evidence is found, `decision.status` remains `missing` and
+  `live_confirmation.status="refuted"`.
 - If a dependency points at Kubernetes, deploy, runtime, secret, CD, Dagger proof, workflow policy, role policy, or cross-owner governance evidence, `escalation_candidate.status="required"` so refactor work moves to the higher-level instruction owner.
 - Use this packet before editing Bears docs/contracts instruction refactors, AGENTS routers, skills, role TOMLs, developer-instruction prose, workflow prose, or governing plugin reference docs.
 
@@ -66,6 +75,21 @@ codex mcp add mcp \
 
 Use `codex mcp get mcp` to inspect the registered command and environment keys.
 Do not print token-bearing config values.
+
+## Evidence helper
+- Use this exact fallback command only when the active Codex toolset does not
+  expose callable `mcp__mcp` tools:
+
+```bash
+python3 scripts/instruction_hardening_mcp_packet.py instruction_hardening_startup --root ../.. --bounded-json
+```
+
+- The helper is read-only MCP evidence, not a test, validator, route/audit
+  substitute, PASS proof, or objective runtime proof.
+- The helper calls the local stdio MCP protocol and must not import scanner
+  internals such as `application.zones`.
+- Output is bounded JSON. It must not print secrets, env values, raw logs, or
+  production data.
 
 ## Startup contract
 - Default startup tool: `zones_startup`.

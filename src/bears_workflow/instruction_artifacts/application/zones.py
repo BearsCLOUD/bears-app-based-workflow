@@ -20,13 +20,14 @@ INSTRUCTION_HARDENING_SCHEMA = "bears.instruction_hardening.graphs.v1"
 INSTRUCTION_HARDENING_STARTUP_SCHEMA = "bears.instruction_hardening.startup.v1"
 INSTRUCTION_HARDENING_SKILL_PATH = "skills/instruction-hardening/SKILL.md"
 INSTRUCTION_HARDENING_ROLE_PATH = "agents/bears-instruction-hardening-engineer.toml"
-OPERATOR_DECISION_TERMS = (
+OPERATOR_DECISION_MENTION_TERMS = (
     "operator decision",
     "operator-approved",
     "operator approved",
     "operator requested",
     "operator request",
 )
+EXPLICIT_OPERATOR_DECISION_SOURCE_KINDS: tuple[str, ...] = ()
 OPERATOR_CONTRADICTION_TERMS = (
     "contradicts operator",
     "contradict operator",
@@ -290,56 +291,56 @@ def _escalation_candidate(dependency_refs: list[dict[str, Any]]) -> dict[str, An
 
 
 def _decision_for_graph(graph_doc_ids: list[int], doc_texts: dict[int, str]) -> dict[str, Any]:
-    decision_evidence: list[int] = []
-    contradiction_evidence: list[int] = []
+    mention_doc_ids: list[int] = []
+    refutable_doc_ids: list[int] = []
     summaries: list[str] = []
 
     for doc_id in graph_doc_ids:
         text = doc_texts.get(doc_id, "")
-        decision_lines = _matching_lines(text, OPERATOR_DECISION_TERMS)
+        decision_lines = _matching_lines(text, OPERATOR_DECISION_MENTION_TERMS)
         contradiction_lines = _matching_lines(text, OPERATOR_CONTRADICTION_TERMS)
         if decision_lines:
-            decision_evidence.append(doc_id)
+            mention_doc_ids.append(doc_id)
             summaries.extend(decision_lines)
         if contradiction_lines:
-            contradiction_evidence.append(doc_id)
+            refutable_doc_ids.append(doc_id)
             summaries.extend(contradiction_lines)
 
-    if decision_evidence and contradiction_evidence:
-        status = "contradicted"
-        notes = ["operator_decision_conflict_signal_found"]
-    elif decision_evidence:
-        status = "present"
-        notes = []
-    else:
-        status = "missing"
-        notes = ["operator_decision_not_found"]
+    notes = ["operator_decision_not_found"]
+    if mention_doc_ids:
+        notes.append("scanned_operator_decision_mentions_are_evidence_only")
+    if refutable_doc_ids:
+        notes.append("operator_decision_conflict_signal_found")
 
     return {
-        "status": status,
-        "decision_id": f"operator-scanned-{decision_evidence[0]}" if decision_evidence else None,
-        "source": "scanned_operator_decision_text" if decision_evidence else None,
+        "status": "missing",
+        "decision_id": None,
+        "source": None,
         "priority": "operator_highest",
         "summary": summaries[0] if summaries else None,
         "owner_role": "operator",
-        "evidence_doc_ids": decision_evidence,
-        "refutable_doc_ids": contradiction_evidence,
+        "allowed_authoritative_sources": list(EXPLICIT_OPERATOR_DECISION_SOURCE_KINDS),
+        "evidence_doc_ids": [],
+        "evidence_only_doc_ids": mention_doc_ids,
+        "mention_doc_ids": mention_doc_ids,
+        "refutable_doc_ids": refutable_doc_ids,
         "notes": notes,
     }
 
 
 def _live_confirmation_for_decision(decision: dict[str, Any]) -> dict[str, Any]:
-    decision_status = decision["status"]
-    if decision_status == "contradicted":
-        status = "refuted"
-    elif decision_status == "present":
-        status = "confirmed"
-    else:
-        status = "missing"
+    refutable_doc_ids = decision.get("refutable_doc_ids", [])
+    status = "refuted" if refutable_doc_ids else "missing"
+    warnings = ["operator_decision_missing"]
+    if decision.get("mention_doc_ids"):
+        warnings.append("scanned_operator_decision_mentions_are_evidence_only")
+    if refutable_doc_ids:
+        warnings.append("operator_decision_conflict_signal_found")
     return {
         "status": status,
-        "confirmable_doc_ids": decision.get("evidence_doc_ids", []),
-        "refutable_doc_ids": decision.get("refutable_doc_ids", []),
+        "confirmable_doc_ids": [],
+        "evidence_only_doc_ids": decision.get("evidence_only_doc_ids", []),
+        "refutable_doc_ids": refutable_doc_ids,
         "checked_fields": [
             "docs[].path",
             "docs[].sections",
@@ -347,7 +348,7 @@ def _live_confirmation_for_decision(decision: dict[str, Any]) -> dict[str, Any]:
             "graphs[].chain",
             "graphs[].dependencies",
         ],
-        "warnings": [] if status != "missing" else ["operator_decision_missing"],
+        "warnings": warnings,
     }
 
 

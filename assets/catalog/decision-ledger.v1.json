@@ -2020,6 +2020,30 @@
       "scope_id": "instruction-zones-mcp",
       "status": "accepted",
       "unresolved_inputs": []
+    },
+    {
+      "affected_paths": [
+        "assets/catalog/artifact-registry.v1.json",
+        "assets/catalog/decision-ledger.v1.json",
+        "assets/catalog/release-notes.v1.json",
+        "docs/reference/instruction-artifacts-mcp.md",
+        "plans/instruction-artifacts-hardening-mcp.md",
+        "scripts/instruction_hardening_mcp_packet.py",
+        "skills/instruction-hardening/SKILL.md",
+        "src/bears_workflow/instruction_artifacts/application/zones.py",
+        "tests/test_instruction_artifacts.py"
+      ],
+      "change_type": "artifact",
+      "contradictions": [],
+      "decision": "Require the instruction-hardening MCP fallback helper to use a read-only stdio client that emits bounded JSON evidence and never imports scanner internals for startup or graph retrieval.",
+      "decision_id": "D-2026-07-06-instruction-hardening-mcp-evidence-plumbing",
+      "owner_issue": "#instruction-artifacts-hardening-mcp",
+      "owner_role": "bears-instruction-hardening-engineer",
+      "rationale": "The approved micro-task needs a portable evidence helper for MCP correctness so instruction hardening can inspect bounded startup packets without claiming scanner output as operator authority.",
+      "redaction": "safe",
+      "scope_id": "instruction-artifacts-hardening-mcp",
+      "status": "accepted",
+      "unresolved_inputs": []
     }
   ],
   "schema": "bears-decision-ledger.v1",

@@ -18,7 +18,19 @@ Required: preserve operator decisions as the highest-priority decision source.
 Ask: call instruction_hardening_graphs only when the startup packet is truncated or exact graph evidence is needed.
 ```
 
-Each graph must expose `decision`, `live_confirmation`, `standardization`, `dependency_decision_refs`, and `escalation_candidate` before refactoring starts. If `decision.status` is `missing` or `contradicted`, report that gap instead of promoting AGENTS, skills, contracts, docs, roles, or catalogs to operator decision. If `escalation_candidate.status` is `required`, move the refactor to the higher-level instruction owner before editing.
+If the current Codex toolset does not expose callable `mcp__mcp` tools, use this
+documented fallback from the plugin checkout before editing:
+
+```bash
+python3 scripts/instruction_hardening_mcp_packet.py instruction_hardening_startup --root ../.. --bounded-json
+```
+
+The fallback is read-only MCP evidence. It is not a test, validator, PASS proof,
+route/audit substitute, or runtime proof. It must call the MCP stdio protocol,
+not scanner internals, and must emit bounded JSON without secrets, env values,
+raw logs, or production data.
+
+Each graph must expose `decision`, `live_confirmation`, `standardization`, `dependency_decision_refs`, and `escalation_candidate` before refactoring starts. Scanned AGENTS, skills, contracts, docs, roles, and catalogs may locate gaps, contradictions, dependencies, and escalation needs; they cannot establish operator-decision authority. If `decision.status` is `missing` or `live_confirmation.status` is `refuted`, report the gap instead of promoting scanned text to operator decision. If `escalation_candidate.status` is `required`, move the refactor to the higher-level instruction owner before editing.
 
 ## Agent mission
 Turn prose instructions into deterministic policy language:

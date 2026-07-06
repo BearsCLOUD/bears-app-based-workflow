@@ -77,7 +77,7 @@ class InstructionArtifactTests(unittest.TestCase):
         self.assertEqual(graph["live_confirmation"]["status"], "missing")
         self.assertEqual(graph["standardization"]["status"], "aligned")
 
-    def test_instruction_hardening_graphs_exposes_decision_refutation(self) -> None:
+    def test_instruction_hardening_graphs_keeps_scanned_decision_mentions_evidence_only(self) -> None:
         payload = {
             "docs": [
                 {
@@ -107,12 +107,13 @@ class InstructionArtifactTests(unittest.TestCase):
             packet = zones.build_instruction_hardening_graphs()
 
         graph = packet["graphs"][0]
-        self.assertEqual(graph["decision"]["status"], "contradicted")
+        self.assertEqual(graph["decision"]["status"], "missing")
         self.assertEqual(graph["live_confirmation"]["status"], "refuted")
-        self.assertEqual(graph["decision"]["evidence_doc_ids"], [0])
+        self.assertEqual(graph["decision"]["evidence_doc_ids"], [])
+        self.assertEqual(graph["decision"]["evidence_only_doc_ids"], [0])
         self.assertEqual(graph["decision"]["refutable_doc_ids"], [0])
 
-    def test_instruction_hardening_graphs_uses_target_doc_as_evidence(self) -> None:
+    def test_instruction_hardening_graphs_does_not_promote_target_doc_mentions(self) -> None:
         payload = {
             "docs": [
                 {
@@ -139,8 +140,10 @@ class InstructionArtifactTests(unittest.TestCase):
             packet = zones.build_instruction_hardening_graphs()
 
         graph = packet["graphs"][0]
-        self.assertEqual(graph["decision"]["status"], "present")
-        self.assertEqual(graph["live_confirmation"]["status"], "confirmed")
+        self.assertEqual(graph["decision"]["status"], "missing")
+        self.assertEqual(graph["decision"]["evidence_doc_ids"], [])
+        self.assertEqual(graph["decision"]["evidence_only_doc_ids"], [0])
+        self.assertEqual(graph["live_confirmation"]["status"], "missing")
         self.assertIn("graphs[].target", graph["live_confirmation"]["checked_fields"])
         self.assertEqual(graph["dependency_decision_refs"], [])
         self.assertEqual(graph["escalation_candidate"]["status"], "not_required")
@@ -193,7 +196,7 @@ class InstructionArtifactTests(unittest.TestCase):
         dependency_ref = graph["dependency_decision_refs"][0]
         self.assertEqual(dependency_ref["from_doc_id"], 0)
         self.assertEqual(dependency_ref["to_doc_id"], 1)
-        self.assertEqual(dependency_ref["from_decision_status"], "present")
+        self.assertEqual(dependency_ref["from_decision_status"], "missing")
         self.assertEqual(dependency_ref["to_decision_status"], "missing")
         self.assertFalse(dependency_ref["escalation_signal"])
         self.assertEqual(graph["escalation_candidate"]["status"], "not_required")

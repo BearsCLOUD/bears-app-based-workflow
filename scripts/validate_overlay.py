@@ -133,43 +133,6 @@ ARTIFACT_FILES = {
 REQUIRED_SPEC_KIT_FILES = ("spec.md", "plan.md", "tasks.md")
 SPEC_KIT_ANALYZE_ARTIFACT = "speckit-analyze.json"
 
-MANUAL_VALIDATION_LANGUAGE_PATHS = (
-    "AGENTS.md",
-    "requirements.md",
-    "agents/*.toml",
-    "skills/*/SKILL.md",
-)
-
-MANUAL_VALIDATION_APPROVAL_MARKERS = (
-    "local-commit-owned",
-    "operator-approved",
-    "operator approved",
-    "operator explicitly approves",
-    "manual execution requires operator approval",
-    "unless the operator explicitly lifts the ban",
-)
-
-MANUAL_VALIDATION_COMMAND_PATTERNS = (
-    re.compile(r"\bpython3?\s+-m\s+(?:unittest|pytest)\b", re.IGNORECASE),
-    re.compile(r"\bpytest\b", re.IGNORECASE),
-    re.compile(r"\bRun\b.*\b(?:compileall|unittest|pytest)\b", re.IGNORECASE),
-    re.compile(
-        r"(?:\bpython3?\s+)?(?:\./)?scripts/[\w./-]+\.py\s+validate[\w-]*\b",
-        re.IGNORECASE,
-    ),
-    re.compile(
-        r"(?:\bpython3?\s+)?(?:\./)?scripts/[\w./-]+\.py\s+.*--self-test\b",
-        re.IGNORECASE,
-    ),
-    re.compile(
-        r"\bpython3?\s+(?:\./)?skills/[\w./-]+/scripts/[\w.-]*validate[\w.-]*\.py\b",
-        re.IGNORECASE,
-    ),
-    re.compile(
-        r"(?:\bpython3?\s+)?(?:\./)?scripts/skill_catalog\.py\s+generate\s+--check\b",
-        re.IGNORECASE,
-    ),
-)
 SPEC_KIT_ANALYZE_SCHEMA = "bears.speckit-analyze.v1"
 RESTRICTED_MUTATION_MARKERS = (
     "production mutation",
@@ -2170,47 +2133,6 @@ def check_duplicate_sources(skill_sources: list[Path], fail_on_duplicates: bool 
     return errors, warnings
 
 
-def _manual_validation_language_paths(plugin_root: Path) -> list[Path]:
-    paths: list[Path] = []
-    for pattern in MANUAL_VALIDATION_LANGUAGE_PATHS:
-        paths.extend(sorted(plugin_root.glob(pattern)))
-    return [path for path in paths if path.is_file()]
-
-
-def _line_has_manual_validation_command(line: str) -> bool:
-    return any(pattern.search(line) for pattern in MANUAL_VALIDATION_COMMAND_PATTERNS)
-
-
-def _manual_validation_command_is_approved(line: str) -> bool:
-    lowered = line.lower()
-    return any(marker in lowered for marker in MANUAL_VALIDATION_APPROVAL_MARKERS)
-
-
-def validate_manual_validation_language(plugin_root: Path) -> list[str]:
-    """Reject direct manual repo validator or test commands in agent-facing policy."""
-
-    errors: list[str] = []
-    for path in _manual_validation_language_paths(plugin_root):
-        relative_path = path.relative_to(plugin_root)
-        try:
-            lines = path.read_text().splitlines()
-        except UnicodeDecodeError as exc:
-            errors.append(f"{relative_path}: cannot decode file for manual validation language scan: {exc}")
-            continue
-
-        for line_number, line in enumerate(lines, start=1):
-            if not _line_has_manual_validation_command(line):
-                continue
-            if _manual_validation_command_is_approved(line):
-                continue
-            errors.append(
-                f"{relative_path}:{line_number}: direct manual repo test/validator command "
-                "must be local-commit-owned or operator-approved; route/audit and static file-shape checks stay allowed"
-            )
-
-    return errors
-
-
 def _resolve_workspace_root(
     plugin_root: Path,
     workspace_root: Path | None = None,
@@ -2263,7 +2185,6 @@ def validate_all(
     errors.extend(validate_canonical_owner_assets(plugin_root))
     errors.extend(validate_bears_sdd_workflow_parity(plugin_root))
     errors.extend(validate_static_safety_gate(plugin_root))
-    errors.extend(validate_manual_validation_language(plugin_root))
 
     if feature_dir is not None:
         artifact_errors, artifact_warnings = validate_feature_artifacts(

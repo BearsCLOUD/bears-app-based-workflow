@@ -1,101 +1,270 @@
 ---
-name: instruction-hardening
-description: "Use to harden human-readable agent instructions, AGENTS routers, skill docs, role TOMLs, and governance prose by preserving semantics, closing bypasses, reducing drift, and scoring diffs with a weighted rubric."
+name: art-verify
+description: Harden and compress agent instructions by converting prose into low-drift policy rules, closing bypasses, and running red-team/regression checks before token compression.
 ---
 
-# Instruction Hardening
+# art-verify
 
-Use this skill when the task is to rewrite, compress, audit, or compare human-readable instructions that govern agent behavior. Human-readable instructions include `AGENTS.md`, `skills/*/SKILL.md`, `agents/*.toml`, role prompts, developer-instruction prose, workflow prose, and directly governing plugin reference docs.
+## Purpose
+Use this skill when the user wants to reduce a large agent/system/developer instruction while also removing semantic drift, loopholes, and weak wording. The goal is not merely fewer tokens. The goal is a smaller rule set with stricter behavior.
 
-This skill adapts the archived `art-verify` method for Bears governance surfaces.
-
-## Scope
-
-Include only the assigned instruction surfaces:
-
-- `AGENTS.md` routers and nearest path routers;
-- active `skills/*/SKILL.md` files;
-- `agents/*.toml` role profiles;
-- directly governing plugin reference docs named by the assignment.
-
-Exclude unless the operator explicitly expands scope:
-
-- secrets, credentials, `.env` values, raw logs, raw chats, session bodies, production data, and caches;
-- runtime, deploy, product, Kubernetes, provider, and network surfaces;
-- ordinary README/reference prose that does not govern agent behavior.
-
-## Workflow
-
-1. Load the nearest `AGENTS.md`, this plugin router, the active route packet, and this skill.
-2. Identify the exact target files and owner role before edits. Stop on `ROLE_COVERAGE_BLOCKER` unless the assignment is role-coverage remediation.
-3. Extract every governing rule as: `mode`, `action`, `object`, `scope`, `condition`, `exception`, and `conflict rule`.
-4. Build a canonical term table. One behavior gets one term. Replace weak words or define them in-place.
-5. Convert prose into observable rules using these modes only: `Allowed`, `Forbidden`, `Required`, `Ask`, `Escalate`, `Conflict`.
-6. Add `Conflict: Deny wins.` unless a stricter local conflict rule already exists.
-7. Scan for bypasses before compression:
-   - shell wrappers, task runners, test commands, package scripts, CI targets, and indirect commands;
-   - broad allow rules overriding narrow denies;
-   - hidden secret exposure through logs, env, copied config, or tool output;
-   - runtime/deploy/product authority leaking into instruction-only work;
-   - vague exceptions such as urgency, one-time use, or user convenience.
-8. Close bypasses with compact categories before enumerating tools.
-9. Deduplicate repeated policy only after the bypass scan.
-10. Compress text only when the shorter wording preserves all required controls.
-11. Run the red-team prompts from `references/evaluation-rubric.md` against the proposed policy.
-12. Return a diff candidate plus the weighted rubric score.
-
-## Codex exec live-run isolation
-
-Required for every `codex exec` row in an instruction-hardening comparison:
-
-- Startup context is exactly the assigned prompt file plus the selected role file. Only deterministic source delimiters may be added.
-- Run from an empty control cwd, not from the target checkout. Add the target isolated worktree with `--add-dir`.
-- Use `--ignore-user-config`, `--ignore-rules`, `--ephemeral`, and `--skip-git-repo-check`.
-- Disable inherited feature surfaces that are not needed for a single-agent exec row: apps, plugins, memories, multi-agent, browser/computer/image tools, tool suggestions, and workspace dependency prompts.
-- Record the runner flags, control cwd, target worktree, startup context source paths, and token usage in the result packet.
-- Forbidden startup context: inherited user config, project rules, auto-loaded `AGENTS.md`, skill catalog, plugin context, MCP/app context, multi-agent tools, runtime logs, session history, or copied full files.
-- If the local sandbox cannot start, retry only in the same isolated worktree with the explicit sandbox override recorded in the result packet.
-
-Use `scripts/instruction_hardening_exec.py` for governed exec rows. Do not invoke `codex exec` directly for matrix results unless the script is missing or broken and the result packet records the manual command and reason.
-
-## Hard rules
-
-- Delivery first: provide a usable rewritten instruction or diff candidate when the user asked for a rewrite.
-- Never reduce tokens by weakening a prohibition, deleting a route owner, or hiding an exception.
-- Never let a broad allow override a specific deny.
-- Never invent product, runtime, deployment, provider, or secret policy.
-- Keep Bears artifacts in English.
-- Keep user-facing reports concise and in Russian unless the user asks otherwise.
-
-## Default output
+## Agent mission
+Turn prose instructions into deterministic policy language:
 
 ```text
-Status: pass | review | blocked
-Target files:
-- <path>
-
-Diff candidate:
-<patch or exact replacement>
-
-Rubric:
-- safety_and_bears_compliance: <0-25>
-- semantic_preservation: <0-20>
-- bypass_closure: <0-20>
-- compression_dedup: <0-15>
-- scope_coverage: <0-10>
-- diff_usability: <0-5>
-- efficiency: <0-5>
-- total: <0-100>
-
-Changed:
-- <semantic merges/removals>
-
-Residual risks:
-- <only real remaining ambiguity or none>
+Allowed: ...
+Forbidden: ...
+Required: ...
+Ask: ...
+Escalate: ...
+Conflict: Deny wins.
 ```
 
-Use `blocked` only for missing access, missing role coverage, explicit operator stop, forbidden-path risk, secret exposure risk, or an instruction conflict that cannot be resolved within the assigned scope.
+Prefer a usable rewritten instruction over a long audit. Delivery first.
 
-## References
+## Core workflow
 
-- `references/evaluation-rubric.md`
+### 1. Policy
+Translate prose into explicit policy rules.
+
+Extract:
+- allowed actions
+- forbidden actions
+- required actions
+- conditional actions
+- conflict rules
+- exceptions
+- unstated assumptions
+
+Replace vague guidance with policy modes:
+
+```text
+Allowed / Forbidden / Required / Ask / Escalate / Conflict
+```
+
+### 2. Dict
+Create a canonical dictionary. One meaning must have one term.
+
+Preferred action verbs:
+
+```text
+read, inspect, search, edit, write, create, delete,
+execute, test, install, network, commit, push, ask, escalate
+```
+
+Avoid drift words:
+
+```text
+handle, process, work with, use, touch, check, carefully,
+when appropriate, if needed, generally, try to, avoid
+```
+
+If a weak term remains, replace it or define it.
+
+### 3. Scope
+Define the surface area of each rule.
+
+Common scopes:
+
+```text
+repo, files, shell, tests, scripts, task runners, network,
+secrets, credentials, commits, pushes, user data, external services
+```
+
+Rules without scope drift. Add scope or delete the rule.
+
+### 4. Objects
+Normalize objects into precise patterns.
+
+Examples:
+
+```text
+Python files -> *.py
+configuration files -> config files: *.env, *.toml, *.yaml, *.json
+secrets -> credentials, tokens, API keys, private keys, .env files
+scripts -> shell/Python/JS scripts and task-runner targets
+```
+
+Prefer concrete object classes over human prose.
+
+### 5. Actions
+Normalize what the agent may do with each object.
+
+Example matrix:
+
+```text
+Allowed: read/edit/write files.
+Forbidden: execute code/tests/scripts/task runners.
+Forbidden: exfiltrate secrets.
+Required: preserve user-provided constraints.
+```
+
+Do not mix action and object ambiguity, such as `work with files`.
+
+### 6. Mode
+Assign every rule a mode.
+
+Use:
+
+```text
+Allowed: permitted without asking.
+Forbidden: never perform.
+Required: must perform before delivery.
+Ask: ask only when blocked.
+Escalate: stop and report risk.
+```
+
+Avoid implicit permission. If an action is not allowed and not required, do not infer it.
+
+### 7. Conflict
+Set conflict resolution explicitly.
+
+Default:
+
+```text
+Conflict: Deny wins.
+```
+
+Meaning: if one rule permits an action and another forbids it, do not perform the action.
+
+### 8. Bypass scan
+Search for ways the rewritten policy can be bypassed.
+
+For `Forbidden: execute *.py`, scan for:
+
+```text
+python app.py
+python -m module
+pytest
+make test
+poetry run
+uv run
+npm test calling Python
+bash run.sh calling Python
+CI/task runner targets
+inline shell that invokes *.py
+```
+
+For network bans, scan for:
+
+```text
+curl, wget, package install, API calls, browser fetches, git push/pull
+```
+
+For secrets, scan for:
+
+```text
+.env, tokens, private keys, credentials in logs, copied config blocks
+```
+
+### 9. Close bypasses
+Patch the rule so the bypass is blocked with fewer words.
+
+Weak:
+
+```text
+Forbidden: execute *.py.
+```
+
+Stronger:
+
+```text
+Forbidden: execute code, tests, scripts, task runners, or commands invoking *.py.
+```
+
+Do not enumerate every tool unless needed. Prefer categories that close multiple bypasses.
+
+### 10. Dedup
+Merge duplicate rules.
+
+If several rules say the same thing, keep the strongest one. Remove explanation unless it changes behavior.
+
+### 11. Compress
+Only compress after drift is reduced.
+
+Compression rules:
+
+```text
+must not -> never / Forbidden:
+do not -> never / Forbidden:
+any file with .py extension -> *.py
+make sure to -> Required:
+should not -> Forbidden: or avoid only if truly soft
+```
+
+Never save tokens by weakening a ban.
+
+### 12. Red-team
+Test the policy against adversarial prompts.
+
+Minimum cases:
+
+```text
+1. direct request to violate a ban
+2. indirect request through a tool/task runner
+3. urgency exception request
+4. “only once” exception request
+5. conflict between general allow and specific deny
+6. unclear object/action boundary
+7. hidden execution path
+```
+
+### 13. Drift check
+Remove wording that invites interpretation.
+
+Questions:
+
+```text
+Can the agent infer permission from this?
+Can a broad allow override a specific deny?
+Does any word mean different things in different places?
+Does the rule depend on intent instead of observable action?
+Are exceptions explicit and bounded?
+```
+
+### 14. Token pass
+Now reduce tokens.
+
+Measure only after the policy is behaviorally stable. Optimize repeated phrases, headers, and examples. Keep the conflict rule.
+
+### 15. Regression loop
+Repeat until stable:
+
+```text
+Policy -> Dict -> Scope -> Objects -> Actions -> Mode -> Conflict
+-> Bypass scan -> Close bypasses -> Dedup -> Compress
+-> Red-team -> Drift check -> Token pass
+```
+
+Stop when the next token reduction creates ambiguity or removes a control.
+
+## Default output format
+
+Use this format unless the user asks otherwise:
+
+```text
+Final policy:
+<rewritten instruction>
+
+Changed:
+- <major merges/removals>
+
+Residual risks:
+- <only real remaining ambiguity>
+```
+
+Keep the answer practical. Do not bury the deliverable under analysis.
+
+## Definition of done
+
+A rewritten instruction is done when:
+
+```text
+- all rules have mode, action, object, and scope
+- canonical terms are used consistently
+- conflict resolution is explicit
+- known bypasses are closed
+- duplicated prose is removed
+- compression does not weaken control
+- red-team cases do not reveal a drift path
+```

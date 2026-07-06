@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import re
 import tomllib
+import json
 from pathlib import Path
 from typing import Any
 
@@ -20,6 +21,8 @@ INSTRUCTION_HARDENING_SCHEMA = "bears.instruction_hardening.graphs.v1"
 INSTRUCTION_HARDENING_STARTUP_SCHEMA = "bears.instruction_hardening.startup.v1"
 INSTRUCTION_HARDENING_SKILL_PATH = "skills/instruction-hardening/SKILL.md"
 INSTRUCTION_HARDENING_ROLE_PATH = "agents/bears-instruction-hardening-engineer.toml"
+DECISION_LEDGER_PATH = "assets/catalog/decision-ledger.v1.json"
+INSTRUCTION_HARDENING_DECISION_SCOPE_ID = "instruction-artifacts-hardening-mcp"
 OPERATOR_DECISION_MENTION_TERMS = (
     "operator decision",
     "operator-approved",
@@ -27,7 +30,7 @@ OPERATOR_DECISION_MENTION_TERMS = (
     "operator requested",
     "operator request",
 )
-EXPLICIT_OPERATOR_DECISION_SOURCE_KINDS: tuple[str, ...] = ()
+EXPLICIT_OPERATOR_DECISION_SOURCE_KINDS: tuple[str, ...] = ("decision_ledger",)
 OPERATOR_CONTRADICTION_TERMS = (
     "contradicts operator",
     "contradict operator",
@@ -104,6 +107,37 @@ def _plugin_root() -> Path:
         if (parent / ".codex-plugin" / "plugin.json").is_file():
             return parent
     return Path(__file__).resolve().parents[4]
+
+
+def _decision_ledger() -> dict[str, Any]:
+    ledger_path = _plugin_root() / DECISION_LEDGER_PATH
+    try:
+        payload = json.loads(ledger_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return {"records": [], "warnings": ["decision_ledger_unavailable"]}
+    if not isinstance(payload, dict):
+        return {"records": [], "warnings": ["decision_ledger_invalid"]}
+    records = payload.get("records", [])
+    if not isinstance(records, list):
+        return {"records": [], "warnings": ["decision_ledger_records_invalid"]}
+    return {"records": [record for record in records if isinstance(record, dict)], "warnings": []}
+
+
+def _normalize_plugin_path(value: Any) -> str | None:
+    if not isinstance(value, str) or not value.strip():
+        return None
+    path = value.strip()
+    if path.startswith("$workspace/"):
+        return path.removeprefix("$workspace/").lstrip("/")
+    if path.startswith("$codex/"):
+        return None
+    candidate = Path(path)
+    if candidate.is_absolute():
+        try:
+            return candidate.resolve().relative_to(_plugin_root()).as_posix()
+        except (OSError, ValueError):
+            return None
+    return path.removeprefix("./").lstrip("/")
 
 
 def _instruction_hardening_grammar() -> dict[str, Any]:
@@ -228,10 +262,51 @@ def _graph_doc_ids(graph: dict[str, Any]) -> list[int]:
     return sorted(doc_ids)
 
 
+def _graph_doc_paths(graph_doc_ids: list[int], docs_by_id: dict[int, dict[str, Any]]) -> set[str]:
+    paths: set[str] = set()
+    for doc_id in graph_doc_ids:
+        normalized = _normalize_plugin_path(docs_by_id.get(doc_id, {}).get("path"))
+        if normalized:
+            paths.add(normalized)
+    return paths
+
+
+def _accepted_record_matches_graph(
+    record: dict[str, Any],
+    graph_paths: set[str],
+    scope_ids: set[str],
+) -> bool:
+    if record.get("status") != "accepted":
+        return False
+    if record.get("contradictions") or record.get("unresolved_inputs"):
+        return False
+    if scope_ids and record.get("scope_id") not in scope_ids:
+        return False
+    affected_paths = {
+        normalized
+        for path in record.get("affected_paths", [])
+        if (normalized := _normalize_plugin_path(path))
+    }
+    return bool(graph_paths.intersection(affected_paths))
+
+
+def _matching_decision_records(
+    graph_paths: set[str],
+    scope_ids: set[str],
+    decision_ledger: dict[str, Any],
+) -> list[dict[str, Any]]:
+    return [
+        record
+        for record in decision_ledger.get("records", [])
+        if _accepted_record_matches_graph(record, graph_paths, scope_ids)
+    ]
+
+
 def _dependency_decision_refs(
     graph: dict[str, Any],
     docs_by_id: dict[int, dict[str, Any]],
     doc_texts: dict[int, str],
+    decision_ledger: dict[str, Any],
 ) -> list[dict[str, Any]]:
     refs: list[dict[str, Any]] = []
     for dependency in graph.get("dependencies", []):
@@ -243,8 +318,20 @@ def _dependency_decision_refs(
             continue
         source_doc = docs_by_id.get(source_id, {})
         target_doc = docs_by_id.get(target_id, {})
-        source_decision = _decision_for_graph([source_id], doc_texts)
-        target_decision = _decision_for_graph([target_id], doc_texts)
+        source_decision = _decision_for_graph_with_ledger(
+            [source_id],
+            doc_texts,
+            _graph_doc_paths([source_id], docs_by_id),
+            decision_ledger,
+            set(),
+        )
+        target_decision = _decision_for_graph_with_ledger(
+            [target_id],
+            doc_texts,
+            _graph_doc_paths([target_id], docs_by_id),
+            decision_ledger,
+            set(),
+        )
         source_text = doc_texts.get(source_id, "")
         target_text = doc_texts.get(target_id, "")
         combined_text = f"{source_doc.get('path', '')}\n{target_doc.get('path', '')}\n{source_text}\n{target_text}".lower()
@@ -291,6 +378,16 @@ def _escalation_candidate(dependency_refs: list[dict[str, Any]]) -> dict[str, An
 
 
 def _decision_for_graph(graph_doc_ids: list[int], doc_texts: dict[int, str]) -> dict[str, Any]:
+    return _decision_for_graph_with_ledger(graph_doc_ids, doc_texts, set(), {"records": []})
+
+
+def _decision_for_graph_with_ledger(
+    graph_doc_ids: list[int],
+    doc_texts: dict[int, str],
+    graph_paths: set[str],
+    decision_ledger: dict[str, Any],
+    scope_ids: set[str] | None = None,
+) -> dict[str, Any]:
     mention_doc_ids: list[int] = []
     refutable_doc_ids: list[int] = []
     summaries: list[str] = []
@@ -312,6 +409,40 @@ def _decision_for_graph(graph_doc_ids: list[int], doc_texts: dict[int, str]) -> 
     if refutable_doc_ids:
         notes.append("operator_decision_conflict_signal_found")
 
+    matching_records = _matching_decision_records(
+        graph_paths,
+        scope_ids or set(),
+        decision_ledger,
+    )
+    ledger_warnings = list(decision_ledger.get("warnings", []))
+    if len(matching_records) == 1 and not refutable_doc_ids:
+        record = matching_records[0]
+        affected_paths = [
+            normalized
+            for path in record.get("affected_paths", [])
+            if (normalized := _normalize_plugin_path(path))
+        ]
+        return {
+            "status": "present",
+            "decision_id": record.get("decision_id"),
+            "source": "decision_ledger",
+            "priority": "operator_highest",
+            "summary": record.get("decision"),
+            "owner_role": record.get("owner_role"),
+            "allowed_authoritative_sources": list(EXPLICIT_OPERATOR_DECISION_SOURCE_KINDS),
+            "evidence_doc_ids": [],
+            "evidence_only_doc_ids": mention_doc_ids,
+            "mention_doc_ids": mention_doc_ids,
+            "refutable_doc_ids": refutable_doc_ids,
+            "decision_ledger_refs": [record.get("decision_id")],
+            "decision_ledger_paths": sorted(set(affected_paths).intersection(graph_paths)),
+            "notes": ["operator_decision_found_in_decision_ledger"],
+        }
+
+    if len(matching_records) > 1:
+        notes.append("multiple_decision_ledger_records_match_graph")
+        ledger_warnings.append("decision_ledger_match_not_unique")
+
     return {
         "status": "missing",
         "decision_id": None,
@@ -324,11 +455,24 @@ def _decision_for_graph(graph_doc_ids: list[int], doc_texts: dict[int, str]) -> 
         "evidence_only_doc_ids": mention_doc_ids,
         "mention_doc_ids": mention_doc_ids,
         "refutable_doc_ids": refutable_doc_ids,
+        "decision_ledger_refs": [
+            record.get("decision_id") for record in matching_records if record.get("decision_id")
+        ],
+        "decision_ledger_paths": [],
+        "warnings": ledger_warnings,
         "notes": notes,
     }
 
 
 def _live_confirmation_for_decision(decision: dict[str, Any]) -> dict[str, Any]:
+    return _live_confirmation_for_decision_with_graph(decision, set(), {"records": []})
+
+
+def _live_confirmation_for_decision_with_graph(
+    decision: dict[str, Any],
+    graph_paths: set[str],
+    decision_ledger: dict[str, Any],
+) -> dict[str, Any]:
     refutable_doc_ids = decision.get("refutable_doc_ids", [])
     status = "refuted" if refutable_doc_ids else "missing"
     warnings = ["operator_decision_missing"]
@@ -336,9 +480,40 @@ def _live_confirmation_for_decision(decision: dict[str, Any]) -> dict[str, Any]:
         warnings.append("scanned_operator_decision_mentions_are_evidence_only")
     if refutable_doc_ids:
         warnings.append("operator_decision_conflict_signal_found")
+    confirmable_paths: list[str] = []
+    ledger_refs = decision.get("decision_ledger_refs", [])
+    if decision.get("status") == "present" and ledger_refs:
+        for record in decision_ledger.get("records", []):
+            if record.get("decision_id") not in ledger_refs:
+                continue
+            live_confirmation = record.get("live_confirmation")
+            if not isinstance(live_confirmation, dict):
+                warnings.append("decision_ledger_live_confirmation_missing")
+                continue
+            evidence_paths = [
+                normalized
+                for path in live_confirmation.get("evidence_paths", [])
+                if (normalized := _normalize_plugin_path(path))
+            ]
+            matched_paths = sorted(set(evidence_paths).intersection(graph_paths))
+            if live_confirmation.get("status") == "confirmed" and matched_paths:
+                status = "confirmed"
+                confirmable_paths.extend(matched_paths)
+            elif live_confirmation.get("status") == "refuted":
+                status = "refuted"
+                warnings.append("decision_ledger_live_confirmation_refuted")
+            else:
+                warnings.append("decision_ledger_live_confirmation_not_confirmed")
+    if status == "confirmed":
+        warnings = [
+            warning
+            for warning in warnings
+            if warning not in {"operator_decision_missing", "decision_ledger_live_confirmation_not_confirmed"}
+        ]
     return {
         "status": status,
         "confirmable_doc_ids": [],
+        "confirmable_paths": sorted(set(confirmable_paths)),
         "evidence_only_doc_ids": decision.get("evidence_only_doc_ids", []),
         "refutable_doc_ids": refutable_doc_ids,
         "checked_fields": [
@@ -347,6 +522,7 @@ def _live_confirmation_for_decision(decision: dict[str, Any]) -> dict[str, Any]:
             "graphs[].target",
             "graphs[].chain",
             "graphs[].dependencies",
+            "decision-ledger.records[].live_confirmation",
         ],
         "warnings": warnings,
     }
@@ -408,21 +584,38 @@ def _enrich_graphs_for_instruction_hardening(
         if isinstance(doc, dict) and isinstance(doc.get("id"), int)
     }
     grammar = _instruction_hardening_grammar()
+    decision_ledger = _decision_ledger()
     enriched_graphs: list[dict[str, Any]] = []
     for graph in graphs:
         if not isinstance(graph, dict):
             continue
         graph_doc_ids = _graph_doc_ids(graph)
-        decision = _decision_for_graph(graph_doc_ids, doc_texts)
+        graph_paths = _graph_doc_paths(graph_doc_ids, docs_by_id)
+        decision = _decision_for_graph_with_ledger(
+            graph_doc_ids,
+            doc_texts,
+            graph_paths,
+            decision_ledger,
+            {INSTRUCTION_HARDENING_DECISION_SCOPE_ID},
+        )
         enriched = dict(graph)
         enriched["decision"] = decision
-        enriched["live_confirmation"] = _live_confirmation_for_decision(decision)
+        enriched["live_confirmation"] = _live_confirmation_for_decision_with_graph(
+            decision,
+            graph_paths,
+            decision_ledger,
+        )
         enriched["standardization"] = _standardization_for_graph(
             graph_doc_ids,
             doc_texts,
             grammar,
         )
-        dependency_refs = _dependency_decision_refs(graph, docs_by_id, doc_texts)
+        dependency_refs = _dependency_decision_refs(
+            graph,
+            docs_by_id,
+            doc_texts,
+            decision_ledger,
+        )
         enriched["dependency_decision_refs"] = dependency_refs
         enriched["escalation_candidate"] = _escalation_candidate(dependency_refs)
         enriched_graphs.append(enriched)
@@ -452,6 +645,7 @@ def build_instruction_hardening_graphs(
             "skill": "instruction-hardening",
             "operator_decision_priority": "highest",
             "instructions_source_of_truth": False,
+            "decision_source": "decision_ledger",
         },
         "counts": {"docs": len(docs), "graphs": len(graphs)},
         "docs": docs,

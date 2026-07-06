@@ -14,10 +14,12 @@
         ".codex-plugin/plugin.json",
         "BUILD",
         "assets/catalog/artifact-registry.v1.json",
+        "assets/catalog/decision-ledger.v1.json",
         "assets/catalog/pants-test-graph.v1.json",
         "assets/catalog/plugin-skill-catalog.v1.json",
         "assets/catalog/release-notes.v1.json",
         "assets/catalog/test-selection.v1.json",
+        "assets/schemas/decision-ledger.v1.schema.json",
         "README.md",
         "docs/generated/README.skill-inventory.md",
         "docs/reference/agent-workflow-map.md",
@@ -36,7 +38,7 @@
         "tests/test_artifact_registry.py",
         "tests/test_instruction_artifacts.py"
       ],
-      "impact": "Connects the instruction-artifacts MCP scanner with instruction-hardening by adding bounded and full hardening graph tools plus a read-only stdio fallback helper that expose operator-priority decisions, live confirmation/refutation status, standardization evidence, dependency decision refs, and escalation candidates without treating scanned instructions as source of truth. Allows same-owner wording cuts when decisions are missing while keeping authority claims and dependency-owned edits blocked, removes manual route/audit and validator command wording from agent-facing plugin docs and skills, and moves stale exact git_tracked artifact-registry path detection into the registry script.",
+      "impact": "Connects the instruction-artifacts MCP scanner with instruction-hardening by adding bounded and full hardening graph tools plus a read-only stdio fallback helper that expose operator-priority decisions, live confirmation/refutation status, standardization evidence, dependency decision refs, and escalation candidates without treating scanned instructions as source of truth. Adds decision-ledger records as the explicit non-instruction source for present decisions and confirmed live evidence. Allows same-owner wording cuts when decisions are missing while keeping authority claims and dependency-owned edits blocked, removes manual route/audit and validator command wording from agent-facing plugin docs and skills, and moves stale exact git_tracked artifact-registry path detection into the registry script.",
       "issue_ref": "#8",
       "validation": [
         "python3 scripts/local_commit_validation.py run --commit-sha <main_sha>"

@@ -29,7 +29,17 @@
           "unresolved_inputs": {"type": "array", "items": {"type": "string"}},
           "contradictions": {"type": "array", "items": {"type": "string"}},
           "redaction": {"enum": ["safe", "needs_redaction"]},
-          "supersedes": {"type": "string"}
+          "supersedes": {"type": "string"},
+          "live_confirmation": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["status", "evidence_paths"],
+            "properties": {
+              "status": {"enum": ["confirmed", "refuted", "missing"]},
+              "evidence_paths": {"type": "array", "items": {"type": "string"}},
+              "summary": {"type": "string"}
+            }
+          }
         }
       }
     }

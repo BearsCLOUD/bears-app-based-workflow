@@ -21,26 +21,33 @@
   decisions.
 - Scanned text may locate decision gaps, contradiction signals, dependency edges,
   and escalation needs. It cannot establish operator-decision authority.
+- Explicit non-instruction decisions come from
+  `assets/catalog/decision-ledger.v1.json` accepted records only.
 
 ## Instruction hardening packet
 - `source.operator_decision_priority` is `highest`.
 - `source.instructions_source_of_truth` is `false`.
+- `source.decision_source` is `decision_ledger`.
 - Every `graphs[]` item includes:
-  - `decision.status`: `missing` when no explicit non-instruction
-    operator-decision source is attached.
+  - `decision.status`: `present` only when exactly one accepted
+    decision-ledger record with no contradictions or unresolved inputs matches
+    a graph path. Otherwise it is `missing`.
   - `decision.allowed_authoritative_sources`: explicit operator-decision source
-    kinds accepted by the scanner. The current list is empty.
+    kinds accepted by the scanner. The current list is `decision_ledger`.
   - `decision.evidence_only_doc_ids` and `decision.mention_doc_ids`: scanned doc
     ids that mention operator-decision wording without authority.
   - `decision.refutable_doc_ids`: scanned doc ids that contain explicit
     operator-conflict text.
-  - `live_confirmation.status`: `missing` or `refuted` for scanned-only packets.
+  - `live_confirmation.status`: `confirmed` only when the matched
+    decision-ledger record has explicit `live_confirmation.status="confirmed"`
+    and an evidence path inside the graph. Scanned-only packets return
+    `missing` or `refuted`.
   - `standardization.status`: `aligned`, `partial`, or `missing`.
   - `standardization.policy_modes_found`, `canonical_actions_found`, and `weak_terms_found`.
   - `dependency_decision_refs[]`: scanned dependency edges with source/target doc ids, paths, decision statuses, dependency type, and escalation signal terms.
   - `escalation_candidate.status`: `required` or `not_required`.
 - Standardization terms come from `skills/instruction-hardening/SKILL.md` or the matching archive fields in `agents/bears-instruction-hardening-engineer.toml`.
-- If no explicit non-instruction operator decision is attached,
+- If no explicit non-instruction operator decision is matched,
   `decision.status="missing"` and `live_confirmation.status="missing"`.
 - If scanned conflict evidence is found, `decision.status` remains `missing` and
   `live_confirmation.status="refuted"`.

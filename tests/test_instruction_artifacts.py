@@ -148,6 +148,106 @@ class InstructionArtifactTests(unittest.TestCase):
         self.assertEqual(graph["dependency_decision_refs"], [])
         self.assertEqual(graph["escalation_candidate"]["status"], "not_required")
 
+    def test_instruction_hardening_graphs_uses_decision_ledger_source(self) -> None:
+        payload = {
+            "docs": [
+                {
+                    "id": 0,
+                    "kind": "markdown_reference",
+                    "path": "$workspace/docs/reference/instruction-artifacts-mcp.md",
+                    "title": "MCP",
+                    "sections": [
+                        {
+                            "heading": "Rules",
+                            "blocks": [{"rules": ["Required MCP evidence."], "lines": []}],
+                        }
+                    ],
+                }
+            ],
+            "graphs": [{"target": 0, "chain": [0], "dependencies": []}],
+        }
+        decision_ledger = {
+            "records": [
+                {
+                    "affected_paths": ["docs/reference/instruction-artifacts-mcp.md"],
+                    "contradictions": [],
+                    "decision": "Use the instruction-hardening MCP evidence packet.",
+                    "decision_id": "D-test-instruction-hardening",
+                    "live_confirmation": {
+                        "evidence_paths": ["docs/reference/instruction-artifacts-mcp.md"],
+                        "status": "confirmed",
+                    },
+                    "owner_role": "bears-instruction-hardening-engineer",
+                    "scope_id": "instruction-artifacts-hardening-mcp",
+                    "status": "accepted",
+                    "unresolved_inputs": [],
+                }
+            ],
+            "warnings": [],
+        }
+        with (
+            patch.object(zones, "build_zones", return_value=payload),
+            patch.object(zones, "_decision_ledger", return_value=decision_ledger),
+        ):
+            packet = zones.build_instruction_hardening_graphs()
+
+        graph = packet["graphs"][0]
+        self.assertEqual(graph["decision"]["status"], "present")
+        self.assertEqual(graph["decision"]["source"], "decision_ledger")
+        self.assertEqual(graph["decision"]["decision_ledger_refs"], ["D-test-instruction-hardening"])
+        self.assertEqual(graph["live_confirmation"]["status"], "confirmed")
+        self.assertEqual(
+            graph["live_confirmation"]["confirmable_paths"],
+            ["docs/reference/instruction-artifacts-mcp.md"],
+        )
+
+    def test_instruction_hardening_graphs_requires_ledger_path_overlap(self) -> None:
+        payload = {
+            "docs": [
+                {
+                    "id": 0,
+                    "kind": "markdown_reference",
+                    "path": "$workspace/docs/reference/instruction-artifacts-mcp.md",
+                    "title": "MCP",
+                    "sections": [
+                        {
+                            "heading": "Rules",
+                            "blocks": [{"rules": ["Required MCP evidence."], "lines": []}],
+                        }
+                    ],
+                }
+            ],
+            "graphs": [{"target": 0, "chain": [0], "dependencies": []}],
+        }
+        decision_ledger = {
+            "records": [
+                {
+                    "affected_paths": ["docs/reference/other.md"],
+                    "contradictions": [],
+                    "decision": "Use another graph.",
+                    "decision_id": "D-test-wrong-path",
+                    "live_confirmation": {
+                        "evidence_paths": ["docs/reference/other.md"],
+                        "status": "confirmed",
+                    },
+                    "owner_role": "bears-instruction-hardening-engineer",
+                    "scope_id": "instruction-artifacts-hardening-mcp",
+                    "status": "accepted",
+                    "unresolved_inputs": [],
+                }
+            ],
+            "warnings": [],
+        }
+        with (
+            patch.object(zones, "build_zones", return_value=payload),
+            patch.object(zones, "_decision_ledger", return_value=decision_ledger),
+        ):
+            packet = zones.build_instruction_hardening_graphs()
+
+        graph = packet["graphs"][0]
+        self.assertEqual(graph["decision"]["status"], "missing")
+        self.assertEqual(graph["live_confirmation"]["status"], "missing")
+
     def test_instruction_hardening_graphs_links_dependency_decisions(self) -> None:
         payload = {
             "docs": [

@@ -29,7 +29,7 @@ Phase 1 delivered the minimal MCP connection. The broader goal remains open unti
 9. Keep plugin source portable: no source-embedded server absolute paths except examples with placeholders.
 10. Update docs/tests/catalog entries needed for the new surface.
 11. Commit task-owned changes first; then inspect local commit validation evidence for that commit before any push.
-12. If no explicit non-instruction operator decision is attached, each graph still gets `decision.status="missing"` and must not promote AGENTS, skills, contracts, docs, or catalogs to operator decision.
+12. If no accepted decision-ledger record matches the graph, each graph still gets `decision.status="missing"` and must not promote AGENTS, skills, contracts, docs, or catalogs to operator decision.
 13. If scanned evidence conflicts with an explicit non-instruction operator decision, keep `decision.status="missing"` and use `live_confirmation.status="refuted"` with refutable evidence refs.
 14. Each graph exposes decision dependency links for scanned instruction dependencies that can affect each other.
 15. Each graph exposes an `escalation_candidate` object. If a dependency points at Kubernetes, deploy, runtime, secret, CD, `local_cd`, Dagger proof, workflow policy, role policy, or cross-owner governance evidence, the graph must require higher-level owner review before refactor.
@@ -37,8 +37,8 @@ Phase 1 delivered the minimal MCP connection. The broader goal remains open unti
 17. Full instruction-surface refactor starts only after Phase 2 MCP fields are present and critic-approved.
 
 ## Minimal schema
-- `decision.status`: `missing` unless an explicit non-instruction operator-decision source is attached.
-- `live_confirmation.status`: `missing` or `refuted` for scanned-only packets.
+- `decision.status`: `present` only when exactly one accepted decision-ledger record with no contradictions or unresolved inputs matches a graph path; otherwise `missing`.
+- `live_confirmation.status`: `confirmed` only when the matched decision-ledger record has explicit live evidence inside the graph; otherwise `missing` or `refuted`.
 - `standardization.status`: `aligned`, `partial`, or `missing`.
 - `dependency_decision_refs[]`: dependency edge, source/target decision status, source/target doc path, and whether the edge carries escalation signal.
 - `escalation_candidate.status`: `required` or `not_required`.
@@ -57,6 +57,8 @@ Phase 1 delivered the minimal MCP connection. The broader goal remains open unti
 - Update the `instruction-hardening` skill and plugin prompt/catalog description so the MCP preflight is visible at invocation time.
 - Move artifact-registry missing tracked path detection into `scripts/artifact_registry.py`; JSON cleanup alone is not enough.
 - Add a regression test that fails a `git_tracked=true` exact registry path with no tracked-file match.
+- Add decision-ledger reading as the explicit non-instruction source for
+  `decision.status=present` and `live_confirmation.status=confirmed`.
 
 ## Workflow shape borrowed from app-* skills
 - Treat this as `target_layer=plugin`.
@@ -88,7 +90,7 @@ Phase 1 delivered the minimal MCP connection. The broader goal remains open unti
 - Update MCP reference docs and skill preflight text.
 
 ### Phase 3: Bounded instruction-surface refactors
-- Status: unblocking_same_owner_wording_cuts.
+- Status: implementing_decision_ledger_source.
 - Phase 3 completion is per wave only. The full goal stays open until Phase 4 critic approval.
 - Each wave must cite current `instruction_hardening_startup` or `instruction_hardening_graphs` evidence. If the current Codex toolset cannot call the MCP, record `tool_gap` and stop before any Phase 3 completion claim.
 - Current tool gap unblock: add `scripts/instruction_hardening_mcp_packet.py` as a read-only stdio MCP client fallback. Allowed command:
@@ -103,9 +105,17 @@ Phase 1 delivered the minimal MCP connection. The broader goal remains open unti
 - Current plugin-root helper evidence command:
   `python3 scripts/instruction_hardening_mcp_packet.py instruction_hardening_startup --root . --bounded-json`.
 - Current plugin-root helper result is MCP evidence only, not final proof:
-  `docs=6`, `graphs=1`, `decision.status=missing`,
-  `live_confirmation.status=missing`, `standardization.status=partial`,
-  `escalation_candidate.status=required`.
+  before decision-ledger integration it showed `docs=6`, `graphs=1`,
+  `decision.status=missing`, `live_confirmation.status=missing`,
+  `standardization.status=partial`, `escalation_candidate.status=required`.
+- Decision-ledger integration target: the same graph may report
+  `decision.status=present` and `live_confirmation.status=confirmed` only from
+  an accepted decision-ledger record with explicit graph-path live evidence.
+- Current decision-ledger helper evidence:
+  `decision.status=present`, `decision.source=decision_ledger`,
+  `decision.decision_id=D-2026-07-06-instruction-hardening-mcp-evidence-plumbing`,
+  `live_confirmation.status=confirmed`,
+  `live_confirmation.confirmable_paths=[docs/reference/instruction-artifacts-mcp.md]`.
 - `decision.status=missing` blocks adding or promoting operator authority from
   scanned text. It does not block mechanical compression, duplicate removal, or
   same-owner wording cuts.
@@ -154,7 +164,7 @@ Phase 1 delivered the minimal MCP connection. The broader goal remains open unti
 ## Current status
 - phase_1_minimal_mcp_connection: complete
 - phase_2_decision_dependencies_escalation: complete
-- phase_3_bounded_instruction_refactors: unblocking_same_owner_wording_cuts
+- phase_3_bounded_instruction_refactors: implementing_decision_ledger_source
 - phase_4_final_consistency_critic: pending
 - latest_plan_change_critic: approved by no-fork `gpt-5.5` high critic `019f3976-7920-7433-a6b4-70eae4653d7e`
 - latest_phase_2_critic: approved by no-fork `gpt-5.5` high critic `019f397a-e75d-7192-8cd9-b37cce31419f`
@@ -163,5 +173,6 @@ Phase 1 delivered the minimal MCP connection. The broader goal remains open unti
 - latest_mcp_helper_plan_critic: require_edits by no-fork `gpt-5.5` high critic `019f3987-d46a-7d62-9d03-9ba578ee3609`; required edits applied in plan/docs/skill/helper scope.
 - latest_decision_authority_critic: require_edits by no-fork `gpt-5.5` high critic `019f398c-380d-7260-99ba-871f6d058897`; scanned instruction prose must not claim operator decision authority.
 - latest_phase_3_status_critic: approve_with_required_edits by no-fork `gpt-5.5` high critic `019f398e-dc37-70b3-a595-947990f1b3de`; required status edits applied before the friction audit narrowed the block to authority claims and dependency-owned edits.
+- latest_decision_ledger_source_critic: block by no-fork `gpt-5.5` high critic `019f39ab-f660-7222-8e38-e223eb1d2da5`; required strict scope-plus-path matching, no-overlap regression coverage, and docs drift fix applied.
 - current_mcp_tool_gap: current Codex toolset exposes MCP registration through `codex mcp get mcp` but no callable `instruction_hardening_startup` tool namespace in this turn.
 - full_goal_complete: false

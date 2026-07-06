@@ -394,6 +394,7 @@
       "patterns": [
         ".codex-plugin/plugin.json",
         ".agents/plugins/marketplace.json",
+        "bin/*",
         "README.md",
         "SPEC.md",
         "requirements.md",

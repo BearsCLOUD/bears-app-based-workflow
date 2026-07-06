@@ -4,7 +4,7 @@
   "updated": "2026-06-24",
   "owner_role": "bears-machine-first-execution-kernel-engineer",
   "plugin_reference": "@bears",
-  "default_workspace_root": "/srv/bears",
+  "default_workspace_root": "<generated-local-config:workspace_root>",
   "shared_runner": "scripts/bears_git_hook.py",
   "thin_hooks": [
     {

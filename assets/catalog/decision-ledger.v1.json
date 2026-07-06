@@ -1945,9 +1945,44 @@
       "scope_id": "autoci-graph-ledger-status",
       "status": "accepted",
       "unresolved_inputs": []
+    },
+    {
+      "affected_paths": [
+        "bin/bears-plugin",
+        ".codex-plugin/plugin.json",
+        "AGENTS.md",
+        "README.md",
+        "agents/README.md",
+        "skills/instruction-hardening/SKILL.md",
+        "scripts/bears_plugin_env.py",
+        "scripts/portable_paths.py",
+        "scripts/local_commit_validation.py",
+        "scripts/bears_git_hook.py",
+        "assets/catalog/git-hook-bootstrap.v1.json",
+        "assets/catalog/pants-test-graph.v1.json",
+        "assets/catalog/platform-role-catalog.v1.json",
+        "assets/catalog/release-notes.v1.json",
+        "assets/catalog/subagents-roles.v1.json",
+        "assets/catalog/test-selection.v1.json",
+        "assets/catalog/artifact-registry.v1.json",
+        "tests/test_artifact_registry.py",
+        "tests/test_plugin_manifests.py",
+        "tests/test_local_commit_validation.py"
+      ],
+      "change_type": "policy",
+      "contradictions": [],
+      "decision": "Install/update uses generated local path config outside plugin source and LCV blocks newly introduced server-specific absolute paths.",
+      "decision_id": "D-2026-07-06-instruction-hardening-portability",
+      "owner_issue": "operator-instruction-hardening-closeout",
+      "owner_role": "bears-instruction-hardening-engineer",
+      "rationale": "Operator required portable plugin source, root-owned commit wording, and pre-push autoCI/LCV error checks without manual validator execution during development.",
+      "redaction": "safe",
+      "scope_id": "operator-instruction-hardening-closeout",
+      "status": "accepted",
+      "unresolved_inputs": []
     }
   ],
   "schema": "bears-decision-ledger.v1",
-  "updated": "2026-07-05",
+  "updated": "2026-07-06",
   "version": "1"
 }

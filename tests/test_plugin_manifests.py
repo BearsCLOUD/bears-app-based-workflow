@@ -176,13 +176,13 @@ class PluginManifestTests(unittest.TestCase):
         self.assertIn("roadmap-control", prompt)
         self.assertIn("pre-task", prompt)
         self.assertIn("subagent", prompt)
-        self.assertIn("python3 scripts/roadmap_control.py validate", prompt)
+        self.assertIn("scripts/roadmap_control.py", prompt)
+        self.assertIn("do not run the validator manually unless the operator names that exact command", prompt)
 
     def test_default_prompt_covers_language_policy_and_governance_validators(self):
         prompt = "\n".join(self.plugin_manifest["interface"]["defaultPrompt"])
-        self.assertIn("python3 scripts/validate_overlay.py --json validate --strict-overlay-skills", prompt)
-        self.assertIn("python3 scripts/agent_github_dev_cd.py validate", prompt)
-        self.assertIn("python3 scripts/git_discipline.py validate", prompt)
+        self.assertIn("autoCI/local-commit-validation evidence", prompt)
+        self.assertIn("do not run validators manually unless the operator names one exact command", prompt)
         self.assertIn("local_cd", prompt)
         self.assertIn("kubernetes_deployment", prompt)
 

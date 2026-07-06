@@ -2,6 +2,49 @@
   "entries": [
     {
       "affected_surfaces": [
+        "instruction_hardening_skill",
+        "plugin_portability",
+        "local_commit_validation",
+        "git_hook_bootstrap",
+        "pants_test_graph",
+        "test_selection",
+        "release_notes"
+      ],
+      "date": "2026-07-06",
+      "files": [
+        ".codex-plugin/plugin.json",
+        "AGENTS.md",
+        "README.md",
+        "agents/README.md",
+        "assets/catalog/artifact-registry.v1.json",
+        "assets/catalog/decision-ledger.v1.json",
+        "assets/catalog/git-hook-bootstrap.v1.json",
+        "assets/catalog/pants-test-graph.v1.json",
+        "assets/catalog/platform-role-catalog.v1.json",
+        "assets/catalog/release-notes.v1.json",
+        "assets/catalog/subagents-roles.v1.json",
+        "assets/catalog/test-selection.v1.json",
+        "bin/bears-plugin",
+        "scripts/bears_git_hook.py",
+        "scripts/bears_plugin_env.py",
+        "scripts/local_commit_validation.py",
+        "scripts/portable_paths.py",
+        "skills/instruction-hardening/SKILL.md",
+        "tests/test_artifact_registry.py",
+        "tests/test_plugin_manifests.py",
+        "tests/test_local_commit_validation.py"
+      ],
+      "impact": "Hardens @Bears instruction governance portability: plugin source uses generated local path config for install/update, local commit validation blocks newly introduced server-specific absolute paths, and root-owned commit wording separates local commits from pre-push autoCI/LCV error checks.",
+      "issue_ref": "#8",
+      "validation": [
+        "python3 scripts/local_commit_validation.py run --commit-sha <main_sha>",
+        "autoCI/local-commit-validation evidence for subagents role route/audit coverage",
+        "python3 scripts/release_notes_gate.py check --from-git <range>",
+        "python3 scripts/pants_test_graph.py impacted --from-git <range> --json"
+      ]
+    },
+    {
+      "affected_surfaces": [
         "app-functional-graph_skill",
         "app-plan_skill",
         "app-dev_skill",

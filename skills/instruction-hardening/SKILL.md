@@ -26,7 +26,7 @@ Exclude unless the operator explicitly expands scope:
 
 ## Workflow
 
-1. Load the nearest `AGENTS.md`, `/srv/bears/plugins/bears/AGENTS.md`, the active route packet, and this skill.
+1. Load the nearest `AGENTS.md`, this plugin router, the active route packet, and this skill.
 2. Identify the exact target files and owner role before edits. Stop on `ROLE_COVERAGE_BLOCKER` unless the assignment is role-coverage remediation.
 3. Extract every governing rule as: `mode`, `action`, `object`, `scope`, `condition`, `exception`, and `conflict rule`.
 4. Build a canonical term table. One behavior gets one term. Replace weak words or define them in-place.

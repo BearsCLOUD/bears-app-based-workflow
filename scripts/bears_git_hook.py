@@ -13,7 +13,13 @@ from pathlib import Path
 from typing import Any
 
 PLUGIN_ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_WORKSPACE_ROOT = Path("/srv/bears")
+def default_workspace_root() -> Path:
+    if PLUGIN_ROOT.name == "bears" and PLUGIN_ROOT.parent.name == "plugins":
+        return PLUGIN_ROOT.parents[1]
+    return PLUGIN_ROOT.parent
+
+
+DEFAULT_WORKSPACE_ROOT = default_workspace_root()
 PROOF_SCHEMA = PLUGIN_ROOT / "assets/schemas/effective-hooks-proof.v1.schema.json"
 CATALOG = PLUGIN_ROOT / "assets/catalog/git-hook-bootstrap.v1.json"
 HOOKS = ("pre-commit", "post-commit")
@@ -252,8 +258,8 @@ def validate_catalog() -> list[str]:
         errors.append("catalog schema must be bears-git-hook-bootstrap.v1")
     if packet.get("plugin_reference") != "@bears":
         errors.append("plugin_reference must be @bears")
-    if packet.get("default_workspace_root") != str(DEFAULT_WORKSPACE_ROOT):
-        errors.append("default_workspace_root must be /srv/bears")
+    if packet.get("default_workspace_root") != "<generated-local-config:workspace_root>":
+        errors.append("default_workspace_root must point to generated local config workspace_root")
     if packet.get("shared_runner") != "scripts/bears_git_hook.py":
         errors.append("shared_runner must be scripts/bears_git_hook.py")
     if not (PLUGIN_ROOT / "scripts/bears_git_hook.py").exists():

@@ -3,10 +3,10 @@
 ## Scope
 - This directory is the source checkout for the `@Bears` Codex governance plugin.
 - It owns Bears action rules, roles, workflow policy, hooks, CD policy, and Dagger objective-runtime-proof policy.
-- Codex daemon / Knowledge Orchestrator runtime routes through `/srv/bears/dev/app/codexdaemon`; the canonical product-app repository is `BearsCLOUD/apps`. `BearsCLOUD/codexdaemon` is a deprecated/archive-candidate source only.
+- Codex daemon / Knowledge Orchestrator runtime routes through the `BearsCLOUD/apps` repo at `source_subpath=codexdaemon`. `BearsCLOUD/codexdaemon` is a deprecated/archive-candidate source only.
 
 ## Entity terms
-- `app` means a Bears product application source directory under `/srv/bears/dev/app` or the `BearsCLOUD/apps` repository.
+- `app` means a Bears product application source directory in the `BearsCLOUD/apps` repository or a workspace-local checkout selected by generated local config.
 - `project` means a GitHub Project planning board with linked Issues and metadata fields. Do not use `project` for a local repo, path, workspace directory, or product app.
 - Use `target`, `registered target`, `repo`, `path`, `workspace surface`, or `app directory` for filesystem/source ownership.
 
@@ -15,7 +15,7 @@
 - Role catalog: `assets/catalog/platform-role-catalog.v1.json`.
 - Git/CD contracts: `assets/catalog/git-deploy-contract.v1.json` and `assets/catalog/cd-kube-deploy-contract.v1.json`.
 - Canonical subagents roles: `assets/catalog/platform-role-catalog.v1.json`.
-- Canonical role gate: `/srv/bears/plugins/bears/scripts/subagents_roles.py`.
+- Canonical role gate: `scripts/subagents_roles.py` from this plugin checkout.
 
 ## Functional map
 - `agents/*.toml` — canonical Bears role profiles; do not sync them into OpenCode agents.
@@ -39,7 +39,7 @@
 ## External runtime boundary
 - `BearsCLOUD/apps` is the canonical product-app repository for codexdaemon source after consolidation. `BearsCLOUD/codexdaemon` may be routed only as a deprecated/archive-candidate migration source until archived.
 - This plugin may route, validate, or govern `codexdaemon`; it must not carry daemon runtime implementation.
-- Route `/srv/bears/dev/app/codexdaemon` through `bears-codex-daemon-engineer` before codexdaemon implementation.
+- Route `BearsCLOUD/apps:codexdaemon` through `bears-codex-daemon-engineer` before codexdaemon implementation.
 
 ## Rules
 - Keep artifacts and contracts in English.
@@ -49,7 +49,8 @@
 - `kubernetes_deployment` is valid only with Kubernetes desired state and `local_cd`. Local host processes, local `infisical run`, manual `kubectl apply`, and manual secret injection are not final live PASS evidence.
 - Infisical is secret custody and environment injection only. Runtime software proof must pass through Kubernetes refs, workload evidence, and health proof.
 - `control-plane/infisical` is bootstrap or preflight support only; it is not the runtime desired-state owner.
-- Completed plugin changes must be validated, committed, and pushed from `/srv/bears/plugins/bears`; stage only task-owned files and report carried dirty paths.
+- Follow the root Git closeout rule: every Git-tracked file change must end with a local commit in the owning repo.
+- Stage only task-owned files; before push, inspect autoCI/local commit validation evidence for known errors and fix known errors before push.
 - Do not store secrets, raw logs, kubeconfigs, tokens, private chats, production data, `.env` values, or `.knowledge/**` artifacts.
 
 ## Entity terms
@@ -57,32 +58,33 @@
 - Artifacts and subagent messages must use English only.
 - Wording must stay strict, concise, and entity-bound.
 
-## Canonical checkout
-- The canonical @Bears source checkout is `/srv/bears/plugins/bears`.
-- Do not edit, commit, close out, or report plugin work from a hidden `/tmp` worktree when the canonical checkout exists.
-- If an approved isolated worktree is required, capture canonical dirty status, preserve a backup path, sync back to `/srv/bears/plugins/bears`, and make exact validation pass there before closeout.
+## Portable checkout
+- The canonical @Bears source checkout is the current Git checkout for this plugin.
+- Plugin source must not depend on server-specific absolute paths. Local generated config may store real host paths outside the plugin source.
+- Do not edit, commit, close out, or report plugin work from a hidden temp worktree when the canonical checkout exists.
+- If an approved isolated worktree is required, capture canonical dirty status, preserve a backup path, sync back to the canonical checkout, and make exact validation pass there before closeout.
 
 ## Workflow gates
-- There is exactly one Codex plugin for this governance model: `/srv/bears/plugins/bears`.
+- There is exactly one Codex plugin for this governance model: this `@Bears` plugin checkout.
 - Keep lifecycle order: route gate -> subagents-roles gate -> research gate.
 - Telegram workflow governance stays here as a skill/catalog/script bundle owned by `bears-telegram-platform-engineer`.
 - Codex Telegram operator feedback is skill-driven by `skills/codex-telegram-operator-gate` and the configured `codex-telegram` MCP server; do not register or enable a Telegram `PreToolUse` hook gate.
-- Legacy `/srv/bears/plugins/codex-telegram-operator` is a migration source only; it must not own Bears governance, Telegram runtime, MCP runtime, or hook authority.
-- Do not recreate a standalone Telegram plugin, product app, connector, MCP server, or runtime surface except the exact cataloged `/srv/bears/plugins/bearstg` read-only MCP plugin.
+- Legacy `codex-telegram-operator` plugin checkout is a migration source only; it must not own Bears governance, Telegram runtime, MCP runtime, or hook authority.
+- Do not recreate a standalone Telegram plugin, product app, connector, MCP server, or runtime surface except the exact cataloged `bearstg` read-only MCP plugin.
 
 ## Objective runtime proof policy
-- Platform Dagger proof lives in `/srv/bears/dev/platform/dagger/`; plugin policy must route agents to that entrypoint.
-- Final live PASS is `/srv/bears/kubernetes` `kubernetes_deployment` plus `local_cd` proof.
+- Platform Dagger proof lives in the configured platform checkout at `dagger/`; plugin policy must route agents to that entrypoint.
+- Final live PASS is the configured Kubernetes desired-state checkout with `kubernetes_deployment` plus `local_cd` proof.
 - Do not create or close work through a test, contract, validator, schema, lint, or static-check layer. Those may remain only as internal safety guardrails and never as PASS evidence.
 - If any role, skill, catalog, hook, issue packet, or docs surface still uses validation-layer acceptance, migrate it to Dagger objective runtime proof or remove the obsolete reference.
 
 ## Safety checks
 - Route/audit gates are `autoCI` ownership checks; agents do not run them manually unless the operator names one exact command.
-- Local commit validation owns blocking plugin route/audit, validator, and test proof.
-- Agents must not run route/audit, repo validator suites, or tests manually unless the operator names one exact command.
+- Local commit validation owns blocking plugin test proof, validator proof, and route/audit proof.
+- Agents must not run repo validator suites or tests manually. Agents must not run route/audit manually unless the operator names one exact command.
 - Repo suites, tests, validators, schemas, lint, Docker checks, Kubernetes checks, browser checks, and ad hoc checks are safety-only unless a human explicitly requests one named command.
 - Closeout proof must cite `runtime/local-commit-validation/<main_sha>.json` after the commit exists.
 - Plugin closeout for app/platform behavior must cite an ObjectiveRuntimeProof packet or final Kubernetes live proof, not validation artifacts.
 - Agents may inspect current commit or current PR GitHub Checks, GitHub Actions runs, statuses, logs, and artifacts as safety context only.
-- Deep `/srv/bears/kubernetes` Git history reads are forbidden unless the operator explicitly requests bounded history work in the current turn.
+- Deep Kubernetes desired-state Git history reads are forbidden unless the operator explicitly requests bounded history work in the current turn.
 - GitHub Actions `.github/workflows/validate.yml` runs fast diagnostics on `main` push and keeps emergency full-suite diagnostics operator-dispatched only.

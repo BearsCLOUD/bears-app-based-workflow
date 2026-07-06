@@ -21,6 +21,12 @@ EMPTY_TREE_SHA = "4b825dc642cb6eb9a060e54bf8d69288fbee4904"
 GIT_HOOK_ENV_KEYS = ("GIT_DIR", "GIT_WORK_TREE", "GIT_INDEX_FILE", "GIT_PREFIX", "GIT_COMMON_DIR")
 
 
+def default_workspace_root() -> Path:
+    if PLUGIN_ROOT.name == "bears" and PLUGIN_ROOT.parent.name == "plugins":
+        return PLUGIN_ROOT.parents[1]
+    return PLUGIN_ROOT.parent
+
+
 def utc_now() -> str:
     return datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
 
@@ -166,7 +172,7 @@ def select_autoci_zones(changed_files: list[str], graph: dict[str, Any] | None =
                 expected_statuses.update(str(item) for item in zone.get("expected_statuses", []) if str(item))
         if path_zones:
             matched[path] = sorted(set(path_zones))
-        elif path.startswith("/srv/bears/dev/app/"):
+        elif path.startswith("/") and "/dev/app/" in path:
             # App-local task paths are usually repo-relative before commit; keep absolute app paths fail-closed.
             unmatched.append(path)
     return {
@@ -257,6 +263,15 @@ def authority_map_command() -> list[str]:
     return [sys.executable, "scripts/authority_map.py", "validate"]
 
 
+def portable_paths_command(diff_range: str | None, *, staged: bool) -> list[str]:
+    command = [sys.executable, "scripts/portable_paths.py", "--json"]
+    if staged:
+        command.append("--staged")
+    else:
+        command.extend(["--from-git", diff_range or "HEAD"])
+    return command
+
+
 def write_proof(state_root: Path, packet: dict[str, Any]) -> Path:
     state_root.mkdir(parents=True, exist_ok=True)
     commit_sha = packet.get("commit_sha")
@@ -320,10 +335,12 @@ def run_validation(args: argparse.Namespace) -> int:
     release_code, release_stdout, release_stderr = run_command(release_cmd, timeout=120)
     authority_cmd = authority_map_command()
     authority_code, authority_stdout, authority_stderr = run_command(authority_cmd, timeout=120)
-    if args.dry_run and plan.get("status") == "pass" and list_code == 0 and pants_code == 0 and run_code == 0 and release_code == 0 and authority_code == 0:
+    portable_cmd = portable_paths_command(diff_range, staged=bool(args.staged))
+    portable_code, portable_stdout, portable_stderr = run_command(portable_cmd, timeout=120)
+    if args.dry_run and plan.get("status") == "pass" and list_code == 0 and pants_code == 0 and run_code == 0 and release_code == 0 and authority_code == 0 and portable_code == 0:
         status = "dry_run"
     else:
-        status = "pass" if plan.get("status") == "pass" and list_code == 0 and pants_code == 0 and run_code == 0 and release_code == 0 and authority_code == 0 else "fail"
+        status = "pass" if plan.get("status") == "pass" and list_code == 0 and pants_code == 0 and run_code == 0 and release_code == 0 and authority_code == 0 and portable_code == 0 else "fail"
     packet = {
         "schema": SCHEMA,
         "updated_at": utc_now(),
@@ -348,13 +365,14 @@ def run_validation(args: argparse.Namespace) -> int:
             command_packet(run_cmd, run_code, run_stdout, run_stderr, source="validation_plan"),
             command_packet(release_cmd, release_code, release_stdout, release_stderr),
             command_packet(authority_cmd, authority_code, authority_stdout, authority_stderr),
+            command_packet(portable_cmd, portable_code, portable_stdout, portable_stderr),
         ],
         "closeout_validator": {
             "argv": [sys.executable, "scripts/bears_doctor.py", "validate-closeout", "--from-git", diff_range or "<staged>", "--json"],
             "execution": "closeout_owned",
         },
         "workspace_hygiene_policy": "assets/catalog/workspace-hygiene.v1.json",
-        "summary": "dry-run validation plan passed" if status == "dry_run" else (compact_output(pants_stdout + run_stdout + release_stdout + authority_stdout, pants_stderr + run_stderr + release_stderr + authority_stderr) if status == "fail" else "validation plan, impacted tests, release notes gate, and authority map passed"),
+        "summary": "dry-run validation plan passed" if status == "dry_run" else (compact_output(pants_stdout + run_stdout + release_stdout + authority_stdout + portable_stdout, pants_stderr + run_stderr + release_stderr + authority_stderr + portable_stderr) if status == "fail" else "validation plan, impacted tests, release notes gate, authority map, and portable path guard passed"),
     }
     path = write_proof(Path(args.state_root), packet)
     print(json.dumps({"status": status, "proof_path": str(path), "commit_sha": commit_sha, "tests": packet["tests"], "autoCI_zones": packet["autoCI_zones"]}, indent=2, sort_keys=True))
@@ -362,10 +380,11 @@ def run_validation(args: argparse.Namespace) -> int:
 
 
 def hook_body(hook_name: str) -> str:
+    workspace_root = default_workspace_root()
     if hook_name == "pre-commit":
-        command = f"python3 scripts/bears_git_hook.py run --hook pre-commit --workspace-root /srv/bears --repo-path {shlex_quote(str(PLUGIN_ROOT))}"
+        command = f"python3 scripts/bears_git_hook.py run --hook pre-commit --workspace-root {shlex_quote(str(workspace_root))} --repo-path {shlex_quote(str(PLUGIN_ROOT))}"
     elif hook_name == "post-commit":
-        command = f"python3 scripts/bears_git_hook.py run --hook post-commit --workspace-root /srv/bears --repo-path {shlex_quote(str(PLUGIN_ROOT))}"
+        command = f"python3 scripts/bears_git_hook.py run --hook post-commit --workspace-root {shlex_quote(str(workspace_root))} --repo-path {shlex_quote(str(PLUGIN_ROOT))}"
     else:
         raise ValueError(f"unsupported hook: {hook_name}")
     return f"""#!/usr/bin/env bash

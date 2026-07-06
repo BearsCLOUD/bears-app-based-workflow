@@ -59,7 +59,7 @@ class LocalCommitValidationTests(unittest.TestCase):
             post_body = post_hook.read_text(encoding="utf-8")
             self.assertIn("python3 scripts/bears_git_hook.py run --hook pre-commit", pre_body)
             self.assertIn("python3 scripts/bears_git_hook.py run --hook post-commit", post_body)
-            self.assertIn("--workspace-root /srv/bears", pre_body)
+            self.assertIn(f"--workspace-root '{root.parent}'", pre_body)
             self.assertIn("unset GIT_DIR GIT_WORK_TREE GIT_INDEX_FILE GIT_PREFIX GIT_COMMON_DIR", pre_body)
             self.assertIn("unset GIT_DIR GIT_WORK_TREE GIT_INDEX_FILE GIT_PREFIX GIT_COMMON_DIR", post_body)
             self.assertTrue(pre_hook.stat().st_mode & 0o111)

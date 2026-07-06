@@ -245,7 +245,8 @@ Reference: `docs/reference/agent-registration-sync.md`.
 ## Main-only local validation and plugin cache delivery
 
 - Catalogs: `assets/catalog/ci-requirements.v1.json`, `assets/catalog/plugin-cache-sync.v1.json`, `assets/catalog/tech-debt-matrix.v1.json`.
-- Watcher: `scripts/plugin_cache_sync.py watch --interval-seconds 15 --timeout-seconds 1200`; local commit hook installer: `python3 scripts/local_commit_validation.py install-hook`.
+- Local environment command: `bin/bears-plugin install|update|doctor` writes generated local path config outside plugin source and refreshes installed plugin state.
+- Cache sync watcher remains autoCD-owned; local commit hook installation remains local commit validation owned.
 - Plugin workflow task commits land on `main`; PR/review/branch-dependent closeout is not a workflow authority.
 - The git `pre-commit` hook runs `python3 scripts/local_commit_validation.py run --staged` to block failing staged changes. The git `post-commit` hook runs `python3 scripts/local_commit_validation.py run --commit-sha HEAD` and writes `runtime/local-commit-validation/<commit_sha>.json` for exact-SHA proof.
 - `.github/workflows/validate.yml` runs diagnostics on `main` push. `workflow_dispatch` with `emergency_full_suite=true` remains operator-only full-suite diagnostics.
@@ -523,7 +524,7 @@ Layer split:
 
 When a plugin skill, workflow, catalog path, capability inventory, role route, validator, or manifest claim changes, sync `.codex-plugin/plugin.json`, README inventory, catalog aliases, validators, and tests in the same lifecycle stage. Superseded checks must name the active replacement validation command.
 
-Git-backed local plugin updates use `.agents/plugins/marketplace.json` from this repository. Add the marketplace with `codex plugin marketplace add git@github.com:BearsCLOUD/bears_plugin.git --ref main`, install `bears@bears-plugin`, and refresh with `codex plugin marketplace upgrade bears-plugin`. Restart Codex after upgrade. Do not rely on manual cache copy as the normal update path.
+Git-backed local plugin updates use `bin/bears-plugin update` on the server after local config is installed, or the marketplace commands from `.agents/plugins/marketplace.json` when refreshing through Codex marketplace. Restart Codex after upgrade when the process needs plugin reload. Do not rely on manual cache copy as the normal update path.
 
 When those steps are split across Codex sessions, the sessions are treated as workers rather than memory. The Bears plugin owns the lane/state/scope packet contract, while current Spec Kit artifacts remain the truth source. `/speckit-implement` is one controlled implementation lane, not a global executor.
 

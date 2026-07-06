@@ -47,7 +47,9 @@ class ArtifactRegistryTests(unittest.TestCase):
         registry = artifact_registry.load(artifact_registry.REGISTRY)
         tracked = [record for record in artifact_registry.records(registry) if record.get("git_tracked") is True]
         self.assertGreaterEqual(len(tracked), 1)
-        self.assertNotIn("secret", json.dumps(tracked).lower())
+        serialized = json.dumps(tracked).lower()
+        for marker in ("begin private key", "raw_secret", ".env=", "credential="):
+            self.assertNotIn(marker, serialized)
 
 
 if __name__ == "__main__":

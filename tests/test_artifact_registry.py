@@ -1,5 +1,7 @@
 import json
+import tempfile
 import unittest
+from pathlib import Path
 
 from scripts import artifact_registry
 
@@ -31,6 +33,22 @@ class ArtifactRegistryTests(unittest.TestCase):
         self.assertEqual(artifact_registry.check_paths(["scripts/artifact_registry.py"], registry), [])
         errors = artifact_registry.check_paths(["unregistered/new-file.txt"], registry)
         self.assertIn("missing artifact registry entry", "\n".join(errors))
+
+    def test_validate_registry_rejects_missing_exact_tracked_path(self) -> None:
+        registry = artifact_registry.load(artifact_registry.GOOD)
+        registry["records"].append(
+            artifact_registry.default_record(
+                ".mcp.json",
+                "catalog",
+                "#local-instruction-zones-mcp",
+                "bears-machine-first-execution-kernel-engineer",
+            )
+        )
+        with tempfile.TemporaryDirectory() as tmpdir:
+            path = Path(tmpdir) / "registry.json"
+            artifact_registry.write(path, registry)
+            errors = artifact_registry.validate_registry(path)
+        self.assertIn("git_tracked path has no tracked file match", "\n".join(errors))
 
     def test_runtime_path_is_rejected_when_staged(self) -> None:
         registry = artifact_registry.load(artifact_registry.REGISTRY)

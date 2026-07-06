@@ -54,6 +54,38 @@ def records(registry: dict[str, Any]) -> list[dict[str, Any]]:
     return [item for item in registry.get("records", []) if isinstance(item, dict)]
 
 
+def git_tracked_files() -> set[str]:
+    proc = subprocess.run(
+        ["git", "ls-files"],
+        cwd=str(PLUGIN_ROOT),
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        check=False,
+        timeout=30,
+        env=clean_env(),
+    )
+    if proc.returncode != 0:
+        raise RuntimeError("git tracked-file lookup failed")
+    return {normalize(line) for line in proc.stdout.splitlines() if line.strip()}
+
+
+def record_path_has_tracked_match(path: str, tracked_files: set[str]) -> bool:
+    item = normalize(path)
+    if not item:
+        return False
+    if item.endswith("/"):
+        return any(candidate.startswith(item) for candidate in tracked_files)
+    if any(char in item for char in "*?[]"):
+        return any(fnmatch.fnmatch(candidate, item) for candidate in tracked_files)
+    return item in tracked_files or any(candidate.startswith(f"{item}/") for candidate in tracked_files)
+
+
+def is_exact_record_path(path: str) -> bool:
+    item = normalize(path)
+    return bool(item) and not item.endswith("/") and not any(char in item for char in "*?[]")
+
+
 def match_record(registry: dict[str, Any], path: str) -> dict[str, Any] | None:
     target = normalize(path)
     for record in records(registry):
@@ -90,6 +122,7 @@ def record_errors(record: dict[str, Any], index: int) -> list[str]:
 def validate_registry(path: Path = REGISTRY) -> list[str]:
     registry = load(path)
     errors = validate_json_schema(registry, SCHEMA, path.name)
+    tracked_files = git_tracked_files()
     seen: set[str] = set()
     for index, record in enumerate(records(registry)):
         item = normalize(str(record.get("path", "")))
@@ -97,6 +130,12 @@ def validate_registry(path: Path = REGISTRY) -> list[str]:
             errors.append(f"records[{index}] {item}: duplicate path")
         seen.add(item)
         errors.extend(record_errors(record, index))
+        if (
+            record.get("git_tracked") is True
+            and is_exact_record_path(item)
+            and not record_path_has_tracked_match(item, tracked_files)
+        ):
+            errors.append(f"records[{index}] {item}: git_tracked path has no tracked file match")
     return errors
 
 

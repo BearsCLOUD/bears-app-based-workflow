@@ -18,6 +18,8 @@ files(
     sources=[
         "src/bears_workflow/instruction_artifacts/**/*.py",
         "docs/reference/instruction-artifacts-mcp.md",
+        "plans/instruction-artifacts-hardening-mcp.md",
+        "skills/instruction-hardening/SKILL.md",
     ],
 )
 

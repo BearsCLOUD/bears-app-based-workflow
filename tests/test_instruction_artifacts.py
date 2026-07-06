@@ -49,6 +49,117 @@ class InstructionArtifactTests(unittest.TestCase):
         self.assertEqual(packet["counts"]["returned_graphs"], 2)
         self.assertEqual(packet["next_calls"][0]["tool"], "zones")
 
+    def test_instruction_hardening_graphs_marks_missing_operator_decision(self) -> None:
+        payload = {
+            "docs": [
+                {
+                    "id": 0,
+                    "kind": "instruction",
+                    "path": "$workspace/AGENTS.md",
+                    "title": "Router",
+                    "sections": [
+                        {
+                            "heading": "Rules",
+                            "blocks": [{"rules": ["Required read AGENTS.md"], "lines": []}],
+                        }
+                    ],
+                }
+            ],
+            "graphs": [{"target": 0, "chain": [0], "dependencies": []}],
+        }
+        with patch.object(zones, "build_zones", return_value=payload):
+            packet = zones.build_instruction_hardening_graphs()
+
+        graph = packet["graphs"][0]
+        self.assertEqual(packet["schema"], "bears.instruction_hardening.graphs.v1")
+        self.assertFalse(packet["source"]["instructions_source_of_truth"])
+        self.assertEqual(graph["decision"]["status"], "missing")
+        self.assertEqual(graph["live_confirmation"]["status"], "missing")
+        self.assertEqual(graph["standardization"]["status"], "partial")
+
+    def test_instruction_hardening_graphs_exposes_decision_refutation(self) -> None:
+        payload = {
+            "docs": [
+                {
+                    "id": 0,
+                    "kind": "instruction",
+                    "path": "$workspace/AGENTS.md",
+                    "title": "Router",
+                    "sections": [
+                        {
+                            "heading": "Decision",
+                            "blocks": [
+                                {
+                                    "rules": [
+                                        "Operator decision: use MCP evidence before edits.",
+                                        "This conflicts with operator decision in a later rule.",
+                                    ],
+                                    "lines": ["Allowed inspect graph evidence."],
+                                }
+                            ],
+                        }
+                    ],
+                }
+            ],
+            "graphs": [{"target": 0, "chain": [0], "dependencies": []}],
+        }
+        with patch.object(zones, "build_zones", return_value=payload):
+            packet = zones.build_instruction_hardening_graphs()
+
+        graph = packet["graphs"][0]
+        self.assertEqual(graph["decision"]["status"], "contradicted")
+        self.assertEqual(graph["live_confirmation"]["status"], "refuted")
+        self.assertEqual(graph["decision"]["evidence_doc_ids"], [0])
+        self.assertEqual(graph["decision"]["refutable_doc_ids"], [0])
+
+    def test_instruction_hardening_graphs_uses_target_doc_as_evidence(self) -> None:
+        payload = {
+            "docs": [
+                {
+                    "id": 0,
+                    "kind": "instruction",
+                    "path": "$workspace/AGENTS.md",
+                    "title": "Router",
+                    "sections": [
+                        {
+                            "heading": "Decision",
+                            "blocks": [
+                                {
+                                    "rules": ["Operator decision: target-only graph evidence."],
+                                    "lines": ["Forbidden use scanned instructions as source of truth."],
+                                }
+                            ],
+                        }
+                    ],
+                }
+            ],
+            "graphs": [{"target": 0, "chain": [], "dependencies": []}],
+        }
+        with patch.object(zones, "build_zones", return_value=payload):
+            packet = zones.build_instruction_hardening_graphs()
+
+        graph = packet["graphs"][0]
+        self.assertEqual(graph["decision"]["status"], "present")
+        self.assertEqual(graph["live_confirmation"]["status"], "confirmed")
+        self.assertIn("graphs[].target", graph["live_confirmation"]["checked_fields"])
+
+    def test_instruction_hardening_startup_applies_response_budget(self) -> None:
+        payload = {
+            "schema": "bears.instruction_hardening.graphs.v1",
+            "source": {"scanner": "instruction_artifacts"},
+            "counts": {"docs": 4, "graphs": 4},
+            "docs": [{"id": index} for index in range(4)],
+            "graphs": [{"target": index} for index in range(4)],
+        }
+        with patch.object(zones, "build_instruction_hardening_graphs", return_value=payload):
+            packet = zones.build_instruction_hardening_startup(response_line_budget=3)
+
+        self.assertEqual(packet["schema"], "bears.instruction_hardening.startup.v1")
+        self.assertEqual(packet["response_line_budget"], 3)
+        self.assertEqual(packet["response_lines"], 3)
+        self.assertTrue(packet["truncated"])
+        self.assertEqual(packet["next_calls"][0]["tool"], "instruction_hardening_graphs")
+
     def test_build_zones_uses_codex_config_parent_as_codex_root(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
             root = Path(tmpdir) / "workspace"

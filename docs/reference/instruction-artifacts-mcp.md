@@ -11,9 +11,27 @@
 ## Public surface
 - Tool `zones_startup` returns a bounded startup packet with truncation metadata.
 - Tool `zones` returns full normalized instruction graph JSON with top-level `docs` and `graphs`.
+- Tool `instruction_hardening_startup` returns bounded instruction graph packets enriched with decision, live confirmation, and standardization evidence for `$instruction-hardening`.
+- Tool `instruction_hardening_graphs` returns the full enriched instruction-hardening packet after an explicit need for exact graph evidence.
 - The `zones` response has no top-level metadata.
 - `docs[].kind` is `instruction` or `markdown_reference`.
 - `graphs[].target`, `graphs[].chain[]`, `dependencies[].from`, and `dependencies[].to` reference existing `docs[].id` values.
+- `instruction_hardening_*` treats scanned instructions as evidence only. It never marks AGENTS, skills, contracts, docs, roles, or catalogs as operator decisions.
+
+## Instruction hardening packet
+- `source.operator_decision_priority` is `highest`.
+- `source.instructions_source_of_truth` is `false`.
+- Every `graphs[]` item includes:
+  - `decision.status`: `present`, `missing`, or `contradicted`.
+  - `decision.evidence_doc_ids`: scanned doc ids that contain operator-decision text.
+  - `decision.refutable_doc_ids`: scanned doc ids that contain explicit operator-conflict text.
+  - `live_confirmation.status`: `confirmed`, `missing`, `refuted`, or `partial`.
+  - `standardization.status`: `aligned`, `partial`, or `missing`.
+  - `standardization.policy_modes_found`, `canonical_actions_found`, and `weak_terms_found`.
+- Standardization terms come from `skills/instruction-hardening/SKILL.md` or the matching archive fields in `agents/bears-instruction-hardening-engineer.toml`.
+- If no operator decision is found, `decision.status="missing"` and `live_confirmation.status="missing"`.
+- If explicit conflict evidence is found for a scanned operator decision, `decision.status="contradicted"` and `live_confirmation.status="refuted"`.
+- Use this packet before editing Bears docs/contracts instruction refactors, AGENTS routers, skills, role TOMLs, developer-instruction prose, workflow prose, or governing plugin reference docs.
 
 ## Runtime defaults
 - `BEARS_INSTRUCTION_ROOT` selects the workspace root.
@@ -48,14 +66,20 @@ Do not print token-bearing config values.
 
 ## Startup contract
 - Default startup tool: `zones_startup`.
+- Default hardening startup tool: `instruction_hardening_startup`.
 - Default response budget: `200` JSON item lines.
 - Maximum response budget: `1000` JSON item lines.
 - Metadata fields: `schema`, `response_line_budget`, `response_lines`,
   `truncated`, `truncation_reason`, `counts`, and `next_calls`.
 - When `truncated=true`, call `zones` only after explicit need for the full
   normalized payload.
+- When `instruction_hardening_startup.truncated=true`, call
+  `instruction_hardening_graphs` only after explicit need for the full enriched
+  hardening payload.
 
 ## Compatibility
 - Root and app compatibility scripts delegate to the plugin package.
 - Query, document lookup, edit-scope packets, and refresh behavior are not
   exposed through MCP v1.
+- Existing `zones_startup` and `zones` behavior stays stable for callers that do
+  not need `$instruction-hardening` evidence.

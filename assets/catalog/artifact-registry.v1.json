@@ -7889,23 +7889,6 @@
       "allowed_writers": [
         "bears-machine-first-execution-kernel-engineer"
       ],
-      "artifact_type": "catalog",
-      "changelog_required": false,
-      "decision_ref_required": false,
-      "git_tracked": true,
-      "lifecycle": "catalog",
-      "owner_issue": "#local-instruction-zones-mcp",
-      "owner_role": "bears-machine-first-execution-kernel-engineer",
-      "path": ".mcp.json",
-      "source_of_truth_status": "canonical",
-      "validation": [
-        "python3 scripts/artifact_registry.py validate"
-      ]
-    },
-    {
-      "allowed_writers": [
-        "bears-machine-first-execution-kernel-engineer"
-      ],
       "artifact_type": "doc",
       "changelog_required": false,
       "decision_ref_required": false,
@@ -7914,6 +7897,23 @@
       "owner_issue": "#local-instruction-zones-mcp",
       "owner_role": "bears-machine-first-execution-kernel-engineer",
       "path": "docs/reference/instruction-artifacts-mcp.md",
+      "source_of_truth_status": "canonical",
+      "validation": [
+        "python3 scripts/artifact_registry.py validate"
+      ]
+    },
+    {
+      "allowed_writers": [
+        "bears-instruction-hardening-engineer"
+      ],
+      "artifact_type": "doc",
+      "changelog_required": false,
+      "decision_ref_required": false,
+      "git_tracked": true,
+      "lifecycle": "doc",
+      "owner_issue": "#instruction-artifacts-hardening-mcp",
+      "owner_role": "bears-instruction-hardening-engineer",
+      "path": "plans/instruction-artifacts-hardening-mcp.md",
       "source_of_truth_status": "canonical",
       "validation": [
         "python3 scripts/artifact_registry.py validate"

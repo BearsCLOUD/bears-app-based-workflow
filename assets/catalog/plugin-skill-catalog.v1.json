@@ -111,7 +111,7 @@
       "path": "skills/codex-telegram-operator-gate"
     },
     {
-      "description": "Harden human-readable agent instructions with semantic preservation, bypass closure, compression, and weighted rubric scoring.",
+      "description": "Harden Bears docs/contracts instruction refactors and human-readable agent instructions from instruction-artifacts MCP evidence with semantic preservation, bypass closure, compression, and weighted rubric scoring.",
       "name": "instruction-hardening",
       "path": "skills/instruction-hardening"
     }

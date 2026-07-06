@@ -414,7 +414,9 @@
       "name": "instruction-artifacts",
       "patterns": [
         "src/bears_workflow/instruction_artifacts/**",
-        "docs/reference/instruction-artifacts-mcp.md"
+        "docs/reference/instruction-artifacts-mcp.md",
+        "plans/instruction-artifacts-hardening-mcp.md",
+        "skills/instruction-hardening/SKILL.md"
       ],
       "tests": [
         "tests/test_instruction_artifacts.py",

@@ -1,6 +1,6 @@
 interface:
   display_name: "Instruction Hardening"
   short_description: "Harden agent instructions and prompts"
-  default_prompt: "Use $instruction-hardening to rewrite these agent instructions into stricter, lower-drift policy without weakening required controls."
+  default_prompt: "Use $instruction-hardening with instruction_hardening_startup MCP evidence before rewriting Bears agent instructions into stricter, lower-drift policy without weakening required controls."
 policy:
   allow_implicit_invocation: true

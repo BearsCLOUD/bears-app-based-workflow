@@ -65,12 +65,14 @@
       "App workflow orchestration",
       "Role-principle ledger",
       "Plugin-target app workflow mode",
-      "Instruction zones MCP"
+      "Instruction zones MCP",
+      "Instruction hardening MCP preflight"
     ],
     "category": "Development",
     "defaultPrompt": [
       "Run the Bears app workflow with App Target Gate, app-research when risk-gated, app-plan lane mapping, app-analyze handoff, and app-dev L2/L3 execution control.",
       "Use $subagents-roles before role, skill, subagent, plugin governance, or platform-part edits; require autoCI/local-commit-validation route/audit evidence and ledger evidence when role principles change.",
+      "Use $instruction-hardening with the `instruction_hardening_startup` MCP tool before Bears docs/contracts instruction refactors or agent instruction refactors; operator decisions outrank scanned instruction evidence.",
       "Run $app-research before app specification and again before app planning for broad, new, risky, drift-prone, workflow, runtime, integration, UI/UX, automation, plugin, infra, Kubernetes, migration, or boundary-sensitive work; require bounded research.md, prior-art.md, and ux-research.md when interface behavior is affected.",
       "Run the deterministic design artifact gate before Spec Kit plan, tasks, analyze, and implementation for workflow, orchestration, hook, roadmap, role gate, validator, runtime contract, operator/developer interaction, or UI/UX flow changes.",
       "Run the deterministic prototype/spike gate before design, Spec Kit plan, tasks, analyze, and implementation when research or design leaves unresolved high-risk uncertainty that can be cheaply tested; keep prototype output separate from durable implementation.",

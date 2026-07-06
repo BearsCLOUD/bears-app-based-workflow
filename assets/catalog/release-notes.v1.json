@@ -3,6 +3,41 @@
     {
       "affected_surfaces": [
         "instruction_artifacts_mcp",
+        "instruction_hardening_skill",
+        "artifact_registry",
+        "pants_test_graph",
+        "test_selection",
+        "release_notes"
+      ],
+      "date": "2026-07-06",
+      "files": [
+        ".codex-plugin/plugin.json",
+        "BUILD",
+        "assets/catalog/artifact-registry.v1.json",
+        "assets/catalog/pants-test-graph.v1.json",
+        "assets/catalog/plugin-skill-catalog.v1.json",
+        "assets/catalog/release-notes.v1.json",
+        "assets/catalog/test-selection.v1.json",
+        "docs/generated/README.skill-inventory.md",
+        "docs/reference/instruction-artifacts-mcp.md",
+        "plans/instruction-artifacts-hardening-mcp.md",
+        "scripts/artifact_registry.py",
+        "skills/instruction-hardening/SKILL.md",
+        "skills/instruction-hardening/agents/openai.yaml",
+        "src/bears_workflow/instruction_artifacts/application/zones.py",
+        "src/bears_workflow/instruction_artifacts/entrypoints/mcp.py",
+        "tests/test_artifact_registry.py",
+        "tests/test_instruction_artifacts.py"
+      ],
+      "impact": "Connects the instruction-artifacts MCP scanner with instruction-hardening by adding bounded and full hardening graph tools that expose operator-priority decisions, live confirmation/refutation status, and standardization evidence without treating scanned instructions as source of truth. Moves stale exact git_tracked artifact-registry path detection into the registry script.",
+      "issue_ref": "#instruction-artifacts-hardening-mcp",
+      "validation": [
+        "python3 scripts/local_commit_validation.py run --commit-sha <main_sha>"
+      ]
+    },
+    {
+      "affected_surfaces": [
+        "instruction_artifacts_mcp",
         "plugin_local_env",
         "pants_test_graph",
         "test_selection",

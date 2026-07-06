@@ -3,6 +3,31 @@
     {
       "affected_surfaces": [
         "instruction_hardening_skill",
+        "instruction_hardening_exec_runner",
+        "instruction_hardening_role",
+        "artifact_registry",
+        "release_notes"
+      ],
+      "date": "2026-07-06",
+      "files": [
+        "agents/bears-instruction-hardening-engineer.toml",
+        "assets/catalog/artifact-registry.v1.json",
+        "assets/catalog/decision-ledger.v1.json",
+        "assets/catalog/release-notes.v1.json",
+        "scripts/instruction_hardening_exec.py",
+        "skills/instruction-hardening/SKILL.md",
+        "skills/instruction-hardening/references/evaluation-rubric.md"
+      ],
+      "impact": "Codex exec instruction-hardening comparisons now require prompt-file plus role-file startup context only, isolated control cwd with target worktree added explicitly, ignored user config/rules, and result packets that record runner flags and startup context sources.",
+      "issue_ref": "#8",
+      "validation": [
+        "python3 scripts/local_commit_validation.py run --commit-sha <main_sha>",
+        "autoCI/local-commit-validation evidence for subagents role route/audit coverage"
+      ]
+    },
+    {
+      "affected_surfaces": [
+        "instruction_hardening_skill",
         "plugin_portability",
         "local_commit_validation",
         "git_hook_bootstrap",

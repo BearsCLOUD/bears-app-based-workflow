@@ -44,6 +44,19 @@ Exclude unless the operator explicitly expands scope:
 11. Run the red-team prompts from `references/evaluation-rubric.md` against the proposed policy.
 12. Return a diff candidate plus the weighted rubric score.
 
+## Codex exec live-run isolation
+
+Required for every `codex exec` row in an instruction-hardening comparison:
+
+- Startup context is exactly the assigned prompt file plus the selected role file. Only deterministic source delimiters may be added.
+- Run from an empty control cwd, not from the target checkout. Add the target isolated worktree with `--add-dir`.
+- Use `--ignore-user-config`, `--ignore-rules`, `--ephemeral`, and `--skip-git-repo-check`.
+- Record the runner flags, control cwd, target worktree, startup context source paths, and token usage in the result packet.
+- Forbidden startup context: inherited user config, project rules, auto-loaded `AGENTS.md`, skill catalog, plugin context, MCP/app context, runtime logs, session history, or copied full files.
+- If the local sandbox cannot start, retry only in the same isolated worktree with the explicit sandbox override recorded in the result packet.
+
+Use `scripts/instruction_hardening_exec.py` for governed exec rows. Do not invoke `codex exec` directly for matrix results unless the script is missing or broken and the result packet records the manual command and reason.
+
 ## Hard rules
 
 - Delivery first: provide a usable rewritten instruction or diff candidate when the user asked for a rewrite.

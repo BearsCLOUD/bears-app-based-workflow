@@ -1980,6 +1980,28 @@
       "scope_id": "operator-instruction-hardening-closeout",
       "status": "accepted",
       "unresolved_inputs": []
+    },
+    {
+      "affected_paths": [
+        "agents/bears-instruction-hardening-engineer.toml",
+        "assets/catalog/artifact-registry.v1.json",
+        "assets/catalog/decision-ledger.v1.json",
+        "assets/catalog/release-notes.v1.json",
+        "scripts/instruction_hardening_exec.py",
+        "skills/instruction-hardening/SKILL.md",
+        "skills/instruction-hardening/references/evaluation-rubric.md"
+      ],
+      "change_type": "workflow",
+      "contradictions": [],
+      "decision": "Require instruction-hardening codex exec rows to start with prompt-file plus role-file context only through an isolated exec runner.",
+      "decision_id": "D-2026-07-06-instruction-hardening-exec-isolation",
+      "owner_issue": "operator-instruction-hardening-closeout",
+      "owner_role": "bears-instruction-hardening-engineer",
+      "rationale": "Exec matrix rows were invalidly expensive when inherited config, plugin context, skills, MCP/app context, or auto-loaded instruction files entered startup context.",
+      "redaction": "safe",
+      "scope_id": "operator-instruction-hardening-closeout",
+      "status": "accepted",
+      "unresolved_inputs": []
     }
   ],
   "schema": "bears-decision-ledger.v1",

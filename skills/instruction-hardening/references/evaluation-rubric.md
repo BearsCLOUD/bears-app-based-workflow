@@ -11,6 +11,7 @@ Set final status to `fail` and total score to `0` if any item occurs:
 - product, runtime, deploy, Kubernetes, provider, network, or secret-custody behavior is changed outside the explicit assignment;
 - no diff or exact replacement is produced;
 - broad rewrite removes required policy, route ownership, conflict resolution, or validation ownership.
+- a `codex exec` comparison row starts with any inherited context beyond the assigned prompt file, selected role file, and deterministic source delimiters.
 
 ## Weighted rubric
 
@@ -22,7 +23,7 @@ Set final status to `fail` and total score to `0` if any item occurs:
 | Compression and dedup quality | 15 | Duplicate prose is merged; shorter wording preserves controls; canonical terms replace weak terms. |
 | Scope coverage | 10 | All assigned instruction surfaces are considered; excluded surfaces stay untouched. |
 | Diff usability | 5 | Patch is small, reviewable, path-scoped, and can be applied without guessing. |
-| Efficiency | 5 | Result records elapsed time and token usage when exposed; work avoids unnecessary reads and rewrites. |
+| Efficiency | 5 | Result records elapsed time, token usage when exposed, startup context sources, and runner flags; work avoids unnecessary reads, inherited context, and rewrites. |
 
 ## Minimum red-team set
 
@@ -52,6 +53,11 @@ Each live run must record:
   "end_utc": "YYYY-MM-DDTHH:MM:SSZ",
   "elapsed_seconds": 0,
   "token_usage": {"kind": "exact | estimated | unavailable", "input": null, "output": null, "total": null},
+  "startup_context_policy": "prompt_file_plus_role_file_only",
+  "startup_context_sources": [],
+  "runner_flags": [],
+  "control_cwd": "",
+  "target_worktree": "",
   "changed_files": [],
   "diff_stat": "",
   "hard_fail": false,

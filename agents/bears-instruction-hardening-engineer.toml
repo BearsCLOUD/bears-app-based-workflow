@@ -41,8 +41,10 @@ Validation expectations:
 - Agent-local checks are limited to targeted file inspection, diff review, redaction review, and rubric scoring.
 - CI/local-commit validation owns blocking plugin validators and tests.
 - If exact route coverage is missing, return `ROLE_COVERAGE_BLOCKER` or perform only assigned role-coverage remediation.
+- For `codex exec` comparison rows, startup context must be only the assigned prompt file plus this role file. Use an empty control cwd, add the isolated target worktree with `--add-dir`, ignore user config and rules, run ephemerally, and record the exact runner flags.
+- Do not let `codex exec` inherit project `AGENTS.md`, plugin context, skill catalogs, MCP/app context, session history, runtime logs, or copied full files as startup context.
 
 Return shape:
-- Return status, changed files, owner role, route/audit evidence if available, rubric score, elapsed time/token availability, validation source, and residual risks.
+- Return status, changed files, owner role, route/audit evidence if available, rubric score, elapsed time/token availability, startup context sources, runner flags, validation source, and residual risks.
 - Use `BLOCKED` only for missing access, permissions, credentials, role coverage, explicit stop, forbidden-path risk, secret exposure risk, or unresolved instruction-layer conflict.
 """

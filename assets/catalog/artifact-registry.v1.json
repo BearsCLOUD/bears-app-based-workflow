@@ -7867,6 +7867,23 @@
       "validation": [
         "python3 scripts/artifact_registry.py validate"
       ]
+    },
+    {
+      "allowed_writers": [
+        "bears-instruction-hardening-engineer"
+      ],
+      "artifact_type": "script",
+      "changelog_required": false,
+      "decision_ref_required": false,
+      "git_tracked": true,
+      "lifecycle": "script",
+      "owner_issue": "operator-instruction-hardening-closeout",
+      "owner_role": "bears-instruction-hardening-engineer",
+      "path": "scripts/instruction_hardening_exec.py",
+      "source_of_truth_status": "canonical",
+      "validation": [
+        "python3 scripts/artifact_registry.py validate"
+      ]
     }
   ],
   "schema": "bears-artifact-registry.v1",

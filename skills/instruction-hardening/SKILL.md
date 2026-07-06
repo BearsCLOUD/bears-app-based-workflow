@@ -1,5 +1,5 @@
 ---
-name: art-verify
+name: instruction-hardening
 description: Harden and compress agent instructions by converting prose into low-drift policy rules, closing bypasses, and running red-team/regression checks before token compression.
 ---
 

@@ -1,7 +1,9 @@
 # Instruction Artifacts MCP + Instruction Hardening Plan
 
 ## Objective
-Build the first minimal plugin-owned path that connects the `instruction_artifacts` MCP scanner with the `instruction-hardening` skill so agents can start refactoring instruction surfaces from MCP evidence, not from instructions-as-truth assumptions.
+Build the plugin-owned path that connects the `instruction_artifacts` MCP scanner with the `instruction-hardening` skill so agents refactor instruction surfaces from MCP evidence, not from instructions-as-truth assumptions.
+
+Phase 1 delivered the minimal MCP connection. The broader goal remains open until dependency-aware decision links, escalation candidates, bounded instruction refactors, and final critic confirmation are complete.
 
 ## Target layer
 - target_layer: plugin
@@ -29,11 +31,17 @@ Build the first minimal plugin-owned path that connects the `instruction_artifac
 11. Commit task-owned changes first; then inspect local commit validation evidence for that commit before any push.
 12. If no operator decision is found in scanned docs, each graph still gets `decision.status="missing"` and must not promote AGENTS, skills, contracts, docs, or catalogs to operator decision.
 13. If scanned evidence conflicts with an operator decision, use `decision.status="contradicted"` and `live_confirmation.status="refuted"` with refutable evidence refs.
+14. Each graph exposes decision dependency links for scanned instruction dependencies that can affect each other.
+15. Each graph exposes an `escalation_candidate` object. If a dependency points at Kubernetes, deploy, runtime, secret, CD, `local_cd`, Dagger proof, workflow policy, role policy, or cross-owner governance evidence, the graph must require higher-level owner review before refactor.
+16. Use `app-functional-graph` as workflow reference for exact refs, dependency edges, status fields, and evidence refs only. Do not treat app graph files as plugin authority.
+17. Full instruction-surface refactor starts only after Phase 2 MCP fields are present and critic-approved.
 
 ## Minimal schema
 - `decision.status`: `present`, `missing`, or `contradicted`.
 - `live_confirmation.status`: `confirmed`, `missing`, `refuted`, or `partial`.
 - `standardization.status`: `aligned`, `partial`, or `missing`.
+- `dependency_decision_refs[]`: dependency edge, source/target decision status, source/target doc path, and whether the edge carries escalation signal.
+- `escalation_candidate.status`: `required` or `not_required`.
 
 ## Minimal implementation
 - Add an application helper that enriches normalized `graphs[]` with:
@@ -56,6 +64,39 @@ Build the first minimal plugin-owned path that connects the `instruction_artifac
 - Use exact target files only.
 - Use critic confirmation before plan changes and before final completion claim.
 - Use automatic validation evidence after commit; do not run route/audit/test suites manually before commit.
+- Borrow from `app-functional-graph`: exact graph refs, dependency edges, status fields, and evidence refs. Do not store plugin work in app graph artifacts.
+
+## Phases
+
+### Phase 1: Minimal MCP connection
+- Status: complete.
+- Evidence:
+  - `instruction_hardening_startup` and `instruction_hardening_graphs` exist.
+  - Every enriched graph has `decision`, `live_confirmation`, and `standardization`.
+  - `source.instructions_source_of_truth=false`.
+  - Skill and plugin prompt route instruction refactors through the hardening MCP preflight.
+  - Commit/local-validation/push completed at `63c91c8`.
+
+### Phase 2: Decision dependencies and escalation candidates
+- Status: complete.
+- Add `dependency_decision_refs[]` to every enriched graph.
+- Add `escalation_candidate` to every enriched graph.
+- Escalation signals include Kubernetes, deploy, runtime, secret, CD, local_cd, Dagger proof, workflow policy, role policy, and cross-owner instruction evidence.
+- Add mocked graph tests for dependency decision refs and escalation status.
+- Update MCP reference docs and skill preflight text.
+
+### Phase 3: Bounded instruction-surface refactors
+- Status: pending.
+- Use `instruction_hardening_startup` before each refactor.
+- Escalate to `instruction_hardening_graphs` only for exact graph evidence or truncation.
+- Refactor only owner-approved instruction surfaces. Keep root routers short.
+- Commit each Git-tracked file change in the owning repo.
+
+### Phase 4: Final consistency confirmation
+- Status: pending.
+- Run an L3 critic with `gpt-5.5` high, no fork context.
+- Critic must verify the full objective from current files and read-only evidence, not from parent claims.
+- Only after critic approval may the goal be marked complete.
 
 ## Planned target files
 - `plans/instruction-artifacts-hardening-mcp.md`
@@ -79,11 +120,10 @@ Build the first minimal plugin-owned path that connects the `instruction_artifac
 - Catalog edits are limited to existing tracked catalogs that enumerate skill descriptions, artifact registry ownership, test selection, Pants file coverage, or release notes.
 
 ## Current status
-- draft_plan_created: true
-- critic_review: changes_required_applied
-- artifact_registry_plan_change_review: approved
-- implementation: complete
-- closeout_critic_review: changes_required_applied
-- validation: complete/pass through local commit validation
-- commit_push: complete/pushed to origin/main
-- plugin_update: complete/ok
+- phase_1_minimal_mcp_connection: complete
+- phase_2_decision_dependencies_escalation: complete
+- phase_3_bounded_instruction_refactors: pending
+- phase_4_final_consistency_critic: pending
+- latest_plan_change_critic: approved by no-fork `gpt-5.5` high critic `019f3976-7920-7433-a6b4-70eae4653d7e`
+- latest_phase_2_critic: approved by no-fork `gpt-5.5` high critic `019f397a-e75d-7192-8cd9-b37cce31419f`
+- full_goal_complete: false

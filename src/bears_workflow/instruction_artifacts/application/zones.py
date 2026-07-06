@@ -35,6 +35,25 @@ OPERATOR_CONTRADICTION_TERMS = (
     "operator decision conflict",
     "against operator decision",
 )
+ESCALATION_SIGNAL_TERMS = (
+    "kubernetes",
+    "deploy",
+    "deployment",
+    "runtime",
+    "secret",
+    "secrets",
+    "credential",
+    "credentials",
+    "cd",
+    "local_cd",
+    "dagger",
+    "proof",
+    "workflow policy",
+    "role policy",
+    "git/cd",
+    "cross-owner",
+    "cross owner",
+)
 FALLBACK_POLICY_MODES = ["Allowed", "Forbidden", "Required", "Ask", "Escalate", "Conflict"]
 FALLBACK_CANONICAL_ACTIONS = [
     "read",
@@ -208,6 +227,68 @@ def _graph_doc_ids(graph: dict[str, Any]) -> list[int]:
     return sorted(doc_ids)
 
 
+def _dependency_decision_refs(
+    graph: dict[str, Any],
+    docs_by_id: dict[int, dict[str, Any]],
+    doc_texts: dict[int, str],
+) -> list[dict[str, Any]]:
+    refs: list[dict[str, Any]] = []
+    for dependency in graph.get("dependencies", []):
+        if not isinstance(dependency, dict):
+            continue
+        source_id = dependency.get("from")
+        target_id = dependency.get("to")
+        if not isinstance(source_id, int) or not isinstance(target_id, int):
+            continue
+        source_doc = docs_by_id.get(source_id, {})
+        target_doc = docs_by_id.get(target_id, {})
+        source_decision = _decision_for_graph([source_id], doc_texts)
+        target_decision = _decision_for_graph([target_id], doc_texts)
+        source_text = doc_texts.get(source_id, "")
+        target_text = doc_texts.get(target_id, "")
+        combined_text = f"{source_doc.get('path', '')}\n{target_doc.get('path', '')}\n{source_text}\n{target_text}".lower()
+        escalation_signal_terms = [
+            term for term in ESCALATION_SIGNAL_TERMS if term in combined_text
+        ]
+        refs.append(
+            {
+                "from_doc_id": source_id,
+                "to_doc_id": target_id,
+                "type": dependency.get("type", "unknown"),
+                "from_path": source_doc.get("path"),
+                "to_path": target_doc.get("path"),
+                "from_decision_status": source_decision["status"],
+                "to_decision_status": target_decision["status"],
+                "escalation_signal": bool(escalation_signal_terms),
+                "escalation_signal_terms": escalation_signal_terms,
+            }
+        )
+    return refs
+
+
+def _escalation_candidate(dependency_refs: list[dict[str, Any]]) -> dict[str, Any]:
+    signaled_refs = [
+        ref
+        for ref in dependency_refs
+        if ref.get("escalation_signal") or ref.get("to_decision_status") == "contradicted"
+    ]
+    if signaled_refs:
+        status = "required"
+        reason = "dependency_requires_higher_level_owner_review"
+    else:
+        status = "not_required"
+        reason = "no_dependency_escalation_signal_found"
+    return {
+        "status": status,
+        "reason": reason,
+        "owner_review": "higher_level_instruction_owner" if signaled_refs else None,
+        "evidence_dependency_refs": [
+            {"from_doc_id": ref["from_doc_id"], "to_doc_id": ref["to_doc_id"]}
+            for ref in signaled_refs
+        ],
+    }
+
+
 def _decision_for_graph(graph_doc_ids: list[int], doc_texts: dict[int, str]) -> dict[str, Any]:
     decision_evidence: list[int] = []
     contradiction_evidence: list[int] = []
@@ -320,6 +401,11 @@ def _enrich_graphs_for_instruction_hardening(
         for doc in docs
         if isinstance(doc, dict) and isinstance(doc.get("id"), int)
     }
+    docs_by_id = {
+        doc["id"]: doc
+        for doc in docs
+        if isinstance(doc, dict) and isinstance(doc.get("id"), int)
+    }
     grammar = _instruction_hardening_grammar()
     enriched_graphs: list[dict[str, Any]] = []
     for graph in graphs:
@@ -335,6 +421,9 @@ def _enrich_graphs_for_instruction_hardening(
             doc_texts,
             grammar,
         )
+        dependency_refs = _dependency_decision_refs(graph, docs_by_id, doc_texts)
+        enriched["dependency_decision_refs"] = dependency_refs
+        enriched["escalation_candidate"] = _escalation_candidate(dependency_refs)
         enriched_graphs.append(enriched)
     return enriched_graphs
 

@@ -28,9 +28,12 @@
   - `live_confirmation.status`: `confirmed`, `missing`, `refuted`, or `partial`.
   - `standardization.status`: `aligned`, `partial`, or `missing`.
   - `standardization.policy_modes_found`, `canonical_actions_found`, and `weak_terms_found`.
+  - `dependency_decision_refs[]`: scanned dependency edges with source/target doc ids, paths, decision statuses, dependency type, and escalation signal terms.
+  - `escalation_candidate.status`: `required` or `not_required`.
 - Standardization terms come from `skills/instruction-hardening/SKILL.md` or the matching archive fields in `agents/bears-instruction-hardening-engineer.toml`.
 - If no operator decision is found, `decision.status="missing"` and `live_confirmation.status="missing"`.
 - If explicit conflict evidence is found for a scanned operator decision, `decision.status="contradicted"` and `live_confirmation.status="refuted"`.
+- If a dependency points at Kubernetes, deploy, runtime, secret, CD, Dagger proof, workflow policy, role policy, or cross-owner governance evidence, `escalation_candidate.status="required"` so refactor work moves to the higher-level instruction owner.
 - Use this packet before editing Bears docs/contracts instruction refactors, AGENTS routers, skills, role TOMLs, developer-instruction prose, workflow prose, or governing plugin reference docs.
 
 ## Runtime defaults

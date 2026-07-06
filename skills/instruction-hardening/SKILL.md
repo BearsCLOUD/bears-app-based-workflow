@@ -18,7 +18,7 @@ Required: preserve operator decisions as the highest-priority decision source.
 Ask: call instruction_hardening_graphs only when the startup packet is truncated or exact graph evidence is needed.
 ```
 
-Each graph must expose `decision`, `live_confirmation`, and `standardization` before refactoring starts. If `decision.status` is `missing` or `contradicted`, report that gap instead of promoting AGENTS, skills, contracts, docs, roles, or catalogs to operator decision.
+Each graph must expose `decision`, `live_confirmation`, `standardization`, `dependency_decision_refs`, and `escalation_candidate` before refactoring starts. If `decision.status` is `missing` or `contradicted`, report that gap instead of promoting AGENTS, skills, contracts, docs, roles, or catalogs to operator decision. If `escalation_candidate.status` is `required`, move the refactor to the higher-level instruction owner before editing.
 
 ## Agent mission
 Turn prose instructions into deterministic policy language:

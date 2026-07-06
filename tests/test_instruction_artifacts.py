@@ -142,6 +142,118 @@ class InstructionArtifactTests(unittest.TestCase):
         self.assertEqual(graph["decision"]["status"], "present")
         self.assertEqual(graph["live_confirmation"]["status"], "confirmed")
         self.assertIn("graphs[].target", graph["live_confirmation"]["checked_fields"])
+        self.assertEqual(graph["dependency_decision_refs"], [])
+        self.assertEqual(graph["escalation_candidate"]["status"], "not_required")
+
+    def test_instruction_hardening_graphs_links_dependency_decisions(self) -> None:
+        payload = {
+            "docs": [
+                {
+                    "id": 0,
+                    "kind": "instruction",
+                    "path": "$workspace/AGENTS.md",
+                    "title": "Router",
+                    "sections": [
+                        {
+                            "heading": "Decision",
+                            "blocks": [
+                                {
+                                    "rules": ["Operator decision: route instruction edits through MCP."],
+                                    "lines": ["Required inspect linked docs."],
+                                }
+                            ],
+                        }
+                    ],
+                },
+                {
+                    "id": 1,
+                    "kind": "markdown_reference",
+                    "path": "$workspace/contracts/instruction-policy.md",
+                    "title": "Policy",
+                    "sections": [
+                        {
+                            "heading": "Rules",
+                            "blocks": [{"rules": ["Required preserve operator scope."], "lines": []}],
+                        }
+                    ],
+                },
+            ],
+            "graphs": [
+                {
+                    "target": 0,
+                    "chain": [0],
+                    "dependencies": [{"from": 0, "to": 1, "type": "markdown_reference"}],
+                }
+            ],
+        }
+        with patch.object(zones, "build_zones", return_value=payload):
+            packet = zones.build_instruction_hardening_graphs()
+
+        graph = packet["graphs"][0]
+        dependency_ref = graph["dependency_decision_refs"][0]
+        self.assertEqual(dependency_ref["from_doc_id"], 0)
+        self.assertEqual(dependency_ref["to_doc_id"], 1)
+        self.assertEqual(dependency_ref["from_decision_status"], "present")
+        self.assertEqual(dependency_ref["to_decision_status"], "missing")
+        self.assertFalse(dependency_ref["escalation_signal"])
+        self.assertEqual(graph["escalation_candidate"]["status"], "not_required")
+
+    def test_instruction_hardening_graphs_marks_escalation_candidate(self) -> None:
+        payload = {
+            "docs": [
+                {
+                    "id": 0,
+                    "kind": "instruction",
+                    "path": "$workspace/AGENTS.md",
+                    "title": "Router",
+                    "sections": [
+                        {
+                            "heading": "Decision",
+                            "blocks": [
+                                {
+                                    "rules": ["Operator decision: keep deploy rules higher level."],
+                                    "lines": ["Required inspect dependency edges."],
+                                }
+                            ],
+                        }
+                    ],
+                },
+                {
+                    "id": 1,
+                    "kind": "markdown_reference",
+                    "path": "$workspace/kubernetes/AGENTS.md",
+                    "title": "Kubernetes",
+                    "sections": [
+                        {
+                            "heading": "Rules",
+                            "blocks": [
+                                {
+                                    "rules": ["Required Kubernetes deploy policy owner review."],
+                                    "lines": [],
+                                }
+                            ],
+                        }
+                    ],
+                },
+            ],
+            "graphs": [
+                {
+                    "target": 0,
+                    "chain": [0],
+                    "dependencies": [{"from": 0, "to": 1, "type": "markdown_reference"}],
+                }
+            ],
+        }
+        with patch.object(zones, "build_zones", return_value=payload):
+            packet = zones.build_instruction_hardening_graphs()
+
+        graph = packet["graphs"][0]
+        self.assertTrue(graph["dependency_decision_refs"][0]["escalation_signal"])
+        self.assertEqual(graph["escalation_candidate"]["status"], "required")
+        self.assertEqual(
+            graph["escalation_candidate"]["evidence_dependency_refs"],
+            [{"from_doc_id": 0, "to_doc_id": 1}],
+        )
 
     def test_instruction_hardening_startup_applies_response_budget(self) -> None:
         payload = {

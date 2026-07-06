@@ -75,7 +75,7 @@ class InstructionArtifactTests(unittest.TestCase):
         self.assertFalse(packet["source"]["instructions_source_of_truth"])
         self.assertEqual(graph["decision"]["status"], "missing")
         self.assertEqual(graph["live_confirmation"]["status"], "missing")
-        self.assertEqual(graph["standardization"]["status"], "partial")
+        self.assertEqual(graph["standardization"]["status"], "aligned")
 
     def test_instruction_hardening_graphs_exposes_decision_refutation(self) -> None:
         payload = {

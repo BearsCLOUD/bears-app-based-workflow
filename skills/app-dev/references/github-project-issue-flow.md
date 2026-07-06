@@ -19,11 +19,15 @@ metadata_mutation=<none|project-status-authorized|notification-authorized>
 
 1. Load `docs/app-functional-graph.v1.json`.
 2. Load `docs/app-task-ledger.v1.json`.
-3. Run `$app-functional-graph` validation before wave grouping.
+3. Require `$app-functional-graph` evidence before wave grouping; validator
+   execution belongs to `autoCI` or local commit validation unless the operator
+   names the exact command in the current turn.
 4. Select dependency-ready ledger tasks with `status=ready`.
 5. Confirm every selected task has `functionality_refs`, `graph_node_refs`, owner role, lane, allowed paths, status matrix, and evidence expectations.
 6. Resolve the canonical owner repo and local checkout path.
-7. Run route/audit for every target path.
+7. Record expected route/audit owner coverage for every target path; route/audit
+   execution belongs to `autoCI` or local commit validation unless the operator
+   names the exact command in the current turn.
 8. Split the task when repo boundary, role, write scope, proof path, deploy/runtime boundary, functionality ref, or graph node ref differs.
 9. Generate one L3 `/goal` packet per split.
 10. Dispatch L3 workers.

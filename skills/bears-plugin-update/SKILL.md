@@ -21,7 +21,9 @@ Proceed with this skill only for `central_plugin_config` facts. Route `target_ag
 
 1. Load `plugin-update.config.v1.json`.
 2. Classify each changed fact into exactly one owner surface.
-3. Run route/audit ownership discovery for each exact changed path.
+3. Record expected route/audit ownership for each exact changed path from
+   catalog and current-file evidence. Do not run route/audit manually unless
+   the operator names the exact command in the current turn.
 4. When a configured trigger path changes and no configured exemption matches, perform sequential audit-review before implementation edits.
 5. Build the audit manifest from git-tracked files plus untracked-unignored files under the plugin root, sorted by path.
 6. Classify manifest entries as `text_file`, `generated_file`, `directory`, or `binary_or_non_text`.

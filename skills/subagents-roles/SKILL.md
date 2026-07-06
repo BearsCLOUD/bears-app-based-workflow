@@ -1,6 +1,6 @@
 ---
 name: subagents-roles
-description: "Use before @Bears role, skill, subagent, plugin governance, compatibility routing, platform, app-zone, deploy, runtime, migration, or handoff work to run route/audit and maintain role-principle coverage."
+description: "Use before @Bears role, skill, subagent, plugin governance, compatibility routing, platform, app-zone, deploy, runtime, migration, or handoff work to record expected owner-role coverage and maintain role-principle coverage."
 ---
 
 # Subagents Roles Governance
@@ -12,14 +12,11 @@ This skill owns @Bears role routing, subagent-role coverage, role-principle ledg
 ## Workflow
 
 1. Read `/srv/bears/plugins/bears/AGENTS.md`, `assets/catalog/platform-role-catalog.v1.json`, `assets/catalog/role-gate-methodology.v1.json`, and the target router.
-2. Route the requested target:
-   - `python3 /srv/bears/plugins/bears/scripts/subagents_roles.py route <target>`
-3. Audit the same target before implementation handoff:
-   - `python3 /srv/bears/plugins/bears/scripts/subagents_roles.py audit <target>`
-4. When role principles or role profiles change, refresh and audit the ledger:
-   - `python3 /srv/bears/plugins/bears/scripts/subagents_roles.py ledger-refresh`
-   - `python3 /srv/bears/plugins/bears/scripts/subagents_roles.py ledger-audit`
-5. Use the returned primary specialist or helper role and keep writes inside its allowed scope.
+2. Record the expected owner role from the catalog and current file evidence.
+3. Do not run route, audit, ledger-refresh, or ledger-audit commands manually
+   unless the operator names the exact command in the current turn.
+4. Leave route/audit and ledger proof to `autoCI` or local commit validation.
+5. Use the expected primary specialist or helper role and keep writes inside its allowed scope.
 6. Preserve shared spine order: `auth_core -> bears_gateway -> cd_deploy_stage`.
 7. Record missing role coverage as exact role/profile/catalog/ledger work with an issue ref when it cannot be completed in the current change.
 

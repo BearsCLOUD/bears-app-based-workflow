@@ -11,8 +11,8 @@ Active skills expose `SKILL.md` and are discoverable by the plugin loader.
 - `skills/bears-deploy-gate` — Assess plugin/non-app deploy, rollback, runtime, and secret impact without acting as an app workflow gate.
 - `skills/bears-goal-prompt` — Generate bounded and verifiable Codex goal prompts for Bears work.
 - `skills/bears-codex-health` — Diagnose Codex desktop/app-server freezes, MCP fan-out, session growth, and safe evidence-first remediation planning.
-- `skills/bears-plugin-update` — Govern @Bears plugin updates through skill-local config, route/audit ownership discovery, sequential audit-review packets, and generated inventory sync.
-- `skills/subagents-roles` — Govern @Bears subagents-roles route/audit coverage, role-principle ledger, and role-safe subagent coordination.
+- `skills/bears-plugin-update` — Govern @Bears plugin updates through skill-local config, expected route/audit ownership, sequential audit-review packets, and generated inventory sync.
+- `skills/subagents-roles` — Govern @Bears subagents-roles expected owner-role coverage, autoCI route/audit proof, role-principle ledger, and role-safe subagent coordination.
 - `skills/bears-agents` — Govern @Bears role lifecycle, role coverage gaps, role TOML updates, and registration drift.
 - `skills/python-codeflow` — Independent reusable L3-local Python standard for bounded Python worker tasks.
 - `skills/secret-factory` — Govern write-only local secret generation and Infisical creation with provider handoff refusals.

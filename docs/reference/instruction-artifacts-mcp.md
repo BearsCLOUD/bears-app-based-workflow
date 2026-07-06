@@ -16,7 +16,9 @@
 - The `zones` response has no top-level metadata.
 - `docs[].kind` is `instruction` or `markdown_reference`.
 - `graphs[].target`, `graphs[].chain[]`, `dependencies[].from`, and `dependencies[].to` reference existing `docs[].id` values.
-- `instruction_hardening_*` treats scanned instructions as evidence only. It never marks AGENTS, skills, contracts, docs, roles, or catalogs as operator decisions.
+- `instruction_hardening_*` treats scanned instructions as evidence only. It
+  never marks AGENTS, skills, contracts, docs, roles, or catalogs as operator
+  decisions.
 - Scanned text may locate decision gaps, contradiction signals, dependency edges,
   and escalation needs. It cannot establish operator-decision authority.
 
@@ -24,8 +26,8 @@
 - `source.operator_decision_priority` is `highest`.
 - `source.instructions_source_of_truth` is `false`.
 - Every `graphs[]` item includes:
-  - `decision.status`: currently `missing` unless a future explicit
-    operator-decision source is allowlisted.
+  - `decision.status`: `missing` when no explicit non-instruction
+    operator-decision source is attached.
   - `decision.allowed_authoritative_sources`: explicit operator-decision source
     kinds accepted by the scanner. The current list is empty.
   - `decision.evidence_only_doc_ids` and `decision.mention_doc_ids`: scanned doc
@@ -38,11 +40,18 @@
   - `dependency_decision_refs[]`: scanned dependency edges with source/target doc ids, paths, decision statuses, dependency type, and escalation signal terms.
   - `escalation_candidate.status`: `required` or `not_required`.
 - Standardization terms come from `skills/instruction-hardening/SKILL.md` or the matching archive fields in `agents/bears-instruction-hardening-engineer.toml`.
-- If no allowlisted operator decision is found, `decision.status="missing"` and
-  `live_confirmation.status="missing"`.
+- If no explicit non-instruction operator decision is attached,
+  `decision.status="missing"` and `live_confirmation.status="missing"`.
 - If scanned conflict evidence is found, `decision.status` remains `missing` and
   `live_confirmation.status="refuted"`.
-- If a dependency points at Kubernetes, deploy, runtime, secret, CD, Dagger proof, workflow policy, role policy, or cross-owner governance evidence, `escalation_candidate.status="required"` so refactor work moves to the higher-level instruction owner.
+- `decision.status="missing"` blocks adding or promoting operator authority from
+  scanned text. It does not block mechanical compression, duplicate removal, or
+  wording cuts that keep the same owner and do not create new authority.
+- If a dependency points at Kubernetes, deploy, runtime, secret, CD, Dagger
+  proof, workflow policy, role policy, or cross-owner governance evidence,
+  `escalation_candidate.status="required"`. This blocks dependency-owned edits.
+  It does not block edits inside the current owner surface that keep the
+  dependency rule routed to its owner.
 - Use this packet before editing Bears docs/contracts instruction refactors, AGENTS routers, skills, role TOMLs, developer-instruction prose, workflow prose, or governing plugin reference docs.
 
 ## Runtime defaults

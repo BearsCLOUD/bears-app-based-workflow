@@ -58,11 +58,11 @@ Exact absolute `/srv/bears/plugins/bears` means the parent `/srv/bears` gitlink 
 
 `assets/catalog/plugin-governance-language-policy.v1.json` is the hard language and wording policy for this plugin. Artifacts and subagent messages must use English only. Wording must stay strict, concise, and entity-bound. Do not use generic `deploy` when the entity is `local_cd` or `kubernetes_deployment`. Do not add sample, example, or illustrative sections.
 
-`assets/catalog/platform-role-catalog.v1.json` is the role-principle governance gate for this plugin. Run `scripts/subagents_roles.py validate` for catalog, doc, README, manifest, and tests coverage. Run `scripts/subagents_roles.py ledger-audit` for a change packet. The gate fails closed when required fields are missing or `status` is not `pass`, `fail`, or `needs-redesign`.
+`assets/catalog/platform-role-catalog.v1.json` is the role-principle governance gate for this plugin. `autoCI` or local commit validation runs `scripts/subagents_roles.py validate` for catalog, doc, README, manifest, and tests coverage, and `scripts/subagents_roles.py ledger-audit` for a change packet. Agents must not run those commands manually unless the operator names the exact command in the current turn. The gate fails closed when required fields are missing or `status` is not `pass`, `fail`, or `needs-redesign`.
 
 Repo-proof validation is deterministic and repo-only. It scans the configured governance artifacts and policy docs. It does not claim live runtime chat proof.
 
-Executable lifecycle authority: `assets/catalog/agent-workflow-map.v1.json`. Validate it with `python3 scripts/agent_workflow_map.py validate` after workflow-map, lifecycle, gate, state-binding, or workflow documentation changes. The map defines the lifecycle order, `global_review` / `fix_wave` loop, blocking gates, worker-state paths, and hook automation policy.
+Executable lifecycle authority: `assets/catalog/agent-workflow-map.v1.json`. `autoCI` or local commit validation validates it after workflow-map, lifecycle, gate, state-binding, or workflow documentation changes. Agents must not run the validator manually unless the operator names the exact command in the current turn. The map defines the lifecycle order, `global_review` / `fix_wave` loop, blocking gates, worker-state paths, and hook automation policy.
 
 The executable map preserves the constitution sequence: route gate -> subagents-roles gate -> research gate.
 
@@ -94,7 +94,7 @@ Constitution checklist:
 - Restricted-data reads and output are absent.
 - Catalog, validator, README inventory, manifest, capability inventory, docs, and tests stay synchronized.
 
-Validation entrypoints:
+Validation entrypoints owned by `autoCI` or local commit validation:
 
 - `python3 scripts/subagents_roles.py validate`
 - `python3 scripts/subagents_roles.py ledger-audit`
@@ -331,7 +331,7 @@ Sentry runtime-plugin governance is exact:
 
 The first debug workflow is the ordered spine `auth_core -> bears_gateway -> cd_deploy_stage`; Telegram/Aiogram workflow stays last unless the operator explicitly narrows the task to Telegram.
 
-The spine has a strict readiness packet at `assets/catalog/auth-gateway-deploy-readiness.v1.json`. Validate packet shape with `python3 scripts/auth_gateway_deploy_readiness.py validate`. The optional file-backed validator `python3 scripts/auth_gateway_deploy_readiness.py --check-files validate` stays available for future enforcement after the root registry and neutral platform subtree are durable.
+The spine has a strict readiness packet at `assets/catalog/auth-gateway-deploy-readiness.v1.json`. `autoCI` or local commit validation owns `python3 scripts/auth_gateway_deploy_readiness.py validate`. The optional file-backed validator `python3 scripts/auth_gateway_deploy_readiness.py --check-files validate` stays available for future enforcement after the root registry and neutral platform subtree are durable. Agents must not run those commands manually unless the operator names the exact command in the current turn.
 
 The spine required inputs route to neutral `/srv/bears/dev/platform/src/bears_platform/{auth,gateway,deploy}` paths. Seller paths are allowed only as tenant legacy source, route-pack evidence, or test fixture.
 
@@ -472,7 +472,7 @@ Local commit validation owns blocking closeout proof for this surface through `s
 
 ## Skill inventory
 
-Single source of truth: `assets/catalog/plugin-skill-catalog.v1.json`. Generated fragments: `docs/generated/README.skill-inventory.md` and `docs/generated/SPEC.skill-inventory.md`. Validate with `python3 scripts/skill_catalog.py validate` and check generated output with `python3 scripts/skill_catalog.py generate --check`.
+Single source of truth: `assets/catalog/plugin-skill-catalog.v1.json`. Generated fragments: `docs/generated/README.skill-inventory.md` and `docs/generated/SPEC.skill-inventory.md`. `autoCI` or local commit validation owns `python3 scripts/skill_catalog.py validate` and `python3 scripts/skill_catalog.py generate --check`. Agents must not run those commands manually unless the operator names the exact command in the current turn.
 
 Do not maintain a second manual skill list in this README. Use the generated block below for reader-facing discovery.
 
@@ -512,7 +512,7 @@ permissions:
 
 ## Workflow authority
 
-`assets/catalog/agent-workflow-map.v1.json` is the primary executable process authority for lifecycle order, transitions, review gates, state bindings, dirty triage, worker state files, hook automation policy, subagent waves, and role/stage compatibility. Validate it with `python3 scripts/agent_workflow_map.py validate`.
+`assets/catalog/agent-workflow-map.v1.json` is the primary executable process authority for lifecycle order, transitions, review gates, state bindings, dirty triage, worker state files, hook automation policy, subagent waves, and role/stage compatibility. `autoCI` or local commit validation owns `python3 scripts/agent_workflow_map.py validate`; agents must not run it manually unless the operator names the exact command in the current turn.
 
 The `specify`, `checklist`, `plan`, `tasks`, `analyze`, and `implement` steps are upstream Spec Kit core steps and must resolve from `/srv/bears/.agents/skills`, not from this plugin or a deprecated standalone `bears-speckit` layer. Generated `.specify` files store local Spec Kit scripts, templates, workflow registry, integration metadata, and constitution; they are ignored and must not become plugin source.
 
@@ -546,8 +546,8 @@ Active skills expose `SKILL.md` and are discoverable by the plugin loader.
 - `skills/bears-deploy-gate` — Assess plugin/non-app deploy, rollback, runtime, and secret impact without acting as an app workflow gate.
 - `skills/bears-goal-prompt` — Generate bounded and verifiable Codex goal prompts for Bears work.
 - `skills/bears-codex-health` — Diagnose Codex desktop/app-server freezes, MCP fan-out, session growth, and safe evidence-first remediation planning.
-- `skills/bears-plugin-update` — Govern @Bears plugin updates through skill-local config, route/audit ownership discovery, sequential audit-review packets, and generated inventory sync.
-- `skills/subagents-roles` — Govern @Bears subagents-roles route/audit coverage, role-principle ledger, and role-safe subagent coordination.
+- `skills/bears-plugin-update` — Govern @Bears plugin updates through skill-local config, expected route/audit ownership, sequential audit-review packets, and generated inventory sync.
+- `skills/subagents-roles` — Govern @Bears subagents-roles expected owner-role coverage, autoCI route/audit proof, role-principle ledger, and role-safe subagent coordination.
 - `skills/bears-agents` — Govern @Bears role lifecycle, role coverage gaps, role TOML updates, and registration drift.
 - `skills/python-codeflow` — Independent reusable L3-local Python standard for bounded Python worker tasks.
 - `skills/secret-factory` — Govern write-only local secret generation and Infisical creation with provider handoff refusals.

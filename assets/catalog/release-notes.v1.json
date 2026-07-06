@@ -20,18 +20,23 @@
         "assets/catalog/test-selection.v1.json",
         "README.md",
         "docs/generated/README.skill-inventory.md",
+        "docs/reference/agent-workflow-map.md",
         "docs/reference/instruction-artifacts-mcp.md",
+        "docs/reference/subagents-roles.md",
         "plans/instruction-artifacts-hardening-mcp.md",
+        "skills/app-dev/references/github-project-issue-flow.md",
         "scripts/artifact_registry.py",
         "scripts/instruction_hardening_mcp_packet.py",
+        "skills/bears-plugin-update/SKILL.md",
         "skills/instruction-hardening/SKILL.md",
         "skills/instruction-hardening/agents/openai.yaml",
+        "skills/subagents-roles/SKILL.md",
         "src/bears_workflow/instruction_artifacts/application/zones.py",
         "src/bears_workflow/instruction_artifacts/entrypoints/mcp.py",
         "tests/test_artifact_registry.py",
         "tests/test_instruction_artifacts.py"
       ],
-      "impact": "Connects the instruction-artifacts MCP scanner with instruction-hardening by adding bounded and full hardening graph tools plus a read-only stdio fallback helper that expose operator-priority decisions, live confirmation/refutation status, standardization evidence, dependency decision refs, and escalation candidates without treating scanned instructions as source of truth. Moves stale exact git_tracked artifact-registry path detection into the registry script.",
+      "impact": "Connects the instruction-artifacts MCP scanner with instruction-hardening by adding bounded and full hardening graph tools plus a read-only stdio fallback helper that expose operator-priority decisions, live confirmation/refutation status, standardization evidence, dependency decision refs, and escalation candidates without treating scanned instructions as source of truth. Allows same-owner wording cuts when decisions are missing while keeping authority claims and dependency-owned edits blocked, removes manual route/audit and validator command wording from agent-facing plugin docs and skills, and moves stale exact git_tracked artifact-registry path detection into the registry script.",
       "issue_ref": "#8",
       "validation": [
         "python3 scripts/local_commit_validation.py run --commit-sha <main_sha>"
@@ -1643,6 +1648,6 @@
   ],
   "exemptions": [],
   "schema": "bears-release-notes.v1",
-  "updated": "2026-07-05",
+  "updated": "2026-07-06",
   "version": "1"
 }

@@ -30,7 +30,7 @@ route/audit substitute, or runtime proof. It must call the MCP stdio protocol,
 not scanner internals, and must emit bounded JSON without secrets, env values,
 raw logs, or production data.
 
-Each graph must expose `decision`, `live_confirmation`, `standardization`, `dependency_decision_refs`, and `escalation_candidate` before refactoring starts. Scanned AGENTS, skills, contracts, docs, roles, and catalogs may locate gaps, contradictions, dependencies, and escalation needs; they cannot establish operator-decision authority. If `decision.status` is `missing` or `live_confirmation.status` is `refuted`, report the gap instead of promoting scanned text to operator decision. If `escalation_candidate.status` is `required`, move the refactor to the higher-level instruction owner before editing.
+Each graph must expose `decision`, `live_confirmation`, `standardization`, `dependency_decision_refs`, and `escalation_candidate` before refactoring starts. Scanned AGENTS, skills, contracts, docs, roles, and catalogs may locate gaps, contradictions, dependencies, and escalation needs; they cannot establish operator-decision authority. If `decision.status` is `missing`, do not add or promote operator authority from scanned text; mechanical compression, duplicate removal, and same-owner wording cuts may continue. If `live_confirmation.status` is `refuted`, report the conflict before semantic edits. If `escalation_candidate.status` is `required`, limit edits to the current owner surface and route dependency-owned rules to the higher owner before changing them.
 
 ## Agent mission
 Turn prose instructions into deterministic policy language:

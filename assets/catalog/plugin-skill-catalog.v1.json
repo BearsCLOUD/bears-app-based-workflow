@@ -21,12 +21,12 @@
       "path": "skills/bears-codex-health"
     },
     {
-      "description": "Govern @Bears plugin updates through skill-local config, route/audit ownership discovery, sequential audit-review packets, and generated inventory sync.",
+      "description": "Govern @Bears plugin updates through skill-local config, expected route/audit ownership, sequential audit-review packets, and generated inventory sync.",
       "name": "bears-plugin-update",
       "path": "skills/bears-plugin-update"
     },
     {
-      "description": "Govern @Bears subagents-roles route/audit coverage, role-principle ledger, and role-safe subagent coordination.",
+      "description": "Govern @Bears subagents-roles expected owner-role coverage, autoCI route/audit proof, role-principle ledger, and role-safe subagent coordination.",
       "name": "subagents-roles",
       "path": "skills/subagents-roles"
     },

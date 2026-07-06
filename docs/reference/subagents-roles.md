@@ -9,6 +9,10 @@ Canonical executable owner:
 - `scripts/subagents_roles.py ledger-audit`
 - `scripts/subagents_roles.py ledger-summary`
 
+Manual execution is forbidden unless the operator names the exact command in the
+current turn. `autoCI` or local commit validation owns route/audit and ledger
+proof for normal agent work.
+
 Tracked evidence:
 - `docs/audits/subagents-roles/role-principle-ledger.v1.json`
 

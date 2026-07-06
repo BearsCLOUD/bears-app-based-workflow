@@ -86,11 +86,20 @@ Phase 1 delivered the minimal MCP connection. The broader goal remains open unti
 - Update MCP reference docs and skill preflight text.
 
 ### Phase 3: Bounded instruction-surface refactors
-- Status: pending.
-- Use `instruction_hardening_startup` before each refactor.
-- Escalate to `instruction_hardening_graphs` only for exact graph evidence or truncation.
-- Refactor only owner-approved instruction surfaces. Keep root routers short.
-- Commit each Git-tracked file change in the owning repo.
+- Status: blocked_on_current_mcp_packet.
+- Phase 3 completion is per wave only. The full goal stays open until Phase 4 critic approval.
+- Each wave must cite current `instruction_hardening_startup` or `instruction_hardening_graphs` evidence. If the current Codex toolset cannot call the MCP, record `tool_gap` and stop before any Phase 3 completion claim.
+- Wave 3A: plugin-owned instruction hardening surfaces only:
+  - `plans/instruction-artifacts-hardening-mcp.md`
+  - `docs/reference/instruction-artifacts-mcp.md`
+  - `skills/instruction-hardening/SKILL.md`
+  - `agents/bears-instruction-hardening-engineer.toml` only if needed.
+- Wave 3A action: compress wording, remove test/validator PASS logic from instruction logic, keep operator decision priority, and keep MCP evidence fields.
+- Wave 3B: root/workspace `AGENTS.md` and plugin `AGENTS.md` only when MCP evidence says no escalation is required or the higher-level owner is explicit. Use a separate root commit for root-owned changes.
+- Wave 3C: remaining repo-owned `AGENTS.md`, skills, contracts, or role prose use separate owning-repo commits and closeout.
+- Tests, validators, schemas, lint, and static checks are safety guardrails only. They are not instruction completion proof.
+- `app-functional-graph` is pattern-only for exact refs, dependency edges, status fields, and evidence refs. It is not an executable validator or authority for plugin instruction work.
+- Tests, catalogs, `BUILD`, and generated inventory change in Phase 3 only when MCP code or catalog-owned descriptions change.
 
 ### Phase 4: Final consistency confirmation
 - Status: pending.
@@ -122,8 +131,11 @@ Phase 1 delivered the minimal MCP connection. The broader goal remains open unti
 ## Current status
 - phase_1_minimal_mcp_connection: complete
 - phase_2_decision_dependencies_escalation: complete
-- phase_3_bounded_instruction_refactors: pending
+- phase_3_bounded_instruction_refactors: blocked_on_current_mcp_packet
 - phase_4_final_consistency_critic: pending
 - latest_plan_change_critic: approved by no-fork `gpt-5.5` high critic `019f3976-7920-7433-a6b4-70eae4653d7e`
 - latest_phase_2_critic: approved by no-fork `gpt-5.5` high critic `019f397a-e75d-7192-8cd9-b37cce31419f`
+- latest_phase_3_refinement_critic: changes_required by no-fork `gpt-5.5` high critic `019f3980-b0c8-7681-9b71-0b2a63f1db32`
+- latest_instruction_friction_audit: cut_required by no-fork `gpt-5.5` medium auditor `019f3980-1a0e-75a1-bffb-7f5458395c0b`
+- current_mcp_tool_gap: current Codex toolset exposes MCP registration through `codex mcp get mcp` but no callable `instruction_hardening_startup` tool namespace in this turn.
 - full_goal_complete: false

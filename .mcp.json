@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "mcp": {
+      "command": "python3",
+      "args": [
+        "/srv/bears/plugins/bears/scripts/mcp.py"
+      ]
+    }
+  }
+}

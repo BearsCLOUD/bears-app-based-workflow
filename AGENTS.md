@@ -70,7 +70,7 @@
 - Telegram workflow governance stays here as a skill/catalog/script bundle owned by `bears-telegram-platform-engineer`.
 - Codex Telegram operator feedback is skill-driven by `skills/codex-telegram-operator-gate` and the configured `codex-telegram` MCP server; do not register or enable a Telegram `PreToolUse` hook gate.
 - Legacy `codex-telegram-operator` plugin checkout is a migration source only; it must not own Bears governance, Telegram runtime, MCP runtime, or hook authority.
-- Do not recreate a standalone Telegram plugin, product app, connector, MCP server, or runtime surface except the exact cataloged `bearstg` read-only MCP plugin.
+- Do not recreate a standalone Telegram plugin, product app, connector, MCP server, or runtime surface except the exact cataloged `bearstg` read-only MCP plugin and the plugin-owned `mcp` instruction zones server documented in `docs/reference/instruction-artifacts-mcp.md`.
 
 ## Objective runtime proof policy
 - Platform Dagger proof lives in the configured platform checkout at `dagger/`; plugin policy must route agents to that entrypoint.

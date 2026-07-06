@@ -7884,6 +7884,261 @@
       "validation": [
         "python3 scripts/artifact_registry.py validate"
       ]
+    },
+    {
+      "allowed_writers": [
+        "bears-machine-first-execution-kernel-engineer"
+      ],
+      "artifact_type": "catalog",
+      "changelog_required": false,
+      "decision_ref_required": false,
+      "git_tracked": true,
+      "lifecycle": "catalog",
+      "owner_issue": "#local-instruction-zones-mcp",
+      "owner_role": "bears-machine-first-execution-kernel-engineer",
+      "path": ".mcp.json",
+      "source_of_truth_status": "canonical",
+      "validation": [
+        "python3 scripts/artifact_registry.py validate"
+      ]
+    },
+    {
+      "allowed_writers": [
+        "bears-machine-first-execution-kernel-engineer"
+      ],
+      "artifact_type": "doc",
+      "changelog_required": false,
+      "decision_ref_required": false,
+      "git_tracked": true,
+      "lifecycle": "doc",
+      "owner_issue": "#local-instruction-zones-mcp",
+      "owner_role": "bears-machine-first-execution-kernel-engineer",
+      "path": "docs/reference/instruction-artifacts-mcp.md",
+      "source_of_truth_status": "canonical",
+      "validation": [
+        "python3 scripts/artifact_registry.py validate"
+      ]
+    },
+    {
+      "allowed_writers": [
+        "bears-machine-first-execution-kernel-engineer"
+      ],
+      "artifact_type": "script",
+      "changelog_required": false,
+      "decision_ref_required": false,
+      "git_tracked": true,
+      "lifecycle": "script",
+      "owner_issue": "#local-instruction-zones-mcp",
+      "owner_role": "bears-machine-first-execution-kernel-engineer",
+      "path": "scripts/export_instruction_graphs_jsonl.py",
+      "source_of_truth_status": "canonical",
+      "validation": [
+        "python3 scripts/artifact_registry.py validate"
+      ]
+    },
+    {
+      "allowed_writers": [
+        "bears-machine-first-execution-kernel-engineer"
+      ],
+      "artifact_type": "script",
+      "changelog_required": false,
+      "decision_ref_required": false,
+      "git_tracked": true,
+      "lifecycle": "script",
+      "owner_issue": "#local-instruction-zones-mcp",
+      "owner_role": "bears-machine-first-execution-kernel-engineer",
+      "path": "scripts/mcp.py",
+      "source_of_truth_status": "canonical",
+      "validation": [
+        "python3 scripts/artifact_registry.py validate"
+      ]
+    },
+    {
+      "allowed_writers": [
+        "bears-machine-first-execution-kernel-engineer"
+      ],
+      "artifact_type": "script",
+      "changelog_required": false,
+      "decision_ref_required": false,
+      "git_tracked": true,
+      "lifecycle": "script",
+      "owner_issue": "#local-instruction-zones-mcp",
+      "owner_role": "bears-machine-first-execution-kernel-engineer",
+      "path": "src/bears_workflow/__init__.py",
+      "source_of_truth_status": "canonical",
+      "validation": [
+        "python3 scripts/artifact_registry.py validate"
+      ]
+    },
+    {
+      "allowed_writers": [
+        "bears-machine-first-execution-kernel-engineer"
+      ],
+      "artifact_type": "script",
+      "changelog_required": false,
+      "decision_ref_required": false,
+      "git_tracked": true,
+      "lifecycle": "script",
+      "owner_issue": "#local-instruction-zones-mcp",
+      "owner_role": "bears-machine-first-execution-kernel-engineer",
+      "path": "src/bears_workflow/instruction_artifacts/__init__.py",
+      "source_of_truth_status": "canonical",
+      "validation": [
+        "python3 scripts/artifact_registry.py validate"
+      ]
+    },
+    {
+      "allowed_writers": [
+        "bears-machine-first-execution-kernel-engineer"
+      ],
+      "artifact_type": "script",
+      "changelog_required": false,
+      "decision_ref_required": false,
+      "git_tracked": true,
+      "lifecycle": "script",
+      "owner_issue": "#local-instruction-zones-mcp",
+      "owner_role": "bears-machine-first-execution-kernel-engineer",
+      "path": "src/bears_workflow/instruction_artifacts/adapters/__init__.py",
+      "source_of_truth_status": "canonical",
+      "validation": [
+        "python3 scripts/artifact_registry.py validate"
+      ]
+    },
+    {
+      "allowed_writers": [
+        "bears-machine-first-execution-kernel-engineer"
+      ],
+      "artifact_type": "script",
+      "changelog_required": false,
+      "decision_ref_required": false,
+      "git_tracked": true,
+      "lifecycle": "script",
+      "owner_issue": "#local-instruction-zones-mcp",
+      "owner_role": "bears-machine-first-execution-kernel-engineer",
+      "path": "src/bears_workflow/instruction_artifacts/adapters/exporter.py",
+      "source_of_truth_status": "canonical",
+      "validation": [
+        "python3 scripts/artifact_registry.py validate"
+      ]
+    },
+    {
+      "allowed_writers": [
+        "bears-machine-first-execution-kernel-engineer"
+      ],
+      "artifact_type": "script",
+      "changelog_required": false,
+      "decision_ref_required": false,
+      "git_tracked": true,
+      "lifecycle": "script",
+      "owner_issue": "#local-instruction-zones-mcp",
+      "owner_role": "bears-machine-first-execution-kernel-engineer",
+      "path": "src/bears_workflow/instruction_artifacts/application/__init__.py",
+      "source_of_truth_status": "canonical",
+      "validation": [
+        "python3 scripts/artifact_registry.py validate"
+      ]
+    },
+    {
+      "allowed_writers": [
+        "bears-machine-first-execution-kernel-engineer"
+      ],
+      "artifact_type": "script",
+      "changelog_required": false,
+      "decision_ref_required": false,
+      "git_tracked": true,
+      "lifecycle": "script",
+      "owner_issue": "#local-instruction-zones-mcp",
+      "owner_role": "bears-machine-first-execution-kernel-engineer",
+      "path": "src/bears_workflow/instruction_artifacts/application/zones.py",
+      "source_of_truth_status": "canonical",
+      "validation": [
+        "python3 scripts/artifact_registry.py validate"
+      ]
+    },
+    {
+      "allowed_writers": [
+        "bears-machine-first-execution-kernel-engineer"
+      ],
+      "artifact_type": "script",
+      "changelog_required": false,
+      "decision_ref_required": false,
+      "git_tracked": true,
+      "lifecycle": "script",
+      "owner_issue": "#local-instruction-zones-mcp",
+      "owner_role": "bears-machine-first-execution-kernel-engineer",
+      "path": "src/bears_workflow/instruction_artifacts/domain/__init__.py",
+      "source_of_truth_status": "canonical",
+      "validation": [
+        "python3 scripts/artifact_registry.py validate"
+      ]
+    },
+    {
+      "allowed_writers": [
+        "bears-machine-first-execution-kernel-engineer"
+      ],
+      "artifact_type": "script",
+      "changelog_required": false,
+      "decision_ref_required": false,
+      "git_tracked": true,
+      "lifecycle": "script",
+      "owner_issue": "#local-instruction-zones-mcp",
+      "owner_role": "bears-machine-first-execution-kernel-engineer",
+      "path": "src/bears_workflow/instruction_artifacts/domain/constants.py",
+      "source_of_truth_status": "canonical",
+      "validation": [
+        "python3 scripts/artifact_registry.py validate"
+      ]
+    },
+    {
+      "allowed_writers": [
+        "bears-machine-first-execution-kernel-engineer"
+      ],
+      "artifact_type": "script",
+      "changelog_required": false,
+      "decision_ref_required": false,
+      "git_tracked": true,
+      "lifecycle": "script",
+      "owner_issue": "#local-instruction-zones-mcp",
+      "owner_role": "bears-machine-first-execution-kernel-engineer",
+      "path": "src/bears_workflow/instruction_artifacts/entrypoints/__init__.py",
+      "source_of_truth_status": "canonical",
+      "validation": [
+        "python3 scripts/artifact_registry.py validate"
+      ]
+    },
+    {
+      "allowed_writers": [
+        "bears-machine-first-execution-kernel-engineer"
+      ],
+      "artifact_type": "script",
+      "changelog_required": false,
+      "decision_ref_required": false,
+      "git_tracked": true,
+      "lifecycle": "script",
+      "owner_issue": "#local-instruction-zones-mcp",
+      "owner_role": "bears-machine-first-execution-kernel-engineer",
+      "path": "src/bears_workflow/instruction_artifacts/entrypoints/cli.py",
+      "source_of_truth_status": "canonical",
+      "validation": [
+        "python3 scripts/artifact_registry.py validate"
+      ]
+    },
+    {
+      "allowed_writers": [
+        "bears-machine-first-execution-kernel-engineer"
+      ],
+      "artifact_type": "script",
+      "changelog_required": false,
+      "decision_ref_required": false,
+      "git_tracked": true,
+      "lifecycle": "script",
+      "owner_issue": "#local-instruction-zones-mcp",
+      "owner_role": "bears-machine-first-execution-kernel-engineer",
+      "path": "src/bears_workflow/instruction_artifacts/entrypoints/mcp.py",
+      "source_of_truth_status": "canonical",
+      "validation": [
+        "python3 scripts/artifact_registry.py validate"
+      ]
     }
   ],
   "schema": "bears-artifact-registry.v1",

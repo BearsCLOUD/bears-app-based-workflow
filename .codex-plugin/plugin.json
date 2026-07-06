@@ -64,7 +64,8 @@
       "App Research",
       "App workflow orchestration",
       "Role-principle ledger",
-      "Plugin-target app workflow mode"
+      "Plugin-target app workflow mode",
+      "Instruction zones MCP"
     ],
     "category": "Development",
     "defaultPrompt": [
@@ -207,7 +208,9 @@
     "l3-bears-workers",
     "github-project-subagents-validator",
     "app-research",
-    "app-plan"
+    "app-plan",
+    "instruction-zones",
+    "mcp"
   ],
   "license": "UNLICENSED",
   "metadata": {
@@ -255,5 +258,6 @@
     ],
     "ledger": "docs/audits/subagents-roles/role-principle-ledger.v1.json"
   },
-  "version": "0.1.0"
+  "version": "0.1.0",
+  "mcpServers": "./.mcp.json"
 }

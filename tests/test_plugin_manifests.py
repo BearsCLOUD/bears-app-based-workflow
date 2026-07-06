@@ -97,9 +97,12 @@ class PluginManifestTests(unittest.TestCase):
     def setUp(self):
         self.plugin_manifest = json.loads(PLUGIN_MANIFEST_PATH.read_text(encoding="utf-8"))
 
-    def test_no_app_or_mcp_manifest_in_canonical_plugin(self):
+    def test_only_instruction_zones_mcp_manifest_in_canonical_plugin(self):
         self.assertFalse((PLUGIN_ROOT / ".app.json").exists())
-        self.assertFalse((PLUGIN_ROOT / ".mcp.json").exists())
+        mcp_manifest = PLUGIN_ROOT / ".mcp.json"
+        self.assertTrue(mcp_manifest.exists())
+        payload = json.loads(mcp_manifest.read_text(encoding="utf-8"))
+        self.assertEqual(set(payload.get("mcpServers", {})), {"mcp"})
 
     def test_telegram_skill_bundle_inventory_paths_exist(self):
         for rel_path in EXPECTED_SKILL_PATHS + EXPECTED_CATALOG_PATHS + EXPECTED_VALIDATOR_PATHS:

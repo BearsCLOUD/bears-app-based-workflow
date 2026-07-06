@@ -2002,6 +2002,24 @@
       "scope_id": "operator-instruction-hardening-closeout",
       "status": "accepted",
       "unresolved_inputs": []
+    },
+    {
+      "affected_paths": [
+        "assets/catalog/artifact-registry.v1.json",
+        "scripts/export_instruction_graphs_jsonl.py",
+        "scripts/mcp.py"
+      ],
+      "change_type": "artifact",
+      "contradictions": [],
+      "decision": "Host instruction zones export in the @Bears plugin and expose only the mcp server zones tool.",
+      "decision_id": "D-2026-07-06-instruction-zones-mcp",
+      "owner_issue": "#local-instruction-zones-mcp",
+      "owner_role": "bears-machine-first-execution-kernel-engineer",
+      "rationale": "Agents need one plugin-native normalized instruction graph source while legacy script paths stay compatible.",
+      "redaction": "safe",
+      "scope_id": "instruction-zones-mcp",
+      "status": "accepted",
+      "unresolved_inputs": []
     }
   ],
   "schema": "bears-decision-ledger.v1",

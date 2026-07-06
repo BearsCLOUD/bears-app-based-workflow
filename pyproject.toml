@@ -9,6 +9,7 @@ description = "Bears workspace governance plugin for roles, workflow, blockers, 
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
+  "mcp",
   "PyYAML",
 ]
 
@@ -18,8 +19,9 @@ dev = [
   "pytest",
 ]
 
-[tool.setuptools]
-packages = []
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["bears_workflow*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

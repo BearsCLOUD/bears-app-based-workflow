@@ -83,5 +83,7 @@ Build the first minimal plugin-owned path that connects the `instruction_artifac
 - critic_review: changes_required_applied
 - artifact_registry_plan_change_review: approved
 - implementation: complete
-- validation: pending
-- commit_push: pending
+- closeout_critic_review: changes_required_applied
+- validation: complete/pass through local commit validation
+- commit_push: complete/pushed to origin/main
+- plugin_update: complete/ok

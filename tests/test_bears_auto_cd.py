@@ -391,6 +391,17 @@ def test_auto_cd_waits_for_declared_external_secrets_before_rollout() -> None:
     assert text.index('wait_for_external_secrets(cd_contract, env)') < text.index('rollout_restart_after_apply(cd_contract, env)')
 
 
+def test_auto_cd_prunes_declared_stale_resources_before_apply() -> None:
+    text = SCRIPT.read_text(encoding="utf-8")
+    assert "def stale_resource_prunes" in text
+    assert "def prune_stale_resources" in text
+    assert '"stale_resource_prunes"' in text
+    assert '"--ignore-not-found=true"' in text
+    assert '"--wait=true"' in text
+    assert "prune_stale_resources(cd_contract, env)" in text
+    assert text.index("prune_stale_resources(cd_contract, env)") < text.index("run(kubectl_apply_command(cd_contract, manifest), env=env)")
+
+
 def test_auto_cd_restarts_deployments_after_apply_when_declared() -> None:
     text = SCRIPT.read_text(encoding="utf-8")
     assert "def rollout_restart_after_apply" in text

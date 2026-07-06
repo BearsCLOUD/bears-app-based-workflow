@@ -1008,6 +1008,52 @@ def run_selector_migrations(contract: dict[str, Any], env: dict[str, str]) -> No
         )
 
 
+def stale_resource_prunes(contract: dict[str, Any]) -> list[dict[str, str]]:
+    """Return declared stale names that local_cd must remove from prior desired state."""
+    raw = contract.get("kubernetes", {}).get("stale_resource_prunes", [])
+    if raw in (None, []):
+        return []
+    if not isinstance(raw, list):
+        raise ContractError("kubernetes.stale_resource_prunes must be a list")
+    allowed_kinds = {"deployment", "service", "externalsecret"}
+    prunes: list[dict[str, str]] = []
+    for index, item in enumerate(raw):
+        if not isinstance(item, dict):
+            raise ContractError(f"kubernetes.stale_resource_prunes[{index}] must be an object")
+        kind = item.get("kind")
+        name = item.get("name")
+        if kind not in allowed_kinds:
+            raise ContractError(f"kubernetes.stale_resource_prunes[{index}].kind must be deployment, service, or externalsecret")
+        if not isinstance(name, str) or not name:
+            raise ContractError(f"kubernetes.stale_resource_prunes[{index}].name must be a non-empty string")
+        prunes.append({"kind": str(kind), "name": name})
+    return prunes
+
+
+def prune_stale_resources(contract: dict[str, Any], env: dict[str, str]) -> None:
+    """Delete only explicitly declared stale names before applying current desired state."""
+    prunes = stale_resource_prunes(contract)
+    if not prunes:
+        return
+    namespace = str(contract.get("kubernetes", {}).get("namespace", ""))
+    if not namespace:
+        raise ContractError("kubernetes.namespace missing")
+    for item in prunes:
+        run(
+            [
+                "kubectl",
+                "-n",
+                namespace,
+                "delete",
+                item["kind"],
+                item["name"],
+                "--ignore-not-found=true",
+                "--wait=true",
+            ],
+            env=env,
+        )
+
+
 def _timeout_arg(contract: dict[str, Any]) -> str:
     """Return the kubectl rollout timeout argument from Kubernetes contract settings."""
     kube = contract.get("kubernetes", {})
@@ -1244,6 +1290,7 @@ def deploy(args: argparse.Namespace) -> None:
             check_kube_prerequisites(cd_contract, env)
             check_remote_registry_pull_access(cd_contract, manifest, env)
             run_selector_migrations(cd_contract, env)
+            prune_stale_resources(cd_contract, env)
             run(kubectl_apply_command(cd_contract, manifest), env=env)
             wait_for_external_secrets(cd_contract, env)
             rollout_restart_after_apply(cd_contract, env)

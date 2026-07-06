@@ -68,7 +68,7 @@ Evidence:
 
 ### Phase 3: Full plugin-owned instruction refactor
 
-Status: implementing.
+Status: complete.
 
 Approved by no-fork `gpt-5.5` high critic `019f39b7-8bea-7c13-9750-f47348ddcb6d` with required edits recorded here.
 
@@ -106,15 +106,15 @@ Forbidden cuts:
 
 ### Phase 4: Final consistency confirmation
 
-Status: pending.
+Status: pending final re-audit after stale-plan fix commit.
 
-Run a no-fork `gpt-5.5` high L3 critic after commit/push. The critic must verify the full objective from current files and read-only evidence, not parent claims. Mark the goal complete only after critic PASS.
+Run a no-fork `gpt-5.5` high L3 critic after this plan-status fix is committed and pushed. Previous final critic `019f39c2-2805-7e22-8c3c-f8bbd3d8a3fe` passed requirements 1-10 and 12, then blocked only this stale plan status. The next critic may close the goal without another plan mutation if current files and checks still pass.
 
 ## Current status
 
 - phase_1_minimal_mcp_connection: complete
 - phase_2_decision_dependencies_escalation: complete
-- phase_3_full_plugin_instruction_refactor: implementing
-- phase_4_final_consistency_critic: pending
+- phase_3_full_plugin_instruction_refactor: complete
+- phase_4_final_consistency_critic: pending_final_reaudit_after_plan_status_fix
 - current_mcp_tool_gap: current Codex toolset exposes MCP registration through `codex mcp get mcp` but no callable `instruction_hardening_startup` namespace in this turn; use the documented stdio MCP helper as evidence.
-- full_goal_complete: false
+- full_goal_complete: pending_final_critic_pass

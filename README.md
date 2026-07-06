@@ -564,7 +564,7 @@ Active skills expose `SKILL.md` and are discoverable by the plugin loader.
 - `skills/subagents` — Govern Bears subagent selection, L2/L3 delegation, parent-control-only mode, gitflow closeout lanes, and evidence packets.
 - `skills/app-dev` — Execute app task ledger tasks through L2 lane orchestrators, L2 helpers, L3 workers, and L3 critics.
 - `skills/codex-telegram-operator-gate` — Request bounded operator decisions, feedback waits, and safe file exchange through the configured codex-telegram MCP server without a Telegram PreToolUse hook.
-- `skills/instruction-hardening` — Harden human-readable agent instructions with semantic preservation, bypass closure, compression, and weighted rubric scoring.
+- `skills/instruction-hardening` — Harden Bears docs/contracts instruction refactors and human-readable agent instructions from instruction-artifacts MCP evidence with semantic preservation, bypass closure, compression, and weighted rubric scoring.
 <!-- BEARS_SKILL_INVENTORY: END -->
 
 Canonical agent workflow map: `assets/catalog/agent-workflow-map.v1.json`.

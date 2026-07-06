@@ -18,6 +18,7 @@
         "assets/catalog/plugin-skill-catalog.v1.json",
         "assets/catalog/release-notes.v1.json",
         "assets/catalog/test-selection.v1.json",
+        "README.md",
         "docs/generated/README.skill-inventory.md",
         "docs/reference/instruction-artifacts-mcp.md",
         "plans/instruction-artifacts-hardening-mcp.md",
@@ -30,7 +31,7 @@
         "tests/test_instruction_artifacts.py"
       ],
       "impact": "Connects the instruction-artifacts MCP scanner with instruction-hardening by adding bounded and full hardening graph tools that expose operator-priority decisions, live confirmation/refutation status, and standardization evidence without treating scanned instructions as source of truth. Moves stale exact git_tracked artifact-registry path detection into the registry script.",
-      "issue_ref": "#instruction-artifacts-hardening-mcp",
+      "issue_ref": "#8",
       "validation": [
         "python3 scripts/local_commit_validation.py run --commit-sha <main_sha>"
       ]

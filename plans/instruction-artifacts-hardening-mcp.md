@@ -66,6 +66,7 @@ Build the first minimal plugin-owned path that connects the `instruction_artifac
 - `skills/instruction-hardening/SKILL.md`
 - `skills/instruction-hardening/agents/openai.yaml`
 - `.codex-plugin/plugin.json`
+- `README.md`
 - `scripts/artifact_registry.py`
 - `tests/test_artifact_registry.py`
 - `assets/catalog/plugin-skill-catalog.v1.json`

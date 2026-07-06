@@ -1009,11 +1009,20 @@ def run_selector_migrations(contract: dict[str, Any], env: dict[str, str]) -> No
 
 
 def _timeout_arg(contract: dict[str, Any]) -> str:
-    """Return the kubectl timeout argument from Kubernetes contract settings."""
+    """Return the kubectl rollout timeout argument from Kubernetes contract settings."""
     kube = contract.get("kubernetes", {})
     timeout_seconds = kube.get("rollout_timeout_seconds", 180)
     if not isinstance(timeout_seconds, int) or timeout_seconds <= 0:
         raise ContractError("kubernetes.rollout_timeout_seconds must be a positive integer")
+    return f"--timeout={timeout_seconds}s"
+
+
+def _external_secret_timeout_arg(contract: dict[str, Any]) -> str:
+    """Return the ExternalSecret readiness timeout argument."""
+    kube = contract.get("kubernetes", {})
+    timeout_seconds = kube.get("external_secret_timeout_seconds", 120)
+    if not isinstance(timeout_seconds, int) or timeout_seconds <= 0:
+        raise ContractError("kubernetes.external_secret_timeout_seconds must be a positive integer")
     return f"--timeout={timeout_seconds}s"
 
 
@@ -1036,6 +1045,19 @@ def _named_targets(contract: dict[str, Any], singular: str, plural: str) -> list
             raise ContractError(f"kubernetes.{plural} entries must be non-empty strings")
         names.append(item)
     return names
+
+
+def external_secret_targets(contract: dict[str, Any]) -> tuple[list[str], str]:
+    """Return ExternalSecret names and timeout for readiness waits."""
+    return _named_targets(contract, "external_secret", "external_secrets"), _external_secret_timeout_arg(contract)
+
+
+def wait_for_external_secrets(contract: dict[str, Any], env: dict[str, str]) -> None:
+    """Wait for declared ExternalSecret objects to become Ready before workload rollout."""
+    namespace = str(contract["kubernetes"]["namespace"])
+    external_secrets, timeout = external_secret_targets(contract)
+    for external_secret in external_secrets:
+        run(["kubectl", "-n", namespace, "wait", f"externalsecret/{external_secret}", "--for=condition=Ready", timeout], env=env)
 
 
 def rollout_targets(contract: dict[str, Any]) -> tuple[list[str], str]:
@@ -1223,6 +1245,7 @@ def deploy(args: argparse.Namespace) -> None:
             check_remote_registry_pull_access(cd_contract, manifest, env)
             run_selector_migrations(cd_contract, env)
             run(kubectl_apply_command(cd_contract, manifest), env=env)
+            wait_for_external_secrets(cd_contract, env)
             rollout_restart_after_apply(cd_contract, env)
             wait_for_declared_workloads(cd_contract, env)
         except (ContractError, subprocess.CalledProcessError) as exc:

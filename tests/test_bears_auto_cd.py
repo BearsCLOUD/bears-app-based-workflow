@@ -178,6 +178,7 @@ def test_cd_contract_declares_descriptor_and_executor_boundary() -> None:
         "codex-telegram-mcp",
         "codex-web",
         "dagger-engine",
+        "egress-gateway",
         "external-secrets-operator",
         "opencode-server",
         "tgsearch-live-gate",
@@ -377,6 +378,17 @@ def test_auto_cd_supports_declared_rollout_targets() -> None:
     assert 'def rollout_targets' in text
     assert "kubernetes.deployment missing" in text
     assert 'for deployment in deployments' in text
+
+
+def test_auto_cd_waits_for_declared_external_secrets_before_rollout() -> None:
+    text = SCRIPT.read_text(encoding="utf-8")
+    assert 'def external_secret_targets' in text
+    assert 'def wait_for_external_secrets' in text
+    assert '"externalsecret/{external_secret}"' in text
+    assert '"--for=condition=Ready"' in text
+    assert 'kubernetes.external_secret_timeout_seconds must be a positive integer' in text
+    assert 'wait_for_external_secrets(cd_contract, env)' in text
+    assert text.index('wait_for_external_secrets(cd_contract, env)') < text.index('rollout_restart_after_apply(cd_contract, env)')
 
 
 def test_auto_cd_restarts_deployments_after_apply_when_declared() -> None:

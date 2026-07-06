@@ -8139,6 +8139,23 @@
       "validation": [
         "python3 scripts/artifact_registry.py validate"
       ]
+    },
+    {
+      "allowed_writers": [
+        "bears-machine-first-execution-kernel-engineer"
+      ],
+      "artifact_type": "test",
+      "changelog_required": false,
+      "decision_ref_required": false,
+      "git_tracked": true,
+      "lifecycle": "test",
+      "owner_issue": "#local-instruction-zones-mcp",
+      "owner_role": "bears-machine-first-execution-kernel-engineer",
+      "path": "tests/test_instruction_artifacts.py",
+      "source_of_truth_status": "canonical",
+      "validation": [
+        "python3 scripts/artifact_registry.py validate"
+      ]
     }
   ],
   "schema": "bears-artifact-registry.v1",

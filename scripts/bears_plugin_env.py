@@ -15,6 +15,10 @@ from typing import Any
 PLUGIN_ROOT = Path(__file__).resolve().parents[1]
 SCHEMA = "bears-plugin-local-paths.v1"
 DEFAULT_PLUGIN_ID = "bears@bears-plugin"
+MCP_SERVER_NAME = "mcp"
+ENV_INSTRUCTION_ROOT = "BEARS_INSTRUCTION_ROOT"
+ENV_CODEX_CONFIG = "BEARS_CODEX_CONFIG"
+ENV_PERSONAL_AGENTS = "BEARS_PERSONAL_AGENTS"
 GIT_ENV_KEYS = ("GIT_DIR", "GIT_WORK_TREE", "GIT_INDEX_FILE", "GIT_PREFIX", "GIT_COMMON_DIR")
 
 
@@ -28,6 +32,14 @@ def codex_home() -> Path:
 
 def default_config_path() -> Path:
     return codex_home() / "bears-plugin" / "local-paths.v1.json"
+
+
+def default_codex_config_path() -> Path:
+    return codex_home() / "config.toml"
+
+
+def default_personal_agents_path() -> Path:
+    return codex_home() / "AGENTS.md"
 
 
 def clean_env() -> dict[str, str]:
@@ -77,6 +89,8 @@ def build_packet(args: argparse.Namespace) -> dict[str, Any]:
     plugin_root = PLUGIN_ROOT.resolve()
     workspace_root = Path(args.workspace_root).expanduser().resolve() if args.workspace_root else infer_workspace_root(plugin_root)
     cache_root = Path(args.cache_root).expanduser().resolve() if args.cache_root else codex_home() / "plugins" / "cache" / "bears-plugin" / "bears" / "0.1.0"
+    codex_config = Path(args.codex_config).expanduser().resolve() if args.codex_config else default_codex_config_path()
+    personal_agents = Path(args.personal_agents).expanduser().resolve() if args.personal_agents else default_personal_agents_path()
     packet: dict[str, Any] = {
         "schema": SCHEMA,
         "updated_at": utc_now(),
@@ -84,8 +98,17 @@ def build_packet(args: argparse.Namespace) -> dict[str, Any]:
         "plugin_root": str(plugin_root),
         "workspace_root": str(workspace_root),
         "codex_home": str(codex_home()),
+        "codex_config": str(codex_config),
+        "personal_agents": str(personal_agents),
         "cache_root": str(cache_root),
         "plugin_sha": git_sha(plugin_root),
+        "mcp_server": {
+            "name": MCP_SERVER_NAME,
+            "transport": "stdio",
+            "command": "python3",
+            "args": [str(plugin_root / "scripts" / "mcp.py")],
+            "env_keys": [ENV_INSTRUCTION_ROOT, ENV_CODEX_CONFIG, ENV_PERSONAL_AGENTS],
+        },
     }
     return packet
 
@@ -132,18 +155,60 @@ def copy_cache(source: Path, cache_root: Path) -> dict[str, Any]:
     return result
 
 
+def register_codex_mcp(packet: dict[str, Any]) -> dict[str, Any]:
+    """Register the instruction zones MCP in local Codex config."""
+    plugin_root = Path(str(packet["plugin_root"])).expanduser().resolve()
+    workspace_root = Path(str(packet["workspace_root"])).expanduser().resolve()
+    codex_config = Path(str(packet["codex_config"])).expanduser().resolve()
+    personal_agents = Path(str(packet["personal_agents"])).expanduser().resolve()
+    command = [
+        "codex",
+        "mcp",
+        "add",
+        MCP_SERVER_NAME,
+        "--env",
+        f"{ENV_INSTRUCTION_ROOT}={workspace_root}",
+        "--env",
+        f"{ENV_CODEX_CONFIG}={codex_config}",
+        "--env",
+        f"{ENV_PERSONAL_AGENTS}={personal_agents}",
+        "--",
+        "python3",
+        str(plugin_root / "scripts" / "mcp.py"),
+    ]
+    remove_code, _remove_stdout, remove_stderr = run(["codex", "mcp", "remove", MCP_SERVER_NAME])
+    code, stdout, stderr = run(command)
+    result: dict[str, Any] = {
+        "name": MCP_SERVER_NAME,
+        "status": "ok" if code == 0 else "fail",
+        "transport": "stdio",
+        "command": "python3",
+        "args": [str(plugin_root / "scripts" / "mcp.py")],
+        "env_keys": [ENV_INSTRUCTION_ROOT, ENV_CODEX_CONFIG, ENV_PERSONAL_AGENTS],
+        "removed_existing": remove_code == 0,
+    }
+    if remove_code not in (0, 1):
+        result["remove_summary"] = (remove_stderr or "")[:300]
+    if code != 0:
+        result["summary"] = (stderr or stdout or "codex mcp add failed")[:800]
+    return result
+
+
 def install(args: argparse.Namespace) -> int:
     config_path = Path(args.config).expanduser().resolve() if args.config else default_config_path()
     packet = build_packet(args)
     write_json(config_path, packet)
     output = {"status": "ok", "config_path": str(config_path), "plugin_root": packet["plugin_root"], "workspace_root": packet["workspace_root"]}
+    if not args.skip_mcp_registration:
+        output["mcp_registration"] = register_codex_mcp(packet)
+        if output["mcp_registration"].get("status") == "fail":
+            output["status"] = "fail"
     if args.update_cache:
         output["cache_update"] = copy_cache(Path(packet["plugin_root"]), Path(packet["cache_root"]))
         if output["cache_update"].get("status") == "fail":
-            print(json.dumps(output, indent=2, sort_keys=True))
-            return 1
+            output["status"] = "fail"
     print(json.dumps(output, indent=2, sort_keys=True))
-    return 0
+    return 0 if output["status"] == "ok" else 1
 
 
 def update(args: argparse.Namespace) -> int:
@@ -154,10 +219,25 @@ def update(args: argparse.Namespace) -> int:
     packet = load_config(config_path)
     plugin_root = Path(str(packet.get("plugin_root", PLUGIN_ROOT))).expanduser().resolve()
     cache_root = Path(str(packet.get("cache_root", codex_home() / "plugins" / "cache" / "bears-plugin" / "bears" / "0.1.0"))).expanduser().resolve()
+    packet.setdefault("codex_home", str(codex_home()))
+    packet.setdefault("workspace_root", str(infer_workspace_root(plugin_root)))
+    packet.setdefault("codex_config", str(default_codex_config_path()))
+    packet.setdefault("personal_agents", str(default_personal_agents_path()))
+    packet["mcp_server"] = {
+        "name": MCP_SERVER_NAME,
+        "transport": "stdio",
+        "command": "python3",
+        "args": [str(plugin_root / "scripts" / "mcp.py")],
+        "env_keys": [ENV_INSTRUCTION_ROOT, ENV_CODEX_CONFIG, ENV_PERSONAL_AGENTS],
+    }
     packet["updated_at"] = utc_now()
     packet["plugin_sha"] = git_sha(plugin_root)
     write_json(config_path, packet)
     result = {"status": "ok", "config_path": str(config_path), "cache_update": copy_cache(plugin_root, cache_root)}
+    if not args.skip_mcp_registration:
+        result["mcp_registration"] = register_codex_mcp(packet)
+        if result["mcp_registration"].get("status") == "fail":
+            result["status"] = "fail"
     if result["cache_update"].get("status") == "fail":
         result["status"] = "fail"
     print(json.dumps(result, indent=2, sort_keys=True))
@@ -177,6 +257,7 @@ def doctor(args: argparse.Namespace) -> int:
         "plugin_sha": git_sha(plugin_root) if plugin_root.is_dir() else None,
         "cache_root_exists": cache_root.is_dir(),
         "cache_sha": git_sha(cache_root) if cache_root.is_dir() else None,
+        "mcp_server": packet.get("mcp_server") if packet else None,
         "redacted": True,
     }
     print(json.dumps(result, indent=2, sort_keys=True))
@@ -192,8 +273,12 @@ def parser() -> argparse.ArgumentParser:
     install_cmd = sub.choices["install"]
     install_cmd.add_argument("--workspace-root")
     install_cmd.add_argument("--cache-root")
+    install_cmd.add_argument("--codex-config")
+    install_cmd.add_argument("--personal-agents")
     install_cmd.add_argument("--plugin-id", default=DEFAULT_PLUGIN_ID)
     install_cmd.add_argument("--update-cache", action="store_true")
+    for name in ("install", "update"):
+        sub.choices[name].add_argument("--skip-mcp-registration", action="store_true")
     return root
 
 

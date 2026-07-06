@@ -17,12 +17,15 @@ import sys
 from pathlib import Path
 from typing import Iterable
 
+from bears_workflow.instruction_artifacts.domain.constants import (
+    AGENTS_NAME,
+    LEVEL4_EXCEPTION_PARENT_NAMES,
+    default_codex_config,
+    default_personal_agents,
+    default_root,
+)
+
 SCHEMA_VERSION = "instruction-graph.v1"
-DEFAULT_ROOT = Path("/srv/bears")
-DEFAULT_CODEX_CONFIG = Path("/home/ai1/.codex/config.toml")
-DEFAULT_PERSONAL_AGENTS = Path("/home/ai1/.codex/AGENTS.md")
-AGENTS_NAME = "AGENTS.md"
-LEVEL4_EXCEPTION_PARENT_NAMES = {"dev"}
 MARKDOWN_REFERENCE_RE = re.compile(
     r"(?P<ref>(?:\$codex|\$workspace|/|\.{1,2}/)?"
     r"[A-Za-z0-9_@.+~*{}$/-]*"
@@ -40,17 +43,17 @@ def parse_args() -> argparse.Namespace:
             "developer instructions, root AGENTS.md, and path-local AGENTS.md files."
         )
     )
-    parser.add_argument("--root", type=Path, default=DEFAULT_ROOT, help="Workspace root to scan.")
+    parser.add_argument("--root", type=Path, default=default_root(), help="Workspace root to scan.")
     parser.add_argument(
         "--codex-config",
         type=Path,
-        default=DEFAULT_CODEX_CONFIG,
+        default=default_codex_config(),
         help="Codex config containing model_instructions_file.",
     )
     parser.add_argument(
         "--personal-agents",
         type=Path,
-        default=DEFAULT_PERSONAL_AGENTS,
+        default=default_personal_agents(),
         help="Personal AGENTS.md file.",
     )
     parser.add_argument(
@@ -798,7 +801,7 @@ def main() -> int:
             targets=targets,
             personal_agents=personal_agents,
             developer_instructions=developer_instructions,
-            codex_root=DEFAULT_CODEX_CONFIG.parent.resolve(),
+            codex_root=codex_config.parent.resolve(),
         )
         emit_normalized_export(normalized_export, args.normalized_output)
     return 0

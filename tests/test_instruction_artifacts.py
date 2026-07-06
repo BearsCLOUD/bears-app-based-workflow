@@ -1,0 +1,88 @@
+"""Tests for Bears instruction artifact zones."""
+
+from __future__ import annotations
+
+import os
+import sys
+import tempfile
+import unittest
+from pathlib import Path
+from unittest.mock import patch
+
+PLUGIN_ROOT = Path(__file__).resolve().parents[1]
+SRC_ROOT = PLUGIN_ROOT / "src"
+if str(SRC_ROOT) not in sys.path:
+    sys.path.insert(0, str(SRC_ROOT))
+
+from bears_workflow.instruction_artifacts.application import zones
+from bears_workflow.instruction_artifacts.domain import constants
+
+
+class InstructionArtifactTests(unittest.TestCase):
+    def test_default_paths_use_runtime_environment(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            root = Path(tmpdir) / "workspace"
+            codex_config = Path(tmpdir) / "codex" / "config.toml"
+            personal_agents = Path(tmpdir) / "codex" / "AGENTS.md"
+            env = {
+                constants.ENV_INSTRUCTION_ROOT: str(root),
+                constants.ENV_CODEX_CONFIG: str(codex_config),
+                constants.ENV_PERSONAL_AGENTS: str(personal_agents),
+            }
+            with patch.dict(os.environ, env, clear=False):
+                self.assertEqual(constants.default_root(), root)
+                self.assertEqual(constants.default_codex_config(), codex_config)
+                self.assertEqual(constants.default_personal_agents(), personal_agents)
+
+    def test_zones_startup_applies_response_budget(self) -> None:
+        payload = {
+            "docs": [{"id": index} for index in range(4)],
+            "graphs": [{"target": index} for index in range(4)],
+        }
+        with patch.object(zones, "build_zones", return_value=payload):
+            packet = zones.build_zones_startup(response_line_budget=3)
+        self.assertEqual(packet["schema"], "bears.instruction_zones.startup.v1")
+        self.assertEqual(packet["response_line_budget"], 3)
+        self.assertEqual(packet["response_lines"], 3)
+        self.assertTrue(packet["truncated"])
+        self.assertEqual(packet["counts"]["returned_docs"], 1)
+        self.assertEqual(packet["counts"]["returned_graphs"], 2)
+        self.assertEqual(packet["next_calls"][0]["tool"], "zones")
+
+    def test_build_zones_uses_codex_config_parent_as_codex_root(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            root = Path(tmpdir) / "workspace"
+            codex_dir = Path(tmpdir) / "codex"
+            codex_config = codex_dir / "config.toml"
+            personal_agents = codex_dir / "AGENTS.md"
+            root.mkdir()
+            codex_dir.mkdir()
+            codex_config.write_text("", encoding="utf-8")
+            personal_agents.write_text("", encoding="utf-8")
+            target = root / constants.AGENTS_NAME
+            target.write_text("", encoding="utf-8")
+
+            with (
+                patch.object(zones.exporter, "parse_model_instructions_file", return_value=(None, [])),
+                patch.object(zones.exporter, "discover_agents", return_value=([target], [])),
+                patch.object(
+                    zones.exporter,
+                    "build_normalized_export",
+                    return_value={"docs": [], "graphs": []},
+                ) as build_normalized_export,
+            ):
+                result = zones.build_zones(
+                    root=root,
+                    codex_config=codex_config,
+                    personal_agents=personal_agents,
+                )
+
+            self.assertEqual(result, {"docs": [], "graphs": []})
+            self.assertEqual(
+                build_normalized_export.call_args.kwargs["codex_root"],
+                codex_dir.resolve(),
+            )
+
+
+if __name__ == "__main__":
+    unittest.main()

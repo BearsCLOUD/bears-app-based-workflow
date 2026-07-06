@@ -100,6 +100,7 @@ class PluginManifestTests(unittest.TestCase):
     def test_no_root_app_or_mcp_manifest_in_canonical_plugin(self):
         self.assertFalse((PLUGIN_ROOT / ".app.json").exists())
         self.assertFalse((PLUGIN_ROOT / ".mcp.json").exists())
+        self.assertNotIn("mcpServers", self.plugin_manifest)
 
     def test_telegram_skill_bundle_inventory_paths_exist(self):
         for rel_path in EXPECTED_SKILL_PATHS + EXPECTED_CATALOG_PATHS + EXPECTED_VALIDATOR_PATHS:

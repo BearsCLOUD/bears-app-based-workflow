@@ -258,6 +258,5 @@
     ],
     "ledger": "docs/audits/subagents-roles/role-principle-ledger.v1.json"
   },
-  "version": "0.1.0",
-  "mcpServers": "./.mcp.json"
+  "version": "0.1.0"
 }

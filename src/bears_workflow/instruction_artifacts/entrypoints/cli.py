@@ -10,9 +10,9 @@ from pathlib import Path
 from bears_workflow.instruction_artifacts.adapters import exporter
 from bears_workflow.instruction_artifacts.application.zones import build_zones
 from bears_workflow.instruction_artifacts.domain.constants import (
-    DEFAULT_CODEX_CONFIG,
-    DEFAULT_PERSONAL_AGENTS,
-    DEFAULT_ROOT,
+    default_codex_config,
+    default_personal_agents,
+    default_root,
 )
 
 
@@ -23,17 +23,17 @@ def parse_args() -> argparse.Namespace:
             "Export Bears instruction graphs and normalized instruction zones."
         )
     )
-    parser.add_argument("--root", type=Path, default=DEFAULT_ROOT, help="Workspace root to scan.")
+    parser.add_argument("--root", type=Path, default=default_root(), help="Workspace root to scan.")
     parser.add_argument(
         "--codex-config",
         type=Path,
-        default=DEFAULT_CODEX_CONFIG,
+        default=default_codex_config(),
         help="Codex config containing model_instructions_file.",
     )
     parser.add_argument(
         "--personal-agents",
         type=Path,
-        default=DEFAULT_PERSONAL_AGENTS,
+        default=default_personal_agents(),
         help="Personal AGENTS.md file.",
     )
     parser.add_argument("--output", type=Path, default=None, help="Write JSONL to this path.")

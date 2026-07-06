@@ -2,6 +2,40 @@
   "entries": [
     {
       "affected_surfaces": [
+        "instruction_artifacts_mcp",
+        "plugin_local_env",
+        "pants_test_graph",
+        "test_selection",
+        "artifact_registry",
+        "release_notes"
+      ],
+      "date": "2026-07-06",
+      "files": [
+        ".codex-plugin/plugin.json",
+        "BUILD",
+        "assets/catalog/artifact-registry.v1.json",
+        "assets/catalog/pants-test-graph.v1.json",
+        "assets/catalog/release-notes.v1.json",
+        "assets/catalog/test-selection.v1.json",
+        "docs/reference/instruction-artifacts-mcp.md",
+        "scripts/bears_plugin_env.py",
+        "src/bears_workflow/instruction_artifacts/adapters/exporter.py",
+        "src/bears_workflow/instruction_artifacts/application/zones.py",
+        "src/bears_workflow/instruction_artifacts/domain/constants.py",
+        "src/bears_workflow/instruction_artifacts/entrypoints/cli.py",
+        "src/bears_workflow/instruction_artifacts/entrypoints/mcp.py",
+        "tests/test_instruction_artifacts.py",
+        "tests/test_plugin_manifests.py"
+      ],
+      "impact": "Completes the @Bears instruction zones MCP by removing source-embedded host paths, adding a bounded zones_startup tool, keeping full zones compatibility, wiring bin/bears-plugin install/update to register the local Codex MCP, and covering the new source package in autoCI selection.",
+      "issue_ref": "#8",
+      "validation": [
+        "python3 scripts/local_commit_validation.py run --commit-sha <main_sha>",
+        "codex mcp get mcp"
+      ]
+    },
+    {
+      "affected_surfaces": [
         "instruction_hardening_skill",
         "instruction_hardening_exec_runner",
         "instruction_hardening_role",

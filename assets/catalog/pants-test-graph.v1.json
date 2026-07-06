@@ -123,6 +123,23 @@
     },
     {
       "kind": "files",
+      "name": "instruction-artifacts",
+      "pants_target": "//:instruction_artifacts_files",
+      "patterns": [
+        "src/bears_workflow/instruction_artifacts/**",
+        "docs/reference/instruction-artifacts-mcp.md"
+      ],
+      "tests": [
+        "tests/test_instruction_artifacts.py",
+        "tests/test_plugin_manifests.py",
+        "tests/test_validate_overlay.py",
+        "tests/test_pants_test_graph.py",
+        "tests/test_test_selection.py",
+        "tests/test_local_commit_validation.py"
+      ]
+    },
+    {
+      "kind": "files",
       "name": "graph-config",
       "pants_target": "//:pants_graph_files",
       "patterns": [

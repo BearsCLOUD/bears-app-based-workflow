@@ -14,6 +14,14 @@ files(
 )
 
 files(
+    name="instruction_artifacts_files",
+    sources=[
+        "src/bears_workflow/instruction_artifacts/**/*.py",
+        "docs/reference/instruction-artifacts-mcp.md",
+    ],
+)
+
+files(
     name="pants_schema_files",
     sources=["assets/schemas/*.json"],
 )

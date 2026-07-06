@@ -287,6 +287,10 @@
         "category": "fast"
       },
       {
+        "path": "tests/test_instruction_artifacts.py",
+        "category": "fast"
+      },
+      {
         "path": "tests/test_local_commit_validation.py",
         "category": "fast"
       },

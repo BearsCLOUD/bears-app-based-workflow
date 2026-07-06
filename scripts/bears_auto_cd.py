@@ -933,6 +933,81 @@ def kubectl_apply_command(contract: dict[str, Any], manifest: Path) -> list[str]
     raise ContractError(f"unsupported kubernetes.apply_mode: {mode}")
 
 
+def selector_migrations(contract: dict[str, Any]) -> list[dict[str, Any]]:
+    """Return safe selector migrations for workloads that must be recreated before apply."""
+    raw = contract.get("kubernetes", {}).get("selector_migrations", [])
+    if raw in (None, []):
+        return []
+    if not isinstance(raw, list):
+        raise ContractError("kubernetes.selector_migrations must be a list")
+    migrations: list[dict[str, Any]] = []
+    for index, item in enumerate(raw):
+        if not isinstance(item, dict):
+            raise ContractError(f"kubernetes.selector_migrations[{index}] must be an object")
+        kind = item.get("kind")
+        if kind != "deployment":
+            raise ContractError(f"kubernetes.selector_migrations[{index}].kind must be deployment")
+        name = item.get("name")
+        if not isinstance(name, str) or not name:
+            raise ContractError(f"kubernetes.selector_migrations[{index}].name must be a non-empty string")
+        labels = item.get("required_match_labels")
+        if not isinstance(labels, dict) or not labels:
+            raise ContractError(
+                f"kubernetes.selector_migrations[{index}].required_match_labels must be a non-empty object"
+            )
+        normalized: dict[str, str] = {}
+        for label_key, label_value in labels.items():
+            if not isinstance(label_key, str) or not label_key:
+                raise ContractError(f"kubernetes.selector_migrations[{index}] label keys must be non-empty strings")
+            if not isinstance(label_value, str) or not label_value:
+                raise ContractError(f"kubernetes.selector_migrations[{index}] label values must be non-empty strings")
+            normalized[label_key] = label_value
+        migrations.append({"kind": kind, "name": name, "required_match_labels": normalized})
+    return migrations
+
+
+def run_selector_migrations(contract: dict[str, Any], env: dict[str, str]) -> None:
+    """Delete only declared Deployment objects whose immutable selector differs from desired labels."""
+    migrations = selector_migrations(contract)
+    if not migrations:
+        return
+    namespace = str(contract.get("kubernetes", {}).get("namespace", ""))
+    if not namespace:
+        raise ContractError("kubernetes.namespace missing")
+    for migration in migrations:
+        name = migration["name"]
+        try:
+            output = run_capture(
+                ["kubectl", "-n", namespace, "get", "deployment", name, "-o", "json"],
+                env=env,
+            )
+        except subprocess.CalledProcessError:
+            continue
+        try:
+            current = json.loads(output)
+        except json.JSONDecodeError as exc:
+            raise ContractError(f"invalid Kubernetes JSON for deployment/{name}") from exc
+        current_labels = current.get("spec", {}).get("selector", {}).get("matchLabels", {})
+        if not isinstance(current_labels, dict):
+            raise ContractError(f"deployment/{name} selector matchLabels must be an object")
+        desired_labels = migration["required_match_labels"]
+        if current_labels == desired_labels:
+            continue
+        run(
+            [
+                "kubectl",
+                "-n",
+                namespace,
+                "delete",
+                "deployment",
+                name,
+                "--ignore-not-found=true",
+                "--wait=true",
+            ],
+            env=env,
+        )
+
+
 def _timeout_arg(contract: dict[str, Any]) -> str:
     """Return the kubectl timeout argument from Kubernetes contract settings."""
     kube = contract.get("kubernetes", {})
@@ -1146,6 +1221,7 @@ def deploy(args: argparse.Namespace) -> None:
             bootstrap_infisical_runtime_secret(cd_contract, env)
             check_kube_prerequisites(cd_contract, env)
             check_remote_registry_pull_access(cd_contract, manifest, env)
+            run_selector_migrations(cd_contract, env)
             run(kubectl_apply_command(cd_contract, manifest), env=env)
             rollout_restart_after_apply(cd_contract, env)
             wait_for_declared_workloads(cd_contract, env)

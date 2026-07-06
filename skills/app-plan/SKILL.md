@@ -89,25 +89,7 @@ Every task belongs to one layer and one lane:
 
 ## Task rules
 
-One `app-task-ledger` task is one `$app-dev` execution task.
-
-Every execution task must include:
-
-- `task_id`;
-- exact app directory;
-- layer and lane;
-- exact repo and local path;
-- exact allowed file/path list;
-- exact forbidden paths;
-- route-selected @Bears role;
-- `functionality_refs` from `docs/app-functional-graph.v1.json`;
-- `graph_node_refs` from `docs/app-functional-graph.v1.json`;
-- `graph_edge_refs` when edge behavior changes;
-- source doc references with section names;
-- acceptance criteria checklist;
-- `autoci_zones` computed from the autoCI graph and `expected_statuses` for automatic status evidence;
-- dependency task ids;
-- completion proof: changed files, one commit SHA, push proof, status evidence refs, Project status update when used, and closeout comment.
+One `app-task-ledger` task is one `$app-dev` execution task. Each ready task must satisfy the required fields in `app-plan.project-task-packet` below plus exact allowed paths, forbidden paths, source refs, acceptance criteria, and closeout proof.
 
 Split a task whenever repo, path, write scope, role, proof source, dependency order, functionality ref, graph node ref, platform boundary, infra boundary, or restricted-data boundary differs.
 
@@ -148,7 +130,7 @@ Schema packet shape:
 
 ## L3 goal block
 
-Each execution task must provide this block to `$app-dev`:
+Each execution task must provide the packet fields below to `$app-dev`. If any field cannot be filled exactly, create a blocked ledger task instead of a ready execution task.
 
 ```markdown
 ## L3 goal
@@ -173,10 +155,8 @@ allowed_actions=<bounded list>
 forbidden_actions=<bounded list>
 acceptance_criteria=<checklist copied from ledger task>
 proof=<automatic status matrix or commit closeout expectation>
-completion_criteria=changed files, one commit SHA, push proof, status matrix evidence, ledger update, Project status update when used, closeout comment
+completion_criteria=changed files, one commit SHA, push proof, status refs, ledger update, Project status update when used, closeout comment
 ```
-
-If any field cannot be filled exactly, create a blocked ledger task instead of a ready execution task.
 
 ## Workflow
 
@@ -186,7 +166,7 @@ If any field cannot be filled exactly, create a blocked ledger task instead of a
 4. Build the lane map first: app, platform, infra, plus optional sub-lanes with disjoint paths.
 5. Convert requirements into decision-complete ledger tasks with functionality refs and graph node refs.
 6. Create dependencies so `$app-dev` waves can run only dependency-ready, non-overlapping tasks.
-7. Ensure every task has one role, one layer, one lane, one repo boundary, one L3 status matrix, one proof requirement, and valid graph refs.
+7. Ensure every task satisfies the packet schema, has one owner role, and has valid graph refs.
 8. Emit `app-plan.project-task-packet`.
 9. Run `$app-analyze` before handing execution to `$app-dev`.
 

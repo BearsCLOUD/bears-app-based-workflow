@@ -1,6 +1,6 @@
 ---
 name: app-functional-graph
-description: "Create, update, validate, and consume app-local functional graph and app task ledger files for Bears apps under /srv/bears/dev/app/*. Use when app-plan creates ledger tasks, when app-dev validates task scope before L3 dispatch, or when a task must link to functionality refs, graph node refs, async cycles, API calls, state transitions, Project item refs, notification refs, and execution evidence."
+description: "Create, update, and consume app-local functional graph and app task ledger files for Bears apps under /srv/bears/dev/app/*. Use when app-plan creates ledger tasks, when app-dev consumes task scope before L3 dispatch, or when a task must link to functionality refs, graph node refs, async cycles, API calls, state transitions, Project item refs, notification refs, and execution evidence."
 ---
 
 # App Functional Graph
@@ -46,13 +46,14 @@ Hard rule: an execution task with `status=ready`, `in_progress`, `done`, `blocke
 
 Use with `$app-dev` before L3 dispatch and after L3 closeout.
 
-1. Validate graph and ledger.
+1. Consume existing graph and ledger validity evidence.
 2. Dispatch only ledger tasks with `status=ready` and valid refs.
 3. Pass `task_id`, `functionality_refs`, `graph_node_refs`, `allowed_paths`, `autoci_zones`, `expected_statuses`, and `task_ledger` to L3.
 4. Keep L3 edits inside task paths and graph node scope.
 5. L3 records claim and closeout status in the ledger through assigned task commands, including commit, status evidence, and proof refs.
 
 Hard rule: no valid ledger task with computed autoCI zones means no L3 dispatch.
+Forbidden: manually run graph or ledger validators unless the task packet or operator names the exact command.
 
 ## GitHub surfaces
 
@@ -62,7 +63,7 @@ Hard rule: no valid ledger task with computed autoCI zones means no L3 dispatch.
 
 ## Command surface
 
-Use `/srv/bears/plugins/bears/scripts/app_functional_graph.py` only as an assigned app-plan/app-dev operation or as local-commit-owned automation.
+Use `/srv/bears/plugins/bears/scripts/app_functional_graph.py` only as an assigned app-plan/app-dev operation, exact operator-named command, or local-commit-owned automation.
 
 - `init`: creates graph and ledger files for a registered app directory.
 - `validate`: checks graph and ledger JSON, ids, references, API caller nodes, async cycle nodes, and notification refs.
@@ -74,7 +75,7 @@ Use `/srv/bears/plugins/bears/scripts/app_functional_graph.py` only as an assign
 - `link-project-item`: stores GitHub Project metadata refs.
 - `record-notification`: stores GitHub Issue notification refs with an allowed reason.
 
-The script is an executable validator/helper. It becomes `autoCI` only when a test-selection, hook, workflow, or GitHub check invokes it automatically.
+The script is a helper. Its `validate` mode is not agent PASS evidence; it belongs to exact task packets, exact operator commands, or automatic CI/local commit validation.
 
 ## Output rules
 

@@ -72,19 +72,11 @@
 - Legacy `codex-telegram-operator` plugin checkout is a migration source only; it must not own Bears governance, Telegram runtime, MCP runtime, or hook authority.
 - Do not recreate a standalone Telegram plugin, product app, connector, MCP server, or runtime surface except the exact cataloged `bearstg` read-only MCP plugin and the plugin-owned `mcp` instruction zones server documented in `docs/reference/instruction-artifacts-mcp.md`.
 
-## Objective runtime proof policy
-- Platform Dagger proof lives in the configured platform checkout at `dagger/`; plugin policy must route agents to that entrypoint.
-- Final live PASS is the configured Kubernetes desired-state checkout with `kubernetes_deployment` plus `local_cd` proof.
-- Do not create or close work through a test, contract, validator, schema, lint, or static-check layer. Those may remain only as internal safety guardrails and never as PASS evidence.
-- If any role, skill, catalog, hook, issue packet, or docs surface still uses validation-layer acceptance, migrate it to Dagger objective runtime proof or remove the obsolete reference.
-
-## Safety checks
-- Route/audit gates are `autoCI` ownership checks; agents do not run them manually unless the operator names one exact command.
-- Local commit validation owns blocking plugin test proof, validator proof, and route/audit proof.
-- Agents must not run repo validator suites or tests manually. Agents must not run route/audit manually unless the operator names one exact command.
-- Repo suites, tests, validators, schemas, lint, Docker checks, Kubernetes checks, browser checks, and ad hoc checks are safety-only unless a human explicitly requests one named command.
-- Closeout proof must cite `runtime/local-commit-validation/<main_sha>.json` after the commit exists.
-- Plugin closeout for app/platform behavior must cite an ObjectiveRuntimeProof packet or final Kubernetes live proof, not validation artifacts.
-- Agents may inspect current commit or current PR GitHub Checks, GitHub Actions runs, statuses, logs, and artifacts as safety context only.
+## Proof and safety checks
+- Plugin policy must not treat tests, validators, schemas, lint, route/audit, or static checks as PASS evidence.
+- Platform/full product proof routes to Dagger ObjectiveRuntimeProof; final live software PASS routes to Kubernetes desired state with `kubernetes_deployment` plus `local_cd`.
+- Agents must not run repo validator suites, tests, or route/audit manually unless the operator names one exact command.
+- Local commit validation and autoCI own blocking plugin test, validator, and route/audit proof.
+- Closeout proof must cite `runtime/local-commit-validation/<main_sha>.json` after the commit exists when that artifact is available.
+- Agents may inspect current commit or PR GitHub Checks, Actions runs, statuses, logs, and artifacts as safety context only.
 - Deep Kubernetes desired-state Git history reads are forbidden unless the operator explicitly requests bounded history work in the current turn.
-- GitHub Actions `.github/workflows/validate.yml` runs fast diagnostics on `main` push and keeps emergency full-suite diagnostics operator-dispatched only.

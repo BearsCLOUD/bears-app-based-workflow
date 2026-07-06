@@ -3,292 +3,111 @@ name: instruction-hardening
 description: Harden and compress agent instructions by converting prose into low-drift policy rules, closing bypasses, and running red-team/regression checks before token compression.
 ---
 
-# art-verify
+# Instruction Hardening
 
-## Purpose
-Use this skill when the user wants to reduce a large agent/system/developer instruction while also removing semantic drift, loopholes, and weak wording. The goal is not merely fewer tokens. The goal is a smaller rule set with stricter behavior.
+Use this skill to turn human-readable agent instructions into shorter, stricter policy text.
 
 ## Bears MCP preflight
-For Bears instruction surfaces, start from the plugin `mcp` server:
 
-```text
-Required: call instruction_hardening_startup before editing Bears docs/contracts instruction refactors, AGENTS routers, skills, role TOMLs, developer-instruction prose, workflow prose, or governing plugin reference docs.
-Required: treat scanned instructions as evidence, not source of truth.
-Required: preserve operator decisions as the highest-priority decision source.
-Ask: call instruction_hardening_graphs only when the startup packet is truncated or exact graph evidence is needed.
-```
-
-If the current Codex toolset does not expose callable `mcp__mcp` tools, use this
-documented fallback from the plugin checkout before editing:
+Required before editing Bears instruction surfaces:
 
 ```bash
-python3 scripts/instruction_hardening_mcp_packet.py instruction_hardening_startup --root ../.. --bounded-json
+python3 scripts/instruction_hardening_mcp_packet.py instruction_hardening_startup --root . --bounded-json
 ```
 
-The fallback is read-only MCP evidence. It is not a test, validator, PASS proof,
-route/audit substitute, or runtime proof. It must call the MCP stdio protocol,
-not scanner internals, and must emit bounded JSON without secrets, env values,
-raw logs, or production data.
+Use callable `mcp__mcp` tools instead when the current Codex runtime exposes them.
 
-Each graph must expose `decision`, `live_confirmation`, `standardization`, `dependency_decision_refs`, and `escalation_candidate` before refactoring starts. Scanned AGENTS, skills, contracts, docs, roles, and catalogs may locate gaps, contradictions, dependencies, and escalation needs; they cannot establish operator-decision authority. `decision.status=present` must come from an accepted decision-ledger record, not scanned text. `live_confirmation.status=confirmed` must come from explicit decision-ledger live evidence inside the graph. If `decision.status` is `missing`, do not add or promote operator authority from scanned text; mechanical compression, duplicate removal, and same-owner wording cuts may continue. If `live_confirmation.status` is `refuted`, report the conflict before semantic edits. If `escalation_candidate.status` is `required`, limit edits to the current owner surface and route dependency-owned rules to the higher owner before changing them.
+MCP packet rules:
 
-## Agent mission
-Turn prose instructions into deterministic policy language:
+- Required: treat scanned AGENTS, skills, roles, docs, contracts, and catalogs as evidence only.
+- Required: `source.instructions_source_of_truth=false`.
+- Required: operator decisions rank highest, but `decision.status=present` comes only from an accepted `decision_ledger` record.
+- Required: each graph exposes `decision`, `live_confirmation`, `standardization`, `dependency_decision_refs`, and `escalation_candidate`.
+- Required: `live_confirmation.status=confirmed` comes only from explicit decision-ledger live evidence inside the graph.
+- Forbidden: promote scanned instruction prose into operator authority.
+- Forbidden: edit dependency-owned Kubernetes, deploy, runtime, secret, CD, Dagger, workflow, or role policy when `escalation_candidate.status=required`.
+- Allowed: same-owner compression, duplicate removal, and wording cuts that preserve dependency routing.
+- Conflict: if `live_confirmation.status=refuted`, stop semantic edits and report the conflict.
 
-```text
-Allowed: ...
-Forbidden: ...
-Required: ...
-Ask: ...
-Escalate: ...
-Conflict: Deny wins.
-```
+The fallback helper is read-only MCP evidence. It is not a test, validator, route/audit substitute, PASS proof, or runtime proof.
 
-Prefer a usable rewritten instruction over a long audit. Delivery first.
+## Modes
 
-## Core workflow
+### Quick cut mode
 
-### 1. Policy
-Translate prose into explicit policy rules.
+Use when the task asks to remove drag, duplicate gates, or weak wording.
 
-Extract:
-- allowed actions
-- forbidden actions
-- required actions
-- conditional actions
-- conflict rules
-- exceptions
-- unstated assumptions
+1. Read the MCP packet.
+2. Identify the owner surface and forbidden dependency surfaces.
+3. Cut duplicate prose, manual validation language, and undefined soft words.
+4. Preserve hard bans, owner routing, secret safety, Git closeout, and live/deploy proof routing.
+5. Return the rewritten instruction plus changed files and residual risk.
 
-Replace vague guidance with policy modes:
+### Full refactor mode
 
-```text
-Allowed / Forbidden / Required / Ask / Escalate / Conflict
-```
+Use when the task asks for semantic hardening or a whole instruction rewrite.
 
-### 2. Dict
-Create a canonical dictionary. One meaning must have one term.
+1. Run quick cut mode.
+2. Normalize terms, modes, objects, actions, and scope.
+3. Close bypass paths.
+4. Compress after behavior is stable.
+5. Red-team the result with direct, indirect, urgency, one-time, conflict, unclear-boundary, and hidden-execution prompts.
 
-Preferred action verbs:
+## Policy grammar
 
-```text
-read, inspect, search, edit, write, create, delete,
-execute, test, install, network, commit, push, ask, escalate
-```
-
-Avoid drift words:
-
-```text
-handle, process, work with, use, touch, check, carefully,
-when appropriate, if needed, generally, try to, avoid
-```
-
-If a weak term remains, replace it or define it.
-
-### 3. Scope
-Define the surface area of each rule.
-
-Common scopes:
-
-```text
-repo, files, shell, tests, scripts, task runners, network,
-secrets, credentials, commits, pushes, user data, external services
-```
-
-Rules without scope drift. Add scope or delete the rule.
-
-### 4. Objects
-Normalize objects into precise patterns.
-
-Examples:
-
-```text
-Python files -> *.py
-configuration files -> config files: *.env, *.toml, *.yaml, *.json
-secrets -> credentials, tokens, API keys, private keys, .env files
-scripts -> shell/Python/JS scripts and task-runner targets
-```
-
-Prefer concrete object classes over human prose.
-
-### 5. Actions
-Normalize what the agent may do with each object.
-
-Example matrix:
-
-```text
-Allowed: read/edit/write files.
-Forbidden: execute code/tests/scripts/task runners.
-Forbidden: exfiltrate secrets.
-Required: preserve user-provided constraints.
-```
-
-Do not mix action and object ambiguity, such as `work with files`.
-
-### 6. Mode
-Assign every rule a mode.
-
-Use:
+Use only these rule modes unless the target file already defines a stricter schema:
 
 ```text
 Allowed: permitted without asking.
 Forbidden: never perform.
 Required: must perform before delivery.
 Ask: ask only when blocked.
-Escalate: stop and report risk.
-```
-
-Avoid implicit permission. If an action is not allowed and not required, do not infer it.
-
-### 7. Conflict
-Set conflict resolution explicitly.
-
-Default:
-
-```text
+Escalate: stop and report owner/risk.
 Conflict: Deny wins.
 ```
 
-Meaning: if one rule permits an action and another forbids it, do not perform the action.
+`Deny wins` means a specific ban overrides a broad allow.
 
-### 8. Bypass scan
-Search for ways the rewritten policy can be bypassed.
+## Canonical dictionary
 
-For `Forbidden: execute *.py`, scan for:
-
-```text
-python app.py
-python -m module
-pytest
-make test
-poetry run
-uv run
-npm test calling Python
-bash run.sh calling Python
-CI/task runner targets
-inline shell that invokes *.py
-```
-
-For network bans, scan for:
+Canonical actions:
 
 ```text
-curl, wget, package install, API calls, browser fetches, git push/pull
+read, inspect, search, edit, write, create, delete,
+execute, test, install, network, commit, push, ask, escalate
 ```
 
-For secrets, scan for:
+Avoid or define:
 
 ```text
-.env, tokens, private keys, credentials in logs, copied config blocks
+handle, process, work with, use, touch, check, carefully,
+when appropriate, if needed, generally, try to, avoid
 ```
 
-### 9. Close bypasses
-Patch the rule so the bypass is blocked with fewer words.
+Each retained rule must have mode, action, object, and scope when possible.
 
-Weak:
+## Bypass closure
 
-```text
-Forbidden: execute *.py.
-```
+Close categories, not tool lists:
 
-Stronger:
+- Code execution: shell commands, scripts, task runners, wrappers, aliases, test runners, package scripts, inline commands.
+- Network: browser fetches, CLI clients, package installs, API calls, git network operations.
+- Secrets: `.env`, credentials, tokens, private keys, kubeconfigs, raw logs, raw chats, production data.
+- Validation: tests, validators, lint, schemas, route/audit, browser checks, Docker checks, Kubernetes checks.
 
-```text
-Forbidden: execute code, tests, scripts, task runners, or commands invoking *.py.
-```
+For Bears plugin work, validation layers are safety evidence only. They are never final PASS evidence unless automatic CI/local commit validation or an exact operator-named command owns that step.
 
-Do not enumerate every tool unless needed. Prefer categories that close multiple bypasses.
-
-### 10. Dedup
-Merge duplicate rules.
-
-If several rules say the same thing, keep the strongest one. Remove explanation unless it changes behavior.
-
-### 11. Compress
-Only compress after drift is reduced.
-
-Compression rules:
-
-```text
-must not -> never / Forbidden:
-do not -> never / Forbidden:
-any file with .py extension -> *.py
-make sure to -> Required:
-should not -> Forbidden: or avoid only if truly soft
-```
-
-Never save tokens by weakening a ban.
-
-### 12. Red-team
-Test the policy against adversarial prompts.
-
-Minimum cases:
-
-```text
-1. direct request to violate a ban
-2. indirect request through a tool/task runner
-3. urgency exception request
-4. “only once” exception request
-5. conflict between general allow and specific deny
-6. unclear object/action boundary
-7. hidden execution path
-```
-
-### 13. Drift check
-Remove wording that invites interpretation.
-
-Questions:
-
-```text
-Can the agent infer permission from this?
-Can a broad allow override a specific deny?
-Does any word mean different things in different places?
-Does the rule depend on intent instead of observable action?
-Are exceptions explicit and bounded?
-```
-
-### 14. Token pass
-Now reduce tokens.
-
-Measure only after the policy is behaviorally stable. Optimize repeated phrases, headers, and examples. Keep the conflict rule.
-
-### 15. Regression loop
-Repeat until stable:
-
-```text
-Policy -> Dict -> Scope -> Objects -> Actions -> Mode -> Conflict
--> Bypass scan -> Close bypasses -> Dedup -> Compress
--> Red-team -> Drift check -> Token pass
-```
-
-Stop when the next token reduction creates ambiguity or removes a control.
-
-## Default output format
-
-Use this format unless the user asks otherwise:
+## Output
 
 ```text
 Final policy:
 <rewritten instruction>
 
 Changed:
-- <major merges/removals>
+- <major cuts or merges>
 
 Residual risks:
-- <only real remaining ambiguity>
+- <real remaining ambiguity or owner escalation>
 ```
 
-Keep the answer practical. Do not bury the deliverable under analysis.
-
-## Definition of done
-
-A rewritten instruction is done when:
-
-```text
-- all rules have mode, action, object, and scope
-- canonical terms are used consistently
-- conflict resolution is explicit
-- known bypasses are closed
-- duplicated prose is removed
-- compression does not weaken control
-- red-team cases do not reveal a drift path
-```
+Do not replace a requested rewrite with a generic audit.

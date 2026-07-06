@@ -74,21 +74,21 @@ This skill uses the same conceptual loop as implementation-by-task workflows: re
 1. Run the App Target Gate for the packet.
 2. Read `app-analysis.packet`; stop unless handoff is ready or operator approved advisory execution.
 3. Read `docs/app-functional-graph.v1.json` and `docs/app-task-ledger.v1.json`.
-4. Validate graph and ledger through `$app-functional-graph` before wave grouping; each ready task needs computed autoCI zones.
+4. Consume `$app-functional-graph` evidence before wave grouping; each ready task needs computed autoCI zones. Do not run validators manually unless the task packet names the exact command.
 5. Group dependency-ready ledger tasks into a wave by non-overlapping repo/path targets and graph node refs.
 6. Start or reuse one L2 orchestrator per lane in the packet.
 7. Send each L2 only its lane tasks, dependencies, graph refs, allowed Project item mutations, helper rules, and closeout format.
 8. L2 may use `$subagents` helpers for decomposition or metadata support, then dispatches L3 workers for ready ledger tasks.
 9. Each L3 worker claims its task, implements only that task, marks its ledger task status, and returns changed files, commit/push evidence or exact blocker, ledger evidence, Project item evidence when used, and task completion claim.
 10. L2 dispatches one L3 critic per completed task. The critic receives only the task and review objective.
-11. L2 accepts task `done` only after L3 has marked ledger status and critic confirms 100% completion with commit/evidence refs.
+11. L2 accepts task `done` only after ledger status, L3 commit/push evidence, and critic confirmation exist.
 12. Parent integrates L2 closeout packets, advances the next wave, and reports remaining blockers or drift.
 
 Hard rule: no valid ledger task means no L3 dispatch.
 
 ## L3 autoCI/CD status matrix
 
-`autoCI/CD` means automatic status evidence created after an L3 commit is pushed. It is not a Codex command queue and it is not an L2 blocker.
+`autoCI/CD` means automatic status evidence created after an L3 commit is pushed. It is evidence, not a Codex command queue.
 
 Rules:
 
@@ -98,7 +98,7 @@ Rules:
 - Fast CI statuses are automatic after commit or push. Agents must not create, dispatch, or run local check layers to prove completion.
 - Full product proof is a fixed Dagger objective-runtime-proof scenario, followed by Kubernetes `kubernetes_deployment` plus `local_cd` evidence when live proof is required.
 - Tests, validators, schemas, lint, static checks, and local host processes may be internal safety guardrails only. They are never PASS evidence.
-- Missing or failing statuses become follow-up evidence for L2 triage unless the task packet declares them a hard blocker.
+- Missing or failing statuses become L2 triage evidence unless the task packet declares them a hard blocker.
 
 Required L3 status packet:
 
@@ -137,7 +137,7 @@ Required L3 status packet:
   ],
   "allowed_project_mutations": ["status", "field updates named by app-plan"],
   "helper_policy": "Use $subagents for L2 helpers only; helpers do not implement.",
-  "completion": "all assigned tasks have L3 commit evidence, automatic status matrix evidence, ledger updates, and L3 critic confirmation"
+  "completion": "all assigned tasks have ledger done, L3 commit/push evidence, automatic status refs, and L3 critic confirmation"
 }
 ```
 

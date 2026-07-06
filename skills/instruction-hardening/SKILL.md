@@ -51,8 +51,9 @@ Required for every `codex exec` row in an instruction-hardening comparison:
 - Startup context is exactly the assigned prompt file plus the selected role file. Only deterministic source delimiters may be added.
 - Run from an empty control cwd, not from the target checkout. Add the target isolated worktree with `--add-dir`.
 - Use `--ignore-user-config`, `--ignore-rules`, `--ephemeral`, and `--skip-git-repo-check`.
+- Disable inherited feature surfaces that are not needed for a single-agent exec row: apps, plugins, memories, multi-agent, browser/computer/image tools, tool suggestions, and workspace dependency prompts.
 - Record the runner flags, control cwd, target worktree, startup context source paths, and token usage in the result packet.
-- Forbidden startup context: inherited user config, project rules, auto-loaded `AGENTS.md`, skill catalog, plugin context, MCP/app context, runtime logs, session history, or copied full files.
+- Forbidden startup context: inherited user config, project rules, auto-loaded `AGENTS.md`, skill catalog, plugin context, MCP/app context, multi-agent tools, runtime logs, session history, or copied full files.
 - If the local sandbox cannot start, retry only in the same isolated worktree with the explicit sandbox override recorded in the result packet.
 
 Use `scripts/instruction_hardening_exec.py` for governed exec rows. Do not invoke `codex exec` directly for matrix results unless the script is missing or broken and the result packet records the manual command and reason.

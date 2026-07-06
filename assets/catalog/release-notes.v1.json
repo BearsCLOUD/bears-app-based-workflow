@@ -18,7 +18,7 @@
         "skills/instruction-hardening/SKILL.md",
         "skills/instruction-hardening/references/evaluation-rubric.md"
       ],
-      "impact": "Codex exec instruction-hardening comparisons now require prompt-file plus role-file startup context only, isolated control cwd with target worktree added explicitly, ignored user config/rules, and result packets that record runner flags and startup context sources.",
+      "impact": "Codex exec instruction-hardening comparisons now require prompt-file plus role-file startup context only, isolated control cwd with target worktree added explicitly, ignored user config/rules, disabled apps/plugins/memories/multi-agent/tool-suggestion feature surfaces, and result packets that record runner flags, disabled features, and startup context sources.",
       "issue_ref": "#8",
       "validation": [
         "python3 scripts/local_commit_validation.py run --commit-sha <main_sha>",

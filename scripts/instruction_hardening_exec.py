@@ -12,6 +12,17 @@ from typing import Any
 SCHEMA = "bears.instruction-hardening.exec-runner.v1"
 ALLOWED_EFFORTS = ("minimal", "low", "medium", "high")
 ALLOWED_SANDBOXES = ("read-only", "workspace-write", "danger-full-access")
+DEFAULT_DISABLED_FEATURES = (
+    "apps",
+    "browser_use",
+    "computer_use",
+    "image_generation",
+    "memories",
+    "multi_agent",
+    "plugins",
+    "tool_suggest",
+    "workspace_dependencies",
+)
 
 
 def utc_now() -> str:
@@ -61,6 +72,10 @@ def build_command(args: argparse.Namespace, final_path: Path) -> list[str]:
         "--ignore-rules",
         "--ephemeral",
         "--skip-git-repo-check",
+    ]
+    for feature in DEFAULT_DISABLED_FEATURES:
+        command.extend(["--disable", feature])
+    command.extend([
         "-m",
         args.model,
         "-c",
@@ -74,7 +89,7 @@ def build_command(args: argparse.Namespace, final_path: Path) -> list[str]:
         "-o",
         str(final_path),
         "-",
-    ]
+    ])
     if args.output_schema:
         output_index = command.index("-o")
         command[output_index:output_index] = ["--output-schema", str(args.output_schema)]
@@ -94,7 +109,8 @@ def packet(args: argparse.Namespace, command: list[str], *, status: str, start_u
         "returncode": returncode,
         "startup_context_policy": "prompt_file_plus_role_file_only",
         "startup_context_sources": [str(args.role), str(args.prompt)],
-        "forbidden_startup_context": ["user_config", "project_rules", "project_or_plugin_AGENTS_auto_load", "skills_catalog", "plugin_context", "mcp_or_app_context", "runtime_logs", "session_history"],
+        "disabled_features": list(DEFAULT_DISABLED_FEATURES),
+        "forbidden_startup_context": ["user_config", "project_rules", "project_or_plugin_AGENTS_auto_load", "skills_catalog", "plugin_context", "mcp_or_app_context", "multi_agent_tools", "runtime_logs", "session_history"],
         "control_cwd": str(args.control_cwd),
         "target_worktree": str(args.worktree),
         "runner_flags": command[2:-1],

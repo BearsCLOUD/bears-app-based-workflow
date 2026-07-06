@@ -56,6 +56,7 @@ Each live run must record:
   "startup_context_policy": "prompt_file_plus_role_file_only",
   "startup_context_sources": [],
   "runner_flags": [],
+  "disabled_features": [],
   "control_cwd": "",
   "target_worktree": "",
   "changed_files": [],

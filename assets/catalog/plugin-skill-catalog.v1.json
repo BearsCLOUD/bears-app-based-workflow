@@ -109,6 +109,11 @@
       "description": "Request bounded operator decisions, feedback waits, and safe file exchange through the configured codex-telegram MCP server without a Telegram PreToolUse hook.",
       "name": "codex-telegram-operator-gate",
       "path": "skills/codex-telegram-operator-gate"
+    },
+    {
+      "description": "Harden human-readable agent instructions with semantic preservation, bypass closure, compression, and weighted rubric scoring.",
+      "name": "instruction-hardening",
+      "path": "skills/instruction-hardening"
     }
   ],
   "disabled_skills": [],
@@ -124,6 +129,6 @@
   },
   "owner_plugin": "bears",
   "schema": "bears-plugin-skill-catalog.v1",
-  "updated": "2026-07-05",
+  "updated": "2026-07-06",
   "version": "1"
 }

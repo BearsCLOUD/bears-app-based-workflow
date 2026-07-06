@@ -406,6 +406,7 @@
       "infisical_control_plane_bridge",
       "infra_mcp_project_surface",
       "infrastructure_network_role_metadata",
+      "instruction_hardening_governance",
       "kubernetes_data_platform_role_metadata",
       "kubernetes_deploy_core",
       "kubernetes_dev_core_router_layer",
@@ -10405,6 +10406,65 @@
         "/srv/bears/plugins/bears/docs/reference/github-project-subagents.md",
         "docs/reference/github-project-subagents.md"
       ]
+    },
+    {
+      "aliases": [
+        "instruction-hardening",
+        "instruction_hardening",
+        "instruction-hardening skill",
+        "human-readable instruction hardening",
+        "agents/bears-instruction-hardening-engineer.toml",
+        "plugins/bears/agents/bears-instruction-hardening-engineer.toml",
+        "/srv/bears/plugins/bears/agents/bears-instruction-hardening-engineer.toml",
+        "skills/instruction-hardening",
+        "skills/instruction-hardening/SKILL.md",
+        "skills/instruction-hardening/agents/openai.yaml",
+        "skills/instruction-hardening/references/evaluation-rubric.md",
+        "plugins/bears/skills/instruction-hardening",
+        "plugins/bears/skills/instruction-hardening/SKILL.md",
+        "plugins/bears/skills/instruction-hardening/agents/openai.yaml",
+        "plugins/bears/skills/instruction-hardening/references/evaluation-rubric.md",
+        "/srv/bears/plugins/bears/skills/instruction-hardening",
+        "/srv/bears/plugins/bears/skills/instruction-hardening/SKILL.md",
+        "/srv/bears/plugins/bears/skills/instruction-hardening/agents/openai.yaml",
+        "/srv/bears/plugins/bears/skills/instruction-hardening/references/evaluation-rubric.md"
+      ],
+      "allowed_write_boundary": "Only instruction-hardening skill files, its role TOML, and route-coverage references inside /srv/bears/plugins/bears; assigned target instruction rewrites require their own exact route and must not mutate product, runtime, deploy, Kubernetes, provider, network, or secret-custody surfaces.",
+      "concrete_scope": "Instruction-hardening skill bundle, rubric, UI metadata, role artifact, and exact governance references for human-readable agent instruction hardening.",
+      "decomposition_required": false,
+      "group": "plugin_governance",
+      "name": "instruction_hardening_governance",
+      "no_role_policy": "blocker",
+      "part_kind": "concrete",
+      "required_role": "bears-instruction-hardening-engineer",
+      "required_validations": [
+        "python3 scripts/subagents_roles.py validate",
+        "python3 scripts/subagents_roles.py route /srv/bears/plugins/bears/skills/instruction-hardening",
+        "python3 scripts/subagents_roles.py audit /srv/bears/plugins/bears/skills/instruction-hardening",
+        "python3 scripts/subagents_roles.py route /srv/bears/plugins/bears/agents/bears-instruction-hardening-engineer.toml",
+        "python3 /home/ai1/.codex/skills/.system/skill-creator/scripts/quick_validate.py /srv/bears/plugins/bears/skills/instruction-hardening"
+      ],
+      "reviewer_triggers": [
+        "instruction-layer ownership change",
+        "bypass-scan rule change",
+        "weighted rubric change",
+        "role prompt or skill discovery change",
+        "target scope include/exclude change"
+      ],
+      "role_required": true,
+      "source": "/srv/bears/plugins/bears/agents/bears-instruction-hardening-engineer.toml",
+      "supporting_roles": [
+        "bears-platform-security-reviewer"
+      ],
+      "trust_boundary": "Instruction hardening can change future agent behavior. It must preserve route ownership, validation ownership, secret safety, forbidden path boundaries, and objective-runtime-proof policy while staying instruction-only unless a separate exact route authorizes target edits.",
+      "write_roots": [
+        "/srv/bears/plugins/bears/agents/bears-instruction-hardening-engineer.toml",
+        "/srv/bears/plugins/bears/skills/instruction-hardening",
+        "plugins/bears/agents/bears-instruction-hardening-engineer.toml",
+        "plugins/bears/skills/instruction-hardening",
+        "agents/bears-instruction-hardening-engineer.toml",
+        "skills/instruction-hardening"
+      ]
     }
   ],
   "roles": [
@@ -12067,6 +12127,36 @@
       "role_kind": "helper",
       "sandbox_mode": "workspace-write",
       "scope": "Bears app functional graph, app task ledger, Project status metadata, notification refs, and L2/L3 app-dev assignment packets."
+    },
+    {
+      "agent_file": "agents/bears-instruction-hardening-engineer.toml",
+      "allowed_write_zones": [
+        "plugins/bears/skills/instruction-hardening",
+        "plugins/bears/agents/bears-instruction-hardening-engineer.toml",
+        "assigned human-readable instruction surfaces after exact route selection only"
+      ],
+      "developer_instructions_profile": "instruction-hardening",
+      "evidence_required": [
+        "nearest AGENTS and plugin router evidence",
+        "exact target file list",
+        "instruction-hardening weighted rubric score",
+        "redaction review for secrets, raw logs, raw chats, and production data"
+      ],
+      "execution_class": "specialist",
+      "forbidden_actions": [
+        "product implementation",
+        "runtime/deploy/Kubernetes/provider/network mutation",
+        "secret access or production data access",
+        "raw log, raw chat, raw session body, kubeconfig, VPN config, or .env reads",
+        "manual test or validator execution without exact active-turn approval"
+      ],
+      "handoff_contract": "/srv/bears/dev/contracts/subagent_start_packet.md",
+      "model": "gpt-5.5",
+      "name": "bears-instruction-hardening-engineer",
+      "primary_eligible": true,
+      "role_kind": "specialist",
+      "sandbox_mode": "workspace-write",
+      "scope": "Hardening human-readable Bears instruction surfaces with semantic preservation, bypass closure, and compression after exact route selection."
     }
   ],
   "route_regression_checks": [
@@ -15122,10 +15212,34 @@
       "expected_status": "matched",
       "required_role": "bears-deploy-platform-engineer",
       "target": "/srv/bears/plugins/bears/assets/catalog/autoci-graph.v1.json"
+    },
+    {
+      "concrete_part": "instruction_hardening_governance",
+      "expected_status": "matched",
+      "required_role": "bears-instruction-hardening-engineer",
+      "target": "skills/instruction-hardening/SKILL.md"
+    },
+    {
+      "concrete_part": "instruction_hardening_governance",
+      "expected_status": "matched",
+      "required_role": "bears-instruction-hardening-engineer",
+      "target": "/srv/bears/plugins/bears/skills/instruction-hardening/SKILL.md"
+    },
+    {
+      "concrete_part": "instruction_hardening_governance",
+      "expected_status": "matched",
+      "required_role": "bears-instruction-hardening-engineer",
+      "target": "agents/bears-instruction-hardening-engineer.toml"
+    },
+    {
+      "concrete_part": "instruction_hardening_governance",
+      "expected_status": "matched",
+      "required_role": "bears-instruction-hardening-engineer",
+      "target": "/srv/bears/plugins/bears/agents/bears-instruction-hardening-engineer.toml"
     }
   ],
   "schema": "bears-platform-role-catalog.v1",
-  "updated": "2026-07-05T21:58:41Z",
+  "updated": "2026-07-06T11:24:28Z",
   "version": "1",
   "workflow_routes": [
     {

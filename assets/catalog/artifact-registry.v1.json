@@ -7720,8 +7720,8 @@
       ],
       "artifact_type": "catalog",
       "changelog_required": false,
-      "decision_ref_required": true,
       "decision_ref": "DEC-20260705-autoci-graph-ledger-status",
+      "decision_ref_required": true,
       "git_tracked": true,
       "lifecycle": "catalog",
       "owner_issue": "operator-goal-dirty-drift-cleanup",
@@ -7731,9 +7731,77 @@
       "validation": [
         "python3 scripts/artifact_registry.py validate"
       ]
+    },
+    {
+      "allowed_writers": [
+        "bears-instruction-hardening-engineer"
+      ],
+      "artifact_type": "doc",
+      "changelog_required": false,
+      "decision_ref_required": false,
+      "git_tracked": true,
+      "lifecycle": "doc",
+      "owner_issue": "operator-goal-plugin-update-refactor",
+      "owner_role": "bears-instruction-hardening-engineer",
+      "path": "agents/bears-instruction-hardening-engineer.toml",
+      "source_of_truth_status": "canonical",
+      "validation": [
+        "python3 scripts/artifact_registry.py validate"
+      ]
+    },
+    {
+      "allowed_writers": [
+        "bears-instruction-hardening-engineer"
+      ],
+      "artifact_type": "doc",
+      "changelog_required": false,
+      "decision_ref_required": false,
+      "git_tracked": true,
+      "lifecycle": "doc",
+      "owner_issue": "operator-goal-plugin-update-refactor",
+      "owner_role": "bears-instruction-hardening-engineer",
+      "path": "skills/instruction-hardening/SKILL.md",
+      "source_of_truth_status": "canonical",
+      "validation": [
+        "python3 scripts/artifact_registry.py validate"
+      ]
+    },
+    {
+      "allowed_writers": [
+        "bears-instruction-hardening-engineer"
+      ],
+      "artifact_type": "doc",
+      "changelog_required": false,
+      "decision_ref_required": false,
+      "git_tracked": true,
+      "lifecycle": "doc",
+      "owner_issue": "operator-goal-plugin-update-refactor",
+      "owner_role": "bears-instruction-hardening-engineer",
+      "path": "skills/instruction-hardening/agents/openai.yaml",
+      "source_of_truth_status": "canonical",
+      "validation": [
+        "python3 scripts/artifact_registry.py validate"
+      ]
+    },
+    {
+      "allowed_writers": [
+        "bears-instruction-hardening-engineer"
+      ],
+      "artifact_type": "doc",
+      "changelog_required": false,
+      "decision_ref_required": false,
+      "git_tracked": true,
+      "lifecycle": "doc",
+      "owner_issue": "operator-goal-plugin-update-refactor",
+      "owner_role": "bears-instruction-hardening-engineer",
+      "path": "skills/instruction-hardening/references/evaluation-rubric.md",
+      "source_of_truth_status": "canonical",
+      "validation": [
+        "python3 scripts/artifact_registry.py validate"
+      ]
     }
   ],
   "schema": "bears-artifact-registry.v1",
-  "updated": "2026-07-05",
+  "updated": "2026-07-06",
   "version": "1"
 }

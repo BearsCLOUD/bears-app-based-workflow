@@ -59,6 +59,7 @@ AGENT_SANDBOX_MODE_MATRIX = {
     "bears-clarification-architect.toml": "read-only",
     "bears-codex-daemon-engineer.toml": "workspace-write",
     "bears-codex-health-engineer.toml": "workspace-write",
+    "bears-instruction-hardening-engineer.toml": "workspace-write",
     "bears-codex-workspace-config-engineer.toml": "workspace-write",
     "bears-deploy-platform-engineer.toml": "workspace-write",
     "bears-deprecated-git-remote-hygiene-engineer.toml": "workspace-write",

@@ -189,7 +189,7 @@ Critic result:
 
 ### Phase 8: Reference documentation wording wave
 
-Status: in review.
+Status: complete.
 
 MCP queue source:
 
@@ -214,3 +214,43 @@ Wave result before critic/commit:
 Critic requirement:
 
 - PASS only if current repo evidence proves the reference-doc slice advances the active goal through the MCP queue, removes weak/stale wording without changing command semantics, preserves closeout/secret/deploy/runtime safety, and keeps the broad all-instruction goal open.
+
+Critic result:
+
+- Re-audit critic `019f3b9d-3426-7231-a1ec-940453cd2e35` verdict: `PASS`, blockers: none.
+- PASS was based on current repo evidence: MCP/helper path remains active, 22 changed reference docs were counted, stale manual validator/test/route-audit wording was removed from the changed files, and the slice did not mutate executable/product/runtime/deploy/Kubernetes/secret-custody files.
+
+### Phase 9: Skill portability and wording wave
+
+Status: complete.
+
+MCP queue source:
+
+```bash
+python3 scripts/instruction_hardening_mcp_packet.py instruction_hardening_startup --root . --bounded-json
+```
+
+Wave scope:
+
+- selected `skills/*/SKILL.md` files surfaced by `instruction_surfaces[]`;
+- portable command/path wording in skill instructions;
+- weak action words in skill activation, command, and report rules.
+
+Wave result before critic/commit:
+
+- `surface_summary.weak_terms_by_kind.skill`: `82 -> 54`;
+- changed 6 skill files with instruction-only wording cuts;
+- removed server-specific absolute plugin paths from the changed skill instructions;
+- converted helper command examples to relative plugin-root or skill-directory commands;
+- preserved secret safety, dry-run DNS behavior, app graph validation ownership, GitHub Project boundary, and plugin update CI/local-commit ownership;
+- no catalog, role TOML, workflow, runtime, deploy, Kubernetes desired-state, or secret-custody mutations in this wave.
+
+Critic requirement:
+
+- PASS only if current repo evidence proves this skill slice advances the active goal through the MCP queue, improves portability/wording without changing command semantics, leaves manual validator/test execution under exact operator-named command or automatic CI/local commit validation, and keeps the broad all-instruction goal open.
+
+Critic result:
+
+- Re-audit critic `019f3b9d-3426-7231-a1ec-940453cd2e35` initial verdict: `FAIL` for an ungated Yandex360 local guardrail validator command.
+- Fix applied: `skills/yandex360-dns/SKILL.md` now gates `python3 scripts/validate_yandex360_dns_cutover.py` behind an exact operator-named command or automatic CI/local commit validation ownership.
+- Re-audit verdict: `PASS`, blockers: none.

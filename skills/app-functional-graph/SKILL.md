@@ -1,6 +1,6 @@
 ---
 name: app-functional-graph
-description: "Create, update, and consume app-local functional graph and app task ledger files for Bears apps under /srv/bears/dev/app/*. Use when app-plan creates ledger tasks, when app-dev consumes task scope before L3 dispatch, or when a task must link to functionality refs, graph node refs, async cycles, API calls, state transitions, Project item refs, notification refs, and execution evidence."
+description: "Create, update, and consume app-local functional graph and app task ledger files for Bears apps under the app workspace. Activate when app-plan creates ledger tasks, app-dev consumes task scope before L3 dispatch, or a task must link to functionality refs, graph node refs, async cycles, API calls, state transitions, Project item refs, notification refs, and execution evidence."
 ---
 
 # App Functional Graph
@@ -11,9 +11,9 @@ description: "Create, update, and consume app-local functional graph and app tas
 
 Run the shared app-* target gate first.
 
-- Use this skill for `target_layer=app` under `/srv/bears/dev/app/<app>`.
+- Activate this skill for `target_layer=app` under the configured app workspace.
 - Keep graph and ledger files inside the app directory.
-- Use `target_layer=platform`, `infra`, or `plugin` only as a referenced dependency; do not store their execution tasks in an app ledger.
+- Record `target_layer=platform`, `infra`, or `plugin` only as a referenced dependency; do not store their execution tasks in an app ledger.
 
 ## Files
 
@@ -27,12 +27,12 @@ Run the shared app-* target gate first.
 Create both files when the app has no graph or ledger yet:
 
 ```bash
-python3 /srv/bears/plugins/bears/scripts/app_functional_graph.py init --app-dir /srv/bears/dev/app/<app>
+python3 scripts/app_functional_graph.py init --app-dir <app-directory>
 ```
 
 ### Plan mode
 
-Use with `$app-plan` before execution task creation.
+Activate with `$app-plan` before execution task creation.
 
 1. Read app specification, research, nearest `AGENTS.md`, and existing graph and ledger.
 2. Create or update one functionality for each executable product behavior.
@@ -44,7 +44,7 @@ Hard rule: an execution task with `status=ready`, `in_progress`, `done`, `blocke
 
 ### Dev mode
 
-Use with `$app-dev` before L3 dispatch and after L3 closeout.
+Activate with `$app-dev` before L3 dispatch and after L3 closeout.
 
 1. Consume existing graph and ledger validity evidence.
 2. Dispatch only ledger tasks with `status=ready` and valid refs.
@@ -63,10 +63,10 @@ Forbidden: manually run graph or ledger validators unless the task packet or ope
 
 ## Command surface
 
-Use `/srv/bears/plugins/bears/scripts/app_functional_graph.py` only as an assigned app-plan/app-dev operation, exact operator-named command, or local-commit-owned automation.
+Run `scripts/app_functional_graph.py` from the plugin root only as an assigned app-plan/app-dev operation, exact operator-named command, or local-commit-owned automation.
 
 - `init`: creates graph and ledger files for a registered app directory.
-- `validate`: checks graph and ledger JSON, ids, references, API caller nodes, async cycle nodes, and notification refs.
+- `validate`: inspects graph and ledger JSON, ids, references, API caller nodes, async cycle nodes, and notification refs.
 - `summary`: emits graph and ledger counts for status reporting.
 - `create-task`: creates a ledger task with functionality refs, graph-node refs, autoCI zones, and expected statuses.
 - `claim-task`: lets the assigned L3 worker mark one ready task `in_progress`.
@@ -81,4 +81,4 @@ The script is a helper. Its `validate` mode is not agent PASS evidence; it belon
 
 - Store ids, paths, refs, status, worker id, worker role, timestamps, commit ids, autoCI zones, status names, and evidence refs only.
 - Do not store secret values, env values, tokens, raw logs, raw chats, provider payloads, or production data.
-- Use positive action wording: target, owner, action path, evidence, and handoff.
+- Write positive action wording: target, owner, action path, evidence, and handoff.

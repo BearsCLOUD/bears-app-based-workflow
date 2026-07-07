@@ -1,6 +1,6 @@
 ---
 name: bears-blocker-eval
-description: "Use to classify plugin/non-app Bears workflow-overlay risks, blockers, and unblock paths; emits or validates blocker-review JSON and never acts as an app workflow gate."
+description: "Classify plugin/non-app Bears workflow-overlay risks, blockers, and unblock paths; emit or validate blocker-review JSON and never act as an app workflow gate."
 ---
 
 # Bears Blocker Eval
@@ -11,7 +11,7 @@ This skill is report-first. It must not stop work by itself unless it is propaga
 
 ## Boundary
 
-Do not use this skill as an app gate, app PASS source, app execution blocker, or replacement for `app-plan`/`app-analyze`.
+Do not activate this skill as an app gate, app PASS source, app execution blocker, or replacement for `app-plan`/`app-analyze`.
 
 ## Workflow
 
@@ -38,18 +38,18 @@ Emit or validate this JSON artifact first:
       "code": "BOUNDARY_REVIEW_REQUIRED",
       "taxonomy": "artifacts",
       "severity": "medium",
-      "description": "Overlay boundary evidence must be checked before changing shared workflow artifacts.",
+      "description": "Overlay boundary evidence must be inspected before changing shared workflow artifacts.",
       "mitigation": "Read the plugin README and source-boundary contract, then continue with bounded edits."
     }
   ],
   "evidence": [
-    "/srv/bears/plugins/bears/README.md"
+    "README.md"
   ],
   "recommendation": "Treat as advisory unless a role gate returns ROLE_COVERAGE_BLOCKER."
 }
 ```
 
-Use `status: blocked` only for a propagated `ROLE_COVERAGE_BLOCKER`, explicit user stop, or higher-priority instruction stop. Use `clean`, `review`, or `waived` for non-blocking outcomes.
+Return `status: blocked` only for a propagated `ROLE_COVERAGE_BLOCKER`, explicit user stop, or higher-priority instruction stop. Return `clean`, `review`, or `waived` for non-blocking outcomes.
 
 ## Report rules
 

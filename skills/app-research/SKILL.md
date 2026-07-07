@@ -1,11 +1,11 @@
 ---
 name: app-research
-description: "Research external solutions, prior art, product logic, integration options, UI/UX patterns, provider behavior, and market constraints for a Bears app target. Use before app-specify and again before app-plan when risk-gated unknowns remain."
+description: "Research external solutions, prior art, product logic, integration options, UI/UX patterns, provider behavior, and market constraints for a Bears app target. Activate before app-specify and again before app-plan when risk-gated unknowns remain."
 ---
 
 # App Research
 
-`app` means one Bears product application directory under `/srv/bears/dev/app` or the `BearsCLOUD/apps` repository. `project` means only a GitHub Project board with linked metadata fields. GitHub Issues are notification records for blockers, incidents, bugs, or operator questions; they are not execution tasks. Use `repo`, `path`, `target`, `workspace surface`, or `app directory` for filesystem ownership.
+`app` means one Bears product application directory under the configured app workspace or the `BearsCLOUD/apps` repository. `project` means only a GitHub Project board with linked metadata fields. GitHub Issues are notification records for blockers, incidents, bugs, or operator questions; they are not execution tasks. Say `repo`, `path`, `target`, `workspace surface`, or `app directory` for filesystem ownership.
 
 ## App Target Gate
 
@@ -13,11 +13,11 @@ Every app-* skill starts with this gate:
 
 - Name one exact app directory, app docs path, plugin path, platform path, or infra path.
 - Classify each target as exactly one `target_layer`: `app`, `platform`, `infra`, or `plugin`.
-- `app` belongs to `BearsCLOUD/apps` and one app directory under `/srv/bears/dev/app`.
-- `platform` belongs to `/srv/bears/dev/platform`.
-- `infra` belongs to `/srv/bears/kubernetes`.
-- `plugin` belongs to `plugins/<plugin>`; for `@Bears`, route to `/srv/bears/plugins/bears` plus computed `subagents-roles` owner and expected autoCI/local-commit validation status.
-- Legacy child repos and `/srv/bears/projects` are evidence only.
+- `app` belongs to `BearsCLOUD/apps` and one app directory under the configured app workspace.
+- `platform` belongs to the configured platform workspace.
+- `infra` belongs to the configured Kubernetes desired-state workspace.
+- `plugin` belongs to `plugins/<plugin>`; for `@Bears`, route to the current plugin checkout plus computed `subagents-roles` owner and expected autoCI/local-commit validation status.
+- Legacy child repos and deprecated project directories are evidence only.
 - Read target-named paths when target packets name paths.
 - If a request crosses layers, keep the layers separate and pass them to `$app-plan` as separate lanes.
 
@@ -53,7 +53,7 @@ Required: set `target_layer=plugin` when app-style flow helps a plugin governanc
 Allowed:
 
 - Read exact target docs and computed role ownership evidence.
-- Use current web, official docs, GitHub, package, and product sources when external evidence is needed.
+- Read current web, official docs, GitHub, package, and product sources when external evidence is needed.
 - Summarize source links, decision options, constraints, and concrete recommendations.
 
 Forbidden:
@@ -95,7 +95,7 @@ Required comparison axes:
   "app_directory": "<app directory or none>",
   "layers": ["app|platform|infra"],
   "questions": ["<decision question>"],
-  "sources": [{"title": "<source>", "url_or_path": "<link or path>", "use": "<why it matters>"}],
+  "sources": [{"title": "<source>", "url_or_path": "<link or path>", "purpose": "<why it matters>"}],
   "recommendations": ["<concrete product or implementation logic recommendation>"],
   "non_goals": ["<not doing>"],
   "handoff": "app-specify|app-plan|operator-decision"

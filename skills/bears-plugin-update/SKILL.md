@@ -1,6 +1,6 @@
 ---
 name: bears-plugin-update
-description: "Use for @Bears plugin updates: route policy ownership, use skill-local config, keep target facts in target surfaces, and rely on CI/local-commit checks for validation."
+description: "Activate for @Bears plugin updates: route policy ownership, read skill-local config, keep target facts in target surfaces, and rely on CI/local-commit evidence for validation."
 ---
 
 # Bears Plugin Update
@@ -31,7 +31,7 @@ Proceed with this skill only for `central_plugin_config` facts. Route `target_ag
 8. Record directory child inventory and generated-file generator source.
 9. Add only implementation tasks found by the audit-review; keep existing tasks unchanged.
 10. Sync generated plugin inventory when the skill catalog changes.
-11. Use CI/local-commit validation as blocking check evidence. Route/audit output is ownership evidence only.
+11. Treat CI/local-commit validation as blocking safety evidence. Route/audit output is ownership evidence only.
 
 ## JSON Packet
 

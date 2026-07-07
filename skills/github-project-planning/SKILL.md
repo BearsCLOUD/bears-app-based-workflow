@@ -1,6 +1,6 @@
 ---
 name: github-project-planning
-description: "Use for non-app GitHub Project planning and administration: creating or selecting Projects, defining field models, roadmap views, issue and sub-issue metadata, item hygiene, and planning PASS packets. Do not use for app workflow planning, Apps Project #20 decomposition, app-dev handoff, product implementation, runtime/deploy work, repository settings, secrets, or raw logs."
+description: "Activate for non-app GitHub Project planning and administration: creating or selecting Projects, defining field models, roadmap views, issue and sub-issue metadata, item hygiene, and planning PASS packets. Forbidden for app workflow planning, Apps Project #20 decomposition, app-dev handoff, product implementation, runtime/deploy work, repository settings, secrets, or raw logs."
 ---
 
 # GitHub Project Planning
@@ -37,14 +37,14 @@ Load only the references needed for the current planning task:
 ## Operating rules
 
 1. Start from the nearest `AGENTS.md`, the owning repository boundary, and explicit operator intent.
-2. Use the owning repo or operator packet to identify the correct owner role before planning work items.
+2. Derive the correct owner role from the owning repo or operator packet before planning work items.
 3. Treat GitHub Project or Issue mutations as external metadata changes. Require an explicit operator authorization packet before creating or editing Projects, fields, views, Issues, sub-issues, labels, milestones, comments, or item fields.
-4. Use GitHub metadata only. Do not read raw logs or secret-bearing surfaces.
+4. Read GitHub metadata only. Do not read raw logs or secret-bearing surfaces.
 5. Keep one work item mapped to one owner repo, one local path, one owner role, one proof target, and one blocker state.
 6. Split items when repo boundary, local path, owner role, proof target, deployment boundary, or secret-custody boundary differs.
 7. Mark planning PASS only after required fields, views, issue links, owner roles, proof targets, and blocker states are complete.
 8. Do not dispatch implementation workers from this skill; return Project and Issue metadata that a non-app workflow can consume.
-9. If the target is `/srv/bears/dev/app`, `BearsCLOUD/apps`, Apps Project #20, app lane planning, or `$app-dev`, stop and route to `$app-plan`.
+9. If the target is the configured app workspace, `BearsCLOUD/apps`, Apps Project #20, app lane planning, or `$app-dev`, stop and route to `$app-plan`.
 
 ## Planning PASS packet
 
@@ -71,4 +71,4 @@ Return this shape when the planning slice is ready:
 }
 ```
 
-Use `status: "review"` when planning is not ready or metadata mutation lacks authorization.
+Return `status: "review"` when planning is not ready or metadata mutation lacks authorization.

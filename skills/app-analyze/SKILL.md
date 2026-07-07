@@ -5,7 +5,7 @@ description: "Analyze app workflow artifacts for drift before app-dev: App Targe
 
 # App Analyze
 
-`app` means one Bears product application directory under `/srv/bears/dev/app` or the `BearsCLOUD/apps` repository. `project` means only a GitHub Project board with linked metadata fields. GitHub Issues are notification records for blockers, incidents, bugs, or operator questions; they are not execution tasks. Use `repo`, `path`, `target`, `workspace surface`, or `app directory` for filesystem ownership.
+`app` means one Bears product application directory under `/srv/bears/dev/app` or the `BearsCLOUD/apps` repository. `project` means only a GitHub Project board with linked metadata fields. GitHub Issues are notification records for blockers, incidents, bugs, or operator questions; they are not execution tasks. Say `repo`, `path`, `target`, `workspace surface`, or `app directory` for filesystem ownership.
 
 ## App Target Gate
 
@@ -95,4 +95,4 @@ Forbidden:
 }
 ```
 
-Use `fail` when artifacts contradict each other or coverage is missing. Use `blocked` only for access, permission, missing required route coverage, explicit operator stop, or missing owner proof.
+Return `fail` when artifacts contradict each other or coverage is missing. Return `blocked` only for access, permission, missing required route coverage, explicit operator stop, or missing owner proof.

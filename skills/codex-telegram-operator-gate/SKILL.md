@@ -1,6 +1,6 @@
 ---
 name: codex-telegram-operator-gate
-description: "Use when Codex needs an operator decision, Telegram inline choice, bounded safe file exchange, or feedback wait through the configured codex-telegram MCP server. This is a skill-driven MCP workflow, not a PreToolUse hook."
+description: "Request an operator decision, Telegram inline choice, bounded safe file exchange, or feedback wait through the configured codex-telegram MCP server. This is a skill-driven MCP workflow, not a PreToolUse hook."
 ---
 
 # Codex Telegram Operator Gate
@@ -10,7 +10,7 @@ Required: activate this skill when an operator decision, bounded inline choice, 
 ## Hard rules
 
 - This is a skill-driven MCP workflow. Do not register, enable, or rely on a Telegram `PreToolUse` hook gate.
-- Use the configured MCP server `codex-telegram`; do not call Telegram Bot API or userbot APIs directly.
+- Call the configured MCP server `codex-telegram`; do not call Telegram Bot API or userbot APIs directly.
 - Do not store or print bot tokens, MCP tokens, chat IDs, private chats, raw Telegram payloads, kubeconfigs, `.env` values, secrets, raw logs, or production data.
 - Keep the dependent step paused only while waiting for operator feedback; unrelated safe work may continue.
 - If the current Codex surface does not expose `codex-telegram` MCP tools, return `CODEX_TELEGRAM_MCP_UNAVAILABLE` with the exact missing tool names and a manual operator fallback packet. Do not create a hook or local proof-file substitute.
@@ -27,7 +27,7 @@ Required: activate this skill when an operator decision, bounded inline choice, 
 
 ## Validation packet
 
-Return this packet after use:
+Return this packet after the operator-gate action:
 
 ```text
 mcp_server=codex-telegram

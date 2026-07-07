@@ -1,6 +1,6 @@
 ---
 name: bears-goal-prompt
-description: "Use when the operator asks to create, refine, review, or troubleshoot a Codex /goal prompt for Bears work; turns fuzzy intent into a compact, bounded, verifiable objective packet without starting the goal unless explicitly requested."
+description: "Create, refine, review, or troubleshoot a Codex /goal prompt for Bears work; turns fuzzy intent into a compact, bounded, verifiable objective packet without starting the goal unless explicitly requested."
 ---
 
 # Bears Goal Prompt
@@ -19,7 +19,7 @@ Do not call `create_goal`, `get_goal`, or `update_goal` unless the operator expl
 
 ## Required compact shape
 
-Use this shape by default:
+Emit this shape by default:
 
 ```text
 /goal <single objective>. Truth: <files/docs/commands>. Done: <binary end state>. Validate: <commands/evidence>. Forbidden: <paths/actions/data>.
@@ -29,7 +29,7 @@ Add `Workers:`, `Blockers:`, `Ask:`, `Audit:`, or `Budget:` only when needed. Bu
 
 ## Fit gate
 
-Use `/goal` only when all are true:
+Emit `/goal` only when all are true:
 
 1. The task is bigger than one normal turn and smaller than a backlog.
 2. There is one objective and one stopping condition.

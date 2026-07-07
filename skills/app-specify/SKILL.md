@@ -1,11 +1,11 @@
 ---
 name: app-specify
-description: "Create or update app specifications and functional documentation from operator intent, app constitution, app-research evidence, repo evidence, and acceptance criteria. Use for app behavior docs and implementation-ready requirements."
+description: "Create or update app behavior docs and implementation-ready requirements from operator intent, app constitution, app-research evidence, repo evidence, and acceptance criteria."
 ---
 
 # App Specify
 
-`app` means one Bears product application directory under `/srv/bears/dev/app` or the `BearsCLOUD/apps` repository. `project` means only a GitHub Project board with linked metadata fields. GitHub Issues are notification records for blockers, incidents, bugs, or operator questions; they are not execution tasks. Use `repo`, `path`, `target`, `workspace surface`, or `app directory` for filesystem ownership.
+`app` means one Bears product application directory under `/srv/bears/dev/app` or the `BearsCLOUD/apps` repository. `project` means only a GitHub Project board with linked metadata fields. GitHub Issues are notification records for blockers, incidents, bugs, or operator questions; they are not execution tasks. Say `repo`, `path`, `target`, `workspace surface`, or `app directory` for filesystem ownership.
 
 ## App Target Gate
 

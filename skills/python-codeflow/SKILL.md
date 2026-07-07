@@ -1,6 +1,6 @@
 ---
 name: python-codeflow
-description: "Independent reusable Bears L3-local Python standard. Use inside a bounded worker task that changes Python code; it does not own orchestration, GitHub Project state, app PASS, lanes, or task proof."
+description: "Independent reusable Bears L3-local Python standard for a bounded worker task that changes Python code; it does not own orchestration, GitHub Project state, app PASS, lanes, or task proof."
 ---
 
 # Python Codeflow
@@ -17,7 +17,7 @@ Required: activate this skill only inside a bounded worker task that changes Pyt
 ## Python rules
 
 - Keep package code in the repo's canonical package root, preferably `src/<package>/` when the repo already uses src layout.
-- Keep domain rules in `domain/`, use cases in `application/`, I/O adapters in `adapters/`, and startup/config wiring in `entrypoints/` or the repo-defined runtime package.
+- Keep domain rules in `domain/`, application cases in `application/`, I/O adapters in `adapters/`, and startup/config wiring in `entrypoints/` or the repo-defined runtime package.
 - Preserve Clean/Hexagonal boundaries: domain code must not import framework, database, HTTP, queue, filesystem, or provider clients.
 - Public modules, classes, methods, and functions need useful docstrings that state purpose and boundary.
 - Keep `pyproject.toml` authoritative for build metadata, dependencies, optional tools, and package discovery.

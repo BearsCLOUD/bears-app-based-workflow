@@ -1,6 +1,6 @@
 ---
 name: bears-infisical-ops
-description: "Use for Bears Infisical work: locating project/env/path metadata, checking secret-name readiness, preparing name-only live proof, ExternalSecret/ClusterSecretStore provider handoff, External Secrets readiness, and Telegram/API session custody without reading, printing, logging, committing, or exposing secret values. Trigger for Infisical CLI, ExternalSecret, ClusterSecretStore, Secret Factory handoff, injected env-name proof, TELEGRAM_SESSION_STRING, TELEGRAM_SESSION_PATH exception, or secret-safe runtime validation."
+description: "Govern Bears Infisical work: locating project/env/path metadata, checking secret-name readiness, preparing name-only live proof, ExternalSecret/ClusterSecretStore provider handoff, External Secrets readiness, and Telegram/API session custody without reading, printing, logging, committing, or exposing secret values. Trigger for Infisical CLI, ExternalSecret, ClusterSecretStore, Secret Factory handoff, injected env-name proof, TELEGRAM_SESSION_STRING, TELEGRAM_SESSION_PATH exception, or secret-safe runtime validation."
 ---
 
 # Bears Infisical Ops
@@ -83,7 +83,7 @@ blocked_step=<exact dependent command>
 
 When Infisical is reached through External Secrets Operator:
 
-1. Use `$bears-kubernetes-ops` for Kubernetes metadata commands.
+1. Call `$bears-kubernetes-ops` for Kubernetes metadata commands.
 2. Inspect only `ClusterSecretStore`, `SecretStore`, `ExternalSecret`, workload
    env names, and secret key names.
 3. Include `secretRefs=0` when a provider readiness issue means no safe target

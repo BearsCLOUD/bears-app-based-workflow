@@ -1,13 +1,13 @@
 ---
 name: bears-agents
-description: "Use for @Bears role lifecycle work: create/update role TOML, close ROLE_COVERAGE_BLOCKER gaps, sync role registration, and handle stale, missing, or extra role drift."
+description: "Govern @Bears role lifecycle work: create/update role TOML, close ROLE_COVERAGE_BLOCKER gaps, sync role registration, and resolve stale, missing, or extra role drift."
 ---
 
 # Bears Agents
 
 Required: activate this skill for `@Bears` role lifecycle changes under `/srv/bears/plugins/bears/agents` and the role catalog.
 
-This skill defines role authority. It does not run delegated work. Use `subagents` for runtime delegation after a route gate selects a role.
+This skill defines role authority. It does not run delegated work. Call `subagents` for runtime delegation after a route gate selects a role.
 
 ## Scope
 

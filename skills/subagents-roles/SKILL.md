@@ -1,6 +1,6 @@
 ---
 name: subagents-roles
-description: "Use before @Bears role, skill, subagent, plugin governance, compatibility routing, platform, app-zone, deploy, runtime, migration, or handoff work to record expected owner-role coverage and maintain role-principle coverage."
+description: "Record expected owner-role coverage and maintain role-principle coverage before @Bears role, skill, subagent, plugin governance, compatibility routing, platform, app-zone, deploy, runtime, migration, or handoff work."
 ---
 
 # Subagents Roles Governance
@@ -16,7 +16,7 @@ This skill owns @Bears role routing, subagent-role coverage, role-principle ledg
 3. Do not run route, audit, ledger-refresh, or ledger-audit commands manually
    unless the operator names the exact command in the current turn.
 4. Leave route/audit and ledger proof to `autoCI` or local commit validation.
-5. Use the expected primary specialist or helper role and keep writes inside its allowed scope.
+5. Select the expected primary specialist or helper role and keep writes inside its allowed scope.
 6. Preserve shared spine order: `auth_core -> bears_gateway -> cd_deploy_stage`.
 7. Record missing role coverage as exact role/profile/catalog/ledger tasks with an issue ref when the current change cannot complete it.
 

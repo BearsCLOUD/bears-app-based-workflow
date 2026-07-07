@@ -1,6 +1,6 @@
 ---
 name: bears-deploy-gate
-description: "Use to assess plugin/non-app deploy, rollback, runtime, and secret impact for Bears workflow-overlay changes; emits or validates deploy-gate JSON and never acts as an app workflow gate."
+description: "Assess plugin/non-app deploy, rollback, runtime, and secret impact for Bears workflow-overlay changes; emits or validates deploy-gate JSON and never acts as an app workflow gate."
 ---
 
 # Bears Deploy Gate
@@ -62,7 +62,7 @@ Emit or validate this JSON artifact first:
 }
 ```
 
-Prefer `not-applicable` for skill, README, template, or workflow-only edits with no runtime effect. Use `needs-review` when impact is uncertain. Use `blocked` only for a propagated `ROLE_COVERAGE_BLOCKER` or explicit stop.
+Prefer `not-applicable` for skill, README, template, or workflow-only edits with no runtime effect. Return `needs-review` when impact is uncertain. Return `blocked` only for a propagated `ROLE_COVERAGE_BLOCKER` or explicit stop.
 
 ## Report rules
 

@@ -1,6 +1,6 @@
 ---
 name: bears-codex-health
-description: "Use for Bears Codex health diagnostics: Codex desktop/app-server freezes, MCP fan-out, session JSONL growth, token/context pressure, local Codex logs, and evidence-first remediation planning."
+description: "Diagnose Bears Codex health issues: Codex desktop/app-server freezes, MCP fan-out, session JSONL growth, token/context pressure, local Codex logs, and evidence-first remediation planning."
 ---
 
 # Bears Codex Health
@@ -26,7 +26,7 @@ This skill is evidence-first. It does not restart Codex, kill processes, delete/
 4. Mask secret-like strings in all command output: `token`, `key`, `secret`, `password`, `bearer`, private keys, `.env` values, VPN config material, and credential-like arguments.
 5. Do not print raw session JSONL bodies, raw logs, encrypted reasoning, raw chat, tool output bodies, shell history, or production data.
 6. Do not run `codex doctor` during freeze triage unless the operator asks for that exact command.
-7. Decide the strongest current cause from evidence only. Use measured values, not generic claims.
+7. Decide the strongest current cause from evidence only. Cite measured values, not generic claims.
 8. If remediation is requested, capture a before baseline, perform only the approved exact action, then repeat the same checks as after baseline.
 9. Return a concise packet with status, evidence table, strongest cause, next safe read, and required approval for any mutation.
 

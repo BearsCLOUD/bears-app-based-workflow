@@ -1,6 +1,6 @@
 ---
 name: subagents
-description: "Independent Bears subagent-use skill for selecting, starting, constraining, reviewing, and closing helper, L2, L3, critic, and gitflow subagents. Use directly for subagent policy and from app-dev for L2 helper rules."
+description: "Independent Bears subagent skill for selecting, starting, constraining, reviewing, and closing helper, L2, L3, critic, and gitflow subagents. Apply directly for subagent policy and from app-dev for L2 helper rules."
 ---
 
 # Subagents

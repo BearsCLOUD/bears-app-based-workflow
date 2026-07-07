@@ -1,11 +1,11 @@
 ---
 name: app-plan
-description: "Convert Bears app documentation into app-task-ledger execution tasks and Apps Project #20 status items. Use when app docs must become app-dev tasks with exact functionality refs, app/platform/infra lanes, paths, roles, dependencies, and handoff; GitHub Issues are manual notifications only."
+description: "Convert Bears app documentation into app-task-ledger execution tasks and Apps Project #20 status items when app docs must become app-dev tasks with exact functionality refs, app/platform/infra lanes, paths, roles, dependencies, and handoff; GitHub Issues are manual notifications only."
 ---
 
 # App Plan
 
-`app` means one Bears product application directory under `/srv/bears/dev/app` or the `BearsCLOUD/apps` repository. `project` means only a GitHub Project board with linked items and metadata fields. Use `repo`, `path`, `target`, `workspace surface`, or `app directory` for filesystem ownership.
+`app` means one Bears product application directory under `/srv/bears/dev/app` or the `BearsCLOUD/apps` repository. `project` means only a GitHub Project board with linked items and metadata fields. Say `repo`, `path`, `target`, `workspace surface`, or `app directory` for filesystem ownership.
 
 ## App Target Gate
 
@@ -162,7 +162,7 @@ completion_criteria=changed files, one commit SHA, push proof, status refs, ledg
 
 1. Run the App Target Gate.
 2. Read target constitution, app-research packet when required, spec, docs, existing functional graph, task ledger, and Project state when used.
-3. Use `$app-functional-graph` to initialize or update graph and ledger.
+3. Run `$app-functional-graph` to initialize or update graph and ledger.
 4. Build the lane map first: app, platform, infra, plus optional sub-lanes with disjoint paths.
 5. Convert requirements into decision-complete ledger tasks with functionality refs and graph node refs.
 6. Create dependencies so `$app-dev` waves can run only dependency-ready, non-overlapping tasks.

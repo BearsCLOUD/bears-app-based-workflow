@@ -1,6 +1,6 @@
 ---
 name: bears-kubernetes-ops
-description: "Use for Bears Kubernetes read-only metadata work, Kubernetes deployment governance, all-software Kubernetes desired-state and local_cd deploy boundaries, local dev-instance kube runtime placement, kube-backed secret-reference discovery, namespace/workload/env-name checks, and safe live-gate proof planning without decoding Secret data, printing secret values, mutating runtime, or bypassing local CD contracts."
+description: "Govern Bears Kubernetes read-only metadata work, Kubernetes deployment governance, all-software Kubernetes desired-state and local_cd deploy boundaries, local dev-instance kube runtime placement, kube-backed secret-reference discovery, namespace/workload/env-name checks, and safe live-gate proof planning without decoding Secret data, printing secret values, mutating runtime, or bypassing local CD contracts."
 ---
 
 # Bears Kubernetes Ops
@@ -21,7 +21,7 @@ Required: activate this skill for Kubernetes metadata checks and kube-backed liv
 - Operator-approved live mutation may be incident break-glass only; it must not become deployment source of truth.
 - Do not treat Kubernetes as a bypass around Infisical or Secret Factory policy.
 - Production Kubernetes mutation is Git/CD-owned; follow `$bears-deploy-gate` for deploy impact.
-- Use exact terms `kubernetes_deployment` and `local_cd` when those surfaces are changed.
+- Say exact terms `kubernetes_deployment` and `local_cd` when those surfaces are changed.
 
 ## Required startup
 
@@ -59,7 +59,7 @@ current dev instance.
 
 1. Put persistent local kube runtime under `/srv/bears/runtime/kube/<context>/`.
 2. Keep kubeconfigs, certificates, cache, and cluster state out of Git; `/srv/bears/runtime/**` is runtime-only.
-3. Use `.tmp` only for disposable scratch that may be deleted between runs.
+3. Write `.tmp` only for disposable scratch that may be deleted between runs.
 4. Report local cluster evidence as `dev-instance proof`, not final live PASS.
 5. Never convert local `kubectl apply`, local smoke, or local host-process evidence into deployment proof. Final live PASS requires Kubernetes desired state, `local_cd`, workload evidence, secret-reference readiness, CD evidence, and runtime health proof.
 

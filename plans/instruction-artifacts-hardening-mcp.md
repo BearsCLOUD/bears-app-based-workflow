@@ -544,3 +544,40 @@ Critic result:
 
 - Re-audit critic `019f3b9d-3426-7231-a1ec-940453cd2e35` verdict: `FIX_VERDICT: PASS`, `FULL_GOAL_VERDICT: NOT_COMPLETE`, blockers: none.
 - PASS was based on current repo evidence: GitHub job log for run `28854819647` shows missing `Quality checks:` headings as the failure cause; exact headings are restored in all 4 role TOMLs; MCP scanner excludes the required structural heading from weak-term scoring; role weak terms stay `155`; docs record structural role headings are not refactor targets; and broad all-instruction goal remains open.
+
+### Phase 18: Skill prose weak-term cleanup wave
+
+Status: in progress.
+
+MCP queue source:
+
+```bash
+python3 scripts/instruction_hardening_mcp_packet.py instruction_hardening_startup --root . --bounded-json
+```
+
+Wave scope:
+
+- `skills/app-analyze/SKILL.md` status wording and filesystem-ownership term routing;
+- `skills/app-plan/SKILL.md` description, filesystem-ownership term routing, and app-functional-graph action wording;
+- `skills/bears-agents/SKILL.md` role lifecycle description and delegation wording;
+- `skills/bears-deploy-gate/SKILL.md` deploy-gate description and status wording;
+- `skills/bears-goal-prompt/SKILL.md` prompt-shape wording;
+- `skills/bears-kubernetes-ops/SKILL.md` Kubernetes description, required term wording, and scratch-dir wording;
+- `skills/codex-telegram-operator-gate/SKILL.md` operator-gate description and MCP-call wording;
+- lower-count skill surfaces: `app-constitution`, `app-specify`, `bears-codex-health`, `bears-infisical-ops`, `python-codeflow`, `subagents-roles`, `app-dev`, and `subagents`.
+
+Wave result before critic/commit:
+
+- `surface_summary.weak_terms_by_kind.skill`: `35 -> 0`;
+- changed 15 `skills/*/SKILL.md` files with wording-only edits;
+- frontmatter `name` fields, hard bans, routing rules, owner boundaries, command examples, secret safety, validation ownership, runtime/deploy/Kubernetes proof routing, and output packet schemas were preserved;
+- no role TOML, catalog, workflow, runtime, deploy, Kubernetes desired-state, or secret-custody mutations in this wave.
+
+Critic requirement:
+
+- PASS only if current repo evidence proves this skill slice advances the active goal through the MCP queue, reduces skill weak terms to zero, preserves skill activation semantics and hard policy behavior, and keeps the broad all-instruction goal open.
+
+Critic result:
+
+- Re-audit critic `019f3b9d-3426-7231-a1ec-940453cd2e35` verdict: `SLICE_VERDICT: PASS`, `FULL_GOAL_VERDICT: NOT_COMPLETE`, blockers: none.
+- PASS was based on current repo evidence: changed files are only 15 `skills/*/SKILL.md` files plus plan evidence; MCP/helper path remains active; skill weak terms are `35 -> 0`; frontmatter `name` fields did not change; changed skill diffs are wording-only; activation lines, hard bans, command examples, packet/schema blocks, validation ownership, secret safety, and runtime/deploy/Kubernetes proof routing remain present; and broad all-instruction goal remains open because non-skill surfaces still report weak terms.

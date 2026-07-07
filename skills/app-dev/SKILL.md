@@ -5,7 +5,7 @@ description: "Execute app-task-ledger tasks produced by app-plan. Parent control
 
 # App Dev
 
-`app` means one Bears product application directory under `/srv/bears/dev/app` or the `BearsCLOUD/apps` repository. `project` means only a GitHub Project board with linked items and metadata fields. Use `repo`, `path`, `target`, `workspace surface`, or `app directory` for filesystem ownership.
+`app` means one Bears product application directory under `/srv/bears/dev/app` or the `BearsCLOUD/apps` repository. `project` means only a GitHub Project board with linked items and metadata fields. Say `repo`, `path`, `target`, `workspace surface`, or `app directory` for filesystem ownership.
 
 ## App Target Gate
 
@@ -136,7 +136,7 @@ Required L3 status packet:
     {"task_id": "<app-T001>", "functionality_refs": ["<id>"], "graph_node_refs": ["<id>"], "allowed_paths": ["<paths>"], "autoci_zones": ["<zone id>"]}
   ],
   "allowed_project_mutations": ["status", "field updates named by app-plan"],
-  "helper_policy": "Use $subagents for L2 helpers only; helpers do not implement.",
+  "helper_policy": "Call $subagents for L2 helpers only; helpers do not implement.",
   "completion": "all assigned tasks have ledger done, L3 commit/push evidence, automatic status refs, and L3 critic confirmation"
 }
 ```

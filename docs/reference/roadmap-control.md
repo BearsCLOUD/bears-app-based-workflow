@@ -23,9 +23,9 @@ Technical terms:
 8. Every audit uses a fresh subagent with `context_policy = fresh_no_parent_context`, no parent context, and no resume/reuse.
 9. Session reuse must bind `goal_id`, `roadmap_id`, `roadmap_slice`, spec snapshot, lane, role, scope fingerprint, repo state, and validation target.
 
-Assignment packets, subagent task text, and subagent messages must be English-only.
+Assignment packets, subagent task text, and subagent messages must use English only.
 Name `local_cd` or `kubernetes_deployment` when one of those entities is the concrete target. Do not fall back to generic `deploy`.
-Fresh audit subagents receive no parent context.
+Fresh audit subagents use no parent context.
 Repo-proof validation covers only repo artifacts. It does not claim live runtime chat proof.
 
 ## Objective roadmap in the catalog

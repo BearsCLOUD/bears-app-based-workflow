@@ -24,7 +24,7 @@ inputs:
   integration:
     type: string
     default: "auto"
-    prompt: "Integration to use; auto uses the initialized project integration"
+    prompt: "Integration name; auto selects the initialized project integration"
   research:
     type: string
     default: "standard"
@@ -47,7 +47,7 @@ steps:
 
   - id: constitution-gate
     type: gate
-    message: "Check assets/catalog/platform-role-catalog.v1.json before research; reject missing packet fields or invalid status."
+    message: "Inspect assets/catalog/platform-role-catalog.v1.json before research; reject missing packet fields or invalid status."
     options: [approve, reject]
     on_reject: abort
 
@@ -77,7 +77,7 @@ steps:
 
   - id: review-spec
     type: gate
-    message: "Review the research, spec, and requirements checklist before planning."
+    message: "Inspect the research, spec, and requirements checklist before planning."
     options: [approve, reject]
     on_reject: abort
 
@@ -125,13 +125,13 @@ steps:
 
   - id: review-drift
     type: gate
-    message: "Review role binding, analyze output, checklist gaps, and drift before implementation."
+    message: "Inspect role binding, analyze output, checklist gaps, and drift before implementation."
     options: [approve, reject]
     on_reject: abort
 
   - id: subagent-execution
     type: gate
-    message: "Assign concrete tasks.md items to exact-role subagents; [P] tasks MUST use parallel delegation when scopes are disjoint."
+    message: "Assign concrete tasks.md items to exact-role subagents; [P] tasks MUST delegate in parallel when scopes are disjoint."
     options: [approve, reject]
     on_reject: abort
 
@@ -149,6 +149,6 @@ steps:
 
   - id: stage-boundary-audit
     type: gate
-    message: "Run plugin-fit, drift, documentation/restricted-data safety, and user-information capture audits once at the stage boundary."
+    message: "Require plugin-fit, drift, documentation/restricted-data safety, and user-information capture audits once at the stage boundary."
     options: [approve, reject]
     on_reject: abort

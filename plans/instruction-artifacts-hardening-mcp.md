@@ -254,3 +254,35 @@ Critic result:
 - Re-audit critic `019f3b9d-3426-7231-a1ec-940453cd2e35` initial verdict: `FAIL` for an ungated Yandex360 local guardrail validator command.
 - Fix applied: `skills/yandex360-dns/SKILL.md` now gates `python3 scripts/validate_yandex360_dns_cutover.py` behind an exact operator-named command or automatic CI/local commit validation ownership.
 - Re-audit verdict: `PASS`, blockers: none.
+
+### Phase 10: Workflow wording wave
+
+Status: complete.
+
+MCP queue source:
+
+```bash
+python3 scripts/instruction_hardening_mcp_packet.py instruction_hardening_startup --root . --bounded-json
+```
+
+Wave scope:
+
+- `workflows/bears-sdd/workflow.yml` gate messages and input prompt text;
+- `workflows/auth-gateway-deploy-core/workflow.yml` comments only;
+- command ids, command names, route targets, validator fields, and workflow structure were preserved.
+
+Wave result before critic/commit:
+
+- `surface_summary.weak_terms_by_kind.workflow`: `7 -> 2`;
+- changed 2 workflow files with wording-only edits;
+- remaining workflow weak terms are command/id tokens such as `bears.governance.check`, `speckit.checklist`, and `governance-check`, not prose instructions;
+- no catalog, role TOML, skill, runtime, deploy, Kubernetes desired-state, or secret-custody mutations in this wave.
+
+Critic requirement:
+
+- PASS only if current repo evidence proves this workflow slice advances the active goal through the MCP queue, reduces prose weak terms without changing workflow command semantics, preserves validation ownership, and keeps the broad all-instruction goal open.
+
+Critic result:
+
+- Re-audit critic `019f3b9d-3426-7231-a1ec-940453cd2e35` verdict: `PASS`, blockers: none.
+- PASS was based on current repo evidence: MCP/helper path is recorded, workflow weak terms are `7 -> 2`, diff changes only prompt/message/comment text, workflow command semantics and validation ownership are preserved, and the broad all-instruction goal remains open.

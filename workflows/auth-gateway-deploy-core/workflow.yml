@@ -27,7 +27,7 @@ inputs:
     enum: ["none", "explicit-scoped-operator-override"]
 
 ordered_spine:
-  # Required universal core inputs use neutral platform-core subtrees.
+  # Required universal core inputs target neutral platform-core subtrees.
   # legacy_source_path is compatibility evidence only: tenant legacy source,
   # migration source, route-pack example, or test fixture.
   - id: auth-core-baseline
@@ -51,7 +51,7 @@ ordered_spine:
     gate: "consumer graph, rollback shape, and deploy evidence must be explicit before CI behavior changes"
 
 steps:
-  # Role-gate steps use the required neutral core targets.
+  # Role-gate steps target the required neutral core targets.
   # Legacy seller paths stay compatibility references only.
   - id: governance-check
     command: "bears.governance.check"

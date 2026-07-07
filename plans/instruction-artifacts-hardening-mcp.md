@@ -940,3 +940,36 @@ Updated critic result:
 
 - Re-audit critic `019f3b9d-3426-7231-a1ec-940453cd2e35` verdict: `SLICE_VERDICT: PASS`, `FULL_GOAL_VERDICT: NOT_COMPLETE`, blockers: none.
 - PASS was based on current repo evidence after the pre-commit correction: helper weak counts remain `catalog: 26`; Phase 27 reduction remains `catalog: 39 -> 26`; current diff includes the 8 required policy catalogs, `assets/catalog/release-notes.v1.json`, `assets/catalog/decision-ledger.v1.json`, and plan evidence; decision record `D-2026-07-07-small-policy-catalog-hardening` is accepted, redaction-safe, and has empty unresolved inputs and contradictions; the record covers all 8 required policy catalog paths plus release-note and plan evidence; release-note coverage remains present; no role TOML, skill, workflow, runtime, deploy, Kubernetes desired-state, or secret-custody path changed; and broad all-instruction goal remains open because catalog and role surfaces still report weak terms.
+
+### Phase 28: Platform role catalog policy wording
+
+Status: in progress.
+
+MCP queue source:
+
+```bash
+python3 scripts/instruction_hardening_mcp_packet.py instruction_hardening_startup --root . --bounded-json
+```
+
+Wave scope:
+
+- counted policy prose in `assets/catalog/platform-role-catalog.v1.json`;
+- `assets/catalog/release-notes.v1.json` coverage record;
+- `assets/catalog/decision-ledger.v1.json` accepted decision record;
+- `plans/instruction-artifacts-hardening-mcp.md` evidence record.
+
+Wave result before critic/commit:
+
+- `surface_summary.weak_terms_by_kind.catalog`: `26 -> 9`;
+- `assets/catalog/platform-role-catalog.v1.json`: `weak_term_count 18 -> 1`;
+- preserved provider settings approval gates, branch-protection exact required check list wording, branch-protection status requirements, goal prompt boundaries, deprecated path routing, workspace GitHub Actions status generation, network evidence redaction, VPN role metadata fallback blocking, backend-only provider test boundaries, Codex health metadata boundaries, stateful backend service routing, role catalog route ownership, deploy/runtime/Kubernetes/secret bans;
+- did not mutate role TOMLs, skills, workflows, runtime, deploy, Kubernetes desired-state, or secret-custody surfaces.
+
+Critic requirement:
+
+- PASS only if current repo evidence proves this slice advances the active goal through the MCP queue, reduces platform role catalog weak terms while preserving route ownership, parity wording, and safety semantics, keeps decision-ledger and release-note coverage, and keeps broad all-instruction goal NOT_COMPLETE unless all instruction surfaces are done.
+
+Critic result:
+
+- Re-audit critic `019f3b9d-3426-7231-a1ec-940453cd2e35` verdict: `SLICE_VERDICT: PASS`, `FULL_GOAL_VERDICT: NOT_COMPLETE`, blockers: none.
+- PASS was based on current repo evidence after the parity fix: changed files are `assets/catalog/platform-role-catalog.v1.json`, `assets/catalog/release-notes.v1.json`, `assets/catalog/decision-ledger.v1.json`, and plan evidence; helper weak counts show `catalog: 26 -> 9`; `assets/catalog/platform-role-catalog.v1.json` reports `weak_term_count: 18 -> 1` with the single retained `check` caused by the exact branch-protection parity phrase; `exact required check list` remains present in the catalog and matching governor role instructions, and `exact required status list` is absent from the checked parity surfaces; release-note and decision-ledger coverage exists with accepted, redaction-safe decision record `D-2026-07-07-platform-role-catalog-hardening`; no role TOML, skill, workflow, runtime, deploy, Kubernetes desired-state, or secret-custody path changed; and broad all-instruction goal remains open because catalog and role surfaces still report weak terms.

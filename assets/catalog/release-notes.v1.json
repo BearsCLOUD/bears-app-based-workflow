@@ -2,6 +2,26 @@
   "entries": [
     {
       "affected_surfaces": [
+        "platform_role_catalog",
+        "instruction_artifacts_mcp",
+        "decision_ledger",
+        "release_notes"
+      ],
+      "date": "2026-07-07",
+      "files": [
+        "assets/catalog/platform-role-catalog.v1.json",
+        "assets/catalog/release-notes.v1.json",
+        "assets/catalog/decision-ledger.v1.json",
+        "plans/instruction-artifacts-hardening-mcp.md"
+      ],
+      "impact": "Hardens counted platform role catalog policy wording while preserving provider settings approval gates, branch-protection exact required check list wording, branch-protection status requirements, goal prompt boundaries, deprecated path routing, workspace GitHub Actions status generation, network evidence redaction, VPN role metadata fallback blocking, backend-only provider test boundaries, Codex health metadata boundaries, and stateful backend service routing.",
+      "issue_ref": "#8",
+      "validation": [
+        "python3 scripts/local_commit_validation.py run --commit-sha <main_sha>"
+      ]
+    },
+    {
+      "affected_surfaces": [
         "instruction_policy_catalogs",
         "instruction_artifacts_mcp",
         "release_notes"

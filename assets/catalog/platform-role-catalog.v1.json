@@ -3415,7 +3415,7 @@
       "supporting_roles": [
         "bears-platform-security-reviewer"
       ],
-      "trust_boundary": "This provider setting can widen user-owned private repository Actions access for BearsCLOUD/bears_plugin. It is an external GitHub settings mutation and must use an approved packet that states apply access_level=user, exact route/audit evidence, security reviewer evidence, and rollback note that states rollback access_level=none without reading or printing tokens, secrets, production data, raw logs, raw chat, or raw VPN configs.",
+      "trust_boundary": "This provider setting can widen user-owned private repository Actions access for BearsCLOUD/bears_plugin. It is an external GitHub settings mutation and must require an approved packet that states apply access_level=user, exact route/audit evidence, security reviewer evidence, and rollback note that states rollback access_level=none without reading or printing tokens, secrets, production data, raw logs, raw chat, or raw VPN configs.",
       "write_roots": []
     },
     {
@@ -3956,7 +3956,7 @@
       "role_required": true,
       "source": "/srv/bears/plugins/bears/skills/bears-goal-prompt/SKILL.md",
       "supporting_roles": [],
-      "trust_boundary": "Long-running goal prompts can widen task scope, tool use, and execution boundaries.",
+      "trust_boundary": "Long-running goal prompts can widen task scope, tool access and execution boundaries.",
       "write_roots": [
         "/srv/bears/plugins/bears/skills/bears-goal-prompt",
         "agents/bears-goal-prompt-generator.toml",
@@ -4161,7 +4161,7 @@
         "projects/vpn/amnezia-split/auto_split/telegram_msp_notify.py",
         "/srv/bears/projects/vpn/amnezia-split/auto_split/telegram_msp_notify.py"
       ],
-      "allowed_write_boundary": "No direct implementation writes from deprecated projects Telegram inventory paths; use the canonical registered /srv/bears/dev repo lane or a narrower exact specialist route.",
+      "allowed_write_boundary": "No direct implementation writes from deprecated projects Telegram inventory paths; route through the canonical registered /srv/bears/dev repo lane or a narrower exact specialist route.",
       "concrete_scope": "Enumerated Telegram runtime readiness inventory only; deprecated projects paths are legacy compatibility inputs and canonical dev paths must route through exact project entries when registered.",
       "decomposition_required": false,
       "group": "products",
@@ -4656,7 +4656,7 @@
       "aliases": [
         "/srv/bears/.github/workflows/workspace-gitlink-ci.yml"
       ],
-      "allowed_write_boundary": "Only the exact /srv/bears/.github/workflows/workspace-gitlink-ci.yml workspace-root GitHub Actions workflow for check generation in BearsCLOUD/bears-codex-workspace; no .github/** fallback, no branch protection mutation, no merge-authority bypass, no runtime mutation, no provider mutation, no Kubernetes mutation, no Infisical mutation, no product, frontend, mobile, or UI mutation, and no secret access.",
+      "allowed_write_boundary": "Only the exact /srv/bears/.github/workflows/workspace-gitlink-ci.yml workspace-root GitHub Actions workflow for status generation in BearsCLOUD/bears-codex-workspace; no .github/** fallback, no branch protection mutation, no merge-authority bypass, no runtime mutation, no provider mutation, no Kubernetes mutation, no Infisical mutation, no product, frontend, mobile, or UI mutation, and no secret access.",
       "concrete_scope": "Exact workspace-root GitHub Actions check-generation workflow for BearsCLOUD/bears-codex-workspace gitlink validation.",
       "decomposition_required": false,
       "group": "workflow",
@@ -4681,7 +4681,7 @@
       "supporting_roles": [
         "bears-platform-security-reviewer"
       ],
-      "trust_boundary": "This workflow can affect repository checks and merge readiness for the workspace-control repo, so it must stay limited to deterministic check generation and must not bypass required review or merge authority.",
+      "trust_boundary": "This workflow can affect repository status signals and merge readiness for the workspace-control repo, so it must stay limited to deterministic status generation and must not bypass required review or merge authority.",
       "write_roots": []
     },
     {
@@ -4782,7 +4782,7 @@
         "projects/seller/apps/telegram_notifications",
         "/srv/bears/projects/seller/apps/telegram_notifications"
       ],
-      "allowed_write_boundary": "No direct implementation writes from deprecated projects inventory paths; add or use a canonical /srv/bears/dev registry entry before implementation.",
+      "allowed_write_boundary": "No direct implementation writes from deprecated projects inventory paths; add or route through a canonical /srv/bears/dev registry entry before implementation.",
       "concrete_scope": "seller Telegram notification delivery service surface",
       "decomposition_required": false,
       "group": "products",
@@ -6464,7 +6464,7 @@
       "supporting_roles": [
         "bears-platform-security-reviewer"
       ],
-      "trust_boundary": "This lane records durable network authority and operator-facing infrastructure facts. Evidence must stay read-only, redacted, timestamped when appropriate, and must not expose secrets, raw VPN configs, raw logs, or production data.",
+      "trust_boundary": "This lane records durable network authority and operator-facing infrastructure facts. Evidence must stay read-only, redacted, timestamped when evidence time matters, and must not expose secrets, raw VPN configs, raw logs, or production data.",
       "write_roots": [
         "/srv/bears/dev/infrastructure/network"
       ]
@@ -7038,7 +7038,7 @@
         "/srv/bears/plugins/bears/agents/bears-vpn-proxy-engineer.toml"
       ],
       "allowed_write_boundary": "Only listed /srv/bears/plugins/bears/agents/bears-vpn-*.toml specialist role files; no VPN project, product, bot, runtime, ingress, proxy, deploy, or network implementation changes from this role-metadata surface.",
-      "concrete_scope": "Exact role metadata for VPN specialist roles created to avoid generic-role fallback on registered VPN surfaces.",
+      "concrete_scope": "Exact role metadata for VPN specialist roles created to block generic-role fallback on registered VPN surfaces.",
       "decomposition_required": false,
       "group": "workflow",
       "name": "vpn_specialist_role_metadata",
@@ -7786,7 +7786,7 @@
       "supporting_roles": [
         "bears-platform-security-reviewer"
       ],
-      "trust_boundary": "Provider gateway contract assertions can affect backend provider routing, auth propagation, and integration-token handoff assumptions; tests must stay backend-only and avoid provider API calls, secrets, live runtime, or production data.",
+      "trust_boundary": "Provider gateway contract assertions can affect backend provider routing, auth propagation, and integration-token handoff assumptions; tests must stay backend-only and forbid provider API calls, secrets, live runtime, or production data.",
       "write_roots": [
         "/srv/bears/dev/platform/tests/test_provider_gateway_contracts.py"
       ]
@@ -7857,7 +7857,7 @@
       "supporting_roles": [
         "bears-platform-security-reviewer"
       ],
-      "trust_boundary": "Managed backend contract assertions can affect reusable provider/backend behavior across repos; tests must stay backend-only and avoid provider API calls, secrets, live runtime, or production data.",
+      "trust_boundary": "Managed backend contract assertions can affect reusable provider/backend behavior across repos; tests must stay backend-only and forbid provider API calls, secrets, live runtime, or production data.",
       "write_roots": [
         "/srv/bears/dev/platform/tests/test_managed_backend_contracts.py"
       ]
@@ -7890,7 +7890,7 @@
       "supporting_roles": [
         "bears-platform-security-reviewer"
       ],
-      "trust_boundary": "Data cache runtime assertions can affect reusable provider/backend behavior across repos; tests must stay backend-only and avoid provider API calls, secrets, live runtime, or production data.",
+      "trust_boundary": "Data cache runtime assertions can affect reusable provider/backend behavior across repos; tests must stay backend-only and forbid provider API calls, secrets, live runtime, or production data.",
       "write_roots": [
         "/srv/bears/dev/platform/tests/test_data_cache_runtime.py"
       ]
@@ -7923,7 +7923,7 @@
       "supporting_roles": [
         "bears-platform-security-reviewer"
       ],
-      "trust_boundary": "Managed backend runtime assertions can affect reusable provider/backend behavior across repos; tests must stay backend-only and avoid provider API calls, secrets, live runtime, or production data.",
+      "trust_boundary": "Managed backend runtime assertions can affect reusable provider/backend behavior across repos; tests must stay backend-only and forbid provider API calls, secrets, live runtime, or production data.",
       "write_roots": [
         "/srv/bears/dev/platform/tests/test_managed_backend_runtime.py"
       ]
@@ -8022,7 +8022,7 @@
       "supporting_roles": [
         "bears-platform-security-reviewer"
       ],
-      "trust_boundary": "Module registry contract assertions can affect reusable provider/backend behavior across repos; tests must stay backend-only and avoid provider API calls, secrets, live runtime, or production data.",
+      "trust_boundary": "Module registry contract assertions can affect reusable provider/backend behavior across repos; tests must stay backend-only and forbid provider API calls, secrets, live runtime, or production data.",
       "write_roots": [
         "/srv/bears/dev/platform/tests/test_module_registry_contracts.py"
       ]
@@ -8055,7 +8055,7 @@
       "supporting_roles": [
         "bears-platform-security-reviewer"
       ],
-      "trust_boundary": "Data cache contract assertions can affect reusable provider/backend behavior across repos; tests must stay backend-only and avoid provider API calls, secrets, live runtime, or production data.",
+      "trust_boundary": "Data cache contract assertions can affect reusable provider/backend behavior across repos; tests must stay backend-only and forbid provider API calls, secrets, live runtime, or production data.",
       "write_roots": [
         "/srv/bears/dev/platform/tests/test_data_cache_contracts.py"
       ]
@@ -8276,7 +8276,7 @@
       "supporting_roles": [
         "bears-platform-security-reviewer"
       ],
-      "trust_boundary": "This role inspects local Codex process metadata, session/log metadata, and MCP process counts. It must not expose raw chat, raw logs, raw session bodies, encrypted reasoning, tool output bodies, command arguments containing credentials, secrets, .env values, VPN configs, or production data. It must not restart Codex, kill app-server, disable MCP, archive/delete sessions, or edit config without explicit active-turn approval.",
+      "trust_boundary": "This role inspects local Codex runtime metadata, session/log metadata, and MCP runtime counts. It must not expose raw chat, raw logs, raw session bodies, encrypted reasoning, tool output bodies, command arguments containing credentials, secrets, .env values, VPN configs, or production data. It must not restart Codex, kill app-server, disable MCP, archive/delete sessions, or edit config without explicit active-turn approval.",
       "write_roots": [
         "/srv/bears/plugins/bears/agents/bears-codex-health-engineer.toml",
         "/srv/bears/plugins/bears/skills/bears-codex-health"
@@ -9189,7 +9189,7 @@
         "kubernetes/manifests/bears-platform-stateful-backend-dev/base",
         "manifests/bears-platform-stateful-backend-dev/base"
       ],
-      "allowed_write_boundary": "No implementation handoff at the base directory or unknown child path; use exact Redis, Taskiq, ClickHouse, or PostgreSQL service routes only.",
+      "allowed_write_boundary": "No implementation handoff at the base directory or unknown child path; route to exact Redis, Taskiq, ClickHouse, or PostgreSQL service routes only.",
       "concrete_scope": "Parent-only grouping route for Bears platform stateful-backend dev base manifests; exact service files must map to concrete data-platform service routes before implementation handoff.",
       "decomposition_required": true,
       "group": "kubernetes_deploy_core",

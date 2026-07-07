@@ -2076,6 +2076,24 @@
       "scope_id": "instruction-artifacts-hardening-mcp",
       "status": "accepted",
       "unresolved_inputs": []
+    },
+    {
+      "affected_paths": [
+        "assets/catalog/platform-role-catalog.v1.json",
+        "assets/catalog/release-notes.v1.json",
+        "plans/instruction-artifacts-hardening-mcp.md"
+      ],
+      "change_type": "policy",
+      "contradictions": [],
+      "decision": "Harden counted platform role catalog policy wording while preserving role routing authority and safety boundaries.",
+      "decision_id": "D-2026-07-07-platform-role-catalog-hardening",
+      "owner_issue": "#instruction-artifacts-hardening-mcp",
+      "owner_role": "bears-instruction-hardening-engineer",
+      "rationale": "The instruction-hardening goal requires mutable platform role policy prose to avoid weak action words without changing role ownership, deploy/runtime/secret boundaries, branch-protection exact required check list wording, or status-gate semantics.",
+      "redaction": "safe",
+      "scope_id": "instruction-artifacts-hardening-mcp",
+      "status": "accepted",
+      "unresolved_inputs": []
     }
   ],
   "schema": "bears-decision-ledger.v1",

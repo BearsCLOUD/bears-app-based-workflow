@@ -5,13 +5,13 @@ description: "Use to assess plugin/non-app deploy, rollback, runtime, and secret
 
 # Bears Deploy Gate
 
-Use this skill only before plugin/non-app Bears workflow-overlay changes that may affect deploy behavior, runtime surfaces, rollback complexity, or secret handling. App workflow infra/deploy planning belongs to `$app-plan`, `$app-analyze`, and the infra lane.
+Required: activate this skill only before plugin/non-app Bears workflow-overlay changes that may affect deploy behavior, runtime surfaces, rollback complexity, or secret handling. App workflow infra/deploy planning belongs to `$app-plan`, `$app-analyze`, and the infra lane.
 
 This skill does not mutate deploy state. It is report-first and advisory unless a role gate returns `ROLE_COVERAGE_BLOCKER` or a higher-priority/user instruction stops the work.
 
 ## Boundary
 
-Do not use this skill as an app gate, app PASS source, app execution blocker, or replacement for `app-plan`/`app-analyze`.
+Forbidden: activate this skill as an app gate, app PASS source, app execution blocker, or replacement for `app-plan`/`app-analyze`.
 
 ## Workflow
 
@@ -31,11 +31,11 @@ Kubernetes deploy-core policy is split into two machine-readable contracts owned
 2. CD policy: `assets/catalog/cd-kube-deploy-contract.v1.json` owns global CD authority and the app descriptor directory.
 3. Executor: `scripts/bears_auto_cd.py` owns the fixed local `@Bears` CD mechanics from `main`, including source staging, image handoff, Kubernetes mutation, rollout, and evidence.
 4. Production Kubernetes mutation is allowed only from the local `@Bears` CD path after the Git contract resolves the `main` target.
-   Runner toolchain setup is executor-owned; agents must not discover kube tool paths or use manual Kubernetes mutation as PASS evidence.
+   Runner toolchain setup is executor-owned; agents must not discover kube tool paths or treat manual Kubernetes mutation as PASS evidence.
 5. The CD contract and app descriptors must not contain merge policy, branch policy, pull-request policy, manual approval gates, or executor mechanics.
 6. Human control for production promotion is the Git merge request from `dev` to `main`; it is not a CD contract field.
 
-If any contract, role route, manifest safety check, or required CI secret is missing, mark only the dependent deploy step blocked. Governance docs, route mappings, validators, tests, and future-lane registrations may continue inside their exact roles.
+If any contract, role route, manifest safety signal, or required CI secret is missing, mark only the dependent deploy step blocked. Governance docs, route mappings, validators, tests, and future-lane registrations may continue inside their exact roles.
 
 ## JSON artifact
 

@@ -7,12 +7,12 @@ metadata:
 
 # Yandex 360 DNS
 
-Use this plugin-local skill for `bears.ru` DNS inspection and dry-run change packets when records are managed through Yandex 360 for Business.
+Required: activate this plugin-local skill for `bears.ru` DNS inspection and dry-run change packets when records are managed through Yandex 360 for Business.
 
 ## Safety rules
 
 - Never print OAuth tokens, client secrets, `.env` values, raw secrets, browser callback fragments, or Infisical secret values.
-- Local env file loading is disabled. Do not use `--env`, `.env`, temp env files, or migration env files.
+- Local env file loading is disabled. Do not pass `--env`, `.env`, temp env files, or migration env files.
 - Local credential persistence is disabled. There is no `save-token` or `exchange-code` command.
 - Live DNS mutation apply is disabled. `create` and `delete` produce dry-run packets only; there is no `--yes` apply flag.
 - Use Infisical or another operator-approved secret manager for storage. The helper may give key names and target path only.
@@ -29,7 +29,7 @@ Use this plugin-local skill for `bears.ru` DNS inspection and dry-run change pac
 - Operator runbook: `/srv/bears/plugins/bears/skills/yandex360-dns/references/operator-runbook.md`.
 - Canonical secret store: Infisical, injected at runtime through `/srv/bears/control-plane/infisical/infisical_mcp_stdio.sh` or an approved shell environment.
 - Recommended Infisical path: `/global/dns/yandex360/bears-ru`, environment `prod`.
-- Infisical folder names allow alphanumeric characters, dashes, and underscores; use `bears-ru`, not `bears.ru`, as the folder segment.
+- Infisical folder names allow alphanumeric characters, dashes, and underscores; write `bears-ru`, not `bears.ru`, as the folder segment.
 - Default commands read only runtime environment variables injected by Infisical or an operator-prepared shell.
 
 Required runtime keys:
@@ -104,4 +104,4 @@ Common fields:
 - SRV: `--priority`, `--weight`, `--port`, and `--target`.
 - CAA: `--flag`, `--tag`, and `--value`.
 
-If `orgs` returns `403`, check that the token scope includes `directory:read_organization`. If `list` returns `403`, check `directory:manage_dns` and the account rights in the Yandex 360 organization.
+If `orgs` returns `403`, confirm that the token scope includes `directory:read_organization`. If `list` returns `403`, confirm `directory:manage_dns` and the account rights in the Yandex 360 organization.

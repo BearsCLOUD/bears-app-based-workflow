@@ -16,12 +16,12 @@ Every app-* skill starts with this gate:
 - `app` belongs to `BearsCLOUD/apps` and one app directory under `/srv/bears/dev/app`.
 - `platform` belongs to `/srv/bears/dev/platform`.
 - `infra` belongs to `/srv/bears/kubernetes`.
-- `plugin` belongs to `plugins/<plugin>`; for `@Bears`, use `/srv/bears/plugins/bears` plus `subagents-roles` route/audit.
+- `plugin` belongs to `plugins/<plugin>`; for `@Bears`, route to `/srv/bears/plugins/bears` plus computed `subagents-roles` owner and expected autoCI/local-commit validation status.
 - Legacy child repos and `/srv/bears/projects` are evidence only.
-- Use target-named reads when target packets name paths.
+- Read target-named paths when target packets name paths.
 - If a request crosses layers, keep the layers separate and pass them to `$app-plan` as separate lanes.
 
-Use this skill to turn operator intent into concrete app documentation and implementation-ready requirements.
+Required: activate this skill to turn operator intent into concrete app documentation and implementation-ready requirements.
 
 A specification states what the work must do, for whom, where it lives, how success is proven, and what is out of scope.
 
@@ -29,13 +29,13 @@ A specification states what the work must do, for whom, where it lives, how succ
 
 ## Plugin target mode
 
-Use `target_layer=plugin` when app-style flow helps a plugin governance or workflow change.
+Required: set `target_layer=plugin` when app-style flow helps a plugin governance or workflow change.
 
 - `app-constitution` creates or updates a plugin governance baseline, not a retired standalone artifact.
-- `app-research` gathers current plugin source, generated inventory, route/audit, runtime, GitHub, or install/update evidence.
+- `app-research` gathers current plugin source, generated inventory, computed role ownership, runtime, GitHub, or install/update evidence.
 - `app-specify` writes plugin-local requirements or specification docs for plugin behavior.
-- `app-plan` creates plugin-local task packets; for `@Bears`, use `BearsCLOUD/bears_plugin` Project metadata when authorized.
-- `app-analyze` checks drift across plugin baseline, specs, task packets, route/audit evidence, role-principle ledger, Project metadata, and notification refs.
+- `app-plan` creates plugin-local task packets; for `@Bears`, write `BearsCLOUD/bears_plugin` Project metadata only when authorized.
+- `app-analyze` checks drift across plugin baseline, specs, task packets, computed role ownership evidence, role-principle ledger, Project metadata, and notification refs.
 - `app-dev` executes bounded plugin task packets through selected `@Bears` roles, skills, or subagents and updates the ledger when role principles change.
 - Plugin-target `task` and `wave` keep the app-dev meanings, with plugin repo/path ownership instead of product app ownership.
 
@@ -43,7 +43,7 @@ Use `target_layer=plugin` when app-style flow helps a plugin governance or workf
 
 Allowed:
 
-- Read nearest `AGENTS.md`, constitution, app-research packet, README, SPEC, requirements, current docs, app functional graph, app task ledger, route evidence, relevant GitHub Project status metadata, and notification refs.
+- Read nearest `AGENTS.md`, constitution, app-research packet, README, SPEC, requirements, current docs, app functional graph, app task ledger, computed role ownership evidence, relevant GitHub Project status metadata, and notification refs.
 - Create or update `spec.md`, feature docs, operator docs, user docs, or README sections in the owning repo path.
 - Produce acceptance criteria and proof expectations for `$app-plan`.
 
@@ -55,7 +55,7 @@ Forbidden:
 
 ## Artifact placement
 
-Use the narrowest owner path:
+Required: select the narrowest owner path:
 
 - Existing feature docs directory when one already exists in the owning repo.
 - `docs/features/<slug>/spec.md` for repo-local feature work.
@@ -68,7 +68,7 @@ Use the narrowest owner path:
 2. Read the target constitution. If missing, run `$app-constitution` or record an explicit constitution gap.
 3. Run or consume `$app-research` when the risk gate matches. If skipped, record the exact skip reason.
 4. Extract operator intent into scope, actors, flows, inputs, outputs, data boundaries, errors, recovery behavior, and proof expectations.
-5. Inspect only files needed to avoid contradicting current implementation and docs.
+5. Inspect only files needed to prevent contradictions with current implementation and docs.
 6. Write or update the specification with: problem and outcome; scope and non-goals; actors and workflows; functional requirements; docs requirements; data, secret, runtime, infra, and GitHub metadata boundaries; acceptance criteria; dependencies and open questions.
 7. Emit `app-specification.packet` and hand it to `$app-plan`.
 
@@ -93,4 +93,4 @@ Use the narrowest owner path:
 }
 ```
 
-Use `blocked` only for missing owner, missing route coverage, missing required constitution decision, access failure, or explicit operator stop.
+Required: set `blocked` only for missing owner, missing route coverage, missing required constitution decision, access failure, or explicit operator stop.

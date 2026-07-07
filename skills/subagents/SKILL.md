@@ -5,7 +5,7 @@ description: "Independent Bears subagent-use skill for selecting, starting, cons
 
 # Subagents
 
-Use this skill when a Bears workflow must delegate bounded work to subagents.
+Required: activate this skill when a Bears workflow must delegate bounded work to subagents.
 
 ## Core rules
 

@@ -5,13 +5,13 @@ description: "Use for @Bears role lifecycle work: create/update role TOML, close
 
 # Bears Agents
 
-Use this skill for `@Bears` role lifecycle changes under `/srv/bears/plugins/bears/agents` and the role catalog.
+Required: activate this skill for `@Bears` role lifecycle changes under `/srv/bears/plugins/bears/agents` and the role catalog.
 
 This skill defines role authority. It does not run delegated work. Use `subagents` for runtime delegation after a route gate selects a role.
 
 ## Scope
 
-Use this skill for:
+Required: activate this skill for:
 
 - creating or updating role TOML profiles;
 - adding exact role catalog mappings;
@@ -22,7 +22,7 @@ Use this skill for:
 
 ## Boundaries
 
-Do not use this skill to select, start, constrain, review, or close runtime subagents. That belongs to `subagents`.
+Forbidden: activate this skill to select, start, constrain, review, or close runtime subagents. That belongs to `subagents`.
 
 Do not store product facts, target board facts, repo-local implementation details, deploy facts, secret exceptions, or target docs content in role profiles. Put target facts in the target `AGENTS.md`, target docs, or target `.codex/`.
 
@@ -36,7 +36,7 @@ Do not store product facts, target board facts, repo-local implementation detail
 
 ## Validation ownership
 
-Route/audit is ownership discovery only. Automatic CI and local-commit validation own blocking check results for role lifecycle changes.
+Route/audit is ownership discovery only. Automatic CI and local-commit validation own blocking verification results for role lifecycle changes.
 
 ## Closeout
 

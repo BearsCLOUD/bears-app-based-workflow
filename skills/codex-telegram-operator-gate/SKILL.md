@@ -5,7 +5,7 @@ description: "Use when Codex needs an operator decision, Telegram inline choice,
 
 # Codex Telegram Operator Gate
 
-Use this skill when an operator decision, bounded inline choice, feedback wait, or safe file exchange must go through the configured `codex-telegram` MCP server.
+Required: activate this skill when an operator decision, bounded inline choice, feedback wait, or safe file exchange must go through the configured `codex-telegram` MCP server.
 
 ## Hard rules
 

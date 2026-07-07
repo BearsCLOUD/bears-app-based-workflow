@@ -5,7 +5,7 @@ description: Harden and compress agent instructions by converting prose into low
 
 # Instruction Hardening
 
-Use this skill to turn human-readable agent instructions into shorter, stricter policy text.
+Required: activate this skill to turn human-readable agent instructions into shorter, stricter policy text.
 
 ## Bears MCP preflight
 

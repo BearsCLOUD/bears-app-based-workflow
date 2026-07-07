@@ -5,7 +5,7 @@ description: "Use for Bears Kubernetes read-only metadata work, Kubernetes deplo
 
 # Bears Kubernetes Ops
 
-Use this skill for Kubernetes metadata checks and kube-backed live-gate discovery in Bears.
+Required: activate this skill for Kubernetes metadata checks and kube-backed live-gate discovery in Bears.
 
 ## Hard rules
 
@@ -19,7 +19,7 @@ Use this skill for Kubernetes metadata checks and kube-backed live-gate discover
 - Agent-run `kubectl` is read-only metadata proof only after `local_cd` evidence or exact operator-approved runtime inspection; it is not source truth and not a final deploy path.
 - Local dev-instance Kubernetes may prove manifest shape, image wiring, and read-only readiness only; it is not final live PASS evidence.
 - Operator-approved live mutation may be incident break-glass only; it must not become deployment source of truth.
-- Do not use Kubernetes as a bypass around Infisical or Secret Factory policy.
+- Do not treat Kubernetes as a bypass around Infisical or Secret Factory policy.
 - Production Kubernetes mutation is Git/CD-owned; follow `$bears-deploy-gate` for deploy impact.
 - Use exact terms `kubernetes_deployment` and `local_cd` when those surfaces are changed.
 
@@ -48,24 +48,24 @@ kubectl get secret -A
 
 `kubectl get secret` default table output is allowed because it shows names, types, data counts, and ages, not values. Do not add `-o yaml` or `-o json` for Secret resources.
 
-When exact task evidence names a Bears local kube toolchain, use that exact binary and context for read-only metadata only. If it is absent, do not search the host for `kubectl` or kubeconfigs; report `KUBE_TOOLCHAIN_EVIDENCE_MISSING` for the dependent metadata proof.
+When exact task evidence names a Bears local kube toolchain, run that exact binary and context for read-only metadata only. If it is absent, do not search the host for `kubectl` or kubeconfigs; report `KUBE_TOOLCHAIN_EVIDENCE_MISSING` for the dependent metadata proof.
 
 Do not commit kubeconfig paths or generated kubeconfig files.
 
 ## Local dev-instance runtime
 
-Use this section when the user asks to raise or inspect a Kubernetes node on the
+Required: follow this section when the user asks to raise or inspect a Kubernetes node on the
 current dev instance.
 
 1. Put persistent local kube runtime under `/srv/bears/runtime/kube/<context>/`.
 2. Keep kubeconfigs, certificates, cache, and cluster state out of Git; `/srv/bears/runtime/**` is runtime-only.
 3. Use `.tmp` only for disposable scratch that may be deleted between runs.
 4. Report local cluster evidence as `dev-instance proof`, not final live PASS.
-5. Never convert local `kubectl apply`, local smoke, or local host process evidence into deployment proof. Final live PASS requires Kubernetes desired state, `local_cd`, workload evidence, secret-reference readiness, CD evidence, and runtime health proof.
+5. Never convert local `kubectl apply`, local smoke, or local host-process evidence into deployment proof. Final live PASS requires Kubernetes desired state, `local_cd`, workload evidence, secret-reference readiness, CD evidence, and runtime health proof.
 
 ## Safe manifest discovery
 
-Use repository manifests to find names and references without live values:
+Required: read repository manifests to find names and references without live values:
 
 ```bash
 find /srv/bears/kubernetes -maxdepth 5 -type f \
@@ -113,7 +113,7 @@ debug provider credentials.
 
 ## Dev platform data-service checks
 
-Use this section only for the exact Bears dev platform lane:
+Required: follow this section only for the exact Bears dev platform lane:
 
 - Namespace: `bears-platform-stateful-backend-dev`.
 - Redis: in-memory data store used here for queue and cache state.
@@ -180,7 +180,7 @@ For TG One Chat Intelligence or similar one-chat collectors:
 3. Confirm `TELEGRAM_SESSION_STRING` is present by name, or `TELEGRAM_SESSION_PATH` plus `TGINTEL_ALLOW_LOCAL_SESSION_PATH=1` is present by name.
 4. Confirm a single approved chat name exists by name (`TGINTEL_CHAT_ID` or project-specific equivalent).
 5. Confirm `TGINTEL_DISABLE_TELEGRAM_SEND=1` is required for proof commands.
-6. Do not run `kubectl exec printenv`; use a repo helper or operator-approved Infisical name proof instead.
+6. Do not run `kubectl exec printenv`; run a repo helper or operator-approved Infisical name proof instead.
 7. If the only remaining proof requires injected runtime values, return the exact operator command and mark the step blocked on operator approval.
 8. Do not treat generic Telegram platform resources as `tgsearch` proof unless
    their names, env names, or manifests explicitly reference `tgsearch`,

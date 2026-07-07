@@ -16,24 +16,24 @@ Every app-* skill starts with this gate:
 - `app` belongs to `BearsCLOUD/apps` and one app directory under `/srv/bears/dev/app`.
 - `platform` belongs to `/srv/bears/dev/platform`.
 - `infra` belongs to `/srv/bears/kubernetes`.
-- `plugin` belongs to `plugins/<plugin>`; for `@Bears`, use `/srv/bears/plugins/bears` plus `subagents-roles` route/audit.
+- `plugin` belongs to `plugins/<plugin>`; for `@Bears`, route to `/srv/bears/plugins/bears` plus computed `subagents-roles` owner and expected autoCI/local-commit validation status.
 - Legacy child repos and `/srv/bears/projects` are evidence only.
-- Use target-named reads when target packets name paths.
+- Read target-named paths when target packets name paths.
 - If a request crosses layers, keep the layers separate and pass them to `$app-plan` as separate lanes.
 
-Use this skill to create or update the app constitution: the concrete rule document that later app specs, docs, app functional graph, app task ledger, GitHub Project status items, notification refs, and app-dev agents must obey.
+Required: activate this skill to create or update the app constitution: the concrete rule document that later app specs, docs, app functional graph, app task ledger, GitHub Project status items, notification refs, and app-dev agents must obey.
 
 
 
 ## Plugin target mode
 
-Use `target_layer=plugin` when app-style flow helps a plugin governance or workflow change.
+Required: set `target_layer=plugin` when app-style flow helps a plugin governance or workflow change.
 
 - `app-constitution` creates or updates a plugin governance baseline, not a retired standalone artifact.
-- `app-research` gathers current plugin source, generated inventory, route/audit, runtime, GitHub, or install/update evidence.
+- `app-research` gathers current plugin source, generated inventory, computed role ownership, runtime, GitHub, or install/update evidence.
 - `app-specify` writes plugin-local requirements or specification docs for plugin behavior.
-- `app-plan` creates plugin-local task packets; for `@Bears`, use `BearsCLOUD/bears_plugin` Project metadata when authorized.
-- `app-analyze` checks drift across plugin baseline, specs, task packets, route/audit evidence, role-principle ledger, Project metadata, and notification refs.
+- `app-plan` creates plugin-local task packets; for `@Bears`, write `BearsCLOUD/bears_plugin` Project metadata only when authorized.
+- `app-analyze` checks drift across plugin baseline, specs, task packets, computed role ownership evidence, role-principle ledger, Project metadata, and notification refs.
 - `app-dev` executes bounded plugin task packets through selected `@Bears` roles, skills, or subagents and updates the ledger when role principles change.
 - Plugin-target `task` and `wave` keep the app-dev meanings, with plugin repo/path ownership instead of product app ownership.
 
@@ -41,7 +41,7 @@ Use `target_layer=plugin` when app-style flow helps a plugin governance or workf
 
 Allowed:
 
-- Read nearest `AGENTS.md`, current app docs, existing constitution, app functional graph, app task ledger, GitHub Project status metadata, notification refs, and route evidence for the exact target.
+- Read nearest `AGENTS.md`, current app docs, existing constitution, app functional graph, app task ledger, GitHub Project status metadata, notification refs, and computed role ownership evidence for the exact target.
 - Create or update only the narrow constitution artifact and short links from owned docs.
 - Record unresolved drift as owner-scoped follow-up work.
 
@@ -66,7 +66,7 @@ The constitution must state:
 
 ## Artifact placement
 
-Use the narrowest owner path:
+Required: select the narrowest owner path:
 
 - App: `/srv/bears/dev/app/<app-name>/docs/constitution.md`, or `/srv/bears/dev/app/docs/<app-name>-constitution.md` when the app directory has no docs directory.
 - Platform: `/srv/bears/dev/platform/docs/reference/<target>-constitution.md` only for shared platform layer rules.
@@ -100,4 +100,4 @@ Use the narrowest owner path:
 }
 ```
 
-Use `blocked` only for access, missing owner, missing route coverage, or explicit operator stop.
+Required: set `blocked` only for access, missing owner, missing route coverage, or explicit operator stop.

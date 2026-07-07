@@ -5,7 +5,7 @@ description: "Use to classify plugin/non-app Bears workflow-overlay risks, block
 
 # Bears Blocker Eval
 
-Use this skill only for plugin/non-app workflow-overlay work when raw failure signals, scope concerns, missing artifacts, or risk claims must be separated into true blockers versus advisory risks. App workflow findings belong to `$app-analyze`.
+Required: activate this skill only for plugin/non-app workflow-overlay work when raw failure signals, scope concerns, missing artifacts, or risk claims must be separated into true blockers versus advisory risks. App workflow findings belong to `$app-analyze`.
 
 This skill is report-first. It must not stop work by itself unless it is propagating a file-backed `ROLE_COVERAGE_BLOCKER` from the role gate or an explicit higher-priority/user stop.
 

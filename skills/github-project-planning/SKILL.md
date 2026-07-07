@@ -5,7 +5,7 @@ description: "Use for non-app GitHub Project planning and administration: creati
 
 # GitHub Project Planning
 
-Use this skill to plan and govern non-app GitHub Projects and linked Issues as an independent GitHub Project workflow surface. App workflow planning belongs to `$app-plan`.
+Required: activate this skill to plan and govern non-app GitHub Projects and linked Issues as an independent GitHub Project workflow surface. App workflow planning belongs to `$app-plan`.
 
 ## Scope
 

@@ -124,6 +124,29 @@ Current change extends the hardening packet with:
 
 Use this MCP-backed queue for the active broad objective: refactor all Bears instruction surfaces in owner-safe waves. Do not treat the queue as authority; it is evidence for picking the next same-owner edit wave.
 
+### Phase 6: Skill instruction wording wave
+
+Status: complete.
+
+MCP queue source:
+
+```bash
+python3 scripts/instruction_hardening_mcp_packet.py instruction_hardening_graphs --root . --bounded-json --max-output-bytes 500000
+```
+
+Wave scope:
+
+- `skills/*/SKILL.md` activation lines;
+- app workflow plugin-target lines;
+- selected deploy, Kubernetes, Infisical, Secret Factory, Codex health, and role-governance wording lines.
+
+Wave result before critic/commit:
+
+- `surface_summary.weak_terms_by_kind.skill`: `176 -> 82`;
+- critic `019f3b88-c177-71a0-83db-a4cc0b406670` re-audit verdict: `PASS`, `required_fix_before_commit=no`;
+- no catalog, role TOML, workflow, runtime, deploy, Kubernetes desired-state, or secret-custody mutations;
+- remaining high counts include intentional grammar/list terms inside `skills/instruction-hardening/SKILL.md` and metadata/contract keys that may need a later schema-aware wave.
+
 ## Current status
 
 - phase_1_minimal_mcp_connection: complete
@@ -131,5 +154,6 @@ Use this MCP-backed queue for the active broad objective: refactor all Bears ins
 - phase_3_full_plugin_instruction_refactor: complete
 - phase_4_final_consistency_critic: complete
 - phase_5_all_instruction_refactor_queue: in_progress
+- phase_6_skill_instruction_wording_wave: complete
 - current_mcp_tool_gap: current Codex toolset exposes MCP registration through `codex mcp get mcp` but no callable `instruction_hardening_startup` namespace in this turn; use the documented stdio MCP helper as evidence.
 - full_goal_complete: not_complete_for_all_instruction_refactor

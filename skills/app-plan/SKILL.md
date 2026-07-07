@@ -16,23 +16,23 @@ Every app-* skill starts with this gate:
 - `app` belongs to `BearsCLOUD/apps` and one app directory under `/srv/bears/dev/app`.
 - `platform` belongs to `/srv/bears/dev/platform`.
 - `infra` belongs to `/srv/bears/kubernetes`.
-- `plugin` belongs to `plugins/<plugin>`; for `@Bears`, use `/srv/bears/plugins/bears` plus computed `subagents-roles` owner and expected autoCI status.
+- `plugin` belongs to `plugins/<plugin>`; for `@Bears`, route to `/srv/bears/plugins/bears` plus computed `subagents-roles` owner and expected autoCI status.
 - Legacy child repos and `/srv/bears/projects` are evidence only.
-- Use target-named reads when target packets name paths.
+- Read target-named paths when target packets name paths.
 - If a request crosses layers, keep the layers separate and pass them to `$app-plan` as separate lanes.
 
-Use this skill to convert app docs into app-local ledger tasks for `$app-dev` and Project #20 planning/status refs.
+Required: activate this skill to convert app docs into app-local ledger tasks for `$app-dev` and Project #20 planning/status refs.
 
 For `target_layer=app`, run `$app-functional-graph` before creating execution tasks.
 
 ## Plugin target mode
 
-Use `target_layer=plugin` when app-style flow helps a plugin governance or workflow change.
+Required: set `target_layer=plugin` when app-style flow helps a plugin governance or workflow change.
 
 - `app-constitution` creates or updates a plugin governance baseline, not a retired standalone artifact.
 - `app-research` gathers current plugin source, generated inventory, computed role ownership, runtime, GitHub, or install/update evidence.
 - `app-specify` writes plugin-local requirements or specification docs for plugin behavior.
-- `app-plan` creates plugin-local task packets; for `@Bears`, use `BearsCLOUD/bears_plugin` metadata only when the operator authorizes metadata mutation.
+- `app-plan` creates plugin-local task packets; for `@Bears`, write `BearsCLOUD/bears_plugin` metadata only when the operator authorizes metadata mutation.
 - `app-analyze` checks drift across plugin baseline, specs, task packets, computed role ownership, role-principle ledger, and metadata.
 - `app-dev` executes bounded plugin task packets through selected `@Bears` roles, skills, or subagents and updates the ledger when role principles change.
 - Plugin-target `task` and `wave` keep the app-dev meanings, with plugin repo/path ownership instead of product app ownership.
@@ -41,7 +41,7 @@ Use `target_layer=plugin` when app-style flow helps a plugin governance or workf
 
 Allowed:
 
-- Read `/srv/bears/AGENTS.md`, nearest app `AGENTS.md`, app constitution, app-research packet, app spec/docs, app functional graph, app task ledger, Apps Project #20 metadata, and route evidence.
+- Read `/srv/bears/AGENTS.md`, nearest app `AGENTS.md`, app constitution, app-research packet, app spec/docs, app functional graph, app task ledger, Apps Project #20 metadata, and computed role ownership evidence.
 - Create or update app-local `docs/app-functional-graph.v1.json` and `docs/app-task-ledger.v1.json` through `$app-functional-graph`.
 - Create or update Project item refs as planning/status metadata linked to `task_id` and `functionality_ref`.
 - Create decomposition, dependency, acceptance, proof, schema-packet, lane, and handoff metadata needed by `$app-dev`.
@@ -52,7 +52,7 @@ Forbidden:
 - Implementation file edits, including schema skeleton files or generated product contract files.
 - Automatic GitHub Issue creation for execution tasks.
 - Runtime, Kubernetes desired-state, provider account, repo-setting, branch-protection, environment, webhook, secret, variable, `.env`, production-data, raw-log, or raw-chat mutation.
-- Product behavior decisions not stated by docs, `$app-research`, schema packets, functional graph, or route evidence.
+- Product behavior decisions not stated by docs, `$app-research`, schema packets, functional graph, or computed role ownership evidence.
 - Broad tasks that require a worker to choose architecture, scope, files, role, proof, or dependency order.
 
 ## Defaults

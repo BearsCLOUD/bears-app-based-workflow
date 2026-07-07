@@ -16,12 +16,12 @@ Every app-* skill starts with this gate:
 - `app` belongs to `BearsCLOUD/apps` and one app directory under `/srv/bears/dev/app`.
 - `platform` belongs to `/srv/bears/dev/platform`.
 - `infra` belongs to `/srv/bears/kubernetes`.
-- `plugin` belongs to `plugins/<plugin>`; for `@Bears`, use `/srv/bears/plugins/bears` plus `subagents-roles` route/audit.
+- `plugin` belongs to `plugins/<plugin>`; for `@Bears`, route to `/srv/bears/plugins/bears` plus computed `subagents-roles` owner and expected autoCI/local-commit validation status.
 - Legacy child repos and `/srv/bears/projects` are evidence only.
-- Use target-named reads when target packets name paths.
+- Read target-named paths when target packets name paths.
 - If a request crosses layers, keep the layers separate and pass them to `$app-plan` as separate lanes.
 
-Use this skill to gather current external and repo-local evidence for product logic before the app workflow locks requirements or lane tasks.
+Required: activate this skill to gather current external and repo-local evidence for product logic before the app workflow locks requirements or lane tasks.
 
 ## When required
 
@@ -32,19 +32,19 @@ Run `$app-research` when the app work includes any of these:
 - UI/UX, operator flow, status, error, recovery, or notification behavior;
 - unclear architecture, data model, product logic, queue/runtime ownership, or prior-art choice.
 
-Skip only for exact bugfix or docs-only work with no new product logic and record the skip reason in the next app packet.
+Skip only for exact bugfix or docs-only tasks with no new product logic and record the skip reason in the next app packet.
 
 
 
 ## Plugin target mode
 
-Use `target_layer=plugin` when app-style flow helps a plugin governance or workflow change.
+Required: set `target_layer=plugin` when app-style flow helps a plugin governance or workflow change.
 
 - `app-constitution` creates or updates a plugin governance baseline, not a retired standalone artifact.
-- `app-research` gathers current plugin source, generated inventory, route/audit, runtime, GitHub, or install/update evidence.
+- `app-research` gathers current plugin source, generated inventory, computed role ownership, runtime, GitHub, or install/update evidence.
 - `app-specify` writes plugin-local requirements or specification docs for plugin behavior.
-- `app-plan` creates plugin-local task packets; for `@Bears`, use `BearsCLOUD/bears_plugin` Project metadata when authorized.
-- `app-analyze` checks drift across plugin baseline, specs, task packets, route/audit evidence, role-principle ledger, Project metadata, and notification refs.
+- `app-plan` creates plugin-local task packets; for `@Bears`, write `BearsCLOUD/bears_plugin` Project metadata only when authorized.
+- `app-analyze` checks drift across plugin baseline, specs, task packets, computed role ownership evidence, role-principle ledger, Project metadata, and notification refs.
 - `app-dev` executes bounded plugin task packets through selected `@Bears` roles, skills, or subagents and updates the ledger when role principles change.
 - Plugin-target `task` and `wave` keep the app-dev meanings, with plugin repo/path ownership instead of product app ownership.
 
@@ -52,7 +52,7 @@ Use `target_layer=plugin` when app-style flow helps a plugin governance or workf
 
 Allowed:
 
-- Read exact target docs and route evidence.
+- Read exact target docs and computed role ownership evidence.
 - Use current web, official docs, GitHub, package, and product sources when external evidence is needed.
 - Summarize source links, decision options, constraints, and concrete recommendations.
 

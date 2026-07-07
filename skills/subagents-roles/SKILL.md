@@ -5,7 +5,7 @@ description: "Use before @Bears role, skill, subagent, plugin governance, compat
 
 # Subagents Roles Governance
 
-`gate` means an automatic admission check. `autoCI` means an automatic verification line. `autoCD` means an automatic install, update, or deploy line.
+`gate` means an automatic admission decision. `autoCI` means an automatic verification line. `autoCD` means an automatic install, update, or deploy line.
 
 This skill owns @Bears role routing, subagent-role coverage, role-principle ledger updates, and well-specified role artifacts.
 
@@ -18,15 +18,15 @@ This skill owns @Bears role routing, subagent-role coverage, role-principle ledg
 4. Leave route/audit and ledger proof to `autoCI` or local commit validation.
 5. Use the expected primary specialist or helper role and keep writes inside its allowed scope.
 6. Preserve shared spine order: `auth_core -> bears_gateway -> cd_deploy_stage`.
-7. Record missing role coverage as exact role/profile/catalog/ledger work with an issue ref when it cannot be completed in the current change.
+7. Record missing role coverage as exact role/profile/catalog/ledger tasks with an issue ref when the current change cannot complete it.
 
 ## Principles
 
-- `well_specified_agent_artifacts`: use `references/well-specified-artifacts.md` and `references/positive-planning-language.md`.
-- `runtime_result_efficiency`: use `references/runtime-result-efficiency.md`.
-- `repeatable_process_automation`: use `references/repeatable-process-automation.md`.
-- `role_principle_ledger`: use `references/role-principle-ledger.md`.
-- `role_start_packet`: use `references/role-start-packet.md`.
+- `well_specified_agent_artifacts`: read `references/well-specified-artifacts.md` and `references/positive-planning-language.md`.
+- `runtime_result_efficiency`: read `references/runtime-result-efficiency.md`.
+- `repeatable_process_automation`: read `references/repeatable-process-automation.md`.
+- `role_principle_ledger`: read `references/role-principle-ledger.md`.
+- `role_start_packet`: read `references/role-start-packet.md`.
 
 ## Exact targets
 

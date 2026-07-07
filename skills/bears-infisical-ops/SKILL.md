@@ -5,7 +5,7 @@ description: "Use for Bears Infisical work: locating project/env/path metadata, 
 
 # Bears Infisical Ops
 
-Use this skill for Infisical-backed access checks and live-readiness handoffs in Bears repositories.
+Required: activate this skill for Infisical-backed access checks and live-readiness handoffs in Bears repositories.
 
 ## Hard rules
 
@@ -14,12 +14,12 @@ Use this skill for Infisical-backed access checks and live-readiness handoffs in
 - Never write `.env`, session, token, kubeconfig, private chat, or production-data files.
 - Prefer names-only proof: project name/id, environment name, secret path, env var names, and secret key names.
 - Treat `TELEGRAM_SESSION_STRING` as preferred session custody.
-- Allow `TELEGRAM_SESSION_PATH` only when an operator explicitly sets `TGINTEL_ALLOW_LOCAL_SESSION_PATH=1` for that dev or emergency one-run; never use it as final live PASS evidence.
+- Allow `TELEGRAM_SESSION_PATH` only when an operator explicitly sets `TGINTEL_ALLOW_LOCAL_SESSION_PATH=1` for that dev or emergency one-run; never treat it as final live PASS evidence.
 - Fail closed if Infisical project, environment, path, or required env names are missing.
 - Treat Infisical as secret custody and environment injection only; it is not a software deployment path.
 - Local `infisical run` proof is preflight only. Final live PASS for software must come from Kubernetes desired state, `local_cd`, workload evidence, secret-reference readiness, and runtime health proof.
 - Treat `/srv/bears/control-plane/infisical` as bootstrap or preflight support only; it does not own Kubernetes runtime desired state.
-- For generated local values, use `$secret-factory`; do not implement a second write path.
+- For generated local values, activate `$secret-factory`; do not implement a second write path.
 
 ## Required startup
 
@@ -54,7 +54,7 @@ env | cut -d= -f1 \
 
 ## Operator-only name proof
 
-Use only with explicit operator approval because `infisical run` injects values into the child process before filtering:
+Allowed only with explicit operator approval because `infisical run` injects values into the child command before filtering:
 
 ```bash
 infisical run -- printenv \
@@ -116,7 +116,7 @@ Every step is names-only. A missing step blocks only the dependent live proof an
 
 ## Dev platform data-service names
 
-For `bears-platform-stateful-backend-dev`, use names-only readiness packets for:
+For `bears-platform-stateful-backend-dev`, return names-only readiness packets for:
 
 - Redis password reference: `/kubernetes/bears-platform-stateful-backend-dev/redis/password`.
 - Taskiq broker/result URL references:

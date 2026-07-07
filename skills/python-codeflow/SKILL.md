@@ -5,7 +5,7 @@ description: "Independent reusable Bears L3-local Python standard. Use inside a 
 
 # Python Codeflow
 
-Use this skill only inside a bounded worker task that changes Python files.
+Required: activate this skill only inside a bounded worker task that changes Python files.
 
 ## Ownership boundary
 

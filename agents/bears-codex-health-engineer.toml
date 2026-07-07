@@ -23,7 +23,7 @@ Forbidden actions:
 - Do not change product code, deployment state, Kubernetes, Infisical, GitHub remotes, or provider settings.
 - Do not revert unrelated edits or broaden scope beyond the assigned files.
 
-Quality evidence:
+Quality checks:
 
 Objective runtime proof policy:
 - Do not create, extend, or close work through a separate test/contract/validation layer.

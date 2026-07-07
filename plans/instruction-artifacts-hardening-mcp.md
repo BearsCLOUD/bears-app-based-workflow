@@ -515,3 +515,32 @@ Critic result:
 
 - Re-audit critic `019f3b9d-3426-7231-a1ec-940453cd2e35` verdict: `SLICE_VERDICT: PASS`, `FULL_GOAL_VERDICT: NOT_COMPLETE`, blockers: none.
 - PASS was based on current repo evidence: changed files match the 4 role TOMLs plus plan evidence; MCP/helper path remains active; role weak terms are `164 -> 155`; diff changes only developer-instruction prose and plan evidence; top-level role fields and route/catalog parity-sensitive strings are unchanged; validation ownership, hard bans, secret safety, and runtime/deploy/Kubernetes boundaries remain present; and broad all-instruction goal remains open.
+
+### Phase 17 follow-up: Required role heading scanner fix
+
+Status: in progress.
+
+CI evidence from commit `6f2d4dc89ebb117da64c3970edcfd0f60737b5c8`:
+
+- GitHub run `28854819647` failed in `skill inventory validation` because `validate_overlay.py --json validate --strict-overlay-skills` requires exact role section heading `Quality checks:` in changed role TOMLs.
+
+Fix scope:
+
+- restored exact `Quality checks:` headings in the 4 changed role TOMLs;
+- updated `src/bears_workflow/instruction_artifacts/application/zones.py` so role weak-term scoring excludes validator-required `Quality checks:` structural headings;
+- updated `docs/reference/instruction-artifacts-mcp.md` to record that structural role headings are not refactor targets.
+
+Fix result before critic/commit:
+
+- `surface_summary.weak_terms_by_kind.role` stays `155`;
+- exact validator-required role headings are restored without losing the Phase 17 weak-term reduction;
+- no route/catalog parity-sensitive top-level role fields, runtime, deploy, Kubernetes desired-state, or secret-custody surfaces changed.
+
+Critic requirement:
+
+- PASS only if current repo evidence proves the CI failure cause is addressed by restoring exact required headings while preserving MCP queue correctness and broad all-instruction goal status.
+
+Critic result:
+
+- Re-audit critic `019f3b9d-3426-7231-a1ec-940453cd2e35` verdict: `FIX_VERDICT: PASS`, `FULL_GOAL_VERDICT: NOT_COMPLETE`, blockers: none.
+- PASS was based on current repo evidence: GitHub job log for run `28854819647` shows missing `Quality checks:` headings as the failure cause; exact headings are restored in all 4 role TOMLs; MCP scanner excludes the required structural heading from weak-term scoring; role weak terms stay `155`; docs record structural role headings are not refactor targets; and broad all-instruction goal remains open.

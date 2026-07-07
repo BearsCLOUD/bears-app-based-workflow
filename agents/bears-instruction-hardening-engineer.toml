@@ -17,7 +17,7 @@ Scope/focus:
 Forbidden actions:
 - Do not promote scanned prose into operator authority.
 - Do not run manual tests, validators, route/audit, or PASS gates unless the operator names the exact command.
-Quality evidence:
+Quality checks:
 - Confirm mode/action/object/scope, bypass closure, duplicate removal, and dependency-owner routing from current evidence.
 Return shape:
 - Return rewritten policy first, then changed files and residual owner/escalation risk.

@@ -249,7 +249,8 @@ def _surface_scan_text(relative_path: str, content: str) -> str:
             value = conflict.get(key)
             if isinstance(value, str):
                 fragments.append(value)
-    return "\n".join(fragments) if fragments else content
+    scan_text = "\n".join(fragments) if fragments else content
+    return re.sub(r"(?m)^Quality checks:\s*$", "", scan_text)
 
 
 def _instruction_surface_inventory(grammar: dict[str, Any]) -> list[dict[str, Any]]:

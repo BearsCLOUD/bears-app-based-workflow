@@ -37,7 +37,7 @@ Instruction-surface inventory fields:
 - `instruction_surfaces[]`: bounded or full tracked plugin instruction surfaces from `AGENTS.md`, `skills/*/SKILL.md`, `agents/*.toml`, `docs/reference/*.md`, `docs/runbooks/*`, `assets/catalog/*.v1.json`, and `workflows/*/workflow.yml`.
 - Each surface item: `path`, `kind`, `lines`, `bytes`, `weak_terms_found`, `weak_term_count`, `policy_modes_found`, `canonical_actions_found`, and `warning`.
 - For Markdown surfaces, weak-term scoring excludes fenced code blocks because command examples and canonical dictionaries are evidence, not instruction prose.
-- For `agents/*.toml`, weak-term scanning reads human instruction fields only: `description`, `developer_instructions`, `archive_role.title`, `archive_role.mission`, `archive_developer_instructions.priority`, and `conflict` prose. Technical arrays such as `avoid_terms`, `canonical_actions`, and `policy_modes` are metadata, not refactor targets.
+- For `agents/*.toml`, weak-term scanning reads human instruction fields only: `description`, `developer_instructions`, `archive_role.title`, `archive_role.mission`, `archive_developer_instructions.priority`, and `conflict` prose. Technical arrays such as `avoid_terms`, `canonical_actions`, and `policy_modes` are metadata, not refactor targets. Validator-required section headings such as `Quality checks:` are structural markers, not refactor targets.
 
 Authority rules:
 

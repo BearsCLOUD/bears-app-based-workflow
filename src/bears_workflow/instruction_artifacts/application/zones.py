@@ -217,6 +217,39 @@ def _instruction_surface_paths(plugin_root: Path) -> list[Path]:
     return paths
 
 
+def _surface_scan_text(relative_path: str, content: str) -> str:
+    """Return human-readable instruction prose for weak-term scanning."""
+    if not relative_path.startswith("agents/") or not relative_path.endswith(".toml"):
+        return content
+    try:
+        payload = tomllib.loads(content)
+    except tomllib.TOMLDecodeError:
+        return content
+    fragments: list[str] = []
+    for key in ("description", "developer_instructions"):
+        value = payload.get(key)
+        if isinstance(value, str):
+            fragments.append(value)
+    archive_role = payload.get("archive_role")
+    if isinstance(archive_role, dict):
+        for key in ("title", "mission"):
+            value = archive_role.get(key)
+            if isinstance(value, str):
+                fragments.append(value)
+    archive_instructions = payload.get("archive_developer_instructions")
+    if isinstance(archive_instructions, dict):
+        priority = archive_instructions.get("priority")
+        if isinstance(priority, list):
+            fragments.extend(item for item in priority if isinstance(item, str))
+    conflict = payload.get("conflict")
+    if isinstance(conflict, dict):
+        for key in ("default", "meaning"):
+            value = conflict.get(key)
+            if isinstance(value, str):
+                fragments.append(value)
+    return "\n".join(fragments) if fragments else content
+
+
 def _instruction_surface_inventory(grammar: dict[str, Any]) -> list[dict[str, Any]]:
     plugin_root = _plugin_root()
     surfaces: list[dict[str, Any]] = []
@@ -224,12 +257,13 @@ def _instruction_surface_inventory(grammar: dict[str, Any]) -> list[dict[str, An
         relative_path = path.relative_to(plugin_root).as_posix()
         text, warning = exporter.read_text(path)
         content = text or ""
-        lowered = content.lower()
+        scan_content = _surface_scan_text(relative_path, content)
+        lowered = scan_content.lower()
         weak_terms = [
             term for term in grammar["weak_terms"] if _term_found(term, lowered)
         ]
         policy_modes = [
-            mode for mode in grammar["policy_modes"] if _term_found(mode, content)
+            mode for mode in grammar["policy_modes"] if _term_found(mode, scan_content)
         ]
         canonical_actions = [
             action for action in grammar["canonical_actions"] if _term_found(action, lowered)

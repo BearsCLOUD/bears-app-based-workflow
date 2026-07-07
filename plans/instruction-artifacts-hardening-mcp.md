@@ -417,3 +417,35 @@ Critic result:
 
 - Re-audit critic `019f3b9d-3426-7231-a1ec-940453cd2e35` verdict: `SLICE_VERDICT: PASS`, `FULL_GOAL_VERDICT: NOT_COMPLETE`, blockers: none.
 - PASS was based on current repo evidence: changed files match the 5 reference docs plus plan evidence, MCP/helper path is active, reference weak terms are `24 -> 19`, diff is wording-only, command names/examples, validation ownership, historical drift identifiers, and safety bans are preserved, and broad all-instruction goal remains open.
+
+### Phase 15: Role scanner metadata exclusion wave
+
+Status: in progress.
+
+MCP queue source:
+
+```bash
+python3 scripts/instruction_hardening_mcp_packet.py instruction_hardening_startup --root . --bounded-json
+```
+
+Wave scope:
+
+- `src/bears_workflow/instruction_artifacts/application/zones.py` role TOML scan text selection;
+- `docs/reference/instruction-artifacts-mcp.md` MCP contract note for role TOML scan fields;
+- scanner now counts human-readable role instruction fields and excludes technical metadata arrays such as `avoid_terms`, `canonical_actions`, and `policy_modes` from weak-term/friction scoring.
+
+Wave result before critic/commit:
+
+- `surface_summary.weak_terms_by_kind.role`: `176 -> 164`;
+- `surface_summary.weak_terms_by_kind.reference` stayed `19` after the contract note;
+- no role TOML, skill, catalog, workflow, runtime, deploy, Kubernetes desired-state, or secret-custody mutations in this wave;
+- this is MCP queue correctness work, not PASS proof or runtime proof.
+
+Critic requirement:
+
+- PASS only if current repo evidence proves this MCP scanner change advances the active goal by removing technical metadata false positives from role instruction-surface scoring, preserves human-readable role field scanning, preserves response schema fields, and keeps the broad all-instruction goal open.
+
+Critic result:
+
+- Re-audit critic `019f3b9d-3426-7231-a1ec-940453cd2e35` verdict: `SLICE_VERDICT: PASS`, `FULL_GOAL_VERDICT: NOT_COMPLETE`, blockers: none.
+- PASS was based on current repo evidence: changed files match scanner code, MCP reference doc, and plan evidence; MCP/helper path remains active; role weak terms are `176 -> 164`; scanner still reads human-readable role fields while excluding technical metadata arrays; response schema fields remain stable; and broad all-instruction goal remains open.

@@ -1138,7 +1138,7 @@
           ]
         },
         {
-          "enforcement": "Parallel workers that may mutate the same checkout state must use separate clean worktrees or serialize; git checkout, merge --ff-only, submodule update, and repo-level generated sync are checkout mutations and closeout must report before/after branch and SHA.",
+          "enforcement": "Parallel workers that may mutate the same checkout state must run in separate clean worktrees or serialize; git checkout, merge --ff-only, submodule update, and repo-level generated sync are checkout mutations and closeout must report before/after branch and SHA.",
           "guard_id": "parallel_shared_worktree_isolation_guard",
           "issue": "BearsCLOUD/bears_plugin#87",
           "reject_when": [
@@ -1172,7 +1172,7 @@
           ]
         },
         {
-          "enforcement": "PR reviewers must use the assigned owner/repo and bounded clean worktree; recursive /srv/bears discovery and wrong-repo gh pr view are rejected.",
+          "enforcement": "PR reviewers must stay inside the assigned owner/repo and bounded clean worktree; recursive /srv/bears discovery and wrong-repo gh pr view are rejected.",
           "guard_id": "pr_review_repo_scope_guard",
           "issue": "BearsCLOUD/bears_plugin#90",
           "reject_when": [
@@ -1189,7 +1189,7 @@
           ]
         },
         {
-          "enforcement": "Routine publish preflights must use no-token probes and must not emit gh auth status. If auth diagnosis is the blocker, token and scope lines must be redacted before output.",
+          "enforcement": "Routine publish preflights must run no-token probes and must not emit gh auth status. If auth diagnosis is the blocker, token and scope lines must be redacted before output.",
           "guard_id": "credential_surface_output_guard",
           "issue": "BearsCLOUD/bears_plugin#95",
           "reject_when": [
@@ -1221,7 +1221,7 @@
           ]
         },
         {
-          "enforcement": "Leaf PR delivery must use a narrow delivery role. bears-orchestrator is reserved for route, split, assign, wait, integrate evidence, run validators, close, report, and child delegation tasks.",
+          "enforcement": "Leaf PR delivery must run under a narrow delivery role. bears-orchestrator is reserved for route, split, assign, wait, integrate evidence, run validators, close, report, and child delegation tasks.",
           "guard_id": "leaf_pr_delivery_role_guard",
           "issue": "BearsCLOUD/bears_plugin#112",
           "reject_when": [
@@ -1237,7 +1237,7 @@
           ]
         },
         {
-          "enforcement": "Final audit verdicts must scope FAIL to evidence inside the assigned slice. Future unrelated task IDs are remaining_work and use PASS_WITH_REMAINING_WORK or PASS when the assigned slice passed.",
+          "enforcement": "Final audit verdicts must scope FAIL to evidence inside the assigned slice. Future unrelated task IDs are remaining_work; return PASS_WITH_REMAINING_WORK or PASS when the assigned slice passed.",
           "guard_id": "slice_scoped_final_audit_verdict_guard",
           "issue": "BearsCLOUD/bears_plugin#121",
           "reject_when": [
@@ -1270,7 +1270,7 @@
           ]
         },
         {
-          "enforcement": "Parent control lane may use git status --short, git diff --stat, git diff --name-status, validation outputs, exit codes, and bounded child evidence only; patch content requires a dedicated reviewer subagent or explicit operator-approved review.",
+          "enforcement": "Parent control lane may inspect only git status --short, git diff --stat, git diff --name-status, validation outputs, exit codes, and bounded child evidence; patch content requires a dedicated reviewer subagent or explicit operator-approved review.",
           "guard_id": "parent_control_patch_content_guard",
           "issue": "BearsCLOUD/bears_plugin#130",
           "reject_when": [
@@ -2793,7 +2793,7 @@
     },
     {
       "id": "max-100-active-subagents",
-      "rule": "Keep hard_max_active_subagents at 100 as an absolute safety cap only; do not use 100 as the normal active execution target.",
+      "rule": "Keep hard_max_active_subagents at 100 as an absolute safety cap only; do not treat 100 as the normal active execution target.",
       "status": "mandatory"
     },
     {
@@ -2873,7 +2873,7 @@
     },
     {
       "id": "child-reasoning-floor-medium",
-      "rule": "Agent reasoning matrix is fixed: main agent uses gpt-5.5 medium; audit, complex-task, and subagent-spawning agents use gpt-5.5 high; file, log, and evidence-gathering agents use gpt-5.4-mini medium; operator wording middle maps to Codex value medium.",
+      "rule": "Agent reasoning matrix is fixed: main agent runs gpt-5.5 medium; audit, complex-task, and subagent-spawning agents run gpt-5.5 high; file, log, and evidence-gathering agents run gpt-5.4-mini medium; operator wording middle maps to Codex value medium.",
       "status": "mandatory"
     },
     {
@@ -2888,7 +2888,7 @@
     },
     {
       "id": "stage-boundary-audits-only",
-      "rule": "Run the four non-product audit subagents at lifecycle stage boundaries, not after every small file edit, to avoid reactive fix-loop churn.",
+      "rule": "Run the four non-product audit subagents at lifecycle stage boundaries, not after every small file edit, to prevent reactive fix-loop churn.",
       "status": "mandatory"
     },
     {
@@ -2913,7 +2913,7 @@
     },
     {
       "id": "goal-parallelization-preflight",
-      "rule": "Goal parallelization MUST run goal_parallelization_preflight before each wave: use the fixed assignment packet, validate spawn_agent arguments, validate wait_agent target ids, run wait_any_loop, update worker_pool_ledger, enforce backend_only_scope_lock, treat no_eligible_task as non-blocking, require completed-subagent close evidence before new waves, reconcile partial state before capacity fallback, and pass the final join gate before parent completion.",
+      "rule": "Goal parallelization MUST run goal_parallelization_preflight before each wave: apply the fixed assignment packet, validate spawn_agent arguments, validate wait_agent target ids, run wait_any_loop, update worker_pool_ledger, enforce backend_only_scope_lock, treat no_eligible_task as non-blocking, require completed-subagent close evidence before new waves, reconcile partial state before capacity fallback, and pass the final join gate before parent completion.",
       "status": "mandatory"
     },
     {
@@ -2963,12 +2963,12 @@
     },
     {
       "id": "current-day-checkpoint-collector-guard",
-      "rule": "Current-day checkpoint collectors MUST use assigned session ids, exact file paths, and line checkpoints only; memory reads and broad session scans require SCOPE_EXPANSION_REQUIRED before reading; final artifacts must include evidence_scope with file paths and line ranges.",
+      "rule": "Current-day checkpoint collectors MUST cite assigned session ids, exact file paths, and line checkpoints only; memory reads and broad session scans require SCOPE_EXPANSION_REQUIRED before reading; final artifacts must include evidence_scope with file paths and line ranges.",
       "status": "mandatory"
     },
     {
       "id": "current-state-source-authority-guard",
-      "rule": "Current-state and final-audit agents MUST use PR API, exact repo path, exact commit, exact file list, or live endpoint authority per claim; MEMORY.md is locator-only when explicitly allowed and must be followed by fresh source proof; broad scans require explicit file or path allowlists and output caps.",
+      "rule": "Current-state and final-audit agents MUST cite PR API, exact repo path, exact commit, exact file list, or live endpoint authority per claim; MEMORY.md is locator-only when explicitly allowed and must be followed by fresh source proof; broad scans require explicit file or path allowlists and output caps.",
       "status": "mandatory"
     }
   ],

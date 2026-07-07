@@ -2,6 +2,24 @@
   "entries": [
     {
       "affected_surfaces": [
+        "subagent_orchestration_policy",
+        "instruction_artifacts_mcp",
+        "release_notes"
+      ],
+      "date": "2026-07-07",
+      "files": [
+        "assets/catalog/subagent-orchestration-policy.v1.json",
+        "assets/catalog/release-notes.v1.json",
+        "plans/instruction-artifacts-hardening-mcp.md"
+      ],
+      "impact": "Hardens counted subagent orchestration policy wording in rule and enforcement fields while preserving the same worktree isolation, repository-scope, credential-output, delivery-role, parent-control, reasoning-matrix, audit-boundary, goal-parallelization, checkpoint, and source-authority requirements.",
+      "issue_ref": "#8",
+      "validation": [
+        "python3 scripts/local_commit_validation.py run --commit-sha <main_sha>"
+      ]
+    },
+    {
+      "affected_surfaces": [
         "instruction_artifacts_mcp",
         "instruction_hardening_skill",
         "artifact_registry",

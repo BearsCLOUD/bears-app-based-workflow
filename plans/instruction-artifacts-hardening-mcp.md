@@ -862,3 +862,35 @@ Critic result:
 
 - Re-audit critic `019f3b9d-3426-7231-a1ec-940453cd2e35` verdict: `SLICE_VERDICT: PASS`, `FULL_GOAL_VERDICT: NOT_COMPLETE`, blockers: none.
 - PASS was based on current repo evidence, not operator claims: changed files are scanner code, MCP reference doc, and plan evidence only; helper weak counts show `catalog: 72 -> 52`; `assets/catalog/decision-ledger.v1.json` and `assets/catalog/release-notes.v1.json` remain inventory surfaces with `weak_term_count: 0`; other human-policy catalogs still scan, including `assets/catalog/platform-role-catalog.v1.json` with `weak_term_count: 18`; no `assets/catalog` payload diff exists; decision-ledger authority for decisions and live confirmation remains in code/docs; MCP response schema fields remain present; and broad all-instruction goal remains open because catalog and role surfaces still report weak terms.
+
+### Phase 26: Subagent orchestration policy catalog wording
+
+Status: in progress.
+
+MCP queue source:
+
+```bash
+python3 scripts/instruction_hardening_mcp_packet.py instruction_hardening_startup --root . --bounded-json
+```
+
+Wave scope:
+
+- `assets/catalog/subagent-orchestration-policy.v1.json` counted `rule` and `enforcement` wording only;
+- `assets/catalog/release-notes.v1.json` coverage record for the catalog policy payload change;
+- `plans/instruction-artifacts-hardening-mcp.md` evidence record.
+
+Wave result before critic/commit:
+
+- `surface_summary.weak_terms_by_kind.catalog`: `52 -> 39`;
+- `assets/catalog/subagent-orchestration-policy.v1.json`: `weak_term_count 13 -> 0`;
+- preserved worktree isolation, repository-scope, credential-output, delivery-role, parent-control evidence, max-subagent cap, reasoning matrix, audit-boundary, goal-parallelization, checkpoint, and source-authority requirements;
+- did not mutate role TOMLs, skills, workflows, runtime, deploy, Kubernetes desired-state, or secret-custody surfaces.
+
+Critic requirement:
+
+- PASS only if current repo evidence proves this slice advances the active goal through the MCP queue, removes subagent-orchestration policy weak terms without changing policy semantics, keeps release-note coverage, and keeps broad all-instruction goal NOT_COMPLETE unless all instruction surfaces are done.
+
+Critic result:
+
+- Re-audit critic `019f3b9d-3426-7231-a1ec-940453cd2e35` verdict: `SLICE_VERDICT: PASS`, `FULL_GOAL_VERDICT: NOT_COMPLETE`, blockers: none.
+- PASS was based on current repo evidence, not operator claims: changed files are `assets/catalog/subagent-orchestration-policy.v1.json`, `assets/catalog/release-notes.v1.json`, and plan evidence only; helper weak counts show `catalog: 52 -> 39`; `assets/catalog/subagent-orchestration-policy.v1.json` reports `weak_term_count: 0`; counted `rule` and `enforcement` wording was hardened while preserving worktree isolation, repository-scope, credential-output, delivery-role, parent-control evidence, max-subagent cap, reasoning matrix, audit-boundary, goal-parallelization, checkpoint, and source-authority requirements; release-note coverage exists; no role TOML, skill, workflow, runtime, deploy, Kubernetes desired-state, or secret-custody path changed; and broad all-instruction goal remains open because catalog and role surfaces still report weak terms.

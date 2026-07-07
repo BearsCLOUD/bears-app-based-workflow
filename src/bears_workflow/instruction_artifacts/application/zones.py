@@ -219,6 +219,8 @@ def _instruction_surface_paths(plugin_root: Path) -> list[Path]:
 
 def _surface_scan_text(relative_path: str, content: str) -> str:
     """Return human-readable instruction prose for weak-term scanning."""
+    if relative_path.endswith(".md"):
+        return re.sub(r"```.*?```", "", content, flags=re.DOTALL)
     if not relative_path.startswith("agents/") or not relative_path.endswith(".toml"):
         return content
     try:

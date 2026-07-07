@@ -449,3 +449,36 @@ Critic result:
 
 - Re-audit critic `019f3b9d-3426-7231-a1ec-940453cd2e35` verdict: `SLICE_VERDICT: PASS`, `FULL_GOAL_VERDICT: NOT_COMPLETE`, blockers: none.
 - PASS was based on current repo evidence: changed files match scanner code, MCP reference doc, and plan evidence; MCP/helper path remains active; role weak terms are `176 -> 164`; scanner still reads human-readable role fields while excluding technical metadata arrays; response schema fields remain stable; and broad all-instruction goal remains open.
+
+### Phase 16: Markdown scanner and instruction-hardening skill prose wave
+
+Status: in progress.
+
+MCP queue source:
+
+```bash
+python3 scripts/instruction_hardening_mcp_packet.py instruction_hardening_startup --root . --bounded-json
+```
+
+Wave scope:
+
+- `src/bears_workflow/instruction_artifacts/application/zones.py` Markdown fenced-code exclusion for weak-term scanning;
+- `docs/reference/instruction-artifacts-mcp.md` MCP contract note for Markdown scan behavior;
+- `skills/instruction-hardening/SKILL.md` prose wording around MCP calls, queue selection, mode triggers, policy grammar, and weak-term dictionary heading.
+
+Wave result before critic/commit:
+
+- `surface_summary.weak_terms_by_kind.skill`: `54 -> 35`;
+- `surface_summary.weak_terms_by_kind.reference`: `19 -> 17`;
+- Markdown command examples and canonical dictionaries remain in files but are no longer scored as weak instruction prose;
+- the instruction-hardening skill still requires MCP/helper preflight, `surface_summary`, `instruction_surfaces[]`, owner-safe waves, decision-ledger authority, hard bans, validation ownership, and bypass-category closure;
+- no role TOML, catalog, workflow, runtime, deploy, Kubernetes desired-state, or secret-custody mutations in this wave.
+
+Critic requirement:
+
+- PASS only if current repo evidence proves this wave advances the active goal by improving MCP queue correctness and hardening the instruction-hardening skill prose without changing response schema, command examples, canonical dictionary content, owner routing, validation ownership, hard bans, or broad all-instruction goal status.
+
+Critic result:
+
+- Re-audit critic `019f3b9d-3426-7231-a1ec-940453cd2e35` verdict: `SLICE_VERDICT: PASS`, `FULL_GOAL_VERDICT: NOT_COMPLETE`, blockers: none.
+- PASS was based on current repo evidence: changed files match scanner code, MCP reference doc, instruction-hardening skill, and plan evidence; MCP/helper path remains active; skill weak terms are `54 -> 35`; reference weak terms are `19 -> 17`; Markdown fenced code blocks are excluded from weak-term scoring while response schema fields stay stable; command examples and canonical dictionaries remain present; and broad all-instruction goal remains open.

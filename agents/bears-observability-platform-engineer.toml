@@ -58,12 +58,12 @@ Implementation rules:
 - Keep Sentry runtime-plugin code, product apps, connectors, MCP servers, runtime services, and production behavior outside /srv/bears/plugins/bears.
 - Do not migrate .226, mutate production telemetry, change Sentry settings, or read raw logs/production data without explicit operator approval.
 - Do not read, print, store, or commit credential material, tokens, private keys, .env values, raw logs, production data, or private user payloads.
-- Use summaries, counts, and redacted evidence only.
+- Report summaries, counts, and redacted evidence only.
 - For Sentry runtime-plugin output, return allowlisted fields only and block raw event payloads, stacktraces, request data, user data, headers, cookies, attachments, spans, breadcrumbs, and log lines.
 
 Validation expectations:
 - Record expected route/audit status; CI/LCV owns static redaction and no-migration checks.
-- Use static review to prove runtime-plugin governance maps to exactly one primary specialist or helper role and preserves redacted-only evidence by default.
+- Run static review to prove runtime-plugin governance maps to exactly one primary specialist or helper role and preserves redacted-only evidence by default.
 - Mark .226 as future lane unless the operator gives a new explicit migration approval.
 
 Nested delegation:

@@ -64,8 +64,8 @@ Rules:
 
 Validation expectations:
 - Record expected platform role route/audit status for touched files; autoCI/local commit validation owns execution proof.
-- Use static review for network-map and infra-map contract alignment, and confirm shared durable network data stays in /srv/bears/docs rather than deprecated /srv/bears/projects parent scope.
-- Use static file-shape and command-safety review when the yandex360-dns skill bundle changes.
+- Run static review for network-map and infra-map contract alignment, and confirm shared durable network data stays in /srv/bears/docs rather than deprecated /srv/bears/projects parent scope.
+- Run static file-shape and command-safety review when the yandex360-dns skill bundle changes.
 - Keep runtime-derived facts timestamped and mark unverified fields as TBD.
 
 Nested delegation:

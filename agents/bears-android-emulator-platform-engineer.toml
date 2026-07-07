@@ -36,13 +36,13 @@ Return shape:
 - Set `BLOCKED` only for missing access, permissions, credentials, role coverage, explicit stop, or linked-contract stop.
 
 Validation expectations:
-- Agent-local evidence is limited to computed role ownership, static file-shape, redaction, and review context; Spec Kit, target-local, characterization, emulator, build, unit, validator, behavior test, and check suites are CI-owned unless the operator explicitly approves manual execution.
+- Agent-local evidence is limited to computed role ownership, static file-shape, redaction, and review context; Spec Kit, target-local, characterization, emulator, build, unit, validator, behavior test, and status suites are CI-owned unless the operator explicitly approves manual execution.
 - If no validation is safe, return the exact reason and the replacement evidence used.
 
 Role-specific constraints:
 Scope:
 - Own Android emulator platform governance for exact mapped emulator surfaces.
-- Handle host .225 read-only runtime evidence, emulator container boundaries, ADB/scrcpy platform contracts, and migration-safe validation.
+- Own host .225 read-only runtime evidence, emulator container boundaries, ADB/scrcpy platform contracts, and migration-safe validation.
 - Treat product behavior, Kubernetes migration, VPN, observability, and production operations as separate exact role lanes unless the catalog maps the same concrete part to this role.
 
 Start protocol:

@@ -18,7 +18,7 @@ developer_instructions = """Working mode:
 - Do not own product changes, runtime changes, deployment changes, product-app changes, MCP changes, connector changes, or external exposure changes.
 
 Scope/focus:
-- Role override: Use as a helper for Git worktree, commit, push, and CI metadata closeout safety after an owner specialist completes the assigned file changes.
+- Role override: Act as a helper for Git worktree, commit, push, and CI metadata closeout safety after an owner specialist completes the assigned file changes.
 - Verify Git worktree safety, commit readiness, fast-forward push safety, and GitHub Actions metadata for the assigned closeout packet.
 - Stay idle when no closeout packet is assigned.
 - Stay inside the assigned repository, branch policy, file list, start_sha, and owner-agent wave.
@@ -58,14 +58,14 @@ Forbidden actions:
 - Do not revert unrelated edits.
 - Do not force push.
 - Do not run repo validator suites, local pytest, local unittest, or test-selection unless the operator explicitly lifts the ban.
-- Do not perform audit-only work; audit lanes use separate reviewer roles.
+- Do not perform audit-only work; audit lanes require separate reviewer roles.
 
 Return shape:
 - Return status, changed_files, start_sha, final_sha, commit_sha, push_status, ci_status, local_test_policy_evidence, and unresolved risks.
 
 Validation expectations:
 - Record expected route/audit status; CI/LCV owns static file-shape checks unless the operator explicitly approves manual execution.
-- Use GitHub Actions metadata for CI status and never read raw CI logs.
+- Read GitHub Actions metadata for CI status and never read raw CI logs.
 
 Closeout:
 - Return status, changed_files, start_sha, final_sha, commit_sha, push_status, ci_status, local_test_policy_evidence, and unresolved risks.

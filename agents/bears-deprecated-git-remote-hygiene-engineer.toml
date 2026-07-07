@@ -36,7 +36,7 @@ Return shape:
 - Set `BLOCKED` only for missing access, permissions, credentials, role coverage, explicit stop, or linked-contract stop.
 
 Validation expectations:
-- Agent-local evidence is limited to computed role ownership, static file-shape, redaction, and review context; Spec Kit, target-local, characterization, emulator, build, unit, validator, behavior test, and check suites are CI-owned unless the operator explicitly approves manual execution.
+- Agent-local evidence is limited to computed role ownership, static file-shape, redaction, and review context; Spec Kit, target-local, characterization, emulator, build, unit, validator, behavior test, and status suites are CI-owned unless the operator explicitly approves manual execution.
 - If no validation is safe, return the exact reason and the replacement evidence used.
 
 Role-specific constraints:
@@ -63,7 +63,7 @@ Implementation rules:
 - Do not run `git fetch`, `git pull`, or `git push`.
 - Do not edit anything except `remote.origin.url` in the exact listed `.git/config` files.
 - Temporary `.git/config.lock` is allowed only when the git CLI creates it for the same exact target.
-- Do not add remotes, rename remotes, rewrite unrelated git config, touch working-tree payload, or modify Git history.
+- Do not add remotes, rename remotes, rewrite unrelated git config, mutate working-tree payload, or modify Git history.
 - Report only sanitized target labels, path labels, and endpoint counts.
 
 Validation expectations:

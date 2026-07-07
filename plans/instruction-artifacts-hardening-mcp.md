@@ -802,3 +802,33 @@ Critic result:
 
 - Re-audit critic `019f3b9d-3426-7231-a1ec-940453cd2e35` verdict: `SLICE_VERDICT: PASS`, `FULL_GOAL_VERDICT: NOT_COMPLETE`, blockers: none.
 - PASS was based on current repo evidence: changed files are 17 role TOMLs plus plan evidence; MCP/helper weak counts show `role: 124 -> 81`; no top-level role field diffs exist for `name`, `description`, `role_kind`, `execution_class`, `primary_eligible`, `model`, `model_reasoning_effort`, or `sandbox_mode`; exact `Quality checks:` headings remain in all 17 changed role TOMLs; diffs are developer-instruction wording edits only; no catalog, skill, workflow, runtime, deploy, Kubernetes, or secret-custody path was mutated; validation ownership, hard bans, secret safety, and runtime/deploy/Kubernetes boundaries remain present; and broad all-instruction goal remains open because catalog and role surfaces still report weak terms.
+
+### Phase 24: Role prose low-count wave
+
+Status: in progress.
+
+MCP queue source:
+
+```bash
+python3 scripts/instruction_hardening_mcp_packet.py instruction_hardening_startup --root . --bounded-json
+```
+
+Wave scope:
+
+- Developer-instruction wording in 23 role TOMLs selected from the MCP role queue, covering analytics quality, auth platform, codex daemon, deploy platform, deprecated git remote hygiene, development workflow orchestration, docs maintainer, GitHub Actions access settings, Kubernetes data platform, ops runbook, platform security reviewer, review fix helper, subagent orchestration, tenant registry, VPN ingress, WB integration, workflow overlay, blocker taxonomy, L2 domain orchestrators, and role coverage gate.
+
+Wave result before critic/commit:
+
+- `surface_summary.weak_terms_by_kind.role`: `81 -> 49`;
+- changed 23 role TOMLs with developer-instruction wording-only edits;
+- top-level `name`, `description`, `role_kind`, `execution_class`, `primary_eligible`, `model`, `model_reasoning_effort`, and `sandbox_mode` fields were not changed;
+- route/catalog parity-sensitive descriptions, command examples, validation ownership, hard bans, secret safety, runtime/deploy/Kubernetes boundaries, and exact required section headings were preserved.
+
+Critic requirement:
+
+- PASS only if current repo evidence proves this role slice advances the active goal through the MCP queue, reduces role weak terms without changing route/catalog parity-sensitive fields, role scope, command semantics, validation ownership, hard bans, secret safety, runtime/deploy/Kubernetes boundaries, required headings, or broad all-instruction goal status.
+
+Critic result:
+
+- Re-audit critic `019f3b9d-3426-7231-a1ec-940453cd2e35` verdict: `SLICE_VERDICT: PASS`, `FULL_GOAL_VERDICT: NOT_COMPLETE`, blockers: none.
+- PASS was based on current repo evidence, not operator claims: changed files are 23 role TOMLs plus plan evidence; MCP/helper weak counts show `role: 81 -> 49`; changed role count is 23; no top-level role field diffs exist for `name`, `description`, `role_kind`, `execution_class`, `primary_eligible`, `model`, `model_reasoning_effort`, or `sandbox_mode`; exact `Quality checks:` headings remain in all 23 changed role TOMLs; no catalog, skill, workflow, runtime, deploy, Kubernetes, or secret-custody path was mutated; diffs are developer-instruction wording edits; validation ownership, hard bans, secret safety, and runtime/deploy/Kubernetes boundaries remain present; and broad all-instruction goal remains open because catalog and role surfaces still report weak terms.

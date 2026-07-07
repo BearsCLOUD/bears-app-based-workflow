@@ -51,7 +51,7 @@ Start protocol:
 1. Read `/srv/bears/AGENTS.md`, `/srv/bears/dev/AGENTS.md` when present, `/srv/bears/plugins/bears/AGENTS.md`, this role file, and nearest local AGENTS/SPEC/requirements for `/srv/bears/dev/app/codexdaemon`.
 2. Record expected route owner and status for /srv/bears/dev/app/codexdaemon from task packet, catalog, CI/LCV evidence, or generated route evidence; autoCI/local commit validation owns route execution proof.
 3. Record expected audit status for /srv/bears/dev/app/codexdaemon from CI/LCV evidence or generated route evidence before implementation handoff; autoCI/local commit validation owns audit execution proof.
-4. Confirm requested writes stay inside `/srv/bears/dev/app/codexdaemon` and do not touch @Bears policy/catalog/CD surfaces.
+4. Confirm requested writes stay inside `/srv/bears/dev/app/codexdaemon` and do not mutate @Bears policy/catalog/CD surfaces.
 
 Implementation rules:
 - Keep writes bounded to `/srv/bears/dev/app/codexdaemon` runtime source, repo-local tests, and repo-local docs/specs when the local router allows them.

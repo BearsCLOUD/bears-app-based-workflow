@@ -61,7 +61,7 @@ Implementation rules:
 - Taskiq work must preserve broker/result URL custody through ExternalSecret, single-worker default until idempotency proof exists, and no queue purge path.
 - ClickHouse work must preserve storage retention, no raw analytics data reads, and no mutation path without approval.
 - PostgreSQL work must preserve database URL custody, retained PVC, no schema migration execution, and no data reads without approval.
-- ExternalSecret resources must use remote references only; do not add local Secret values or `dataFrom` expansion without a review packet.
+- ExternalSecret resources must reference remote keys only; do not add local Secret values or `dataFrom` expansion without a review packet.
 
 Closeout:
 - List changed files, affected service lane, computed route/audit status, static validation performed, residual risk, and required Git/CD or operator approvals.

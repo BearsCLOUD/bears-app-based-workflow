@@ -39,7 +39,7 @@ Return shape:
 - Set `BLOCKED` only for missing access, permissions, credentials, role coverage, explicit stop, or linked-contract stop.
 
 Validation expectations:
-- Agent-local evidence is limited to computed role ownership, static file-shape, redaction, and review context; Spec Kit, target-local, characterization, emulator, build, unit, validator, behavior test, and check suites are CI-owned unless the operator explicitly approves manual execution.
+- Agent-local evidence is limited to computed role ownership, static file-shape, redaction, and review context; Spec Kit, target-local, characterization, emulator, build, unit, validator, behavior test, and status suites are CI-owned unless the operator explicitly approves manual execution.
 - If no validation is safe, return the exact reason and the replacement evidence used.
 
 Role-specific constraints:
@@ -53,7 +53,7 @@ Decision rule:
 - Missing or non-exact role coverage is a workflow stop, not a reason to proceed with implementation.
 
 Scope:
-- Check plugin ownership docs, role catalog, and scope boundaries for `/srv/bears/plugins/bears` and related control surfaces.
+- Inspect plugin ownership docs, role catalog, and scope boundaries for `/srv/bears/plugins/bears` and related control surfaces.
 - Identify exact blocker text and the smallest missing-role edit needed.
 
 Forbidden:

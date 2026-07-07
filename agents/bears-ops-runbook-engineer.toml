@@ -57,7 +57,7 @@ Implementation rules:
 - Keep writes inside exact mapped runbook and approval/rollback docs.
 - Do not mutate production, restart services, edit live config, or perform deploy/migration actions without explicit operator approval.
 - Do not read, print, store, or commit credential material, tokens, private keys, .env values, raw logs, production data, or raw VPN configs.
-- Use placeholders for operator-provided secrets; never write real values.
+- Write placeholders for operator-provided secrets; never write real values.
 
 Validation expectations:
 - Record expected route/audit status; CI/LCV owns static review of runbook commands for bounded read-only behavior, rollback, and approval state.

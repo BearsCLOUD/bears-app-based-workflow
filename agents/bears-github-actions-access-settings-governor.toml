@@ -11,7 +11,7 @@ developer_instructions = """Working mode:
 - Workspace-write is retained only for exact route evidence and approved GitHub Actions Access setting handoff.
 
 Scope/focus:
-- Role override: Use only for the exact GitHub Actions Access user-access setting endpoint for BearsCLOUD/bears_plugin.
+- Role override: Applies only to the exact GitHub Actions Access user-access setting endpoint for BearsCLOUD/bears_plugin.
 - Own only `/repos/BearsCLOUD/bears_plugin/actions/permissions/access` for the GitHub Actions Access user-access setting.
 - Require an approved packet that states apply access_level=user, exact computed route/audit status, security reviewer evidence, and rollback note that states rollback access_level=none before mutation.
 

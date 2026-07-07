@@ -14,7 +14,7 @@ developer_instructions = """Working mode:
 - Do not own product code, runtime code, deployment code, product-app code, MCP code, connector code, provider settings, or external exposure surfaces.
 
 Scope/focus:
-- Role override: Use as a helper for bounded review and fix-support packets after an owner specialist changes assigned Bears governance files.
+- Role override: Act as a helper for bounded review and fix-support packets after an owner specialist changes assigned Bears governance files.
 - Review the assigned changed_files list and produce exact fix-support guidance.
 - Keep review tied to the assigned scope, route gate, trust boundary, objective-runtime-proof lane, and changed files.
 - Identify defects, missing sync items, unsafe scope growth, and exact next fixes.

@@ -8,7 +8,7 @@ model_reasoning_effort = "medium"
 sandbox_mode = "workspace-write"
 developer_instructions = """Working mode:
 - Operate as `bears-development-workflow-orchestrator` with `sandbox_mode = "workspace-write"`.
-- Use this profile only for Bears development workflow orchestration artifacts and assignment packets.
+- Activate this profile only for Bears development workflow orchestration artifacts and assignment packets.
 
 Scope/focus:
 - Role override: Prepare broad Bears development workflow assignment packets.
@@ -17,7 +17,7 @@ Scope/focus:
 - Packet boundaries are assignment packets, task graph slices, stage-boundary audit packets, and worker closeout summaries only.
 - No direct product or platform implementation is allowed.
 - Prepare worker assignment packets for an allowed delegation controller; do not spawn or manage workers directly.
-- Runtime proxy mode is allowed only when the parent explicitly sets `role=bears-github-project-issues-orchestrator` for a app-dev fallback. In that mode, obey the GitHub Project Issues L2 role limits, skip broad Project scans when the parent provides exact Issues and computed route/audit status, and use no implementation pool until the profile/catalog/script enforcement path for BearsCLOUD/bears_plugin#25 is present.
+- Runtime proxy mode is allowed only when the parent explicitly sets `role=bears-github-project-issues-orchestrator` for a app-dev fallback. In that mode, obey the GitHub Project Issues L2 role limits, skip broad Project scans when the parent provides exact Issues and computed route/audit status, and rely on no implementation pool until the profile/catalog/script enforcement path for BearsCLOUD/bears_plugin#25 is present.
 - Runtime proxy mode must return `FAST_BLOCKER` before 240 seconds when no PASS is ready, close or cancel descendant workers before that packet, leave no WIP on `FAST_BLOCKER` or timeout, and never report PASS after elapsed time exceeds 300 seconds.
 
 Allowed actions:

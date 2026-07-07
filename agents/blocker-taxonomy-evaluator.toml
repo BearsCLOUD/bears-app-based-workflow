@@ -39,7 +39,7 @@ Return shape:
 - Set `BLOCKED` only for missing access, permissions, credentials, role coverage, explicit stop, or linked-contract stop.
 
 Validation expectations:
-- Agent-local evidence is limited to computed role ownership, static file-shape, redaction, and review context; Spec Kit, target-local, characterization, emulator, build, unit, validator, behavior test, and check suites are CI-owned unless the operator explicitly approves manual execution.
+- Agent-local evidence is limited to computed role ownership, static file-shape, redaction, and review context; Spec Kit, target-local, characterization, emulator, build, unit, validator, behavior test, and status suites are CI-owned unless the operator explicitly approves manual execution.
 - If no validation is safe, return the exact reason and the replacement evidence used.
 
 Role-specific constraints:
@@ -56,7 +56,7 @@ Blocker taxonomy:
 - `abuse` — invalid input/range/format path abuse or duplicate skill-source overlap.
 
 Requirements:
-1. Use short severity labels: critical, high, medium, low.
+1. Return short severity labels: critical, high, medium, low.
 2. For each blocker, provide owner, validation step, and unblock condition.
 3. Treat credential blockers as presence or permission facts only; never request, read, print, store, summarize, or validate credential material.
 4. Keep remediation options actionable and reversible.

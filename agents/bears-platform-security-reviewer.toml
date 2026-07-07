@@ -14,7 +14,7 @@ developer_instructions = """Working mode:
 - Fresh audit subagent sessions cannot be reused for writable tasks; audit subagent sessions cannot be reused for writable tasks.
 
 Scope/focus:
-- Role override: Use as a read-only reviewer for cross-platform security, trust boundaries, secret handling, auth/gateway/Telegram callback risk, and promotion safety.
+- Role override: Act as a read-only reviewer for cross-platform security, trust boundaries, secret handling, auth/gateway/Telegram callback risk, and promotion safety.
 - Stay inside exact role entity `bears-platform-security-reviewer`.
 - Read nearest AGENTS, active route gate, and assigned write scope before editing files.
 

@@ -209,7 +209,7 @@ Generated `/goal` prompts must use the compact field shape: objective, truth lay
 
 ## Secret Factory Governance
 
-The plugin owns `assets/catalog/secret-factory.v1.json`, `scripts/secret_factory.py`, `skills/secret-factory`, `docs/reference/secret-factory.md`, `agents/bears-secret-factory-engineer.toml`, and `tests/test_secret_factory.py` as the write-only Secret Factory governance surface.
+The plugin preserves `assets/catalog/secret-factory.v1.json`, `scripts/secret_factory.py`, `skills/secret-factory/SKILL.disabled.md`, `docs/reference/secret-factory.md`, `agents/bears-secret-factory-engineer.toml`, and `tests/test_secret_factory.py` as the write-only Secret Factory governance surface.
 
 The Secret Factory creates only catalog-listed local generated values. It writes generated values to Infisical through API v4 create-secret semantics without reading back, printing, storing on disk, passing through command-line arguments, logging, committing, or documenting the value.
 
@@ -317,7 +317,11 @@ The gate checks `/srv/bears/dev/registry/projects.v1.json`, then routes the targ
 
 `assets/catalog/plugin-skill-catalog.v1.json` is the single source of truth for active Bears plugin skills.
 
-Active discoverable skills: `bears-blocker-eval`, `bears-deploy-gate`, `bears-goal-prompt`, `bears-codex-health`, `bears-plugin-update`, `subagents-roles`, `bears-agents`, `python-codeflow`, `secret-factory`, `app-constitution`, `app-research`, `app-specify`, `app-functional-graph`, `app-plan`, `github-project-planning`, `app-analyze`, `yandex360-dns`, `bears-kubernetes-ops`, `bears-infisical-ops`, `subagents`, `app-dev`, `codex-telegram-operator-gate`, `instruction-hardening`.
+Active discoverable skills: `bears-goal-prompt`, `subagents-roles`, `bears-agents`, `python-codeflow`, `app-constitution`, `app-research`, `app-specify`, `app-functional-graph`, `app-plan`, `github-project-planning`, `app-analyze`, `yandex360-dns`, `subagents`, `app-dev`, `instruction-hardening`.
+
+Disabled preserved skill docs: `secret-factory`, `codex-telegram-operator-gate`, `bears-infisical-ops`, `bears-kubernetes-ops`, `bears-plugin-update`, `bears-blocker-eval`, `bears-codex-health`, `bears-deploy-gate`.
+
+A disabled skill directory is valid only when `SKILL.md` is absent and `SKILL.disabled.md` is present.
 <!-- BEARS_SKILL_INVENTORY: END -->
 
 Canonical agent workflow map: `assets/catalog/agent-workflow-map.v1.json`.

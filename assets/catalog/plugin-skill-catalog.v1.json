@@ -1,29 +1,9 @@
 {
   "active_skills": [
     {
-      "description": "Classify plugin/non-app workflow-overlay risks, blockers, and unblock paths without acting as an app workflow gate.",
-      "name": "bears-blocker-eval",
-      "path": "skills/bears-blocker-eval"
-    },
-    {
-      "description": "Assess plugin/non-app deploy, rollback, runtime, and secret impact without acting as an app workflow gate.",
-      "name": "bears-deploy-gate",
-      "path": "skills/bears-deploy-gate"
-    },
-    {
       "description": "Generate bounded and verifiable Codex goal prompts for Bears work.",
       "name": "bears-goal-prompt",
       "path": "skills/bears-goal-prompt"
-    },
-    {
-      "description": "Diagnose Codex desktop/app-server freezes, MCP fan-out, session growth, and safe evidence-first remediation planning.",
-      "name": "bears-codex-health",
-      "path": "skills/bears-codex-health"
-    },
-    {
-      "description": "Govern @Bears plugin updates through skill-local config, expected route/audit ownership, sequential audit-review packets, and generated inventory sync.",
-      "name": "bears-plugin-update",
-      "path": "skills/bears-plugin-update"
     },
     {
       "description": "Govern @Bears subagents-roles expected owner-role coverage, autoCI route/audit proof, role-principle ledger, and role-safe subagent coordination.",
@@ -39,11 +19,6 @@
       "description": "Independent reusable L3-local Python standard for bounded Python worker tasks.",
       "name": "python-codeflow",
       "path": "skills/python-codeflow"
-    },
-    {
-      "description": "Govern write-only local secret generation and Infisical creation with provider handoff refusals.",
-      "name": "secret-factory",
-      "path": "skills/secret-factory"
     },
     {
       "description": "Create or update one Bears app constitution with target, owner, layer map, artifact map, and drift handling.",
@@ -86,16 +61,6 @@
       "path": "skills/yandex360-dns"
     },
     {
-      "description": "Perform Bears Kubernetes metadata checks, desired-state/local_cd deploy-boundary checks, secret-reference readiness, and dev-instance runtime placement guidance.",
-      "name": "bears-kubernetes-ops",
-      "path": "skills/bears-kubernetes-ops"
-    },
-    {
-      "description": "Perform Bears Infisical names-only readiness, ExternalSecret provider handoff, and Telegram session custody checks without exposing secret values.",
-      "name": "bears-infisical-ops",
-      "path": "skills/bears-infisical-ops"
-    },
-    {
       "description": "Govern Bears subagent selection, L2/L3 delegation, parent-control-only mode, gitflow closeout lanes, and evidence packets.",
       "name": "subagents",
       "path": "skills/subagents"
@@ -106,17 +71,53 @@
       "path": "skills/app-dev"
     },
     {
-      "description": "Request bounded operator decisions, feedback waits, and safe file exchange through the configured codex-telegram MCP server without a Telegram PreToolUse hook.",
-      "name": "codex-telegram-operator-gate",
-      "path": "skills/codex-telegram-operator-gate"
-    },
-    {
       "description": "Harden Bears docs/contracts instruction refactors and human-readable agent instructions from instruction-artifacts MCP evidence with semantic preservation, bypass closure, compression, and weighted rubric scoring.",
       "name": "instruction-hardening",
       "path": "skills/instruction-hardening"
     }
   ],
-  "disabled_skills": [],
+  "disabled_skills": [
+    {
+      "name": "secret-factory",
+      "path": "skills/secret-factory",
+      "reason": "Removed from active discovery by operator request on 2026-07-07."
+    },
+    {
+      "name": "codex-telegram-operator-gate",
+      "path": "skills/codex-telegram-operator-gate",
+      "reason": "Removed from active discovery by operator request on 2026-07-07."
+    },
+    {
+      "name": "bears-infisical-ops",
+      "path": "skills/bears-infisical-ops",
+      "reason": "Removed from active discovery by operator request on 2026-07-07."
+    },
+    {
+      "name": "bears-kubernetes-ops",
+      "path": "skills/bears-kubernetes-ops",
+      "reason": "Removed from active discovery by operator request on 2026-07-07."
+    },
+    {
+      "name": "bears-plugin-update",
+      "path": "skills/bears-plugin-update",
+      "reason": "Removed from active discovery by operator request on 2026-07-07."
+    },
+    {
+      "name": "bears-blocker-eval",
+      "path": "skills/bears-blocker-eval",
+      "reason": "Removed from active discovery by operator request on 2026-07-07."
+    },
+    {
+      "name": "bears-codex-health",
+      "path": "skills/bears-codex-health",
+      "reason": "Removed from active discovery by operator request on 2026-07-07."
+    },
+    {
+      "name": "bears-deploy-gate",
+      "path": "skills/bears-deploy-gate",
+      "reason": "Removed from active discovery by operator request on 2026-07-07."
+    }
+  ],
   "discovery_policy": {
     "active_skill_file": "SKILL.md",
     "disabled_skill_file": "SKILL.disabled.md",
@@ -129,6 +130,6 @@
   },
   "owner_plugin": "bears",
   "schema": "bears-plugin-skill-catalog.v1",
-  "updated": "2026-07-06",
+  "updated": "2026-07-07",
   "version": "1"
 }

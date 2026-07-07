@@ -25,21 +25,13 @@ class SkillCatalogTests(unittest.TestCase):
         errors.extend(skill_catalog.sync_embedded_owner_docs(self.catalog, PLUGIN_ROOT, check=True))
         self.assertEqual(errors, [])
 
-    def test_generated_readme_inventory_includes_secret_factory(self) -> None:
+    def test_generated_readme_inventory_lists_removed_skills_as_disabled(self) -> None:
         readme_path = PLUGIN_ROOT / "docs/generated/README.skill-inventory.md"
         readme = readme_path.read_text(encoding="utf-8")
-        self.assertIn(
-            "- `skills/secret-factory` — Govern write-only local secret generation and Infisical creation with provider handoff refusals.",
-            readme,
-        )
-
-    def test_generated_readme_inventory_includes_codex_health(self) -> None:
-        readme_path = PLUGIN_ROOT / "docs/generated/README.skill-inventory.md"
-        readme = readme_path.read_text(encoding="utf-8")
-        self.assertIn(
-            "- `skills/bears-codex-health` — Diagnose Codex desktop/app-server freezes, MCP fan-out, session growth, and safe evidence-first remediation planning.",
-            readme,
-        )
+        self.assertNotIn("- `skills/secret-factory` — Govern", readme)
+        self.assertNotIn("- `skills/bears-codex-health` — Diagnose", readme)
+        self.assertIn("- `skills/secret-factory/SKILL.disabled.md` — Removed from active discovery", readme)
+        self.assertIn("- `skills/bears-codex-health/SKILL.disabled.md` — Removed from active discovery", readme)
 
     def test_disabled_skills_do_not_expose_skill_md(self) -> None:
         for entry in self.catalog["disabled_skills"]:

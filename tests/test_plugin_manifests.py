@@ -16,13 +16,9 @@ validate_overlay = importlib.util.module_from_spec(validate_overlay_spec)
 assert validate_overlay_spec.loader is not None
 validate_overlay_spec.loader.exec_module(validate_overlay)  # type: ignore[arg-type]
 EXPECTED_SKILL_PATHS = [
-    "skills/bears-blocker-eval/SKILL.md",
-    "skills/bears-deploy-gate/SKILL.md",
     "skills/bears-goal-prompt/SKILL.md",
-    "skills/bears-plugin-update/SKILL.md",
     "skills/subagents-roles/SKILL.md",
     "skills/bears-agents/SKILL.md",
-    "skills/secret-factory/SKILL.md",
     "skills/app-constitution/SKILL.md",
     "skills/app-specify/SKILL.md",
     "skills/app-plan/SKILL.md",
@@ -32,6 +28,17 @@ EXPECTED_SKILL_PATHS = [
     "skills/subagents/SKILL.md",
     "skills/python-codeflow/SKILL.md",
     "skills/yandex360-dns/SKILL.md",
+]
+
+DISABLED_SKILL_DOC_PATHS = [
+    "skills/secret-factory/SKILL.disabled.md",
+    "skills/codex-telegram-operator-gate/SKILL.disabled.md",
+    "skills/bears-infisical-ops/SKILL.disabled.md",
+    "skills/bears-kubernetes-ops/SKILL.disabled.md",
+    "skills/bears-plugin-update/SKILL.disabled.md",
+    "skills/bears-blocker-eval/SKILL.disabled.md",
+    "skills/bears-codex-health/SKILL.disabled.md",
+    "skills/bears-deploy-gate/SKILL.disabled.md",
 ]
 EXPECTED_CATALOG_PATHS = [
     "assets/catalog/agent-github-dev-cd.v1.json",
@@ -103,7 +110,7 @@ class PluginManifestTests(unittest.TestCase):
         self.assertNotIn("mcpServers", self.plugin_manifest)
 
     def test_telegram_skill_bundle_inventory_paths_exist(self):
-        for rel_path in EXPECTED_SKILL_PATHS + EXPECTED_CATALOG_PATHS + EXPECTED_VALIDATOR_PATHS:
+        for rel_path in EXPECTED_SKILL_PATHS + DISABLED_SKILL_DOC_PATHS + EXPECTED_CATALOG_PATHS + EXPECTED_VALIDATOR_PATHS:
             with self.subTest(rel_path=rel_path):
                 self.assertTrue((PLUGIN_ROOT / rel_path).exists(), rel_path)
 
@@ -227,9 +234,8 @@ class PluginManifestTests(unittest.TestCase):
 
     def test_agents_validation_policy_routes_repo_validators_to_local_commit_validation(self):
         agents = AGENTS_PATH.read_text(encoding="utf-8")
-        self.assertIn("Local commit validation owns blocking plugin test proof", agents)
-        self.assertIn("GitHub Actions `.github/workflows/validate.yml` runs fast diagnostics on `main` push", agents)
-        self.assertIn("Agents must not run repo validator suites or tests manually", agents)
+        self.assertIn("Local commit validation and autoCI own blocking plugin test, validator, and route/audit proof", agents)
+        self.assertIn("Agents must not run repo validator suites, tests, or route/audit manually", agents)
         self.assertIn("Closeout proof must cite `runtime/local-commit-validation/<main_sha>.json`", agents)
         self.assertNotIn("python3 scripts/agent_github_dev_cd.py validate", agents)
         self.assertNotIn("python3 scripts/git_discipline.py validate", agents)

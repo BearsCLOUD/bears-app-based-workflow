@@ -7,15 +7,10 @@ Active skills expose `SKILL.md` and are discoverable by the plugin loader.
 
 ## Active skills
 
-- `skills/bears-blocker-eval` — Classify plugin/non-app workflow-overlay risks, blockers, and unblock paths without acting as an app workflow gate.
-- `skills/bears-deploy-gate` — Assess plugin/non-app deploy, rollback, runtime, and secret impact without acting as an app workflow gate.
 - `skills/bears-goal-prompt` — Generate bounded and verifiable Codex goal prompts for Bears work.
-- `skills/bears-codex-health` — Diagnose Codex desktop/app-server freezes, MCP fan-out, session growth, and safe evidence-first remediation planning.
-- `skills/bears-plugin-update` — Govern @Bears plugin updates through skill-local config, expected route/audit ownership, sequential audit-review packets, and generated inventory sync.
 - `skills/subagents-roles` — Govern @Bears subagents-roles expected owner-role coverage, autoCI route/audit proof, role-principle ledger, and role-safe subagent coordination.
 - `skills/bears-agents` — Govern @Bears role lifecycle, role coverage gaps, role TOML updates, and registration drift.
 - `skills/python-codeflow` — Independent reusable L3-local Python standard for bounded Python worker tasks.
-- `skills/secret-factory` — Govern write-only local secret generation and Infisical creation with provider handoff refusals.
 - `skills/app-constitution` — Create or update one Bears app constitution with target, owner, layer map, artifact map, and drift handling.
 - `skills/app-research` — Research external solutions, prior art, product logic, integrations, UI/UX patterns, providers, and market constraints for Bears app targets.
 - `skills/app-specify` — Create or update app specifications from operator intent, constitution rules, app-research evidence, and repo evidence.
@@ -24,9 +19,16 @@ Active skills expose `SKILL.md` and are discoverable by the plugin loader.
 - `skills/github-project-planning` — Plan and administer non-app GitHub Projects, fields, views, issues, sub-issues, item hygiene, and planning PASS packets; app workflow planning belongs to app-plan.
 - `skills/app-analyze` — Analyze app workflow artifacts, functional graph, task ledger, lane maps, roles, proof requirements, and app-dev handoff for drift.
 - `skills/yandex360-dns` — DNS governance workflow for bears.ru through Yandex 360 using presence-only checks, dry-run plan review, and read-only governance evidence only.
-- `skills/bears-kubernetes-ops` — Perform Bears Kubernetes metadata checks, desired-state/local_cd deploy-boundary checks, secret-reference readiness, and dev-instance runtime placement guidance.
-- `skills/bears-infisical-ops` — Perform Bears Infisical names-only readiness, ExternalSecret provider handoff, and Telegram session custody checks without exposing secret values.
 - `skills/subagents` — Govern Bears subagent selection, L2/L3 delegation, parent-control-only mode, gitflow closeout lanes, and evidence packets.
 - `skills/app-dev` — Execute app task ledger tasks through L2 lane orchestrators, L2 helpers, L3 workers, and L3 critics.
-- `skills/codex-telegram-operator-gate` — Request bounded operator decisions, feedback waits, and safe file exchange through the configured codex-telegram MCP server without a Telegram PreToolUse hook.
 - `skills/instruction-hardening` — Harden Bears docs/contracts instruction refactors and human-readable agent instructions from instruction-artifacts MCP evidence with semantic preservation, bypass closure, compression, and weighted rubric scoring.
+
+## Disabled preserved skill docs
+- `skills/secret-factory/SKILL.disabled.md` — Removed from active discovery by operator request on 2026-07-07.
+- `skills/codex-telegram-operator-gate/SKILL.disabled.md` — Removed from active discovery by operator request on 2026-07-07.
+- `skills/bears-infisical-ops/SKILL.disabled.md` — Removed from active discovery by operator request on 2026-07-07.
+- `skills/bears-kubernetes-ops/SKILL.disabled.md` — Removed from active discovery by operator request on 2026-07-07.
+- `skills/bears-plugin-update/SKILL.disabled.md` — Removed from active discovery by operator request on 2026-07-07.
+- `skills/bears-blocker-eval/SKILL.disabled.md` — Removed from active discovery by operator request on 2026-07-07.
+- `skills/bears-codex-health/SKILL.disabled.md` — Removed from active discovery by operator request on 2026-07-07.
+- `skills/bears-deploy-gate/SKILL.disabled.md` — Removed from active discovery by operator request on 2026-07-07.

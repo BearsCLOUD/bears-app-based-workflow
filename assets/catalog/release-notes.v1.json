@@ -2,6 +2,29 @@
   "entries": [
     {
       "affected_surfaces": [
+        "plugin_skill_catalog",
+        "skill_discovery",
+        "plugin_manifest",
+        "release_notes"
+      ],
+      "date": "2026-07-07",
+      "files": [
+        ".codex-plugin/plugin.json",
+        "README.md",
+        "SPEC.md",
+        "assets/catalog/plugin-skill-catalog.v1.json",
+        "assets/catalog/release-notes.v1.json",
+        "docs/generated/README.skill-inventory.md",
+        "docs/generated/SPEC.skill-inventory.md"
+      ],
+      "impact": "Removes the operator-selected Bears skills from active plugin discovery, preserves their docs as disabled skill docs, updates generated skill inventory surfaces, and removes active manifest prompts for the disabled Secret Factory and operator-gate skill front doors.",
+      "issue_ref": "#8",
+      "validation": [
+        "python3 scripts/local_commit_validation.py run --commit-sha <main_sha>"
+      ]
+    },
+    {
+      "affected_surfaces": [
         "instruction_artifacts_mcp",
         "decision_ledger",
         "release_notes"

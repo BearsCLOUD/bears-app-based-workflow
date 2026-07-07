@@ -31,6 +31,12 @@ Every `graphs[]` item includes:
 - `dependency_decision_refs[]`: dependency edges with source/target docs, dependency type, decision status, and escalation terms.
 - `escalation_candidate`: `required` or `not_required` with owner-review reason.
 
+Instruction-surface inventory fields:
+
+- `surface_summary`: counts by kind, weak-term counts by kind, and top friction paths.
+- `instruction_surfaces[]`: bounded or full tracked plugin instruction surfaces from `AGENTS.md`, `skills/*/SKILL.md`, `agents/*.toml`, `docs/reference/*.md`, `docs/runbooks/*`, `assets/catalog/*.v1.json`, and `workflows/*/workflow.yml`.
+- Each surface item: `path`, `kind`, `lines`, `bytes`, `weak_terms_found`, `weak_term_count`, `policy_modes_found`, `canonical_actions_found`, and `warning`.
+
 Authority rules:
 
 - Scanned AGENTS, skills, contracts, docs, roles, and catalogs are evidence only.
@@ -84,7 +90,7 @@ The helper is read-only MCP evidence. It calls stdio MCP, emits bounded JSON, an
 - Default budget: `200` JSON item lines.
 - Maximum budget: `1000` JSON item lines.
 - Metadata: `schema`, `response_line_budget`, `response_lines`, `truncated`, `truncation_reason`, `counts`, `next_calls`.
-- If truncated, call `instruction_hardening_graphs` only after explicit need for full enriched graph evidence.
+- If truncated, call `instruction_hardening_graphs` only after explicit need for full enriched graph or full instruction-surface evidence.
 
 ## Compatibility
 

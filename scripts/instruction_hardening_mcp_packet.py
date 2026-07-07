@@ -79,9 +79,21 @@ def _doc_summary(doc: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def _surface_summary(surface: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "path": surface.get("path"),
+        "kind": surface.get("kind"),
+        "weak_term_count": surface.get("weak_term_count"),
+        "weak_terms_found": surface.get("weak_terms_found", []),
+    }
+
+
 def _summary_wrapper(payload: Any, *, max_bytes: int, original_bytes: int) -> dict[str, Any]:
     docs = payload.get("docs", []) if isinstance(payload, dict) else []
     graphs = payload.get("graphs", []) if isinstance(payload, dict) else []
+    instruction_surfaces = (
+        payload.get("instruction_surfaces", []) if isinstance(payload, dict) else []
+    )
     graph_summaries = [_graph_summary(graph) for graph in graphs if isinstance(graph, dict)]
     escalation_required = [
         graph for graph in graph_summaries if graph.get("escalation_candidate_status") == "required"
@@ -102,11 +114,20 @@ def _summary_wrapper(payload: Any, *, max_bytes: int, original_bytes: int) -> di
         "summary_counts": {
             "docs_returned": len(docs) if isinstance(docs, list) else 0,
             "graphs_returned": len(graph_summaries),
+            "instruction_surfaces_returned": (
+                len(instruction_surfaces) if isinstance(instruction_surfaces, list) else 0
+            ),
             "escalation_required_graphs": len(escalation_required),
             "decision_missing_graphs": len(decision_missing),
         },
+        "surface_summary": payload.get("surface_summary") if isinstance(payload, dict) else None,
         "docs": [_doc_summary(doc) for doc in docs if isinstance(doc, dict)],
         "graphs": graph_summaries,
+        "instruction_surfaces": [
+            _surface_summary(surface)
+            for surface in instruction_surfaces
+            if isinstance(surface, dict)
+        ],
     }
 
 

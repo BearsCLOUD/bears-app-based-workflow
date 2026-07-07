@@ -24,6 +24,7 @@ Connect the plugin-owned `instruction_artifacts` MCP scanner to the `instruction
 7. `app-functional-graph` is a workflow pattern only: exact refs, dependency edges, status fields, evidence refs. It is not a plugin authority or validator.
 8. Tests, validators, schemas, lint, route/audit, and static checks are safety evidence only, not instruction completion proof.
 9. Every Git-tracked change ends with local commit in the owning repo; inspect autoCI/local commit validation for known errors before push.
+10. Broad all-instruction refactors use MCP `surface_summary` and `instruction_surfaces[]` for the surface queue instead of shell-only inventories.
 
 ## Current MCP evidence
 
@@ -106,15 +107,29 @@ Forbidden cuts:
 
 ### Phase 4: Final consistency confirmation
 
-Status: pending final re-audit after stale-plan fix commit.
+Status: complete.
 
-Run a no-fork `gpt-5.5` high L3 critic after this plan-status fix is committed and pushed. Previous final critic `019f39c2-2805-7e22-8c3c-f8bbd3d8a3fe` passed requirements 1-10 and 12, then blocked only this stale plan status. The next critic may close the goal without another plan mutation if current files and checks still pass.
+Final no-fork critic `019f39c5-af4b-7d23-b188-819be4d03122` confirmed the implemented MCP scanner/skill/role goal from current repo evidence, not from operator claims.
+
+### Phase 5: All-instruction refactor queue
+
+Status: in progress.
+
+Current change extends the hardening packet with:
+
+- `surface_summary`;
+- `instruction_surfaces[]`;
+- counts for total and returned instruction surfaces;
+- bounded startup truncation across docs, graphs, and instruction surfaces.
+
+Use this MCP-backed queue for the active broad objective: refactor all Bears instruction surfaces in owner-safe waves. Do not treat the queue as authority; it is evidence for picking the next same-owner edit wave.
 
 ## Current status
 
 - phase_1_minimal_mcp_connection: complete
 - phase_2_decision_dependencies_escalation: complete
 - phase_3_full_plugin_instruction_refactor: complete
-- phase_4_final_consistency_critic: pending_final_reaudit_after_plan_status_fix
+- phase_4_final_consistency_critic: complete
+- phase_5_all_instruction_refactor_queue: in_progress
 - current_mcp_tool_gap: current Codex toolset exposes MCP registration through `codex mcp get mcp` but no callable `instruction_hardening_startup` namespace in this turn; use the documented stdio MCP helper as evidence.
-- full_goal_complete: pending_final_critic_pass
+- full_goal_complete: not_complete_for_all_instruction_refactor

@@ -90,6 +90,24 @@ FALLBACK_WEAK_TERMS = [
     "try to",
     "avoid",
 ]
+INSTRUCTION_SURFACE_GLOBS = (
+    "AGENTS.md",
+    "skills/*/SKILL.md",
+    "agents/*.toml",
+    "docs/reference/*.md",
+    "docs/runbooks/*",
+    "assets/catalog/*.v1.json",
+    "workflows/*/workflow.yml",
+)
+INSTRUCTION_SURFACE_KINDS = (
+    ("AGENTS.md", "agents_router"),
+    ("skills/", "skill"),
+    ("agents/", "role"),
+    ("docs/reference/", "reference"),
+    ("docs/runbooks/", "runbook"),
+    ("assets/catalog/", "catalog"),
+    ("workflows/", "workflow"),
+)
 
 
 def _resolve_path(value: str | None, fallback: Any) -> Path:
@@ -172,6 +190,110 @@ def _instruction_hardening_grammar() -> dict[str, Any]:
         grammar["weak_terms"] = weak_terms
     grammar["source"] = "role_archive_fields"
     return grammar
+
+
+def _surface_kind(relative_path: str) -> str:
+    for prefix, kind in INSTRUCTION_SURFACE_KINDS:
+        if relative_path == prefix or relative_path.startswith(prefix):
+            return kind
+    return "unknown"
+
+
+def _instruction_surface_paths(plugin_root: Path) -> list[Path]:
+    paths: list[Path] = []
+    seen: set[str] = set()
+    for pattern in INSTRUCTION_SURFACE_GLOBS:
+        for path in sorted(plugin_root.glob(pattern), key=lambda item: item.as_posix()):
+            if not path.is_file():
+                continue
+            try:
+                key = str(path.resolve().relative_to(plugin_root.resolve()))
+            except (OSError, ValueError):
+                continue
+            if key in seen:
+                continue
+            seen.add(key)
+            paths.append(path)
+    return paths
+
+
+def _instruction_surface_inventory(grammar: dict[str, Any]) -> list[dict[str, Any]]:
+    plugin_root = _plugin_root()
+    surfaces: list[dict[str, Any]] = []
+    for path in _instruction_surface_paths(plugin_root):
+        relative_path = path.relative_to(plugin_root).as_posix()
+        text, warning = exporter.read_text(path)
+        content = text or ""
+        lowered = content.lower()
+        weak_terms = [
+            term for term in grammar["weak_terms"] if _term_found(term, lowered)
+        ]
+        policy_modes = [
+            mode for mode in grammar["policy_modes"] if _term_found(mode, content)
+        ]
+        canonical_actions = [
+            action for action in grammar["canonical_actions"] if _term_found(action, lowered)
+        ]
+        surfaces.append(
+            {
+                "path": relative_path,
+                "kind": _surface_kind(relative_path),
+                "bytes": len(content.encode("utf-8")),
+                "lines": count_lines(content),
+                "weak_terms_found": weak_terms,
+                "weak_term_count": sum(
+                    len(
+                        re.findall(
+                            rf"(?<![A-Za-z0-9_-]){re.escape(term)}(?![A-Za-z0-9_-])",
+                            lowered,
+                        )
+                    )
+                    for term in weak_terms
+                ),
+                "policy_modes_found": policy_modes,
+                "canonical_actions_found": canonical_actions,
+                "warning": warning,
+            }
+        )
+    surfaces.sort(
+        key=lambda item: (
+            -int(item.get("weak_term_count", 0)),
+            item.get("kind", ""),
+            item.get("path", ""),
+        )
+    )
+    return surfaces
+
+
+def _instruction_surface_summary(surfaces: list[dict[str, Any]]) -> dict[str, Any]:
+    by_kind: dict[str, int] = {}
+    weak_by_kind: dict[str, int] = {}
+    for surface in surfaces:
+        kind = str(surface.get("kind", "unknown"))
+        by_kind[kind] = by_kind.get(kind, 0) + 1
+        weak_by_kind[kind] = weak_by_kind.get(kind, 0) + int(
+            surface.get("weak_term_count", 0)
+        )
+    return {
+        "surface_count": len(surfaces),
+        "by_kind": dict(sorted(by_kind.items())),
+        "weak_terms_by_kind": dict(sorted(weak_by_kind.items())),
+        "top_friction_paths": [
+            {
+                "path": surface.get("path"),
+                "kind": surface.get("kind"),
+                "weak_term_count": surface.get("weak_term_count"),
+                "weak_terms_found": surface.get("weak_terms_found", []),
+            }
+            for surface in surfaces[:20]
+        ],
+    }
+
+
+def count_lines(text: str | None) -> int:
+    if text is None or text == "":
+        return 0
+    return len(text.splitlines())
 
 
 def build_zones(
@@ -638,6 +760,8 @@ def build_instruction_hardening_graphs(
     )
     docs = list(payload.get("docs", []))
     graphs = list(payload.get("graphs", []))
+    grammar = _instruction_hardening_grammar()
+    instruction_surfaces = _instruction_surface_inventory(grammar)
     return {
         "schema": INSTRUCTION_HARDENING_SCHEMA,
         "source": {
@@ -647,9 +771,15 @@ def build_instruction_hardening_graphs(
             "instructions_source_of_truth": False,
             "decision_source": "decision_ledger",
         },
-        "counts": {"docs": len(docs), "graphs": len(graphs)},
+        "counts": {
+            "docs": len(docs),
+            "graphs": len(graphs),
+            "instruction_surfaces": len(instruction_surfaces),
+        },
+        "surface_summary": _instruction_surface_summary(instruction_surfaces),
         "docs": docs,
         "graphs": _enrich_graphs_for_instruction_hardening(docs, graphs),
+        "instruction_surfaces": instruction_surfaces,
     }
 
 
@@ -718,10 +848,16 @@ def build_instruction_hardening_startup(
     )
     docs = list(payload.get("docs", []))
     graphs = list(payload.get("graphs", []))
-    docs_budget = min(len(docs), budget // 2)
-    graphs_budget = min(len(graphs), budget - docs_budget)
-    response_lines = docs_budget + graphs_budget
-    truncated = docs_budget < len(docs) or graphs_budget < len(graphs)
+    surfaces = list(payload.get("instruction_surfaces", []))
+    docs_budget = min(len(docs), budget // 3)
+    graphs_budget = min(len(graphs), budget // 3)
+    surfaces_budget = min(len(surfaces), budget - docs_budget - graphs_budget)
+    response_lines = docs_budget + graphs_budget + surfaces_budget
+    truncated = (
+        docs_budget < len(docs)
+        or graphs_budget < len(graphs)
+        or surfaces_budget < len(surfaces)
+    )
     return {
         "schema": INSTRUCTION_HARDENING_STARTUP_SCHEMA,
         "source": payload["source"],
@@ -732,15 +868,18 @@ def build_instruction_hardening_startup(
         "counts": {
             "docs": len(docs),
             "graphs": len(graphs),
+            "instruction_surfaces": len(surfaces),
             "returned_docs": docs_budget,
             "returned_graphs": graphs_budget,
+            "returned_instruction_surfaces": surfaces_budget,
         },
+        "surface_summary": payload.get("surface_summary", {}),
         "next_calls": [
             {
                 "tool": "instruction_hardening_graphs",
                 "reason": (
                     "Fetch the full MCP-scanned hardening packet when exact "
-                    "graph decision evidence is needed."
+                    "graph or instruction-surface evidence is needed."
                 ),
             }
         ]
@@ -748,4 +887,5 @@ def build_instruction_hardening_startup(
         else [],
         "docs": docs[:docs_budget],
         "graphs": graphs[:graphs_budget],
+        "instruction_surfaces": surfaces[:surfaces_budget],
     }

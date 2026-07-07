@@ -2,29 +2,28 @@
   "schema": "bears.git-deploy-contract.v1",
   "version": 1,
   "owner_plugin": "bears",
-  "updated": "2026-06-24",
-  "purpose": "Machine-readable Git branch to runtime target policy for Bears automatic CD.",
+  "updated": "2026-07-07",
+  "purpose": "Schema pointer for automatic CD branch-to-target policy. Environment-owned Git deploy contracts live outside plugin source and are passed with --git-contract.",
   "repositories": [
     {
-      "repository": "BearsCLOUD/bears-infra",
-      "development_branch": "dev",
-      "deployment_branch": "main",
-      "merge_request_required": true,
+      "repository": "<environment-owned-repository>",
       "deployment_targets": [
         {
-          "branch": "main",
-          "target_id": "fyuriserv-prod",
-          "server_alias": "fyuriserv",
-          "environment": "prod",
-          "automatic_cd": true
+          "branch": "<branch>",
+          "target_id": "<target-id>",
+          "server_alias": "<server-alias>",
+          "environment": "<environment>",
+          "automatic_cd": true,
+          "enabled": true
         }
       ]
     }
   ],
   "rules": {
-    "git_contract_owns_branch_target_mapping": true,
+    "environment_contract_required": true,
+    "plugin_source_contains_no_environment_targets": true,
     "cd_contract_must_not_define_merge_policy": true,
-    "production_cd_after_main_push_is_automatic": true
+    "disabled_targets_must_set_automatic_cd_false": true
   },
   "forbidden_in_cd_contract": [
     "development_branch",

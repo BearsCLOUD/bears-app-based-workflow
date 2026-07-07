@@ -1,7 +1,7 @@
 {
   "schema": "bears-git-hook-bootstrap.v1",
   "version": "1",
-  "updated": "2026-06-24",
+  "updated": "2026-07-07",
   "owner_role": "bears-machine-first-execution-kernel-engineer",
   "plugin_reference": "@bears",
   "default_workspace_root": "<generated-local-config:workspace_root>",
@@ -9,12 +9,11 @@
   "thin_hooks": [
     {
       "name": "pre-commit",
-      "mode": "safety_only_blocking_checks",
+      "mode": "single_fast_smoke",
       "allowed_actions": [
         "detect_repo_boundary",
         "detect_worktree_path",
-        "detect_forbidden_tracked_paths",
-        "detect_secret_or_raw_private_data_exposure",
+        "run_one_staged_diff_smoke_under_5_seconds",
         "write_effective_hook_proof"
       ],
       "forbidden_actions": [
@@ -36,12 +35,10 @@
     },
     {
       "name": "post-commit",
-      "mode": "automatic_evidence_enqueue",
+      "mode": "proof_only",
       "allowed_actions": [
         "detect_commit_sha",
         "write_effective_hook_proof",
-        "write_validation_job",
-        "write_validation_state",
         "exit_without_worker_execution"
       ],
       "forbidden_actions": [
@@ -63,22 +60,14 @@
     }
   ],
   "runtime_paths": {
-    "effective_hooks": "runtime/effective-hooks/<repo_id>/effective-hooks-proof.v1.json",
-    "validation_jobs": "runtime/validation-jobs/<commit_sha>/<job_id>.json",
-    "validation_state": "runtime/validation-state/<commit_sha>/validation-state.v1.json"
+    "effective_hooks": "runtime/effective-hooks/<repo_id>/effective-hooks-proof.v1.json"
   },
   "bounded_spawn": {
     "enabled": false,
     "auto_start": false,
     "mode": "disabled_by_default",
-    "reason": "Hooks enqueue validation jobs and exit quickly; async workers start outside hook hot paths.",
-    "command_template": [
-      "python3",
-      "scripts/validation_worker.py",
-      "run-commit",
-      "--commit-sha",
-      "<commit_sha>"
-    ],
+    "reason": "Hooks never start validation workers. Runtime status comes from Sentry.",
+    "command_template": [],
     "timeout_seconds": 5
   },
   "stdout_policy": "single_bounded_json_event",
@@ -120,9 +109,7 @@
         "<repo_path>"
       ],
       "writes": [
-        "runtime/effective-hooks/<repo_id>/effective-hooks-proof.v1.json",
-        "runtime/validation-jobs/<commit_sha>/<job_id>.json",
-        "runtime/validation-state/<commit_sha>/validation-state.v1.json"
+        "runtime/effective-hooks/<repo_id>/effective-hooks-proof.v1.json"
       ]
     },
     {
@@ -170,5 +157,5 @@
       "writes": []
     }
   ],
-  "policy_summary": "Pre-commit is safety-only. Post-commit records or enqueues automatic evidence and exits. Development checks, Dagger, Kubernetes, and local_cd are never run from hook hot paths."
+  "policy_summary": "Pre-commit runs one staged diff smoke under 5 seconds. Post-commit records hook proof only. Runtime status and no-error state come from Sentry."
 }

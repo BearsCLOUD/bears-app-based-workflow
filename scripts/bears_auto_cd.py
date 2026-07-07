@@ -38,63 +38,17 @@ FORBIDDEN_CD_KEYS = {
     "manual_gate",
 }
 DIGEST_RE = re.compile(r"@sha256:([0-9a-f]{64})(?:\b|$)")
-APPS_MONOREPO_REPOSITORY = "BearsCLOUD/apps"
-APPS_MONOREPO_ARCHIVE_SOURCE_REPOS = {
-    "BearsCLOUD/codex-telegram-mcp": "codex-telegram",
-    "BearsCLOUD/tgsearch": "tgsearch",
-}
-APPS_MONOREPO_ARCHIVE_SCAN_SURFACES = {
-    "cd_contracts",
-    "workflows",
-    "kubernetes_runbooks",
-    "manifests_readme",
-    "secret_custody_docs",
-}
 FORBIDDEN_DESCRIPTOR_KEYS = {
     "ordered_steps",
-    "local_image_build",
     "build_local_image",
     "load_local_image_to_k3d",
     "load_to_k3d_nodes",
     "kubectl_apply",
     "kubectl",
-    "context_path",
-    "dockerfile",
-    "clear_proxy_build_args",
     "toolchain",
     "operator_approval",
     "approval_gate",
     "manual_gate",
-}
-EXECUTOR_LOCAL_BUILD_DEFAULTS: dict[str, dict[str, Any]] = {
-    "codex-telegram-mcp": {
-        "context_path": ".codex-telegram-source",
-        "dockerfile": "Dockerfile",
-        "source_subpath": "codex-telegram",
-        "clear_proxy_build_args": False,
-    },
-    "tgsearch-live-gate": {
-        "context_path": ".tgsearch-source",
-        "dockerfile": "Dockerfile",
-        "source_subpath": "tgsearch",
-        "clear_proxy_build_args": False,
-    },
-    "dialogika-web": {
-        "context_path": ".dialogika-web-source",
-        "dockerfile": "Dockerfile",
-        "source_subpath": "dialogika/web",
-        "clear_proxy_build_args": False,
-    },
-    "codex-web": {
-        "context_path": "images/codex-web",
-        "dockerfile": "Dockerfile",
-        "clear_proxy_build_args": False,
-    },
-    "egress-gateway": {
-        "context_path": "images/egress-gateway",
-        "dockerfile": "Dockerfile",
-        "clear_proxy_build_args": False,
-    },
 }
 SOURCE_SYNC_EXCLUDES = {
     ".git",
@@ -151,41 +105,49 @@ def validate_git_contract(contract: dict[str, Any]) -> list[str]:
         if not isinstance(repo, dict):
             errors.append(f"repositories[{index}] must be an object")
             continue
-        if not repo.get("repository"):
+        repository = repo.get("repository")
+        if not isinstance(repository, str) or not repository:
             errors.append(f"repositories[{index}].repository missing")
-        if repo.get("development_branch") == repo.get("deployment_branch"):
-            errors.append(f"repositories[{index}] dev and deployment branches must differ")
-        if repo.get("merge_request_required") is not True:
-            errors.append(f"repositories[{index}].merge_request_required must be true")
         targets = repo.get("deployment_targets")
         if not isinstance(targets, list) or not targets:
             errors.append(f"repositories[{index}].deployment_targets must be non-empty")
             continue
+        seen: set[str] = set()
         for target_index, target in enumerate(targets):
             if not isinstance(target, dict):
                 errors.append(f"repositories[{index}].deployment_targets[{target_index}] must be object")
                 continue
-            if target.get("branch") != repo.get("deployment_branch"):
-                errors.append(f"deployment target branch must equal deployment_branch for {repo.get('repository')}")
-            if target.get("automatic_cd") is not True:
-                errors.append(f"deployment target automatic_cd must be true for {repo.get('repository')}")
+            branch = target.get("branch")
+            if not isinstance(branch, str) or not branch:
+                errors.append(f"repositories[{index}].deployment_targets[{target_index}].branch missing")
+            elif branch in seen:
+                errors.append(f"duplicate deployment target branch for {repository}: {branch}")
+            else:
+                seen.add(branch)
+            if not isinstance(target.get("automatic_cd"), bool):
+                errors.append(f"deployment target automatic_cd must be boolean for {repository}")
+            if target.get("automatic_cd") is True and target.get("enabled", True) is not True:
+                errors.append(f"enabled automatic CD target must not be disabled for {repository}@{branch}")
             for required in ("target_id", "server_alias", "environment"):
                 if not target.get(required):
                     errors.append(f"deployment target missing {required}")
     return errors
 
-
 def resolve_target(git_contract: dict[str, Any], repository: str, branch: str) -> dict[str, Any]:
-    """Resolve a repository branch to its automatic CD target."""
+    """Resolve a repository branch to its enabled automatic CD target."""
+    disabled: list[str] = []
     for repo in git_contract.get("repositories", []):
         if not isinstance(repo, dict) or repo.get("repository") != repository:
             continue
-        if branch != repo.get("deployment_branch"):
-            raise ContractError(f"branch {branch!r} is not deployment branch for {repository}")
         for target in repo.get("deployment_targets", []):
-            if isinstance(target, dict) and target.get("branch") == branch and target.get("automatic_cd") is True:
+            if not isinstance(target, dict) or target.get("branch") != branch:
+                continue
+            if target.get("automatic_cd") is True and target.get("enabled", True) is True:
                 return target
-    raise ContractError(f"no automatic CD target for {repository}@{branch}")
+            disabled.append(f"{repository}@{branch}")
+    if disabled:
+        raise ContractError(f"automatic CD target is disabled for {repository}@{branch}")
+    raise ContractError(f"no enabled automatic CD target for {repository}@{branch}")
 
 
 
@@ -200,15 +162,17 @@ def validate_cd_root_contract(contract: dict[str, Any]) -> list[str]:
             errors.append(f"cd contract contains forbidden Git/manual gate field: {path}")
         if key in FORBIDDEN_DESCRIPTOR_KEYS:
             errors.append(f"cd root contract contains executor-owned field: {path}")
-    if contract.get("repository") != "BearsCLOUD/bears-infra":
-        errors.append("cd contract repository must be BearsCLOUD/bears-infra")
-    if contract.get("target_id") != "fyuriserv-prod":
-        errors.append("cd contract target_id must be fyuriserv-prod")
     if not contract.get("application_descriptor_directory"):
         errors.append("cd contract application_descriptor_directory missing")
     return errors
 
-def validate_cd_contract(contract: dict[str, Any], git_contract: dict[str, Any]) -> list[str]:
+def validate_cd_contract(
+    contract: dict[str, Any],
+    git_contract: dict[str, Any],
+    *,
+    repository: str | None = None,
+    branch: str | None = None,
+) -> list[str]:
     """Validate the selected CD contract and reject policy/mechanics drift."""
     errors: list[str] = []
     if contract.get("schema") != "bears.cd-kube-deploy-contract.v1":
@@ -220,119 +184,40 @@ def validate_cd_contract(contract: dict[str, Any], git_contract: dict[str, Any])
             errors.append(f"cd contract contains forbidden Git/manual gate field: {path}")
         if key in FORBIDDEN_DESCRIPTOR_KEYS:
             errors.append(f"cd application descriptor contains executor-owned field: {path}")
-    if contract.get("source", {}).get("branch_source") != "git_contract":
+    source = contract.get("source", {})
+    if not isinstance(source, dict):
+        errors.append("source must be an object")
+        return errors
+    if source.get("branch_source") != "git_contract":
         errors.append("cd contract branch_source must be git_contract")
-    manifest_path = contract.get("source", {}).get("manifest_path")
+    manifest_path = source.get("manifest_path")
     if not isinstance(manifest_path, str) or not manifest_path:
         errors.append("cd contract source.manifest_path missing")
-    if contract.get("target_id") != "fyuriserv-prod":
-        errors.append("cd contract target_id must be fyuriserv-prod")
-    try:
-        target = resolve_target(git_contract, str(contract.get("repository")), "main")
-    except ContractError as exc:
-        errors.append(str(exc))
+    effective_repository = repository or str(contract.get("repository") or source.get("source_repository") or "")
+    effective_branch = branch or str(source.get("source_ref") or "")
+    if effective_repository and effective_branch:
+        try:
+            target = resolve_target(git_contract, effective_repository, effective_branch)
+        except ContractError as exc:
+            errors.append(str(exc))
+        else:
+            if contract.get("target_id") != target.get("target_id"):
+                errors.append("cd contract target_id does not match Git contract target")
+            kube = contract.get("kubernetes", {})
+            if kube.get("server_alias") != target.get("server_alias") or kube.get("environment") != target.get("environment"):
+                errors.append("cd contract Kubernetes target does not match Git contract")
     else:
-        if contract.get("target_id") != target.get("target_id"):
-            errors.append("cd contract target_id does not match Git contract target")
-        kube = contract.get("kubernetes", {})
-        if kube.get("server_alias") != target.get("server_alias") or kube.get("environment") != target.get("environment"):
-            errors.append("cd contract Kubernetes target does not match Git contract")
+        errors.append("cd contract repository and branch must be resolvable")
     errors.extend(validate_apps_monorepo_archive_gate(contract))
     return errors
 
 
 def validate_apps_monorepo_archive_gate(contract: dict[str, Any]) -> list[str]:
-    """Validate apps-monorepo source and archive-readiness metadata."""
-    errors: list[str] = []
+    """Accept optional environment-owned archive-readiness metadata."""
     gate = contract.get("apps_monorepo_archive_gate")
-    if not isinstance(gate, dict):
-        errors.append("apps_monorepo_archive_gate missing")
-        return errors
-    if gate.get("canonical_repository") != APPS_MONOREPO_REPOSITORY:
-        errors.append("apps_monorepo_archive_gate.canonical_repository must be BearsCLOUD/apps")
-    if gate.get("archive_allowed_default") is not False:
-        errors.append("apps_monorepo_archive_gate.archive_allowed_default must be false")
-    required_before_archive = gate.get("required_before_archive")
-    required_tokens = ("umbrella issue", "source migration issue", "canonical", "Project", "infra/local_cd", "platform boundary")
-    if not isinstance(required_before_archive, list) or not all(
-        any(token in str(item) for item in required_before_archive) for token in required_tokens
-    ):
-        errors.append(
-            "apps_monorepo_archive_gate.required_before_archive must require issue membership in the "
-            "canonical Apps planning Project, infra/local_cd, and platform-boundary proof"
-        )
-    planning_project = gate.get("canonical_planning_project")
-    required_fields = {
-        "source_repo/app_module",
-        "migration_stage",
-        "infra_local_cd_status",
-        "platform_boundary_status",
-        "archive_readiness",
-        "owner_role",
-        "blocker_status",
-    }
-    if not isinstance(planning_project, dict):
-        errors.append("apps_monorepo_archive_gate.canonical_planning_project missing")
-    else:
-        if planning_project.get("owner_repository") != APPS_MONOREPO_REPOSITORY:
-            errors.append("apps_monorepo_archive_gate.canonical_planning_project.owner_repository must be BearsCLOUD/apps")
-        if planning_project.get("name") != "Apps Migration & Planning":
-            errors.append("apps_monorepo_archive_gate.canonical_planning_project.name must be Apps Migration & Planning")
-        fields = {item for item in planning_project.get("required_issue_fields", []) if isinstance(item, str)}
-        missing_fields = sorted(required_fields - fields)
-        if missing_fields:
-            errors.append(
-                "apps_monorepo_archive_gate.canonical_planning_project.required_issue_fields "
-                f"missing {missing_fields}"
-            )
-        scope = planning_project.get("scope")
-        if not isinstance(scope, str) or not all(token in scope for token in ("per-source Projects", "legacy evidence", "must not be required", "used for PASS")):
-            errors.append(
-                "apps_monorepo_archive_gate.canonical_planning_project.scope must allow per-source Projects only as legacy evidence, not as required/PASS evidence"
-            )
-        if planning_project.get("api_proof_required_for_archive_pass") is not True:
-            errors.append("apps_monorepo_archive_gate.canonical_planning_project.api_proof_required_for_archive_pass must be true")
-    scan_surfaces = gate.get("scan_surfaces")
-    if not isinstance(scan_surfaces, list):
-        errors.append("apps_monorepo_archive_gate.scan_surfaces must be a list")
-    else:
-        actual = {item.get("surface") for item in scan_surfaces if isinstance(item, dict)}
-        missing = sorted(APPS_MONOREPO_ARCHIVE_SCAN_SURFACES - actual)
-        if missing:
-            errors.append(f"apps_monorepo_archive_gate.scan_surfaces missing {missing}")
-
-    source = contract.get("source", {})
-    if not isinstance(source, dict):
-        errors.append("source must be an object")
-        return errors
-    path = "source"
-    archive_source = source.get("archive_source_repo")
-    if archive_source in APPS_MONOREPO_ARCHIVE_SOURCE_REPOS:
-        source_repository = source.get("source_repository")
-        if source_repository in APPS_MONOREPO_ARCHIVE_SOURCE_REPOS:
-            errors.append(f"{path}.source_repository must be BearsCLOUD/apps, not {source_repository}")
-        expected_subpath = APPS_MONOREPO_ARCHIVE_SOURCE_REPOS[archive_source]
-        if source_repository != APPS_MONOREPO_REPOSITORY:
-            errors.append(f"{path}.source_repository must be BearsCLOUD/apps for archived source {archive_source}")
-        if source.get("source_subpath") != expected_subpath:
-            errors.append(f"{path}.source_subpath must be {expected_subpath}")
-        if source.get("archive_allowed") is not False:
-            errors.append(f"{path}.archive_allowed must stay false until infra/local_cd archive checks pass")
-        archive_blocker = source.get("archive_blocker")
-        if not isinstance(archive_blocker, str) or not all(
-            token in archive_blocker for token in ("infra/local_cd", "workflows", "Kubernetes", "secret-custody")
-        ):
-            errors.append(f"{path}.archive_blocker must name infra/local_cd, workflows, Kubernetes docs, and secret-custody scans")
-        planning_project = source.get("canonical_planning_project_invariant")
-        if not isinstance(planning_project, str) or not all(
-            token in planning_project for token in ("Apps Migration & Planning", "canonical", "Project", "required migration fields", "API proof")
-        ):
-            errors.append(f"{path}.canonical_planning_project_invariant must require the canonical Apps planning Project with populated fields")
-        if "Migrate " in planning_project and " into apps" in planning_project:
-            errors.append(f"{path}.canonical_planning_project_invariant must not require a separate per-source Project")
-        if source.get("per_source_projects_policy") != "legacy_evidence_only_not_required_not_created_not_pass":
-            errors.append(f"{path}.per_source_projects_policy must mark per-source Projects as legacy evidence only")
-    return errors
+    if gate is None or isinstance(gate, dict):
+        return []
+    return ["apps_monorepo_archive_gate must be an object when present"]
 
 
 def descriptor_path(repo_root: Path, contract: dict[str, Any], application: str) -> Path:
@@ -383,8 +268,6 @@ def application_contract(contract: dict[str, Any], application: str | None, repo
         source.setdefault("branch_source", "git_contract")
     kube = selected.setdefault("kubernetes", {})
     if isinstance(kube, dict):
-        kube.setdefault("server_alias", "fyuriserv")
-        kube.setdefault("environment", "prod")
         kube.setdefault("kubeconfig_source", "runner_environment")
     return selected
 
@@ -436,7 +319,15 @@ def validate_manifest_safety(repo_root: Path, contract: dict[str, Any]) -> list[
     return errors
 
 
-def validate_all(git_path: Path, cd_path: Path, repo_root: Path, application: str | None = None) -> tuple[dict[str, Any], dict[str, Any]]:
+def validate_all(
+    git_path: Path,
+    cd_path: Path,
+    repo_root: Path,
+    application: str | None = None,
+    *,
+    repository: str | None = None,
+    branch: str | None = None,
+) -> tuple[dict[str, Any], dict[str, Any]]:
     """Validate all contracts and manifests or raise ContractError."""
     git_contract = load_json(git_path)
     cd_root = load_json(cd_path)
@@ -444,7 +335,7 @@ def validate_all(git_path: Path, cd_path: Path, repo_root: Path, application: st
     errors = []
     errors.extend(validate_git_contract(git_contract))
     errors.extend(validate_cd_root_contract(cd_root))
-    errors.extend(validate_cd_contract(cd_contract, git_contract))
+    errors.extend(validate_cd_contract(cd_contract, git_contract, repository=repository, branch=branch))
     errors.extend(validate_manifest_safety(repo_root, cd_contract))
     if errors:
         raise ContractError("\n".join(errors))
@@ -716,20 +607,24 @@ def contract_image_reference(manifest: Path, contract: dict[str, Any]) -> str:
 
 
 def local_image_build_config(contract: dict[str, Any]) -> dict[str, Any]:
-    """Return executor-owned local image build settings for the app."""
-    application = str(contract.get("application", ""))
-    defaults = EXECUTOR_LOCAL_BUILD_DEFAULTS.get(application, {})
-    if not defaults:
-        return {}
+    """Return descriptor-owned local image build settings for the app."""
     source = contract.get("source", {})
     if not isinstance(source, dict):
         raise ContractError("source must be an object")
-    config = dict(defaults)
-    for key in ("source_repository", "source_ref", "source_subpath"):
-        if key in source:
-            config[key] = source[key]
+    build = source.get("local_image_build")
+    if build is None:
+        return {}
+    if not isinstance(build, dict):
+        raise ContractError("source.local_image_build must be an object")
+    config = dict(build)
+    if "source_subpath" not in config and source.get("source_subpath"):
+        config["source_subpath"] = source["source_subpath"]
+    for key in ("context_path", "source_subpath"):
+        if not isinstance(config.get(key), str) or not config.get(key):
+            raise ContractError(f"source.local_image_build.{key} missing")
+    config.setdefault("dockerfile", "Dockerfile")
+    config.setdefault("clear_proxy_build_args", False)
     return config
-
 
 def local_image_build_enabled(contract: dict[str, Any]) -> bool:
     """Return true when the executable owns a local build for this app."""
@@ -758,24 +653,26 @@ def safe_repo_relative_path(repo_root: Path, raw_path: str, field_name: str) -> 
     return resolved
 
 
-def prepare_local_source(repo_root: Path, contract: dict[str, Any]) -> None:
+def prepare_local_source(repo_root: Path, contract: dict[str, Any], source_root: Path | None = None) -> None:
     """Stage app source into the executor-owned build context when needed."""
     if not local_image_build_enabled(contract):
         return
     config = local_image_build_config(contract)
-    source_repository = str(config.get("source_repository", ""))
     source_subpath = str(config.get("source_subpath", ""))
-    if source_repository != APPS_MONOREPO_REPOSITORY or not source_subpath:
-        return
-    source_root = Path("/srv/bears/dev/app") / source_subpath
-    if not source_root.is_dir():
-        raise ContractError(f"local source directory missing: {source_subpath}")
-    context_path = safe_repo_relative_path(repo_root, str(config.get("context_path", "")), "executor.context_path")
+    if source_root is None:
+        candidate = safe_repo_relative_path(repo_root, source_subpath, "source.source_subpath")
+    else:
+        candidate = (source_root / source_subpath).resolve()
+        source_base = source_root.resolve()
+        if source_base not in (candidate, *candidate.parents):
+            raise ContractError("source source_subpath escapes source root")
+    if not candidate.is_dir():
+        raise ContractError(f"source directory missing: {source_subpath}")
+    context_path = safe_repo_relative_path(repo_root, str(config.get("context_path", "")), "source.local_image_build.context_path")
     if context_path.exists():
         shutil.rmtree(context_path)
     ignore = shutil.ignore_patterns(*sorted(SOURCE_SYNC_EXCLUDES))
-    shutil.copytree(source_root, context_path, ignore=ignore)
-
+    shutil.copytree(candidate, context_path, ignore=ignore)
 
 def build_local_image(repo_root: Path, contract: dict[str, Any]) -> str:
     """Build the executable-declared image locally on the GitHub Actions runner."""
@@ -1274,14 +1171,23 @@ def write_evidence(evidence_dir: Path, contract: dict[str, Any], repository: str
 
 def deploy(args: argparse.Namespace) -> None:
     """Run the fixed automatic CD sequence."""
-    git_contract, cd_contract = validate_all(args.git_contract, args.cd_contract, args.repo_root, args.application)
+    if not args.repository or not args.branch:
+        raise ContractError("--repository and --branch are required for deploy")
+    git_contract, cd_contract = validate_all(
+        args.git_contract,
+        args.cd_contract,
+        args.repo_root,
+        args.application,
+        repository=args.repository,
+        branch=args.branch,
+    )
     resolve_target(git_contract, args.repository, args.branch)
     manifest = build_manifests(args.repo_root, cd_contract)
     env, kubeconfig_context = configure_kubeconfig(cd_contract)
     evidence = write_evidence(args.evidence_dir, cd_contract, args.repository, args.branch, args.sha, "started")
     with kubeconfig_context:
         try:
-            prepare_local_source(args.repo_root, cd_contract)
+            prepare_local_source(args.repo_root, cd_contract, args.source_root)
             local_image_ref = build_local_image(args.repo_root, cd_contract)
             if local_image_ref:
                 load_local_image_to_k3d(cd_contract, local_image_ref, env)
@@ -1313,15 +1219,16 @@ def main(argv: list[str] | None = None) -> int:
         command_parser.add_argument("--cd-contract", type=Path, default=DEFAULT_CD_CONTRACT)
         command_parser.add_argument("--repo-root", type=Path, default=Path.cwd())
         command_parser.add_argument("--application")
+        command_parser.add_argument("--repository")
+        command_parser.add_argument("--branch")
         command_parsers[name] = command_parser
-    command_parsers["deploy"].add_argument("--repository", required=True)
-    command_parsers["deploy"].add_argument("--branch", required=True)
     command_parsers["deploy"].add_argument("--sha", required=True)
+    command_parsers["deploy"].add_argument("--source-root", type=Path)
     command_parsers["deploy"].add_argument("--evidence-dir", type=Path, default=Path("evidence"))
     args = parser.parse_args(argv)
     try:
         if args.command == "validate":
-            validate_all(args.git_contract, args.cd_contract, args.repo_root, args.application)
+            validate_all(args.git_contract, args.cd_contract, args.repo_root, args.application, repository=args.repository, branch=args.branch)
             print("Bears automatic CD contracts ok")
         elif args.command == "deploy":
             deploy(args)

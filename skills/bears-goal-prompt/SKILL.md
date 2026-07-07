@@ -42,10 +42,10 @@ If any item is missing, recommend `/plan` or ask one concise clarification quest
 
 1. Identify target path, owner, and whether role routing is needed.
 2. For Bears platform or plugin scope, run:
-   - `python3 /srv/bears/plugins/bears/scripts/subagents_roles.py route <target>`
+   - `python3 the @Bears plugin checkout/scripts/subagents_roles.py route <target>`
 3. Draft the shortest prompt that preserves objective, truth, done, validation, and forbidden scope.
 4. Save the prompt to a temp file and cite local-commit-owned validation:
-   - Local commit validation owns `python3 /srv/bears/plugins/bears/skills/bears-goal-prompt/scripts/validate_goal_prompt.py --prompt-file <file> --json`; manual execution requires operator approval.
+   - Automatic evidence owns `python3 the @Bears plugin checkout/skills/bears-goal-prompt/scripts/validate_goal_prompt.py --prompt-file <file> --json`; manual execution requires operator approval.
 5. If the prompt exceeds 500 characters, rerun with `--reason <why>`.
 6. If the prompt needs 2001-4000 characters, also add `--allow-extended`.
 7. Do not return a prompt that fails validation.

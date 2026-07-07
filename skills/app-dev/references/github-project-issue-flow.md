@@ -5,7 +5,7 @@ This file defines how L2 orchestrators execute development from app-local task l
 ## L2 intake packet
 
 ```text
-app_directory=<path under /srv/bears/dev/app>
+app_directory=<path under the apps checkout>
 functional_graph=<app_directory>/docs/app-functional-graph.v1.json
 task_ledger=<app_directory>/docs/app-task-ledger.v1.json
 project_refs=<GitHub Project item ids or urls>
@@ -41,7 +41,7 @@ lane=l3
 role=<route-selected @Bears role>
 model=gpt-5.4-mini
 reasoning=high
-app_directory=<path under /srv/bears/dev/app>
+app_directory=<path under the apps checkout>
 task_id=<ledger task id>
 functional_graph=<app_directory>/docs/app-functional-graph.v1.json
 task_ledger=<app_directory>/docs/app-task-ledger.v1.json
@@ -104,7 +104,7 @@ When owner coverage returns `ROLE_COVERAGE_BLOCKER`, a selected role lacks exact
 L2 may update Project fields, app task ledger fields, or notification refs only from these evidence types:
 
 - graph and ledger evidence;
-- computed owner role and expected autoCI status;
+- computed owner role and expected automatic status source;
 - L3 closeout packet;
 - critic confirmation;
 - commit SHA and push proof;
@@ -121,6 +121,6 @@ Do not use this flow to choose the organization's Project field model, create on
 
 ## Apps repo boundary
 
-For `BearsCLOUD/apps`, `apps` is the repository name and `/srv/bears/dev/app` is the local repo root.
+For `the apps repository`, `apps` is the repository name and `the apps checkout` is the local repo root.
 
-A Project-management policy may choose a canonical Project for `BearsCLOUD/apps`. This flow consumes Project item metadata as a planning/status view. Execution identity remains the app task ledger task id.
+A Project-management policy may choose a canonical Project for `the apps repository`. This flow consumes Project item metadata as a planning/status view. Execution identity remains the app task ledger task id.

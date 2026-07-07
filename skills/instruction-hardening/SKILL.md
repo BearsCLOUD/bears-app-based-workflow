@@ -40,7 +40,7 @@ Apply when the task asks to remove drag, duplicate gates, or weak wording.
 
 1. Read the MCP packet.
 2. Identify the owner surface and forbidden dependency surfaces.
-3. Cut duplicate prose, manual validation language, and undefined soft words.
+3. Cut duplicate prose, manual validation language, local environment facts, and undefined soft words.
 4. Preserve hard bans, owner routing, secret safety, Git closeout, and live/deploy proof routing.
 5. Return the rewritten instruction plus changed files and residual risk.
 
@@ -97,7 +97,7 @@ Close categories, not tool lists:
 - Secrets: `.env`, credentials, tokens, private keys, kubeconfigs, raw logs, raw chats, production data.
 - Validation: tests, validators, lint, schemas, route/audit, browser checks, Docker checks, Kubernetes checks.
 
-For Bears plugin work, validation layers are safety evidence only. They are never final PASS evidence unless automatic CI/local commit validation or an exact operator-named command owns that step.
+For Bears app/CD work, one pre-commit smoke under 5 seconds is the only local validation instruction. Runtime status and no-error state come from Sentry.
 
 ## Output
 

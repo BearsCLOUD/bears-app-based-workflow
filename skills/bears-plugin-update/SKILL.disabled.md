@@ -31,7 +31,7 @@ Proceed with this skill only for `central_plugin_config` facts. Route `target_ag
 8. Record directory child inventory and generated-file generator source.
 9. Add only implementation tasks found by the audit-review; keep existing tasks unchanged.
 10. Sync generated plugin inventory when the skill catalog changes.
-11. Treat CI/local-commit validation as blocking safety evidence. Route/audit output is ownership evidence only.
+11. Treat CI/commit hook evidence as blocking safety evidence. Route/audit output is ownership evidence only.
 
 ## JSON Packet
 
@@ -62,4 +62,4 @@ Packet field requirements are defined in `plugin-update.config.v1.json`.
 
 ## Report
 
-Report changed files, owner-surface classification, route/audit result, CI/local-commit validation source, and carried unrelated dirty paths.
+Report changed files, owner-surface classification, route/audit result, CI/commit hook evidence source, and carried unrelated dirty paths.

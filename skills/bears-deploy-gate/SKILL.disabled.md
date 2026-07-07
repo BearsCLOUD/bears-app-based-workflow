@@ -57,7 +57,7 @@ Emit or validate this JSON artifact first:
   "rollback_plan": "Revert the bounded Telegram skill-bundle file changes if validation fails.",
   "approvals": [],
   "evidence": [
-    "/srv/bears/plugins/bears/README.md"
+    "the @Bears plugin checkout/README.md"
   ]
 }
 ```

@@ -11,7 +11,7 @@ Official GitHub reference: <https://docs.github.com/en/issues/planning-and-track
 | Status | Single select | Backlog, Ready, Blocked, In progress, Review, Done | Current planning or execution state. |
 | Priority | Single select | P0, P1, P2, P3 | Operator-facing order. |
 | Owner repo | Text or repository-like text | `BearsCLOUD/<repo>` | Canonical GitHub repository. |
-| Local path | Text | absolute path, for example `/srv/bears/dev/app` | Canonical local checkout or evidence path. |
+| Local path | Text | absolute path, for example `the apps checkout` | Canonical local checkout or evidence path. |
 | Owner role | Text or single select | exact @Bears role name | Route-selected role for execution or governance. |
 | Issue type | Single select | Epic, Feature, Task, Bug, Migration, Governance, Validation, Docs, Blocker, Research | Work item category. |
 | Workstream | Single select or text | app, platform, infra, plugin, migration, docs, ops, security, QA, release | Planning lane. |

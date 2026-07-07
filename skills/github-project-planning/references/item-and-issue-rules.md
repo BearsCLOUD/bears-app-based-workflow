@@ -24,7 +24,7 @@ Official GitHub references:
 
 - Every execution-ready issue must include acceptance criteria, validation target, owner repo, local path, owner role, and blocker status.
 - Use sub-issues instead of one large issue when children need different repos, paths, roles, validation, or deploy boundaries.
-- Route `BearsCLOUD/apps`, `/srv/bears/dev/app`, Apps Project #20, and app lane planning to `$app-plan`; do not create app workflow issues here.
+- Route `the apps repository`, `the apps checkout`, Apps Project #20, and app lane planning to `$app-plan`; do not create app workflow issues here.
 - Do not create current-slice implementation work as wishes. Wishes are future-only.
 - Do not use labels or milestones as the only source of owner role, local path, validation target, or blocker state.
 

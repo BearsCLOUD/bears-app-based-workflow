@@ -5,7 +5,7 @@ description: "Analyze app workflow artifacts for drift before app-dev: App Targe
 
 # App Analyze
 
-`app` means one Bears product application directory under `/srv/bears/dev/app` or the `BearsCLOUD/apps` repository. `project` means only a GitHub Project board with linked metadata fields. GitHub Issues are notification records for blockers, incidents, bugs, or operator questions; they are not execution tasks. Say `repo`, `path`, `target`, `workspace surface`, or `app directory` for filesystem ownership.
+`app` means one Bears product application directory under `the apps checkout` or the `the apps repository` repository. `project` means only a GitHub Project board with linked metadata fields. GitHub Issues are notification records for blockers, incidents, bugs, or operator questions; they are not execution tasks. Say `repo`, `path`, `target`, `workspace surface`, or `app directory` for filesystem ownership.
 
 ## App Target Gate
 
@@ -13,11 +13,11 @@ Every app-* skill starts with this gate:
 
 - Name one exact app directory, app docs path, plugin path, platform path, or infra path.
 - Classify each target as exactly one `target_layer`: `app`, `platform`, `infra`, or `plugin`.
-- `app` belongs to `BearsCLOUD/apps` and one app directory under `/srv/bears/dev/app`.
-- `platform` belongs to `/srv/bears/dev/platform`.
-- `infra` belongs to `/srv/bears/kubernetes`.
-- `plugin` belongs to `plugins/<plugin>`; for `@Bears`, route to `/srv/bears/plugins/bears` plus computed `subagents-roles` owner and expected autoCI/local-commit validation status.
-- Legacy child repos and `/srv/bears/projects` are evidence only.
+- `app` belongs to `the apps repository` and one app directory under `the apps checkout`.
+- `platform` belongs to `the platform checkout`.
+- `infra` belongs to `the environment-control checkout`.
+- `plugin` belongs to `plugins/<plugin>`; for `@Bears`, route to `the @Bears plugin checkout` plus computed `subagents-roles` owner and expected automatic status source.
+- Legacy child repos and `the deprecated projects path` are evidence only.
 - Read target-named paths when target packets name paths.
 - If a request crosses layers, keep the layers separate and pass them to `$app-plan` as separate lanes.
 

@@ -4,7 +4,7 @@
 
 Move `bears.ru` DNS operations to the plugin-owned `yandex360-dns` skill with secrets from Infisical only.
 
-- Owning skill: `/srv/bears/plugins/bears/skills/yandex360-dns`.
+- Owning skill: `the @Bears plugin checkout/skills/yandex360-dns`.
 - DNS helper: plugin-local scripts under the owning skill.
 - Infisical: secret manager used to inject keys at command runtime.
 - OAuth token: Yandex access token used by the API client.
@@ -53,7 +53,7 @@ Run these commands from an operator shell. Do not paste command output that cont
 3. Run the setup helper dry-run. It prints only key names, target path, and operator action.
 
    ```bash
-   python3 /srv/bears/plugins/bears/skills/yandex360-dns/scripts/infisical_yandex360_setup.py --dry-run
+   python3 the @Bears plugin checkout/skills/yandex360-dns/scripts/infisical_yandex360_setup.py --dry-run
    ```
 
 4. Input secret values interactively in Infisical UI or an operator-approved prompt. Do not pass values in command arguments. The helper does not write temp secret files and does not upload secrets.
@@ -62,20 +62,20 @@ Run these commands from an operator shell. Do not paste command output that cont
 
    ```bash
    infisical run --env prod --projectId "$INFISICAL_PROJECT_ID" --path /global/dns/yandex360/bears-ru --domain "${INFISICAL_API_URL:-${INFISICAL_HOST_URL:-https://app.infisical.com}/api}" --silent -- \
-     env PYTHONDONTWRITEBYTECODE=1 python3 /srv/bears/plugins/bears/skills/yandex360-dns/scripts/yandex360_dns.py env-check
+     env PYTHONDONTWRITEBYTECODE=1 python3 the @Bears plugin checkout/skills/yandex360-dns/scripts/yandex360_dns.py env-check
    ```
 
 6. Run the local cutover validator.
 
    ```bash
-   python3 /srv/bears/plugins/bears/skills/yandex360-dns/scripts/validate_yandex360_dns_cutover.py
+   python3 the @Bears plugin checkout/skills/yandex360-dns/scripts/validate_yandex360_dns_cutover.py
    ```
 
 7. List DNS records only after the operator gives an explicit read scope such as: `read-only list bears.ru records through Yandex 360 now`.
 
    ```bash
    infisical run --env prod --projectId "$INFISICAL_PROJECT_ID" --path /global/dns/yandex360/bears-ru --domain "${INFISICAL_API_URL:-${INFISICAL_HOST_URL:-https://app.infisical.com}/api}" --silent -- \
-     env PYTHONDONTWRITEBYTECODE=1 python3 /srv/bears/plugins/bears/skills/yandex360-dns/scripts/yandex360_dns.py list
+     env PYTHONDONTWRITEBYTECODE=1 python3 the @Bears plugin checkout/skills/yandex360-dns/scripts/yandex360_dns.py list
    ```
 
 ## DNS write policy
@@ -91,16 +91,16 @@ DNS create, delete, and replace are production changes. This local helper does n
 
 ## Legacy safety
 
-`/srv/bears/.env` and other local env files are refused for this workflow.
+`local env files` and other local env files are refused for this workflow.
 
-- Do not read `/srv/bears/.env`.
-- Do not use `/srv/bears/.env` as proof that DNS keys exist.
+- Do not read `local env files`.
+- Do not use `local env files` as proof that DNS keys exist.
 - Do not copy values from any local env file.
-- If a task asks to use `/srv/bears/.env` or another local env file, stop that step and route the operator back to Infisical runtime injection.
+- If a task asks to use `local env files` or another local env file, stop that step and route the operator back to Infisical runtime injection.
 
 ## Handoff to the network lane
 
-`/srv/bears/dev/infrastructure/network` owns network documentation status only.
+`the network docs checkout` owns network documentation status only.
 
 - Keep the global/local split there.
 - Keep DNS requirement status there.

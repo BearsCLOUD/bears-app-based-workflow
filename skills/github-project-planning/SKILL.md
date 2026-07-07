@@ -44,7 +44,7 @@ Load only the references needed for the current planning task:
 6. Split items when repo boundary, local path, owner role, proof target, deployment boundary, or secret-custody boundary differs.
 7. Mark planning PASS only after required fields, views, issue links, owner roles, proof targets, and blocker states are complete.
 8. Do not dispatch implementation workers from this skill; return Project and Issue metadata that a non-app workflow can consume.
-9. If the target is the configured app workspace, `BearsCLOUD/apps`, Apps Project #20, app lane planning, or `$app-dev`, stop and route to `$app-plan`.
+9. If the target is the configured app workspace, `the apps repository`, Apps Project #20, app lane planning, or `$app-dev`, stop and route to `$app-plan`.
 
 ## Planning PASS packet
 

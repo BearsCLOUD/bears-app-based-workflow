@@ -5,7 +5,7 @@ description: "Convert Bears app documentation into app-task-ledger execution tas
 
 # App Plan
 
-`app` means one Bears product application directory under `/srv/bears/dev/app` or the `BearsCLOUD/apps` repository. `project` means only a GitHub Project board with linked items and metadata fields. Say `repo`, `path`, `target`, `workspace surface`, or `app directory` for filesystem ownership.
+`app` means one Bears product application directory under `the apps checkout` or the `the apps repository` repository. `project` means only a GitHub Project board with linked items and metadata fields. Say `repo`, `path`, `target`, `workspace surface`, or `app directory` for filesystem ownership.
 
 ## App Target Gate
 
@@ -13,11 +13,11 @@ Every app-* skill starts with this gate:
 
 - Name one exact app directory, app docs path, plugin path, platform path, or infra path.
 - Classify each target as exactly one `target_layer`: `app`, `platform`, `infra`, or `plugin`.
-- `app` belongs to `BearsCLOUD/apps` and one app directory under `/srv/bears/dev/app`.
-- `platform` belongs to `/srv/bears/dev/platform`.
-- `infra` belongs to `/srv/bears/kubernetes`.
-- `plugin` belongs to `plugins/<plugin>`; for `@Bears`, route to `/srv/bears/plugins/bears` plus computed `subagents-roles` owner and expected autoCI status.
-- Legacy child repos and `/srv/bears/projects` are evidence only.
+- `app` belongs to `the apps repository` and one app directory under `the apps checkout`.
+- `platform` belongs to `the platform checkout`.
+- `infra` belongs to `the environment-control checkout`.
+- `plugin` belongs to `plugins/<plugin>`; for `@Bears`, route to `the @Bears plugin checkout` plus computed `subagents-roles` owner and expected automatic status source.
+- Legacy child repos and `the deprecated projects path` are evidence only.
 - Read target-named paths when target packets name paths.
 - If a request crosses layers, keep the layers separate and pass them to `$app-plan` as separate lanes.
 
@@ -41,7 +41,7 @@ Required: set `target_layer=plugin` when app-style flow helps a plugin governanc
 
 Allowed:
 
-- Read `/srv/bears/AGENTS.md`, nearest app `AGENTS.md`, app constitution, app-research packet, app spec/docs, app functional graph, app task ledger, Apps Project #20 metadata, and computed role ownership evidence.
+- Read `the workspace root/AGENTS.md`, nearest app `AGENTS.md`, app constitution, app-research packet, app spec/docs, app functional graph, app task ledger, Apps Project #20 metadata, and computed role ownership evidence.
 - Create or update app-local `docs/app-functional-graph.v1.json` and `docs/app-task-ledger.v1.json` through `$app-functional-graph`.
 - Create or update Project item refs as planning/status metadata linked to `task_id` and `functionality_ref`.
 - Create decomposition, dependency, acceptance, proof, schema-packet, lane, and handoff metadata needed by `$app-dev`.
@@ -59,8 +59,8 @@ Forbidden:
 
 - Project URL: `https://github.com/users/BearsCLOUD/projects/20`.
 - Project number: `20`.
-- Owner repo: `BearsCLOUD/apps`.
-- Local app root: `/srv/bears/dev/app`.
+- Owner repo: `the apps repository`.
+- Local app root: `the apps checkout`.
 - Execution skill: `$app-dev`.
 - Execution unit: `task`.
 - Parallel batch: `wave`.
@@ -69,7 +69,7 @@ Forbidden:
 
 ## Required inputs
 
-- Exact app directory or app docs path under `/srv/bears/dev/app/*`.
+- Exact app directory or app docs path under `the apps checkout/*`.
 - `app-constitution.packet` or explicit approved gap.
 - `app-specification.packet`.
 - `app-research.packet` when the risk gate matched.
@@ -81,9 +81,9 @@ Forbidden:
 
 Every task belongs to one layer and one lane:
 
-- `app` lane for product app source under `/srv/bears/dev/app/<app-name>`.
-- `platform` lane for shared platform work under `/srv/bears/dev/platform`.
-- `infra` lane for Kubernetes desired-state or local_cd integration work under `/srv/bears/kubernetes`.
+- `app` lane for product app source under `the apps checkout/<app-name>`.
+- `platform` lane for shared platform work under `the platform checkout`.
+- `infra` lane for Kubernetes desired-state or local_cd integration work under `the environment-control checkout`.
 
 `app-plan` may create more lanes inside a layer only when each lane has disjoint repo/path targets and explicit dependencies. `$app-dev` must consume this lane map and must not invent layer or lane boundaries.
 
@@ -178,7 +178,7 @@ completion_criteria=changed files, one commit SHA, push proof, status refs, ledg
   "version": "1",
   "status": "planned|partial|blocked",
   "project_url": "https://github.com/users/BearsCLOUD/projects/20",
-  "owner_repo": "BearsCLOUD/apps",
+  "owner_repo": "the apps repository",
   "target": "<exact app docs path>",
   "app_directory": "<exact app directory>",
   "functional_graph": "<app directory>/docs/app-functional-graph.v1.json",

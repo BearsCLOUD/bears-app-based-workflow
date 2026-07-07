@@ -5,7 +5,7 @@ description: "Execute app-task-ledger tasks produced by app-plan. Parent control
 
 # App Dev
 
-`app` means one Bears product application directory under `/srv/bears/dev/app` or the `BearsCLOUD/apps` repository. `project` means only a GitHub Project board with linked items and metadata fields. Say `repo`, `path`, `target`, `workspace surface`, or `app directory` for filesystem ownership.
+`app` means one Bears product application directory under `the apps checkout` or the `the apps repository` repository. `project` means only a GitHub Project board with linked items and metadata fields. Say `repo`, `path`, `target`, `workspace surface`, or `app directory` for filesystem ownership.
 
 ## App Target Gate
 
@@ -13,11 +13,11 @@ Every app-* skill starts with this gate:
 
 - Name one exact app directory, app docs path, plugin path, platform path, or infra path.
 - Classify each target as exactly one `target_layer`: `app`, `platform`, `infra`, or `plugin`.
-- `app` belongs to `BearsCLOUD/apps` and one app directory under `/srv/bears/dev/app`.
-- `platform` belongs to `/srv/bears/dev/platform`.
-- `infra` belongs to `/srv/bears/kubernetes`.
-- `plugin` belongs to `plugins/<plugin>`; for `@Bears`, route to `/srv/bears/plugins/bears` plus computed `subagents-roles` owner and expected autoCI status.
-- Legacy child repos and `/srv/bears/projects` are evidence only.
+- `app` belongs to `the apps repository` and one app directory under `the apps checkout`.
+- `platform` belongs to `the platform checkout`.
+- `infra` belongs to `the environment-control checkout`.
+- `plugin` belongs to `plugins/<plugin>`; for `@Bears`, route to `the @Bears plugin checkout` plus computed `subagents-roles` owner and expected automatic status source.
+- Legacy child repos and `the deprecated projects path` are evidence only.
 - Read target-named paths when target packets name paths.
 - If a request crosses layers, keep the layers separate and pass them to `$app-plan` as separate lanes.
 
@@ -53,7 +53,7 @@ Allowed:
 
 - Read `app-plan.project-task-packet`, `app-analysis.packet`, app functional graph, app task ledger, Project item metadata, computed role ownership evidence, target docs, and task-owned files.
 - Start L2 lane orchestrators for `app`, `platform`, `infra`, and any sub-lanes already defined by `$app-plan`.
-- Dispatch L3 workers only from `ready` ledger tasks with valid `functionality_refs`, `graph_node_refs`, `autoci_zones`, and `expected_statuses`.
+- Dispatch L3 workers only from `ready` ledger tasks with valid `functionality_refs`, `graph_node_refs`, `status_zones`, and `expected_statuses`.
 - L3 workers update only their assigned ledger task through `$app-functional-graph` `claim-task` and `mark-task-status`; L2 updates Project item state from concrete worker, critic, commit, and status evidence.
 - Record GitHub Issue URLs only in `notification_refs` after explicit manual notification authorization.
 
@@ -74,7 +74,7 @@ This skill uses the same conceptual loop as implementation-by-task workflows: re
 1. Run the App Target Gate for the packet.
 2. Read `app-analysis.packet`; stop unless handoff is ready or operator approved advisory execution.
 3. Read `docs/app-functional-graph.v1.json` and `docs/app-task-ledger.v1.json`.
-4. Consume `$app-functional-graph` evidence before wave grouping; each ready task needs computed autoCI zones. Do not run validators manually unless the task packet names the exact command.
+4. Consume `$app-functional-graph` evidence before wave grouping; each ready task needs computed status zones. Do not run validators manually.
 5. Group dependency-ready ledger tasks into a wave by non-overlapping repo/path targets and graph node refs.
 6. Start or reuse one L2 orchestrator per lane in the packet.
 7. Send each L2 only its lane tasks, dependencies, graph refs, allowed Project item mutations, helper rules, and closeout format.
@@ -86,9 +86,9 @@ This skill uses the same conceptual loop as implementation-by-task workflows: re
 
 Hard rule: no valid ledger task means no L3 dispatch.
 
-## L3 autoCI/CD status matrix
+## L3 autoCD/status status matrix
 
-`autoCI/CD` means automatic status evidence created after an L3 commit is pushed. It is evidence, not a Codex command queue.
+`autoCD/status` means automatic status evidence created after an L3 commit is pushed. It is evidence, not a Codex command queue.
 
 Rules:
 
@@ -111,7 +111,7 @@ Required L3 status packet:
   "graph_node_refs": ["<app>.<functionality>.<node>"],
   "commit_sha": "<sha>",
   "push_proof": "<url or exact ref>",
-  "autoci_zones": ["<zone id>"],
+  "status_zones": ["<zone id>"],
   "expected_statuses": ["<status name>"],
   "status_evidence_refs": ["<proof ref>"],
   "full_proof": "dagger-objective-runtime-proof:<scenario>|none",
@@ -133,7 +133,7 @@ Required L3 status packet:
   "functional_graph": "<app directory>/docs/app-functional-graph.v1.json",
   "task_ledger": "<app directory>/docs/app-task-ledger.v1.json",
   "tasks": [
-    {"task_id": "<app-T001>", "functionality_refs": ["<id>"], "graph_node_refs": ["<id>"], "allowed_paths": ["<paths>"], "autoci_zones": ["<zone id>"]}
+    {"task_id": "<app-T001>", "functionality_refs": ["<id>"], "graph_node_refs": ["<id>"], "allowed_paths": ["<paths>"], "status_zones": ["<zone id>"]}
   ],
   "allowed_project_mutations": ["status", "field updates named by app-plan"],
   "helper_policy": "Call $subagents for L2 helpers only; helpers do not implement.",

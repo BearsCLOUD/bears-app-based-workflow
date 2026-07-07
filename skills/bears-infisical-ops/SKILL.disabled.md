@@ -18,13 +18,13 @@ Required: activate this skill for Infisical-backed access checks and live-readin
 - Fail closed if Infisical project, environment, path, or required env names are missing.
 - Treat Infisical as secret custody and environment injection only; it is not a software deployment path.
 - Local `infisical run` proof is preflight only. Final live PASS for software must come from Kubernetes desired state, `local_cd`, workload evidence, secret-reference readiness, and runtime health proof.
-- Treat `/srv/bears/control-plane/infisical` as bootstrap or preflight support only; it does not own Kubernetes runtime desired state.
+- Treat `the workspace root/control-plane/infisical` as bootstrap or preflight support only; it does not own Kubernetes runtime desired state.
 - For generated local values, activate `$secret-factory`; do not implement a second write path.
 
 ## Required startup
 
 1. Read the nearest `AGENTS.md` files.
-2. If editing plugin governance, read `/srv/bears/plugins/bears/AGENTS.md`.
+2. If editing plugin governance, read `the @Bears plugin checkout/AGENTS.md`.
 3. Classify the task:
    - `metadata-only`: names, paths, project links, env names.
    - `write-only-generation`: generated value must be created and stored.

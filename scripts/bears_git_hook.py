@@ -28,7 +28,6 @@ GIT_HOOK_ENV_KEYS = ("GIT_DIR", "GIT_WORK_TREE", "GIT_INDEX_FILE", "GIT_PREFIX",
 if str(PLUGIN_ROOT) not in sys.path:
     sys.path.insert(0, str(PLUGIN_ROOT))
 from scripts.local_json_schema import validate_json_schema
-from scripts import validation_queue
 
 
 def utc_now() -> str:
@@ -42,7 +41,7 @@ def clean_env() -> dict[str, str]:
     return env
 
 
-def run_command(argv: list[str], *, cwd: Path, timeout: int = 10) -> tuple[int, str]:
+def run_command(argv: list[str], *, cwd: Path, timeout: int = 5) -> tuple[int, str]:
     try:
         proc = subprocess.run(
             argv,
@@ -141,7 +140,7 @@ def hook_entries(repo_path: Path, workspace_root: Path) -> list[dict[str, Any]]:
                 "entrypoint_exists": path.exists(),
                 "entrypoint_executable": path.exists() and bool(path.stat().st_mode & stat.S_IXUSR),
                 "runner_match": runner in text and "@bears" in text,
-                "mode": "cheap_blocking_checks" if name == "pre-commit" else "enqueue_validation",
+                "mode": "single_fast_smoke" if name == "pre-commit" else "proof_only",
             }
         )
     return entries
@@ -217,31 +216,19 @@ def current_commit(repo_path: Path) -> str | None:
         return None
 
 
-def changed_files_for_commit(repo_path: Path, commit_sha: str) -> list[str]:
-    return validation_queue.changed_files_from_git(repo_path, commit_sha)
-
-
 def run_hook(hook_name: str, repo_path: Path, workspace_root: Path) -> tuple[int, dict[str, Any]]:
     if hook_name not in HOOKS:
         return 2, event("deny", "unsupported hook", hook=hook_name)
     commit_sha = current_commit(repo_path) if hook_name == "post-commit" else None
     proof_path, proof = write_effective_proof(repo_path, workspace_root, commit_sha)
     if hook_name == "pre-commit":
-        code, summary = run_command(["git", "diff", "--cached", "--check", "--no-ext-diff"], cwd=repo_path, timeout=10)
-        if repo_path.resolve() == PLUGIN_ROOT.resolve():
-            registry_code, registry_summary = run_command([sys.executable, "scripts/artifact_registry.py", "check-added-files", "--staged"], cwd=PLUGIN_ROOT, timeout=10)
-            decision_code, decision_summary = run_command([sys.executable, "scripts/decision_ledger.py", "check-required", "--staged"], cwd=PLUGIN_ROOT, timeout=10)
-        else:
-            registry_code, registry_summary = 0, "not_applicable: non-plugin repo"
-            decision_code, decision_summary = 0, "not_applicable: non-plugin repo"
-        decision = "allow" if code == 0 and registry_code == 0 and decision_code == 0 and proof["status"] == "pass" else "deny"
-        reason = "cheap checks passed" if decision == "allow" else "cheap checks failed"
-        return (0 if decision == "allow" else 1), event(decision, reason, hook=hook_name, repo_path=str(repo_path), worktree_path=str(repo_path), commit_sha=commit_sha, proof_path=str(proof_path), check_exit_code=code, check_summary=summary, artifact_registry_exit_code=registry_code, artifact_registry_summary=registry_summary, decision_ledger_exit_code=decision_code, decision_ledger_summary=decision_summary)
+        code, summary = run_command(["git", "diff", "--cached", "--check", "--no-ext-diff"], cwd=repo_path, timeout=5)
+        decision = "allow" if code == 0 and proof["status"] == "pass" else "deny"
+        reason = "single fast smoke passed" if decision == "allow" else "single fast smoke failed"
+        return (0 if decision == "allow" else 1), event(decision, reason, hook=hook_name, repo_path=str(repo_path), worktree_path=str(repo_path), commit_sha=commit_sha, proof_path=str(proof_path), check_exit_code=code, check_summary=summary, timeout_seconds=5)
     if not commit_sha:
         return 2, event("deny", "commit sha unavailable", hook=hook_name, repo_path=str(repo_path), proof_path=str(proof_path))
-    changed = changed_files_for_commit(repo_path, commit_sha)
-    job_path, state_path, job = validation_queue.enqueue_job(commit_sha, changed, repo_path=repo_path, source="post-commit")
-    return 0, event("allow", "validation enqueued", hook=hook_name, repo_path=str(repo_path), worktree_path=str(repo_path), commit_sha=commit_sha, proof_path=str(proof_path), job_path=str(job_path), state_path=str(state_path), worker_spawn="not_started", worker_spawn_reason="hooks enqueue only; async workers are started outside hook hot paths")
+    return 0, event("allow", "hook proof recorded", hook=hook_name, repo_path=str(repo_path), worktree_path=str(repo_path), commit_sha=commit_sha, proof_path=str(proof_path), validation_queue="not_used", status_source="sentry")
 
 
 def load_catalog() -> dict[str, Any]:
@@ -285,8 +272,8 @@ def validate_catalog() -> list[str]:
         if "solve_github_issue" not in forbidden:
             errors.append(f"{hook.get('name')} must forbid solve_github_issue")
     post_hook = next((hook for hook in packet.get("thin_hooks", []) if isinstance(hook, dict) and hook.get("name") == "post-commit"), {})
-    if "write_validation_job" not in post_hook.get("allowed_actions", []):
-        errors.append("post-commit must write validation jobs")
+    if "write_effective_hook_proof" not in post_hook.get("allowed_actions", []):
+        errors.append("post-commit must write effective hook proof")
 
     bounded_spawn = packet.get("bounded_spawn", {})
     if not isinstance(bounded_spawn, dict):

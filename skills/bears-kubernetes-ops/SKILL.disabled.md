@@ -26,9 +26,9 @@ Required: activate this skill for Kubernetes metadata checks and kube-backed liv
 ## Required startup
 
 1. Read the nearest `AGENTS.md` files.
-2. For plugin work, read `/srv/bears/plugins/bears/AGENTS.md`.
+2. For plugin work, read `the @Bears plugin checkout/AGENTS.md`.
 3. Route the surface:
-   - manifests under `/srv/bears/kubernetes`: infrastructure desired state;
+   - manifests under `the environment-control checkout`: infrastructure desired state;
    - product checkout manifests: target-local evidence only unless routed otherwise;
    - live cluster checks: read-only runtime evidence.
 4. If a command can expose secret values, do not run it.
@@ -57,8 +57,8 @@ Do not commit kubeconfig paths or generated kubeconfig files.
 Required: follow this section when the user asks to raise or inspect a Kubernetes node on the
 current dev instance.
 
-1. Put persistent local kube runtime under `/srv/bears/runtime/kube/<context>/`.
-2. Keep kubeconfigs, certificates, cache, and cluster state out of Git; `/srv/bears/runtime/**` is runtime-only.
+1. Put persistent local kube runtime under `the runtime workspace/kube/<context>/`.
+2. Keep kubeconfigs, certificates, cache, and cluster state out of Git; `the runtime workspace/**` is runtime-only.
 3. Write `.tmp` only for disposable scratch that may be deleted between runs.
 4. Report local cluster evidence as `dev-instance proof`, not final live PASS.
 5. Never convert local `kubectl apply`, local smoke, or local host-process evidence into deployment proof. Final live PASS requires Kubernetes desired state, `local_cd`, workload evidence, secret-reference readiness, CD evidence, and runtime health proof.
@@ -68,9 +68,9 @@ current dev instance.
 Required: read repository manifests to find names and references without live values:
 
 ```bash
-find /srv/bears/kubernetes -maxdepth 5 -type f \
+find the environment-control checkout -maxdepth 5 -type f \
   \( -name '*.yaml' -o -name '*.yml' -o -name '*.json' \) -print | sort
-rg -n 'kind: (Deployment|StatefulSet|Job|CronJob|ExternalSecret|SecretStore|ClusterSecretStore|Secret)|secretKeyRef|envFrom|TELEGRAM_|INFISICAL|DATABASE_URL|TGINTEL_' /srv/bears/kubernetes
+rg -n 'kind: (Deployment|StatefulSet|Job|CronJob|ExternalSecret|SecretStore|ClusterSecretStore|Secret)|secretKeyRef|envFrom|TELEGRAM_|INFISICAL|DATABASE_URL|TGINTEL_' the environment-control checkout
 ```
 
 Do not copy raw Secret manifests into the response. Summarize only resource names, namespaces, key names, and owning manifests.

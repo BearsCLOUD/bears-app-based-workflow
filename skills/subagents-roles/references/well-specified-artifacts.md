@@ -7,4 +7,4 @@ Required fields:
 - Owner: one role profile or executable owner.
 - Action path: ordered actions the owner performs.
 - Evidence: file path, route/audit packet, ledger output, GitHub evidence, Kubernetes/runtime evidence, or issue URL.
-- Handoff: next role, skill, script, autoCI, autoCD, hook, workflow, or issue owner.
+- Handoff: next role, skill, script, automatic status, autoCD, hook, workflow, or issue owner.

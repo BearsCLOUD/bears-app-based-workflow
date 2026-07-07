@@ -30,7 +30,7 @@ If `metadata_mutation=none`, produce a review packet and exact mutation request.
 ## Project selection or creation
 
 1. Prefer an existing canonical Project for the workstream.
-2. If the target is `BearsCLOUD/apps`, `/srv/bears/dev/app`, Apps Project #20, app lane planning, or `$app-dev`, stop and route to `$app-plan`.
+2. If the target is `the apps repository`, `the apps checkout`, Apps Project #20, app lane planning, or `$app-dev`, stop and route to `$app-plan`.
 3. Create a new Project only when the operator packet names owner, title, scope, retention policy, and metadata mutation permission.
 4. Record Project URL, number, owner, target repositories, and planning owner role.
 

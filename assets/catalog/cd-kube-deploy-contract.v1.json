@@ -3,45 +3,10 @@
   "version": 1,
   "owner_plugin": "bears",
   "updated": "2026-07-07",
-  "purpose": "Machine-readable global authority for Bears automatic CD. CD mechanics are owned by scripts/bears_auto_cd.py; app desired state lives in /srv/bears/kubernetes/local_cd/applications/*.v1.json.",
-  "repository": "BearsCLOUD/bears-infra",
-  "git_contract_ref": "assets/catalog/git-deploy-contract.v1.json",
-  "target_id": "fyuriserv-prod",
+  "purpose": "Schema pointer for automatic Kubernetes CD. Environment-owned application descriptors and target mappings live outside plugin source and are passed with --cd-contract.",
+  "git_contract_ref": "environment-owned git deploy contract",
   "application_descriptor_directory": "local_cd/applications",
-  "applications": [
-    {
-      "application": "codex-telegram-mcp",
-      "descriptor": "local_cd/applications/codex-telegram-mcp.v1.json"
-    },
-    {
-      "application": "external-secrets-operator",
-      "descriptor": "local_cd/applications/external-secrets-operator.v1.json"
-    },
-    {
-      "application": "opencode-server",
-      "descriptor": "local_cd/applications/opencode-server.v1.json"
-    },
-    {
-      "application": "tgsearch-live-gate",
-      "descriptor": "local_cd/applications/tgsearch-live-gate.v1.json"
-    },
-    {
-      "application": "dialogika-web",
-      "descriptor": "local_cd/applications/dialogika-web.v1.json"
-    },
-    {
-      "application": "codex-web",
-      "descriptor": "local_cd/applications/codex-web.v1.json"
-    },
-    {
-      "application": "dagger-engine",
-      "descriptor": "local_cd/applications/dagger-engine.v1.json"
-    },
-    {
-      "application": "egress-gateway",
-      "descriptor": "local_cd/applications/egress-gateway.v1.json"
-    }
-  ],
+  "applications": [],
   "evidence": {
     "sanitized_only": true,
     "forbidden": [
@@ -54,83 +19,13 @@
     ]
   },
   "rollback": {
-    "method": "commit_previous_descriptor_and_manifest_state_to_main",
+    "method": "commit_previous_environment_descriptor_and_manifest_state",
     "uses_same_git_contract": true,
     "uses_same_cd_contract": true
   },
-  "apps_monorepo_archive_gate": {
-    "canonical_repository": "BearsCLOUD/apps",
-    "archive_allowed_default": false,
-    "required_before_archive": [
-      "BearsCLOUD/apps umbrella issue",
-      "source migration issue linked to the umbrella issue",
-      "issue membership in the one canonical BearsCLOUD/apps planning Project `Apps Migration & Planning` with required fields populated once GitHub Project API proof is available",
-      "infra/local_cd safe proof",
-      "platform boundary exclusion proof"
-    ],
-    "scan_surfaces": [
-      {
-        "surface": "cd_contracts",
-        "paths": [
-          "assets/catalog/cd-kube-deploy-contract.v1.json",
-          "assets/catalog/git-deploy-contract.v1.json"
-        ],
-        "required_check": "old source repository references must be replaced by BearsCLOUD/apps plus archive metadata before archive"
-      },
-      {
-        "surface": "workflows",
-        "paths": [
-          ".github/workflows",
-          "workflows"
-        ],
-        "required_check": "workflow local_cd selectors must not depend on old source repositories before archive"
-      },
-      {
-        "surface": "kubernetes_runbooks",
-        "paths": [
-          "docs/runbooks",
-          "/srv/bears/kubernetes/docs/runbooks"
-        ],
-        "required_check": "runbooks must route app source references to BearsCLOUD/apps or mark a temporary migration source"
-      },
-      {
-        "surface": "manifests_readme",
-        "paths": [
-          "/srv/bears/kubernetes/manifests",
-          "/srv/bears/kubernetes/README.md"
-        ],
-        "required_check": "manifest README references must not point at old app source repos before archive"
-      },
-      {
-        "surface": "secret_custody_docs",
-        "paths": [
-          "skills/bears-infisical-ops",
-          "skills/bears-kubernetes-ops",
-          "/srv/bears/kubernetes"
-        ],
-        "required_check": "secret custody docs must keep Infisical-backed refs and must not store secret values during archive migration"
-      }
-    ],
-    "canonical_planning_project": {
-      "owner_repository": "BearsCLOUD/apps",
-      "name": "Apps Migration & Planning",
-      "scope": "One canonical BearsCLOUD/apps planning Project contains the umbrella issue and every source migration issue; existing per-source Projects may exist only as legacy evidence and must not be required, created, or used for PASS.",
-      "required_issue_fields": [
-        "source_repo/app_module",
-        "migration_stage",
-        "infra_local_cd_status",
-        "platform_boundary_status",
-        "archive_readiness",
-        "owner_role",
-        "blocker_status"
-      ],
-      "required_views": [
-        "source_repo_app_module_migration_stage",
-        "archive_readiness_by_status",
-        "infra_platform_blockers_by_owner_role"
-      ],
-      "api_proof_required_for_archive_pass": true,
-      "per_source_projects_policy": "legacy_evidence_only_not_required_not_created_not_pass"
-    }
+  "rules": {
+    "environment_contract_required": true,
+    "plugin_source_contains_no_environment_targets": true,
+    "executor_owns_cd_mechanics": true
   }
 }

@@ -11,7 +11,7 @@ This skill is evidence-first. It does not restart Codex, kill processes, delete/
 
 ## Workflow
 
-1. Read the nearest `AGENTS.md`, `/srv/bears/plugins/bears/AGENTS.md`, and `agents/bears-codex-health-engineer.toml` when the plugin checkout is the target.
+1. Read the nearest `AGENTS.md`, `the @Bears plugin checkout/AGENTS.md`, and `agents/bears-codex-health-engineer.toml` when the plugin checkout is the target.
 2. Classify the turn as one of:
    - `diagnostics-readonly`
    - `plugin-health-guidance-update`
@@ -20,7 +20,7 @@ This skill is evidence-first. It does not restart Codex, kill processes, delete/
    - active Codex app-server PIDs, parent/child relation, CPU, RSS, thread count, and elapsed time;
    - 3 to 5 app-server CPU/RSS/thread samples with timestamps;
    - direct and recursive MCP child command counts grouped by command family;
-   - `/home/ai1/.codex/sessions` total size, largest session files, newest session files, and short growth delta;
+   - `the local Codex home/sessions` total size, largest session files, newest session files, and short growth delta;
    - bounded pattern counts for `stream disconnected`, `retrying`, `timeout`, `timed out`, `input_tokens`, `cached_input_tokens`, `compact`, `MCP`, `failed`, `panic`, and `error`;
    - system load average to separate host load from Codex-local load.
 4. Mask secret-like strings in all command output: `token`, `key`, `secret`, `password`, `bearer`, private keys, `.env` values, VPN config material, and credential-like arguments.
@@ -39,9 +39,9 @@ ps -eo pid,ppid,etime,pcpu,pmem,rss,args --sort=-pcpu | \
   awk 'NR==1 || /codex|app-server|mcp|infisical|sentry|openaidocs|context7/ {print}' | \
   sed -E 's/(token|key|secret|password|bearer)[^ ]*/\1=[REDACTED]/Ig'
 
-du -sh /home/ai1/.codex/sessions /home/ai1/.codex/log /home/ai1/.codex/logs 2>/dev/null || true
+du -sh the local Codex home/sessions the local Codex home/log the local Codex home/logs 2>/dev/null || true
 
-find /home/ai1/.codex/sessions -type f -printf '%s %TY-%Tm-%Td %TH:%TM %p\n' 2>/dev/null | \
+find the local Codex home/sessions -type f -printf '%s %TY-%Tm-%Td %TH:%TM %p\n' 2>/dev/null | \
   sort -nr | head -n 20 | awk '{printf "%.1f MB %s %s %s\n", $1/1048576, $2, $3, $4}'
 ```
 

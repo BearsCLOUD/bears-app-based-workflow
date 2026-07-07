@@ -5,7 +5,7 @@ description: "Govern @Bears role lifecycle work: create/update role TOML, close 
 
 # Bears Agents
 
-Required: activate this skill for `@Bears` role lifecycle changes under `/srv/bears/plugins/bears/agents` and the role catalog.
+Required: activate this skill for `@Bears` role lifecycle changes under `the @Bears plugin checkout/agents` and the role catalog.
 
 This skill defines role authority. It does not run delegated work. Call `subagents` for runtime delegation after a route gate selects a role.
 
@@ -36,7 +36,7 @@ Do not store product facts, target board facts, repo-local implementation detail
 
 ## Validation ownership
 
-Route/audit is ownership discovery only. Automatic CI and local-commit validation own blocking verification results for role lifecycle changes.
+Route/audit is ownership discovery only. Automatic CI and commit hook evidence own blocking verification results for role lifecycle changes.
 
 ## Closeout
 

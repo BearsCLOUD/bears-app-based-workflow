@@ -5,7 +5,7 @@ description: "Research external solutions, prior art, product logic, integration
 
 # App Research
 
-`app` means one Bears product application directory under the configured app workspace or the `BearsCLOUD/apps` repository. `project` means only a GitHub Project board with linked metadata fields. GitHub Issues are notification records for blockers, incidents, bugs, or operator questions; they are not execution tasks. Say `repo`, `path`, `target`, `workspace surface`, or `app directory` for filesystem ownership.
+`app` means one Bears product application directory under the configured app workspace or the `the apps repository` repository. `project` means only a GitHub Project board with linked metadata fields. GitHub Issues are notification records for blockers, incidents, bugs, or operator questions; they are not execution tasks. Say `repo`, `path`, `target`, `workspace surface`, or `app directory` for filesystem ownership.
 
 ## App Target Gate
 
@@ -13,10 +13,10 @@ Every app-* skill starts with this gate:
 
 - Name one exact app directory, app docs path, plugin path, platform path, or infra path.
 - Classify each target as exactly one `target_layer`: `app`, `platform`, `infra`, or `plugin`.
-- `app` belongs to `BearsCLOUD/apps` and one app directory under the configured app workspace.
+- `app` belongs to `the apps repository` and one app directory under the configured app workspace.
 - `platform` belongs to the configured platform workspace.
 - `infra` belongs to the configured Kubernetes desired-state workspace.
-- `plugin` belongs to `plugins/<plugin>`; for `@Bears`, route to the current plugin checkout plus computed `subagents-roles` owner and expected autoCI/local-commit validation status.
+- `plugin` belongs to `plugins/<plugin>`; for `@Bears`, route to the current plugin checkout plus computed `subagents-roles` owner and expected automatic status source.
 - Legacy child repos and deprecated project directories are evidence only.
 - Read target-named paths when target packets name paths.
 - If a request crosses layers, keep the layers separate and pass them to `$app-plan` as separate lanes.

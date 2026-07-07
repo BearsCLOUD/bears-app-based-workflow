@@ -1,6 +1,6 @@
 # Subagent role lanes
 
-Use exact @Bears role TOMLs from `/srv/bears/plugins/bears/agents`.
+Use exact @Bears role TOMLs from `the @Bears plugin checkout/agents`.
 
 ## L2 orchestration lanes
 

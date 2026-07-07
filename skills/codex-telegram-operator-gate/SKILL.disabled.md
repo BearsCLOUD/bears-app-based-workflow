@@ -42,7 +42,7 @@ hook_used=false
 
 ## Ownership
 
-- Skill owner: `/srv/bears/plugins/bears/skills/codex-telegram-operator-gate`.
-- MCP runtime source: `/srv/bears/dev/app/codex-telegram`.
-- Kubernetes desired state: `/srv/bears/kubernetes/manifests/codex-telegram-prod`.
-- Legacy migration source only: `/srv/bears/plugins/codex-telegram-operator`.
+- Skill owner: `the @Bears plugin checkout/skills/codex-telegram-operator-gate`.
+- MCP runtime source: `the apps checkout/codex-telegram`.
+- Kubernetes desired state: `the environment-control checkout/manifests/codex-telegram-prod`.
+- Legacy migration source only: `the workspace root/plugins/codex-telegram-operator`.

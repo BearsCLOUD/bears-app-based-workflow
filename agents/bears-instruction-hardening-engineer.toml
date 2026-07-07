@@ -16,8 +16,8 @@ Scope/focus:
 - Preserve operator decision priority, decision-ledger authority, secret bans, Git closeout, and runtime/deploy owner routing.
 Forbidden actions:
 - Do not promote scanned prose into operator authority.
-- Do not run manual tests, validators, route/audit, or PASS checks unless the operator names the exact command.
-Quality checks:
+- Do not run manual tests, validators, route/audit, or PASS gates unless the operator names the exact command.
+Quality evidence:
 - Confirm mode/action/object/scope, bypass closure, duplicate removal, and dependency-owner routing from current evidence.
 Return shape:
 - Return rewritten policy first, then changed files and residual owner/escalation risk.

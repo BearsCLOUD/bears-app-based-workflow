@@ -482,3 +482,36 @@ Critic result:
 
 - Re-audit critic `019f3b9d-3426-7231-a1ec-940453cd2e35` verdict: `SLICE_VERDICT: PASS`, `FULL_GOAL_VERDICT: NOT_COMPLETE`, blockers: none.
 - PASS was based on current repo evidence: changed files match scanner code, MCP reference doc, instruction-hardening skill, and plan evidence; MCP/helper path remains active; skill weak terms are `54 -> 35`; reference weak terms are `19 -> 17`; Markdown fenced code blocks are excluded from weak-term scoring while response schema fields stay stable; command examples and canonical dictionaries remain present; and broad all-instruction goal remains open.
+
+### Phase 17: Role prose evidence wording wave
+
+Status: in progress.
+
+MCP queue source:
+
+```bash
+python3 scripts/instruction_hardening_mcp_packet.py instruction_hardening_startup --root . --bounded-json
+```
+
+Wave scope:
+
+- `agents/bears-codex-health-engineer.toml` developer-instruction wording for Codex health evidence collection and remediation measurement;
+- `agents/bears-github-branch-protection-settings-governor.toml` developer-instruction quality heading and static-evidence wording;
+- `agents/bears-clarification-architect.toml` developer-instruction authority gate and evidence wording;
+- `agents/bears-instruction-hardening-engineer.toml` developer-instruction PASS-gate and quality-evidence wording.
+
+Wave result before critic/commit:
+
+- `surface_summary.weak_terms_by_kind.role`: `164 -> 155`;
+- changed 4 role TOMLs with developer-instruction wording-only edits;
+- top-level `description`, `name`, `role_kind`, `execution_class`, `primary_eligible`, `model`, `model_reasoning_effort`, and `sandbox_mode` fields were not changed;
+- role override strings, route/catalog parity-sensitive descriptions, command examples, validation ownership, hard bans, secret safety, runtime/deploy/Kubernetes boundaries, and broad all-instruction goal status were preserved.
+
+Critic requirement:
+
+- PASS only if current repo evidence proves this role slice advances the active goal through the MCP queue, reduces role weak terms without changing route/catalog parity-sensitive fields, role scope, command semantics, validation ownership, hard bans, or broad all-instruction goal status.
+
+Critic result:
+
+- Re-audit critic `019f3b9d-3426-7231-a1ec-940453cd2e35` verdict: `SLICE_VERDICT: PASS`, `FULL_GOAL_VERDICT: NOT_COMPLETE`, blockers: none.
+- PASS was based on current repo evidence: changed files match the 4 role TOMLs plus plan evidence; MCP/helper path remains active; role weak terms are `164 -> 155`; diff changes only developer-instruction prose and plan evidence; top-level role fields and route/catalog parity-sensitive strings are unchanged; validation ownership, hard bans, secret safety, and runtime/deploy/Kubernetes boundaries remain present; and broad all-instruction goal remains open.

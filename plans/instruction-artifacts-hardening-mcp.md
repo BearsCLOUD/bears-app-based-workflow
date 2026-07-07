@@ -832,3 +832,33 @@ Critic result:
 
 - Re-audit critic `019f3b9d-3426-7231-a1ec-940453cd2e35` verdict: `SLICE_VERDICT: PASS`, `FULL_GOAL_VERDICT: NOT_COMPLETE`, blockers: none.
 - PASS was based on current repo evidence, not operator claims: changed files are 23 role TOMLs plus plan evidence; MCP/helper weak counts show `role: 81 -> 49`; changed role count is 23; no top-level role field diffs exist for `name`, `description`, `role_kind`, `execution_class`, `primary_eligible`, `model`, `model_reasoning_effort`, or `sandbox_mode`; exact `Quality checks:` headings remain in all 23 changed role TOMLs; no catalog, skill, workflow, runtime, deploy, Kubernetes, or secret-custody path was mutated; diffs are developer-instruction wording edits; validation ownership, hard bans, secret safety, and runtime/deploy/Kubernetes boundaries remain present; and broad all-instruction goal remains open because catalog and role surfaces still report weak terms.
+
+### Phase 25: Evidence-only catalog scan exclusion
+
+Status: in progress.
+
+MCP queue source:
+
+```bash
+python3 scripts/instruction_hardening_mcp_packet.py instruction_hardening_startup --root . --bounded-json
+```
+
+Wave scope:
+
+- `src/bears_workflow/instruction_artifacts/application/zones.py` catalog scan classification;
+- `docs/reference/instruction-artifacts-mcp.md` contract note for evidence-only catalogs.
+
+Wave result before critic/commit:
+
+- `surface_summary.weak_terms_by_kind.catalog`: `72 -> 52`;
+- `assets/catalog/decision-ledger.v1.json` and `assets/catalog/release-notes.v1.json` remain scanned inventory surfaces but contribute no weak-term score because they are accepted-decision and historical-release evidence, not current mutable instruction prose;
+- no catalog JSON payload, role TOML, skill, workflow, runtime, deploy, Kubernetes desired-state, or secret-custody mutations in this wave.
+
+Critic requirement:
+
+- PASS only if current repo evidence proves this slice advances the active goal by removing evidence-only catalog false positives while preserving decision-ledger authority for decisions/live confirmation, release-note records, human-policy catalog scanning for other catalogs, MCP response schema fields, and broad all-instruction goal status.
+
+Critic result:
+
+- Re-audit critic `019f3b9d-3426-7231-a1ec-940453cd2e35` verdict: `SLICE_VERDICT: PASS`, `FULL_GOAL_VERDICT: NOT_COMPLETE`, blockers: none.
+- PASS was based on current repo evidence, not operator claims: changed files are scanner code, MCP reference doc, and plan evidence only; helper weak counts show `catalog: 72 -> 52`; `assets/catalog/decision-ledger.v1.json` and `assets/catalog/release-notes.v1.json` remain inventory surfaces with `weak_term_count: 0`; other human-policy catalogs still scan, including `assets/catalog/platform-role-catalog.v1.json` with `weak_term_count: 18`; no `assets/catalog` payload diff exists; decision-ledger authority for decisions and live confirmation remains in code/docs; MCP response schema fields remain present; and broad all-instruction goal remains open because catalog and role surfaces still report weak terms.

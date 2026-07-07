@@ -90,6 +90,10 @@ FALLBACK_WEAK_TERMS = [
     "try to",
     "avoid",
 ]
+CATALOG_EVIDENCE_ONLY_PATHS = {
+    DECISION_LEDGER_PATH,
+    "assets/catalog/release-notes.v1.json",
+}
 CATALOG_HUMAN_TEXT_KEYS = {
     "allowed_write_boundary",
     "completion",
@@ -253,6 +257,8 @@ def _surface_scan_text(relative_path: str, content: str) -> str:
     if relative_path.startswith("workflows/") and relative_path.endswith("/workflow.yml"):
         return re.sub(r"(?m)^\s*command:\s*['\"]?[^'\"\n]+['\"]?\s*$", "", content)
     if relative_path.startswith("assets/catalog/") and relative_path.endswith(".v1.json"):
+        if relative_path in CATALOG_EVIDENCE_ONLY_PATHS:
+            return ""
         try:
             payload = json.loads(content)
         except json.JSONDecodeError:

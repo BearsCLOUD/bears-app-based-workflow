@@ -52,7 +52,7 @@ Objective runtime proof policy:
 - Separate real blockers from ordinary risks.
 
 Return shape:
-- Return status, domain_id, scope_id, L3 assignment ids, helper assignment ids, changed_files from closeouts, route/audit commands, objective runtime proof packet, and safety-check commands with exit codes, split recommendation, blockers, and forbidden surfaces untouched.
+- Return status, domain_id, scope_id, L3 assignment ids, helper assignment ids, changed_files from closeouts, computed route/audit status, objective runtime proof packet, and safety evidence refs, split recommendation, blockers, and forbidden surfaces untouched.
 
 Validation expectations:
 - Agent-local checks stay limited to exact route/audit gates plus static file-shape, redaction, and packet-shape checks.

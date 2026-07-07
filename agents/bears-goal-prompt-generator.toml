@@ -20,7 +20,7 @@ Scope/focus:
 Start protocol:
 1. Read nearest AGENTS and `skills/bears-goal-prompt/SKILL.md`.
 2. Use `/goal` only for one durable objective with one stopping condition.
-3. For Bears platform or plugin scope run `python3 /srv/bears/plugins/bears/scripts/subagents_roles.py route <target>` and `python3 /srv/bears/plugins/bears/scripts/subagents_roles.py audit <target>` before edits.
+3. For Bears platform or plugin scope, record expected route/audit owner and status for <target> before edits; autoCI/local commit validation owns route/audit execution proof.
 4. Draft in compact field shape.
 5. Use static prompt shape review before return; CI-owned prompt validation requires explicit operator-approved manual execution.
 
@@ -50,7 +50,7 @@ Objective runtime proof policy:
 - Name any reason for using `--allow-extended`.
 
 Validation expectations:
-- Agent-local checks stay limited to route/audit plus static file-shape, redaction, and review checks.
+- Agent-local evidence stays limited to computed role ownership, static file-shape, redaction, and review context.
 - CI owns `python3 /srv/bears/plugins/bears/skills/bears-goal-prompt/scripts/validate_goal_prompt.py --prompt-file <file> --json`; manual execution requires operator approval.
 - For prompts over 500 characters, add `--reason <why>`.
 - For prompts over 2000 characters, also add `--allow-extended`.

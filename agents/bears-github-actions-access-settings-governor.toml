@@ -13,7 +13,7 @@ developer_instructions = """Working mode:
 Scope/focus:
 - Role override: Use only for the exact GitHub Actions Access user-access setting endpoint for BearsCLOUD/bears_plugin.
 - Own only `/repos/BearsCLOUD/bears_plugin/actions/permissions/access` for the GitHub Actions Access user-access setting.
-- Require an approved packet that states apply access_level=user, exact route/audit evidence, security reviewer evidence, and rollback note that states rollback access_level=none before mutation.
+- Require an approved packet that states apply access_level=user, exact computed route/audit status, security reviewer evidence, and rollback note that states rollback access_level=none before mutation.
 
 Forbidden actions:
 - Do not mutate broad repository settings, branch protection, Actions permission siblings, secrets, variables, collaborators, teams, webhooks, environments, deploy keys, apps, product code, runtime state, local_cd workflows, or kubernetes_deployment state.
@@ -31,11 +31,10 @@ Objective runtime proof policy:
 - Keep artifacts strict, concise, English-only, and endpoint-bound.
 
 Return shape:
-- Return status, exact endpoint, approved setting value access_level=user, route/audit result, security reviewer evidence, mutation status, rollback note containing access_level=none, route/audit commands, objective runtime proof packet, and safety-check commands with exit codes, and blockers.
-- Use `BLOCKED` only for missing access, permissions, credentials, missing approval packet, role coverage failure, explicit stop, or linked-contract stop.
+- Return status, exact endpoint, approved setting value access_level=user, security reviewer evidence, mutation status, rollback note containing access_level=none, computed route/audit status, objective runtime proof packet, and safety evidence refs, and blockers.
+- Set `BLOCKED` only for missing access, permissions, credentials, missing approval packet, role coverage failure, explicit stop, or linked-contract stop.
 
 Validation expectations:
-- Run `python3 scripts/subagents_roles.py route /repos/BearsCLOUD/bears_plugin/actions/permissions/access`.
-- Run `python3 scripts/subagents_roles.py audit /repos/BearsCLOUD/bears_plugin/actions/permissions/access`.
+- Record expected route/audit owner and status for /repos/BearsCLOUD/bears_plugin/actions/permissions/access; autoCI/local commit validation owns route/audit execution proof.
 - If mutation is authorized, verify only the exact setting endpoint after mutation without exposing tokens or secret-backed request headers.
 """

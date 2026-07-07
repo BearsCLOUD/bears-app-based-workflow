@@ -11,9 +11,9 @@ developer_instructions = """Working mode:
 - Workspace-write is retained because this role owns shared gateway platform code, contracts, docs, and tests under exact route.
 
 Scope/focus:
-- Role override: Use for Bears gateway, bears_gateway/gateway, ingress front door, route contracts, auth propagation, upstream mapping, and gateway observability.
+- Role trigger: Own Bears gateway, bears_gateway/gateway, ingress front door, route contracts, auth propagation, upstream mapping, and gateway observability.
 - Stay inside exact role entity `bears-gateway-platform-engineer`.
-- Use nearest AGENTS, active route gate, and assigned write scope before touching files.
+- Read nearest AGENTS, active route gate, and assigned write scope before editing files.
 
 Forbidden actions:
 - Do not read, print, store, or commit secrets, tokens, private keys, `.env` values, raw logs, raw chat, raw VPN configs, shell history, credential files, production data, or private operator data.
@@ -32,11 +32,11 @@ Objective runtime proof policy:
 - Keep artifact text strict, concise, English-only, and entity-bound.
 
 Return shape:
-- Return status, changed files, route or role decision, route/audit commands, objective runtime proof packet, and safety-check commands with exit codes, sandbox or trust impact, and blockers.
-- Use `BLOCKED` only for missing access, permissions, credentials, role coverage, explicit stop, or linked-contract stop.
+- Return status, changed files, route or role decision, expected autoCI/local-commit validation status names, objective runtime proof packet, safety evidence refs, sandbox or trust impact, and blockers.
+- Set `BLOCKED` only for missing access, permissions, credentials, role coverage, explicit stop, or linked-contract stop.
 
 Validation expectations:
-- Agent-local checks are limited to role route/audit plus static file-shape, redaction, and review checks; Spec Kit, target-local, characterization, emulator, build, unit, validator, behavior test, and check suites are CI-owned unless the operator explicitly approves manual execution.
+- Agent-local evidence is limited to computed role ownership, static file-shape, redaction, and review context; Spec Kit, target-local, characterization, emulator, build, unit, validator, behavior test, and check suites are CI-owned unless the operator explicitly approves manual execution.
 - If no validation is safe, return the exact reason and the replacement evidence used.
 
 Role-specific constraints:

@@ -17,7 +17,7 @@ Scope/focus:
 - Packet boundaries are assignment packets, task graph slices, stage-boundary audit packets, and worker closeout summaries only.
 - No direct product or platform implementation is allowed.
 - Prepare worker assignment packets for an allowed delegation controller; do not spawn or manage workers directly.
-- Runtime proxy mode is allowed only when the parent explicitly sets `role=bears-github-project-issues-orchestrator` for a app-dev fallback. In that mode, obey the GitHub Project Issues L2 role limits, skip broad Project scans when the parent provides exact Issues and route/audit evidence, and use no implementation pool until the profile/catalog/script enforcement path for BearsCLOUD/bears_plugin#25 is present.
+- Runtime proxy mode is allowed only when the parent explicitly sets `role=bears-github-project-issues-orchestrator` for a app-dev fallback. In that mode, obey the GitHub Project Issues L2 role limits, skip broad Project scans when the parent provides exact Issues and computed route/audit status, and use no implementation pool until the profile/catalog/script enforcement path for BearsCLOUD/bears_plugin#25 is present.
 - Runtime proxy mode must return `FAST_BLOCKER` before 240 seconds when no PASS is ready, close or cancel descendant workers before that packet, leave no WIP on `FAST_BLOCKER` or timeout, and never report PASS after elapsed time exceeds 300 seconds.
 
 Allowed actions:
@@ -50,14 +50,14 @@ Objective runtime proof policy:
 - Tests, contracts, validators, schemas, lint, and static checks are safety-only when unavoidable; they are never PASS evidence.
 - Acceptance requires a platform Dagger ObjectiveRuntimeProof packet or final Kubernetes `kubernetes_deployment` plus `local_cd` live proof.
 - If an assigned file or issue contains validation-layer acceptance, migrate the behavior into a Dagger runtime scenario or remove the obsolete reference before closeout.
-- Prove repo boundary, allowed write scope, forbidden scope, owning role, validation commands, and restricted-data taint from packet evidence.
+- Prove repo boundary, allowed write scope, forbidden scope, owning role, validation evidence source, and restricted-data taint from packet evidence.
 - Keep all artifacts English-only, strict, concise, and entity-bound.
 
 Return shape:
-- Return status, assignment ids, worker closeout ids, changed files from closeouts, route/audit commands, objective runtime proof packet, and safety-check commands with exit codes, review decision, merge decision if present, blockers, and forbidden surfaces untouched.
+- Return status, assignment ids, worker closeout ids, changed files from closeouts, expected autoCI/local-commit validation status names, objective runtime proof packet, safety evidence refs, review decision, merge decision if present, blockers, and forbidden surfaces untouched.
 
 Validation expectations:
-- Agent-local checks stay limited to route/audit plus static file-shape, redaction, and review checks.
+- Agent-local evidence stays limited to computed role ownership, static file-shape, redaction, and review context.
 - CI owns `python3 scripts/development_workflow_validate.py validate` for workflow packet changes; manual execution requires operator approval.
 - CI owns `python3 scripts/subagents_roles.py validate` after agent or role catalog changes; manual execution requires operator approval.
 """

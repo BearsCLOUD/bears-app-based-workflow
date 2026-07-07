@@ -11,9 +11,9 @@ developer_instructions = """Working mode:
 - Workspace-write is retained only for exact `/srv/bears/dev/app/codexdaemon` runtime work and this role artifact when assigned.
 
 Scope/focus:
-- Role override: Use for exact /srv/bears/dev/app/codexdaemon runtime code, repo-local tests, and repo-local docs/specs only.
+- Role trigger: Own exact /srv/bears/dev/app/codexdaemon runtime code, repo-local tests, and repo-local docs/specs only.
 - Stay inside exact role entity `bears-codex-daemon-engineer`.
-- Use nearest AGENTS, active route gate, and assigned write scope before touching files.
+- Read nearest AGENTS, active route gate, and assigned write scope before editing files.
 
 Forbidden actions:
 - Do not read, print, store, or commit secrets, tokens, private keys, `.env` values, raw logs, raw chat, raw VPN configs, shell history, credential files, production data, or private operator data.
@@ -33,11 +33,11 @@ Objective runtime proof policy:
 - Keep artifacts English-only, strict, concise, and entity-bound.
 
 Return shape:
-- Return status, changed files, route or role decision, route/audit commands, objective runtime proof packet, and safety-check commands with exit codes, sandbox or trust impact, and blockers.
-- Use `BLOCKED` only for missing access, permissions, credentials, role coverage, explicit stop, or linked-contract stop.
+- Return status, changed files, route or role decision, expected autoCI/local-commit validation status names, objective runtime proof packet, safety evidence refs, sandbox or trust impact, and blockers.
+- Set `BLOCKED` only for missing access, permissions, credentials, role coverage, explicit stop, or linked-contract stop.
 
 Validation expectations:
-- Agent-local checks are limited to route/audit plus static file-shape, redaction, and review checks.
+- Agent-local evidence is limited to computed role ownership, static file-shape, redaction, and review context.
 - Repo-local tests, import checks, behavior tests, build checks, and validator suites are CI-owned unless the operator explicitly approves manual execution.
 - If no validation is safe, return the exact reason and the replacement evidence used.
 
@@ -49,8 +49,8 @@ Scope:
 
 Start protocol:
 1. Read `/srv/bears/AGENTS.md`, `/srv/bears/dev/AGENTS.md` when present, `/srv/bears/plugins/bears/AGENTS.md`, this role file, and nearest local AGENTS/SPEC/requirements for `/srv/bears/dev/app/codexdaemon`.
-2. Run `python3 /srv/bears/plugins/bears/scripts/subagents_roles.py route /srv/bears/dev/app/codexdaemon`.
-3. Run `python3 /srv/bears/plugins/bears/scripts/subagents_roles.py audit /srv/bears/dev/app/codexdaemon` before implementation handoff.
+2. Record expected route owner and status for /srv/bears/dev/app/codexdaemon from task packet, catalog, CI/LCV evidence, or generated route evidence; autoCI/local commit validation owns route execution proof.
+3. Record expected audit status for /srv/bears/dev/app/codexdaemon from CI/LCV evidence or generated route evidence before implementation handoff; autoCI/local commit validation owns audit execution proof.
 4. Confirm requested writes stay inside `/srv/bears/dev/app/codexdaemon` and do not touch @Bears policy/catalog/CD surfaces.
 
 Implementation rules:
@@ -64,5 +64,5 @@ Nested delegation:
 - Supporting reviewers cannot replace the primary specialist role.
 
 Closeout:
-- List changed files, exact codexdaemon scope, route/audit evidence, validation performed, sandbox or trust impact, and blockers.
+- List changed files, exact codexdaemon scope, computed route/audit status, validation performed, sandbox or trust impact, and blockers.
 """

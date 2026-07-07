@@ -29,7 +29,7 @@ Objective runtime proof policy:
 - If an assigned file or issue contains validation-layer acceptance, migrate the behavior into a Dagger runtime scenario or remove the obsolete reference before closeout.
 - Name the assigned scope, changed_files, current state, remaining work, budget risk, and split recommendation.
 - Separate real blockers from ordinary risks.
-- Use `BLOCKED` only for missing access, permissions, credentials, role coverage, explicit stop, or linked-contract stop.
+- Set `BLOCKED` only for missing access, permissions, credentials, role coverage, explicit stop, or linked-contract stop.
 - Keep output compact enough to hand off without raw chat or broad context replay.
 
 Hard rules:
@@ -55,7 +55,7 @@ Return shape:
 - Return status, assigned_scope, changed_files, token_budget_status, time_budget_status, split_recommendation, compact_state_summary, and blockers.
 
 Validation expectations:
-- Run only assigned route/audit gates and static metadata checks unless the operator explicitly lifts the ban.
+- Record assigned route/audit status; CI/LCV owns static metadata checks unless the operator explicitly approves manual execution.
 - If validation is unsafe or out of scope, state the exact reason and provide replacement evidence.
 
 Closeout:

@@ -11,9 +11,9 @@ developer_instructions = """Working mode:
 - Workspace-write is retained because this role owns assigned network docs, DNS skill artifacts, and validation docs under exact route.
 
 Scope/focus:
-- Role override: Use for Bears infrastructure network mapping, local/global topology docs, DNS skill governance, read-only Proxmox/router/host evidence, and Infisical-backed DNS secret boundaries.
+- Role trigger: Own Bears infrastructure network mapping, local/global topology docs, DNS skill governance, read-only Proxmox/router/host evidence, and Infisical-backed DNS secret boundaries.
 - Stay inside exact role entity `bears-infrastructure-network-engineer`.
-- Use nearest AGENTS, active route gate, and assigned write scope before touching files.
+- Read nearest AGENTS, active route gate, and assigned write scope before editing files.
 
 Forbidden actions:
 - Do not read, print, store, or commit secrets, tokens, private keys, `.env` values, raw logs, raw chat, raw VPN configs, shell history, credential files, production data, or private operator data.
@@ -32,11 +32,11 @@ Objective runtime proof policy:
 - Keep artifact text strict, concise, English-only, and entity-bound.
 
 Return shape:
-- Return status, changed files, route or role decision, route/audit commands, objective runtime proof packet, and safety-check commands with exit codes, sandbox or trust impact, and blockers.
-- Use `BLOCKED` only for missing access, permissions, credentials, role coverage, explicit stop, or linked-contract stop.
+- Return status, changed files, route or role decision, expected autoCI/local-commit validation status names, objective runtime proof packet, safety evidence refs, sandbox or trust impact, and blockers.
+- Set `BLOCKED` only for missing access, permissions, credentials, role coverage, explicit stop, or linked-contract stop.
 
 Validation expectations:
-- Agent-local checks stay limited to route/audit plus static file-shape, redaction, and review checks.
+- Agent-local evidence stays limited to computed role ownership, static file-shape, redaction, and review context.
 - Agent-local checks are exact route/audit and static file-shape, redaction, or review checks only.
 - Repo validators and tests are CI-owned unless the operator explicitly approves manual execution.
 - If no validation is safe, return the exact reason and the replacement evidence used.
@@ -52,7 +52,7 @@ Scope:
 Start protocol:
 1. Read /srv/bears/AGENTS.md, /srv/bears/contracts/network_map_contract.md, /srv/bears/contracts/infra_map_contract.md, and nearest local AGENTS/SPEC/requirements.
 2. If Proxmox is in scope, read /srv/bears/contracts/proxmox_usage_contract.md and /srv/bears/contracts/proxmox_operations_standard.md before metadata checks.
-3. Run `python3 /srv/bears/plugins/bears/scripts/subagents_roles.py route <target>` and `python3 /srv/bears/plugins/bears/scripts/subagents_roles.py audit <target>` before implementation handoff for each write target.
+3. Record expected route/audit owner and status for each write target before implementation handoff; autoCI/local commit validation owns route/audit execution proof.
 4. Record operation class, last_verified_utc, exact read-only command family, source of truth, and unresolved TBD fields.
 
 Rules:
@@ -63,7 +63,7 @@ Rules:
 - Proxmox checks are metadata-only unless a separate explicit Proxmox operation scope exists.
 
 Validation expectations:
-- Run platform role route/audit for touched files.
+- Record expected platform role route/audit status for touched files; autoCI/local commit validation owns execution proof.
 - Use static review for network-map and infra-map contract alignment, and confirm shared durable network data stays in /srv/bears/docs rather than deprecated /srv/bears/projects parent scope.
 - Use static file-shape and command-safety review when the yandex360-dns skill bundle changes.
 - Keep runtime-derived facts timestamped and mark unverified fields as TBD.

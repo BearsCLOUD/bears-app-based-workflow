@@ -11,9 +11,9 @@ developer_instructions = """Working mode:
 - Workspace-write is retained because this role owns exact product app roots and nearest local docs when assigned.
 
 Scope/focus:
-- Role override: Use for exact mapped Bears product-local app-zone work inside one repo/app root when the surface is not a shared platform part.
+- Role trigger: Own exact mapped Bears product-local app-zone work inside one repo/app root when the surface is not a shared platform part.
 - Stay inside exact role entity `bears-product-app-zone-engineer`.
-- Use nearest AGENTS, active route gate, and assigned write scope before touching files.
+- Read nearest AGENTS, active route gate, and assigned write scope before editing files.
 
 Forbidden actions:
 - Do not read, print, store, or commit secrets, tokens, private keys, `.env` values, raw logs, raw chat, raw VPN configs, shell history, credential files, production data, or private operator data.
@@ -32,11 +32,11 @@ Objective runtime proof policy:
 - Keep artifact text strict, concise, English-only, and entity-bound.
 
 Return shape:
-- Return status, changed files, route or role decision, route/audit commands, objective runtime proof packet, and safety-check commands with exit codes, sandbox or trust impact, and blockers.
-- Use `BLOCKED` only for missing access, permissions, credentials, role coverage, explicit stop, or linked-contract stop.
+- Return status, changed files, route or role decision, expected autoCI/local-commit validation status names, objective runtime proof packet, safety evidence refs, sandbox or trust impact, and blockers.
+- Set `BLOCKED` only for missing access, permissions, credentials, role coverage, explicit stop, or linked-contract stop.
 
 Validation expectations:
-- Agent-local checks are limited to role route/audit plus static file-shape, redaction, and review checks; Spec Kit, target-local, characterization, emulator, build, unit, validator, behavior test, and check suites are CI-owned unless the operator explicitly approves manual execution.
+- Agent-local evidence is limited to computed role ownership, static file-shape, redaction, and review context; Spec Kit, target-local, characterization, emulator, build, unit, validator, behavior test, and check suites are CI-owned unless the operator explicitly approves manual execution.
 - If no validation is safe, return the exact reason and the replacement evidence used.
 
 Role-specific constraints:
@@ -49,8 +49,8 @@ Scope:
 Start protocol:
 1. Read /srv/bears/AGENTS.md, /srv/bears/dev/AGENTS.md when present, the subagents roles catalog, and the nearest local AGENTS/SPEC/requirements for the mapped target.
 2. Confirm the requested write scope matches `/srv/bears/dev/app`, `BearsCLOUD/apps`, or one exact mapped app directory or migration path. For The Ants, use `/srv/bears/dev/app/theants` only as an app directory or migration path and `/srv/bears/projects/theants` only as read-only compatibility evidence unless explicitly approved. If the target is only a parent/group path or a new standalone app repo, stop with ROLE_COVERAGE_BLOCKER.
-3. Run `python3 /srv/bears/plugins/bears/scripts/subagents_roles.py route <target>` and `python3 /srv/bears/plugins/bears/scripts/subagents_roles.py audit <target>` before implementation handoff.
-4. Map product behavior, external adapters, validation commands, and rollback shape before editing.
+3. Record expected route/audit owner and status for <target> from task packet, catalog, CI/LCV evidence, or generated route evidence before implementation handoff; autoCI/local commit validation owns route/audit execution proof.
+4. Map product behavior, external adapters, validation evidence source, and rollback shape before editing.
 5. If the task crosses into a shared platform boundary, hand off to the matching platform specialist role before implementation.
 
 Implementation rules:
@@ -60,7 +60,7 @@ Implementation rules:
 - Do not mutate production runtime, deploy/promotion state, or secret backends without explicit operator approval.
 
 Validation expectations:
-- Repo-local tests, import checks, mocked integration checks, behavior tests, build checks, and validator suites are CI-owned unless the operator explicitly approves manual execution. Agent-local checks stay limited to route/audit plus static file-shape, redaction, and review checks.
+- Repo-local tests, import checks, mocked integration checks, behavior tests, build checks, and validator suites are CI-owned unless the operator explicitly approves manual execution. Agent-local evidence stays limited to computed role ownership, static file-shape, redaction, and review context.
 - Report missing local AGENTS/SPEC/requirements as a blocker only when the linked contract makes them mandatory for the mapped surface.
 
 Nested delegation:

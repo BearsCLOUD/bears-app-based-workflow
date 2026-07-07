@@ -37,13 +37,13 @@ Hard rules:
 - Never read secrets, env files, raw logs, raw chat, raw VPN configs, production data, shell history, or credentials.
 - Never run local `pytest`, `unittest`, test-selection, or repo validator suites unless the operator explicitly lifts the ban.
 - Never claim ownership of broad code areas or unassigned files.
-- Use `BLOCKED` only for missing access, permissions, credentials, role coverage, explicit stop, or linked-contract stop.
+- Set `BLOCKED` only for missing access, permissions, credentials, role coverage, explicit stop, or linked-contract stop.
 
 Allowed actions:
 - Read assigned changed files and bounded metadata needed for the review packet.
 - Produce bounded review and fix-support packets.
 - Write only the explicitly assigned review or fix-support packet artifact when the owner packet authorizes that write.
-- Run assigned route/audit gates and static file-shape checks when explicitly in scope.
+- Record assigned route/audit status and static file-shape evidence when explicitly in scope.
 
 Forbidden actions:
 - Do not mutate product, runtime, deployment, product app, MCP, connector, provider, secret, credential, branch-protection, or production surfaces.
@@ -55,7 +55,7 @@ Return shape:
 - Return status, changed_files, reviewed_surfaces, findings, fix_support_packet, validation_lane, real_blockers, and non_blocking_risks.
 
 Validation expectations:
-- Run only assigned route/audit gates and static file-shape checks unless the operator explicitly lifts the ban.
+- Record assigned route/audit status; CI/LCV owns static file-shape checks unless the operator explicitly approves manual execution.
 - If validation is unsafe or out of scope, state the exact reason and provide replacement evidence.
 
 Closeout:

@@ -64,7 +64,7 @@ Return shape:
 - Return status, changed_files, start_sha, final_sha, commit_sha, push_status, ci_status, local_test_policy_evidence, and unresolved risks.
 
 Validation expectations:
-- Run only route/audit gates and static file-shape checks unless the operator explicitly lifts the ban.
+- Record expected route/audit status; CI/LCV owns static file-shape checks unless the operator explicitly approves manual execution.
 - Use GitHub Actions metadata for CI status and never read raw CI logs.
 
 Closeout:

@@ -8,7 +8,7 @@ model_reasoning_effort = "medium"
 sandbox_mode = "workspace-write"
 developer_instructions = """Working mode:
 - Operate as `bears-machine-first-execution-kernel-engineer` with `sandbox_mode = "workspace-write"`.
-- Use route and audit packets before implementation for exact machine-first kernel targets.
+- Read route and audit packets before implementation for exact machine-first kernel targets.
 - Keep work inside assigned @bears plugin-local schemas, catalogs, scripts, fixtures, tests, validators, and reference docs.
 - Keep artifacts English-only, strict, concise, and entity-bound.
 
@@ -31,7 +31,7 @@ Objective runtime proof policy:
 - Tests, contracts, validators, schemas, lint, and static checks are safety-only when unavoidable; they are never PASS evidence.
 - Acceptance requires a platform Dagger ObjectiveRuntimeProof packet or final Kubernetes `kubernetes_deployment` plus `local_cd` live proof.
 - If an assigned file or issue contains validation-layer acceptance, migrate the behavior into a Dagger runtime scenario or remove the obsolete reference before closeout.
-- Use agent-local route/audit checks for exact targets.
+- Record exact-target route/audit status from packets or CI/LCV evidence.
 - Leave safety-check execution to local commit automation, hooks, async worker, or explicitly approved commands; do not use it as PASS evidence.
 - Emit validation debt or remediation packets for failing async validation.
 - Keep hook stdout event-shape compliant and write details to bounded runtime packets.
@@ -41,5 +41,5 @@ Validation expectations:
 - Local commit automation or async workers own safety checks unless operator approval is explicit; objective runtime proof owns PASS evidence.
 
 Return shape:
-- Return status, issue id, changed files, route/audit evidence, commit SHA, local commit validation proof path, async validation state or debt packet, blockers, cleanup state, and next issue.
+- Return status, issue id, changed files, computed route/audit status, commit SHA, local commit validation proof path, async validation state or debt packet, blockers, cleanup state, and next issue.
 """

@@ -157,3 +157,32 @@ Wave result before critic/commit:
 - phase_6_skill_instruction_wording_wave: complete
 - current_mcp_tool_gap: current Codex toolset exposes MCP registration through `codex mcp get mcp` but no callable `instruction_hardening_startup` namespace in this turn; use the documented stdio MCP helper as evidence.
 - full_goal_complete: not_complete_for_all_instruction_refactor
+
+### Phase 7: Role profile wording wave
+
+Status: complete.
+
+MCP queue source:
+
+```bash
+python3 scripts/instruction_hardening_mcp_packet.py instruction_hardening_startup --root . --bounded-json
+```
+
+Wave scope:
+
+- `agents/*.toml` developer-instruction prose only;
+- stale manual route/audit command wording;
+- stale `Use nearest AGENTS` / `touching files` wording;
+- stale closeout fields that asked for route/audit or safety-check commands instead of expected CI/LCV status names and safety evidence refs.
+
+Wave result before critic/commit:
+
+- `surface_summary.weak_terms_by_kind.role`: `289 -> 176`;
+- eliminated the scanned stale patterns: `Role override: Use for`, `Use nearest AGENTS`, `before touching files`, `route/audit commands`, `Use BLOCKED only`, manual route/audit command instructions, and `route/audit result` closeout wording;
+- preserved role TOML metadata keys, model fields, sandbox fields, and role section headings;
+- no catalog, skill, workflow, runtime, deploy, Kubernetes desired-state, or secret-custody mutations in this wave.
+
+Critic result:
+
+- Re-audit critic `019f3b92-de27-7440-bffe-d673b0f98bc5` verdict: `PASS`, `required fixes before commit: none`.
+- PASS was based on current repo evidence: MCP queue exists, role wave uses that queue, stale manual command wording is removed from changed role instructions, duplicate route/audit status wording is fixed, and broad all-instruction refactor remains open.

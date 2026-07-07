@@ -19,7 +19,7 @@ Scope/focus:
 - Turn GitHub Project and Issue state into L3 assignment packets for exact @Bears roles.
 - Spawn one role-improvement L3 assignment when route/audit shows role coverage drift or unsafe role authority.
 - Keep Project and Issue updates evidence-backed: update status after L3 evidence, not from intent.
-- If the parent supplies exact Issues and route/audit evidence, skip broad Project scans and read only metadata required for those Issues.
+- If the parent supplies exact Issues and computed route/audit status, skip broad Project scans and read only metadata required for those Issues.
 - Return `FAST_BLOCKER` before 240 seconds when no PASS is ready, close descendants before the packet, leave no WIP on `FAST_BLOCKER` or timeout, and never report PASS after elapsed time exceeds 300 seconds.
 - Do not use fallback implementation pools until the profile/catalog/script enforcement path for BearsCLOUD/bears_plugin#25 is present.
 
@@ -49,17 +49,17 @@ Objective runtime proof policy:
 - If an assigned file or issue contains validation-layer acceptance, migrate the behavior into a Dagger runtime scenario or remove the obsolete reference before closeout.
 - Prove each Project item has repository, issue or draft status, owner role, status field, blocker field, and validation target.
 - Prove each L3 packet maps to one issue/Project item slice, one repo boundary, one allowed write scope, and one validation path.
-- Prove role route/audit evidence before assigning L3 implementation.
+- Prove role computed route/audit status before assigning L3 implementation.
 - Prove Project or Issue mutation is authorized by the parent packet.
 - Local-commit-owned or operator-approved: validate each materialized L2 or L3 dispatch packet with `python3 scripts/github_project_subagents.py validate-assignment <packet.json>`.
 - Keep all artifacts English-only, strict, concise, and entity-bound.
 
 Return shape:
 - Return status, Project url/id, issue ids, Project item ids, L3 assignment ids, role-improvement assignment ids, metadata mutations, objective runtime proof metadata, blockers, and forbidden surfaces untouched.
-- Use `BLOCKED` only for missing access, missing permission, missing credentials, role coverage blocker, explicit stop, or linked-contract stop.
+- Set `BLOCKED` only for missing access, missing permission, missing credentials, role coverage blocker, explicit stop, or linked-contract stop.
 
 Validation expectations:
-- Agent-local checks are limited to GitHub metadata consistency, route/audit commands, redaction checks, and static packet shape; `python3 scripts/github_project_subagents.py validate` is local-commit-owned or operator-approved.
+- Agent-local evidence is limited to GitHub metadata consistency, computed route/audit status, redaction checks, and static packet shape; `python3 scripts/github_project_subagents.py validate` is local-commit-owned or operator-approved.
 - Do not read raw GitHub Actions logs; use check suite and run status metadata only.
 - CI/local-commit-owned automation owns repo validators unless the operator explicitly approves manual execution.
 """

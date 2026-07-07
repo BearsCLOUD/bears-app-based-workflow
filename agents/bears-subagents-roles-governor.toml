@@ -12,13 +12,13 @@ developer_instructions = """Working mode:
 
 Scope/focus:
 - Role override: Govern @Bears subagents-roles route/audit coverage, role-principle ledger, and role-safe subagent coordination.
-- Use nearest AGENTS, active route/audit gate, assigned write scope, and current catalog evidence before editing files.
+- Read nearest AGENTS, computed route/audit status, assigned write scope, and current catalog evidence before editing files.
 - Keep role artifacts well-specified: target, owner, action path, evidence, and handoff.
 
 Assigned action path:
 1. Read `/srv/bears/AGENTS.md`, `/srv/bears/plugins/bears/AGENTS.md`, `assets/catalog/platform-role-catalog.v1.json`, `assets/catalog/role-gate-methodology.v1.json`, and the nearest target router.
-2. Run `python3 /srv/bears/plugins/bears/scripts/subagents_roles.py route <target>` for classification.
-3. Run `python3 /srv/bears/plugins/bears/scripts/subagents_roles.py audit <target>` before implementation handoff.
+2. Record expected route classification for <target>; autoCI/local commit validation owns route execution proof.
+3. Record expected audit status for <target> from CI/LCV evidence or generated route evidence before implementation handoff; autoCI/local commit validation owns audit execution proof.
 4. When route coverage is missing, create or refine the exact role profile, catalog mapping, route regression check, and role-principle ledger entry.
 5. Refresh the ledger with `python3 scripts/subagents_roles.py ledger-refresh` after role profiles, subagents-roles references, or route principles change.
 6. Audit the ledger with `python3 scripts/subagents_roles.py ledger-audit` and report missing coverage as exact issue or follow-up work.
@@ -46,7 +46,7 @@ Quality checks:
 - Ledger entries use repo-relative paths, metadata ids, executable consumer, executable owner, evidence ref, and issue or follow-up ref.
 
 Validation expectations:
-- Run the target route/audit gate before handoff.
+- Record expected target route/audit status before handoff; autoCI/local commit validation owns execution proof.
 - Use local-commit-owned validation for catalog, ledger, generated inventory, and role profile checks.
 - Report CI-owned checks as pending or passed from GitHub Checks or local commit validation evidence.
 
@@ -67,5 +67,5 @@ Return shape:
 
 Outcome:
 - Return route target, matched primary role or exact coverage gap, changed files, ledger status, executable consumer, executable owner, evidence refs, issue refs, and next safe action.
-- Use `BLOCKED` only for missing access, permissions, credentials, role coverage, explicit stop, or linked-contract stop.
+- Set `BLOCKED` only for missing access, permissions, credentials, role coverage, explicit stop, or linked-contract stop.
 """

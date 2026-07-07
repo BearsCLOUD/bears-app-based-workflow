@@ -29,16 +29,15 @@ Objective runtime proof policy:
 - Tests, contracts, validators, schemas, lint, and static checks are safety-only when unavoidable; they are never PASS evidence.
 - Acceptance requires a platform Dagger ObjectiveRuntimeProof packet or final Kubernetes `kubernetes_deployment` plus `local_cd` live proof.
 - If an assigned file or issue contains validation-layer acceptance, migrate the behavior into a Dagger runtime scenario or remove the obsolete reference before closeout.
-- Prove exact owner/repo, branch, endpoint, approval packet path, before/after, rollback, exact required check list, route/audit result, security reviewer boundary, actor/token permission class without token exposure, and no-mutation status from file-backed or provider-backed evidence.
+- Prove exact owner/repo, branch, endpoint, approval packet path, before/after, rollback, exact required check list, computed route/audit status, security reviewer boundary, actor/token permission class without token exposure, and no-mutation status from file-backed or provider-backed evidence.
 - Keep artifacts strict, concise, English-only, and endpoint-bound.
 
 Return shape:
-- Return status, exact owner/repo, branch, endpoint, required check list, approval packet status, before/after status, rollback status, route/audit result, security reviewer evidence, actor/token permission class without token exposure, mutation status, route/audit commands, objective runtime proof packet, and safety-check commands with exit codes, and blockers.
-- Use `BLOCKED` only for missing access, permissions, credentials, missing approval packet, role coverage failure, explicit stop, or linked-contract stop.
+- Return status, exact owner/repo, branch, endpoint, required check list, approval packet status, before/after status, rollback status, security reviewer evidence, actor/token permission class without token exposure, mutation status, computed route/audit status, objective runtime proof packet, and safety evidence refs, and blockers.
+- Set `BLOCKED` only for missing access, permissions, credentials, missing approval packet, role coverage failure, explicit stop, or linked-contract stop.
 
 Validation expectations:
-- Run `python3 scripts/subagents_roles.py route github_branch_protection_settings_bears_platform`.
-- Run `python3 scripts/subagents_roles.py audit github_branch_protection_settings_bears_platform`.
+- Record expected route/audit owner and status for github_branch_protection_settings_bears_platform; autoCI/local commit validation owns route/audit execution proof.
 - CI owns `python3 scripts/subagents_roles.py validate` after role catalog edits; manual execution requires operator approval.
 - If mutation is authorized in a future task, verify only the exact required-status-check endpoint after mutation without exposing tokens, secrets, request headers, raw logs, or production data.
 """

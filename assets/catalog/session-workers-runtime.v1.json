@@ -111,7 +111,7 @@
         "plan.md",
         "tasks.md"
       ],
-      "description": "Own cd_deploy_stage and Kubernetes deploy-core work with rollback, truth-contract, evidence, and operator-approval requirements kept explicit."
+      "description": "Own cd_deploy_stage and Kubernetes deploy-core work requiring explicit rollback, truth-contract, evidence, and operator-approval requirements."
     },
     {
       "lane": "validation",
@@ -129,7 +129,7 @@
         "validation commands",
         "evidence packets"
       ],
-      "description": "Own validator, test, redacted observability, emulator, and E2E evidence work that checks the current slice without redefining scope."
+      "description": "Own validator, test, redacted observability, emulator, and E2E evidence work that inspects the current slice without redefining scope."
     },
     {
       "lane": "review",
@@ -146,7 +146,7 @@
         "risk packets",
         "closeout packets"
       ],
-      "description": "Own review-only or risk-evidence work with explicit closeout and no hidden implementation scope."
+      "description": "Own review-only or risk-evidence work requiring explicit closeout and no hidden implementation scope."
     },
     {
       "lane": "audit",
@@ -164,7 +164,7 @@
         "risk packets",
         "validation evidence"
       ],
-      "description": "Own independent audit work with a fresh session, no parent context, and no implementation authority."
+      "description": "Own independent audit work requiring a fresh session, no parent context, and no implementation authority."
     },
     {
       "lane": "implementation",
@@ -423,8 +423,8 @@
       "duplicate_launch_rule": "Block duplicate worker launch for the same task id until the partial-state check is clean and the prior worker is integrated, quarantined, or closed.",
       "required_evidence_checks": [
         "Inspect worker session tail for task_complete, PR URLs, and last tool outputs.",
-        "Check the declared checkout or worktree for dirty files.",
-        "Check GitHub for open PRs from the worker branch."
+        "Inspect the declared checkout or worktree for dirty files.",
+        "Inspect GitHub for open PRs from the worker branch."
       ]
     },
     "critical_path_wait_slots_reserved": true,

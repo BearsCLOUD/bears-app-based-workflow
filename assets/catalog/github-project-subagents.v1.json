@@ -9,7 +9,7 @@
     "reasoning": "surface_default",
     "allowed_actions": [
       "select GitHub Project, repositories, issues, and L2 orchestrator lanes",
-      "start or reuse L2 orchestrator subagents",
+      "start L2 orchestrator subagents or attach to authorized existing lanes",
       "pass GitHub metadata packets and route/audit targets",
       "wait for L2 evidence and integrate closeout packets",
       "request gitflow closeout from bears-git-workflow-helper",
@@ -41,7 +41,7 @@
       "prepare L3 /goal packets for route-selected @Bears roles",
       "record role-gap blockers when route/audit or role text is unsafe",
       "write evidence-backed Project and Issue closeout metadata after L3 evidence",
-      "use bears-development-workflow-orchestrator as runtime proxy only with explicit role=bears-github-project-issues-orchestrator and the fallback deadline guard present",
+      "route through bears-development-workflow-orchestrator as runtime proxy only with explicit role=bears-github-project-issues-orchestrator and the fallback deadline guard present",
       "return exactly one parent-visible READY, WIP, or FAST_BLOCKER packet inside the first minute",
       "when L3 spawn fails or capacity is unavailable, create or update a smaller Issue or issue comment, close owned descendants, and return FAST_BLOCKER",
       "for one L2 retry choose one issue, one L3 max, one target file or contract, and one validation path",
@@ -54,7 +54,7 @@
       "run cleanup as a separate first-class L2 lane with a shorter cleanup cutoff than implementation lanes",
       "require each cleanup L2 packet to name exactly one cleanup target, one status proof command, and no issue metadata mutation unless explicitly assigned",
       "return parent-visible CLEANUP_PASS or FAST_BLOCKER before the parent cutoff for every cleanup lane",
-      "use the parent persistent gitflow handoff packet for file-changing commit/push closeout and return the gitflow-ready allowlist plus commit message to the parent",
+      "require the parent persistent gitflow handoff packet for file-changing commit/push closeout and return the gitflow-ready allowlist plus commit message to the parent",
       "return FAST_BLOCKER before accepting file-changing work when the parent persistent gitflow handoff is absent, stale, or unauthorized",
       "record BearsCLOUD/apps#107 commit 3d1addaa6bab6579e93d9617d3d5ba81bdbd69aa as post-cutoff PASS drift evidence only, not as a repeatable closeout pattern",
       "record the BearsCLOUD/apps#105 and BearsCLOUD/apps#110 cleanup timeout event as drift evidence only, not as a repeatable cleanup pattern",
@@ -234,7 +234,7 @@
       "allowed_lanes": [
         "l2-orchestrator"
       ],
-      "mutation_policy": "Use for non-actionable decisions and public knowledge; do not replace Issues for work tracking."
+      "mutation_policy": "Allowed for non-actionable decisions and public knowledge; do not replace Issues for work tracking."
     },
     {
       "name": "code_security_metadata",

@@ -286,3 +286,35 @@ Critic result:
 
 - Re-audit critic `019f3b9d-3426-7231-a1ec-940453cd2e35` verdict: `PASS`, blockers: none.
 - PASS was based on current repo evidence: MCP/helper path is recorded, workflow weak terms are `7 -> 2`, diff changes only prompt/message/comment text, workflow command semantics and validation ownership are preserved, and the broad all-instruction goal remains open.
+
+### Phase 11: Small catalog wording wave
+
+Status: complete.
+
+MCP queue source:
+
+```bash
+python3 scripts/instruction_hardening_mcp_packet.py instruction_hardening_startup --root . --bounded-json
+```
+
+Wave scope:
+
+- `assets/catalog/github-project-subagents.v1.json` value text only;
+- `assets/catalog/session-workers-runtime.v1.json` value text only;
+- JSON keys, ids, command names, schema names, roles, lane names, status names, and file paths were preserved.
+
+Wave result before critic/commit:
+
+- `surface_summary.weak_terms_by_kind.catalog`: `147 -> 139`;
+- changed 2 catalog files with value-only wording edits;
+- preserved L2 reuse/attach semantics, runtime-proxy guard, parent gitflow handoff requirement, session lane ownership, capacity fallback evidence requirements, and GitHub metadata mutation boundary;
+- no role TOML, skill, workflow, runtime, deploy, Kubernetes desired-state, or secret-custody mutations in this wave.
+
+Critic requirement:
+
+- PASS only if current repo evidence proves this catalog slice advances the active goal through the MCP queue, reduces catalog prose weak terms without mutating schema/key/command semantics, preserves validation and GitHub metadata boundaries, and keeps the broad all-instruction goal open.
+
+Critic result:
+
+- Re-audit critic `019f3b9d-3426-7231-a1ec-940453cd2e35` verdict: `PASS`, blockers: none.
+- PASS was based on current repo evidence: MCP/helper path is recorded, catalog weak terms are `147 -> 139`, diff changes only JSON string values, key/id/command/schema/role/lane/status/path semantics are preserved, and the broad all-instruction goal remains open.

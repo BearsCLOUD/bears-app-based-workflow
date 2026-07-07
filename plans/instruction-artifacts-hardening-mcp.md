@@ -318,3 +318,34 @@ Critic result:
 
 - Re-audit critic `019f3b9d-3426-7231-a1ec-940453cd2e35` verdict: `PASS`, blockers: none.
 - PASS was based on current repo evidence: MCP/helper path is recorded, catalog weak terms are `147 -> 139`, diff changes only JSON string values, key/id/command/schema/role/lane/status/path semantics are preserved, and the broad all-instruction goal remains open.
+
+### Phase 12: Plugin router wording wave
+
+Status: complete.
+
+MCP queue source:
+
+```bash
+python3 scripts/instruction_hardening_mcp_packet.py instruction_hardening_startup --root . --bounded-json
+```
+
+Wave scope:
+
+- `AGENTS.md` prose-only wording in entity terms, functional map, runtime boundary, role activation, and entity-term rules;
+- exact required fragments and policy boundaries were preserved.
+
+Wave result before critic/commit:
+
+- `surface_summary.weak_terms_by_kind.agents_router`: `8 -> 2`;
+- changed only the plugin router file plus this plan evidence;
+- remaining grep hits are entity words or exact required phrases such as `checkout`, `tool use`, `checks`, and `must use English only`;
+- no catalog, role TOML, skill, workflow, runtime, deploy, Kubernetes desired-state, or secret-custody mutations in this wave.
+
+Critic requirement:
+
+- PASS only if current repo evidence proves this router slice advances the active goal through the MCP queue, reduces router weak terms without moving policy out of owner surfaces, preserves exact language/closeout/deploy/secret boundaries, and keeps the broad all-instruction goal open.
+
+Critic result:
+
+- Re-audit critic `019f3b9d-3426-7231-a1ec-940453cd2e35` verdict: `PASS`, blockers: none.
+- PASS was based on current repo evidence: MCP/helper path is recorded, router weak terms are `8 -> 2`, diff changes only plugin router prose plus plan evidence, owner routing and closeout/deploy/secret/runtime/validation boundaries are preserved, and the broad all-instruction goal remains open.

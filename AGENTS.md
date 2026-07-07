@@ -7,8 +7,8 @@
 
 ## Entity terms
 - `app` means a Bears product application source directory in the `BearsCLOUD/apps` repository or a workspace-local checkout selected by generated local config.
-- `project` means a GitHub Project planning board with linked Issues and metadata fields. Do not use `project` for a local repo, path, workspace directory, or product app.
-- Use `target`, `registered target`, `repo`, `path`, `workspace surface`, or `app directory` for filesystem/source ownership.
+- `project` means a GitHub Project planning board with linked Issues and metadata fields. Do not say `project` for a local repo, path, workspace directory, or product app.
+- Say `target`, `registered target`, `repo`, `path`, `workspace surface`, or `app directory` for filesystem/source ownership.
 
 ## Required refs
 - Plugin manifest: `.codex-plugin/plugin.json`.
@@ -21,16 +21,16 @@
 - `agents/*.toml` — canonical Bears role profiles; do not sync them into OpenCode agents.
 - `skills/*/SKILL.md` — Codex skills for governance, role gates, deployment review, Kubernetes, Infisical, DNS, health, Spec Kit flow, and Secret Factory.
 - `assets/catalog/*.v1.json` — machine-readable policy catalogs for roles, workflow gates, Git/CD, closeout, and governance.
-- `assets/schemas/*.schema.json` and `schemas/*.schema.json` — legacy/internal guardrail schemas only; they must not be used as app PASS evidence.
+- `assets/schemas/*.schema.json` and `schemas/*.schema.json` — legacy/internal guardrail schemas only; they must not serve as app PASS evidence.
 - `scripts/*.py` — deterministic routers, closeout tools, cache sync, role gates, Dagger proof wrappers, and governance helpers.
 - `hooks.json` and `hooks/*.py` — Codex hook guards for session start, prompt submit, tool use, and stop closeout.
 - `workflows/*/workflow.yml` — governed workflow definitions; Git/CD authority still comes from catalogs and Kubernetes desired state.
 - `capabilities/*` — bounded capability packages; current pilot is subagents roles governance.
 - `docs/reference/*.md` and `docs/runbooks/*` — human reference and operator runbooks for governance surfaces.
-- `runtime/` — local state only; do not use it as source policy, do not commit it, and avoid raw log or transcript reads.
+- `runtime/` — local state only; it is not source policy, do not commit it, and do not read raw logs or transcripts.
 
 ## Instruction ownership inside @Bears
-- `agents/*.toml` are role execution profiles. Use them only after `scripts/subagents_roles.py route <path>` or a task packet selects that role.
+- `agents/*.toml` are role execution profiles. Activate them only after `scripts/subagents_roles.py route <path>` or a task packet selects that role.
 - Role profiles define specialist scope, allowed evidence, forbidden actions, handoff shape, and validation focus.
 - Role profiles do not own product registration, Git/CD policy, deployment policy, or secret exceptions.
 - `assets/catalog/*.v1.json` owns machine policy. `scripts/*.py` and `hooks/*.py` enforce it. `skills/*/SKILL.md` owns task workflow. `docs/reference/*.md` explains it.
@@ -54,7 +54,7 @@
 - Do not store secrets, raw logs, kubeconfigs, tokens, private chats, production data, `.env` values, or `.knowledge/**` artifacts.
 
 ## Entity terms
-- Use exact terms `local_cd` and `kubernetes_deployment` when those surfaces are changed.
+- Say exact terms `local_cd` and `kubernetes_deployment` when those surfaces are changed.
 - Artifacts and subagent messages must use English only.
 - Wording must stay strict, concise, and entity-bound.
 

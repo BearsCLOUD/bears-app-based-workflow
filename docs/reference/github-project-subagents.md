@@ -23,9 +23,9 @@ Parent lane selects Projects, repositories, Issues, and L2 orchestrators. It doe
 
 Before parallel L2 fan-out, the parent must run a capacity preflight: prove available L2 slots, each lane's L3 spawn capacity, exact Issue scope, target file or contract, route/audit target, validation path, and 240s/270s cutoff. If capacity is unknown or at thread limit, the parent starts only one smaller L2 lane or returns `FAST_BLOCKER`.
 
-L2 lane uses `bears-github-project-issues-orchestrator` with `gpt-5.5` and `reasoning=medium`. It may mutate GitHub planning metadata only when the parent packet authorizes mutation. It does not implement or run implementation commands.
+L2 lane runs `bears-github-project-issues-orchestrator` with `gpt-5.5` and `reasoning=medium`. It may mutate GitHub planning metadata only when the parent packet authorizes mutation. It does not implement or run implementation commands.
 
-L3 lane uses the exact route-selected @Bears role with `gpt-5.4-mini` and `reasoning=high`. It owns one issue or Project item slice inside one repo boundary and one allowed write scope.
+L3 lane runs the exact route-selected @Bears role with `gpt-5.4-mini` and `reasoning=high`. It owns one issue or Project item slice inside one repo boundary and one allowed write scope.
 
 ## Runtime proxy deadline enforcement
 
@@ -62,7 +62,7 @@ The fallback runtime proxy must:
 
 ## Required gates
 
-autoCI ownership checks:
+autoCI ownership evidence:
 
 - local commit validation selects `subagents_roles.route` and `subagents_roles.audit` for the changed target paths;
 - agents record computed owner roles and expected status names only;

@@ -126,7 +126,7 @@ For ServerSpace Public API work, the required ref is:
 
 ## Infisical contract
 
-The writer uses Infisical API v4 create-secret request shape with `projectId`, `environment`, `secretValue`, `secretPath`, and shared type. Required runtime environment variables are `INFISICAL_TOKEN`, `INFISICAL_PROJECT_ID`, and `INFISICAL_ENVIRONMENT`. Optional variables are `INFISICAL_API_URL` and `INFISICAL_SECRET_PATH`.
+The writer sends the Infisical API v4 create-secret request shape with `projectId`, `environment`, `secretValue`, `secretPath`, and shared type. Required runtime environment variables are `INFISICAL_TOKEN`, `INFISICAL_PROJECT_ID`, and `INFISICAL_ENVIRONMENT`. Optional variables are `INFISICAL_API_URL` and `INFISICAL_SECRET_PATH`.
 
 If `INFISICAL_API_URL` is set, it must be HTTPS and match the catalog network allowlist. Foreign hosts must be rejected before write.
 

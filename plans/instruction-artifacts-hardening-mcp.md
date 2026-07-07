@@ -349,3 +349,36 @@ Critic result:
 
 - Re-audit critic `019f3b9d-3426-7231-a1ec-940453cd2e35` verdict: `PASS`, blockers: none.
 - PASS was based on current repo evidence: MCP/helper path is recorded, router weak terms are `8 -> 2`, diff changes only plugin router prose plus plan evidence, owner routing and closeout/deploy/secret/runtime/validation boundaries are preserved, and the broad all-instruction goal remains open.
+
+### Phase 13: Reference residual wording wave
+
+Status: in progress.
+
+MCP queue source:
+
+```bash
+python3 scripts/instruction_hardening_mcp_packet.py instruction_hardening_startup --root . --bounded-json
+```
+
+Wave scope:
+
+- `docs/reference/agent-registration-sync.md` prose labels around drift packet wording;
+- `docs/reference/github-project-subagents.md` lane wording and autoCI evidence label;
+- `docs/reference/secret-factory.md` Infisical writer wording;
+- command names, command examples, GitHub Check terms, validator ownership, secret-custody rules, and provider routing were preserved.
+
+Wave result before critic/commit:
+
+- `surface_summary.weak_terms_by_kind.reference`: `26 -> 24`;
+- changed 3 reference files with wording-only edits;
+- remaining reference weak terms include command names, GitHub Check terms, exact CI-required fragments, or technical phrases such as process memory;
+- no role TOML, skill, catalog, workflow, runtime, deploy, Kubernetes desired-state, or secret-custody mutations in this wave.
+
+Critic requirement:
+
+- PASS only if current repo evidence proves this reference slice advances the active goal through the MCP queue, reduces reference weak terms without changing command semantics, GitHub Check terminology, validation ownership, secret custody, provider routing, or broad all-instruction goal status.
+
+Critic result:
+
+- Re-audit critic `019f3b9d-3426-7231-a1ec-940453cd2e35` verdict: `SLICE_VERDICT: PASS`, `FULL_GOAL_VERDICT: NOT_COMPLETE`, blockers: none.
+- PASS was based on current repo evidence: changed files match the 3 reference docs plus plan evidence, MCP/helper path is active, reference weak terms are `26 -> 24`, diff is wording-only, command examples/GitHub Check terminology/validation ownership/secret custody/provider routing are preserved, and broad all-instruction goal remains open.

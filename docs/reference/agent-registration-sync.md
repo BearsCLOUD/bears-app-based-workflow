@@ -15,7 +15,7 @@ No SessionStart hook is enabled by this policy. Hook registration requires a sep
 
 ## Commands
 
-Read-only drift check:
+Read-only drift inspection:
 
 ```bash
 python3 scripts/agent_registration_sync.py check --target user --json
@@ -41,7 +41,7 @@ Validator ownership:
 
 ## Drift contract
 
-The check packet reports:
+The drift packet reports:
 
 - `missing`: canonical agent has no managed target TOML.
 - `stale`: managed target TOML differs from canonical source.
@@ -53,7 +53,7 @@ The check packet reports:
 
 ## Validation
 
-`validate` checks canonical TOML schema, role classification, developer-instruction role overrides, and platform role alignment.
+`validate` inspects canonical TOML schema, role classification, developer-instruction role overrides, and platform role alignment.
 
 Every canonical `agents/*.toml` file must declare these top-level keys:
 

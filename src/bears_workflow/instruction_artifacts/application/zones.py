@@ -90,6 +90,28 @@ FALLBACK_WEAK_TERMS = [
     "try to",
     "avoid",
 ]
+CATALOG_HUMAN_TEXT_KEYS = {
+    "allowed_write_boundary",
+    "completion",
+    "concrete_scope",
+    "condition",
+    "decision",
+    "description",
+    "enforcement",
+    "failure_condition",
+    "message",
+    "note",
+    "notes",
+    "policy",
+    "prompt",
+    "rationale",
+    "required_precision",
+    "rule",
+    "scope",
+    "success_condition",
+    "summary",
+    "trust_boundary",
+}
 INSTRUCTION_SURFACE_GLOBS = (
     "AGENTS.md",
     "skills/*/SKILL.md",
@@ -228,6 +250,27 @@ def _surface_scan_text(relative_path: str, content: str) -> str:
         return scan_text
     if relative_path.startswith("workflows/") and relative_path.endswith("/workflow.yml"):
         return re.sub(r"(?m)^\s*command:\s*['\"]?[^'\"\n]+['\"]?\s*$", "", content)
+    if relative_path.startswith("assets/catalog/") and relative_path.endswith(".v1.json"):
+        try:
+            payload = json.loads(content)
+        except json.JSONDecodeError:
+            return content
+        fragments: list[str] = []
+
+        def collect(value: Any, key: str | None = None) -> None:
+            if isinstance(value, dict):
+                for child_key, child_value in value.items():
+                    collect(child_value, str(child_key))
+                return
+            if isinstance(value, list):
+                for item in value:
+                    collect(item, key)
+                return
+            if isinstance(value, str) and key in CATALOG_HUMAN_TEXT_KEYS:
+                fragments.append(value)
+
+        collect(payload)
+        return "\n".join(fragments) if fragments else content
     if not relative_path.startswith("agents/") or not relative_path.endswith(".toml"):
         return content
     try:

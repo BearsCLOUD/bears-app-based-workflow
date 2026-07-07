@@ -662,3 +662,34 @@ Follow-up critic result:
 
 - Re-audit critic `019f3b9d-3426-7231-a1ec-940453cd2e35` verdict: `FIX_VERDICT: PASS`, `FULL_GOAL_VERDICT: NOT_COMPLETE`, blockers: none.
 - PASS was based on current repo evidence: the exact roadmap fragments are restored and `docs/reference/roadmap-control.md` has no current diff; MCP/helper weak counts are `reference: 0`; scanner excludes fenced code, inline code spans, and only the two roadmap compatibility fragments; MCP response schema fields remain present; command examples and identifiers remain present; and broad all-instruction goal remains open because catalog and role surfaces still report weak terms.
+
+### Phase 21: Catalog JSON scanner field selection
+
+Status: in progress.
+
+MCP queue source:
+
+```bash
+python3 scripts/instruction_hardening_mcp_packet.py instruction_hardening_startup --root . --bounded-json
+```
+
+Wave scope:
+
+- `src/bears_workflow/instruction_artifacts/application/zones.py` catalog JSON scan-text selection;
+- `docs/reference/instruction-artifacts-mcp.md` contract note for catalog JSON human-policy fields.
+
+Wave result before critic/commit:
+
+- `surface_summary.weak_terms_by_kind.catalog`: `139 -> 72`;
+- scanner now parses `assets/catalog/*.v1.json` and scans only selected human-policy string fields such as `description`, `rule`, `enforcement`, `decision`, `rationale`, `scope`, `trust_boundary`, `allowed_write_boundary`, and `required_precision`;
+- JSON keys, identifiers, paths, commands, required-validation entries, and other machine metadata remain in catalog files but are not scored as weak instruction prose;
+- no catalog JSON payload, role TOML, skill, workflow, runtime, deploy, Kubernetes desired-state, or secret-custody mutations in this wave.
+
+Critic requirement:
+
+- PASS only if current repo evidence proves this slice advances the active goal by removing catalog JSON machine-metadata false positives, preserving human-policy catalog field scanning and MCP response schema fields, and keeping the broad all-instruction goal open.
+
+Critic result:
+
+- Re-audit critic `019f3b9d-3426-7231-a1ec-940453cd2e35` verdict: `SLICE_VERDICT: PASS`, `FULL_GOAL_VERDICT: NOT_COMPLETE`, blockers: none.
+- PASS was based on current repo evidence: changed files are scanner code, MCP reference doc, and plan evidence only; no `assets/catalog` payload diff exists; MCP/helper weak counts show `catalog: 139 -> 72`; scanner parses catalog JSON and reads selected human-policy fields through `CATALOG_HUMAN_TEXT_KEYS`; docs record that JSON keys, identifiers, paths, commands, required-validation entries, and machine metadata are not instruction prose; MCP response schema fields remain present; owner routing, validation ownership, secret safety, and runtime/deploy/Kubernetes proof routing remain present; and broad all-instruction goal remains open because catalog and role surfaces still report weak terms.

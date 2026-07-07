@@ -2094,6 +2094,25 @@
       "scope_id": "instruction-artifacts-hardening-mcp",
       "status": "accepted",
       "unresolved_inputs": []
+    },
+    {
+      "affected_paths": [
+        "src/bears_workflow/instruction_artifacts/application/zones.py",
+        "docs/reference/instruction-artifacts-mcp.md",
+        "assets/catalog/release-notes.v1.json",
+        "plans/instruction-artifacts-hardening-mcp.md"
+      ],
+      "change_type": "tooling",
+      "contradictions": [],
+      "decision": "Catalog weak-term scoring must read only selected human-policy string fields and must not fall back to scanning full JSON machine metadata when no selected field exists.",
+      "decision_id": "D-2026-07-07-catalog-weak-term-scoring-boundary",
+      "owner_issue": "#instruction-artifacts-hardening-mcp",
+      "owner_role": "bears-instruction-hardening-engineer",
+      "rationale": "The instruction-hardening goal requires the MCP/helper queue to identify mutable instruction prose, not commands, identifiers, required-status-check terms, or catalog parity phrases that would cause semantic drift if rewritten.",
+      "redaction": "safe",
+      "scope_id": "instruction-artifacts-hardening-mcp",
+      "status": "accepted",
+      "unresolved_inputs": []
     }
   ],
   "schema": "bears-decision-ledger.v1",

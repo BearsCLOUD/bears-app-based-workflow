@@ -2,6 +2,27 @@
   "entries": [
     {
       "affected_surfaces": [
+        "instruction_artifacts_mcp",
+        "catalog_weak_term_scoring",
+        "release_notes",
+        "decision_ledger"
+      ],
+      "date": "2026-07-07",
+      "files": [
+        "src/bears_workflow/instruction_artifacts/application/zones.py",
+        "docs/reference/instruction-artifacts-mcp.md",
+        "assets/catalog/release-notes.v1.json",
+        "assets/catalog/decision-ledger.v1.json",
+        "plans/instruction-artifacts-hardening-mcp.md"
+      ],
+      "impact": "Aligns catalog weak-term scoring with the documented human-policy field boundary so machine metadata, command names, required-validation entries, GitHub check terminology, and catalog-parity phrases do not become instruction-refactor tasks.",
+      "issue_ref": "#8",
+      "validation": [
+        "python3 scripts/local_commit_validation.py run --commit-sha <main_sha>"
+      ]
+    },
+    {
+      "affected_surfaces": [
         "platform_role_catalog",
         "instruction_artifacts_mcp",
         "decision_ledger",

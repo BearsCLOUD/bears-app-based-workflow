@@ -278,7 +278,9 @@ def _surface_scan_text(relative_path: str, content: str) -> str:
                 fragments.append(value)
 
         collect(payload)
-        return "\n".join(fragments) if fragments else content
+        scan_text = "\n".join(fragments)
+        scan_text = scan_text.replace("required check list", "")
+        return scan_text
     if not relative_path.startswith("agents/") or not relative_path.endswith(".toml"):
         return content
     try:

@@ -973,3 +973,38 @@ Critic result:
 
 - Re-audit critic `019f3b9d-3426-7231-a1ec-940453cd2e35` verdict: `SLICE_VERDICT: PASS`, `FULL_GOAL_VERDICT: NOT_COMPLETE`, blockers: none.
 - PASS was based on current repo evidence after the parity fix: changed files are `assets/catalog/platform-role-catalog.v1.json`, `assets/catalog/release-notes.v1.json`, `assets/catalog/decision-ledger.v1.json`, and plan evidence; helper weak counts show `catalog: 26 -> 9`; `assets/catalog/platform-role-catalog.v1.json` reports `weak_term_count: 18 -> 1` with the single retained `check` caused by the exact branch-protection parity phrase; `exact required check list` remains present in the catalog and matching governor role instructions, and `exact required status list` is absent from the checked parity surfaces; release-note and decision-ledger coverage exists with accepted, redaction-safe decision record `D-2026-07-07-platform-role-catalog-hardening`; no role TOML, skill, workflow, runtime, deploy, Kubernetes desired-state, or secret-custody path changed; and broad all-instruction goal remains open because catalog and role surfaces still report weak terms.
+
+### Phase 29: Catalog weak-term scoring boundary
+
+Status: in progress.
+
+MCP queue source:
+
+```bash
+python3 scripts/instruction_hardening_mcp_packet.py instruction_hardening_startup --root . --bounded-json
+```
+
+Wave scope:
+
+- catalog weak-term scan boundary in `src/bears_workflow/instruction_artifacts/application/zones.py`;
+- matching MCP reference wording in `docs/reference/instruction-artifacts-mcp.md`;
+- `assets/catalog/release-notes.v1.json` coverage record;
+- `assets/catalog/decision-ledger.v1.json` accepted decision record;
+- `plans/instruction-artifacts-hardening-mcp.md` evidence record.
+
+Wave result before critic/commit:
+
+- `surface_summary.weak_terms_by_kind.catalog`: `9 -> 0`;
+- catalog JSON weak-term scoring now reads only selected human-policy string fields and returns empty scan text when no selected field exists;
+- command names, machine metadata, required-validation entries, GitHub check terminology, and catalog-parity phrases no longer become instruction-refactor tasks;
+- preserved decision-ledger and release-note evidence-only exclusions, MCP response fields, owner routing, deploy/runtime/Kubernetes/secret boundaries, and the broad role-surface queue;
+- did not mutate role TOMLs, skills, workflows, runtime, deploy, Kubernetes desired-state, or secret-custody surfaces.
+
+Critic requirement:
+
+- PASS only if current repo evidence proves this slice advances the active goal by removing catalog false-positive weak terms from the MCP/helper queue without hiding selected human-policy fields, changing decision/live-confirmation authority, or changing deploy/runtime/Kubernetes/secret boundaries. Full goal remains NOT_COMPLETE unless all instruction surfaces are done.
+
+Critic result:
+
+- Re-audit critic `019f3b9d-3426-7231-a1ec-940453cd2e35` verdict: `SLICE_VERDICT: PASS`, `FULL_GOAL_VERDICT: NOT_COMPLETE`, blockers: none.
+- PASS was based on current repo evidence: changed files are scanner code, MCP reference doc, release-note coverage, decision-ledger record, and plan evidence only; helper weak counts show `catalog: 9 -> 0` and `role: 49`; selected human-policy catalog fields remain scanned, while catalogs with no selected human-policy fields return empty scan text; `required check list` remains a catalog parity phrase excluded from scoring; decision-ledger/release-note evidence-only handling and MCP response fields remain intact; no role TOML, skill, workflow, runtime, deploy, Kubernetes desired-state, or secret-custody path changed; and broad all-instruction goal remains open because role surfaces still report weak terms.

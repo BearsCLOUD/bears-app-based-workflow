@@ -23,7 +23,7 @@
 - `assets/catalog/*.v1.json` — machine-readable policy catalogs for roles, workflow gates, Git/CD, closeout, and governance.
 - `assets/schemas/*.schema.json` and `schemas/*.schema.json` — legacy/internal guardrail schemas only; they must not serve as app PASS evidence.
 - `scripts/*.py` — deterministic routers, closeout tools, cache sync, role gates, Dagger proof wrappers, and governance helpers.
-- `hooks.json` and `hooks/*.py` — Codex hook guards for session start, prompt submit, tool use, and stop closeout.
+- `hooks.json` and `hooks/*.py` — Codex hook guards for session start, prompt submit, tool calls, and stop closeout.
 - `workflows/*/workflow.yml` — governed workflow definitions; Git/CD authority still comes from catalogs and Kubernetes desired state.
 - `capabilities/*` — bounded capability packages; current pilot is subagents roles governance.
 - `docs/reference/*.md` and `docs/runbooks/*` — human reference and operator runbooks for governance surfaces.
@@ -55,7 +55,7 @@
 
 ## Entity terms
 - Say exact terms `local_cd` and `kubernetes_deployment` when those surfaces are changed.
-- Artifacts and subagent messages must use English only.
+- Artifacts and subagent messages must be English only.
 - Wording must stay strict, concise, and entity-bound.
 
 ## Portable checkout

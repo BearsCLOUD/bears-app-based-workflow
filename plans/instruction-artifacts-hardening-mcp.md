@@ -581,3 +581,35 @@ Critic result:
 
 - Re-audit critic `019f3b9d-3426-7231-a1ec-940453cd2e35` verdict: `SLICE_VERDICT: PASS`, `FULL_GOAL_VERDICT: NOT_COMPLETE`, blockers: none.
 - PASS was based on current repo evidence: changed files are only 15 `skills/*/SKILL.md` files plus plan evidence; MCP/helper path remains active; skill weak terms are `35 -> 0`; frontmatter `name` fields did not change; changed skill diffs are wording-only; activation lines, hard bans, command examples, packet/schema blocks, validation ownership, secret safety, and runtime/deploy/Kubernetes proof routing remain present; and broad all-instruction goal remains open because non-skill surfaces still report weak terms.
+
+### Phase 19: Router/workflow false-positive cleanup
+
+Status: in progress.
+
+MCP queue source:
+
+```bash
+python3 scripts/instruction_hardening_mcp_packet.py instruction_hardening_startup --root . --bounded-json
+```
+
+Wave scope:
+
+- `AGENTS.md` wording-only cleanup for hook surface and artifact language rule;
+- `src/bears_workflow/instruction_artifacts/application/zones.py` workflow YAML scan-text exclusion for `command:` executable identifiers;
+- `docs/reference/instruction-artifacts-mcp.md` contract note that workflow `command:` identifiers are machine action names, not human policy prose.
+
+Wave result before critic/commit:
+
+- `surface_summary.weak_terms_by_kind.agents_router`: `2 -> 0`;
+- `surface_summary.weak_terms_by_kind.workflow`: `2 -> 0`;
+- `surface_summary.weak_terms_by_kind.reference` stayed `17` after the contract note;
+- workflow command strings, workflow files, role/catalog/skill surfaces, runtime, deploy, Kubernetes desired-state, and secret-custody surfaces were not mutated.
+
+Critic requirement:
+
+- PASS only if current repo evidence proves this slice advances the active goal by eliminating AGENTS router weak prose and workflow command false positives, preserves workflow executable identifiers and MCP response schema fields, and keeps the broad all-instruction goal open.
+
+Critic result:
+
+- Re-audit critic `019f3b9d-3426-7231-a1ec-940453cd2e35` verdict: `SLICE_VERDICT: PASS`, `FULL_GOAL_VERDICT: NOT_COMPLETE`, blockers: none.
+- PASS was based on current repo evidence: changed files match `AGENTS.md`, scanner code, MCP reference doc, and plan evidence; MCP/helper path remains active; `agents_router` weak terms are `2 -> 0`; `workflow` weak terms are `2 -> 0`; workflow files were not modified and their `command:` identifiers remain present; scanner excludes workflow command identifier lines only; MCP response schema fields remain present; owner boundaries, validation ownership, secret safety, and runtime/deploy/Kubernetes proof routing remain present; and broad all-instruction goal remains open because catalog/reference/role surfaces still report weak terms.

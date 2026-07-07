@@ -693,3 +693,51 @@ Critic result:
 
 - Re-audit critic `019f3b9d-3426-7231-a1ec-940453cd2e35` verdict: `SLICE_VERDICT: PASS`, `FULL_GOAL_VERDICT: NOT_COMPLETE`, blockers: none.
 - PASS was based on current repo evidence: changed files are scanner code, MCP reference doc, and plan evidence only; no `assets/catalog` payload diff exists; MCP/helper weak counts show `catalog: 139 -> 72`; scanner parses catalog JSON and reads selected human-policy fields through `CATALOG_HUMAN_TEXT_KEYS`; docs record that JSON keys, identifiers, paths, commands, required-validation entries, and machine metadata are not instruction prose; MCP response schema fields remain present; owner routing, validation ownership, secret safety, and runtime/deploy/Kubernetes proof routing remain present; and broad all-instruction goal remains open because catalog and role surfaces still report weak terms.
+
+### Phase 22: Role prose high-count wave
+
+Status: in progress.
+
+MCP queue source:
+
+```bash
+python3 scripts/instruction_hardening_mcp_packet.py instruction_hardening_startup --root . --bounded-json
+```
+
+Wave scope:
+
+- `agents/bears-github-branch-protection-settings-governor.toml` developer-instruction wording around status-list evidence and mutation gates;
+- `agents/bears-clarification-architect.toml` developer-instruction wording around clarification packet inputs and states;
+- `agents/bears-codex-workspace-config-engineer.toml` developer-instruction wording around CI-owned status suites, exact workspace ownership, and Infisical bridge custody;
+- `agents/bears-goal-prompt-generator.toml` developer-instruction wording around `/goal` emission, prompt review, and extended prompt flag;
+- `agents/bears-instruction-hardening-engineer.toml` developer-instruction wording around MCP evidence and policy grammar;
+- `agents/bears-subagents-roles-governor.toml` developer-instruction wording around route regression guard, local-commit validation, and evidence refs;
+- `agents/bears-vpn-runtime-engineer.toml` developer-instruction wording around CI-owned status suites, contour ownership, legacy path evidence, and sanitized reporting.
+
+Wave result before critic/commit:
+
+- `surface_summary.weak_terms_by_kind.role`: `155 -> 124`;
+- changed 7 role TOMLs with developer-instruction wording-only edits;
+- top-level `name`, `description`, `role_kind`, `execution_class`, `primary_eligible`, `model`, `model_reasoning_effort`, and `sandbox_mode` fields were not changed;
+- route/catalog parity-sensitive descriptions, command examples, validation ownership, hard bans, secret safety, runtime/deploy/Kubernetes boundaries, and exact required section headings were preserved.
+
+Critic requirement:
+
+- PASS only if current repo evidence proves this role slice advances the active goal through the MCP queue, reduces role weak terms without changing route/catalog parity-sensitive fields, role scope, command semantics, validation ownership, hard bans, secret safety, runtime/deploy/Kubernetes boundaries, required headings, or broad all-instruction goal status.
+
+
+Critic result:
+
+- Re-audit critic `019f3b9d-3426-7231-a1ec-940453cd2e35` verdict: `SLICE_VERDICT: FAIL`, `FULL_GOAL_VERDICT: NOT_COMPLETE`.
+- Fail cause: `agents/bears-github-branch-protection-settings-governor.toml` changed the catalog-parity phrase `required check list` to `required status list`, while `assets/catalog/platform-role-catalog.v1.json` still uses the exact `required check list` phrase.
+
+Fix action:
+
+- Restored the exact `required check list` phrase in `agents/bears-github-branch-protection-settings-governor.toml`.
+- Updated MCP role scan text so the restored catalog-parity phrase is not scored as weak prose.
+- Updated `docs/reference/instruction-artifacts-mcp.md` to record catalog-parity phrases as structural markers, not refactor targets.
+
+Follow-up critic result:
+
+- Re-audit critic `019f3b9d-3426-7231-a1ec-940453cd2e35` verdict: `FIX_VERDICT: PASS`, `FULL_GOAL_VERDICT: NOT_COMPLETE`, blockers: none.
+- PASS was based on current repo evidence: `agents/bears-github-branch-protection-settings-governor.toml` preserves exact `required check list` at the affected lines; scanner removes that catalog-parity phrase from role scan text before weak-term scoring; docs record `Quality checks:` and `required check list` as structural markers, not refactor targets; MCP/helper weak counts stay `role: 124`; top-level role fields are unchanged; exact `Quality checks:` headings remain in all seven changed role TOMLs; and broad all-instruction goal remains open because catalog and role surfaces still report weak terms.

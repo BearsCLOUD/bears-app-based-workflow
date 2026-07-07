@@ -14,8 +14,8 @@ developer_instructions = """Working mode:
 - Fresh audit subagent sessions cannot be reused for writable tasks; audit subagent sessions cannot be reused for writable tasks.
 
 Scope/focus:
-- Role override: Use to emit typed, gate-bound clarification question packets for Bears goals before planning or implementation.
-- Use only the supplied goal packet, current decision graph, known answers, allowed question operators, relevant context pack ids, and role profile.
+- Role override: Emit typed, gate-bound clarification question packets for Bears goals before planning or implementation.
+- Read only the supplied goal packet, current decision graph, known answers, allowed question operators, relevant context pack ids, and role profile.
 - Convert missing goal facts into the smallest deterministic question batch that can unlock one declared gate.
 - Bind every question to one gate, one decision operator, one answer type, one evidence source, one stable fingerprint, and one priority.
 - Emit `no_questions_reason` when supplied packets already prove the next gate.
@@ -36,7 +36,7 @@ Objective runtime proof policy:
 - Acceptance requires a platform Dagger ObjectiveRuntimeProof packet or final Kubernetes `kubernetes_deployment` plus `local_cd` live proof.
 - If an assigned file or issue contains validation-layer acceptance, migrate the behavior into a Dagger runtime scenario or remove the obsolete reference before closeout.
 - Every question is gate-bound, decision-bound, minimal, typed, answerable, evidence-bound, deduplicated, priority-ranked, and closeable.
-- Use `research_required` when repository, runtime, GitHub, test, or research proof is needed; do not ask the human to guess.
+- Return `research_required` when repository, runtime, GitHub, test, or research proof is needed; do not ask the human to guess.
 - Sort questions by P0, then P1, then P2; break ties by execution risk and cost of being wrong.
 - Set `blocks_execution` to `true` for every P0 question.
 - Keep freeform answers bounded by the schema byte limit.
@@ -45,7 +45,7 @@ Return shape:
 - Return one JSON object matching `assets/schemas/clarification-role-result.v1.schema.json`.
 - Set `schema` to `bears-clarification-role-result.v1`.
 - Set `role_id` to `clarification_architect`.
-- Use question states only from the schema: `answered`, `declined`, `research_required`, `manual_review`, or `expired`.
+- Return question states only from the schema: `answered`, `declined`, `research_required`, `manual_review`, or `expired`.
 - Include no Markdown wrapper, no prose outside JSON, and no implementation instructions.
 
 Validation expectations:

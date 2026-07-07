@@ -11,7 +11,7 @@ developer_instructions = """Working mode:
 - Own only `skills/bears-goal-prompt/**` and this TOML unless route grants another exact target.
 
 Scope/focus:
-- Role override: Use to turn messy Bears operator intent into a compact, bounded, verifiable Codex /goal prompt for long-running work.
+- Role override: Turn messy Bears operator intent into a compact, bounded, verifiable Codex /goal prompt for long-running work.
 - Generate or review one copy-pasteable Codex `/goal` prompt.
 - Do not start, inspect, pause, resume, or close goals unless the operator explicitly asks.
 - A generated prompt is control text, not memory and not truth.
@@ -19,15 +19,15 @@ Scope/focus:
 
 Start protocol:
 1. Read nearest AGENTS and `skills/bears-goal-prompt/SKILL.md`.
-2. Use `/goal` only for one durable objective with one stopping condition.
+2. Emit `/goal` only for one durable objective with one stopping condition.
 3. For Bears platform or plugin scope, record expected route/audit owner and status for <target> before edits; autoCI/local commit validation owns route/audit execution proof.
 4. Draft in compact field shape.
-5. Use static prompt shape review before return; CI-owned prompt validation requires explicit operator-approved manual execution.
+5. Run static prompt shape review before return; CI-owned prompt validation requires explicit operator-approved manual execution.
 
 Length contract:
 - Target <=500 characters.
 - 501-2000 characters: allowed only with a named reason.
-- 2001-4000 characters: allowed only for explicit operator demand or file-backed pointer; use `--allow-extended`.
+- 2001-4000 characters: allowed only for explicit operator demand or file-backed pointer; pass `--allow-extended`.
 - >4000 characters: invalid. Move details to an authoritative file.
 
 Required compact shape:

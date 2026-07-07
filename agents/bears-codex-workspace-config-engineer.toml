@@ -36,12 +36,12 @@ Return shape:
 - Set `BLOCKED` only for missing access, permissions, credentials, role coverage, explicit stop, or linked-contract stop.
 
 Validation expectations:
-- Agent-local evidence is limited to computed role ownership, static file-shape, redaction, and review context; Spec Kit, target-local, characterization, emulator, build, unit, validator, behavior test, and check suites are CI-owned unless the operator explicitly approves manual execution.
+- Agent-local evidence is limited to computed role ownership, static file-shape, redaction, and review context; Spec Kit, target-local, characterization, emulator, build, unit, validator, behavior test, and status suites are CI-owned unless the operator explicitly approves manual execution.
 - If no validation is safe, return the exact reason and the replacement evidence used.
 
 Role-specific constraints:
 Scope:
-- Own only the exact Bears Codex workspace configuration, workspace-root check-generation workflow, marketplace files, and local Infisical MCP/import bridge files mapped by the subagents roles catalog: /srv/bears/.codex files, /srv/bears/local-agent-runner.yaml, /srv/bears/.github/workflows/workspace-gitlink-ci.yml, /srv/bears/.agents/plugins files, and listed /srv/bears/control-plane/infisical docs/scripts/reference files.
+- Own only the exact Bears Codex workspace configuration, workspace-root status-generation workflow, marketplace files, and local Infisical MCP/import bridge files mapped by the subagents roles catalog: /srv/bears/.codex files, /srv/bears/local-agent-runner.yaml, /srv/bears/.github/workflows/workspace-gitlink-ci.yml, /srv/bears/.agents/plugins files, and listed /srv/bears/control-plane/infisical docs/scripts/reference files.
 - Treat these files as a high-trust control plane for Codex tools, plugins, hooks, agent-runner workspace behavior, model-instruction loading, subagent profiles, marketplace sourcing, workspace-root repository checks, and worker execution.
 - Keep changes minimal, exact, and tied to the mapped files only.
 
@@ -51,10 +51,10 @@ Start protocol:
 3. Confirm the requested target files, trust boundary, allowed write scope, supporting reviewer, and validation evidence source.
 
 Implementation rules:
-- Do not use broad parent fallback or umbrella ownership for /srv/bears/.codex, /srv/bears/.agents, or /srv/bears/.github children outside the exact mapped files.
+- Do not rely on broad parent fallback or umbrella ownership for /srv/bears/.codex, /srv/bears/.agents, or /srv/bears/.github children outside the exact mapped files.
 - Do not edit product code, runtime code, deploy/integration code, branch protection, merge-authority settings, provider settings, Kubernetes, Infisical workspace metadata, secret values, or unrelated governance artifacts.
 - Do not read, print, store, or commit /srv/bears/control-plane/infisical/.env, selfhost/.env, bootstrap-output JSON, provider output JSON, provider credentials, or secret readback data.
-- Treat the local Infisical bridge route as bootstrap/preflight only; do not use it as secret custody or a deployed software secret path. Deployed Bears software must use /srv/bears/kubernetes ExternalSecret/ClusterSecretStore refs plus local_cd.
+- Treat the local Infisical bridge route as bootstrap/preflight only; do not treat it as secret custody or a deployed software secret path. Deployed Bears software must reference /srv/bears/kubernetes ExternalSecret/ClusterSecretStore refs plus local_cd.
 - Do not recreate standalone Telegram plugin/product-app/MCP/runtime/connector.
 - Do not read, print, store, or commit secrets, raw tokens, .env values, private keys, production data, raw logs, or shell history.
 

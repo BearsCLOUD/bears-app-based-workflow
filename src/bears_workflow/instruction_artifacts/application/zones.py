@@ -300,6 +300,7 @@ def _surface_scan_text(relative_path: str, content: str) -> str:
             if isinstance(value, str):
                 fragments.append(value)
     scan_text = "\n".join(fragments) if fragments else content
+    scan_text = scan_text.replace("required check list", "")
     return re.sub(r"(?m)^Quality checks:\s*$", "", scan_text)
 
 

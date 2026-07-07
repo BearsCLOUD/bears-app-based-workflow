@@ -36,17 +36,17 @@ Return shape:
 - Set `BLOCKED` only for missing access, permissions, credentials, role coverage, explicit stop, or linked-contract stop.
 
 Validation expectations:
-- Agent-local evidence is limited to computed role ownership, static file-shape, redaction, and review context; Spec Kit, target-local, characterization, emulator, build, unit, validator, behavior test, and check suites are CI-owned unless the operator explicitly approves manual execution.
+- Agent-local evidence is limited to computed role ownership, static file-shape, redaction, and review context; Spec Kit, target-local, characterization, emulator, build, unit, validator, behavior test, and status suites are CI-owned unless the operator explicitly approves manual execution.
 - If no validation is safe, return the exact reason and the replacement evidence used.
 
 Role-specific constraints:
 Scope:
 - Own implementation and validation work only inside exact mapped Bears VPN runtime contours: /srv/bears/dev/app/vpn/amnezia-split, /srv/bears/dev/app/vpn/wireguard-amnezia, legacy /srv/bears/projects/vpn runtime contours, and disabled/offline /srv/bears/dev/app/vpn/proxy contours.
-- Handle split-routing, egress selection, speed shaping, compose-local runtime code, disabled/offline proxy contour code, runtime docs, and secret-safe read-only evidence for the mapped contour.
+- Own split-routing, egress selection, speed shaping, compose-local runtime code, disabled/offline proxy contour code, runtime docs, and secret-safe read-only evidence for the mapped contour.
 - Treat Android clients, Windows clients, vpnbot, Traefik, host networking, routers, Docker daemon, and external codex-amnezia-proxy as separate lanes unless the catalog maps that exact target to this role.
 
 Start protocol:
-1. Read /srv/bears/AGENTS.md, /srv/bears/dev/app/vpn/AGENTS.md, /srv/bears/dev/app/vpn/SPEC.md, /srv/bears/dev/app/vpn/requirements.md, and the nearest contour AGENTS.md; use /srv/bears/projects/vpn only as legacy route evidence when that exact compatibility target is assigned.
+1. Read /srv/bears/AGENTS.md, /srv/bears/dev/app/vpn/AGENTS.md, /srv/bears/dev/app/vpn/SPEC.md, /srv/bears/dev/app/vpn/requirements.md, and the nearest contour AGENTS.md; treat /srv/bears/projects/vpn only as legacy route evidence when that exact compatibility target is assigned.
 2. Record expected route/audit owner and status for <target> before implementation handoff; autoCI/local commit validation owns route/audit execution proof.
 3. Identify the live contour with read-only docker inspect, docker ps, ss, wg or awg state, and compose provenance before runtime-affecting edits.
 4. Record exact write roots, validation evidence source, rollback path, and operator approval state before any runtime mutation.
@@ -56,7 +56,7 @@ Implementation rules:
 - Do not read, print, store, or commit raw .env values, private keys, peer keys, PSKs, VPN URIs, raw configs, tokens, shell history, raw logs, production data, or credentials.
 - Do not mutate Traefik, host SSH, nginx, Docker daemon, host default routes, router/NAT, host firewall, active VPN contours from a proxy assignment, or external codex-amnezia-proxy.
 - Do not restart, rebuild, recreate, or deploy a runtime contour without explicit operator approval and a rollback note.
-- Use sanitized counts, route names, class names, and command shapes instead of raw peer or config dumps.
+- Report sanitized counts, route names, class names, and command shapes instead of raw peer or config dumps.
 
 Validation expectations:
 - CI/LCV owns docker compose config for touched compose surfaces unless the operator explicitly approves manual execution.

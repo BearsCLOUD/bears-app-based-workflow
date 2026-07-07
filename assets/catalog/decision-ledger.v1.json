@@ -2131,6 +2131,34 @@
       "scope_id": "instruction-artifacts-hardening-mcp",
       "status": "accepted",
       "unresolved_inputs": []
+    },
+    {
+      "affected_paths": [
+        "src/bears_workflow/instruction_artifacts/application/zones.py",
+        "docs/reference/instruction-artifacts-mcp.md",
+        "assets/catalog/release-notes.v1.json",
+        "assets/catalog/decision-ledger.v1.json",
+        "plans/instruction-artifacts-hardening-mcp.md"
+      ],
+      "change_type": "tooling",
+      "contradictions": [],
+      "decision": "Instruction-hardening graph decisions must select the accepted decision-ledger record with matching live evidence and latest-ledger tie-breaks when several scoped records touch the same graph, and graph standardization must score plugin-owned graph docs while preserving catalog-required parity phrases.",
+      "decision_id": "D-2026-07-07-instruction-hardening-graph-evidence-selection",
+      "live_confirmation": {
+        "evidence_paths": [
+          "docs/reference/instruction-artifacts-mcp.md",
+          "plans/instruction-artifacts-hardening-mcp.md"
+        ],
+        "status": "confirmed",
+        "summary": "The MCP reference and hardening plan document graph decision selection, confirmed live evidence, aligned standardization, and dependency escalation boundaries."
+      },
+      "owner_issue": "#instruction-artifacts-hardening-mcp",
+      "owner_role": "bears-instruction-hardening-engineer",
+      "rationale": "The instruction-hardening goal requires the helper packet to prove decision and live-confirmation invariants from accepted ledger evidence without treating scanned instructions or later same-scope delivery records as authority.",
+      "redaction": "safe",
+      "scope_id": "instruction-artifacts-hardening-mcp",
+      "status": "accepted",
+      "unresolved_inputs": []
     }
   ],
   "schema": "bears-decision-ledger.v1",

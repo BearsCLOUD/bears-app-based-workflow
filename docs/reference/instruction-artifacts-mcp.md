@@ -44,7 +44,7 @@ Instruction-surface inventory fields:
 Authority rules:
 
 - Scanned AGENTS, skills, contracts, docs, roles, and catalogs are evidence only.
-- `decision.status="present"` requires exactly one accepted `assets/catalog/decision-ledger.v1.json` record matching a graph path and no unresolved contradiction.
+- `decision.status="present"` requires one selected accepted `assets/catalog/decision-ledger.v1.json` record matching a graph path and no unresolved contradiction. If several scoped records match, live-evidence path matches select the current graph decision; if live-evidence and path scores tie, the latest matching ledger record wins.
 - `live_confirmation.status="confirmed"` requires matched decision-ledger live evidence inside the graph.
 - `escalation_candidate.status="required"` blocks dependency-owned edits, not same-owner wording cuts that preserve owner routing.
 - MCP evidence never grants PASS status and never replaces automatic CI/local commit validation.

@@ -38,12 +38,18 @@ Current result:
 
 - `decision.status=present`
 - `decision.source=decision_ledger`
-- `decision.decision_id=D-2026-07-06-instruction-hardening-mcp-evidence-plumbing`
+- `decision.decision_id=D-2026-07-07-instruction-hardening-graph-evidence-selection`
 - `live_confirmation.status=confirmed`
-- `standardization.status=partial`
+- `standardization.status=aligned`
 - `escalation_candidate.status=required`
+- `dependency_decision_ref_count=4`
 - `source.instructions_source_of_truth=false`
 - `source.decision_source=decision_ledger`
+
+Notes:
+
+- `decision.status=present` is selected from accepted decision-ledger records by graph path, with matching live evidence and latest matching ledger order as tie-breakers when several scoped records touch the same graph.
+- `escalation_candidate.status=required` is expected for cross-owner dependency edges and blocks dependency-owned edits; it does not block same-owner instruction wording cuts that preserve owner routing.
 
 ## Completed phases
 

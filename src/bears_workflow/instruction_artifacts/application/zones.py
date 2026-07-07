@@ -522,6 +522,46 @@ def _matching_decision_records(
     ]
 
 
+def _decision_live_match_count(record: dict[str, Any], graph_paths: set[str]) -> int:
+    live_confirmation = record.get("live_confirmation")
+    if not isinstance(live_confirmation, dict):
+        return 0
+    evidence_paths = {
+        normalized
+        for path in live_confirmation.get("evidence_paths", [])
+        if (normalized := _normalize_plugin_path(path))
+    }
+    return len(evidence_paths.intersection(graph_paths))
+
+
+def _selected_decision_records(
+    records: list[dict[str, Any]],
+    graph_paths: set[str],
+) -> list[dict[str, Any]]:
+    if len(records) <= 1:
+        return records
+    with_live_evidence = [
+        record for record in records if _decision_live_match_count(record, graph_paths) > 0
+    ]
+    if len(with_live_evidence) == 1:
+        return with_live_evidence
+    if len(with_live_evidence) > 1:
+        records = with_live_evidence
+    scored = []
+    for record in records:
+        affected_paths = {
+            normalized
+            for path in record.get("affected_paths", [])
+            if (normalized := _normalize_plugin_path(path))
+        }
+        scored.append((len(affected_paths.intersection(graph_paths)), record))
+    if not scored:
+        return []
+    best_score = max(score for score, _record in scored)
+    best_records = [record for score, record in scored if score == best_score]
+    return best_records[-1:]
+
+
 def _dependency_decision_refs(
     graph: dict[str, Any],
     docs_by_id: dict[int, dict[str, Any]],
@@ -634,9 +674,10 @@ def _decision_for_graph_with_ledger(
         scope_ids or set(),
         decision_ledger,
     )
+    selected_records = _selected_decision_records(matching_records, graph_paths)
     ledger_warnings = list(decision_ledger.get("warnings", []))
-    if len(matching_records) == 1 and not refutable_doc_ids:
-        record = matching_records[0]
+    if len(selected_records) == 1 and not refutable_doc_ids:
+        record = selected_records[0]
         affected_paths = [
             normalized
             for path in record.get("affected_paths", [])
@@ -655,12 +696,18 @@ def _decision_for_graph_with_ledger(
             "mention_doc_ids": mention_doc_ids,
             "refutable_doc_ids": refutable_doc_ids,
             "decision_ledger_refs": [record.get("decision_id")],
+            "candidate_decision_ledger_refs": [
+                candidate.get("decision_id")
+                for candidate in matching_records
+                if candidate.get("decision_id")
+            ],
             "decision_ledger_paths": sorted(set(affected_paths).intersection(graph_paths)),
             "notes": ["operator_decision_found_in_decision_ledger"],
         }
 
     if len(matching_records) > 1:
         notes.append("multiple_decision_ledger_records_match_graph")
+    if len(selected_records) > 1:
         ledger_warnings.append("decision_ledger_match_not_unique")
 
     return {
@@ -756,10 +803,24 @@ def _standardization_for_graph(
     graph_doc_ids: list[int],
     doc_texts: dict[int, str],
     grammar: dict[str, Any],
+    docs_by_id: dict[int, dict[str, Any]] | None = None,
 ) -> dict[str, Any]:
-    text = "\n".join(doc_texts.get(doc_id, "") for doc_id in graph_doc_ids)
+    docs_by_id = docs_by_id or {}
+    owner_doc_ids = [
+        doc_id
+        for doc_id in graph_doc_ids
+        if _normalize_plugin_path(docs_by_id.get(doc_id, {}).get("path"))
+    ]
+    scanned_doc_ids = owner_doc_ids or graph_doc_ids
+    text = "\n".join(doc_texts.get(doc_id, "") for doc_id in scanned_doc_ids)
     policy_modes = [mode for mode in grammar["policy_modes"] if _term_found(mode, text)]
     lowered = text.lower()
+    for phrase in (
+        "artifacts and subagent messages must use english only",
+        "required check list",
+        "quality checks",
+    ):
+        lowered = lowered.replace(phrase, "")
     canonical_actions = [
         action for action in grammar["canonical_actions"] if _term_found(action, lowered)
     ]
@@ -775,6 +836,7 @@ def _standardization_for_graph(
         "policy_modes_found": policy_modes,
         "canonical_actions_found": canonical_actions,
         "weak_terms_found": weak_terms,
+        "scanned_doc_ids": scanned_doc_ids,
         "skill_refs": [
             {
                 "path": INSTRUCTION_HARDENING_SKILL_PATH,
@@ -829,6 +891,7 @@ def _enrich_graphs_for_instruction_hardening(
             graph_doc_ids,
             doc_texts,
             grammar,
+            docs_by_id,
         )
         dependency_refs = _dependency_decision_refs(
             graph,

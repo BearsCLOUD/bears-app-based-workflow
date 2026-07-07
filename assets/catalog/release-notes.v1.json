@@ -2,6 +2,26 @@
   "entries": [
     {
       "affected_surfaces": [
+        "instruction_artifacts_mcp",
+        "decision_ledger",
+        "release_notes"
+      ],
+      "date": "2026-07-07",
+      "files": [
+        "src/bears_workflow/instruction_artifacts/application/zones.py",
+        "docs/reference/instruction-artifacts-mcp.md",
+        "assets/catalog/release-notes.v1.json",
+        "assets/catalog/decision-ledger.v1.json",
+        "plans/instruction-artifacts-hardening-mcp.md"
+      ],
+      "impact": "Aligns instruction-hardening graph decisions with accepted decision-ledger live-evidence and latest-ledger tie-breaks when several scoped records touch the same graph, narrows standardization scoring to plugin-owned graph docs while preserving catalog-required parity phrases, and records cross-owner escalation as an edit blocker for dependency-owned surfaces only.",
+      "issue_ref": "#8",
+      "validation": [
+        "python3 scripts/local_commit_validation.py run --commit-sha <main_sha>"
+      ]
+    },
+    {
+      "affected_surfaces": [
         "role_profiles",
         "instruction_artifacts_mcp",
         "release_notes",
@@ -1754,6 +1774,6 @@
   ],
   "exemptions": [],
   "schema": "bears-release-notes.v1",
-  "updated": "2026-07-06",
+  "updated": "2026-07-07",
   "version": "1"
 }

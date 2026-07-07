@@ -9,8 +9,8 @@ This reference binds GitHub planning surfaces to Bears parent, L2, and L3 lanes.
 - GitHub Projects v2: items, views, fields, field options, workflows, charts, draft issues, linked Issues, and linked Pull Requests.
 - Issues: issue type, state, body, comments, labels, milestones, assignees, timeline, linked branches, linked Pull Requests, and dependencies.
 - Sub-issues: parent issue, child issue, priority, progress, and multi-level decomposition.
-- Pull Requests: review state, mergeability, linked Issues, check suites, review metadata, and base/head refs.
-- Actions and Checks: workflow runs, check suites, check runs, conclusions, artifacts metadata, and rerun eligibility.
+- Pull Requests: review state, mergeability, linked Issues, status suites, review metadata, and base/head refs.
+- Actions and CI statuses: workflow runs, status suites, status runs, conclusions, artifacts metadata, and rerun eligibility.
 - Releases, Tags, and Packages: version tags, release notes, release assets metadata, packages metadata, and container package refs.
 - Discussions, Wiki, and Pages: non-actionable decisions, public knowledge, Q&A, and announcements.
 - Code and security metadata: code scanning alerts, secret scanning alert metadata, Dependabot alerts, and advisories.

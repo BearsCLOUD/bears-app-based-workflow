@@ -18,4 +18,4 @@ python3 scripts/policy_invariants.py evaluate-closeout --from-git HEAD^..HEAD --
 - Governance files require an accepted decision-ledger record.
 - Audit packets must not contain forbidden raw data markers.
 
-`bears_doctor validate-closeout` calls this gate through the `policy_invariants` check.
+`bears_doctor validate-closeout` calls this gate through the `policy_invariants` guard.

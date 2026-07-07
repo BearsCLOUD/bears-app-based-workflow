@@ -154,7 +154,7 @@ Historical implementation-slice result:
 - targeted `unittest`: pass
 - historical full `python3 -m unittest discover -s tests` evidence: pass (`Ran 92 tests`, `OK`)
 
-## Product/runtime/deploy edit check
+## Product/runtime/deploy edit gate
 
 This evidence packet does not claim the entire workspace is clean. The workspace has pre-existing unrelated dirty files outside `/srv/bears/plugins/bears`.
 

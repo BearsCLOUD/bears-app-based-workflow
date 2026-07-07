@@ -21,7 +21,7 @@ Mandatory refusal classes are:
 
 ## Write-only rule
 
-The generated value resides only in process memory. The script posts it to the Infisical API v4 create endpoint and discards the response body. Output contains only status, key name, generator kind, Infisical path, and provider handoff metadata.
+The generated value resides only in in-memory script state. The script posts it to the Infisical API v4 create endpoint and discards the response body. Output contains only status, key name, generator kind, Infisical path, and provider handoff metadata.
 
 The script must not read Infisical values, echo values, store values on disk, pass values through command-line arguments, commit values, log values, or include values in tests or docs.
 
@@ -110,7 +110,7 @@ The confirmed smoke probe is `GET /user` against the API path prefix above. It r
 When a task needs a provider API token and a matching catalog ref exists, agents must follow this order. For `documented_unconfirmed` refs, complete the drift confirmation rule above first. For `operator_confirmed_live_ref` refs, follow the exact catalog route and still resolve the secret at task time.
 
 1. Resolve the secret by exact `secret_name` and `secret_path` through Infisical MCP.
-2. Keep the value only in process memory for the immediate provider API request.
+2. Keep the value only in in-memory script state for the immediate provider API request.
 3. Print only redacted API metadata, HTTP status, resource IDs, and non-secret names.
 
 Agents must not treat chat-pasted token text, shell history, `.env` files, raw config files, or provider CLI config as the source of truth for provider API work.

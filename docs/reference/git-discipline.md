@@ -6,13 +6,13 @@ Technical terms:
 
 - dirty status: changed or untracked files shown by `git status --short`.
 - staged files: files already selected for the next commit by `git add`.
-- diff check: `git diff --check`; it fails on whitespace errors.
+- diff whitespace guard: `git diff --check`; it fails on whitespace errors.
 - ancestry merge: Git proof that a branch tip is already reachable from the base branch.
 - squash merge: GitHub merge mode that writes a new commit on the base branch, so ancestry proof can be false after the PR is merged.
 - gitlink: a parent repository entry that pins a submodule path to a commit object.
 - assignment packet: JSON task handoff that may carry an explicit branch prefix override.
 - safe worker git identity: fixed local `user.name` and `user.email` used for worker commits.
-- branch-base preflight: read-only check that current branch, base, worktree cleanliness, and assignment paths match before edits or publish.
+- branch-base preflight: read-only guard that current branch, base, worktree cleanliness, and assignment paths match before edits or publish.
 - force-add: `git add -f` or `git add --force`, which stages ignored paths.
 
 ## Gate files

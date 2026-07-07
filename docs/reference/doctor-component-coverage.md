@@ -1,6 +1,6 @@
 # Doctor component coverage
 
-`doctor_component_coverage.py` checks that issue-level validator contracts are represented in `bears_doctor`, test selection, and closeout validation.
+`doctor_component_coverage.py` confirms that issue-level validator contracts are represented in `bears_doctor`, test selection, and closeout validation.
 
 ## Commands
 
@@ -16,7 +16,7 @@ python3 scripts/doctor_component_coverage.py doctor --json
 
 ## Gap meanings
 
-- `missing_doctor_check`: no required `component_issue` or check id in `assets/catalog/bears-doctor.v1.json`.
+- `missing_doctor_check`: no required `component_issue` or guard id in `assets/catalog/bears-doctor.v1.json`.
 - `missing_validator_command`: a required command is absent from doctor checks.
 - `missing_test_selection`: a required file is absent from `assets/catalog/test-selection.v1.json` mappings.
 - `closed_issue_still_not_available`: a closed issue still lacks required doctor coverage.

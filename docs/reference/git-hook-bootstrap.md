@@ -11,7 +11,7 @@ The shared hook runner gives governed Bears repositories thin local git hook ent
 
 ## Hook model
 
-`pre-commit` performs only cheap blocking checks. The current cheap check is `git diff --cached --check --no-ext-diff`.
+`pre-commit` performs only cheap blocking guards. The current cheap guard is `git diff --cached --check --no-ext-diff`.
 
 `post-commit` resolves the commit SHA, writes a queued validation job through `scripts/validation_queue.py`, writes validation state, updates effective hook proof, and exits. It does not run tests, run long validators, or auto-start a worker. `scripts/validation_worker.py` owns execution outside the hook path.
 

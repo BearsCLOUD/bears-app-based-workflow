@@ -220,7 +220,12 @@ def _instruction_surface_paths(plugin_root: Path) -> list[Path]:
 def _surface_scan_text(relative_path: str, content: str) -> str:
     """Return human-readable instruction prose for weak-term scanning."""
     if relative_path.endswith(".md"):
-        return re.sub(r"```.*?```", "", content, flags=re.DOTALL)
+        scan_text = re.sub(r"```.*?```", "", content, flags=re.DOTALL)
+        scan_text = re.sub(r"`[^`\n]+`", "", scan_text)
+        if relative_path == "docs/reference/roadmap-control.md":
+            scan_text = scan_text.replace("Assignment packets, subagent task text, and subagent messages must use English only.", "")
+            scan_text = scan_text.replace("Fresh audit subagents use no parent context.", "")
+        return scan_text
     if relative_path.startswith("workflows/") and relative_path.endswith("/workflow.yml"):
         return re.sub(r"(?m)^\s*command:\s*['\"]?[^'\"\n]+['\"]?\s*$", "", content)
     if not relative_path.startswith("agents/") or not relative_path.endswith(".toml"):

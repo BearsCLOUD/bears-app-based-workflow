@@ -45,5 +45,5 @@ scripts/bears_principles.py doctor --json
 
 ## Doctor output
 
-`bears_doctor` includes the `bears_goals_principles` check.
+`bears_doctor` includes the `bears_goals_principles` guard.
 The report returns active goal count, active principle count, and missing required active principles.

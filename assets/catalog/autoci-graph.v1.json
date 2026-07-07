@@ -3,7 +3,7 @@
   "version": "1",
   "owner_plugin": "bears",
   "updated": "2026-07-05T00:00:00+00:00",
-  "description": "Maps app task changed paths to named automatic CI zones. Agents record zone ids in app task ledger; autoCI owns exact check execution.",
+  "description": "Maps app task changed paths to named automatic CI zones. Agents record zone ids in app task ledger; autoCI owns exact status execution.",
   "zones": [
     {
       "id": "app-functional-graph",

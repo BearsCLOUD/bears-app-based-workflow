@@ -273,7 +273,7 @@
     {
       "authority_source": "assets/catalog/formal-semantics-kernel.v1.json",
       "closed_world": true,
-      "description": "Declare tool or contract use.",
+      "description": "Declare tool or contract dependency.",
       "direction": "forward",
       "id": "uses",
       "source_types": [

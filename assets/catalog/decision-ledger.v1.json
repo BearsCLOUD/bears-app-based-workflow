@@ -2051,9 +2051,34 @@
       "scope_id": "instruction-artifacts-hardening-mcp",
       "status": "accepted",
       "unresolved_inputs": []
+    },
+    {
+      "affected_paths": [
+        "assets/catalog/agentic-enterprise-constitution.v1.json",
+        "assets/catalog/autoci-graph.v1.json",
+        "assets/catalog/bears-principles.v1.json",
+        "assets/catalog/formal-logic-workflow-contract.v1.json",
+        "assets/catalog/plugin-governance-language-policy.v1.json",
+        "assets/catalog/roadmap-control.v1.json",
+        "assets/catalog/role-gate-methodology.v1.json",
+        "assets/catalog/semantic-type-system.v1.json",
+        "assets/catalog/release-notes.v1.json",
+        "plans/instruction-artifacts-hardening-mcp.md"
+      ],
+      "change_type": "policy",
+      "contradictions": [],
+      "decision": "Harden small instruction-policy catalog wording while preserving each catalog rule's existing authority and scope.",
+      "decision_id": "D-2026-07-07-small-policy-catalog-hardening",
+      "owner_issue": "#instruction-artifacts-hardening-mcp",
+      "owner_role": "bears-instruction-hardening-engineer",
+      "rationale": "The instruction-hardening goal requires current mutable policy prose to avoid weak action words without rewriting historical evidence or changing machine-owned policy semantics.",
+      "redaction": "safe",
+      "scope_id": "instruction-artifacts-hardening-mcp",
+      "status": "accepted",
+      "unresolved_inputs": []
     }
   ],
   "schema": "bears-decision-ledger.v1",
-  "updated": "2026-07-06",
+  "updated": "2026-07-07",
   "version": "1"
 }

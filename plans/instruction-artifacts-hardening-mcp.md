@@ -894,3 +894,49 @@ Critic result:
 
 - Re-audit critic `019f3b9d-3426-7231-a1ec-940453cd2e35` verdict: `SLICE_VERDICT: PASS`, `FULL_GOAL_VERDICT: NOT_COMPLETE`, blockers: none.
 - PASS was based on current repo evidence, not operator claims: changed files are `assets/catalog/subagent-orchestration-policy.v1.json`, `assets/catalog/release-notes.v1.json`, and plan evidence only; helper weak counts show `catalog: 52 -> 39`; `assets/catalog/subagent-orchestration-policy.v1.json` reports `weak_term_count: 0`; counted `rule` and `enforcement` wording was hardened while preserving worktree isolation, repository-scope, credential-output, delivery-role, parent-control evidence, max-subagent cap, reasoning matrix, audit-boundary, goal-parallelization, checkpoint, and source-authority requirements; release-note coverage exists; no role TOML, skill, workflow, runtime, deploy, Kubernetes desired-state, or secret-custody path changed; and broad all-instruction goal remains open because catalog and role surfaces still report weak terms.
+
+### Phase 27: Small instruction-policy catalog wording
+
+Status: in progress.
+
+MCP queue source:
+
+```bash
+python3 scripts/instruction_hardening_mcp_packet.py instruction_hardening_startup --root . --bounded-json
+```
+
+Wave scope:
+
+- counted policy prose in `assets/catalog/agentic-enterprise-constitution.v1.json`, `assets/catalog/autoci-graph.v1.json`, `assets/catalog/bears-principles.v1.json`, `assets/catalog/formal-logic-workflow-contract.v1.json`, `assets/catalog/plugin-governance-language-policy.v1.json`, `assets/catalog/roadmap-control.v1.json`, `assets/catalog/role-gate-methodology.v1.json`, and `assets/catalog/semantic-type-system.v1.json`;
+- `assets/catalog/release-notes.v1.json` coverage record;
+- `plans/instruction-artifacts-hardening-mcp.md` evidence record.
+
+Wave result before critic/commit:
+
+- `surface_summary.weak_terms_by_kind.catalog`: `39 -> 26`;
+- preserved codex_exec packet requirements, deterministic runner routing, autostart bounds, entity-term precision, controller spawn gates, schema migration duties, autoCI status ownership, self-improvement evidence sources, role-gate matching, and semantic dependency declarations;
+- did not mutate role TOMLs, skills, workflows, runtime, deploy, Kubernetes desired-state, or secret-custody surfaces.
+
+Critic requirement:
+
+- PASS only if current repo evidence proves this slice advances the active goal through the MCP queue, reduces small instruction-policy catalog weak terms without changing policy semantics, keeps release-note coverage, and keeps broad all-instruction goal NOT_COMPLETE unless all instruction surfaces are done.
+
+Critic result:
+
+- Re-audit critic `019f3b9d-3426-7231-a1ec-940453cd2e35` verdict: `SLICE_VERDICT: PASS`, `FULL_GOAL_VERDICT: NOT_COMPLETE`, blockers: none.
+- PASS was based on current repo evidence, not operator claims: changed files are the 8 target policy catalogs, `assets/catalog/release-notes.v1.json`, and plan evidence; helper weak counts show `catalog: 39 -> 26`; all 8 target catalogs report `weak_term_count: 0`; semantics are preserved for codex_exec packet requirements, deterministic runner routing, autostart bounds, entity-term precision, controller spawn gates, schema migration duties, autoCI status ownership, self-improvement evidence sources, role-gate matching, and semantic dependency declarations; release-note coverage exists; no role TOML, skill, workflow, runtime, deploy, Kubernetes desired-state, or secret-custody path changed; and broad all-instruction goal remains open because catalog and role surfaces still report weak terms.
+
+Pre-commit correction before closeout:
+
+- The first gitflow closeout attempt failed before commit with `decision_ledger_exit_code=1` from cheap checks.
+- Added accepted decision-ledger record `D-2026-07-07-small-policy-catalog-hardening` covering the Phase 27 policy catalog paths and release-note/plan evidence.
+- `assets/catalog/decision-ledger.v1.json` remains evidence-only for weak-term scoring; helper counts stay `catalog: 26`.
+
+Updated critic requirement:
+
+- PASS only if current repo evidence proves the added decision-ledger record covers Phase 27 required policy catalog paths without introducing unresolved inputs, contradictions, unsafe redaction, secret exposure, or a false full-goal completion claim.
+
+Updated critic result:
+
+- Re-audit critic `019f3b9d-3426-7231-a1ec-940453cd2e35` verdict: `SLICE_VERDICT: PASS`, `FULL_GOAL_VERDICT: NOT_COMPLETE`, blockers: none.
+- PASS was based on current repo evidence after the pre-commit correction: helper weak counts remain `catalog: 26`; Phase 27 reduction remains `catalog: 39 -> 26`; current diff includes the 8 required policy catalogs, `assets/catalog/release-notes.v1.json`, `assets/catalog/decision-ledger.v1.json`, and plan evidence; decision record `D-2026-07-07-small-policy-catalog-hardening` is accepted, redaction-safe, and has empty unresolved inputs and contradictions; the record covers all 8 required policy catalog paths plus release-note and plan evidence; release-note coverage remains present; no role TOML, skill, workflow, runtime, deploy, Kubernetes desired-state, or secret-custody path changed; and broad all-instruction goal remains open because catalog and role surfaces still report weak terms.

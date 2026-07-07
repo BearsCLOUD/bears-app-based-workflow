@@ -140,7 +140,7 @@
       },
       {
         "id": "controller-spawn-still-needs-hook",
-        "rule": "Every controller spawn requires the same pre-task hook, assignment packet, missing-data answers, drift answers, depth check, active-count check, and close evidence."
+        "rule": "Every controller spawn requires the same pre-task hook, assignment packet, missing-data answers, drift answers, depth gate, active-count gate, and close evidence."
       }
     ]
   },

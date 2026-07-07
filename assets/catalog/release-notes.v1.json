@@ -2,6 +2,31 @@
   "entries": [
     {
       "affected_surfaces": [
+        "instruction_policy_catalogs",
+        "instruction_artifacts_mcp",
+        "release_notes"
+      ],
+      "date": "2026-07-07",
+      "files": [
+        "assets/catalog/agentic-enterprise-constitution.v1.json",
+        "assets/catalog/autoci-graph.v1.json",
+        "assets/catalog/bears-principles.v1.json",
+        "assets/catalog/formal-logic-workflow-contract.v1.json",
+        "assets/catalog/plugin-governance-language-policy.v1.json",
+        "assets/catalog/roadmap-control.v1.json",
+        "assets/catalog/role-gate-methodology.v1.json",
+        "assets/catalog/semantic-type-system.v1.json",
+        "assets/catalog/release-notes.v1.json",
+        "plans/instruction-artifacts-hardening-mcp.md"
+      ],
+      "impact": "Hardens small instruction-policy catalog wording while preserving codex_exec packet requirements, deterministic runner routing, autostart bounds, entity-term precision, controller spawn gates, schema migration duties, autoCI status ownership, self-improvement evidence sources, role-gate matching, and semantic dependency declarations.",
+      "issue_ref": "#8",
+      "validation": [
+        "python3 scripts/local_commit_validation.py run --commit-sha <main_sha>"
+      ]
+    },
+    {
+      "affected_surfaces": [
         "subagent_orchestration_policy",
         "instruction_artifacts_mcp",
         "release_notes"

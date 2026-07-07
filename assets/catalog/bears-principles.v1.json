@@ -44,7 +44,7 @@
       "principle_id": "codex_exec_requires_gate",
       "status": "active",
       "severity": "blocking",
-      "rule": "codex_exec work must use role packets, allowed paths, forbidden paths, and a required result packet.",
+      "rule": "codex_exec work must include role packets, allowed paths, forbidden paths, and a required result packet.",
       "validator": "scripts/delivery_manifest.py validate",
       "decision_required_when": ["codex_exec execution changes"],
       "exceptions": []
@@ -53,7 +53,7 @@
       "principle_id": "deterministic_runner_before_llm",
       "status": "active",
       "severity": "warning",
-      "rule": "Use deterministic runners for planning, review, closeout, and direct validation when a runner exists.",
+      "rule": "Run deterministic runners for planning, review, closeout, and direct validation when a runner exists.",
       "validator": "scripts/delivery_manifest.py validate",
       "decision_required_when": ["runner selection changes"],
       "exceptions": []
@@ -80,7 +80,7 @@
       "principle_id": "no_unbounded_autostart",
       "status": "active",
       "severity": "blocking",
-      "rule": "Autostart must use bounded manifests, leases, scopes, and kill-switch checks.",
+      "rule": "Autostart must require bounded manifests, leases, scopes, and kill-switch gates.",
       "validator": "scripts/issue_autostart.py validate",
       "decision_required_when": ["autostart behavior changes"],
       "exceptions": []

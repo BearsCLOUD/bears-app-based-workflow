@@ -39,7 +39,7 @@
     {
       "principle_id": "process_improvement_from_traces",
       "severity": "blocking",
-      "rule": "Self-improvement must be driven by process traces, invariant failures, degradation events, and repeated blockers; not by unbounded prompt reflection."
+      "rule": "Self-improvement must be driven by execution traces, invariant failures, degradation events, and repeated blockers; not by unbounded prompt reflection."
     }
   ],
   "formal_chain": [

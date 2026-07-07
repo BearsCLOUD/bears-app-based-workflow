@@ -34,7 +34,7 @@
     "entity_term_policy": {
       "app": {
         "meaning": "Bears product application source under /srv/bears/dev/app or a BearsCLOUD/apps app directory.",
-        "required_precision": "Use product app, app directory, or /srv/bears/dev/app when the surface is application source.",
+        "required_precision": "Write product app, app directory, or /srv/bears/dev/app when the surface is application source.",
         "forbidden_meanings": [
           "local repository authority outside /srv/bears/dev/app",
           "plugin, connector, MCP server, or runtime surface unless the exact external product term is named"
@@ -42,7 +42,7 @@
       },
       "project": {
         "meaning": "GitHub Project planning board with linked Issues and metadata fields.",
-        "required_precision": "Use GitHub Project when planning board authority is meant; use repo, path, target, app directory, or workspace surface for filesystem or source ownership.",
+        "required_precision": "Write GitHub Project when planning board authority is meant; write repo, path, target, app directory, or workspace surface for filesystem or source ownership.",
         "forbidden_meanings": [
           "product application",
           "local repository",

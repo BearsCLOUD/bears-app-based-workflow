@@ -1508,7 +1508,7 @@
     },
     {
       "id": "choose_exactly_one_primary_role",
-      "rule": "Resolve candidates from exact aliases and declared write roots only, prefer the longest exact concrete match, reject group-only matches, and return ambiguous_owner when more than one primary candidate remains. Dev-core targets under /srv/bears/dev must use exact layer aliases or declared write roots; deprecated /srv/bears/projects paths are transitional sources only. Source repository identities and submodule remotes are classification-only and must not widen write authority beyond exact submodule paths. Exact workspace submodule-root aliases may classify parent gitlink pointers only when the catalog names that exact root; /srv/bears/kubernetes is a kubernetes_deploy_core repo-root route, while /srv/bears/plugins/bears remains parent gitlink pointer only.",
+      "rule": "Resolve candidates from exact aliases and declared write roots only, prefer the longest exact concrete match, reject group-only matches, and return ambiguous_owner when more than one primary candidate remains. Dev-core targets under /srv/bears/dev must match exact layer aliases or declared write roots; deprecated /srv/bears/projects paths are transitional sources only. Source repository identities and submodule remotes are classification-only and must not widen write authority beyond exact submodule paths. Exact workspace submodule-root aliases may classify parent gitlink pointers only when the catalog names that exact root; /srv/bears/kubernetes is a kubernetes_deploy_core repo-root route, while /srv/bears/plugins/bears remains parent gitlink pointer only.",
       "title": "How to choose exactly one primary role"
     },
     {

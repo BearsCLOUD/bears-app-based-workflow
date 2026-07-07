@@ -98,7 +98,7 @@
     },
     {
       "id": "versioned_contracts",
-      "rule": "Schemas and packets carry schema_version or version and use explicit migration steps for incompatible changes."
+      "rule": "Schemas and packets carry schema_version or version and require explicit migration steps for incompatible changes."
     },
     {
       "id": "backward_compatibility",

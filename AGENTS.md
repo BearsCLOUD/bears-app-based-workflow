@@ -55,7 +55,7 @@
 
 ## Entity terms
 - Say exact terms `local_cd` and `kubernetes_deployment` when those surfaces are changed.
-- Artifacts and subagent messages must be English only.
+- Artifacts and subagent messages must use English only.
 - Wording must stay strict, concise, and entity-bound.
 
 ## Portable checkout

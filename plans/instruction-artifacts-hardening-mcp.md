@@ -741,3 +741,34 @@ Follow-up critic result:
 
 - Re-audit critic `019f3b9d-3426-7231-a1ec-940453cd2e35` verdict: `FIX_VERDICT: PASS`, `FULL_GOAL_VERDICT: NOT_COMPLETE`, blockers: none.
 - PASS was based on current repo evidence: `agents/bears-github-branch-protection-settings-governor.toml` preserves exact `required check list` at the affected lines; scanner removes that catalog-parity phrase from role scan text before weak-term scoring; docs record `Quality checks:` and `required check list` as structural markers, not refactor targets; MCP/helper weak counts stay `role: 124`; top-level role fields are unchanged; exact `Quality checks:` headings remain in all seven changed role TOMLs; and broad all-instruction goal remains open because catalog and role surfaces still report weak terms.
+
+
+### Phase 22 follow-up: Required AGENTS governance fragment restoration
+
+Status: in progress.
+
+CI evidence from commit `2bfc33a952b26984e352c7a82cab0da744bc5cee`:
+
+- GitHub run `28856884211` failed in `skill inventory validation`; `validate_overlay.py --json validate --strict-overlay-skills` reported `AGENTS.md: missing required governance fragment: Artifacts and subagent messages must use English only.`
+
+Fix scope:
+
+- Restored exact `AGENTS.md` fragment `Artifacts and subagent messages must use English only.`
+- Updated MCP Markdown scan text to exclude that validator-required plugin-router fragment from weak-term scoring.
+- Updated `docs/reference/instruction-artifacts-mcp.md` to record stable validator/compatibility fragments as non-refactor targets.
+
+Fix result before critic/commit:
+
+- `surface_summary.weak_terms_by_kind.agents_router` stays `0`;
+- exact validator-required AGENTS governance fragment is restored;
+- role weak terms stay `124`;
+- no runtime, deploy, Kubernetes desired-state, or secret-custody surfaces changed.
+
+Critic requirement:
+
+- PASS only if current repo evidence proves the CI failure cause is addressed by restoring the exact required AGENTS fragment while preserving MCP queue correctness and broad all-instruction goal status.
+
+Critic result:
+
+- Re-audit critic `019f3b9d-3426-7231-a1ec-940453cd2e35` verdict: `FIX_VERDICT: PASS`, `FULL_GOAL_VERDICT: NOT_COMPLETE`, blockers: none.
+- PASS was based on current repo evidence: GitHub run `28856884211` log confirms the failed required AGENTS fragment; `AGENTS.md` now contains exact `Artifacts and subagent messages must use English only.`; scanner excludes that exact validator-required fragment from Markdown weak-term scoring; docs record stable validator/compatibility phrasing fragments as non-refactor targets; MCP/helper weak counts are `agents_router: 0`, `role: 124`; MCP response schema fields remain present; owner routing, validation ownership, secret safety, and runtime/deploy/Kubernetes proof routing remain present; and broad all-instruction goal remains open because catalog and role surfaces still report weak terms.

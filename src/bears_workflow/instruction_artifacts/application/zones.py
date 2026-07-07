@@ -244,6 +244,8 @@ def _surface_scan_text(relative_path: str, content: str) -> str:
     if relative_path.endswith(".md"):
         scan_text = re.sub(r"```.*?```", "", content, flags=re.DOTALL)
         scan_text = re.sub(r"`[^`\n]+`", "", scan_text)
+        if relative_path == "AGENTS.md":
+            scan_text = scan_text.replace("Artifacts and subagent messages must use English only.", "")
         if relative_path == "docs/reference/roadmap-control.md":
             scan_text = scan_text.replace("Assignment packets, subagent task text, and subagent messages must use English only.", "")
             scan_text = scan_text.replace("Fresh audit subagents use no parent context.", "")

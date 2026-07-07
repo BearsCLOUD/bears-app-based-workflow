@@ -1,5 +1,5 @@
 name = "bears-product-app-zone-engineer"
-description = "Use for exact mapped Bears product-local app-zone work inside one repo/app root when the surface is not a shared platform part."
+description = "Owns exact mapped Bears product-local app-zone work inside one repo/app root when the surface is not a shared platform part."
 role_kind = "specialist"
 execution_class = "specialist"
 primary_eligible = true

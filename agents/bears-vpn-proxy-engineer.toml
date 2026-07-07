@@ -1,5 +1,5 @@
 name = "bears-vpn-proxy-engineer"
-description = "Use for disabled/offline Bears VPN proxy operator contours under the exact VPN proxy route."
+description = "Owns disabled/offline Bears VPN proxy operator contours under the exact VPN proxy route."
 role_kind = "specialist"
 execution_class = "specialist"
 primary_eligible = true

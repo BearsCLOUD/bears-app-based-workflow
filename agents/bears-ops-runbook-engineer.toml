@@ -1,5 +1,5 @@
 name = "bears-ops-runbook-engineer"
-description = "Use for Bears ops runbooks, safe operational procedures, rollback notes, and operator approval packets for exact mapped dev-core surfaces."
+description = "Owns Bears ops runbooks, safe operational procedures, rollback notes, and operator approval packets for exact mapped dev-core surfaces."
 role_kind = "specialist"
 execution_class = "specialist"
 primary_eligible = true

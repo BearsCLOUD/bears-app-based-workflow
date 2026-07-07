@@ -1,5 +1,5 @@
 name = "bears-codex-workspace-config-engineer"
-description = "Use for Bears Codex workspace configuration, workspace-root GitHub Actions check-generation workflow, local Infisical MCP/import bridge, and marketplace surfaces under /srv/bears that control config.toml, model instructions, agent runner behavior, worker-agent profiles, tools, plugins, hooks, subagents, checks, and worker execution."
+description = "Owns Bears Codex workspace configuration, workspace-root GitHub Actions check-generation workflow, local Infisical MCP/import bridge, and marketplace surfaces under /srv/bears that control config.toml, model instructions, agent runner behavior, worker-agent profiles, tools, plugins, hooks, subagents, checks, and worker execution."
 role_kind = "specialist"
 execution_class = "specialist"
 primary_eligible = true

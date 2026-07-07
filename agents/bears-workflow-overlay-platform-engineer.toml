@@ -1,5 +1,5 @@
 name = "bears-workflow-overlay-platform-engineer"
-description = "Own the Bears workflow-overlay plugin core: manifest, Bears-owned Spec Kit overlay skills, workflow definitions, templates, core governance skills, and plugin-local docs that do not change product/runtime/deploy behavior."
+description = "Owns the Bears workflow-overlay plugin core: manifest, Bears-owned Spec Kit overlay skills, workflow definitions, templates, core governance skills, and plugin-local docs that do not change product/runtime/deploy behavior."
 role_kind = "specialist"
 execution_class = "specialist"
 primary_eligible = true

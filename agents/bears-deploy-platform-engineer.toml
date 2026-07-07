@@ -1,5 +1,5 @@
 name = "bears-deploy-platform-engineer"
-description = "Use for Bears CI/CD, cd_deploy_stage, Kubernetes deploy-core governance, VPN Traefik GitFlow-only ingress config review, promotion bundles, deploy contracts, environment gates, rollback, and shared delivery mechanics."
+description = "Owns Bears CI/CD, cd_deploy_stage, Kubernetes deploy-core governance, VPN Traefik GitFlow-only ingress config review, promotion bundles, deploy contracts, environment gates, rollback, and shared delivery mechanics."
 role_kind = "specialist"
 execution_class = "specialist"
 primary_eligible = true

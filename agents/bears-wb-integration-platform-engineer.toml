@@ -1,5 +1,5 @@
 name = "bears-wb-integration-platform-engineer"
-description = "Use for Bears Wildberries integration platform work: supplier/API adapters, token-governance boundaries, webhook/report sync, and MPAPI-facing behavior."
+description = "Owns Bears Wildberries integration platform work: supplier/API adapters, token-governance boundaries, webhook/report sync, and MPAPI-facing behavior."
 role_kind = "specialist"
 execution_class = "specialist"
 primary_eligible = true

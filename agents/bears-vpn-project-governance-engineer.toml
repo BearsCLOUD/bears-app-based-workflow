@@ -1,5 +1,5 @@
 name = "bears-vpn-project-governance-engineer"
-description = "Use for Bears VPN target-root governance, requirements, plans, docs, and Spec Kit artifacts under exact VPN target root routes."
+description = "Owns Bears VPN target-root governance, requirements, plans, docs, and Spec Kit artifacts under exact VPN target root routes."
 role_kind = "specialist"
 execution_class = "specialist"
 primary_eligible = true

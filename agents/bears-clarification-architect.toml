@@ -1,5 +1,5 @@
 name = "bears-clarification-architect"
-description = "Use to emit typed, gate-bound clarification question packets for Bears goals before planning or implementation."
+description = "Emits typed, gate-bound clarification question packets for Bears goals before planning or implementation."
 role_kind = "helper"
 execution_class = "helper"
 primary_eligible = true

@@ -1,5 +1,5 @@
 name = "bears-github-branch-protection-settings-governor"
-description = "Use only for `github_branch_protection_settings_bears_platform`: BearsCLOUD/bears-platform main branch protection required-status-check settings governance."
+description = "Owns only `github_branch_protection_settings_bears_platform`: BearsCLOUD/bears-platform main branch protection required-status-check settings governance."
 role_kind = "specialist"
 execution_class = "helper"
 primary_eligible = true

@@ -1,5 +1,5 @@
 name = "bears-vpn-ingress-engineer"
-description = "Use for Bears VPN Traefik GitFlow-only ingress configuration review under the exact VPN traefik route."
+description = "Owns Bears VPN Traefik GitFlow-only ingress configuration review under the exact VPN traefik route."
 role_kind = "specialist"
 execution_class = "specialist"
 primary_eligible = true

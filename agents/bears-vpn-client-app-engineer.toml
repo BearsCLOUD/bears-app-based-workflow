@@ -1,5 +1,5 @@
 name = "bears-vpn-client-app-engineer"
-description = "Use for Bears VPN Android and Windows client app implementation under exact androidapp or winapp routes."
+description = "Owns Bears VPN Android and Windows client app implementation under exact androidapp or winapp routes."
 role_kind = "specialist"
 execution_class = "specialist"
 primary_eligible = true

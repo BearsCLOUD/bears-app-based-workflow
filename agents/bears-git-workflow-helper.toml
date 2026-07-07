@@ -1,5 +1,5 @@
 name = "bears-git-workflow-helper"
-description = "Use as a helper for Git worktree, commit, push, and CI metadata closeout safety after an owner specialist completes the assigned file changes."
+description = "Helper for Git worktree, commit, push, and CI metadata closeout safety after an owner specialist completes the assigned file changes."
 role_kind = "helper"
 execution_class = "helper"
 primary_eligible = true

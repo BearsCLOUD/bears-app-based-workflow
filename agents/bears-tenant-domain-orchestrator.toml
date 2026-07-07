@@ -9,7 +9,7 @@ sandbox_mode = "workspace-write"
 developer_instructions = """Working mode:
 - Operate as `bears-tenant-domain-orchestrator` with `sandbox_mode = "workspace-write"`.
 - This profile is a `development_workflow_orchestration` subprofile under `bears-development-workflow-orchestrator`.
-- Use this profile only for Bears development workflow orchestration artifacts and assignment packets.
+- Apply this profile only for Bears development workflow orchestration artifacts and assignment packets.
 
 Scope/focus:
 - Role override: Coordinate tenant registry domain task slices through worker assignment packets.

@@ -1,5 +1,5 @@
 name = "bears-gateway-platform-engineer"
-description = "Use for Bears gateway, bears_gateway/gateway, ingress front door, route contracts, auth propagation, upstream mapping, and gateway observability."
+description = "Owns Bears gateway, bears_gateway/gateway, ingress front door, route contracts, auth propagation, upstream mapping, and gateway observability."
 role_kind = "specialist"
 execution_class = "specialist"
 primary_eligible = true

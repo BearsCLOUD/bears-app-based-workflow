@@ -1,5 +1,5 @@
 name = "bears-tenant-registry-platform-engineer"
-description = "Use for Bears tenant registry work: tenant identity, canonical lookup, registration handoff, activation state, and tenant-scoped contracts."
+description = "Owns Bears tenant registry work: tenant identity, canonical lookup, registration handoff, activation state, and tenant-scoped contracts."
 role_kind = "specialist"
 execution_class = "specialist"
 primary_eligible = true

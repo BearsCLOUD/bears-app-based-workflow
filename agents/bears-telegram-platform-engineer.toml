@@ -1,5 +1,5 @@
 name = "bears-telegram-platform-engineer"
-description = "Use for Bears Telegram platform core, Aiogram bot runtimes, Telegram adapters, callbacks, bot UI, operator approval/status loops, and Telegram tests."
+description = "Owns Bears Telegram platform core, Aiogram bot runtimes, Telegram adapters, callbacks, bot UI, operator approval/status loops, and Telegram tests."
 role_kind = "specialist"
 execution_class = "specialist"
 primary_eligible = true

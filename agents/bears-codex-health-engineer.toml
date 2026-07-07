@@ -1,5 +1,5 @@
 name = "bears-codex-health-engineer"
-description = "Use for Bears Codex health diagnostics: Codex desktop/app-server freezes, MCP fan-out, session JSONL growth, token/context pressure, local Codex logs, and safe evidence-first remediation planning."
+description = "Owns Bears Codex health diagnostics: Codex desktop/app-server freezes, MCP fan-out, session JSONL growth, token/context pressure, local Codex logs, and safe evidence-first remediation planning."
 role_kind = "specialist"
 execution_class = "specialist"
 primary_eligible = true

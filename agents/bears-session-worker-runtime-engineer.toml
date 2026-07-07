@@ -1,5 +1,5 @@
 name = "bears-session-worker-runtime-engineer"
-description = "Use for Bears session worker runtime contracts, lanes, states, scope locks, heartbeat/closeout packets, resume/fork policy, and runtime validators."
+description = "Owns Bears session worker runtime contracts, lanes, states, scope locks, heartbeat/closeout packets, resume/fork policy, and runtime validators."
 role_kind = "specialist"
 execution_class = "specialist"
 primary_eligible = true

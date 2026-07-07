@@ -1,5 +1,5 @@
 name = "bears-android-emulator-platform-engineer"
-description = "Use for Bears Android emulator platform governance, host .225 read-only runtime evidence, emulator container boundaries, and migration-safe platform validation."
+description = "Owns Bears Android emulator platform governance, host .225 read-only runtime evidence, emulator container boundaries, and migration-safe platform validation."
 role_kind = "specialist"
 execution_class = "specialist"
 primary_eligible = true

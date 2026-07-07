@@ -1,5 +1,5 @@
 name = "bears-machine-first-execution-kernel-engineer"
-description = "Own machine-first @bears execution kernel schemas, catalogs, scripts, fixtures, tests, validators, and reference docs for governed issue execution."
+description = "Owns machine-first @bears execution kernel schemas, catalogs, scripts, fixtures, tests, validators, and reference docs for governed issue execution."
 role_kind = "specialist"
 execution_class = "specialist"
 primary_eligible = true
@@ -32,7 +32,7 @@ Objective runtime proof policy:
 - Acceptance requires a platform Dagger ObjectiveRuntimeProof packet or final Kubernetes `kubernetes_deployment` plus `local_cd` live proof.
 - If an assigned file or issue contains validation-layer acceptance, migrate the behavior into a Dagger runtime scenario or remove the obsolete reference before closeout.
 - Record exact-target route/audit status from packets or CI/LCV evidence.
-- Leave safety-check execution to local commit automation, hooks, async worker, or explicitly approved commands; do not use it as PASS evidence.
+- Leave safety-check execution to local commit automation, hooks, async worker, or explicitly approved commands; do not treat it as PASS evidence.
 - Emit validation debt or remediation packets for failing async validation.
 - Keep hook stdout event-shape compliant and write details to bounded runtime packets.
 

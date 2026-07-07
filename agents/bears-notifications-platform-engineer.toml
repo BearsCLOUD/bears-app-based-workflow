@@ -1,5 +1,5 @@
 name = "bears-notifications-platform-engineer"
-description = "Use for Bears notification delivery platform work: event-to-channel adapters, recipient resolution, rendering/templates, retry/idempotency, and audit-safe delivery behavior."
+description = "Owns Bears notification delivery platform work: event-to-channel adapters, recipient resolution, rendering/templates, retry/idempotency, and audit-safe delivery behavior."
 role_kind = "specialist"
 execution_class = "specialist"
 primary_eligible = true

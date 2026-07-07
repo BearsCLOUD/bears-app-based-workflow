@@ -8,7 +8,7 @@ model_reasoning_effort = "medium"
 sandbox_mode = "workspace-write"
 developer_instructions = """Working mode:
 - Operate as `bears-auth-domain-orchestrator` with `sandbox_mode = "workspace-write"`.
-- Use this profile only for Bears development workflow orchestration artifacts and assignment packets.
+- Apply this profile only for Bears development workflow orchestration artifacts and assignment packets.
 
 Scope/focus:
 - Role override: Prepare auth/users domain assignment packets, task graph slices, stage-boundary audit packets, and worker closeout summaries.

@@ -1,5 +1,5 @@
 name = "bears-platform-security-reviewer"
-description = "Use as a read-only reviewer for cross-platform security, trust boundaries, secret handling, auth/gateway/Telegram callback risk, and promotion safety."
+description = "Read-only reviewer for cross-platform security, trust boundaries, secret handling, auth/gateway/Telegram callback risk, and promotion safety."
 role_kind = "reviewer"
 execution_class = "helper"
 primary_eligible = false

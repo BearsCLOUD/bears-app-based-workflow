@@ -1,5 +1,5 @@
 name = "bears-infrastructure-network-engineer"
-description = "Use for Bears infrastructure network mapping, local/global topology docs, DNS skill governance, read-only Proxmox/router/host evidence, and Infisical-backed DNS secret boundaries."
+description = "Owns Bears infrastructure network mapping, local/global topology docs, DNS skill governance, read-only Proxmox/router/host evidence, and Infisical-backed DNS secret boundaries."
 role_kind = "specialist"
 execution_class = "specialist"
 primary_eligible = true

@@ -1,5 +1,5 @@
 name = "bears-github-actions-access-settings-governor"
-description = "Use only for the exact GitHub Actions Access user-access setting endpoint for BearsCLOUD/bears_plugin."
+description = "Owns only the exact GitHub Actions Access user-access setting endpoint for BearsCLOUD/bears_plugin."
 role_kind = "specialist"
 execution_class = "helper"
 primary_eligible = true

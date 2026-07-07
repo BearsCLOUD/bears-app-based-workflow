@@ -1,5 +1,5 @@
 name = "bears-token-budget-helper"
-description = "Use as a helper for compact state summaries, token budget checks, duration checks, and split recommendations for Bears governed agent work."
+description = "Helper for compact state summaries, token budget checks, duration checks, and split recommendations for Bears governed agent work."
 role_kind = "helper"
 execution_class = "helper"
 primary_eligible = true

@@ -1,5 +1,5 @@
 name = "bears-auth-platform-engineer"
-description = "Use for Bears identity, auth_core, sessions, Telegram Web App auth bootstrap, MFA, agreements, RBAC, and auth integration boundaries."
+description = "Owns Bears identity, auth_core, sessions, Telegram Web App auth bootstrap, MFA, agreements, RBAC, and auth integration boundaries."
 role_kind = "specialist"
 execution_class = "specialist"
 primary_eligible = true

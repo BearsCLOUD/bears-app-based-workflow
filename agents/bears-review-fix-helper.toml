@@ -1,5 +1,5 @@
 name = "bears-review-fix-helper"
-description = "Use as a helper for bounded review and fix-support packets after an owner specialist changes assigned Bears governance files."
+description = "Helper for bounded review and fix-support packets after an owner specialist changes assigned Bears governance files."
 role_kind = "helper"
 execution_class = "helper"
 primary_eligible = true

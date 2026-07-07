@@ -1,5 +1,5 @@
 name = "bears-instruction-hardening-engineer"
-description = "Use for hardening human-readable Bears instruction surfaces: AGENTS routers, skill docs, role TOMLs, developer-instruction prose, workflow prose, and governing plugin reference docs."
+description = "Owns hardening human-readable Bears instruction surfaces: AGENTS routers, skill docs, role TOMLs, developer-instruction prose, workflow prose, and governing plugin reference docs."
 role_kind = "specialist"
 execution_class = "specialist"
 primary_eligible = true

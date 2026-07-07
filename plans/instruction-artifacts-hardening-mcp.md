@@ -1008,3 +1008,39 @@ Critic result:
 
 - Re-audit critic `019f3b9d-3426-7231-a1ec-940453cd2e35` verdict: `SLICE_VERDICT: PASS`, `FULL_GOAL_VERDICT: NOT_COMPLETE`, blockers: none.
 - PASS was based on current repo evidence: changed files are scanner code, MCP reference doc, release-note coverage, decision-ledger record, and plan evidence only; helper weak counts show `catalog: 9 -> 0` and `role: 49`; selected human-policy catalog fields remain scanned, while catalogs with no selected human-policy fields return empty scan text; `required check list` remains a catalog parity phrase excluded from scoring; decision-ledger/release-note evidence-only handling and MCP response fields remain intact; no role TOML, skill, workflow, runtime, deploy, Kubernetes desired-state, or secret-custody path changed; and broad all-instruction goal remains open because role surfaces still report weak terms.
+
+### Phase 30: Role profile wording hardening
+
+Status: in progress.
+
+MCP queue source:
+
+```bash
+python3 scripts/instruction_hardening_mcp_packet.py instruction_hardening_startup --root . --bounded-json
+```
+
+Wave scope:
+
+- role TOML `description` and targeted validation-boundary wording in `agents/*.toml`;
+- `assets/catalog/release-notes.v1.json` coverage record;
+- `assets/catalog/decision-ledger.v1.json` accepted decision record;
+- `plans/instruction-artifacts-hardening-mcp.md` evidence record.
+
+Wave result before critic/commit:
+
+- `surface_summary.weak_terms_by_kind.role`: `49 -> 0`;
+- `surface_summary.weak_terms_by_kind`: all kinds now report `0` weak terms;
+- role descriptions now use exact ownership/helper/reviewer/route phrasing instead of weak selection verbs;
+- repeated profile-routing text now says `Apply this profile only` instead of weak selection wording;
+- CI-owned validation semantics remain intact through `CI status suites`, `plugin validation results`, and `do not treat it as PASS evidence` wording;
+- preserved role names, role kinds, model settings, reasoning settings, sandbox settings, write boundaries, forbidden actions, evidence requirements, deploy/runtime/Kubernetes/secret bans, and role routing.
+
+Critic requirement:
+
+- PASS only if current repo evidence proves this slice advances the active goal by reducing role weak terms from `49 -> 0`, keeps all other weak-term counts at `0`, and changes only wording without changing role routing, role settings, write boundaries, forbidden actions, evidence requirements, deploy/runtime/Kubernetes/secret bans, release-note coverage, or decision-ledger safety. Full goal may be COMPLETE only if current helper evidence proves all instruction-surface weak-term counts are `0` and no required artifact or gate remains missing.
+
+Critic result:
+
+- Re-audit critic `019f3b9d-3426-7231-a1ec-940453cd2e35` verdict: `SLICE_VERDICT: PASS`, `FULL_GOAL_VERDICT: NOT_COMPLETE`.
+- PASS was based on current repo evidence: helper weak counts report `agents_router: 0`, `catalog: 0`, `reference: 0`, `role: 0`, `skill: 0`, and `workflow: 0`; changed role files contain wording-only changes in descriptions and targeted validation-boundary text; protected role keys such as `name`, `role_kind`, `execution_class`, `primary_eligible`, `model`, `model_reasoning_effort`, `sandbox_mode`, write boundaries, forbidden actions, evidence requirements, and routing fields were not changed; release-note and decision-ledger coverage exists with accepted, redaction-safe decision record `D-2026-07-07-role-profile-wording-hardening`.
+- Full goal remains open before closeout because the current repo still has uncommitted changes and helper graph evidence does not yet prove all required decision/live-confirmation/escalation invariants.

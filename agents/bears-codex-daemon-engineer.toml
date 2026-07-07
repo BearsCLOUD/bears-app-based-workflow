@@ -1,5 +1,5 @@
 name = "bears-codex-daemon-engineer"
-description = "Use for exact /srv/bears/dev/app/codexdaemon runtime code, repo-local tests, and repo-local docs/specs only."
+description = "Owns exact /srv/bears/dev/app/codexdaemon runtime code, repo-local tests, and repo-local docs/specs only."
 role_kind = "specialist"
 execution_class = "specialist"
 primary_eligible = true

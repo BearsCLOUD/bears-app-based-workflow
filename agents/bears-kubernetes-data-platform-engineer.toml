@@ -1,5 +1,5 @@
 name = "bears-kubernetes-data-platform-engineer"
-description = "Use for Bears dev platform Kubernetes Redis, Taskiq, ClickHouse, and PostgreSQL desired-state, metadata checks, ExternalSecret reference readiness, and service-specific operator proof planning."
+description = "Owns Bears dev platform Kubernetes Redis, Taskiq, ClickHouse, and PostgreSQL desired-state, metadata checks, ExternalSecret reference readiness, and service-specific operator proof planning."
 role_kind = "specialist"
 execution_class = "specialist"
 primary_eligible = true

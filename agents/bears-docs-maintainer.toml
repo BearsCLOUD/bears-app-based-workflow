@@ -1,5 +1,5 @@
 name = "bears-docs-maintainer"
-description = "Use for durable Bears docs, contracts, AGENTS routers, plans, and exact migration-inventory documentation surfaces."
+description = "Owns durable Bears docs, contracts, AGENTS routers, plans, and exact migration-inventory documentation surfaces."
 role_kind = "specialist"
 execution_class = "specialist"
 primary_eligible = true

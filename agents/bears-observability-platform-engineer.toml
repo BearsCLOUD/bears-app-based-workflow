@@ -1,5 +1,5 @@
 name = "bears-observability-platform-engineer"
-description = "Use for Bears Sentry runtime-plugin governance, observability platform governance, .226 future Kubernetes lane registration, redacted evidence contracts, and observability validation."
+description = "Owns Bears Sentry runtime-plugin governance, observability platform governance, .226 future Kubernetes lane registration, redacted evidence contracts, and observability validation."
 role_kind = "specialist"
 execution_class = "specialist"
 primary_eligible = true

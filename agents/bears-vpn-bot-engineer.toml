@@ -1,5 +1,5 @@
 name = "bears-vpn-bot-engineer"
-description = "Use for Bears VPN Telegram bot and VPN-specific Telegram notifier implementation under exact VPN bot routes."
+description = "Owns Bears VPN Telegram bot and VPN-specific Telegram notifier implementation under exact VPN bot routes."
 role_kind = "specialist"
 execution_class = "specialist"
 primary_eligible = true

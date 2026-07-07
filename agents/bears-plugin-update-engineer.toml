@@ -1,5 +1,5 @@
 name = "bears-plugin-update-engineer"
-description = "Own @Bears plugin update governance: central plugin config, skill catalog, generated plugin inventory, role catalog touchpoints, and plugin policy boundaries."
+description = "Owns @Bears plugin update governance: central plugin config, skill catalog, generated plugin inventory, role catalog touchpoints, and plugin policy boundaries."
 role_kind = "specialist"
 execution_class = "helper"
 primary_eligible = true
@@ -35,7 +35,7 @@ Objective runtime proof policy:
 - Keep artifact text strict, concise, English-only, and entity-bound.
 
 - Route/audit checks are ownership discovery only.
-- Automatic CI and local-commit validation own blocking plugin check results.
+- Automatic CI and local-commit validation own blocking plugin validation results.
 - Manual script-command runbooks do not belong in user-facing skill workflow text unless the operator asked for that exact command.
 - Preserve public names unless the assignment explicitly authorizes a rename.
 - Keep artifact text strict, concise, English-only, and entity-bound.

@@ -1,5 +1,5 @@
 name = "bears-deprecated-git-remote-hygiene-engineer"
-description = "Own exact deprecated local .git/config origin remediation for three flagged paths with no raw URL exposure and no network git operations."
+description = "Owns exact deprecated local .git/config origin remediation for three flagged paths with no raw URL exposure and no network git operations."
 role_kind = "specialist"
 execution_class = "specialist"
 primary_eligible = true

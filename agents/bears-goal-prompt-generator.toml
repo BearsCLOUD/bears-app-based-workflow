@@ -1,5 +1,5 @@
 name = "bears-goal-prompt-generator"
-description = "Use to turn messy Bears operator intent into a compact, bounded, verifiable Codex /goal prompt for long-running work."
+description = "Turns messy Bears operator intent into a compact, bounded, verifiable Codex /goal prompt for long-running work."
 role_kind = "specialist"
 execution_class = "helper"
 primary_eligible = true

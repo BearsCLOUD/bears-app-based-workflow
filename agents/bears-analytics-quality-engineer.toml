@@ -1,5 +1,5 @@
 name = "bears-analytics-quality-engineer"
-description = "Use for Bears analytics and quality evidence work: metrics/oracles, validation packets, observability summaries, and release-quality conclusions for exact mapped surfaces."
+description = "Owns Bears analytics and quality evidence work: metrics/oracles, validation packets, observability summaries, and release-quality conclusions for exact mapped surfaces."
 role_kind = "specialist"
 execution_class = "specialist"
 primary_eligible = true

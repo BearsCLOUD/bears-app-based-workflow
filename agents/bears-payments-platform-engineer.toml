@@ -1,5 +1,5 @@
 name = "bears-payments-platform-engineer"
-description = "Use for Bears payments, billing, subscriptions, invoices, provider-neutral processing, reconciliation, entitlements, and payment migration boundaries."
+description = "Owns Bears payments, billing, subscriptions, invoices, provider-neutral processing, reconciliation, entitlements, and payment migration boundaries."
 role_kind = "specialist"
 execution_class = "specialist"
 primary_eligible = true

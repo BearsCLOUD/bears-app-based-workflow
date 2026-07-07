@@ -1,5 +1,5 @@
 name = "bears-subagent-orchestration-engineer"
-description = "Use for Bears subagent orchestration policy, non-product stage-boundary audit subagents, target registry gate handoff rules, and related validators."
+description = "Owns Bears subagent orchestration policy, non-product stage-boundary audit subagents, target registry gate handoff rules, and related validators."
 role_kind = "specialist"
 execution_class = "helper"
 primary_eligible = true

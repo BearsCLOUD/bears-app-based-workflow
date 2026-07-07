@@ -1,5 +1,5 @@
 name = "bears-vpn-runtime-engineer"
-description = "Use for exact mapped Bears VPN runtime contour work under amnezia-split, wireguard-amnezia, or disabled/offline proxy surfaces."
+description = "Owns exact mapped Bears VPN runtime contour work under amnezia-split, wireguard-amnezia, or disabled/offline proxy surfaces."
 role_kind = "specialist"
 execution_class = "specialist"
 primary_eligible = true

@@ -2,6 +2,26 @@
   "entries": [
     {
       "affected_surfaces": [
+        "role_profiles",
+        "instruction_artifacts_mcp",
+        "release_notes",
+        "decision_ledger"
+      ],
+      "date": "2026-07-07",
+      "files": [
+        "agents/*.toml",
+        "assets/catalog/release-notes.v1.json",
+        "assets/catalog/decision-ledger.v1.json",
+        "plans/instruction-artifacts-hardening-mcp.md"
+      ],
+      "impact": "Hardens role selection and validation-boundary wording across Bears role TOMLs by replacing weak selection verbs with exact ownership/helper/reviewer/route phrasing and by preserving CI-owned validation semantics.",
+      "issue_ref": "#8",
+      "validation": [
+        "python3 scripts/local_commit_validation.py run --commit-sha <main_sha>"
+      ]
+    },
+    {
+      "affected_surfaces": [
         "instruction_artifacts_mcp",
         "catalog_weak_term_scoring",
         "release_notes",

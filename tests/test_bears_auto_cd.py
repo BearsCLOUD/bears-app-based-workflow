@@ -174,10 +174,10 @@ def test_cd_contract_declares_descriptor_and_executor_boundary() -> None:
     catalog = json.loads(CD_CONTRACT.read_text(encoding="utf-8"))
     assert catalog["application_descriptor_directory"] == "local_cd/applications"
     assert sorted(item["application"] for item in catalog["applications"]) == [
-        "callsaver-starter",
         "codex-telegram-mcp",
         "codex-web",
         "dagger-engine",
+        "dialogika-web",
         "egress-gateway",
         "external-secrets-operator",
         "opencode-server",
@@ -428,22 +428,21 @@ def test_auto_cd_executor_owns_local_image_build_and_k3d_load() -> None:
     assert "load_local_image_to_k3d(cd_contract, local_image_ref, env)" in text
 
 
-def test_cd_contract_declares_callsaver_starter_app() -> None:
-    app = selected_contract("callsaver-starter")
-    assert app["source"]["manifest_path"] == "manifests/callsaver-starter"
-    assert app["source"]["image_repository"] == "callsaver-starter"
+def test_cd_contract_declares_dialogika_web_app() -> None:
+    app = selected_contract("dialogika-web")
+    assert app["source"]["manifest_path"] == "manifests/dialogika-web-prod"
+    assert app["source"]["image_repository"] == "dialogika-web"
     assert app["source"]["image_digest_required"] is False
     assert app["source"]["reject_latest_tag"] is True
-    assert app["source"]["image_ref"] == "callsaver-starter:0.1.0"
+    assert app["source"]["image_ref"] == "dialogika-web:0.1.0"
     assert app["source"]["source_repository"] == "BearsCLOUD/apps"
     assert app["source"]["source_ref"] == "main"
-    assert app["source"]["source_subpath"] == "callsaver"
-    assert app["kubernetes"]["namespace"] == "callsaver-dev"
-    assert app["kubernetes"]["deployment"] == "callsaver-starter"
+    assert app["source"]["source_subpath"] == "dialogika/web"
+    assert app["kubernetes"]["namespace"] == "dialogika-web-prod"
+    assert app["kubernetes"]["deployment"] == "dialogika-web"
     assert app["kubernetes"]["kubeconfig_source"] == "runner_environment"
     assert app["kubernetes"]["apply_mode"] == "server_side"
-    assert "callsaver-yandex-ai-studio-runtime" in app["required_manifest_literals"]
-    assert "YC_API_KEY" in app["required_manifest_literals"]
-    assert "YANDEX_AI_STUDIO_KEY_ID" in app["required_manifest_literals"]
+    assert "dialogika.bears.ru" in app["required_manifest_literals"]
+    assert "IngressRoute" in app["required_manifest_literals"]
     assert "kind: Secret" in app["forbidden_manifest_literals"]
     assert "stringData:" in app["forbidden_manifest_literals"]

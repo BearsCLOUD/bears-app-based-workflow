@@ -368,7 +368,7 @@
       "bearsapk_android_app_archive_source",
       "bearstg_mcp_plugin",
       "business_map_ai_archive_source",
-      "callsaver_product_app",
+      "dialogika_product_app",
       "capability_layout_inventory",
       "cd_deploy_stage",
       "cd_deploy_stage_contract_tests",
@@ -7105,22 +7105,22 @@
     },
     {
       "aliases": [
-        "/srv/bears/dev/app/callsaver",
-        "dev/app/callsaver",
-        "callsaver"
+        "/srv/bears/dev/app/dialogika",
+        "dev/app/dialogika",
+        "dialogika"
       ],
-      "allowed_write_boundary": "Only app-local files under /srv/bears/dev/app/callsaver when the nearest router and exact route allow them; no standalone repository, shared platform, Kubernetes desired-state, local_cd, runtime rollout, or secret-custody authority.",
+      "allowed_write_boundary": "Only app-local files under /srv/bears/dev/app/dialogika when the nearest router and exact route allow them; no standalone repository, shared platform, Kubernetes desired-state, local_cd, runtime rollout, or secret-custody authority.",
       "canonical_source": {
-        "app_directory": "callsaver",
+        "app_directory": "dialogika",
         "repository": "BearsCLOUD/apps"
       },
-      "concrete_scope": "Direct callsaver app directory in the BearsCLOUD/apps monorepo for app-local work only.",
+      "concrete_scope": "Direct dialogika app directory in the BearsCLOUD/apps monorepo for app-local work only.",
       "decomposition_required": false,
       "group": "products",
       "legacy_compatibility": {
         "active_replacement": "BearsCLOUD/apps",
-        "active_replacement_app_directory": "callsaver",
-        "allowed_use": "Canonical app directory inside BearsCLOUD/apps for app-local source, docs, fixtures, and tests.",
+        "active_replacement_app_directory": "dialogika",
+        "allowed_use": "Canonical app directory inside BearsCLOUD/apps for Dialogika app-local source, docs, fixtures, and tests.",
         "canonical_local_root": "/srv/bears/dev/app",
         "canonical_planning_project_invariant": "The BearsCLOUD/apps umbrella issue and every source migration issue must be in the one canonical BearsCLOUD/apps planning Project named `Apps Migration & Planning` once GitHub Project API proof is available; required fields source_repo/app_directory, migration_stage, infra_local_cd_status, platform_boundary_status, archive_readiness, owner_role, and blocker_status must be populated before archive. Existing per-source Projects may exist only as legacy evidence and must not be required, created, or used for PASS.",
         "deprecated_refs": [],
@@ -7133,18 +7133,18 @@
         "status": "active_app_directory",
         "umbrella_issue_invariant": "Archive readiness requires a BearsCLOUD/apps umbrella migration issue before archive."
       },
-      "name": "callsaver_product_app",
+      "name": "dialogika_product_app",
       "no_role_policy": "blocker",
       "part_kind": "concrete",
       "required_role": "bears-product-app-zone-engineer",
       "required_validations": [
-        "python3 /srv/bears/plugins/bears/scripts/project_registry_gate.py gate /srv/bears/dev/app/callsaver",
+        "python3 /srv/bears/plugins/bears/scripts/project_registry_gate.py gate /srv/bears/dev/app/dialogika",
         "python3 scripts/subagents_roles.py validate",
-        "python3 scripts/subagents_roles.py route /srv/bears/dev/app/callsaver",
-        "python3 scripts/subagents_roles.py audit /srv/bears/dev/app/callsaver"
+        "python3 scripts/subagents_roles.py route /srv/bears/dev/app/dialogika",
+        "python3 scripts/subagents_roles.py audit /srv/bears/dev/app/dialogika"
       ],
       "reviewer_triggers": [
-        "CallSaver repo-local versus shared-platform boundary change",
+        "Dialogika repo-local versus shared-platform boundary change",
         "restricted-data, call-data, external exposure, or production workflow boundary change"
       ],
       "role_required": true,
@@ -7152,9 +7152,9 @@
       "supporting_roles": [
         "bears-platform-security-reviewer"
       ],
-      "trust_boundary": "CallSaver app work stays inside BearsCLOUD/apps. Shared platform behavior, deployment, runtime proof, and secret custody require separate exact routes.",
+      "trust_boundary": "Dialogika app work stays inside BearsCLOUD/apps. Shared platform behavior, deployment, runtime proof, and secret custody require separate exact routes.",
       "write_roots": [
-        "/srv/bears/dev/app/callsaver"
+        "/srv/bears/dev/app/dialogika"
       ]
     },
     {
@@ -9847,8 +9847,8 @@
         "python3 scripts/subagents_roles.py audit /srv/bears/dev/platform/dagger.json",
         "python3 scripts/subagents_roles.py route /srv/bears/dev/platform/dagger/src/main/__init__.py",
         "python3 scripts/subagents_roles.py audit /srv/bears/dev/platform/dagger/src/main/__init__.py",
-        "dagger call runtime-proof-location --app callsaver",
-        "dagger call objective-runtime-proof --source /srv/bears/dev/app --app callsaver --scenario synthetic-sales-dialogue"
+        "dagger call runtime-proof-location --app dialogika",
+        "dagger call objective-runtime-proof --source /srv/bears/dev/app --app dialogika --scenario dialogika-static-export-smoke"
       ],
       "reviewer_triggers": [
         "ObjectiveRuntimeProof field change",
@@ -9889,7 +9889,7 @@
       "required_validations": [
         "python3 scripts/subagents_roles.py route /srv/bears/plugins/bears/scripts/objective_runtime_proof.py",
         "python3 scripts/subagents_roles.py audit /srv/bears/plugins/bears/scripts/objective_runtime_proof.py",
-        "python3 scripts/objective_runtime_proof.py locate --app callsaver --json"
+        "python3 scripts/objective_runtime_proof.py locate --app dialogika --json"
       ],
       "reviewer_triggers": [
         "objective runtime proof wrapper change",
@@ -15232,7 +15232,7 @@
     }
   ],
   "schema": "bears-platform-role-catalog.v1",
-  "updated": "2026-07-06T11:24:28Z",
+  "updated": "2026-07-07",
   "version": "1",
   "workflow_routes": [
     {

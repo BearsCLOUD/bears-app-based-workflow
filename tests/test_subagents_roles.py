@@ -3921,7 +3921,7 @@ class PlatformRolesTest(unittest.TestCase):
             "/srv/bears/dev/app/business-map-ai": ("business_map_ai_archive_source", "bears-product-app-zone-engineer"),
             "/srv/bears/dev/app/codex-telegram": ("telegram_platform", "bears-telegram-platform-engineer"),
             "/srv/bears/dev/app/codexdaemon": ("codexdaemon_runtime", "bears-codex-daemon-engineer"),
-            "/srv/bears/dev/app/callsaver": ("callsaver_product_app", "bears-product-app-zone-engineer"),
+            "/srv/bears/dev/app/dialogika": ("dialogika_product_app", "bears-product-app-zone-engineer"),
             "/srv/bears/dev/app/design-systems-agent-kit": ("design_systems_agent_kit_archive_source", "bears-product-app-zone-engineer"),
             "/srv/bears/dev/app/desk": ("desk_product_dev_layer", "bears-product-app-zone-engineer"),
             "/srv/bears/dev/app/leadgen": ("leadgen_product_dev_layer", "bears-product-app-zone-engineer"),

@@ -292,7 +292,7 @@ class AgenticEnterpriseWorkflowHookTests(unittest.TestCase):
             "git -C /srv/bears/kubernetes log --all --oneline",
             "git reflog",
             "git branch -av",
-            "grep -R callsaver /srv/bears/kubernetes/.git/logs",
+            "grep -R dialogika /srv/bears/kubernetes/.git/logs",
             "cat /srv/bears/kubernetes/.git/logs/HEAD",
             "git show abcdef1234567890",
         )
@@ -319,7 +319,7 @@ class AgenticEnterpriseWorkflowHookTests(unittest.TestCase):
     def test_pretool_allows_current_state_and_ci_lookup_commands(self) -> None:
         commands = (
             ("git status --short", "/srv/bears/kubernetes"),
-            ("grep -R callsaver manifests", "/srv/bears/kubernetes"),
+            ("grep -R dialogika manifests", "/srv/bears/kubernetes"),
             ("gh run view --commit HEAD --log", "/srv/bears/plugins/bears"),
         )
         for command, cwd in commands:

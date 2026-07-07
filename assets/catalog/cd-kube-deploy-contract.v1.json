@@ -2,7 +2,7 @@
   "schema": "bears.cd-kube-deploy-contract.v1",
   "version": 1,
   "owner_plugin": "bears",
-  "updated": "2026-07-03",
+  "updated": "2026-07-07",
   "purpose": "Machine-readable global authority for Bears automatic CD. CD mechanics are owned by scripts/bears_auto_cd.py; app desired state lives in /srv/bears/kubernetes/local_cd/applications/*.v1.json.",
   "repository": "BearsCLOUD/bears-infra",
   "git_contract_ref": "assets/catalog/git-deploy-contract.v1.json",
@@ -26,8 +26,8 @@
       "descriptor": "local_cd/applications/tgsearch-live-gate.v1.json"
     },
     {
-      "application": "callsaver-starter",
-      "descriptor": "local_cd/applications/callsaver-starter.v1.json"
+      "application": "dialogika-web",
+      "descriptor": "local_cd/applications/dialogika-web.v1.json"
     },
     {
       "application": "codex-web",

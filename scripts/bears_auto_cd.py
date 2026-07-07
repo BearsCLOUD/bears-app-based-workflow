@@ -79,11 +79,11 @@ EXECUTOR_LOCAL_BUILD_DEFAULTS: dict[str, dict[str, Any]] = {
         "source_subpath": "tgsearch",
         "clear_proxy_build_args": False,
     },
-    "callsaver-starter": {
-        "context_path": ".callsaver-source",
+    "dialogika-web": {
+        "context_path": ".dialogika-web-source",
         "dockerfile": "Dockerfile",
-        "source_subpath": "callsaver",
-        "clear_proxy_build_args": True,
+        "source_subpath": "dialogika/web",
+        "clear_proxy_build_args": False,
     },
     "codex-web": {
         "context_path": "images/codex-web",

@@ -382,3 +382,38 @@ Critic result:
 
 - Re-audit critic `019f3b9d-3426-7231-a1ec-940453cd2e35` verdict: `SLICE_VERDICT: PASS`, `FULL_GOAL_VERDICT: NOT_COMPLETE`, blockers: none.
 - PASS was based on current repo evidence: changed files match the 3 reference docs plus plan evidence, MCP/helper path is active, reference weak terms are `26 -> 24`, diff is wording-only, command examples/GitHub Check terminology/validation ownership/secret custody/provider routing are preserved, and broad all-instruction goal remains open.
+
+### Phase 14: Reference low-risk prose residual wave
+
+Status: in progress.
+
+MCP queue source:
+
+```bash
+python3 scripts/instruction_hardening_mcp_packet.py instruction_hardening_startup --root . --bounded-json
+```
+
+Wave scope:
+
+- `docs/reference/capability-governance-rules.md` weak prose around validators and typed packets;
+- `docs/reference/file-context-index.md` AST extraction wording;
+- `docs/reference/governance-drift-summary.md` drift-summary weak prose;
+- `docs/reference/roadmap-issue-coverage.md` issue metadata gate wording;
+- `docs/reference/workspace-hygiene.md` closeout heading wording;
+- command examples, command names, issue ids, exact required fragments, validation ownership, and historical drift ids were preserved.
+
+Wave result before critic/commit:
+
+- `surface_summary.weak_terms_by_kind.reference`: `24 -> 19`;
+- changed 5 reference files with wording-only edits;
+- remaining reference weak terms are command names, GitHub Check terms, exact CI-required fragments, process-memory technical phrases, or historical evidence text;
+- no role TOML, skill, catalog, workflow, runtime, deploy, Kubernetes desired-state, or secret-custody mutations in this wave.
+
+Critic requirement:
+
+- PASS only if current repo evidence proves this reference slice advances the active goal through the MCP queue, reduces reference weak terms without changing command semantics, validation ownership, historical drift identifiers, safety bans, or broad all-instruction goal status.
+
+Critic result:
+
+- Re-audit critic `019f3b9d-3426-7231-a1ec-940453cd2e35` verdict: `SLICE_VERDICT: PASS`, `FULL_GOAL_VERDICT: NOT_COMPLETE`, blockers: none.
+- PASS was based on current repo evidence: changed files match the 5 reference docs plus plan evidence, MCP/helper path is active, reference weak terms are `24 -> 19`, diff is wording-only, command names/examples, validation ownership, historical drift identifiers, and safety bans are preserved, and broad all-instruction goal remains open.

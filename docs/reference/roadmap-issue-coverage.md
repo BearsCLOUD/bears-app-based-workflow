@@ -2,7 +2,7 @@
 
 ## Purpose
 
-`scripts/roadmap_issue_coverage.py` adds a local-only gate for issue freshness. It checks metadata-only issue rows against these source-of-truth catalogs:
+`scripts/roadmap_issue_coverage.py` adds a local-only gate for issue freshness. It inspects metadata-only issue rows against these source-of-truth catalogs:
 
 - `assets/catalog/workflow-roadmap.v1.json`
 - `assets/catalog/issue-execution-priority.v1.json`
@@ -18,11 +18,11 @@ python3 scripts/roadmap_issue_coverage.py check-priority --json
 python3 scripts/roadmap_issue_coverage.py doctor --json
 ```
 
-`validate` checks schemas, catalogs, command entries, source paths, and local fixtures. `check-roadmap` reports open issues without workflow-roadmap nodes. `check-priority` reports open priority issues missing from priority waves. `doctor` runs both checks.
+`validate` inspects schemas, catalogs, command entries, source paths, and local fixtures. `check-roadmap` reports open issues without workflow-roadmap nodes. `check-priority` reports open priority issues missing from priority waves. `doctor` runs both reports.
 
 ## Metadata input
 
-Use `--issues-json <path>` for local fixture input. The accepted row fields are:
+Pass `--issues-json <path>` for local fixture input. The accepted row fields are:
 
 ```json
 {

@@ -15,7 +15,7 @@ The file-context index is a bounded JSON memory layer for goal orchestration. It
 - Select context with `python3 scripts/file_context_index.py select --path <path> --role <role_id> --json` before reading a governed file.
 - Active records must match the current `source_hash`.
 - Stale records block write-scoped execution and must be refreshed or moved to manual review.
-- Python records use AST extraction for functions, classes, and imports.
+- Python records extract functions, classes, and imports through AST parsing.
 - JSON records expose schema, commands, owner role, and authority topic when available.
 - Deleted-file records are removed with `python3 scripts/file_context_refresh.py gc --json`.
 

@@ -20,6 +20,6 @@ python3 scripts/workspace_hygiene.py check-stale --json
 - Cleanup refuses secrets, env files, credentials, raw logs, raw chat, raw VPN config, and production data.
 - Runtime proof is classified separately from durable tracked artifacts.
 
-## Closeout use
+## Closeout routing
 
 `bears_doctor.py` calls the hygiene validator after #386. Stale files become warnings unless the file is tracked, unsafe, or treated as current proof.

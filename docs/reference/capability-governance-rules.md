@@ -4,11 +4,11 @@ This file is the retained governance-core source for capability layout, validato
 
 ## P1-09 parity-and-restricted-data-validation
 
-Parity and restricted-data checks must be executable validators. They must read only checked-in fixtures and sanitized evidence packets, and they must fail when required pass/fail fixtures or restricted-data markers are missing.
+Parity and restricted-data evidence must be executable validators. They must read only checked-in fixtures and sanitized evidence packets, and they must fail when required pass/fail fixtures or restricted-data markers are missing.
 
 ## P1-10 environment-packet-validation
 
-Environment operations must use typed packets with target surface, authorization evidence, rollback path, and dry-run/apply intent. Default apply is forbidden.
+Environment operations require typed packets with target surface, authorization evidence, rollback path, and dry-run/apply intent. Default apply is forbidden.
 
 ## P1-11 optimization-lane-validation
 
@@ -48,11 +48,11 @@ Do not append new `W*` weak-spot sections here. Add or update a tech-debt matrix
 
 ## Retired prose audit register
 
-Dated workflow findings that used `W*` weak-spot sections are retired from this reference file. The last prose register covered `W1` through `W207`; Git history keeps that dated snapshot.
+Dated workflow findings that carried `W*` weak-spot sections are retired from this reference file. The last prose register covered `W1` through `W207`; Git history keeps that dated snapshot.
 
 Current workflow debt authority is `assets/catalog/tech-debt-matrix.v1.json`. New or reopened findings for workflow defects, cache drift, hook proof gaps, agent registration drift, CI closure risk, or governance-reference coverage gaps must be recorded as matrix items with state refs, acceptance rows, owner, severity, and status.
 
-Relevant executable checks:
+Relevant executable validators:
 
 - `python3 scripts/tech_debt_matrix.py validate`
 - `python3 scripts/tech_debt_matrix.py status --json`

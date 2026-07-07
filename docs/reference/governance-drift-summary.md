@@ -15,12 +15,12 @@ Drift means a checked runtime, repository, cache, CI, hook, connector, or agent 
 1. Plugin does not prove control over all active agents.
    - Unmanaged global and target-local agents remain outside concrete Bears role/principle binding.
 2. Constitution role keys do not match active agent names.
-   - Scoped principles use abstract L1/L2/L3/reviewer keys that do not bind to concrete agent inventories.
+   - Scoped principles rely on abstract L1/L2/L3/reviewer keys that do not bind to concrete agent inventories.
 3. L1/L2 lifecycle rule is not fully propagated.
    - Stale target-local hook and agent text can still imply L2 spawn-packet behavior instead of L1 task decomposition and L2 governance review.
 4. Active project hooks reference missing plugin scripts.
    - Hook paths name scripts that are not present in the plugin source tree.
-5. Hook proof checks presence, not effective execution.
+5. Hook proof records presence, not effective execution.
    - Cache delivery can pass without proving active hook execution.
 6. Plugin manifest does not prove runtime control surfaces.
    - The manifest does not declare agents, apps, or MCP servers and current plugin discovery evidence is incomplete.

@@ -95,7 +95,7 @@ Key fields:
 - `run_count` — number of ledger rows.
 - `best_mode` — highest scoring mode in the report set.
 
-Use this file for cost-vs-quality comparison only. It is not release or closeout proof.
+This file is limited to cost-vs-quality comparison. It is not release or closeout proof.
 
 ## Report paths
 

@@ -29,7 +29,7 @@ Required active principles are:
 
 ## Decision packet rule
 
-Every material workflow decision must use `schema: bears-principle-decision.v1` and must name at least one active principle and one active goal.
+Every material workflow decision must declare `schema: bears-principle-decision.v1` and must name at least one active principle and one active goal.
 Missing principle references block material workflow changes.
 Principle exceptions must include `reason_code`, `rationale`, and `evidence_paths`.
 
@@ -46,4 +46,4 @@ scripts/bears_principles.py doctor --json
 ## Doctor output
 
 `bears_doctor` includes the `bears_goals_principles` check.
-The check reports active goal count, active principle count, and missing required active principles.
+The report returns active goal count, active principle count, and missing required active principles.

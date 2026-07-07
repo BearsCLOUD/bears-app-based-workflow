@@ -29,7 +29,7 @@ L3 lane uses the exact route-selected @Bears role with `gpt-5.4-mini` and `reaso
 
 ## Runtime proxy deadline enforcement
 
-If `bears-development-workflow-orchestrator` is used as runtime proxy for `role=bears-github-project-issues-orchestrator`, it must use the L2 limits from the role profile, `skills/app-dev/SKILL.md`, this reference, `assets/catalog/github-project-subagents.v1.json`, and `scripts/github_project_subagents.py`.
+If `bears-development-workflow-orchestrator` acts as runtime proxy for `role=bears-github-project-issues-orchestrator`, it must follow the L2 limits from the role profile, `skills/app-dev/SKILL.md`, this reference, `assets/catalog/github-project-subagents.v1.json`, and `scripts/github_project_subagents.py`.
 
 Current drift issue #25 is `BearsCLOUD/bears_plugin#25`.
 
@@ -58,7 +58,7 @@ The fallback runtime proxy must:
 - never report PASS after elapsed time greater than 300 seconds;
 - require exact new-file authorization from the Issue, sub-issue, or parent packet before any L3 creates a new file;
 - skip broad Project scans when the parent provides exact Issues and route/audit evidence;
-- avoid implementation pools until this enforcement text and catalog/script guard are present.
+- forbid implementation pools until this enforcement text and catalog/script guard are present.
 
 ## Required gates
 

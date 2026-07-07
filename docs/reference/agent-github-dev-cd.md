@@ -24,7 +24,7 @@ Technical terms:
 - evidence file: non-secret repo file under `docs/evidence/dev-cd/`.
 - Local agent runner: routes and starts bounded workers.
 - issue type: a GitHub label that marks the decision lane for one issue.
-- duplicate guard: a check that proves another open issue or active worker is not already handling the same bounded scope.
+- duplicate guard: proof that another open issue or active worker is not already handling the same bounded scope.
 
 ## Authority status
 

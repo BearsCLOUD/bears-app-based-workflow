@@ -2,9 +2,9 @@
 
 Canonical executable workflow source: `assets/catalog/agent-workflow-map.v1.json`. `autoCI` or local commit validation owns `python3 scripts/agent_workflow_map.py validate`; agents must not run it manually unless the operator names the exact command in the current turn.
 
-This document is a reference view only. The JSON map is the primary executable process authority for lifecycle order, graph edges, review gates, state bindings, dirty triage, worker state files, hook automation policy, subagent waves, and role/stage compatibility.
+This document is a reference view only. The JSON map is the primary executable lifecycle authority for lifecycle order, graph edges, review gates, state bindings, dirty triage, worker state files, hook automation policy, subagent waves, and role/stage compatibility.
 
-## Process graph
+## Lifecycle graph
 
 ```mermaid
 flowchart TD

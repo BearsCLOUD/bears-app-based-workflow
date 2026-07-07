@@ -144,7 +144,7 @@ Historical session resume, reuse, or fork is allowed only when all of the follow
 - current Spec Kit snapshot
 - roadmap slice
 
-If any compatibility check fails, spawn a fresh worker with current Spec Kit truth plus bounded prior evidence.
+If any compatibility gate fails, spawn a fresh worker with current Spec Kit truth plus bounded prior evidence.
 
 Session reuse or fork also requires a successful pre-action runtime validation:
 
@@ -160,7 +160,7 @@ Audit lane workers must start fresh. They must set `context_policy=fresh_no_pare
 
 ## Closeout quality rule
 
-Subagent closeout packets are English-only artifacts. Cyrillic text is rejected. `limitations` entries use `code`, `severity`, and `details`; a `blocking` limitation cannot accompany a passing `completed` or `closed` closeout. Review and audit closeouts must include clean checkout metadata with `dirty_shared_checkout_used=false` and `validated_at_expected_sha=true`.
+Subagent closeout packets are English-only artifacts. Cyrillic text is rejected. `limitations` entries declare `code`, `severity`, and `details`; a `blocking` limitation cannot accompany a passing `completed` or `closed` closeout. Review and audit closeouts must include clean checkout metadata with `dirty_shared_checkout_used=false` and `validated_at_expected_sha=true`.
 
 ## Wait agent result rule
 
@@ -184,7 +184,7 @@ Unknown and completed-open workers are not free capacity. Only `closed` workers 
 
 ## Validation
 
-Use:
+Required command:
 
 ```bash
 cd /srv/bears/plugins/bears

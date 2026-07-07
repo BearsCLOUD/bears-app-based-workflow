@@ -37,7 +37,7 @@ python3 scripts/agent_registration_sync.py sync --target repo
 
 Validator ownership:
 
-- Local commit validation owns `python3 scripts/agent_registration_sync.py validate`; manual execution requires operator approval.
+- Local commit validation owns `python3 scripts/agent_registration_sync.py validate`; manual execution requires one exact operator-named command.
 
 ## Drift contract
 
@@ -74,7 +74,7 @@ After `sync`, an already-open Codex session may need a new thread or app reload 
 
 Local commit validation owns validation after agent registration policy changes:
 
-- `python3 scripts/agent_registration_sync.py validate`; manual execution requires operator approval.
+- `python3 scripts/agent_registration_sync.py validate`; manual execution requires one exact operator-named command.
 - `python3 scripts/agent_registration_sync.py audit-roles --json`; manual execution is static audit evidence only and does not execute repo validator suites.
-- `python3 scripts/subagents_roles.py validate`; manual execution requires operator approval.
-- `python3 -m unittest tests/test_agent_registration_sync.py tests/test_subagents_roles.py`; manual execution requires operator approval.
+- `python3 scripts/subagents_roles.py validate`; manual execution requires one exact operator-named command.
+- `python3 -m unittest tests/test_agent_registration_sync.py tests/test_subagents_roles.py`; manual execution requires one exact operator-named command.

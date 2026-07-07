@@ -66,7 +66,7 @@ Bears plugin workflow commits go directly to `main`. Pull requests, GitHub revie
 
 ## Small scope rule
 
-A scope is invalid when it crosses repo domains, lacks measurable output, lacks owner lineage, exceeds time or token policy, or overlaps another write scope. `SessionStart` or the first guard creates `runtime/agent-workflow/current-enterprise-orchestrator-state/workflow-matrix/orchestrator-state.json` for the L1 run. Active hook control derives `duration_min` from `started_at_epoch` when event metadata omits duration. It denies `PreTask` and `PreToolUse` when compact state or event metadata proves a scope is over the 5 minute hard split threshold without split or decomposition state. It also denies token metadata over the workflow token budget without throttle or split state. Governed L1/L2/L3 work with no time or token control metadata is denied; unmanaged side answers receive `control_not_armed`.
+A scope is invalid when it crosses repo domains, lacks measurable output, lacks owner lineage, exceeds time or token policy, or overlaps another write scope. `SessionStart` or the first guard creates `runtime/agent-workflow/current-enterprise-orchestrator-state/workflow-matrix/orchestrator-state.json` for the L1 run. Active hook control derives `duration_min` from `started_at_epoch` when event metadata omits duration. It denies `PreTask` and `PreToolUse` when compact state or event metadata proves a scope is over the 5 minute hard split threshold without split or decomposition state. It also denies token metadata over the workflow token budget without throttle or split state. Governed L1/L2/L3 scope with no time or token control metadata is denied; unmanaged side answers receive `control_not_armed`.
 
 ## Decision log rule
 

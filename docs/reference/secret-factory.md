@@ -21,7 +21,7 @@ Mandatory refusal classes are:
 
 ## Write-only rule
 
-The generated value exists only in process memory. The script posts it to the Infisical API v4 create endpoint and discards the response body. Output contains only status, key name, generator kind, Infisical path, and provider handoff metadata.
+The generated value resides only in process memory. The script posts it to the Infisical API v4 create endpoint and discards the response body. Output contains only status, key name, generator kind, Infisical path, and provider handoff metadata.
 
 The script must not read Infisical values, echo values, store values on disk, pass values through command-line arguments, commit values, log values, or include values in tests or docs.
 
@@ -88,29 +88,29 @@ Do not call `list_secrets` for this confirmation unless the MCP surface has a na
 
 ## GitLab names-only inventory routing
 
-For Bears GitLab names-only repository inventory, use this exact Infisical ref:
+For Bears GitLab names-only repository inventory, required Infisical ref:
 
 - project id: `2812d08f-50f4-4d38-b43d-ac360b84e097`
 - environment: `dev`
 - path: `/gitlab/bears/names-only-inventory`
 - key: `GITLAB_NAMES_ONLY_TOKEN`
 
-Use this exact GitLab API target:
+Required GitLab API target:
 
 - scheme: `https`
 - host: `bears.gitlab.yandexcloud.net`
 - API path prefix: `/api/v4`
 
-Do not use host `gitlab.com` for Bears GitLab inventory.
+Forbidden Bears GitLab inventory host: `gitlab.com`.
 
 The confirmed smoke probe is `GET /user` against the API path prefix above. It returned HTTP 200 on 2026-06-21 without token output. The preferred auth header is `PRIVATE-TOKEN`; `Authorization: Bearer` is also accepted by the current provider endpoint.
 
 ## Provider API token routing
 
-When a task needs a provider API token and a matching catalog ref exists, agents must use this order. For `documented_unconfirmed` refs, complete the drift confirmation rule above first. For `operator_confirmed_live_ref` refs, use the exact catalog route and still resolve the secret at task time.
+When a task needs a provider API token and a matching catalog ref exists, agents must follow this order. For `documented_unconfirmed` refs, complete the drift confirmation rule above first. For `operator_confirmed_live_ref` refs, follow the exact catalog route and still resolve the secret at task time.
 
 1. Resolve the secret by exact `secret_name` and `secret_path` through Infisical MCP.
-2. Use the value only in process memory for the immediate provider API request.
+2. Keep the value only in process memory for the immediate provider API request.
 3. Print only redacted API metadata, HTTP status, resource IDs, and non-secret names.
 
 Agents must not treat chat-pasted token text, shell history, `.env` files, raw config files, or provider CLI config as the source of truth for provider API work.
@@ -146,14 +146,14 @@ T110 static-literal policy is PR-added-lines first. Pre-existing repository find
 
 Local commit validation owns these static safety checks unless the operator approves local execution:
 
-- Local commit validation owns `python3 scripts/validate_overlay.py --json validate --strict-overlay-skills`; manual execution requires operator approval.
-- Local commit validation owns `python3 scripts/validate_overlay.py --json scan-static-safety --path <repo-relative-file>`; manual execution requires operator approval.
+- Local commit validation owns `python3 scripts/validate_overlay.py --json validate --strict-overlay-skills`; manual execution requires one exact operator-named command.
+- Local commit validation owns `python3 scripts/validate_overlay.py --json scan-static-safety --path <repo-relative-file>`; manual execution requires one exact operator-named command.
 
 ## Validation commands
 
-- Local commit validation owns `python3 scripts/subagents_roles.py validate`; manual execution requires operator approval.
-- Local commit validation owns `python3 scripts/secret_factory.py validate`; manual execution requires operator approval.
+- Local commit validation owns `python3 scripts/subagents_roles.py validate`; manual execution requires one exact operator-named command.
+- Local commit validation owns `python3 scripts/secret_factory.py validate`; manual execution requires one exact operator-named command.
 - Agents may run `python3 scripts/subagents_roles.py route /srv/bears/plugins/bears/assets/catalog/secret-factory.v1.json`.
 - Agents may run `python3 scripts/subagents_roles.py audit /srv/bears/plugins/bears/assets/catalog/secret-factory.v1.json`.
-- Local commit validation owns `python3 -m unittest tests/test_secret_factory.py tests/test_subagents_roles.py`; manual execution requires operator approval.
-- Local commit validation owns `python3 scripts/validate_overlay.py --json validate --strict-overlay-skills`; manual execution requires operator approval.
+- Local commit validation owns `python3 -m unittest tests/test_secret_factory.py tests/test_subagents_roles.py`; manual execution requires one exact operator-named command.
+- Local commit validation owns `python3 scripts/validate_overlay.py --json validate --strict-overlay-skills`; manual execution requires one exact operator-named command.

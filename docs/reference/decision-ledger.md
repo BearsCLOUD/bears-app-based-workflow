@@ -10,7 +10,7 @@ The decision ledger is the compact machine-readable record for governance-impact
 
 - Every changed `assets/catalog/**`, `assets/schemas/**`, `hooks/**`, or `scripts/**` path needs one accepted decision record, except the ledger catalog itself.
 - Accepted records must have empty `unresolved_inputs` and empty `contradictions`.
-- Records must use `redaction: "safe"` and must not contain restricted markers.
+- Records must declare `redaction: "safe"` and must not contain restricted markers.
 - Missing or unsafe decisions block pre-commit and closeout for the affected scope.
 
 ## Commands

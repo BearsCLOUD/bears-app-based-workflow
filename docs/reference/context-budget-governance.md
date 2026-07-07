@@ -13,4 +13,4 @@ Every skill, role, catalog, schema, and reference surface gets a compact context
 - `scripts/skill_surface.py doctor --json` validates split governance.
 
 ## Rules
-Oversized surfaces must have an index or split decision. Mixed-authority surfaces must split. Role prompt generation may use `select-sections` to include bounded sections only.
+Oversized surfaces must have an index or split decision. Mixed-authority surfaces must split. Role prompt generation may call `select-sections` to include bounded sections only.

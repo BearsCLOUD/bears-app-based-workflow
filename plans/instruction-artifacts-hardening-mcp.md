@@ -186,3 +186,31 @@ Critic result:
 
 - Re-audit critic `019f3b92-de27-7440-bffe-d673b0f98bc5` verdict: `PASS`, `required fixes before commit: none`.
 - PASS was based on current repo evidence: MCP queue exists, role wave uses that queue, stale manual command wording is removed from changed role instructions, duplicate route/audit status wording is fixed, and broad all-instruction refactor remains open.
+
+### Phase 8: Reference documentation wording wave
+
+Status: in review.
+
+MCP queue source:
+
+```bash
+python3 scripts/instruction_hardening_mcp_packet.py instruction_hardening_startup --root . --bounded-json
+```
+
+Wave scope:
+
+- selected `docs/reference/*.md` prose lines surfaced by `instruction_surfaces[]`;
+- weak action words in human-readable governance docs;
+- stale manual validation/test wording in `docs/reference/git-discipline.md`.
+
+Wave result before critic/commit:
+
+- `surface_summary.weak_terms_by_kind.reference`: `67 -> 24`;
+- changed 22 reference docs with prose-only wording cuts;
+- command names and script examples were preserved unless surrounding prose was stale;
+- Git closeout prose now states autoCI and local commit validation own validator, test, lint, schema, and route/audit execution, with manual suites forbidden unless the operator names one exact command;
+- no catalog, role TOML, skill, workflow, runtime, deploy, Kubernetes desired-state, or secret-custody mutations in this wave.
+
+Critic requirement:
+
+- PASS only if current repo evidence proves the reference-doc slice advances the active goal through the MCP queue, removes weak/stale wording without changing command semantics, preserves closeout/secret/deploy/runtime safety, and keeps the broad all-instruction goal open.

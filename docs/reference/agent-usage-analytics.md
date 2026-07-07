@@ -13,4 +13,4 @@ Store only compact counters: role id, executor id, delivery id, commit sha, toke
 - `scripts/commit_usage_ledger.py doctor --json` validates the policy surface.
 
 ## Closeout
-`bears_doctor` must include the commit usage ledger check. Blocking output is limited to status, summary, and evidence path names.
+`bears_doctor` must include the commit usage ledger gate. Blocking output is limited to status, summary, and evidence path names.

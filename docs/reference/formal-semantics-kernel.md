@@ -84,9 +84,9 @@ python3 scripts/formal_semantics.py doctor --json
 
 ## Integration points
 
-- #431 semantic graph must use this type and relation kernel.
-- #429 file-context records must use semantic types.
-- #413 roadmap nodes must use typed relations.
+- #431 semantic graph must declare this type and relation kernel.
+- #429 file-context records must declare semantic types.
+- #413 roadmap nodes must declare typed relations.
 - #414 decision packets must reference accepted semantic facts.
 - #415 principles and goals must map to semantic types.
 - `assets/catalog/bears-doctor.v1.json` must expose `formal_semantics_status` with `python3 scripts/formal_semantics.py doctor --json`.

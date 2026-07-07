@@ -26,13 +26,13 @@ Operator confirmation can change dirty-baseline status from `DIRTY_BASELINE_REQU
 
 ### `project-write-lane`
 
-Default mode. Use it only after selecting one concrete repo root for a product/runtime/deploy/integration write lane.
+Default mode. Apply it only after selecting one concrete repo root for a product/runtime/deploy/integration write lane.
 
 If the selected concrete repo root is dirty and the operator has not confirmed that baseline, the command returns `DIRTY_BASELINE_REQUIRES_OPERATOR_CONFIRMATION` and blocks only that concrete repo write lane.
 
 ### `container-inventory`
 
-Read-only inventory mode. Use it for broad containers such as `/srv/bears/projects` when the current task is plugin-core governance rather than a concrete project migration.
+Read-only inventory mode. Apply it for broad containers such as `/srv/bears/projects` when the current task is plugin-core governance rather than a concrete project migration.
 
 This mode returns `CONTAINER_INVENTORY_ONLY` and exits successfully even when nested repositories are dirty. It does not authorize writes and does not replace a future per-project baseline gate.
 

@@ -10,9 +10,9 @@ The artifact registry records why new plugin files exist before they become trac
 
 ## Required tracked fields
 
-Each tracked artifact record declares path, artifact type, lifecycle, owner issue or scope, owner role, allowed writers, validation commands or runner references, changelog requirement, decision reference requirement, and source-of-truth status.
+Each tracked artifact record declares path, artifact type, lifecycle, owner issue or scope, owner role, allowed writers, validation runner references, changelog requirement, decision reference requirement, and source-of-truth status.
 
-Runtime files use `git_tracked=false` with lifecycle `runtime_ignored`, `tmp`, `cache`, or `local_proof` and must not be committed.
+Runtime files declare `git_tracked=false` with lifecycle `runtime_ignored`, `tmp`, `cache`, or `local_proof` and must not be committed.
 
 ## Commands
 

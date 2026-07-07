@@ -51,11 +51,11 @@ Authority rules:
 - `BEARS_CODEX_CONFIG`: Codex config with `model_instructions_file`.
 - `BEARS_PERSONAL_AGENTS`: personal `AGENTS.md`.
 - `CODEX_HOME`: fallback Codex home.
-- If unset, the server uses the process working directory and current user's Codex home.
+- If unset, the server defaults to the process working directory and current user's Codex home.
 
 ## Registration
 
-Use the plugin environment command:
+Required plugin environment command:
 
 ```bash
 bin/bears-plugin install
@@ -76,7 +76,7 @@ Inspect registration with `codex mcp get mcp`. Do not print token-bearing config
 
 ## Fallback evidence helper
 
-Use only when callable `mcp__mcp` tools are unavailable:
+Allowed only when callable `mcp__mcp` tools are unavailable:
 
 ```bash
 python3 scripts/instruction_hardening_mcp_packet.py instruction_hardening_startup --root . --bounded-json

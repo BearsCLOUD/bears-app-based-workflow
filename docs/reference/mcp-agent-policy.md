@@ -33,7 +33,7 @@ python3 scripts/mcp_agent_policy.py doctor
 }
 ```
 
-Research packets must use `explicit_read_only_allowlist` instead of a broad allow field.
+Research packets must declare `explicit_read_only_allowlist` instead of a broad allow field.
 
 ```json
 {

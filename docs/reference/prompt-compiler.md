@@ -69,7 +69,7 @@ All commands emit JSON. `build` and `compile` exit non-zero for blocked packets.
 
 ## Determinism
 
-Packets use sorted keys, sorted context lists, sorted proof identifiers, and SHA-256 hashes over canonical JSON. Network access and live runtime reads are not part of prompt compilation.
+Packets contain sorted keys, sorted context lists, sorted proof identifiers, and SHA-256 hashes over canonical JSON. Network access and live runtime reads are not part of prompt compilation.
 
 ## Executor output contract
 

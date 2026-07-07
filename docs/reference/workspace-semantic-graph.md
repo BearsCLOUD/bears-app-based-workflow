@@ -17,4 +17,4 @@ Commands:
 - `python3 scripts/workspace_dictionary.py canonicalize --term CPG --json`
 - `python3 scripts/metadata_store.py doctor --json`
 
-Selectors return bounded JSON and include file-context ids when available, so agents can avoid full-file reads before write-scoped work.
+Selectors return bounded JSON and include file-context ids when available, so agents can skip full-file reads before write-scoped work.

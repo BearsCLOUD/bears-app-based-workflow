@@ -1,6 +1,6 @@
 # Git Discipline
 
-Git discipline means the exact closeout order an agent must use before it writes a commit.
+Git discipline means the exact closeout order an agent must follow before it writes a commit.
 
 Technical terms:
 
@@ -23,18 +23,17 @@ Technical terms:
 
 ## Required closeout order
 
-Run these commands from the repository root:
+Required closeout sequence from the owning repository root:
 
 ```bash
 git status --short --branch
-git diff --check
-# run validators and tests tied to the changed files
-git add -A
-git diff --cached --check
-python3 scripts/git_discipline.py inspect --repo . --json
+git add <task-owned-files>
 git commit -m "<imperative English summary>"
 git status --short --branch
+git push
 ```
+
+autoCI and local commit validation own validator, test, lint, schema, and route/audit execution. Before push, inspect available autoCI/local-commit-validation evidence for known task-owned errors; fix known task-owned errors before push. Do not execute validation suites manually unless the operator names one exact command in the active turn.
 
 ## Canonical plugin checkout
 
@@ -50,7 +49,7 @@ git config --get core.worktree || true
 git status --short --branch
 ```
 
-`plugin-worktree-preflight` is read-only. It must return `PLUGIN_WORKTREE_PASS` before plugin edits. `pwd` and `git rev-parse --show-toplevel` must both be `/srv/bears/plugins/bears`. `core.worktree` must be empty or `/srv/bears/plugins/bears`. A hidden `/tmp` worktree is allowed only with operator approval or an issue assignment packet that names it. That packet must include canonical dirty-state backup, sync-back plan, exact LCV proof, and plugin cache sync proof from `/srv/bears/plugins/bears`.
+`plugin-worktree-preflight` is read-only. It must return `PLUGIN_WORKTREE_PASS` before plugin edits. `pwd` and `git rev-parse --show-toplevel` must equal `/srv/bears/plugins/bears`. `core.worktree` must be empty or `/srv/bears/plugins/bears`. A hidden `/tmp` worktree is permitted only with operator approval or an issue assignment packet that names it. That packet must include canonical dirty-state backup, sync-back plan, exact LCV proof, and plugin cache sync proof from `/srv/bears/plugins/bears`.
 
 ## Hard rules
 
@@ -60,7 +59,7 @@ git status --short --branch
 - If a hard safety hold prevents commit or push, the slice is not complete; report the exact blocker, owner, and GitHub issue, and keep gitflow hold active.
 - Gitflow must reject completion claims without commit/push evidence or an explicit blocker with owner and issue.
 - Do not stage or commit secrets, credentials, private keys, `.env` files, raw production data, raw logs, shell history, or raw VPN configs.
-- Do not use `git reset`, `git clean`, `git checkout`, `git switch`, `git stash`, `git merge`, `git rebase`, `git revert`, or `git config --global` as automatic cleanup.
+- Forbidden automatic cleanup commands: `git reset`, `git clean`, `git checkout`, `git switch`, `git stash`, `git merge`, `git rebase`, `git revert`, or `git config --global` as automatic cleanup.
 - Do not allow commit authority until local Git config has `Bears Codex Worker <codex-worker@bears.local>`.
 - Do not query GitHub or provider account profile fields to recover commit identity.
 - Do not mutate global Git config automatically.
@@ -68,10 +67,10 @@ git status --short --branch
 - Do not delete worktree-attached, backup, dirty-preserve, open-PR, closed-unmerged, remote-unverified, or local-unverified branches.
 - Do not delete local or remote branches unless the operator explicitly asks for that cleanup command.
 - Do not create, stage, commit, push, or open a PR until `branch-base-preflight` proves the branch is attached, clean, based on the intended base, and not a merged PR branch.
-- Do not use `git add -f` for ignored workspace surfaces such as `dev/**` unless the packet has explicit operator approval, exact path allowlist, and owning contract.
+- Do not force-add for ignored workspace surfaces such as `dev/**` unless the packet has explicit operator approval, exact path allowlist, and owning contract.
 - If `git diff --check` or `git diff --cached --check` fails, fix the files before commit.
 - If work outside the repository was changed, report it as not included in the commit.
-- For ledger or gitlink closeout, run `closeout-preflight`; pass every assignment write path with `--allowed-path`; any other changed path returns `DIRTY_WORKTREE_BLOCKER`.
+- For ledger or gitlink closeout, local commit validation runs `closeout-preflight`; every assignment write path must appear with `--allowed-path`; any other changed path returns `DIRTY_WORKTREE_BLOCKER`.
 - Commit messages are English imperative summaries.
 
 ## Validator usage
@@ -91,13 +90,13 @@ python3 scripts/git_discipline.py clean-worktree-target --canonical-root /srv/be
 python3 scripts/git_discipline.py ignored-staging-check --command "git add -f dev/PROJECTS.md" --json
 ```
 
-The validator is read-only. It does not stage, commit, push, reset, clean, stash, merge, or rebase.
+The validator is read-only. It never stages, commits, pushes, resets, cleans, stashes, merges, or rebases.
 
 `inspect --allowed-path` is read-only. It reports `disallowed_changed_paths` and blocks commit readiness when dirty paths are outside the assignment write set.
 
 `inspect` also checks the safe worker git identity. It emits only `worker_git_identity_configured` and the fixed `worker_git_identity_label`. Missing, unsafe, or global-only identity keeps `commit_allowed_after_validation=false`.
 
-`closeout-preflight` is read-only. It is required before ledger or gitlink closeout commit, push, PR ready, or merge. It requires an assignment write-path list, an expected task branch or branch prefix, and `--gitlink-proof <path>:<old-object>:<target-object>:<source-pr-merge-commit>` when a gitlink is part of the closeout. Gitlink proof is checked against the parent repo old object from `HEAD` and target object from the index.
+`closeout-preflight` is read-only. Required before ledger or gitlink closeout commit, push, PR ready, or merge. Requires an assignment write-path list, an expected task branch or branch prefix, and `--gitlink-proof <path>:<old-object>:<target-object>:<source-pr-merge-commit>` when a gitlink is part of the closeout. Gitlink proof is inspected against the parent repo old object from `HEAD` and target object from the index.
 
 The branch inventory command is read-only. It does not fetch, prune, delete, switch, merge, or push.
 
@@ -105,11 +104,11 @@ The branch inventory command is read-only. It does not fetch, prune, delete, swi
 
 `gitlink-audit` is read-only. It proves the parent gitlink target with `git ls-tree <tree-ref> -- <path>`, reports the local submodule HEAD when provided, and marks local checkout evidence unusable when it does not match the parent target. Local checkout claims fail closed on stale local submodule state. Parent gitlink claims can pass while still reporting the stale local checkout.
 
-`branch-prefix-check` is read-only. Run it before `git push` or PR creation. It returns `branch_prefix_check=PASS` only when the branch starts with `codex/` or when an assignment packet contains `branch_prefix_override.prefix`, `branch_prefix_override.reason`, and `branch_prefix_override.approved_by`, and the branch starts with that override prefix.
+`branch-prefix-check` is read-only. Execute it before `git push` or PR creation. It returns `branch_prefix_check=PASS` only when the branch starts with `codex/` or when an assignment packet contains `branch_prefix_override.prefix`, `branch_prefix_override.reason`, and `branch_prefix_override.approved_by`, and the branch starts with that override prefix.
 
-`branch-base-preflight` is read-only. Run it before first edit and again before `git add`, `git commit`, `git push`, and `gh pr create`. It blocks detached HEAD, `[gone]` upstream, wrong branch, wrong branch prefix, disallowed changed paths, missing base, base not ancestor, and merged-PR branches. Use `--allow-assigned-changes` only after every dirty path is listed with `--allowed-path`.
+`branch-base-preflight` is read-only. Execute it before first edit and again before `git add`, `git commit`, `git push`, and `gh pr create`. It blocks detached HEAD, `[gone]` upstream, wrong branch, wrong branch prefix, disallowed changed paths, missing base, base not ancestor, and merged-PR branches. Add `--allow-assigned-changes` only after every dirty path is listed with `--allowed-path`.
 
-`clean-worktree-target` is read-only. It maps an isolated physical worktree path back to the canonical route path so route gates use `canonical_target` while edits use `worktree_target`.
+`clean-worktree-target` is read-only. It maps an isolated physical worktree path back to the canonical route path so route gates receive `canonical_target` while edits target `worktree_target`.
 
 `ignored-staging-check` is read-only. It blocks force-add commands for ignored workspace surfaces unless explicit approval, exact path allowlist, and owning contract are present.
 

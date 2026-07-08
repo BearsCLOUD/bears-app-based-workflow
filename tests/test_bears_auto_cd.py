@@ -128,6 +128,49 @@ def test_git_contract_rejects_unknown_deploy_branch() -> None:
         raise AssertionError("dev branch unexpectedly resolved to prod target")
 
 
+def test_cd_contract_defaults_target_fields_from_git_contract() -> None:
+    module = load_module()
+    git_contract = {
+        "schema": "bears.git-deploy-contract.v1",
+        "repositories": [
+            {
+                "repository": "BearsCLOUD/bears-infra",
+                "deployment_targets": [
+                    {
+                        "branch": "main",
+                        "target_id": "fyuriserv-prod",
+                        "server_alias": "fyuriserv",
+                        "environment": "prod",
+                        "automatic_cd": True,
+                        "enabled": True,
+                    }
+                ],
+            }
+        ],
+    }
+    cd_contract = {
+        "schema": "bears.cd-kube-deploy-contract.v1",
+        "source": {
+            "branch_source": "git_contract",
+            "manifest_path": "manifests/example",
+        },
+        "kubernetes": {},
+    }
+
+    errors = module.validate_cd_contract(
+        cd_contract,
+        git_contract,
+        repository="BearsCLOUD/bears-infra",
+        branch="main",
+    )
+
+    assert errors == []
+    assert cd_contract["repository"] == "BearsCLOUD/bears-infra"
+    assert cd_contract["target_id"] == "fyuriserv-prod"
+    assert cd_contract["kubernetes"]["server_alias"] == "fyuriserv"
+    assert cd_contract["kubernetes"]["environment"] == "prod"
+
+
 def test_manifest_validator_accepts_nonzero_digest_fixture(tmp_path: Path) -> None:
     fixture_root = tmp_path / "repo"
     fixture_manifest = fixture_root / "manifests" / "codex-telegram-prod"

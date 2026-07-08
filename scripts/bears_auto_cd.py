@@ -203,9 +203,18 @@ def validate_cd_contract(
         except ContractError as exc:
             errors.append(str(exc))
         else:
+            if not contract.get("repository"):
+                contract["repository"] = effective_repository
+            if not contract.get("target_id"):
+                contract["target_id"] = target.get("target_id")
+            kube = contract.setdefault("kubernetes", {})
+            if isinstance(kube, dict):
+                kube.setdefault("server_alias", target.get("server_alias"))
+                kube.setdefault("environment", target.get("environment"))
+            else:
+                kube = {}
             if contract.get("target_id") != target.get("target_id"):
                 errors.append("cd contract target_id does not match Git contract target")
-            kube = contract.get("kubernetes", {})
             if kube.get("server_alias") != target.get("server_alias") or kube.get("environment") != target.get("environment"):
                 errors.append("cd contract Kubernetes target does not match Git contract")
     else:

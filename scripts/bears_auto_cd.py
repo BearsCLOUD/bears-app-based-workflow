@@ -25,8 +25,10 @@ from pathlib import Path
 from typing import Any
 
 PLUGIN_ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_GIT_CONTRACT = PLUGIN_ROOT / "assets" / "catalog" / "git-deploy-contract.v1.json"
-DEFAULT_CD_CONTRACT = PLUGIN_ROOT / "assets" / "catalog" / "cd-kube-deploy-contract.v1.json"
+PLUGIN_GIT_CONTRACT = PLUGIN_ROOT / "assets" / "catalog" / "git-deploy-contract.v1.json"
+PLUGIN_CD_CONTRACT = PLUGIN_ROOT / "assets" / "catalog" / "cd-kube-deploy-contract.v1.json"
+REPO_GIT_CONTRACT = Path("local_cd") / "policy" / "git-deploy-contract.v1.json"
+REPO_CD_CONTRACT = Path("local_cd") / "policy" / "cd-kube-deploy-contract.v1.json"
 DEFAULT_APP_DESCRIPTOR_DIR = Path("local_cd") / "applications"
 FORBIDDEN_CD_KEYS = {
     "development_branch",
@@ -342,6 +344,16 @@ def validate_all(
     return git_contract, cd_contract
 
 
+def resolve_contract_path(repo_root: Path, explicit: Path | None, repo_relative: Path, plugin_fallback: Path) -> Path:
+    """Return explicit path, then caller repo policy, then plugin schema pointer."""
+    if explicit is not None:
+        return explicit
+    candidate = repo_root / repo_relative
+    if candidate.is_file():
+        return candidate
+    return plugin_fallback
+
+
 def run(command: list[str], *, env: dict[str, str] | None = None) -> None:
     """Run one fixed external command with inherited stdout/stderr."""
     subprocess.run(command, check=True, env=env)
@@ -626,6 +638,19 @@ def local_image_build_config(contract: dict[str, Any]) -> dict[str, Any]:
     config.setdefault("clear_proxy_build_args", False)
     return config
 
+
+def public_build_args_from_env(contract: dict[str, Any]) -> list[str]:
+    """Return public Docker build arg names copied from the runner env."""
+    raw = local_image_build_config(contract).get("public_build_args_from_env", [])
+    if raw is None:
+        return []
+    if not isinstance(raw, list) or not all(isinstance(item, str) and item for item in raw):
+        raise ContractError("source.local_image_build.public_build_args_from_env must be a string list")
+    if any(not item.startswith("NEXT_PUBLIC_") for item in raw):
+        raise ContractError("public build args must use NEXT_PUBLIC_ names")
+    return raw
+
+
 def local_image_build_enabled(contract: dict[str, Any]) -> bool:
     """Return true when the executable owns a local build for this app."""
     return bool(local_image_build_config(contract))
@@ -669,6 +694,8 @@ def prepare_local_source(repo_root: Path, contract: dict[str, Any], source_root:
     if not candidate.is_dir():
         raise ContractError(f"source directory missing: {source_subpath}")
     context_path = safe_repo_relative_path(repo_root, str(config.get("context_path", "")), "source.local_image_build.context_path")
+    if candidate == context_path:
+        return
     if context_path.exists():
         shutil.rmtree(context_path)
     ignore = shutil.ignore_patterns(*sorted(SOURCE_SYNC_EXCLUDES))
@@ -691,6 +718,11 @@ def build_local_image(repo_root: Path, contract: dict[str, Any]) -> str:
     if config.get("clear_proxy_build_args") is True:
         for name in ("HTTP_PROXY", "HTTPS_PROXY", "ALL_PROXY", "http_proxy", "https_proxy", "all_proxy"):
             command.extend(["--build-arg", f"{name}="])
+    for name in public_build_args_from_env(contract):
+        value = os.environ.get(name)
+        if not value:
+            raise ContractError(f"required public build arg env is missing: {name}")
+        command.extend(["--build-arg", f"{name}={value}"])
     dockerfile = str(config.get("dockerfile", ""))
     if dockerfile:
         dockerfile_path = safe_repo_relative_path(context_path, dockerfile, "executor.dockerfile")
@@ -1174,8 +1206,8 @@ def deploy(args: argparse.Namespace) -> None:
     if not args.repository or not args.branch:
         raise ContractError("--repository and --branch are required for deploy")
     git_contract, cd_contract = validate_all(
-        args.git_contract,
-        args.cd_contract,
+        resolve_contract_path(args.repo_root, args.git_contract, REPO_GIT_CONTRACT, PLUGIN_GIT_CONTRACT),
+        resolve_contract_path(args.repo_root, args.cd_contract, REPO_CD_CONTRACT, PLUGIN_CD_CONTRACT),
         args.repo_root,
         args.application,
         repository=args.repository,
@@ -1215,8 +1247,8 @@ def main(argv: list[str] | None = None) -> int:
     command_parsers: dict[str, argparse.ArgumentParser] = {}
     for name in ("validate", "deploy"):
         command_parser = sub.add_parser(name)
-        command_parser.add_argument("--git-contract", type=Path, default=DEFAULT_GIT_CONTRACT)
-        command_parser.add_argument("--cd-contract", type=Path, default=DEFAULT_CD_CONTRACT)
+        command_parser.add_argument("--git-contract", type=Path)
+        command_parser.add_argument("--cd-contract", type=Path)
         command_parser.add_argument("--repo-root", type=Path, default=Path.cwd())
         command_parser.add_argument("--application")
         command_parser.add_argument("--repository")
@@ -1228,7 +1260,14 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
     try:
         if args.command == "validate":
-            validate_all(args.git_contract, args.cd_contract, args.repo_root, args.application, repository=args.repository, branch=args.branch)
+            validate_all(
+                resolve_contract_path(args.repo_root, args.git_contract, REPO_GIT_CONTRACT, PLUGIN_GIT_CONTRACT),
+                resolve_contract_path(args.repo_root, args.cd_contract, REPO_CD_CONTRACT, PLUGIN_CD_CONTRACT),
+                args.repo_root,
+                args.application,
+                repository=args.repository,
+                branch=args.branch,
+            )
             print("Bears automatic CD contracts ok")
         elif args.command == "deploy":
             deploy(args)

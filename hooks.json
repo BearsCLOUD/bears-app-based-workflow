@@ -1,51 +1,5 @@
 {
-  "hooks": {
-    "SessionStart": [
-      {
-        "matcher": "startup|resume",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "python3 \"${CODEX_PLUGIN_ROOT:-${CLAUDE_PLUGIN_ROOT:?plugin root env missing}}/hooks/session_start.py\"",
-            "statusMessage": "Bears L1 orchestrator prompt and compact workflow state initialized."
-          }
-        ]
-      }
-    ],
-    "UserPromptSubmit": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "python3 \"${CODEX_PLUGIN_ROOT:-${CLAUDE_PLUGIN_ROOT:?plugin root env missing}}/hooks/pre_task_guard.py\"",
-            "statusMessage": "Bears compact pre-task guard checked on UserPromptSubmit."
-          }
-        ]
-      }
-    ],
-    "PreToolUse": [
-      {
-        "matcher": "*",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "python3 \"${CODEX_PLUGIN_ROOT:-${CLAUDE_PLUGIN_ROOT:?plugin root env missing}}/hooks/pre_tool_policy.py\"",
-            "statusMessage": "Bears compact PreToolUse workflow guard checked."
-          }
-        ]
-      }
-    ],
-    "Stop": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "python3 \"${CODEX_PLUGIN_ROOT:-${CLAUDE_PLUGIN_ROOT:?plugin root env missing}}/hooks/stop_closeout_guard.py\"",
-            "timeout": 5,
-            "statusMessage": "Bears plugin closeout delivery guard checked."
-          }
-        ]
-      }
-    ]
-  }
+  "hooks": {},
+  "disabled": true,
+  "reason": "@Bears plugin is a tooling package and must not run instruction or policy hooks."
 }

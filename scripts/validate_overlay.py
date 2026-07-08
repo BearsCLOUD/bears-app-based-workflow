@@ -231,7 +231,6 @@ MANIFEST_VISIBLE_FIELD_PATHS = (
     ("description",),
     ("interface", "shortDescription"),
     ("interface", "longDescription"),
-    ("interface", "defaultPrompt"),
     ("keywords",),
     ("interface", "capabilities"),
 )

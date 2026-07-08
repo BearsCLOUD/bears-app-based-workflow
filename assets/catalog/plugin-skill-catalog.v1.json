@@ -1,81 +1,5 @@
 {
-  "active_skills": [
-    {
-      "description": "Generate bounded and verifiable Codex goal prompts for Bears work.",
-      "name": "bears-goal-prompt",
-      "path": "skills/bears-goal-prompt"
-    },
-    {
-      "description": "Govern @Bears subagents-roles expected owner-role coverage, autoCI route/audit proof, role-principle ledger, and role-safe subagent coordination.",
-      "name": "subagents-roles",
-      "path": "skills/subagents-roles"
-    },
-    {
-      "description": "Govern @Bears role lifecycle, role coverage gaps, role TOML updates, and registration drift.",
-      "name": "bears-agents",
-      "path": "skills/bears-agents"
-    },
-    {
-      "description": "Independent reusable L3-local Python standard for bounded Python worker tasks.",
-      "name": "python-codeflow",
-      "path": "skills/python-codeflow"
-    },
-    {
-      "description": "Create or update one Bears app constitution with target, owner, layer map, artifact map, and drift handling.",
-      "name": "app-constitution",
-      "path": "skills/app-constitution"
-    },
-    {
-      "description": "Research external solutions, prior art, product logic, integrations, UI/UX patterns, providers, and market constraints for Bears app targets.",
-      "name": "app-research",
-      "path": "skills/app-research"
-    },
-    {
-      "description": "Create or update app specifications from operator intent, constitution rules, app-research evidence, and repo evidence.",
-      "name": "app-specify",
-      "path": "skills/app-specify"
-    },
-    {
-      "description": "Create, update, validate, and consume app-local functional graph and app task ledger files for app-plan and app-dev.",
-      "name": "app-functional-graph",
-      "path": "skills/app-functional-graph"
-    },
-    {
-      "description": "Convert Bears app docs into app task ledger tasks and Apps Project #20 status items with functional graph refs.",
-      "name": "app-plan",
-      "path": "skills/app-plan"
-    },
-    {
-      "description": "Plan and administer non-app GitHub Projects, fields, views, issues, sub-issues, item hygiene, and planning PASS packets; app workflow planning belongs to app-plan.",
-      "name": "github-project-planning",
-      "path": "skills/github-project-planning"
-    },
-    {
-      "description": "Analyze app workflow artifacts, functional graph, task ledger, lane maps, roles, proof requirements, and app-dev handoff for drift.",
-      "name": "app-analyze",
-      "path": "skills/app-analyze"
-    },
-    {
-      "description": "DNS governance workflow for bears.ru through Yandex 360 using presence-only checks, dry-run plan review, and read-only governance evidence only.",
-      "name": "yandex360-dns",
-      "path": "skills/yandex360-dns"
-    },
-    {
-      "description": "Govern Bears subagent selection, L2/L3 delegation, parent-control-only mode, gitflow closeout lanes, and evidence packets.",
-      "name": "subagents",
-      "path": "skills/subagents"
-    },
-    {
-      "description": "Execute app task ledger tasks through L2 lane orchestrators, L2 helpers, L3 workers, and L3 critics.",
-      "name": "app-dev",
-      "path": "skills/app-dev"
-    },
-    {
-      "description": "Harden Bears docs/contracts instruction refactors and human-readable agent instructions from instruction-artifacts MCP evidence with semantic preservation, bypass closure, compression, and weighted rubric scoring.",
-      "name": "instruction-hardening",
-      "path": "skills/instruction-hardening"
-    }
-  ],
+  "active_skills": [],
   "disabled_skills": [
     {
       "name": "secret-factory",
@@ -116,13 +40,89 @@
       "name": "bears-deploy-gate",
       "path": "skills/bears-deploy-gate",
       "reason": "Removed from active discovery by operator request on 2026-07-07."
+    },
+    {
+      "name": "bears-goal-prompt",
+      "path": "skills/bears-goal-prompt",
+      "reason": "Removed from plugin discovery because @Bears plugin is tooling only and not an instruction source."
+    },
+    {
+      "name": "subagents-roles",
+      "path": "skills/subagents-roles",
+      "reason": "Removed from plugin discovery because @Bears plugin is tooling only and not an instruction source."
+    },
+    {
+      "name": "bears-agents",
+      "path": "skills/bears-agents",
+      "reason": "Removed from plugin discovery because @Bears plugin is tooling only and not an instruction source."
+    },
+    {
+      "name": "python-codeflow",
+      "path": "skills/python-codeflow",
+      "reason": "Removed from plugin discovery because @Bears plugin is tooling only and not an instruction source."
+    },
+    {
+      "name": "app-constitution",
+      "path": "skills/app-constitution",
+      "reason": "Removed from plugin discovery because @Bears plugin is tooling only and not an instruction source."
+    },
+    {
+      "name": "app-research",
+      "path": "skills/app-research",
+      "reason": "Removed from plugin discovery because @Bears plugin is tooling only and not an instruction source."
+    },
+    {
+      "name": "app-specify",
+      "path": "skills/app-specify",
+      "reason": "Removed from plugin discovery because @Bears plugin is tooling only and not an instruction source."
+    },
+    {
+      "name": "app-functional-graph",
+      "path": "skills/app-functional-graph",
+      "reason": "Removed from plugin discovery because @Bears plugin is tooling only and not an instruction source."
+    },
+    {
+      "name": "app-plan",
+      "path": "skills/app-plan",
+      "reason": "Removed from plugin discovery because @Bears plugin is tooling only and not an instruction source."
+    },
+    {
+      "name": "github-project-planning",
+      "path": "skills/github-project-planning",
+      "reason": "Removed from plugin discovery because @Bears plugin is tooling only and not an instruction source."
+    },
+    {
+      "name": "app-analyze",
+      "path": "skills/app-analyze",
+      "reason": "Removed from plugin discovery because @Bears plugin is tooling only and not an instruction source."
+    },
+    {
+      "name": "yandex360-dns",
+      "path": "skills/yandex360-dns",
+      "reason": "Removed from plugin discovery because @Bears plugin is tooling only and not an instruction source."
+    },
+    {
+      "name": "subagents",
+      "path": "skills/subagents",
+      "reason": "Removed from plugin discovery because @Bears plugin is tooling only and not an instruction source."
+    },
+    {
+      "name": "app-dev",
+      "path": "skills/app-dev",
+      "reason": "Removed from plugin discovery because @Bears plugin is tooling only and not an instruction source."
+    },
+    {
+      "name": "instruction-hardening",
+      "path": "skills/instruction-hardening",
+      "reason": "Removed from plugin discovery because @Bears plugin is tooling only and not an instruction source."
     }
   ],
   "discovery_policy": {
     "active_skill_file": "SKILL.md",
     "disabled_skill_file": "SKILL.disabled.md",
-    "disabled_skill_rule": "Disabled skill directories MUST NOT contain SKILL.md; preserved docs live only in SKILL.disabled.md.",
-    "manifest_skill_root": "./skills/"
+    "disabled_skill_rule": "Plugin skills are not discoverable. Preserved docs live only in SKILL.disabled.md.",
+    "manifest_skill_root": null,
+    "plugin_instruction_source": "disabled"
   },
   "generated_fragments": {
     "readme": "docs/generated/README.skill-inventory.md",
@@ -130,6 +130,6 @@
   },
   "owner_plugin": "bears",
   "schema": "bears-plugin-skill-catalog.v1",
-  "updated": "2026-07-07",
+  "updated": "2026-07-08",
   "version": "1"
 }

@@ -145,7 +145,7 @@ def test_manifest_validator_accepts_nonzero_digest_fixture(tmp_path: Path) -> No
     assert "Bears automatic CD contracts ok" in result.stdout
 
 
-def test_application_descriptor_rejects_executor_owned_fields(tmp_path: Path) -> None:
+def test_application_descriptor_rejects_incomplete_local_image_build(tmp_path: Path) -> None:
     fixture_root = tmp_path / "repo"
     descriptor_dir = fixture_root / "local_cd" / "applications"
     descriptor_dir.mkdir(parents=True)
@@ -154,7 +154,7 @@ def test_application_descriptor_rejects_executor_owned_fields(tmp_path: Path) ->
     write_json(descriptor_dir / "codex-telegram-mcp.v1.json", descriptor)
     result = run_cli("validate", "--repo-root", str(fixture_root), "--application", "codex-telegram-mcp")
     assert result.returncode == 1
-    assert "executor-owned field" in result.stderr
+    assert "source.local_image_build.context_path must be a non-empty string" in result.stderr
 
 
 def test_build_manifests_falls_back_to_kubectl_kustomize() -> None:
@@ -171,23 +171,14 @@ def test_cd_contract_uses_runner_kubeconfig_source() -> None:
 
 
 def test_cd_contract_declares_descriptor_and_executor_boundary() -> None:
-    catalog = json.loads(CD_CONTRACT.read_text(encoding="utf-8"))
+    catalog = json.loads((KUBE_ROOT / "local_cd/policy/cd-kube-deploy-contract.v1.json").read_text(encoding="utf-8"))
     assert catalog["application_descriptor_directory"] == "local_cd/applications"
     assert sorted(item["application"] for item in catalog["applications"]) == [
-        "codex-telegram-mcp",
-        "codex-web",
-        "dagger-engine",
         "dialogika-web",
-        "egress-gateway",
-        "external-secrets-operator",
-        "opencode-server",
-        "tgsearch-live-gate",
+        "dialogika-web-dev",
     ]
     forbidden = {
         "ordered_steps",
-        "local_image_build",
-        "context_path",
-        "dockerfile",
         "load_to_k3d_nodes",
         "kubeconfig_source",
     }
@@ -422,7 +413,9 @@ def test_auto_cd_executor_owns_local_image_build_and_k3d_load() -> None:
     assert "def build_local_image" in text
     assert '"docker", "build", "--pull"' in text
     assert '"--build-arg", f"{name}="' in text
-    assert "EXECUTOR_LOCAL_BUILD_DEFAULTS" in text
+    assert "source.local_image_build" in text
+    assert "public_build_args_from_env" in text
+    assert "EXECUTOR_LOCAL_BUILD_DEFAULTS" not in text
     assert "def load_local_image_to_k3d" in text
     assert '"ctr", "-n", "k8s.io", "images", "import", "-"' in text
     assert "load_local_image_to_k3d(cd_contract, local_image_ref, env)" in text

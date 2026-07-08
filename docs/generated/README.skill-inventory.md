@@ -3,25 +3,11 @@
 
 Canonical catalog: `assets/catalog/plugin-skill-catalog.v1.json`.
 
-Active skills expose `SKILL.md` and are discoverable by the plugin loader.
+This plugin is not an instruction source. It exposes no active `SKILL.md` files through plugin discovery.
 
 ## Active skills
 
-- `skills/bears-goal-prompt` — Generate bounded and verifiable Codex goal prompts for Bears work.
-- `skills/subagents-roles` — Govern @Bears subagents-roles expected owner-role coverage, autoCI route/audit proof, role-principle ledger, and role-safe subagent coordination.
-- `skills/bears-agents` — Govern @Bears role lifecycle, role coverage gaps, role TOML updates, and registration drift.
-- `skills/python-codeflow` — Independent reusable L3-local Python standard for bounded Python worker tasks.
-- `skills/app-constitution` — Create or update one Bears app constitution with target, owner, layer map, artifact map, and drift handling.
-- `skills/app-research` — Research external solutions, prior art, product logic, integrations, UI/UX patterns, providers, and market constraints for Bears app targets.
-- `skills/app-specify` — Create or update app specifications from operator intent, constitution rules, app-research evidence, and repo evidence.
-- `skills/app-functional-graph` — Create, update, validate, and consume app-local functional graph and app task ledger files for app-plan and app-dev.
-- `skills/app-plan` — Convert Bears app docs into app task ledger tasks and Apps Project #20 status items with functional graph refs.
-- `skills/github-project-planning` — Plan and administer non-app GitHub Projects, fields, views, issues, sub-issues, item hygiene, and planning PASS packets; app workflow planning belongs to app-plan.
-- `skills/app-analyze` — Analyze app workflow artifacts, functional graph, task ledger, lane maps, roles, proof requirements, and app-dev handoff for drift.
-- `skills/yandex360-dns` — DNS governance workflow for bears.ru through Yandex 360 using presence-only checks, dry-run plan review, and read-only governance evidence only.
-- `skills/subagents` — Govern Bears subagent selection, L2/L3 delegation, parent-control-only mode, gitflow closeout lanes, and evidence packets.
-- `skills/app-dev` — Execute app task ledger tasks through L2 lane orchestrators, L2 helpers, L3 workers, and L3 critics.
-- `skills/instruction-hardening` — Harden Bears docs/contracts instruction refactors and human-readable agent instructions from instruction-artifacts MCP evidence with semantic preservation, bypass closure, compression, and weighted rubric scoring.
+None.
 
 ## Disabled preserved skill docs
 - `skills/secret-factory/SKILL.disabled.md` — Removed from active discovery by operator request on 2026-07-07.
@@ -32,3 +18,18 @@ Active skills expose `SKILL.md` and are discoverable by the plugin loader.
 - `skills/bears-blocker-eval/SKILL.disabled.md` — Removed from active discovery by operator request on 2026-07-07.
 - `skills/bears-codex-health/SKILL.disabled.md` — Removed from active discovery by operator request on 2026-07-07.
 - `skills/bears-deploy-gate/SKILL.disabled.md` — Removed from active discovery by operator request on 2026-07-07.
+- `skills/bears-goal-prompt/SKILL.disabled.md` — Removed from plugin discovery because @Bears plugin is tooling only and not an instruction source.
+- `skills/subagents-roles/SKILL.disabled.md` — Removed from plugin discovery because @Bears plugin is tooling only and not an instruction source.
+- `skills/bears-agents/SKILL.disabled.md` — Removed from plugin discovery because @Bears plugin is tooling only and not an instruction source.
+- `skills/python-codeflow/SKILL.disabled.md` — Removed from plugin discovery because @Bears plugin is tooling only and not an instruction source.
+- `skills/app-constitution/SKILL.disabled.md` — Removed from plugin discovery because @Bears plugin is tooling only and not an instruction source.
+- `skills/app-research/SKILL.disabled.md` — Removed from plugin discovery because @Bears plugin is tooling only and not an instruction source.
+- `skills/app-specify/SKILL.disabled.md` — Removed from plugin discovery because @Bears plugin is tooling only and not an instruction source.
+- `skills/app-functional-graph/SKILL.disabled.md` — Removed from plugin discovery because @Bears plugin is tooling only and not an instruction source.
+- `skills/app-plan/SKILL.disabled.md` — Removed from plugin discovery because @Bears plugin is tooling only and not an instruction source.
+- `skills/github-project-planning/SKILL.disabled.md` — Removed from plugin discovery because @Bears plugin is tooling only and not an instruction source.
+- `skills/app-analyze/SKILL.disabled.md` — Removed from plugin discovery because @Bears plugin is tooling only and not an instruction source.
+- `skills/yandex360-dns/SKILL.disabled.md` — Removed from plugin discovery because @Bears plugin is tooling only and not an instruction source.
+- `skills/subagents/SKILL.disabled.md` — Removed from plugin discovery because @Bears plugin is tooling only and not an instruction source.
+- `skills/app-dev/SKILL.disabled.md` — Removed from plugin discovery because @Bears plugin is tooling only and not an instruction source.
+- `skills/instruction-hardening/SKILL.disabled.md` — Removed from plugin discovery because @Bears plugin is tooling only and not an instruction source.

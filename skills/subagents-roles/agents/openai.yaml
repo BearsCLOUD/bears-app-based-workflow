@@ -1,4 +1,0 @@
-interface:
-  display_name: "Bears Subagents Roles Governance"
-  short_description: "Enforce canonical Bears role coverage"
-  default_prompt: "Use $subagents-roles to route this Bears platform task through the canonical plugins/bears role gate."

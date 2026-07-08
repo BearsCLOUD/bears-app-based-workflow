@@ -2,11 +2,9 @@
   "schema": "bears.git-deploy-contract.v1",
   "version": 1,
   "owner_plugin": "bears",
-  "updated": "2026-07-07",
-  "purpose": "Schema pointer for automatic CD branch-to-target policy. Environment-owned Git deploy contracts live outside plugin source and are passed with --git-contract.",
   "repositories": [
     {
-      "repository": "<environment-owned-repository>",
+      "repository": "<repository>",
       "deployment_targets": [
         {
           "branch": "<branch>",
@@ -18,20 +16,5 @@
         }
       ]
     }
-  ],
-  "rules": {
-    "environment_contract_required": true,
-    "plugin_source_contains_no_environment_targets": true,
-    "cd_contract_must_not_define_merge_policy": true,
-    "disabled_targets_must_set_automatic_cd_false": true
-  },
-  "forbidden_in_cd_contract": [
-    "development_branch",
-    "deployment_branch",
-    "merge_request_required",
-    "pull_request",
-    "operator_approval",
-    "approval_gate",
-    "manual_gate"
   ]
 }

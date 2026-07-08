@@ -1,4 +1,0 @@
-interface:
-  display_name: "Bears Kubernetes Ops"
-  short_description: "Kubernetes Git/CD and dev-runtime checks"
-  default_prompt: "Use $bears-kubernetes-ops to verify Kubernetes desired-state, local_cd deploy boundaries, secret-reference readiness, and dev-instance runtime placement without exposing secrets or mutating runtime."

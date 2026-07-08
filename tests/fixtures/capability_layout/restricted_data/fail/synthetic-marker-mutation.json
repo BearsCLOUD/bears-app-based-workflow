@@ -1,7 +1,0 @@
-{
-  "case": "synthetic-marker-mutation",
-  "checked_in_marker_value_present": false,
-  "expected_code": "RESTRICTED_DATA_MARKER",
-  "mutation": "write the deterministic restricted-data test marker to a temporary file",
-  "schema": "bears-plugin-capability-layout-restricted-data-fixture.v1"
-}

@@ -1,4 +1,0 @@
-interface:
-  display_name: "App Constitution"
-  short_description: "Create app target rules"
-  default_prompt: "Use $app-constitution to create or update one Bears app constitution with App Target Gate, owner, layer map, artifact map, and drift handling."

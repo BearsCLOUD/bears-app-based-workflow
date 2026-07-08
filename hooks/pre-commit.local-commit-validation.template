@@ -1,5 +1,0 @@
-#!/usr/bin/env bash
-set -euo pipefail
-cd /srv/bears/plugins/bears
-unset GIT_DIR GIT_WORK_TREE GIT_INDEX_FILE GIT_PREFIX GIT_COMMON_DIR
-python3 scripts/local_commit_validation.py run --staged

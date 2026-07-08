@@ -1,4 +1,0 @@
-interface:
-  display_name: "Bears Blocker Eval"
-  short_description: "Classify Bears workflow blockers safely"
-  default_prompt: "Use $bears-blocker-eval to classify blockers in JSON first and keep ordinary risks advisory."

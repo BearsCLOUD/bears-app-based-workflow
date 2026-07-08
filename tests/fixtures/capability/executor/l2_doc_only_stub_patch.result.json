@@ -1,8 +1,0 @@
-{
-  "files_changed": [
-    "tests/fixtures/capability/sandbox/doc_only.md"
-  ],
-  "mutation_mode": "fixture_only",
-  "scenario_id": "l2_doc_only_stub_patch_auto_close",
-  "schema_version": "bears-stub-executor-result.v1"
-}

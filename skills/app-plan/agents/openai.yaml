@@ -1,4 +1,0 @@
-interface:
-  display_name: "App Plan"
-  short_description: "Create app ledger tasks from app docs."
-  default_prompt: "Use $app-plan to convert Bears app docs into app-task-ledger tasks with functionality refs, graph node refs, lanes, roles, Project status refs, and app-dev handoff."

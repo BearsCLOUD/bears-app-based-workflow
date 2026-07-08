@@ -1,6 +1,0 @@
-{
-  "decision": "manual_review",
-  "reason": "script-only stub changes require human review",
-  "scenario_id": "l2_script_only_stub_patch_manual_review",
-  "schema_version": "bears-closeout-decision.v1"
-}

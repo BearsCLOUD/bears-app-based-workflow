@@ -2,32 +2,29 @@
   "author": {
     "email": "noreply@example.invalid",
     "name": "Bears Workspace",
-    "url": "https://bears.local"
+    "url": "https://github.com/BearsCLOUD"
   },
-  "description": "Bears local tooling package. It is not an instruction source.",
-  "homepage": "https://bears.local/plugins/bears",
+  "description": "Bears automatic CD tooling package. It is not an instruction source.",
+  "homepage": "https://github.com/BearsCLOUD/bears_plugin",
   "interface": {
     "brandColor": "#F97316",
     "capabilities": [
-      "Local CD executor scripts",
-      "Machine-readable schema pointers",
-      "Preserved non-discoverable migration evidence"
+      "Automatic CD executor",
+      "Machine-readable CD contract shapes"
     ],
     "category": "Development",
     "developerName": "Bears Workspace",
     "displayName": "Bears",
-    "longDescription": "This package provides local scripts and data files only. It must not expose skills, hooks, role profiles, prompts, or workflow policy. Agent behavior is owned by active AGENTS.md files and tracked non-plugin contracts.",
-    "privacyPolicyURL": "https://bears.local/privacy",
-    "shortDescription": "Bears local tooling package; no agent instructions.",
-    "termsOfServiceURL": "https://bears.local/terms",
-    "websiteURL": "https://bears.local/plugins/bears"
+    "longDescription": "This package provides one automatic CD executor and two machine-readable contract-shape files. It exposes no skills, hooks, role profiles, prompts, workflows, generated inventories, or issue templates.",
+    "privacyPolicyURL": "https://github.com/BearsCLOUD/bears_plugin",
+    "shortDescription": "Bears automatic CD tooling; no agent instructions.",
+    "termsOfServiceURL": "https://github.com/BearsCLOUD/bears_plugin",
+    "websiteURL": "https://github.com/BearsCLOUD/bears_plugin"
   },
   "keywords": [
     "bears-tooling",
     "automatic-cd",
-    "kubernetes-cd",
-    "schema-pointers",
-    "local-scripts"
+    "kubernetes-cd"
   ],
   "license": "UNLICENSED",
   "metadata": {
@@ -41,7 +38,8 @@
       "enabled": false,
       "activeSkills": false,
       "activeHooks": false,
-      "activeRoleProfiles": false
+      "activeRoleProfiles": false,
+      "activeWorkflows": false
     }
   },
   "name": "bears",

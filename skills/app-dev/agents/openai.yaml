@@ -1,4 +1,4 @@
-interface:
+openai:
   display_name: "App Dev"
-  short_description: "Dispatch ready wave tasks"
-  default_prompt: "Use $app-dev to prepare L2 and L3 dispatch for a ready graph-linked wave."
+  short_description: "Dispatch graph-ready tasks"
+  default_prompt: "Use $app-dev to dispatch only graph-backed ledger tasks with complete constitution, research, and plan lineage."

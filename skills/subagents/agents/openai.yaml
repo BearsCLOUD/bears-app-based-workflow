@@ -1,4 +1,4 @@
-interface:
+openai:
   display_name: "Subagents"
-  short_description: "Prepare L2/L3 delegation"
-  default_prompt: "Use $subagents to prepare bounded role-matched delegation packets for L2/L3 app-dev work and helper subagents."
+  short_description: "Create handoff packets"
+  default_prompt: "Use $subagents to prepare bounded sequential delegation packets for graph-backed app-dev work."

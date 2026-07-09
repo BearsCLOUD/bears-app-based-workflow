@@ -1,7 +1,7 @@
 {
   "name": "bears-app-based-workflow",
-  "version": "0.1.0+codex.20260709143733",
-  "description": "Spec Kit-style app workflow plugin for Bears functional baselines, waves, functional graphs, task ledgers, instruction hardening, role-matched subagents, and parallel app development orchestration.",
+  "version": "0.1.0+codex.20260709172341",
+  "description": "Self-contained sequential app workflow plugin for constitution truth, research waves, plan microtasks, dev-stage functional graphs, task ledgers, instruction hardening, role-matched subagents, and lineage analysis.",
   "author": {
     "name": "BearsCLOUD",
     "url": "https://github.com/BearsCLOUD"
@@ -12,47 +12,48 @@
   "keywords": [
     "bears",
     "spec-kit",
-    "waves",
+    "constitution",
+    "research-waves",
+    "sequential-planning",
     "functional-graph",
     "task-ledger",
+    "lineage-analysis",
     "instruction-hardening",
     "subagents",
     "role-orchestration",
-    "parallel-planning",
     "functional-baseline",
     "agents-alignment"
   ],
   "skills": "./skills/",
   "interface": {
     "displayName": "Bears App-Based Workflow",
-    "shortDescription": "App functional baseline, wave specification, planning, hardening, analysis, and subagent orchestration.",
-    "longDescription": "Bears App-Based Workflow provides a Spec Kit-style application workflow: a short app constitution functional baseline, app-local AGENTS alignment, research waves, detailed specification, functional graph planning, ledger tasks, read-only wave instruction hardening, role-matched subagents, parallel L2/L3 app-dev orchestration, and autoCI-owned script evidence.",
+    "shortDescription": "Sequential constitution, research, plan, graph, hardening, analysis, and subagent workflow.",
+    "longDescription": "Bears App-Based Workflow provides a self-contained application workflow: app constitution as the functional source of truth, research waves that explain constitution ids, sequential plan microtasks, a functional graph that models future app-dev work after planning, graph-linked task ledgers, read-only instruction hardening, role-matched subagent handoffs, implementation analysis, and automation-owned evidence handoff. The plugin artifacts do not depend on a specific host workspace instruction file or runtime service.",
     "developerName": "BearsCLOUD",
     "category": "Development",
     "capabilities": [
-      "Spec Kit-style app workflow",
-      "Short app functional baseline",
-      "App-local AGENTS alignment pass",
-      "App constitution gap register",
-      "Wave research and synchronization",
-      "Detailed app specification",
-      "Functional graph planning",
+      "Self-contained app workflow",
+      "App constitution functional truth",
+      "Constitution gap register",
+      "Research waves mapped to constitution ids",
+      "Sequential plan microtasks",
+      "Dev-stage functional graph from approved plan microtasks",
       "Graph-linked task ledger",
+      "Complete graph lineage checks",
       "Subagent role mapping",
       "Bears role coverage",
-      "Bounded L2/L3 subagent dispatch",
-      "Parallel planning by disjoint target sets",
-      "Implementation analysis",
+      "Bounded sequential L2/L3 subagent handoff",
+      "Implementation analysis with exact broken links",
       "Wave instruction hardening",
-      "Pre-commit autoCI evidence handoff"
+      "Automation-owned evidence handoff"
     ],
     "websiteURL": "https://github.com/BearsCLOUD/bears-app-based-workflow",
     "defaultPrompt": [
-      "Create app constitution baseline and align app-local AGENTS.",
-      "Research app feature waves.",
-      "Plan ready wave with role-matched subagents.",
-      "Harden a ready wave plan.",
-      "Dev ready wave with parallel L2/L3 subagents."
+      "Create or update the app constitution functional truth.",
+      "Research a wave and map every finding to constitution ids.",
+      "Plan the ready research wave as ordered microtasks.",
+      "Model approved plan microtasks in the functional graph.",
+      "Analyze lineage from constitution to research to plan to graph to dev."
     ],
     "brandColor": "#3B82F6"
   }

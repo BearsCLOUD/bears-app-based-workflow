@@ -1,42 +1,38 @@
 ---
 name: app-specify
-description: Clarify Bears app waves and expand them into detailed functional documentation. Use when a wave has open product decisions, unclear flows, actors, data, errors, or acceptance criteria.
+description: Clarify Bears app research waves when actors, flows, data, errors, acceptance criteria, or product decisions are missing. Use as a helper inside app-research, not as a required main workflow gate.
 ---
 
 # App Specify
 
 ## Purpose
 
-Turn `waves/<wave-id>/research.md` into `waves/<wave-id>/spec.md` through targeted clarification and source-backed detail.
+Resolve blocking research questions and fold the clarified result back into `waves/<wave-id>/research.md`.
 
 ## Ask policy
 
-Ask the user only for decisions that cannot be recovered from current docs, code, or wave notes. Keep questions concrete and grouped by blocking decision.
+Ask the user only for decisions that cannot be recovered from current docs, source observations, wave notes, or host-supplied context. Keep questions concrete and grouped by blocking decision.
 
-## Spec file
+## Clarification output
 
-Write `waves/<wave-id>/spec.md` with:
+Return or write clarification notes with:
 
-- Wave ID and source research file.
+- Wave id and research section.
+- Constitution refs affected.
 - Actors and permissions.
-- User goals.
-- Main flows.
-- Alternate flows.
+- Main and alternate flows.
 - Data inputs, outputs, and ownership.
 - Error and empty states.
 - External integrations.
 - Acceptance criteria.
-- Functional graph hints.
-- Candidate disjoint implementation lanes.
-- Decisions closed in this pass.
+- Decisions closed.
 - Open questions.
 
 ## Exit rules
 
-- Use role-matched subagents for independent actors, flows, data, errors, integrations, or acceptance slices.
-- Keep specification subagent scopes disjoint by section, source set, or target behavior.
-- If acceptance criteria or data ownership is missing, stay in `app-specify`.
-- If requirements are complete enough to map functionality, route to `app-functional-graph`.
-- If the user changes wave scope, update the research file and wave registry.
-- Do not create implementation tasks here.
-- Validation, test, audit, route, cache, cachebuster, quick-validate, and plugin-validate scripts belong to pre-commit autoCI; agents do not run them manually.
+- Fold clarified details into `waves/<wave-id>/research.md`.
+- If acceptance criteria or data ownership is still missing, stay in `app-specify` or record a blocking question.
+- If functional truth changes, route to `app-constitution`.
+- If research is decision-complete, route to `app-plan`.
+- Do not create plan microtasks, graph nodes, or dev packets here.
+- Do not ask agents to run validation, test, audit, route, cache, cachebuster, quick-validate, or plugin-validate scripts manually.

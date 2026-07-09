@@ -1,72 +1,51 @@
 ---
 name: app-functional-graph
-description: Maintain the Bears app functional graph and graph-to-ledger references. Use when Codex must map wave requirements to functionality ids, graph node refs, dependencies, state transitions, API calls, and task ledger anchors.
+description: Build the Bears app functional graph as a dev-stage model from approved plan microtasks. Use when Codex must map constitution-backed research and plan tasks to functionality ids, graph node refs, dependencies, state transitions, API calls, and ledger backlinks.
 ---
 
 # App Functional Graph
 
 ## Purpose
 
-Create or update the app-local functional graph and task-ledger anchors.
+Create or update `docs/app-functional-graph.v1.json` after planning. The graph models future `app-dev` work from approved plan microtasks.
 
-## Files
+## Inputs
 
-- `docs/app-functional-graph.v1.json`
+- `docs/app-constitution.md`
+- `waves/<wave-id>/research.md`
+- `waves/<wave-id>/plan.md`
 - `docs/app-task-ledger.v1.json`
+- Existing `docs/app-functional-graph.v1.json` when present.
 
-## Functional graph shape
+## Outputs
 
-Use stable ids. Keep this minimum structure:
+- Updated `docs/app-functional-graph.v1.json`
+- Updated graph backlinks in `docs/app-task-ledger.v1.json`
 
-```json
-{
-  "schema": "app-functional-graph.v1",
-  "app": "<app-id>",
-  "functions": [
-    {
-      "functionality_id": "<stable-id>",
-      "wave_id": "<wave-id>",
-      "title": "<user-visible behavior>",
-      "nodes": [
-        {
-          "node_id": "<stable-node>",
-          "kind": "ui|api|state|job|integration|data|error",
-          "requirement_refs": ["<spec-section>"],
-          "depends_on": [],
-          "ledger_task_refs": []
-        }
-      ],
-      "edges": [],
-      "evidence_refs": []
-    }
-  ]
-}
-```
+## Graph node requirements
 
-## Ledger reference shape
+Every graph node needs:
 
-Every executable ledger task needs:
-
-- `task_id`
-- `wave_id`
-- `functionality_refs`
-- `graph_node_refs`
-- `target_paths`
-- `owner_role`
-- `lane`
+- `node_id`
+- `kind`
+- `dev_model_kind`
+- `constitution_refs`
+- `research_refs`
+- `plan_task_refs`
 - `depends_on`
-- `decision_state`
-- `proof_requirement`
-- `status`
+- `evidence_refs`
 
 `graph_node_refs` use `<functionality_id>:<node_id>`.
 
 ## Rules
 
-- Never create a task without graph refs.
-- Never delete graph ids that existing ledger tasks reference; mark replacement and add a new id.
-- Use role-matched graph subagents for independent functionality groups, API groups, UI flows, data flows, state transitions, or integration edges.
-- Keep graph subagent scopes disjoint by functionality id, node group, or target path set.
-- If a requirement has no graph home, add a graph node before planning tasks.
-- If a graph node lacks a decision-complete requirement, return it to `app-specify`.
-- Validation, test, audit, route, cache, cachebuster, quick-validate, and plugin-validate scripts belong to pre-commit autoCI; agents do not run them manually.
+- Build graph nodes only from approved plan microtasks.
+- Never create graph nodes directly from research without a plan microtask.
+- Every graph node must prove lineage: constitution -> research -> plan.
+- Write graph node refs back to matching ledger tasks.
+- Never delete graph ids referenced by ledger tasks; supersede and add replacement ids.
+- If a microtask has no constitution ref, route to `app-plan` or `app-constitution`.
+- If a microtask has no research ref, route to `app-plan` or `app-research`.
+- If a required microtask is missing, route to `app-plan`.
+- Do not route directly to `app-dev` until lineage is complete.
+- Do not ask agents to run validation, test, audit, route, cache, cachebuster, quick-validate, or plugin-validate scripts manually.

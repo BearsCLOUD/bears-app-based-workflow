@@ -1,13 +1,13 @@
 ---
 name: bears-agents
-description: Select Bears role coverage for app-dev orchestration. Use inside Bears App-Based Workflow when ledger tasks need owner roles, critic roles, helper roles, L2 lane coverage, or L3 worker assignment before subagent dispatch.
+description: Select Bears role coverage for sequential app-dev handoffs. Use inside Bears App-Based Workflow when graph-backed ledger tasks need owner roles, critic roles, helper roles, or L3 worker assignment before subagent dispatch.
 ---
 
 # Bears Agents
 
 ## Purpose
 
-Select Bears role coverage for graph-linked app-dev tasks and helper work.
+Select role coverage for graph-backed app-dev tasks and helper work.
 
 ## Output
 
@@ -16,15 +16,17 @@ Return a role coverage packet:
 ```json
 {
   "wave_id": "<wave-id>",
-  "lanes": [
+  "handoffs": [
     {
-      "lane": "<lane-id>",
+      "handoff_order": 1,
+      "task_id": "<task-id>",
       "owner_role": "<role>",
       "critic_role": "<role>",
       "helper_roles": ["<role>"],
-      "task_ids": ["<task-id>"],
+      "constitution_refs": ["<constitution-id>"],
+      "research_refs": ["<research-ref>"],
+      "graph_node_refs": ["<graph-node-ref>"],
       "target_set": ["<path-or-target>"],
-      "parallel_safe": true,
       "coverage_status": "covered|missing-role|conflict"
     }
   ]
@@ -35,9 +37,9 @@ Return a role coverage packet:
 
 - Pick roles from task domain, target paths, graph refs, and proof requirements.
 - Keep owner and critic roles separate when risk is non-trivial.
-- Include helper roles for planning, instruction hardening, packet review, and closeout when bounded work exists.
-- Maximize covered lanes across disjoint repo, path, target, generated-artifact, cache, and evidence-output sets.
+- Include helper roles for hardening, packet review, and closeout when bounded work exists.
 - Report `missing-role` instead of inventing authority.
-- Report `conflict` when two lanes would write overlapping paths or generated outputs.
+- Report `conflict` when the packet conflicts with dependency order, target paths, or host policy notes.
 - Feed the packet to `subagents` and `app-dev` before subagent dispatch.
-- Validation, test, audit, route, cache, cachebuster, quick-validate, and plugin-validate scripts belong to pre-commit autoCI; agents do not run them manually.
+- Do not change functional truth, task scope, graph ids, or execution order.
+- Do not ask agents to run validation, test, audit, route, cache, cachebuster, quick-validate, or plugin-validate scripts manually.

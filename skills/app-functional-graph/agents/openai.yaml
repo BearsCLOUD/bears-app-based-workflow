@@ -1,4 +1,4 @@
-interface:
+openai:
   display_name: "App Functional Graph"
-  short_description: "Link specs to graph and ledger"
-  default_prompt: "Use $app-functional-graph to connect wave requirements with graph nodes and ledger refs."
+  short_description: "Model planned dev graph"
+  default_prompt: "Use $app-functional-graph to model approved plan microtasks as graph nodes with constitution, research, and plan lineage."

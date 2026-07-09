@@ -1,4 +1,4 @@
-interface:
+openai:
   display_name: "Subagents Roles"
-  short_description: "Map tasks to worker roles"
-  default_prompt: "Use $subagents-roles to map graph-linked tasks to owner, critic, helper, lane, and parallel-safety roles."
+  short_description: "Map sequential roles"
+  default_prompt: "Use $subagents-roles to map graph-backed tasks to owner, critic, and helper roles for sequential handoff."

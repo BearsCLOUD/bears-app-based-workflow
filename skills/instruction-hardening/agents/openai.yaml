@@ -1,4 +1,4 @@
-interface:
+openai:
   display_name: "Instruction Hardening"
-  short_description: "Compress workflow instructions"
-  default_prompt: "Use $instruction-hardening to compress and harden an instruction surface without changing behavior."
+  short_description: "Compress workflow packets"
+  default_prompt: "Use $instruction-hardening to compress and harden workflow text without changing functional truth or host policy."

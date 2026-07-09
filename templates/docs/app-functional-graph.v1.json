@@ -1,0 +1,28 @@
+{
+  "schema": "app-functional-graph.v1",
+  "app": "<app-id>",
+  "functions": [
+    {
+      "functionality_id": "capability-id",
+      "wave_id": "wave-id",
+      "title": "<modeled behavior>",
+      "constitution_refs": ["capability-id"],
+      "research_refs": ["waves/wave-id/research.md#constitution-mapping"],
+      "status": "modeled",
+      "nodes": [
+        {
+          "node_id": "node-id",
+          "kind": "workflow",
+          "dev_model_kind": "implementation",
+          "constitution_refs": ["capability-id"],
+          "research_refs": ["waves/wave-id/research.md#constitution-mapping"],
+          "plan_task_refs": ["task-id"],
+          "depends_on": [],
+          "evidence_refs": ["waves/wave-id/plan.md#sequential-microtasks"]
+        }
+      ],
+      "edges": [],
+      "evidence_refs": ["docs/app-constitution.md", "waves/wave-id/research.md", "waves/wave-id/plan.md"]
+    }
+  ]
+}

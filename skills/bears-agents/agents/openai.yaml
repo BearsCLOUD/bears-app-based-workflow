@@ -1,4 +1,4 @@
-interface:
+openai:
   display_name: "Bears Agents"
-  short_description: "Select app-dev role coverage"
-  default_prompt: "Use $bears-agents to select owner, critic, and helper role coverage for app-dev ledger tasks."
+  short_description: "Select role coverage"
+  default_prompt: "Use $bears-agents to select role coverage for sequential graph-backed ledger handoffs."

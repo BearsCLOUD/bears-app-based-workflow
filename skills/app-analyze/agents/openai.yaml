@@ -1,4 +1,4 @@
-interface:
+openai:
   display_name: "App Analyze"
-  short_description: "Compare docs, graph, ledger, code"
-  default_prompt: "Use $app-analyze to compare implemented state with wave docs, graph, and ledger."
+  short_description: "Check lineage convergence"
+  default_prompt: "Use $app-analyze to compare constitution, research, plan, graph, ledger, and implementation state and report broken links."

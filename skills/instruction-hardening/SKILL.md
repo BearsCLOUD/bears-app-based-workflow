@@ -1,13 +1,13 @@
 ---
 name: instruction-hardening
-description: Compress and harden Codex instructions, skills, prompts, wave plans, dispatch packets, and workflow prose without changing instruction authority. Use inside Bears App-Based Workflow when Codex must remove duplication, make rules stricter, and return compact text plus authority or drift notes.
+description: Compress and harden Codex instructions, skills, prompts, wave plans, dispatch packets, and workflow prose without changing functional truth or host policy. Use inside Bears App-Based Workflow when Codex must remove duplication, make rules stricter, and return compact text plus drift notes.
 ---
 
 # Instruction Hardening
 
 ## Goal
 
-Turn an instruction surface into a smaller, stricter version with the same required behavior.
+Turn an instruction or packet surface into a smaller, stricter version with the same required behavior.
 
 ## Process
 
@@ -16,36 +16,35 @@ Turn an instruction surface into a smaller, stricter version with the same requi
 3. Merge rules that share the same trigger, owner, and action.
 4. Keep concrete triggers, required outputs, forbidden actions, and escalation points.
 5. Replace vague wording with observable actions.
-6. Return compressed text, removed-content summary, and authority or drift note.
+6. Return compressed text, removed-content summary, and drift note.
 
 ## Output
 
 - Compressed text.
 - Removed-content summary.
-- Authority or drift note.
+- Drift note.
 
 ## Keep
 
-- Nearest `AGENTS.md` ownership and linked contracts.
-- Path ownership.
+- Constitution refs and functional truth.
+- Research refs and plan task refs.
+- Path ownership stated in the packet.
 - Trigger conditions.
 - Required artifacts.
 - Forbidden actions.
 - Handoff and escalation rules.
 - Secret and access boundaries.
-- Pre-commit autoCI ownership of validation, test, audit, route, cache, cachebuster, quick-validate, and plugin-validate scripts.
-- Role-matched subagent usage for bounded work and disjoint parallel lanes.
+- Sequential handoff order.
 
 ## Rules
 
-- Never change instruction authority.
-- Never make plugin output override `AGENTS.md` or contracts.
-- Follow the nearest `AGENTS.md` and referenced contracts for the target path.
+- Never change functional truth from `docs/app-constitution.md`.
+- Never change research decisions, plan task scope, graph ids, or host policy.
 - Do not create implementation tasks or product decisions.
 - Do not run scripts.
 - Do not tell agents to run validation, test, audit, route, cache, cachebuster, quick-validate, or plugin-validate scripts manually.
-- Keep script execution evidence sourced only from generated autoCI or local-commit-validation artifacts that already exist.
-- Mark conflicts between source text and owning instructions in the authority or drift note.
+- Keep script execution evidence sourced only from generated automation artifacts that already exist.
+- Mark conflicts between source text and functional truth in the drift note.
 
 ## Remove
 
@@ -53,4 +52,4 @@ Turn an instruction surface into a smaller, stricter version with the same requi
 - Repeated definitions.
 - Generic best practices.
 - Manual validation, test, audit, route, cache, cachebuster, quick-validate, or plugin-validate commands.
-- Local machine commands unless the artifact owns that command and is not assigning it to an agent.
+- Environment-specific commands unless the target packet explicitly owns that command.

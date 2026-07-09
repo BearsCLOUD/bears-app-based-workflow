@@ -1,61 +1,57 @@
 # Bears App-Based Workflow
 
-`bears-app-based-workflow` is a Codex plugin for Bears application work. It follows a Spec Kit-style lifecycle and adds Bears-specific waves, functional graph planning, graph-linked ledger tasks, instruction hardening, role-matched subagents, and parallel app-dev orchestration.
+`bears-app-based-workflow` is a self-contained Codex plugin for sequential application workflow artifacts. It turns an app constitution into researched waves, sequential plan microtasks, a functional graph that models the future dev stage, hardened dispatch packets, implementation analysis, and role-aware handoffs.
 
 ## Lifecycle
 
-1. `app-constitution` records `docs/app-constitution.md` in the target app: a 100-line-or-less functional baseline, important functional gaps, and an app-local `AGENTS.md` alignment note or edit.
-2. `app-research` checks the constitution and nearest/app-local `AGENTS.md`, then creates or updates research waves and synchronizes the wave registry.
-3. `app-specify` expands wave docs into detailed functional specs.
-4. `app-functional-graph` maps requirements to graph nodes and ledger references.
-5. `app-plan` checks tasks against constitution gaps and `AGENTS.md` constraints, writes graph-linked task plans, and maximizes disjoint parallel lanes.
-6. `subagents-roles` maps tasks to owner and critic roles.
-7. `bears-agents` confirms Bears role coverage for every lane.
-8. `subagents` creates bounded L2/L3 delegation packets.
-9. `instruction-hardening` tightens wave plans or dispatch packets without changing authority.
-10. `app-dev` dispatches ready ledger tasks through L2 orchestrators, L3 workers, and critics.
-11. `app-analyze` closes the convergence loop after implementation.
+1. `app-constitution` records the functional source of truth: capabilities, gaps, decisions, constraints, and evidence needs.
+2. `app-research` explains constitution items through sources, decisions, unknowns, and wave scope.
+3. `app-plan` decomposes research outcomes into ordered microtasks. Planning does not create graph nodes.
+4. `app-functional-graph` builds the dev-stage model from approved plan microtasks. Every graph node traces to constitution, research, and plan references.
+5. `subagents-roles` maps graph-backed work to owner, critic, and helper roles.
+6. `bears-agents` confirms role coverage.
+7. `subagents` creates bounded sequential dispatch packets.
+8. `instruction-hardening` tightens plans or packets without changing functional truth.
+9. `app-dev` executes only graph nodes with complete lineage.
+10. `app-analyze` checks lineage and implementation convergence.
 
 ## Core artifacts
 
+- `docs/app-constitution.md` — app functional source of truth.
 - `waves/index.md` — wave registry.
-- Target app `docs/app-constitution.md` — short functional baseline, capped at 100 lines.
-- Target app `AGENTS.md` — optional app-local router for stable app-specific path and instruction rules.
-- `waves/<wave-id>/research.md` — wave research packet.
-- `waves/<wave-id>/spec.md` — detailed functional specification.
-- `waves/<wave-id>/plan.md` — task and dependency plan.
-- `waves/<wave-id>/analysis.md` — implementation and documentation comparison.
-- `docs/app-functional-graph.v1.json` — app-local functionality graph.
-- `docs/app-task-ledger.v1.json` — app-local task ledger.
+- `waves/<wave-id>/research.md` — source-backed explanation of constitution items.
+- `waves/<wave-id>/plan.md` — ordered microtasks derived from research.
+- `waves/<wave-id>/analysis.md` — lineage and implementation comparison.
+- `docs/app-functional-graph.v1.json` — dev-stage functional graph model.
+- `docs/app-task-ledger.v1.json` — ordered plan microtask ledger.
+
+## Plugin docs
+
+- `SPEC.md` — workflow contract.
+- `docs/workflow-stage-gates.md` — sequential stage gates and drift routing.
+- `docs/functional-graph-ledger-contract.md` — graph and ledger lineage rules.
+- `docs/artifact-contracts.md` — required artifact sections and fields.
+- `docs/backtests/plugin-self-test.md` — plugin self-test backtest.
+- `templates/` — copy-ready artifact templates.
 
 ## Plugin skills
 
-App workflow skills: `app-constitution`, `app-research`, `app-specify`, `app-functional-graph`, `app-plan`, `app-analyze`, `app-dev`.
+App workflow skills: `app-constitution`, `app-research`, `app-plan`, `app-functional-graph`, `app-analyze`, `app-dev`.
+
+Clarification helper skill: `app-specify`.
 
 Subagent orchestration skills: `subagents`, `subagents-roles`, `bears-agents`.
 
 Workflow hardening skill: `instruction-hardening`.
 
-`app-constitution` may create or update a target app `AGENTS.md` only for stable app-specific rules. It does not make the plugin, the constitution, or any skill an instruction authority over parent `AGENTS.md` files or contracts.
+## Independence and script ownership
 
-## Local Codex skill dependencies
+The plugin does not depend on a specific host workspace, host instruction file, runtime, MCP server, hook, or validation script. Host policies may constrain a live Codex session, but plugin artifacts remain portable and constitution-led.
 
-General helper skills that stay outside this plugin under `/home/ai1/.codex/skills`:
-
-- `mcp-designer`
-- `python-codeflow`
-- `yandex360-dns`
-
-These local skills are external dependencies. They do not make this plugin an instruction authority and do not override `AGENTS.md` or contracts.
-
-## Script ownership
-
-Validation, test, audit, route, cache, cachebuster, quick-validate, and plugin-validate scripts are pre-commit autoCI responsibilities. Agents do not run them manually. Agents read generated autoCI or local-commit-validation evidence only after it exists, then fix known failures in owned files.
+Validation, test, audit, route, cache, cachebuster, quick-validate, and plugin-validate scripts are external automation responsibilities. Plugin skills do not ask agents to run those scripts manually.
 
 This plugin must not add plugin-local `scripts/`, `hooks.json`, or `.mcp.json`.
 
 ## Repository target
 
 Target GitHub repository: `BearsCLOUD/bears-app-based-workflow`.
-
-Repository rename and push are repository-publishing steps. Local plugin identity and local remotes can point at the target name before the remote repository exists.

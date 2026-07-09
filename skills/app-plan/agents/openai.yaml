@@ -1,4 +1,4 @@
-interface:
+openai:
   display_name: "App Plan"
-  short_description: "Plan unbuilt graph-linked work"
-  default_prompt: "Use $app-plan to find unbuilt functionality and write graph-linked ledger tasks."
+  short_description: "Plan sequential microtasks"
+  default_prompt: "Use $app-plan to turn constitution-backed research into ordered ledger microtasks before graph modeling."

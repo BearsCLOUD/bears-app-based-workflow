@@ -1,41 +1,45 @@
 ---
 name: app-analyze
-description: Analyze Bears app workflow artifacts against implemented code state. Use when Codex must compare wave docs, functional graph, task ledger, and current implementation, then return pass, needs-plan, needs-spec, or blocked status.
+description: Analyze Bears app workflow artifacts against implemented code state. Use when Codex must compare constitution, research, plan, functional graph, task ledger, and implementation, then return pass or the exact broken link.
 ---
 
 # App Analyze
 
 ## Purpose
 
-Compare the documented wave, graph, ledger, and current implementation state.
+Compare constitution truth, research explanations, plan microtasks, graph lineage, ledger state, and implemented code state.
 
 ## Output
 
 Write `waves/<wave-id>/analysis.md` with one status:
 
-- `pass`: docs, graph, ledger, and code state agree.
-- `needs-plan`: functionality is specified but missing, partial, drifted, or not in ledger.
-- `needs-spec`: decisions, flows, data, errors, or acceptance criteria are missing.
+- `pass`: constitution, research, plan, graph, ledger, and code state agree.
+- `needs-constitution`: functional truth is missing, partial, or drifted.
+- `needs-research`: constitution truth lacks source-backed explanation.
+- `needs-plan`: research explanation lacks a microtask or the microtask is wrong.
+- `needs-graph`: a graph node or graph backlink is missing or has broken lineage.
+- `needs-dev`: graph-backed task is ready but not implemented.
 - `blocked`: progress requires access, credentials, unavailable source, or an explicit stop signal.
 
 ## Analysis sections
 
 - Wave and target.
 - Inputs reviewed.
-- Requirement coverage.
-- Functional graph coverage.
-- Ledger coverage.
-- Implemented-state comparison.
-- Missing or drifted functionality.
-- Parallel lane opportunities with disjoint repo, path, and target sets.
-- Next skill and exact handoff.
+- Lineage check.
+- Implementation comparison.
+- Broken links.
+- Status.
+- Next skill.
 
 ## Rules
 
 - Do not fix implementation during analysis.
-- Use role-matched critic subagents for independent requirement, graph, ledger, or implementation slices.
-- Send missing functionality to `app-plan`.
-- Send missing requirement detail to `app-specify`.
-- Send ready ledger work to `app-dev`.
+- Check graph node lineage in this order: constitution refs, research refs, plan task refs, graph backlinks, implementation state.
+- Send functional drift to `app-constitution`.
+- Send missing research explanation to `app-research`.
+- Send missing or wrong microtasks to `app-plan`.
+- Send missing or broken graph lineage to `app-functional-graph`.
+- Send ready graph-backed work to `app-dev`.
+- Report host-policy drift separately from functional drift.
 - Use `blocked` only for access, credentials, unavailable source, or explicit stop signal.
-- Validation, test, audit, route, cache, cachebuster, quick-validate, and plugin-validate scripts belong to pre-commit autoCI; agents do not run them manually.
+- Do not ask agents to run validation, test, audit, route, cache, cachebuster, quick-validate, or plugin-validate scripts manually.

@@ -1,4 +1,4 @@
-interface:
+openai:
   display_name: "App Constitution"
-  short_description: "Set app workflow baseline"
-  default_prompt: "Use $app-constitution to record the app baseline before research, specification, planning, or development."
+  short_description: "Set functional source of truth"
+  default_prompt: "Use $app-constitution to record functional truth, gaps, decisions, constraints, and evidence needs before research."

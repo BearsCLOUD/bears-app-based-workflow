@@ -18,17 +18,17 @@ Ask the user only for decisions that cannot be recovered from current docs, sour
 Return one packet with:
 
 - `schema: clarification.packet.v1`
-- Wave id and research section.
-- Constitution refs affected.
-- Actors and permissions.
-- Main and alternate flows.
-- Data inputs, outputs, and ownership.
-- Error and empty states.
-- External integrations.
-- Acceptance criteria.
-- Decisions closed.
-- Remaining questions.
-- Next skill.
+- `wave_id`
+- `research_refs`
+- `constitution_refs`
+- `closed_questions`
+- `actors`
+- `flows`
+- `data_contracts`
+- `error_states`
+- `acceptance_criteria`
+- `remaining_questions`
+- `next_skill`
 
 ## Exit rules
 

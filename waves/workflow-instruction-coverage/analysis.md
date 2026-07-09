@@ -19,7 +19,7 @@
 - `README.md`
 - `SPEC.md`
 - `.codex-plugin/plugin.json`
-- `skills/*/SKILL.md`
+- Current skill instruction files: `skills/app-analyze/SKILL.md`, `skills/app-constitution/SKILL.md`, `skills/app-dev/SKILL.md`, `skills/app-functional-graph/SKILL.md`, `skills/app-plan/SKILL.md`, `skills/app-research/SKILL.md`, `skills/app-specify/SKILL.md`, `skills/instruction-hardening/SKILL.md`, `skills/subagents-roles/SKILL.md`, `skills/subagents/SKILL.md`
 - `templates/`
 - `waves/index.md`
 - No-context subagent audit findings for docs consistency, prompt/skill clarity, and governance drift were incorporated into this file and upstream artifacts.
@@ -64,6 +64,7 @@
 - `app-dev` software implementation is not required for this self-test wave because the graph models future development work and the target behavior is instruction coverage.
 - Obsolete legacy role-skill files were removed because role mapping now uses `docs/role-catalog.md` and versioned packets.
 - No validation software, test harness, cache tool, plugin validator, or workflow-testing script was added.
+- No-context skill and governance audit concerns were fixed: support skills now use exact packet fields, `app-functional-graph` has a success route to `app-dev`, and graph evidence refs use concrete files or anchors.
 
 ## File reuse audit
 
@@ -77,7 +78,7 @@ Dimensions scored per file: usefulness, consistency, brevity, unambiguity, instr
 | `README.md` | New user and marketplace reader | 9/9 pass | clear consumer, single owner, portable wording |
 | `SPEC.md` | Workflow contract reader | 9/9 pass | clear consumer, single owner, portable wording |
 | `docs/app-constitution.md` | Constitution, research, plan, graph, and analyze skills | 9/9 pass | clear consumer, single owner, portable wording |
-| `docs/app-functional-graph.v1.json` | app-functional-graph and app-dev | 9/9 pass | clear consumer, single owner, portable wording |
+| `docs/app-functional-graph.v1.json` | app-functional-graph and app-dev | 9/9 pass | concrete evidence refs, clear consumer, single owner |
 | `docs/app-task-ledger.v1.json` | app-plan, app-functional-graph, and app-dev | 9/9 pass | clear consumer, single owner, portable wording |
 | `docs/artifact-contracts.md` | Workflow skill contract reader | 9/9 pass | clear consumer, single owner, portable wording |
 | `docs/backtests/plugin-self-test.md` | app-analyze self-test reader | 9/9 pass | clear consumer, single owner, portable wording |
@@ -85,25 +86,25 @@ Dimensions scored per file: usefulness, consistency, brevity, unambiguity, instr
 | `docs/handoff-packet-contracts.md` | Support skills and app-dev packet handoff | 9/9 pass | keeps handoffs self-contained |
 | `docs/role-catalog.md` | subagents-roles and app-dev | 9/9 pass | keeps handoffs self-contained |
 | `docs/workflow-stage-gates.md` | Workflow skill contract reader | 9/9 pass | clear consumer, single owner, portable wording |
-| `skills/app-analyze/SKILL.md` | Codex skill trigger and stage procedure | 9/9 pass | clear consumer, single owner, portable wording |
+| `skills/app-analyze/SKILL.md` | Codex skill trigger and stage procedure | 9/9 pass | exact `analysis-audit.packet.v1` fields and reroute rules |
 | `skills/app-analyze/agents/openai.yaml` | OpenAI skill interface metadata | 9/9 pass | minimal metadata only; no workflow authority |
 | `skills/app-constitution/SKILL.md` | Codex skill trigger and stage procedure | 9/9 pass | clear consumer, single owner, portable wording |
 | `skills/app-constitution/agents/openai.yaml` | OpenAI skill interface metadata | 9/9 pass | minimal metadata only; no workflow authority |
-| `skills/app-dev/SKILL.md` | Codex skill trigger and stage procedure | 9/9 pass | clear consumer, single owner, portable wording |
+| `skills/app-dev/SKILL.md` | Codex skill trigger and stage procedure | 9/9 pass | exact `dispatch-packet.v1` fields and sequential handoff |
 | `skills/app-dev/agents/openai.yaml` | OpenAI skill interface metadata | 9/9 pass | minimal metadata only; no workflow authority |
-| `skills/app-functional-graph/SKILL.md` | Codex skill trigger and stage procedure | 9/9 pass | clear consumer, single owner, portable wording |
+| `skills/app-functional-graph/SKILL.md` | Codex skill trigger and stage procedure | 9/9 pass | graph-after-plan rules and `app-dev` success route |
 | `skills/app-functional-graph/agents/openai.yaml` | OpenAI skill interface metadata | 9/9 pass | minimal metadata only; no workflow authority |
 | `skills/app-plan/SKILL.md` | Codex skill trigger and stage procedure | 9/9 pass | clear consumer, single owner, portable wording |
 | `skills/app-plan/agents/openai.yaml` | OpenAI skill interface metadata | 9/9 pass | minimal metadata only; no workflow authority |
-| `skills/app-research/SKILL.md` | Codex skill trigger and stage procedure | 9/9 pass | clear consumer, single owner, portable wording |
+| `skills/app-research/SKILL.md` | Codex skill trigger and stage procedure | 9/9 pass | exact `wave-research.packet.v1` fields |
 | `skills/app-research/agents/openai.yaml` | OpenAI skill interface metadata | 9/9 pass | minimal metadata only; no workflow authority |
-| `skills/app-specify/SKILL.md` | Codex skill trigger and stage procedure | 9/9 pass | clear consumer, single owner, portable wording |
+| `skills/app-specify/SKILL.md` | Codex skill trigger and stage procedure | 9/9 pass | exact `clarification.packet.v1` fields |
 | `skills/app-specify/agents/openai.yaml` | OpenAI skill interface metadata | 9/9 pass | minimal metadata only; no workflow authority |
-| `skills/instruction-hardening/SKILL.md` | Codex skill trigger and stage procedure | 9/9 pass | clear consumer, single owner, portable wording |
+| `skills/instruction-hardening/SKILL.md` | Codex skill trigger and stage procedure | 9/9 pass | exact `hardening-output.v1` fields |
 | `skills/instruction-hardening/agents/openai.yaml` | OpenAI skill interface metadata | 9/9 pass | minimal metadata only; no workflow authority |
-| `skills/subagents/SKILL.md` | Codex skill trigger and stage procedure | 9/9 pass | clear consumer, single owner, portable wording |
+| `skills/subagents/SKILL.md` | Codex skill trigger and stage procedure | 9/9 pass | exact `dispatch-packet.v1` fields |
 | `skills/subagents/agents/openai.yaml` | OpenAI skill interface metadata | 9/9 pass | minimal metadata only; no workflow authority |
-| `skills/subagents-roles/SKILL.md` | Codex skill trigger and stage procedure | 9/9 pass | clear consumer, single owner, portable wording |
+| `skills/subagents-roles/SKILL.md` | Codex skill trigger and stage procedure | 9/9 pass | exact `role-packet.v1` fields |
 | `skills/subagents-roles/agents/openai.yaml` | OpenAI skill interface metadata | 9/9 pass | minimal metadata only; no workflow authority |
 | `templates/docs/app-constitution.md` | Future app artifact author | 9/9 pass | copy-ready shape aligned with current contracts |
 | `templates/docs/app-functional-graph.v1.json` | Future app artifact author | 9/9 pass | copy-ready shape aligned with current contracts |
@@ -120,6 +121,7 @@ Dimensions scored per file: usefulness, consistency, brevity, unambiguity, instr
 ## Broken links
 
 - None.
+- Graph evidence refs use concrete files or anchors; no directory-only or wildcard evidence ref remains.
 
 ## Status
 

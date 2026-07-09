@@ -27,6 +27,18 @@ Do not read wider paths unless one required input points to a missing link.
 
 Write `waves/<wave-id>/analysis.md` or return `analysis-audit.packet.v1` with one status:
 
+- `schema: analysis-audit.packet.v1`
+- `wave_id`
+- `target_files`
+- `quality_dimensions`
+- `file_results`
+- `cross_file_findings`
+- `broken_links`
+- `status`
+- `next_skill`
+
+`waves/<wave-id>/analysis.md` must contain the same values in the sections below.
+
 - `pass`: constitution, research, plan, graph, ledger, code state, and requested file-audit checks agree.
 - `needs-constitution`: functional truth is missing, partial, or drifted.
 - `needs-research`: constitution truth lacks source-backed explanation.

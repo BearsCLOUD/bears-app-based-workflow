@@ -13,9 +13,9 @@ Confirm graph-backed work roles using `docs/role-catalog.md`. Do not require an 
 
 Return `role-packet.v1` with:
 
-- `schema`
-- `task_id`
+- `schema: role-packet.v1`
 - `wave_id`
+- `task_id`
 - `constitution_refs`
 - `research_refs`
 - `plan_task_refs`
@@ -25,8 +25,8 @@ Return `role-packet.v1` with:
 - `owner_role`
 - `critic_role`
 - `helper_roles`
-- `sequential_ready`
 - `role_gap`
+- `sequential_ready`
 - `next_skill`
 
 ## Rules

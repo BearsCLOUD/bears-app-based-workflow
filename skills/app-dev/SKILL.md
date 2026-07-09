@@ -32,8 +32,8 @@ Each packet must include:
 - `role`
 - `scope`
 - `handoff_order`
-- `task_id`
 - `wave_id`
+- `task_id`
 - `constitution_refs`
 - `research_refs`
 - `plan_task_refs`
@@ -49,8 +49,8 @@ Each packet must include:
 - `completion_criteria`
 - `definition_of_done`
 - `proof_requirement`
-- `ledger_update_contract`
 - `automation_evidence_policy`
+- `ledger_update_contract`
 - `closeout_format`
 - `drift_notes`
 - `next_skill`

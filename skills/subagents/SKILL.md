@@ -15,13 +15,12 @@ Create one `dispatch-packet.v1` for the current next sequential handoff.
 - `role`
 - `scope`
 - `handoff_order`
-- `task_id`
 - `wave_id`
+- `task_id`
 - `constitution_refs`
 - `research_refs`
 - `plan_task_refs`
 - `graph_node_refs`
-- `repo`
 - `target_paths`
 - `allowed_paths`
 - `forbidden_paths`
@@ -31,6 +30,8 @@ Create one `dispatch-packet.v1` for the current next sequential handoff.
 - `inputs_to_read`
 - `expected_edits_or_read_only_output`
 - `completion_criteria`
+- `definition_of_done`
+- `proof_requirement`
 - `automation_evidence_policy`
 - `ledger_update_contract`
 - `closeout_format`

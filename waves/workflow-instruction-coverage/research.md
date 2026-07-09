@@ -40,7 +40,7 @@
 - `docs/handoff-packet-contracts.md`: versioned packet fields for research, clarification, roles, dispatch, hardening, and analysis.
 - `docs/role-catalog.md`: self-contained role names and role-gap rules.
 - `templates/`: copy-ready constitution, wave, ledger, and graph shapes.
-- `skills/*/SKILL.md`: stage and support-skill instructions.
+- Skill instructions: `skills/app-analyze/SKILL.md`, `skills/app-constitution/SKILL.md`, `skills/app-dev/SKILL.md`, `skills/app-functional-graph/SKILL.md`, `skills/app-plan/SKILL.md`, `skills/app-research/SKILL.md`, `skills/app-specify/SKILL.md`, `skills/instruction-hardening/SKILL.md`, `skills/subagents-roles/SKILL.md`, `skills/subagents/SKILL.md`.
 
 ## Decisions
 
@@ -52,6 +52,9 @@
 - `decision-file-audit-owned-by-analyze`: Put broad file-quality audit in `app-analyze`, not in new testing or audit software.
 - `decision-no-workflow-test-tooling`: Use targeted reads, grep, JSON parsing, and existing generated evidence only; do not create plugin-local test tools to prove this workflow.
 - `decision-remove-stale-role-trace`: Remove obsolete legacy role-skill artifacts and references because they duplicate role mapping and imply external Bears role dependence.
+- `decision-exact-packet-fields`: Support skills must use the exact versioned field names from `docs/handoff-packet-contracts.md`.
+- `decision-graph-dev-exit`: Complete graph lineage with ledger backlinks routes to `app-dev`; incomplete lineage routes upstream.
+- `decision-exact-graph-evidence`: Graph evidence refs must name concrete files or anchors, not directories or wildcard paths.
 
 ## Unknowns
 
@@ -67,10 +70,10 @@
 - Update public workflow docs and stage gates for the strict order and drift routing.
 - Update artifact contracts and templates so constitution, research, plan, graph, ledger, packets, and analysis share the same fields.
 - Update stage skills so research cannot jump to graph or dev, plan cannot create graph nodes, graph consumes approved microtasks, dev consumes only complete lineage, and analyze reports exact broken links.
-- Add packet contracts and a self-contained role catalog.
+- Add packet contracts, exact support-skill packet fields, and a self-contained role catalog.
 - Remove obsolete external role-inventory traces.
 - Extend `app-analyze` to perform broad file reuse-quality audits without creating testing software.
-- Create self-test graph and ledger with complete lineage for all constitution capabilities.
+- Create self-test graph and ledger with complete lineage and concrete evidence refs for all constitution capabilities.
 - Update manifests to present the plugin as self-contained and sequential.
 
 ## Drift notes

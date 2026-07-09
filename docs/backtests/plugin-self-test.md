@@ -26,6 +26,7 @@ Prove that every functional graph node is explainable through constitution truth
 - Every workflow text positions graph modeling after approved plan microtasks.
 - Every planning instruction uses ordered microtasks as the default.
 - Every graph node has `functionality_id`, `constitution_refs`, `research_refs`, and `plan_task_refs`.
+- Every graph node has concrete `evidence_refs`; directory-only and wildcard refs are not sufficient proof.
 - Every plan microtask has `constitution_refs`, `research_refs`, dependencies, owner role, critic role, done, proof, and status.
 - Every research wave explains constitution ids.
 - Packet contracts do not require downstream fields that upstream packets omit.

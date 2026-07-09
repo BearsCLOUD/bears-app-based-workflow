@@ -50,5 +50,6 @@ Every graph node needs:
 - If a microtask has no research ref, route to `app-plan` or `app-research`.
 - If a required microtask is missing, route to `app-plan`.
 - Do not route directly to `app-dev` until lineage is complete.
+- After complete lineage and ledger backlinks are written, route the ready graph-backed scope to `app-dev`.
 - Do not create validation tooling to prove graph shape.
 - Do not ask agents to run validation, test, audit, route, cache, cachebuster, quick-validate, or plugin-validate scripts manually.

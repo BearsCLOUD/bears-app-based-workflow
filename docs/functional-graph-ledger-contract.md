@@ -20,7 +20,7 @@ Every graph node must include:
 - `research_refs`: one or more `waves/<wave-id>/research.md#section` refs.
 - `plan_task_refs`: one or more ledger task ids.
 - `depends_on`: graph node refs formatted as `<functionality_id>:<node_id>`.
-- `evidence_refs`: docs, source files, code observations, or generated evidence refs.
+- `evidence_refs`: concrete docs, source files, anchors, code observations, or generated evidence refs; directory-only refs and wildcard refs are not sufficient.
 
 A graph node without all three lineage arrays is not ready for `app-dev`.
 

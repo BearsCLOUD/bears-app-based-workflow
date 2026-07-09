@@ -21,11 +21,13 @@ Turn an instruction or packet surface into a smaller, stricter version with the 
 ## Output
 
 - `schema: hardening-output.v1`
-- Compressed text.
-- Removed-content summary.
-- Behavior-equivalence statement.
-- Drift note.
-- Next skill.
+- `wave_id`
+- `input_refs`
+- `compressed_text`
+- `removed_content_summary`
+- `behavior_equivalence_statement`
+- `drift_notes`
+- `next_skill`
 
 ## Keep
 

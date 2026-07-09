@@ -24,6 +24,21 @@ Create or update `waves/index.md` and one `waves/<wave-id>/research.md` file per
 - `waves/<wave-id>/research.md` for each touched wave.
 - `constitution_update_needed` note when research finds functional truth, drift, or a decision that belongs in `docs/app-constitution.md`.
 
+## Research packet
+
+Return `wave-research.packet.v1` with:
+
+- `schema: wave-research.packet.v1`
+- `wave_id`
+- `scope`
+- `constitution_refs`
+- `source_refs`
+- `decisions`
+- `unknowns`
+- `clarifications_needed`
+- `plan_inputs`
+- `next_skill`
+
 ## Research file sections
 
 1. `Wave ID`

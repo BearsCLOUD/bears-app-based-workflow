@@ -612,10 +612,14 @@
             "cap-packet-contracts:packet-contract-doc"
           ],
           "evidence_refs": [
+            "docs/handoff-packet-contracts.md",
+            "skills/app-research/SKILL.md",
+            "skills/app-specify/SKILL.md",
+            "skills/app-dev/SKILL.md",
+            "skills/app-analyze/SKILL.md",
             "skills/subagents/SKILL.md",
             "skills/subagents-roles/SKILL.md",
-            "skills/instruction-hardening/SKILL.md",
-            "skills/app-dev/SKILL.md"
+            "skills/instruction-hardening/SKILL.md"
           ]
         },
         {
@@ -814,8 +818,12 @@
             "cap-self-contained-plugin:independence-contract"
           ],
           "evidence_refs": [
-            "skills/",
-            "docs/role-catalog.md"
+            "README.md#plugin-skills",
+            "SPEC.md#support-skill-contracts",
+            "docs/role-catalog.md",
+            "skills/subagents-roles/SKILL.md",
+            "skills/subagents/SKILL.md",
+            ".codex-plugin/plugin.json"
           ]
         },
         {
@@ -920,7 +928,16 @@
           "evidence_refs": [
             "README.md#independence-and-script-ownership",
             "SPEC.md#script-ownership",
-            "skills/*/SKILL.md"
+            "skills/app-analyze/SKILL.md",
+            "skills/app-constitution/SKILL.md",
+            "skills/app-dev/SKILL.md",
+            "skills/app-functional-graph/SKILL.md",
+            "skills/app-plan/SKILL.md",
+            "skills/app-research/SKILL.md",
+            "skills/app-specify/SKILL.md",
+            "skills/instruction-hardening/SKILL.md",
+            "skills/subagents-roles/SKILL.md",
+            "skills/subagents/SKILL.md"
           ]
         },
         {

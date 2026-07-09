@@ -1,4 +1,4 @@
-openai:
+interface:
   display_name: "App Plan"
-  short_description: "Plan sequential microtasks"
-  default_prompt: "Use $app-plan to turn constitution-backed research into ordered ledger microtasks before graph modeling."
+  short_description: "Plan approved sequential microtasks"
+  default_prompt: "Use $app-plan to turn constitution-backed research into approved ordered ledger microtasks before graph modeling."

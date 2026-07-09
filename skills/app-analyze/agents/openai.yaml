@@ -1,4 +1,4 @@
-openai:
+interface:
   display_name: "App Analyze"
-  short_description: "Check lineage convergence"
-  default_prompt: "Use $app-analyze to compare constitution, research, plan, graph, ledger, and implementation state and report broken links."
+  short_description: "Check lineage and file reuse quality"
+  default_prompt: "Use $app-analyze to compare constitution, research, plan, graph, ledger, implementation, and plugin-file reuse quality."

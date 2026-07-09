@@ -1,6 +1,6 @@
 ---
 name: app-functional-graph
-description: Build the Bears app functional graph as a dev-stage model from approved plan microtasks. Use when Codex must map constitution-backed research and plan tasks to functionality ids, graph node refs, dependencies, state transitions, API calls, and ledger backlinks.
+description: Build the Bears app functional graph as a dev-stage model from approved plan microtasks. Use when Codex must map constitution-backed research and plan tasks to functionality ids, graph node refs, dependencies, state transitions, API calls, evidence refs, and ledger backlinks.
 ---
 
 # App Functional Graph
@@ -27,6 +27,7 @@ Create or update `docs/app-functional-graph.v1.json` after planning. The graph m
 Every graph node needs:
 
 - `node_id`
+- function record `functionality_id`
 - `kind`
 - `dev_model_kind`
 - `constitution_refs`
@@ -44,8 +45,10 @@ Every graph node needs:
 - Every graph node must prove lineage: constitution -> research -> plan.
 - Write graph node refs back to matching ledger tasks.
 - Never delete graph ids referenced by ledger tasks; supersede and add replacement ids.
+- Supersede old nodes when a contract, skill, template, or manifest behavior change makes the old node inaccurate.
 - If a microtask has no constitution ref, route to `app-plan` or `app-constitution`.
 - If a microtask has no research ref, route to `app-plan` or `app-research`.
 - If a required microtask is missing, route to `app-plan`.
 - Do not route directly to `app-dev` until lineage is complete.
+- Do not create validation tooling to prove graph shape.
 - Do not ask agents to run validation, test, audit, route, cache, cachebuster, quick-validate, or plugin-validate scripts manually.

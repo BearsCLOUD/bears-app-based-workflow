@@ -1,4 +1,4 @@
-openai:
+interface:
   display_name: "Subagents Roles"
-  short_description: "Map sequential roles"
-  default_prompt: "Use $subagents-roles to map graph-backed tasks to owner, critic, and helper roles for sequential handoff."
+  short_description: "Confirm self-contained handoff roles"
+  default_prompt: "Use $subagents-roles to confirm owner, critic, and helper roles for one sequential graph-backed handoff."

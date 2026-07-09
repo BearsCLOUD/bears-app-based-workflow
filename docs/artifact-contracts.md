@@ -10,7 +10,7 @@ Required sections:
 4. `Constraints and evidence`
 5. `Functional gaps`
 6. `Open decisions`
-7. `AGENTS alignment note`
+7. `Execution constraints`
 8. `Next skill`
 
 Each capability or gap needs a stable id, owner, evidence need, and state.
@@ -49,7 +49,7 @@ Required sections:
 6. `Drift notes`
 7. `Next skill`
 
-Each microtask must point to constitution refs and research refs.
+Each microtask row must include order, task id, constitution refs, research refs, target paths, dependencies, owner role, critic role, definition of done, proof requirement, and status.
 
 ## `waves/<wave-id>/analysis.md`
 
@@ -59,12 +59,15 @@ Required sections:
 2. `Inputs reviewed`
 3. `Lineage check`
 4. `Implementation comparison`
-5. `Broken links`
-6. `Status`
-7. `Next skill`
+5. `File reuse audit` when plugin files or skills are the target
+6. `Broken links`
+7. `Status`
+8. `Next skill`
 
 Allowed statuses: `pass`, `needs-constitution`, `needs-research`, `needs-plan`, `needs-graph`, `needs-dev`, `blocked`.
 
+File reuse audit dimensions: usefulness, consistency, brevity, unambiguity, instruction coverage, portability, degradation resistance, continuous-development readiness, and no-test-tooling risk.
+
 ## Packets
 
-Packets returned in responses or handoffs must include stage, wave id, refs, target paths when relevant, owner skill, next skill, completion criteria, and drift notes.
+Packets returned in responses or handoffs must use the versioned fields in `docs/handoff-packet-contracts.md`. A downstream skill must not require fields that the upstream packet contract does not provide.

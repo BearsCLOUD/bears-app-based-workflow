@@ -31,7 +31,7 @@
 | --- | --- | --- | --- |
 | `decision-id` | `<question>` | `<capability-or-gap>` | `<owner>` |
 
-## Host policy notes
+## Execution constraints
 
 - `<optional live-session constraint; not functional truth>`
 

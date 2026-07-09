@@ -6,282 +6,986 @@
       "functionality_id": "cap-sequential-workflow",
       "wave_id": "workflow-instruction-coverage",
       "title": "Sequential workflow contract",
-      "constitution_refs": ["cap-sequential-workflow"],
-      "research_refs": ["waves/workflow-instruction-coverage/research.md#constitution-mapping"],
+      "constitution_refs": [
+        "cap-sequential-workflow"
+      ],
+      "research_refs": [
+        "waves/workflow-instruction-coverage/research.md#constitution-mapping",
+        "waves/workflow-instruction-coverage/research.md#plan-inputs"
+      ],
       "status": "modeled",
       "nodes": [
         {
           "node_id": "docs-contract",
+          "functionality_id": "cap-sequential-workflow",
           "kind": "workflow",
           "dev_model_kind": "implementation",
-          "constitution_refs": ["cap-sequential-workflow"],
-          "research_refs": ["waves/workflow-instruction-coverage/research.md#constitution-mapping"],
-          "plan_task_refs": ["task-docs-sequential-contract"],
+          "constitution_refs": [
+            "cap-sequential-workflow"
+          ],
+          "research_refs": [
+            "waves/workflow-instruction-coverage/research.md#constitution-mapping"
+          ],
+          "plan_task_refs": [
+            "task-docs-sequential-contract"
+          ],
           "depends_on": [],
-          "evidence_refs": ["SPEC.md#workflow", "README.md#lifecycle", "docs/workflow-stage-gates.md#rule-summary"]
+          "evidence_refs": [
+            "README.md#lifecycle",
+            "SPEC.md#core-workflow",
+            "docs/workflow-stage-gates.md#rule-summary"
+          ]
         },
         {
-          "node_id": "manifest-sequential-positioning",
+          "node_id": "manifest-positioning",
+          "functionality_id": "cap-sequential-workflow",
           "kind": "workflow",
           "dev_model_kind": "handoff",
-          "constitution_refs": ["cap-sequential-workflow"],
-          "research_refs": ["waves/workflow-instruction-coverage/research.md#plan-inputs"],
-          "plan_task_refs": ["task-manifest-positioning"],
-          "depends_on": ["cap-sequential-workflow:docs-contract"],
-          "evidence_refs": [".codex-plugin/plugin.json"]
+          "constitution_refs": [
+            "cap-sequential-workflow"
+          ],
+          "research_refs": [
+            "waves/workflow-instruction-coverage/research.md#plan-inputs"
+          ],
+          "plan_task_refs": [
+            "task-manifest-positioning"
+          ],
+          "depends_on": [
+            "cap-sequential-workflow:docs-contract"
+          ],
+          "evidence_refs": [
+            ".codex-plugin/plugin.json"
+          ]
         }
       ],
       "edges": [
         {
           "from": "cap-sequential-workflow:docs-contract",
-          "to": "cap-sequential-workflow:manifest-sequential-positioning",
-          "kind": "documents-before-manifest"
+          "to": "cap-sequential-workflow:manifest-positioning",
+          "kind": "depends-before"
         }
       ],
-      "evidence_refs": ["docs/app-constitution.md", "waves/workflow-instruction-coverage/research.md", "waves/workflow-instruction-coverage/plan.md"]
+      "evidence_refs": [
+        "docs/app-constitution.md",
+        "waves/workflow-instruction-coverage/research.md",
+        "waves/workflow-instruction-coverage/plan.md",
+        "docs/app-task-ledger.v1.json"
+      ]
     },
     {
       "functionality_id": "cap-constitution-truth",
       "wave_id": "workflow-instruction-coverage",
-      "title": "Constitution as functional source of truth",
-      "constitution_refs": ["cap-constitution-truth"],
-      "research_refs": ["waves/workflow-instruction-coverage/research.md#constitution-mapping"],
+      "title": "Constitution as functional truth",
+      "constitution_refs": [
+        "cap-constitution-truth"
+      ],
+      "research_refs": [
+        "waves/workflow-instruction-coverage/research.md#constitution-mapping",
+        "waves/workflow-instruction-coverage/research.md#decisions"
+      ],
       "status": "modeled",
       "nodes": [
         {
           "node_id": "drift-routing",
+          "functionality_id": "cap-constitution-truth",
           "kind": "workflow",
-          "dev_model_kind": "analysis",
-          "constitution_refs": ["cap-constitution-truth"],
-          "research_refs": ["waves/workflow-instruction-coverage/research.md#constitution-mapping"],
-          "plan_task_refs": ["task-docs-sequential-contract"],
-          "depends_on": ["cap-sequential-workflow:docs-contract"],
-          "evidence_refs": ["docs/workflow-stage-gates.md#drift-routing"]
+          "dev_model_kind": "implementation",
+          "constitution_refs": [
+            "cap-constitution-truth"
+          ],
+          "research_refs": [
+            "waves/workflow-instruction-coverage/research.md#constitution-mapping"
+          ],
+          "plan_task_refs": [
+            "task-docs-sequential-contract"
+          ],
+          "depends_on": [
+            "cap-sequential-workflow:docs-contract"
+          ],
+          "evidence_refs": [
+            "docs/workflow-stage-gates.md#drift-routing",
+            "docs/app-constitution.md"
+          ]
         },
         {
           "node_id": "constitution-skill",
+          "functionality_id": "cap-constitution-truth",
           "kind": "instruction",
           "dev_model_kind": "implementation",
-          "constitution_refs": ["cap-constitution-truth"],
-          "research_refs": ["waves/workflow-instruction-coverage/research.md#decisions"],
-          "plan_task_refs": ["task-skill-sequential-rules"],
-          "depends_on": ["cap-constitution-truth:drift-routing"],
-          "evidence_refs": ["skills/app-constitution/SKILL.md"]
+          "constitution_refs": [
+            "cap-constitution-truth"
+          ],
+          "research_refs": [
+            "waves/workflow-instruction-coverage/research.md#decisions"
+          ],
+          "plan_task_refs": [
+            "task-skill-sequential-rules"
+          ],
+          "depends_on": [
+            "cap-constitution-truth:drift-routing"
+          ],
+          "evidence_refs": [
+            "skills/app-constitution/SKILL.md"
+          ]
         }
       ],
       "edges": [
         {
           "from": "cap-constitution-truth:drift-routing",
           "to": "cap-constitution-truth:constitution-skill",
-          "kind": "contract-to-skill"
+          "kind": "depends-before"
         }
       ],
-      "evidence_refs": ["docs/workflow-stage-gates.md", "skills/app-constitution/SKILL.md"]
+      "evidence_refs": [
+        "docs/app-constitution.md",
+        "waves/workflow-instruction-coverage/research.md",
+        "waves/workflow-instruction-coverage/plan.md",
+        "docs/app-task-ledger.v1.json"
+      ]
     },
     {
       "functionality_id": "cap-research-explains-truth",
       "wave_id": "workflow-instruction-coverage",
       "title": "Research explains constitution truth",
-      "constitution_refs": ["cap-research-explains-truth"],
-      "research_refs": ["waves/workflow-instruction-coverage/research.md#constitution-mapping"],
+      "constitution_refs": [
+        "cap-research-explains-truth"
+      ],
+      "research_refs": [
+        "waves/workflow-instruction-coverage/research.md#decisions",
+        "waves/workflow-instruction-coverage/research.md#plan-inputs"
+      ],
       "status": "modeled",
       "nodes": [
         {
-          "node_id": "research-template",
-          "kind": "instruction",
+          "node_id": "research-contracts",
+          "functionality_id": "cap-research-explains-truth",
+          "kind": "workflow",
           "dev_model_kind": "implementation",
-          "constitution_refs": ["cap-research-explains-truth"],
-          "research_refs": ["waves/workflow-instruction-coverage/research.md#plan-inputs"],
-          "plan_task_refs": ["task-artifact-contracts-templates"],
-          "depends_on": ["cap-constitution-truth:drift-routing"],
-          "evidence_refs": ["templates/waves/wave-id/research.md", "docs/artifact-contracts.md#waveswave-idresearchmd"]
+          "constitution_refs": [
+            "cap-research-explains-truth"
+          ],
+          "research_refs": [
+            "waves/workflow-instruction-coverage/research.md#plan-inputs"
+          ],
+          "plan_task_refs": [
+            "task-artifact-contracts-templates"
+          ],
+          "depends_on": [
+            "cap-constitution-truth:constitution-skill"
+          ],
+          "evidence_refs": [
+            "docs/artifact-contracts.md#waveswave-idresearchmd",
+            "templates/waves/wave-id/research.md"
+          ]
         },
         {
           "node_id": "research-skill",
+          "functionality_id": "cap-research-explains-truth",
           "kind": "instruction",
           "dev_model_kind": "implementation",
-          "constitution_refs": ["cap-research-explains-truth"],
-          "research_refs": ["waves/workflow-instruction-coverage/research.md#decisions"],
-          "plan_task_refs": ["task-skill-sequential-rules"],
-          "depends_on": ["cap-research-explains-truth:research-template"],
-          "evidence_refs": ["skills/app-research/SKILL.md"]
+          "constitution_refs": [
+            "cap-research-explains-truth"
+          ],
+          "research_refs": [
+            "waves/workflow-instruction-coverage/research.md#decisions"
+          ],
+          "plan_task_refs": [
+            "task-skill-sequential-rules"
+          ],
+          "depends_on": [
+            "cap-research-explains-truth:research-contracts"
+          ],
+          "evidence_refs": [
+            "skills/app-research/SKILL.md"
+          ]
         }
       ],
       "edges": [
         {
-          "from": "cap-research-explains-truth:research-template",
+          "from": "cap-research-explains-truth:research-contracts",
           "to": "cap-research-explains-truth:research-skill",
-          "kind": "template-to-skill"
+          "kind": "depends-before"
         }
       ],
-      "evidence_refs": ["docs/artifact-contracts.md", "skills/app-research/SKILL.md"]
+      "evidence_refs": [
+        "docs/app-constitution.md",
+        "waves/workflow-instruction-coverage/research.md",
+        "waves/workflow-instruction-coverage/plan.md",
+        "docs/app-task-ledger.v1.json"
+      ]
     },
     {
       "functionality_id": "cap-plan-microtasks",
       "wave_id": "workflow-instruction-coverage",
       "title": "Sequential plan microtasks",
-      "constitution_refs": ["cap-plan-microtasks"],
-      "research_refs": ["waves/workflow-instruction-coverage/research.md#constitution-mapping"],
+      "constitution_refs": [
+        "cap-plan-microtasks"
+      ],
+      "research_refs": [
+        "waves/workflow-instruction-coverage/research.md#decisions",
+        "waves/workflow-instruction-coverage/research.md#plan-inputs"
+      ],
       "status": "modeled",
       "nodes": [
         {
           "node_id": "ledger-template",
-          "kind": "data",
+          "functionality_id": "cap-plan-microtasks",
+          "kind": "workflow",
           "dev_model_kind": "implementation",
-          "constitution_refs": ["cap-plan-microtasks"],
-          "research_refs": ["waves/workflow-instruction-coverage/research.md#plan-inputs"],
-          "plan_task_refs": ["task-artifact-contracts-templates"],
-          "depends_on": ["cap-research-explains-truth:research-template"],
-          "evidence_refs": ["templates/docs/app-task-ledger.v1.json", "docs/functional-graph-ledger-contract.md#ledger-microtask-requirements"]
+          "constitution_refs": [
+            "cap-plan-microtasks"
+          ],
+          "research_refs": [
+            "waves/workflow-instruction-coverage/research.md#plan-inputs"
+          ],
+          "plan_task_refs": [
+            "task-artifact-contracts-templates"
+          ],
+          "depends_on": [
+            "cap-research-explains-truth:research-skill"
+          ],
+          "evidence_refs": [
+            "docs/functional-graph-ledger-contract.md#ledger-microtask-requirements",
+            "templates/docs/app-task-ledger.v1.json",
+            "templates/waves/wave-id/plan.md"
+          ]
         },
         {
           "node_id": "plan-skill",
+          "functionality_id": "cap-plan-microtasks",
           "kind": "instruction",
           "dev_model_kind": "implementation",
-          "constitution_refs": ["cap-plan-microtasks"],
-          "research_refs": ["waves/workflow-instruction-coverage/research.md#decisions"],
-          "plan_task_refs": ["task-skill-sequential-rules"],
-          "depends_on": ["cap-plan-microtasks:ledger-template"],
-          "evidence_refs": ["skills/app-plan/SKILL.md"]
+          "constitution_refs": [
+            "cap-plan-microtasks"
+          ],
+          "research_refs": [
+            "waves/workflow-instruction-coverage/research.md#decisions"
+          ],
+          "plan_task_refs": [
+            "task-skill-sequential-rules"
+          ],
+          "depends_on": [
+            "cap-plan-microtasks:ledger-template"
+          ],
+          "evidence_refs": [
+            "skills/app-plan/SKILL.md"
+          ]
         }
       ],
       "edges": [
         {
           "from": "cap-plan-microtasks:ledger-template",
           "to": "cap-plan-microtasks:plan-skill",
-          "kind": "template-to-skill"
+          "kind": "depends-before"
         }
       ],
-      "evidence_refs": ["docs/app-task-ledger.v1.json", "waves/workflow-instruction-coverage/plan.md"]
+      "evidence_refs": [
+        "docs/app-constitution.md",
+        "waves/workflow-instruction-coverage/research.md",
+        "waves/workflow-instruction-coverage/plan.md",
+        "docs/app-task-ledger.v1.json"
+      ]
     },
     {
       "functionality_id": "cap-graph-dev-model",
       "wave_id": "workflow-instruction-coverage",
-      "title": "Functional graph as dev-stage model",
-      "constitution_refs": ["cap-graph-dev-model"],
-      "research_refs": ["waves/workflow-instruction-coverage/research.md#constitution-mapping"],
+      "title": "Functional graph as dev model",
+      "constitution_refs": [
+        "cap-graph-dev-model"
+      ],
+      "research_refs": [
+        "waves/workflow-instruction-coverage/research.md#decisions",
+        "waves/workflow-instruction-coverage/research.md#plan-inputs"
+      ],
       "status": "modeled",
       "nodes": [
         {
           "node_id": "graph-template",
-          "kind": "data",
+          "functionality_id": "cap-graph-dev-model",
+          "kind": "workflow",
           "dev_model_kind": "implementation",
-          "constitution_refs": ["cap-graph-dev-model"],
-          "research_refs": ["waves/workflow-instruction-coverage/research.md#plan-inputs"],
-          "plan_task_refs": ["task-artifact-contracts-templates"],
-          "depends_on": ["cap-plan-microtasks:ledger-template"],
-          "evidence_refs": ["templates/docs/app-functional-graph.v1.json", "docs/functional-graph-ledger-contract.md#graph-node-requirements"]
+          "constitution_refs": [
+            "cap-graph-dev-model"
+          ],
+          "research_refs": [
+            "waves/workflow-instruction-coverage/research.md#plan-inputs"
+          ],
+          "plan_task_refs": [
+            "task-artifact-contracts-templates"
+          ],
+          "depends_on": [
+            "cap-plan-microtasks:plan-skill"
+          ],
+          "evidence_refs": [
+            "docs/functional-graph-ledger-contract.md#graph-node-requirements",
+            "templates/docs/app-functional-graph.v1.json"
+          ]
         },
         {
           "node_id": "graph-skill",
+          "functionality_id": "cap-graph-dev-model",
           "kind": "instruction",
           "dev_model_kind": "implementation",
-          "constitution_refs": ["cap-graph-dev-model"],
-          "research_refs": ["waves/workflow-instruction-coverage/research.md#decisions"],
-          "plan_task_refs": ["task-skill-sequential-rules"],
-          "depends_on": ["cap-graph-dev-model:graph-template"],
-          "evidence_refs": ["skills/app-functional-graph/SKILL.md"]
+          "constitution_refs": [
+            "cap-graph-dev-model"
+          ],
+          "research_refs": [
+            "waves/workflow-instruction-coverage/research.md#decisions"
+          ],
+          "plan_task_refs": [
+            "task-skill-sequential-rules"
+          ],
+          "depends_on": [
+            "cap-graph-dev-model:graph-template"
+          ],
+          "evidence_refs": [
+            "skills/app-functional-graph/SKILL.md"
+          ]
         }
       ],
       "edges": [
         {
           "from": "cap-graph-dev-model:graph-template",
           "to": "cap-graph-dev-model:graph-skill",
-          "kind": "template-to-skill"
+          "kind": "depends-before"
         }
       ],
-      "evidence_refs": ["docs/app-functional-graph.v1.json", "skills/app-functional-graph/SKILL.md"]
+      "evidence_refs": [
+        "docs/app-constitution.md",
+        "waves/workflow-instruction-coverage/research.md",
+        "waves/workflow-instruction-coverage/plan.md",
+        "docs/app-task-ledger.v1.json"
+      ]
     },
     {
       "functionality_id": "cap-lineage-analysis",
       "wave_id": "workflow-instruction-coverage",
-      "title": "Lineage analysis and broken-link routing",
-      "constitution_refs": ["cap-lineage-analysis"],
-      "research_refs": ["waves/workflow-instruction-coverage/research.md#constitution-mapping"],
+      "title": "Lineage analysis and rerouting",
+      "constitution_refs": [
+        "cap-lineage-analysis"
+      ],
+      "research_refs": [
+        "waves/workflow-instruction-coverage/research.md#constitution-mapping",
+        "waves/workflow-instruction-coverage/research.md#decisions",
+        "waves/workflow-instruction-coverage/research.md#drift-notes"
+      ],
       "status": "modeled",
       "nodes": [
         {
-          "node_id": "analyze-skill",
+          "node_id": "analyze-lineage-skill",
+          "functionality_id": "cap-lineage-analysis",
           "kind": "instruction",
           "dev_model_kind": "analysis",
-          "constitution_refs": ["cap-lineage-analysis"],
-          "research_refs": ["waves/workflow-instruction-coverage/research.md#decisions"],
-          "plan_task_refs": ["task-skill-sequential-rules"],
-          "depends_on": ["cap-graph-dev-model:graph-skill"],
-          "evidence_refs": ["skills/app-analyze/SKILL.md"]
+          "constitution_refs": [
+            "cap-lineage-analysis"
+          ],
+          "research_refs": [
+            "waves/workflow-instruction-coverage/research.md#decisions"
+          ],
+          "plan_task_refs": [
+            "task-skill-sequential-rules"
+          ],
+          "depends_on": [
+            "cap-graph-dev-model:graph-skill"
+          ],
+          "evidence_refs": [
+            "skills/app-analyze/SKILL.md"
+          ]
         },
         {
-          "node_id": "self-test-analysis",
+          "node_id": "self-test-lineage",
+          "functionality_id": "cap-lineage-analysis",
           "kind": "workflow",
           "dev_model_kind": "analysis",
-          "constitution_refs": ["cap-lineage-analysis"],
-          "research_refs": ["waves/workflow-instruction-coverage/research.md#drift-notes"],
-          "plan_task_refs": ["task-self-test-lineage"],
-          "depends_on": ["cap-lineage-analysis:analyze-skill"],
-          "evidence_refs": ["waves/workflow-instruction-coverage/analysis.md", "docs/backtests/plugin-self-test.md"]
+          "constitution_refs": [
+            "cap-lineage-analysis"
+          ],
+          "research_refs": [
+            "waves/workflow-instruction-coverage/research.md#drift-notes"
+          ],
+          "plan_task_refs": [
+            "task-self-test-lineage"
+          ],
+          "depends_on": [
+            "cap-lineage-analysis:analyze-lineage-skill"
+          ],
+          "evidence_refs": [
+            "waves/workflow-instruction-coverage/analysis.md",
+            "docs/backtests/plugin-self-test.md"
+          ]
+        },
+        {
+          "node_id": "analysis-reroute",
+          "functionality_id": "cap-lineage-analysis",
+          "kind": "workflow",
+          "dev_model_kind": "analysis",
+          "constitution_refs": [
+            "cap-lineage-analysis"
+          ],
+          "research_refs": [
+            "waves/workflow-instruction-coverage/research.md#constitution-mapping",
+            "waves/workflow-instruction-coverage/research.md#decisions"
+          ],
+          "plan_task_refs": [
+            "task-app-analyze-file-audit"
+          ],
+          "depends_on": [
+            "cap-lineage-analysis:self-test-lineage"
+          ],
+          "evidence_refs": [
+            "skills/app-analyze/SKILL.md#rules",
+            "waves/workflow-instruction-coverage/analysis.md#broken-links"
+          ]
         }
       ],
       "edges": [
         {
-          "from": "cap-lineage-analysis:analyze-skill",
-          "to": "cap-lineage-analysis:self-test-analysis",
-          "kind": "skill-to-backtest"
+          "from": "cap-lineage-analysis:analyze-lineage-skill",
+          "to": "cap-lineage-analysis:self-test-lineage",
+          "kind": "depends-before"
+        },
+        {
+          "from": "cap-lineage-analysis:self-test-lineage",
+          "to": "cap-lineage-analysis:analysis-reroute",
+          "kind": "depends-before"
         }
       ],
-      "evidence_refs": ["skills/app-analyze/SKILL.md", "docs/backtests/plugin-self-test.md"]
+      "evidence_refs": [
+        "docs/app-constitution.md",
+        "waves/workflow-instruction-coverage/research.md",
+        "waves/workflow-instruction-coverage/plan.md",
+        "docs/app-task-ledger.v1.json"
+      ]
+    },
+    {
+      "functionality_id": "cap-file-reuse-audit",
+      "wave_id": "workflow-instruction-coverage",
+      "title": "Plugin file reuse-quality audit",
+      "constitution_refs": [
+        "cap-file-reuse-audit"
+      ],
+      "research_refs": [
+        "waves/workflow-instruction-coverage/research.md#constitution-mapping",
+        "waves/workflow-instruction-coverage/research.md#decisions",
+        "waves/workflow-instruction-coverage/research.md#plan-inputs"
+      ],
+      "status": "modeled",
+      "nodes": [
+        {
+          "node_id": "file-audit-mode",
+          "functionality_id": "cap-file-reuse-audit",
+          "kind": "instruction",
+          "dev_model_kind": "analysis",
+          "constitution_refs": [
+            "cap-file-reuse-audit"
+          ],
+          "research_refs": [
+            "waves/workflow-instruction-coverage/research.md#constitution-mapping",
+            "waves/workflow-instruction-coverage/research.md#decisions"
+          ],
+          "plan_task_refs": [
+            "task-app-analyze-file-audit"
+          ],
+          "depends_on": [
+            "cap-lineage-analysis:analysis-reroute"
+          ],
+          "evidence_refs": [
+            "skills/app-analyze/SKILL.md#file-audit-mode",
+            "docs/artifact-contracts.md#waveswave-idanalysismd"
+          ]
+        },
+        {
+          "node_id": "self-audit-report",
+          "functionality_id": "cap-file-reuse-audit",
+          "kind": "workflow",
+          "dev_model_kind": "analysis",
+          "constitution_refs": [
+            "cap-file-reuse-audit"
+          ],
+          "research_refs": [
+            "waves/workflow-instruction-coverage/research.md#constitution-mapping",
+            "waves/workflow-instruction-coverage/research.md#decisions"
+          ],
+          "plan_task_refs": [
+            "task-app-analyze-file-audit"
+          ],
+          "depends_on": [
+            "cap-file-reuse-audit:file-audit-mode"
+          ],
+          "evidence_refs": [
+            "waves/workflow-instruction-coverage/analysis.md#file-reuse-audit"
+          ]
+        },
+        {
+          "node_id": "manifest-audit-positioning",
+          "functionality_id": "cap-file-reuse-audit",
+          "kind": "workflow",
+          "dev_model_kind": "handoff",
+          "constitution_refs": [
+            "cap-file-reuse-audit"
+          ],
+          "research_refs": [
+            "waves/workflow-instruction-coverage/research.md#plan-inputs"
+          ],
+          "plan_task_refs": [
+            "task-manifest-positioning"
+          ],
+          "depends_on": [
+            "cap-file-reuse-audit:self-audit-report"
+          ],
+          "evidence_refs": [
+            ".codex-plugin/plugin.json"
+          ]
+        }
+      ],
+      "edges": [
+        {
+          "from": "cap-file-reuse-audit:file-audit-mode",
+          "to": "cap-file-reuse-audit:self-audit-report",
+          "kind": "depends-before"
+        },
+        {
+          "from": "cap-file-reuse-audit:self-audit-report",
+          "to": "cap-file-reuse-audit:manifest-audit-positioning",
+          "kind": "depends-before"
+        }
+      ],
+      "evidence_refs": [
+        "docs/app-constitution.md",
+        "waves/workflow-instruction-coverage/research.md",
+        "waves/workflow-instruction-coverage/plan.md",
+        "docs/app-task-ledger.v1.json"
+      ]
+    },
+    {
+      "functionality_id": "cap-packet-contracts",
+      "wave_id": "workflow-instruction-coverage",
+      "title": "Versioned handoff packet contracts",
+      "constitution_refs": [
+        "cap-packet-contracts"
+      ],
+      "research_refs": [
+        "waves/workflow-instruction-coverage/research.md#decisions",
+        "waves/workflow-instruction-coverage/research.md#plan-inputs"
+      ],
+      "status": "modeled",
+      "nodes": [
+        {
+          "node_id": "packet-contract-doc",
+          "functionality_id": "cap-packet-contracts",
+          "kind": "workflow",
+          "dev_model_kind": "implementation",
+          "constitution_refs": [
+            "cap-packet-contracts"
+          ],
+          "research_refs": [
+            "waves/workflow-instruction-coverage/research.md#plan-inputs",
+            "waves/workflow-instruction-coverage/research.md#decisions"
+          ],
+          "plan_task_refs": [
+            "task-packet-contracts-role-catalog"
+          ],
+          "depends_on": [
+            "cap-graph-dev-model:graph-skill"
+          ],
+          "evidence_refs": [
+            "docs/handoff-packet-contracts.md",
+            "docs/artifact-contracts.md#packets"
+          ]
+        },
+        {
+          "node_id": "support-skill-packets",
+          "functionality_id": "cap-packet-contracts",
+          "kind": "instruction",
+          "dev_model_kind": "handoff",
+          "constitution_refs": [
+            "cap-packet-contracts"
+          ],
+          "research_refs": [
+            "waves/workflow-instruction-coverage/research.md#plan-inputs",
+            "waves/workflow-instruction-coverage/research.md#decisions"
+          ],
+          "plan_task_refs": [
+            "task-packet-contracts-role-catalog"
+          ],
+          "depends_on": [
+            "cap-packet-contracts:packet-contract-doc"
+          ],
+          "evidence_refs": [
+            "skills/subagents/SKILL.md",
+            "skills/subagents-roles/SKILL.md",
+            "skills/instruction-hardening/SKILL.md",
+            "skills/app-dev/SKILL.md"
+          ]
+        },
+        {
+          "node_id": "manifest-packet-positioning",
+          "functionality_id": "cap-packet-contracts",
+          "kind": "workflow",
+          "dev_model_kind": "handoff",
+          "constitution_refs": [
+            "cap-packet-contracts"
+          ],
+          "research_refs": [
+            "waves/workflow-instruction-coverage/research.md#plan-inputs"
+          ],
+          "plan_task_refs": [
+            "task-manifest-positioning"
+          ],
+          "depends_on": [
+            "cap-packet-contracts:support-skill-packets"
+          ],
+          "evidence_refs": [
+            ".codex-plugin/plugin.json"
+          ]
+        }
+      ],
+      "edges": [
+        {
+          "from": "cap-packet-contracts:packet-contract-doc",
+          "to": "cap-packet-contracts:support-skill-packets",
+          "kind": "depends-before"
+        },
+        {
+          "from": "cap-packet-contracts:support-skill-packets",
+          "to": "cap-packet-contracts:manifest-packet-positioning",
+          "kind": "depends-before"
+        }
+      ],
+      "evidence_refs": [
+        "docs/app-constitution.md",
+        "waves/workflow-instruction-coverage/research.md",
+        "waves/workflow-instruction-coverage/plan.md",
+        "docs/app-task-ledger.v1.json"
+      ]
+    },
+    {
+      "functionality_id": "cap-self-contained-roles",
+      "wave_id": "workflow-instruction-coverage",
+      "title": "Self-contained role mapping",
+      "constitution_refs": [
+        "cap-self-contained-roles"
+      ],
+      "research_refs": [
+        "waves/workflow-instruction-coverage/research.md#decisions",
+        "waves/workflow-instruction-coverage/research.md#plan-inputs"
+      ],
+      "status": "modeled",
+      "nodes": [
+        {
+          "node_id": "role-catalog",
+          "functionality_id": "cap-self-contained-roles",
+          "kind": "workflow",
+          "dev_model_kind": "implementation",
+          "constitution_refs": [
+            "cap-self-contained-roles"
+          ],
+          "research_refs": [
+            "waves/workflow-instruction-coverage/research.md#plan-inputs",
+            "waves/workflow-instruction-coverage/research.md#decisions"
+          ],
+          "plan_task_refs": [
+            "task-packet-contracts-role-catalog"
+          ],
+          "depends_on": [
+            "cap-packet-contracts:packet-contract-doc"
+          ],
+          "evidence_refs": [
+            "docs/role-catalog.md"
+          ]
+        },
+        {
+          "node_id": "role-skill",
+          "functionality_id": "cap-self-contained-roles",
+          "kind": "instruction",
+          "dev_model_kind": "handoff",
+          "constitution_refs": [
+            "cap-self-contained-roles"
+          ],
+          "research_refs": [
+            "waves/workflow-instruction-coverage/research.md#plan-inputs",
+            "waves/workflow-instruction-coverage/research.md#decisions"
+          ],
+          "plan_task_refs": [
+            "task-packet-contracts-role-catalog"
+          ],
+          "depends_on": [
+            "cap-self-contained-roles:role-catalog"
+          ],
+          "evidence_refs": [
+            "skills/subagents-roles/SKILL.md"
+          ]
+        },
+        {
+          "node_id": "external-role-trace-removal",
+          "functionality_id": "cap-self-contained-roles",
+          "kind": "workflow",
+          "dev_model_kind": "implementation",
+          "constitution_refs": [
+            "cap-self-contained-roles"
+          ],
+          "research_refs": [
+            "waves/workflow-instruction-coverage/research.md#decisions"
+          ],
+          "plan_task_refs": [
+            "task-remove-external-role-trace"
+          ],
+          "depends_on": [
+            "cap-self-contained-roles:role-skill"
+          ],
+          "evidence_refs": [
+            "README.md",
+            "SPEC.md",
+            ".codex-plugin/plugin.json"
+          ]
+        }
+      ],
+      "edges": [
+        {
+          "from": "cap-self-contained-roles:role-catalog",
+          "to": "cap-self-contained-roles:role-skill",
+          "kind": "depends-before"
+        },
+        {
+          "from": "cap-self-contained-roles:role-skill",
+          "to": "cap-self-contained-roles:external-role-trace-removal",
+          "kind": "depends-before"
+        }
+      ],
+      "evidence_refs": [
+        "docs/app-constitution.md",
+        "waves/workflow-instruction-coverage/research.md",
+        "waves/workflow-instruction-coverage/plan.md",
+        "docs/app-task-ledger.v1.json"
+      ]
     },
     {
       "functionality_id": "cap-self-contained-plugin",
       "wave_id": "workflow-instruction-coverage",
-      "title": "Self-contained plugin contract",
-      "constitution_refs": ["cap-self-contained-plugin"],
-      "research_refs": ["waves/workflow-instruction-coverage/research.md#constitution-mapping"],
+      "title": "Self-contained plugin independence",
+      "constitution_refs": [
+        "cap-self-contained-plugin"
+      ],
+      "research_refs": [
+        "waves/workflow-instruction-coverage/research.md#constitution-mapping",
+        "waves/workflow-instruction-coverage/research.md#decisions",
+        "waves/workflow-instruction-coverage/research.md#drift-notes",
+        "waves/workflow-instruction-coverage/research.md#plan-inputs"
+      ],
       "status": "modeled",
       "nodes": [
         {
-          "node_id": "host-independent-contract",
-          "kind": "instruction",
+          "node_id": "independence-contract",
+          "functionality_id": "cap-self-contained-plugin",
+          "kind": "workflow",
           "dev_model_kind": "implementation",
-          "constitution_refs": ["cap-self-contained-plugin"],
-          "research_refs": ["waves/workflow-instruction-coverage/research.md#constitution-mapping"],
-          "plan_task_refs": ["task-docs-sequential-contract"],
-          "depends_on": [],
-          "evidence_refs": ["README.md#independence-and-script-ownership", "SPEC.md#terms"]
+          "constitution_refs": [
+            "cap-self-contained-plugin"
+          ],
+          "research_refs": [
+            "waves/workflow-instruction-coverage/research.md#constitution-mapping"
+          ],
+          "plan_task_refs": [
+            "task-docs-sequential-contract"
+          ],
+          "depends_on": [
+            "cap-sequential-workflow:docs-contract"
+          ],
+          "evidence_refs": [
+            "README.md#independence-and-script-ownership",
+            "SPEC.md#script-ownership"
+          ]
+        },
+        {
+          "node_id": "external-trace-removal",
+          "functionality_id": "cap-self-contained-plugin",
+          "kind": "workflow",
+          "dev_model_kind": "implementation",
+          "constitution_refs": [
+            "cap-self-contained-plugin"
+          ],
+          "research_refs": [
+            "waves/workflow-instruction-coverage/research.md#decisions"
+          ],
+          "plan_task_refs": [
+            "task-remove-external-role-trace"
+          ],
+          "depends_on": [
+            "cap-self-contained-plugin:independence-contract"
+          ],
+          "evidence_refs": [
+            "skills/",
+            "docs/role-catalog.md"
+          ]
         },
         {
           "node_id": "self-test-portability",
+          "functionality_id": "cap-self-contained-plugin",
           "kind": "workflow",
-          "dev_model_kind": "evidence",
-          "constitution_refs": ["cap-self-contained-plugin"],
-          "research_refs": ["waves/workflow-instruction-coverage/research.md#drift-notes"],
-          "plan_task_refs": ["task-self-test-lineage"],
-          "depends_on": ["cap-self-contained-plugin:host-independent-contract"],
-          "evidence_refs": ["docs/backtests/plugin-self-test.md"]
+          "dev_model_kind": "analysis",
+          "constitution_refs": [
+            "cap-self-contained-plugin"
+          ],
+          "research_refs": [
+            "waves/workflow-instruction-coverage/research.md#drift-notes"
+          ],
+          "plan_task_refs": [
+            "task-self-test-lineage"
+          ],
+          "depends_on": [
+            "cap-self-contained-plugin:external-trace-removal"
+          ],
+          "evidence_refs": [
+            "docs/backtests/plugin-self-test.md",
+            "waves/workflow-instruction-coverage/analysis.md"
+          ]
         },
         {
-          "node_id": "manifest-independent-positioning",
+          "node_id": "manifest-independence",
+          "functionality_id": "cap-self-contained-plugin",
           "kind": "workflow",
           "dev_model_kind": "handoff",
-          "constitution_refs": ["cap-self-contained-plugin"],
-          "research_refs": ["waves/workflow-instruction-coverage/research.md#plan-inputs"],
-          "plan_task_refs": ["task-manifest-positioning"],
-          "depends_on": ["cap-self-contained-plugin:self-test-portability"],
-          "evidence_refs": [".codex-plugin/plugin.json"]
+          "constitution_refs": [
+            "cap-self-contained-plugin"
+          ],
+          "research_refs": [
+            "waves/workflow-instruction-coverage/research.md#plan-inputs"
+          ],
+          "plan_task_refs": [
+            "task-manifest-positioning"
+          ],
+          "depends_on": [
+            "cap-self-contained-plugin:self-test-portability"
+          ],
+          "evidence_refs": [
+            ".codex-plugin/plugin.json"
+          ]
         }
       ],
       "edges": [
         {
-          "from": "cap-self-contained-plugin:host-independent-contract",
+          "from": "cap-self-contained-plugin:independence-contract",
+          "to": "cap-self-contained-plugin:external-trace-removal",
+          "kind": "depends-before"
+        },
+        {
+          "from": "cap-self-contained-plugin:external-trace-removal",
           "to": "cap-self-contained-plugin:self-test-portability",
-          "kind": "contract-to-backtest"
+          "kind": "depends-before"
         },
         {
           "from": "cap-self-contained-plugin:self-test-portability",
-          "to": "cap-self-contained-plugin:manifest-independent-positioning",
-          "kind": "backtest-to-manifest"
+          "to": "cap-self-contained-plugin:manifest-independence",
+          "kind": "depends-before"
         }
       ],
-      "evidence_refs": ["README.md", "SPEC.md", "docs/backtests/plugin-self-test.md"]
+      "evidence_refs": [
+        "docs/app-constitution.md",
+        "waves/workflow-instruction-coverage/research.md",
+        "waves/workflow-instruction-coverage/plan.md",
+        "docs/app-task-ledger.v1.json"
+      ]
+    },
+    {
+      "functionality_id": "cap-no-test-tooling-loop",
+      "wave_id": "workflow-instruction-coverage",
+      "title": "No workflow-testing tooling loop",
+      "constitution_refs": [
+        "cap-no-test-tooling-loop"
+      ],
+      "research_refs": [
+        "waves/workflow-instruction-coverage/research.md#constitution-mapping",
+        "waves/workflow-instruction-coverage/research.md#decisions",
+        "waves/workflow-instruction-coverage/research.md#drift-notes"
+      ],
+      "status": "modeled",
+      "nodes": [
+        {
+          "node_id": "no-recursive-tooling-rules",
+          "functionality_id": "cap-no-test-tooling-loop",
+          "kind": "instruction",
+          "dev_model_kind": "implementation",
+          "constitution_refs": [
+            "cap-no-test-tooling-loop"
+          ],
+          "research_refs": [
+            "waves/workflow-instruction-coverage/research.md#decisions"
+          ],
+          "plan_task_refs": [
+            "task-remove-external-role-trace"
+          ],
+          "depends_on": [
+            "cap-packet-contracts:support-skill-packets"
+          ],
+          "evidence_refs": [
+            "README.md#independence-and-script-ownership",
+            "SPEC.md#script-ownership",
+            "skills/*/SKILL.md"
+          ]
+        },
+        {
+          "node_id": "backtest-readonly",
+          "functionality_id": "cap-no-test-tooling-loop",
+          "kind": "workflow",
+          "dev_model_kind": "evidence",
+          "constitution_refs": [
+            "cap-no-test-tooling-loop"
+          ],
+          "research_refs": [
+            "waves/workflow-instruction-coverage/research.md#drift-notes"
+          ],
+          "plan_task_refs": [
+            "task-self-test-lineage"
+          ],
+          "depends_on": [
+            "cap-no-test-tooling-loop:no-recursive-tooling-rules"
+          ],
+          "evidence_refs": [
+            "docs/backtests/plugin-self-test.md"
+          ]
+        },
+        {
+          "node_id": "analyze-no-tooling",
+          "functionality_id": "cap-no-test-tooling-loop",
+          "kind": "instruction",
+          "dev_model_kind": "analysis",
+          "constitution_refs": [
+            "cap-no-test-tooling-loop"
+          ],
+          "research_refs": [
+            "waves/workflow-instruction-coverage/research.md#constitution-mapping",
+            "waves/workflow-instruction-coverage/research.md#decisions"
+          ],
+          "plan_task_refs": [
+            "task-app-analyze-file-audit"
+          ],
+          "depends_on": [
+            "cap-no-test-tooling-loop:backtest-readonly"
+          ],
+          "evidence_refs": [
+            "skills/app-analyze/SKILL.md",
+            "waves/workflow-instruction-coverage/analysis.md"
+          ]
+        }
+      ],
+      "edges": [
+        {
+          "from": "cap-no-test-tooling-loop:no-recursive-tooling-rules",
+          "to": "cap-no-test-tooling-loop:backtest-readonly",
+          "kind": "depends-before"
+        },
+        {
+          "from": "cap-no-test-tooling-loop:backtest-readonly",
+          "to": "cap-no-test-tooling-loop:analyze-no-tooling",
+          "kind": "depends-before"
+        }
+      ],
+      "evidence_refs": [
+        "docs/app-constitution.md",
+        "waves/workflow-instruction-coverage/research.md",
+        "waves/workflow-instruction-coverage/plan.md",
+        "docs/app-task-ledger.v1.json"
+      ]
     }
   ]
 }

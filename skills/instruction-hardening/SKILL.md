@@ -1,6 +1,6 @@
 ---
 name: instruction-hardening
-description: Compress and harden Codex instructions, skills, prompts, wave plans, dispatch packets, and workflow prose without changing functional truth or host policy. Use inside Bears App-Based Workflow when Codex must remove duplication, make rules stricter, and return compact text plus drift notes.
+description: Compress and harden Codex instructions, skills, prompts, wave plans, dispatch packets, and workflow prose without changing functional truth or execution constraints. Use inside Bears App-Based Workflow when Codex must remove duplication, make rules stricter, and return hardening-output.v1 plus drift notes.
 ---
 
 # Instruction Hardening
@@ -12,17 +12,20 @@ Turn an instruction or packet surface into a smaller, stricter version with the 
 ## Process
 
 1. Split the source into individual rules.
-2. Delete restatements, commentary, and environment-local noise.
+2. Delete restatements, commentary, stale traces, and environment-local noise.
 3. Merge rules that share the same trigger, owner, and action.
 4. Keep concrete triggers, required outputs, forbidden actions, and escalation points.
 5. Replace vague wording with observable actions.
-6. Return compressed text, removed-content summary, and drift note.
+6. Return `hardening-output.v1`.
 
 ## Output
 
+- `schema: hardening-output.v1`
 - Compressed text.
 - Removed-content summary.
+- Behavior-equivalence statement.
 - Drift note.
+- Next skill.
 
 ## Keep
 
@@ -39,7 +42,7 @@ Turn an instruction or packet surface into a smaller, stricter version with the 
 ## Rules
 
 - Never change functional truth from `docs/app-constitution.md`.
-- Never change research decisions, plan task scope, graph ids, or host policy.
+- Never change research decisions, plan task scope, graph ids, or execution constraints.
 - Do not create implementation tasks or product decisions.
 - Do not run scripts.
 - Do not tell agents to run validation, test, audit, route, cache, cachebuster, quick-validate, or plugin-validate scripts manually.

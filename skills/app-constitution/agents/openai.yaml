@@ -1,4 +1,4 @@
-openai:
+interface:
   display_name: "App Constitution"
-  short_description: "Set functional source of truth"
+  short_description: "Set app functional source of truth"
   default_prompt: "Use $app-constitution to record functional truth, gaps, decisions, constraints, and evidence needs before research."

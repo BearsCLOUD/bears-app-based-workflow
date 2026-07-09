@@ -1,4 +1,4 @@
-openai:
+interface:
   display_name: "App Research"
-  short_description: "Explain constitution ids"
+  short_description: "Explain constitution ids with sources"
   default_prompt: "Use $app-research to explain constitution ids through sources, decisions, unknowns, and wave scope."

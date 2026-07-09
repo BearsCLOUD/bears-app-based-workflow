@@ -6,38 +6,52 @@
 
 ## Scope
 
-- Cover the plugin workflow instructions so a future agent can follow constitution, research, plan, graph modeling, dev handoff, and analysis without relying on host-specific docs.
+- Cover the plugin workflow instructions so a future agent can follow constitution, research, plan, graph modeling, dev handoff, and analysis without relying on host-specific docs, role inventories, runtime services, hooks, MCP servers, or workflow-testing scripts.
 
 ## Constitution mapping
 
 | Constitution ref | Research explanation | Source refs | Decision state |
 | --- | --- | --- | --- |
-| `cap-sequential-workflow` | The workflow must be linear. Research confirms graph modeling happens after approved plan microtasks and models dev. | `SPEC.md#workflow`, `docs/workflow-stage-gates.md#rule-summary` | closed |
-| `cap-constitution-truth` | Functional drift is resolved against constitution first; this keeps research, plan, and graph aligned. | `docs/workflow-stage-gates.md#drift-routing` | closed |
-| `cap-research-explains-truth` | Every wave must show which constitution ids it explains and what sources support each explanation. | `docs/artifact-contracts.md#waveswave-idresearchmd` | closed |
-| `cap-plan-microtasks` | Planning turns research explanations into ordered microtasks with constitution and research refs. | `docs/functional-graph-ledger-contract.md#ledger-microtask-requirements` | closed |
-| `cap-graph-dev-model` | The graph is built from approved microtasks and must carry constitution, research, and plan lineage. | `docs/functional-graph-ledger-contract.md#graph-node-requirements` | closed |
-| `cap-lineage-analysis` | Analysis checks each graph node and reports the exact missing constitution, research, plan, graph, or dev link. | `docs/artifact-contracts.md#waveswave-idanalysismd` | closed |
-| `cap-self-contained-plugin` | Plugin docs are portable; host policies are optional live constraints and not plugin functional truth. | `README.md#independence-and-script-ownership` | closed |
+| `cap-sequential-workflow` | The workflow must be linear. Research confirms graph modeling happens after approved plan microtasks and models dev. | `SPEC.md#core-workflow`, `docs/workflow-stage-gates.md#rule-summary` | closed |
+| `cap-constitution-truth` | Functional drift is resolved against constitution first; this keeps research, plan, graph, dev, and analysis aligned. | `docs/workflow-stage-gates.md#drift-routing`, `skills/app-constitution/SKILL.md#drift-rules` | closed |
+| `cap-research-explains-truth` | Every wave must show which constitution ids it explains and what sources support each explanation before plan. | `docs/artifact-contracts.md#waveswave-idresearchmd`, `skills/app-research/SKILL.md#research-file-sections` | closed |
+| `cap-plan-microtasks` | Planning turns research explanations into ordered microtasks with constitution refs, research refs, target paths, dependencies, roles, done, and proof. | `docs/functional-graph-ledger-contract.md#ledger-microtask-requirements`, `templates/waves/wave-id/plan.md` | closed |
+| `cap-graph-dev-model` | The graph is built from approved microtasks and every node carries constitution, research, plan, dependency, and evidence refs. | `docs/functional-graph-ledger-contract.md#graph-node-requirements`, `skills/app-functional-graph/SKILL.md#graph-node-requirements` | closed |
+| `cap-lineage-analysis` | Analysis checks lineage, implementation convergence, and broken-link routing across the ordered flow. | `docs/artifact-contracts.md#waveswave-idanalysismd`, `skills/app-analyze/SKILL.md#rules` | closed |
+| `cap-file-reuse-audit` | File-audit mode reviews every plugin file for a named consumer, agreement with workflow order, concise wording, single route, coverage, portability, degradation resistance, next-agent readiness, and no-test-tooling risk. | `skills/app-analyze/SKILL.md#file-audit-mode`, `waves/workflow-instruction-coverage/analysis.md#file-reuse-audit` | closed |
+| `cap-packet-contracts` | Versioned packets keep support skills aligned and prevent downstream fields from drifting away from upstream outputs. | `docs/handoff-packet-contracts.md`, `docs/artifact-contracts.md#packets` | closed |
+| `cap-self-contained-roles` | Role mapping must use a plugin-local role catalog so the plugin stays portable and does not require external role inventory files. | `docs/role-catalog.md`, `skills/subagents-roles/SKILL.md` | closed |
+| `cap-self-contained-plugin` | Plugin docs are portable; execution constraints are optional live-session limits and not plugin functional truth. | `README.md#independence-and-script-ownership`, `SPEC.md#script-ownership` | closed |
+| `cap-no-test-tooling-loop` | The plugin must not cause recursive workflow testing by asking agents to create validators, harnesses, scripts, cache tools, or plugin-specific validation software just to prove the workflow. | `README.md#independence-and-script-ownership`, `skills/app-analyze/SKILL.md#rules`, `docs/handoff-packet-contracts.md#dispatch-packetv1` | closed |
 
 ## Known behavior
 
-- Existing plugin skills already cover the same named stages, but prior text included obsolete graph-input and non-sequential wording.
-- The new target behavior is sequential and lineage-first.
+- Existing plugin skills cover the same named stages, but stale traces previously mixed graph input with plan output and pointed to host-specific role or policy concepts.
+- The target behavior is sequential, lineage-first, self-contained, and resistant to recursive test-tool creation.
+- `app-analyze` now owns the broad plugin-file audit instead of creating a separate audit tool.
 
 ## Sources
 
-- `SPEC.md`: canonical workflow order and stage contracts.
-- `docs/workflow-stage-gates.md`: stage reads, writes, forbidden writes, exits, and drift routes.
-- `docs/functional-graph-ledger-contract.md`: lineage fields and ledger statuses.
-- `docs/artifact-contracts.md`: required artifact sections.
-- `templates/`: copy-ready artifact shapes.
+- `README.md`: user-facing workflow, artifact list, skill list, independence, and script ownership.
+- `SPEC.md`: canonical workflow order, stage contracts, support contracts, and change-management rule.
+- `docs/workflow-stage-gates.md`: required reads, writes, forbidden writes, exits, and drift routes.
+- `docs/functional-graph-ledger-contract.md`: graph node fields, function fields, ledger fields, statuses, and backlinks.
+- `docs/artifact-contracts.md`: required sections for constitution, waves, analysis, and packets.
+- `docs/handoff-packet-contracts.md`: versioned packet fields for research, clarification, roles, dispatch, hardening, and analysis.
+- `docs/role-catalog.md`: self-contained role names and role-gap rules.
+- `templates/`: copy-ready constitution, wave, ledger, and graph shapes.
+- `skills/*/SKILL.md`: stage and support-skill instructions.
 
 ## Decisions
 
-- `decision-sequential-order`: Use `constitution -> research -> plan -> graph` as the required modeling order.
+- `decision-sequential-order`: Use `constitution -> research -> plan -> graph -> dev -> analyze` as the required main order.
 - `decision-graph-after-plan`: Build graph nodes only from approved plan microtasks.
-- `decision-plugin-independent`: Do not depend on host-specific instruction files or runtime services.
+- `decision-plugin-independent`: Do not depend on host-specific instruction files, role inventories, runtime services, hooks, MCP servers, or validation scripts.
+- `decision-packet-contracts`: Add versioned packet contracts so support skill outputs and inputs stay aligned.
+- `decision-role-catalog`: Replace external role inventory dependence with plugin-local role names.
+- `decision-file-audit-owned-by-analyze`: Put broad file-quality audit in `app-analyze`, not in new testing or audit software.
+- `decision-no-workflow-test-tooling`: Use targeted reads, grep, JSON parsing, and existing generated evidence only; do not create plugin-local test tools to prove this workflow.
+- `decision-remove-stale-role-trace`: Remove obsolete legacy role-skill artifacts and references because they duplicate role mapping and imply external Bears role dependence.
 
 ## Unknowns
 
@@ -46,19 +60,26 @@
 ## Clarifications
 
 - `app-specify` remains a helper for unresolved research questions and is not a main stage gate.
+- Execution constraints may appear in a live session, but they constrain execution only and do not replace constitution truth.
 
 ## Plan inputs
 
-- Update public workflow docs.
-- Update stage skills.
-- Create artifact contracts and templates.
-- Create self-test graph and ledger with complete lineage.
-- Update manifests to remove non-sequential positioning.
+- Update public workflow docs and stage gates for the strict order and drift routing.
+- Update artifact contracts and templates so constitution, research, plan, graph, ledger, packets, and analysis share the same fields.
+- Update stage skills so research cannot jump to graph or dev, plan cannot create graph nodes, graph consumes approved microtasks, dev consumes only complete lineage, and analyze reports exact broken links.
+- Add packet contracts and a self-contained role catalog.
+- Remove obsolete external role-inventory traces.
+- Extend `app-analyze` to perform broad file reuse-quality audits without creating testing software.
+- Create self-test graph and ledger with complete lineage for all constitution capabilities.
+- Update manifests to present the plugin as self-contained and sequential.
 
 ## Drift notes
 
-- Any functional mismatch found later must route to `docs/app-constitution.md` first.
-- Host-policy mismatch must be reported separately and must not rewrite functional truth.
+- Functional mismatch routes to `docs/app-constitution.md` first.
+- Research mismatch updates or reroutes this wave against constitution refs.
+- Plan mismatch maps back to this research explanation and a constitution id.
+- Graph mismatch maps back to a plan microtask, this wave, and a constitution id.
+- Execution-constraint mismatch is reported separately and must not rewrite functional truth.
 
 ## Next skill
 

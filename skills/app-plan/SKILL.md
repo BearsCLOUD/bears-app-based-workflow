@@ -1,6 +1,6 @@
 ---
 name: app-plan
-description: Create sequential Bears app plan microtasks from constitution-backed research. Use when Codex must turn research explanations into ordered ledger tasks before functional graph modeling.
+description: Create sequential Bears app plan microtasks from constitution-backed research. Use when Codex must turn research explanations into approved ordered ledger tasks before functional graph modeling.
 ---
 
 # App Plan
@@ -16,13 +16,13 @@ Create only ordered, decision-complete microtasks tied to constitution refs and 
 - `waves/<wave-id>/research.md`
 - `docs/app-task-ledger.v1.json` when present.
 - Current implemented-state notes when present.
-- Host policy notes when supplied by the live session.
+- Execution constraints when supplied by the live session.
 
 ## Outputs
 
 - `waves/<wave-id>/plan.md`
 - Updated `docs/app-task-ledger.v1.json`
-- Ordered microtasks for `app-functional-graph`
+- Approved ordered microtasks for `app-functional-graph`
 - `constitution_update_needed` or `research_update_needed` note when planning finds a missing upstream link.
 
 ## Planning steps
@@ -31,7 +31,7 @@ Create only ordered, decision-complete microtasks tied to constitution refs and 
 2. List constitution ids explained by the wave.
 3. Confirm every planned item has a source-backed research explanation.
 4. Create ordered microtasks only for decision-complete scope.
-5. Attach constitution refs, research refs, target paths, definition of done, proof requirement, owner role, critic role, dependencies, and status.
+5. Attach constitution refs, research refs, target paths, dependencies, planned owner role, planned critic role, definition of done, proof requirement, and status.
 6. Set new decision-complete microtasks to `ready_for_graph`.
 7. Route the completed plan to `app-functional-graph`.
 
@@ -43,6 +43,8 @@ Create only ordered, decision-complete microtasks tied to constitution refs and 
 - Keep execution order explicit through `order` and `depends_on`.
 - Use `blocked_by_decision` for tasks that need clarification.
 - Use `blocked_by_research` for tasks that lack research explanation.
-- Host policy can constrain target paths or proof, but it does not replace constitution refs.
+- Treat `owner_role` and `critic_role` as planned roles; `subagents-roles` confirms them before dispatch.
+- Set `proof_requirement` to existing evidence, generated automation evidence after it exists, or `none-required`; do not create testing software by default.
+- Execution constraints can constrain target paths or proof, but they do not replace constitution refs.
 - Do not route directly to `app-dev`.
 - Do not ask agents to run validation, test, audit, route, cache, cachebuster, quick-validate, or plugin-validate scripts manually.

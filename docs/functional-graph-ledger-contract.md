@@ -6,13 +6,14 @@
 - `waves/<wave-id>/research.md` owns source-backed explanation of constitution ids.
 - `waves/<wave-id>/plan.md` and `docs/app-task-ledger.v1.json` own ordered microtasks.
 - `docs/app-functional-graph.v1.json` owns the dev-stage model built from approved microtasks.
-- Host policy, when present, constrains execution but does not own functional truth.
+- Execution constraints, when present, constrain execution but do not own functional truth.
 
 ## Graph node requirements
 
 Every graph node must include:
 
 - `node_id`: stable id inside one functionality.
+- `functionality_id`: stable function record id; graph refs use `<functionality_id>:<node_id>`.
 - `kind`: `ui`, `api`, `state`, `job`, `integration`, `data`, `error`, `instruction`, or `workflow`.
 - `dev_model_kind`: `implementation`, `review`, `integration`, `evidence`, `handoff`, or `analysis`.
 - `constitution_refs`: one or more ids from `docs/app-constitution.md`.
@@ -58,17 +59,17 @@ Every ledger microtask must include:
 
 Allowed `status` values: `proposed`, `blocked_by_decision`, `blocked_by_research`, `ready_for_graph`, `graph_modeled`, `ready_for_dev`, `in_progress`, `in_review`, `done`, `superseded`, `blocked`.
 
-`app-plan` creates microtasks with empty `graph_node_refs` or existing backlinks. `app-functional-graph` fills graph backlinks after it creates graph nodes from approved microtasks.
+`app-plan` creates approved microtasks with empty `graph_node_refs` or existing backlinks. `app-functional-graph` fills graph backlinks after it creates graph nodes from approved microtasks.
 
 ## Backlink rules
 
 - `app-plan` may reference existing graph nodes only when a task is being revised after graph modeling.
 - `app-plan` must not create graph node ids for new scope.
 - `app-functional-graph` creates graph node refs and writes them back to matching ledger tasks.
-- Existing graph ids referenced by ledger tasks must not be deleted. Supersede them and add replacement ids.
+- Existing graph ids referenced by ledger tasks must not be deleted. Supersede them and add replacement ids when contracts, skills, templates, or manifest entries change behavior.
 
 ## Readiness rules
 
-- `ready_for_graph`: microtask has constitution refs, research refs, target paths, definition of done, and proof requirement.
+- `ready_for_graph`: microtask has constitution refs, research refs, target paths, dependencies, owner role, critic role, definition of done, and proof requirement.
 - `graph_modeled`: microtask has matching graph node refs with complete lineage.
 - `ready_for_dev`: graph node dependencies are modeled and role coverage exists.

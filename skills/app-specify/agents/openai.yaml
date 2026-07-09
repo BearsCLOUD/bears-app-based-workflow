@@ -1,4 +1,4 @@
-openai:
+interface:
   display_name: "App Specify"
-  short_description: "Clarify research blockers"
-  default_prompt: "Use $app-specify as a helper to clarify research blockers and fold decisions back into the wave."
+  short_description: "Clarify blocked research questions"
+  default_prompt: "Use $app-specify to clarify research blockers and fold decisions back into the wave."

@@ -1,4 +1,4 @@
-openai:
+interface:
   display_name: "App Dev"
-  short_description: "Dispatch graph-ready tasks"
-  default_prompt: "Use $app-dev to dispatch only graph-backed ledger tasks with complete constitution, research, and plan lineage."
+  short_description: "Run graph-ready sequential handoffs"
+  default_prompt: "Use $app-dev to execute only graph-backed ledger tasks with complete constitution, research, and plan lineage."

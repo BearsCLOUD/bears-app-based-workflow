@@ -1,11 +1,11 @@
 {
-  "name": "bears-plugin",
+  "name": "bears-app-based-workflow",
   "interface": {
-    "displayName": "Bears Plugin"
+    "displayName": "Bears App-Based Workflow"
   },
   "plugins": [
     {
-      "name": "bears",
+      "name": "bears-app-based-workflow",
       "source": {
         "source": "local",
         "path": "."

@@ -1,6 +1,4 @@
 interface:
   display_name: "Python Codeflow"
-  short_description: "L3-local Python standard"
-  default_prompt: "Use $python-codeflow inside a bounded L3 task that changes Python code; it does not own app-dev orchestration or GitHub Project state."
-policy:
-  allow_implicit_invocation: true
+  short_description: "Guide bounded Python changes"
+  default_prompt: "Use $python-codeflow to structure a bounded Python implementation packet."

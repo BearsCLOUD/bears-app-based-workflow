@@ -1,6 +1,0 @@
-{
-  "schema": "bears-inference-facts.v1",
-  "facts": [
-    {"schema":"bears-inference-fact.v1","fact_id":"fixture-candidate-role-owns-file","predicate":"role_owns_file","arguments":["candidate-role","candidate-file.py"],"source":"manual_review","confidence":"candidate","evidence_paths":["tests/fixtures/workflow_inference/bad/candidate-can-write.json"]}
-  ]
-}

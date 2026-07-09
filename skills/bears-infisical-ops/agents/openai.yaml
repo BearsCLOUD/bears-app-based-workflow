@@ -1,4 +1,0 @@
-interface:
-  display_name: "Bears Infisical Ops"
-  short_description: "Safe Infisical and ExternalSecret checks"
-  default_prompt: "Use $bears-infisical-ops to verify Infisical, ExternalSecret, ClusterSecretStore, and Telegram session custody readiness without reading or printing secret values."

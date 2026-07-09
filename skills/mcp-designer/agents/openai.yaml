@@ -1,0 +1,4 @@
+interface:
+  display_name: "MCP Designer"
+  short_description: "Design MCP tools and contracts"
+  default_prompt: "Use $mcp-designer to design an MCP surface with exact tools, schemas, and response budgets."

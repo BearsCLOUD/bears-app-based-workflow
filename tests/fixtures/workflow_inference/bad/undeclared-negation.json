@@ -1,6 +1,0 @@
-{
-  "schema": "bears-workflow-inference-rules.v1",
-  "rules": [
-    {"schema":"bears-inference-rule.v1","rule_id":"bad-negation","group":"manual_review_required","head":{"predicate":"manual_review_required","arguments":["goal","reason"]},"body":[{"predicate":"not_declared","arguments":["goal"],"negated":true,"requires_closed_world":true}],"confidence_policy":"candidate_to_manual_review","stratified":true,"proof_required":true}
-  ]
-}

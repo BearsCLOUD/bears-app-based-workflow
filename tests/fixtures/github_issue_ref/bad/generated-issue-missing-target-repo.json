@@ -1,7 +1,0 @@
-{
-  "schema": "bears-github-issue-ref-fixture.v1",
-  "fixture_kind": "generated_issue_packet",
-  "target_issue_number_or_null": null,
-  "title": "Future seller migration task",
-  "expected_error": "target_repo: explicit owner/repo is required"
-}

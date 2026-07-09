@@ -1,1 +1,0 @@
-"""Bears plugin Python package."""

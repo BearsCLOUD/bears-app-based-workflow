@@ -1,50 +1,45 @@
 {
+  "name": "bears-app-based-workflow",
+  "version": "0.1.0+codex.20260709135100",
+  "description": "Spec Kit-style app workflow plugin for Bears waves, functional graphs, task ledgers, and parallel app development orchestration.",
   "author": {
-    "email": "noreply@example.invalid",
-    "name": "Bears Workspace",
-    "url": "https://bears.local"
+    "name": "BearsCLOUD",
+    "url": "https://github.com/BearsCLOUD"
   },
-  "description": "Bears local tooling package. It is not an instruction source.",
-  "homepage": "https://bears.local/plugins/bears",
-  "interface": {
-    "brandColor": "#F97316",
-    "capabilities": [
-      "Local CD executor scripts",
-      "Machine-readable schema pointers",
-      "Preserved non-discoverable migration evidence"
-    ],
-    "category": "Development",
-    "developerName": "Bears Workspace",
-    "displayName": "Bears",
-    "longDescription": "This package provides local scripts and data files only. It must not expose skills, hooks, role profiles, prompts, or workflow policy. Agent behavior is owned by active AGENTS.md files and tracked non-plugin contracts.",
-    "privacyPolicyURL": "https://bears.local/privacy",
-    "shortDescription": "Bears local tooling package; no agent instructions.",
-    "termsOfServiceURL": "https://bears.local/terms",
-    "websiteURL": "https://bears.local/plugins/bears"
-  },
+  "homepage": "https://github.com/BearsCLOUD/bears-app-based-workflow",
+  "repository": "https://github.com/BearsCLOUD/bears-app-based-workflow",
+  "license": "MIT",
   "keywords": [
-    "bears-tooling",
-    "automatic-cd",
-    "kubernetes-cd",
-    "schema-pointers",
-    "local-scripts"
+    "bears",
+    "spec-kit",
+    "waves",
+    "functional-graph",
+    "task-ledger",
+    "subagents"
   ],
-  "license": "UNLICENSED",
-  "metadata": {
-    "automaticKubernetesCd": {
-      "executor": "scripts/bears_auto_cd.py",
-      "gitContractFallback": "assets/catalog/git-deploy-contract.v1.json",
-      "cdContractFallback": "assets/catalog/cd-kube-deploy-contract.v1.json",
-      "repoPolicyPreferred": "local_cd/policy/*.v1.json"
-    },
-    "instructionSource": {
-      "enabled": false,
-      "activeSkills": false,
-      "activeHooks": false,
-      "activeRoleProfiles": false
-    }
-  },
-  "name": "bears",
-  "repository": "https://github.com/BearsCLOUD/bears_plugin",
-  "version": "0.1.0"
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Bears App-Based Workflow",
+    "shortDescription": "Wave-based app specification, planning, analysis, and development orchestration.",
+    "longDescription": "Bears App-Based Workflow provides a Spec Kit-style application workflow: constitution, research waves, detailed specification, functional graph planning, ledger tasks, analysis, and parallel app-dev orchestration.",
+    "developerName": "BearsCLOUD",
+    "category": "Development",
+    "capabilities": [
+      "Spec Kit-style app workflow",
+      "Wave research and synchronization",
+      "Detailed app specification",
+      "Functional graph planning",
+      "Graph-linked task ledger",
+      "Implementation analysis",
+      "Parallel L2/L3 app-dev orchestration",
+      "Instruction hardening"
+    ],
+    "websiteURL": "https://github.com/BearsCLOUD/bears-app-based-workflow",
+    "defaultPrompt": [
+      "Research app feature waves.",
+      "Plan unbuilt app functionality.",
+      "Dev ready wave with subagents."
+    ],
+    "brandColor": "#3B82F6"
+  }
 }

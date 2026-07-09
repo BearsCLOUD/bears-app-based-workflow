@@ -1,0 +1,98 @@
+{
+  "schema": "bears-principles.v1",
+  "version": "1",
+  "updated": "2026-06-25",
+  "owner_role": "bears-machine-first-execution-kernel-engineer",
+  "principles": [
+    {
+      "principle_id": "machine_contracts_over_prose",
+      "status": "active",
+      "severity": "blocking",
+      "rule": "Workflow authority must come from schemas, catalogs, scripts, packets, or explicit issue contracts, not from loose prose.",
+      "validator": "scripts/bears_principles.py decision-check --packet <path>",
+      "decision_required_when": ["workflow authority changes", "validator behavior changes"],
+      "exceptions": []
+    },
+    {
+      "principle_id": "cheap_research_by_default",
+      "status": "active",
+      "severity": "warning",
+      "rule": "Start with bounded issue, repository, and contract research before implementation edits.",
+      "validator": "scripts/bears_principles.py decision-check --packet <path>",
+      "decision_required_when": ["new workflow surface", "drift-prone behavior"],
+      "exceptions": []
+    },
+    {
+      "principle_id": "no_parent_context_for_shards",
+      "status": "active",
+      "severity": "blocking",
+      "rule": "Shard execution must receive exact packets and evidence paths instead of inherited parent chat context.",
+      "validator": "scripts/bears_principles.py decision-check --packet <path>",
+      "decision_required_when": ["codex_exec shard behavior changes"],
+      "exceptions": []
+    },
+    {
+      "principle_id": "no_silent_role_omission",
+      "status": "active",
+      "severity": "blocking",
+      "rule": "A platform surface without exact role coverage must stop at role-development actions.",
+      "validator": "scripts/subagents_roles.py audit <target>",
+      "decision_required_when": ["new platform surface", "new validator surface"],
+      "exceptions": []
+    },
+    {
+      "principle_id": "codex_exec_requires_gate",
+      "status": "active",
+      "severity": "blocking",
+      "rule": "codex_exec work must include role packets, allowed paths, forbidden paths, and a required result packet.",
+      "validator": "scripts/delivery_manifest.py validate",
+      "decision_required_when": ["codex_exec execution changes"],
+      "exceptions": []
+    },
+    {
+      "principle_id": "deterministic_runner_before_llm",
+      "status": "active",
+      "severity": "warning",
+      "rule": "Run deterministic runners for planning, review, closeout, and direct validation when a runner exists.",
+      "validator": "scripts/delivery_manifest.py validate",
+      "decision_required_when": ["runner selection changes"],
+      "exceptions": []
+    },
+    {
+      "principle_id": "main_only_closeout_authority",
+      "status": "active",
+      "severity": "blocking",
+      "rule": "Issue closeout authority belongs to the canonical main checkout and exact closeout proof.",
+      "validator": "scripts/bears_doctor.py validate-closeout --from-git <range> --json",
+      "decision_required_when": ["closeout authority changes"],
+      "exceptions": []
+    },
+    {
+      "principle_id": "exact_proof_before_issue_close",
+      "status": "active",
+      "severity": "blocking",
+      "rule": "Closing an issue requires exact local commit validation proof and durable closeout evidence.",
+      "validator": "scripts/bears_doctor.py validate-closeout --from-git <range> --json",
+      "decision_required_when": ["issue closeout changes"],
+      "exceptions": []
+    },
+    {
+      "principle_id": "no_unbounded_autostart",
+      "status": "active",
+      "severity": "blocking",
+      "rule": "Autostart must require bounded manifests, leases, scopes, and kill-switch gates.",
+      "validator": "scripts/issue_autostart.py validate",
+      "decision_required_when": ["autostart behavior changes"],
+      "exceptions": []
+    },
+    {
+      "principle_id": "roadmap_leaf_before_execution",
+      "status": "active",
+      "severity": "blocking",
+      "rule": "Execution starts only from eligible unblocked roadmap leaf nodes with ready dependencies.",
+      "validator": "scripts/workflow_roadmap.py next --json",
+      "decision_required_when": ["roadmap execution selection changes"],
+      "exceptions": []
+    }
+  ]
+}

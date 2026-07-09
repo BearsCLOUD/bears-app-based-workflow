@@ -1,0 +1,228 @@
+{
+  "owner_role": "bears-development-workflow-orchestrator",
+  "questions": [
+    {
+      "answer_format": "json_object",
+      "answer_type": "json_evidence",
+      "applies_to": [
+        "start",
+        "resume",
+        "step"
+      ],
+      "blocks_when_missing": true,
+      "prompt": "Provide a JSON object answer for what_is_source_of_truth.",
+      "question": "what is source of truth?",
+      "question_class": "what_is_source_of_truth",
+      "question_id": "what_is_source_of_truth",
+      "required_evidence": [
+        "what_is_source_of_truth_evidence"
+      ]
+    },
+    {
+      "answer_format": "json_object",
+      "answer_type": "manual_review",
+      "applies_to": [
+        "start",
+        "resume",
+        "step"
+      ],
+      "blocks_when_missing": false,
+      "prompt": "Provide a JSON object answer for what_is_smallest_verifiable_goal.",
+      "question": "what is smallest verifiable goal?",
+      "question_class": "what_is_smallest_verifiable_goal",
+      "question_id": "what_is_smallest_verifiable_goal",
+      "required_evidence": []
+    },
+    {
+      "answer_format": "json_object",
+      "answer_type": "manual_review",
+      "applies_to": [
+        "start",
+        "resume",
+        "step"
+      ],
+      "blocks_when_missing": false,
+      "prompt": "Provide a JSON object answer for is_research_required.",
+      "question": "is research required?",
+      "question_class": "is_research_required",
+      "question_id": "is_research_required",
+      "required_evidence": []
+    },
+    {
+      "answer_format": "json_object",
+      "answer_type": "manual_review",
+      "applies_to": [
+        "start",
+        "resume",
+        "step"
+      ],
+      "blocks_when_missing": false,
+      "prompt": "Provide a JSON object answer for is_planning_required.",
+      "question": "is planning required?",
+      "question_class": "is_planning_required",
+      "question_id": "is_planning_required",
+      "required_evidence": []
+    },
+    {
+      "answer_format": "json_object",
+      "answer_type": "json_evidence",
+      "applies_to": [
+        "start",
+        "resume",
+        "step"
+      ],
+      "blocks_when_missing": true,
+      "prompt": "Provide a JSON object answer for which_executor_is_allowed.",
+      "question": "which executor is allowed?",
+      "question_class": "which_executor_is_allowed",
+      "question_id": "which_executor_is_allowed",
+      "required_evidence": [
+        "which_executor_is_allowed_evidence"
+      ]
+    },
+    {
+      "answer_format": "json_object",
+      "answer_type": "manual_review",
+      "applies_to": [
+        "start",
+        "resume",
+        "step"
+      ],
+      "blocks_when_missing": true,
+      "prompt": "Provide a JSON object answer for which_role_is_required.",
+      "question": "which role is required?",
+      "question_class": "which_role_is_required",
+      "question_id": "which_role_is_required",
+      "required_evidence": [
+        "which_role_is_required_evidence"
+      ]
+    },
+    {
+      "answer_format": "json_object",
+      "answer_type": "manual_review",
+      "applies_to": [
+        "start",
+        "resume",
+        "step"
+      ],
+      "blocks_when_missing": true,
+      "prompt": "Provide a JSON object answer for which_role_is_not_required_and_why.",
+      "question": "which role is not required and why?",
+      "question_class": "which_role_is_not_required_and_why",
+      "question_id": "which_role_is_not_required_and_why",
+      "required_evidence": [
+        "which_role_is_not_required_and_why_evidence"
+      ]
+    },
+    {
+      "answer_format": "json_object",
+      "answer_type": "manual_review",
+      "applies_to": [
+        "start",
+        "resume",
+        "step"
+      ],
+      "blocks_when_missing": false,
+      "prompt": "Provide a JSON object answer for which_model_tier_is_allowed.",
+      "question": "which model tier is allowed?",
+      "question_class": "which_model_tier_is_allowed",
+      "question_id": "which_model_tier_is_allowed",
+      "required_evidence": []
+    },
+    {
+      "answer_format": "json_object",
+      "answer_type": "manual_review",
+      "applies_to": [
+        "start",
+        "resume",
+        "step"
+      ],
+      "blocks_when_missing": false,
+      "prompt": "Provide a JSON object answer for which_mcp_tools_are_allowed.",
+      "question": "which mcp tools are allowed?",
+      "question_class": "which_mcp_tools_are_allowed",
+      "question_id": "which_mcp_tools_are_allowed",
+      "required_evidence": []
+    },
+    {
+      "answer_format": "json_object",
+      "answer_type": "manual_review",
+      "applies_to": [
+        "start",
+        "resume",
+        "step"
+      ],
+      "blocks_when_missing": false,
+      "prompt": "Provide a JSON object answer for which_files_can_be_read.",
+      "question": "which files can be read?",
+      "question_class": "which_files_can_be_read",
+      "question_id": "which_files_can_be_read",
+      "required_evidence": []
+    },
+    {
+      "answer_format": "json_object",
+      "answer_type": "manual_review",
+      "applies_to": [
+        "start",
+        "resume",
+        "step"
+      ],
+      "blocks_when_missing": false,
+      "prompt": "Provide a JSON object answer for which_files_can_be_written.",
+      "question": "which files can be written?",
+      "question_class": "which_files_can_be_written",
+      "question_id": "which_files_can_be_written",
+      "required_evidence": []
+    },
+    {
+      "answer_format": "json_object",
+      "answer_type": "json_evidence",
+      "applies_to": [
+        "start",
+        "resume",
+        "step"
+      ],
+      "blocks_when_missing": true,
+      "prompt": "Provide a JSON object answer for what_is_validation_gate.",
+      "question": "what is validation gate?",
+      "question_class": "what_is_validation_gate",
+      "question_id": "what_is_validation_gate",
+      "required_evidence": [
+        "what_is_validation_gate_evidence"
+      ]
+    },
+    {
+      "answer_format": "json_object",
+      "answer_type": "manual_review",
+      "applies_to": [
+        "start",
+        "resume",
+        "step"
+      ],
+      "blocks_when_missing": false,
+      "prompt": "Provide a JSON object answer for what_is_closeout_gate.",
+      "question": "what is closeout gate?",
+      "question_class": "what_is_closeout_gate",
+      "question_id": "what_is_closeout_gate",
+      "required_evidence": []
+    },
+    {
+      "answer_format": "json_object",
+      "answer_type": "manual_review",
+      "applies_to": [
+        "start",
+        "resume",
+        "step"
+      ],
+      "blocks_when_missing": false,
+      "prompt": "Provide a JSON object answer for what_feedback_updates_roadmap.",
+      "question": "what feedback updates roadmap?",
+      "question_class": "what_feedback_updates_roadmap",
+      "question_id": "what_feedback_updates_roadmap",
+      "required_evidence": []
+    }
+  ],
+  "schema": "bears-goal-question-bank.v1",
+  "updated": "2026-06-25",
+  "version": "1"
+}

@@ -1,0 +1,301 @@
+{
+  "schema": "bears-github-project-subagents.v1",
+  "version": "1",
+  "updated": "2026-07-03",
+  "owner_role": "bears-github-project-issues-orchestrator",
+  "parent_lane": {
+    "role": "parent-control-lane",
+    "model": "surface_default",
+    "reasoning": "surface_default",
+    "allowed_actions": [
+      "select GitHub Project, repositories, issues, and L2 orchestrator lanes",
+      "start L2 orchestrator subagents or attach to authorized existing lanes",
+      "pass GitHub metadata packets and route/audit targets",
+      "wait for L2 evidence and integrate closeout packets",
+      "request gitflow closeout from bears-git-workflow-helper",
+      "reject fallback runtime proxy PASS after elapsed time greater than 300 seconds",
+      "run capacity preflight before parallel L2 fan-out: prove available L2 slots, each lane L3 spawn capacity, exact issue scope, target file or contract, validation path, and 240s/270s cutoff",
+      "fan out parallel L2 lanes only after capacity preflight proves disjoint dependency-ready scope and child capacity",
+      "reject L2 packets that miss the first-minute READY/WIP/FAST_BLOCKER parent-visible status gate"
+    ],
+    "forbidden_actions": [
+      "implementation file writes",
+      "implementation shell commands",
+      "git add, git commit, git push, merge, or force push",
+      "runtime, deploy, provider, secret, repository settings, or production mutation",
+      "raw logs, secrets, credentials, private chats, raw VPN configs, or production data reads",
+      "reusing fallback L2 implementation pools until BearsCLOUD/bears_plugin#25 enforcement is present",
+      "parallel L2 fan-out without capacity preflight",
+      "accepting L2 PASS, READY, or WIP after elapsed time greater than 300 seconds",
+      "retrying a timed-out lane without decomposing smaller and updating BearsCLOUD/bears_plugin#26",
+      "accepting post-cutoff cleanup success as CLEANUP_PASS instead of drift evidence"
+    ]
+  },
+  "l2_orchestrator": {
+    "role": "bears-github-project-issues-orchestrator",
+    "model": "gpt-5.5",
+    "reasoning": "medium",
+    "allowed_actions": [
+      "read assigned GitHub Project, Issue, Pull Request, Actions, Release, Discussion, Wiki, Package, Deployment, label, milestone, branch, commit, and code scanning metadata",
+      "mutate Issues, sub-issues, Project items, Project fields, labels, milestones, assignees, links, and issue comments only when the parent packet authorizes mutation",
+      "prepare L3 /goal packets for route-selected @Bears roles",
+      "record role-gap blockers when route/audit or role text is unsafe",
+      "write evidence-backed Project and Issue closeout metadata after L3 evidence",
+      "route through bears-development-workflow-orchestrator as runtime proxy only with explicit role=bears-github-project-issues-orchestrator and the fallback deadline guard present",
+      "return exactly one parent-visible READY, WIP, or FAST_BLOCKER packet inside the first minute",
+      "when L3 spawn fails or capacity is unavailable, create or update a smaller Issue or issue comment, close owned descendants, and return FAST_BLOCKER",
+      "for one L2 retry choose one issue, one L3 max, one target file or contract, and one validation path",
+      "require exact new-file authorization from the Issue body, sub-issue, or parent packet before spawning any L3 that creates a file",
+      "close owned L3 descendants and return FAST_BLOCKER before 240 seconds when final PASS evidence is not ready",
+      "run post-close bounded WIP proof with git status for tracked targets and test ! -e for expected-new-file targets before claiming clean or absent",
+      "update BearsCLOUD/bears_plugin#26 with lane id, elapsed seconds, target, WIP proof, and next smaller metadata-only action when repeated timeout occurs",
+      "prefer metadata-only Issue or comment reinforcement before spawning another L3 after timeout drift",
+      "return a parent-visible final packet before the parent wait limit for every file-changing L2 lane",
+      "run cleanup as a separate first-class L2 lane with a shorter cleanup cutoff than implementation lanes",
+      "require each cleanup L2 packet to name exactly one cleanup target, one status proof command, and no issue metadata mutation unless explicitly assigned",
+      "return parent-visible CLEANUP_PASS or FAST_BLOCKER before the parent cutoff for every cleanup lane",
+      "require the parent persistent gitflow handoff packet for file-changing commit/push closeout and return the gitflow-ready allowlist plus commit message to the parent",
+      "return FAST_BLOCKER before accepting file-changing work when the parent persistent gitflow handoff is absent, stale, or unauthorized",
+      "record BearsCLOUD/apps#107 commit 3d1addaa6bab6579e93d9617d3d5ba81bdbd69aa as post-cutoff PASS drift evidence only, not as a repeatable closeout pattern",
+      "record the BearsCLOUD/apps#105 and BearsCLOUD/apps#110 cleanup timeout event as drift evidence only, not as a repeatable cleanup pattern",
+      "inspect assigned Issue labels and latest checkpoint comments before L3 dispatch or file-changing work",
+      "return FAST_BLOCKER or metadata-only output before file-changing work when labels include validation-conflict, blocked, objective-runtime-proof-required, or needs-gitflow-closeout without parent-issued commit-closeout scope",
+      "treat CHECKPOINT_STATUS: BLOCKED / validation contract conflict before closeout as a no-L3 blocker",
+      "treat gitflow-ready as parent gitflow closeout scope only; gitflow-ready is not permission to implement more code",
+      "record BearsCLOUD/apps#110 lane 019f27ca-3d8d-7540-aa10-6edff4efcdf5 as validation-conflict drift evidence only, not as a repeatable pattern"
+    ],
+    "forbidden_actions": [
+      "implementation file writes",
+      "implementation shell commands",
+      "git add, git commit, git push, merge, or force push",
+      "repository settings, branch protection, secrets, variables, webhooks, environments, deploy keys, Apps, organization settings, billing, or production mutation",
+      "raw GitHub Actions log reads unless a separate exact role and operator packet authorize them",
+      "fallback L2 work continuing after 240 seconds without ready PASS proof",
+      "leaving WIP after FAST_BLOCKER or timeout",
+      "returning PASS after elapsed time greater than 300 seconds",
+      "broad Project scans when parent-provided exact Issues and route/audit evidence are sufficient",
+      "implementation pools before BearsCLOUD/bears_plugin#25 runtime proxy enforcement is present",
+      "missing the first-minute READY/WIP/FAST_BLOCKER packet",
+      "continuing silently after L3 spawn fails or capacity is unavailable",
+      "leaving descendants open after 240 seconds or after the 270 seconds hard stop",
+      "retrying with more than one issue, one L3 max, one target file or contract, or one validation path after timeout",
+      "repeated timeout without updating BearsCLOUD/bears_plugin#26 and decomposing smaller",
+      "spawning L3 new-file work without exact new-file authorization from the Issue body, sub-issue, or parent packet",
+      "waiting for L3 after 240 seconds when final PASS evidence is not already ready",
+      "claiming clean or absent after closeout without post-close bounded WIP proof",
+      "treating cleanup lane timeout as CLEANED_NO_WIP or PASS instead of workflow drift",
+      "treating post-cutoff cleanup success as accepted CLEANUP_PASS or normal closeout",
+      "running cleanup with more than one cleanup target or more than one status proof command",
+      "mutating issue metadata from a cleanup lane unless explicitly assigned",
+      "spawning another L3 after repeated timeout before metadata-only reinforcement or exact parent reauthorization",
+      "using an L2-owned gitflow lane for file-changing closeout instead of the parent persistent gitflow handoff",
+      "accepting file-changing work before parent persistent gitflow handoff is present and authorized",
+      "missing the parent-visible final packet before the parent wait limit for file-changing work",
+      "treating post-cutoff PASS evidence, including BearsCLOUD/apps#107 commit 3d1addaa6bab6579e93d9617d3d5ba81bdbd69aa, as normal closeout",
+      "spawning L3 or doing file-changing work before validation-conflict label and latest checkpoint comments preflight",
+      "implementing when validation-conflict, blocked, objective-runtime-proof-required, or needs-gitflow-closeout labels require FAST_BLOCKER or metadata-only output",
+      "treating CHECKPOINT_STATUS: BLOCKED / validation contract conflict before closeout as implementation-ready",
+      "treating gitflow-ready as permission to implement more code without parent-issued commit-closeout scope"
+    ]
+  },
+  "l3_worker": {
+    "role": "route-selected @Bears specialist or helper",
+    "model": "gpt-5.4-mini",
+    "reasoning": "high",
+    "allowed_actions": [
+      "execute one issue or Project item slice inside one repo boundary and one allowed write scope",
+      "run only assignment-authorized validations",
+      "return changed files, validation evidence, blockers, and GitHub closeout data"
+    ],
+    "forbidden_actions": [
+      "scope expansion beyond the route/audit packet",
+      "unassigned GitHub metadata mutation",
+      "secret, raw log, private chat, raw VPN config, or production data reads",
+      "deploy or runtime mutation unless the exact route and operator packet authorize it",
+      "creating a new file without exact new-file authorization passed by L2 from the Issue body, sub-issue, or parent packet",
+      "reporting PASS after the parent 300 second ceiling or after L2 closeout"
+    ]
+  },
+  "github_surfaces": [
+    {
+      "name": "projects_v2",
+      "coverage": [
+        "Project owner",
+        "number",
+        "items",
+        "views",
+        "fields",
+        "field options",
+        "workflows",
+        "charts",
+        "draft issues",
+        "linked issues",
+        "linked pull requests"
+      ],
+      "allowed_lanes": [
+        "parent-control",
+        "l2-orchestrator"
+      ],
+      "mutation_policy": "L2 may mutate Project items and fields only with parent packet authorization and after evidence exists."
+    },
+    {
+      "name": "issues",
+      "coverage": [
+        "issue type",
+        "state",
+        "body",
+        "comments",
+        "labels",
+        "milestone",
+        "assignees",
+        "timeline",
+        "linked branch",
+        "linked pull request",
+        "dependencies"
+      ],
+      "allowed_lanes": [
+        "l2-orchestrator",
+        "l3-worker-closeout"
+      ],
+      "mutation_policy": "L2 owns planning metadata; L3 returns closeout text for L2 to apply."
+    },
+    {
+      "name": "sub_issues",
+      "coverage": [
+        "parent issue",
+        "child issue",
+        "priority",
+        "progress",
+        "multi-level decomposition"
+      ],
+      "allowed_lanes": [
+        "l2-orchestrator"
+      ],
+      "mutation_policy": "L2 may create, attach, detach, or reprioritize sub-issues only for the assigned parent objective."
+    },
+    {
+      "name": "pull_requests",
+      "coverage": [
+        "review state",
+        "mergeability",
+        "linked issues",
+        "check suites",
+        "review comments metadata",
+        "base/head refs"
+      ],
+      "allowed_lanes": [
+        "l2-orchestrator",
+        "gitflow-closeout"
+      ],
+      "mutation_policy": "L2 may link and summarize PR metadata; gitflow owns commit/push and PR closeout when assigned."
+    },
+    {
+      "name": "actions_checks",
+      "coverage": [
+        "workflow runs",
+        "check suites",
+        "check runs",
+        "conclusions",
+        "artifacts metadata",
+        "rerun eligibility"
+      ],
+      "allowed_lanes": [
+        "l2-orchestrator",
+        "route-selected ci reviewer"
+      ],
+      "mutation_policy": "Metadata-only by default; raw logs and reruns require exact role plus operator authorization."
+    },
+    {
+      "name": "releases_tags_packages",
+      "coverage": [
+        "tags",
+        "releases",
+        "release notes",
+        "assets metadata",
+        "packages metadata",
+        "container package refs"
+      ],
+      "allowed_lanes": [
+        "l2-orchestrator",
+        "gitflow-closeout",
+        "release role"
+      ],
+      "mutation_policy": "Versioned delivery mutation requires exact delivery route and parent packet."
+    },
+    {
+      "name": "discussions_wiki_pages",
+      "coverage": [
+        "decision discussions",
+        "Q&A",
+        "announcements",
+        "wiki pages",
+        "non-actionable planning records"
+      ],
+      "allowed_lanes": [
+        "l2-orchestrator"
+      ],
+      "mutation_policy": "Allowed for non-actionable decisions and public knowledge; do not replace Issues for work tracking."
+    },
+    {
+      "name": "code_security_metadata",
+      "coverage": [
+        "code scanning alerts",
+        "secret scanning alert metadata",
+        "dependabot alerts",
+        "security advisories"
+      ],
+      "allowed_lanes": [
+        "route-selected security reviewer"
+      ],
+      "mutation_policy": "Read metadata only; no raw secret values, private payloads, dismissals, or settings mutation without exact security packet."
+    },
+    {
+      "name": "deployments_environments",
+      "coverage": [
+        "deployment records",
+        "environment names",
+        "deployment status metadata",
+        "protection rule metadata"
+      ],
+      "allowed_lanes": [
+        "l2-orchestrator",
+        "infra/deploy/kube audit lane"
+      ],
+      "mutation_policy": "Metadata-only for planning; runtime or environment mutation is forbidden outside exact deploy route."
+    },
+    {
+      "name": "repository_collaboration_metadata",
+      "coverage": [
+        "branches",
+        "commits",
+        "compare",
+        "code owners",
+        "repository topics",
+        "repository rules metadata",
+        "teams metadata"
+      ],
+      "allowed_lanes": [
+        "l2-orchestrator",
+        "gitflow-closeout"
+      ],
+      "mutation_policy": "Read-only by default; repository settings, branch protection, teams, Apps, and webhooks are forbidden."
+    }
+  ],
+  "forbidden_mutations": [
+    "repository settings",
+    "branch protection",
+    "organization settings",
+    "secrets or variables",
+    "webhooks",
+    "deploy keys",
+    "GitHub Apps installation settings",
+    "billing",
+    "environment protection rules",
+    "raw secret, raw log, private chat, raw VPN config, or production data access"
+  ],
+  "required_validations": [
+    "github-project-subagents.validate",
+    "subagents_roles.route.autoCI",
+    "subagents_roles.audit.autoCI"
+  ]
+}

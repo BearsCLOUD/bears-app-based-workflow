@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://bears.local/schemas/git-workflow-runner-packet.v1.schema.json",
+  "title": "Bears git workflow runner packet",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "version", "command_id", "repo_path", "expected_branch", "start_sha", "allowed_files", "forbid_force_push", "max_output_bytes"],
+  "properties": {
+    "schema": {"const": "bears-git-workflow-runner-packet.v1"},
+    "version": {"type": "string"},
+    "command_id": {"type": "string", "minLength": 3},
+    "repo_path": {"type": "string", "minLength": 1},
+    "expected_branch": {"type": "string", "minLength": 1},
+    "start_sha": {"type": "string", "minLength": 7},
+    "allowed_files": {"type": "array", "items": {"type": "string"}},
+    "forbid_force_push": {"type": "boolean"},
+    "max_output_bytes": {"type": "integer"}
+  }
+}

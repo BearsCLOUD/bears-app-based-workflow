@@ -1,0 +1,18 @@
+{
+  "body": "Change cross-repo automation for all repos under /srv/bears without explicit route data.",
+  "labels": [
+    {
+      "name": "bears:auto-start"
+    },
+    {
+      "name": "scope:bears-plugin"
+    }
+  ],
+  "number": 499,
+  "repo": "BearsCLOUD/bears_plugin",
+  "schema": "bears-issue-intake.v1",
+  "state": "OPEN",
+  "title": "Cross-repo mutation without route metadata",
+  "url": "https://github.com/BearsCLOUD/bears_plugin/issues/499",
+  "version": "1"
+}

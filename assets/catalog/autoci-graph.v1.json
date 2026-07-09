@@ -1,0 +1,65 @@
+{
+  "schema": "autoci-graph.v1",
+  "version": "1",
+  "owner_plugin": "bears",
+  "updated": "2026-07-05T00:00:00+00:00",
+  "description": "Maps app task changed paths to named automatic CI zones. Agents record zone ids in app task ledger; autoCI owns exact status execution.",
+  "zones": [
+    {
+      "id": "app-functional-graph",
+      "owner": "app-functional-graph",
+      "path_patterns": [
+        "docs/app-functional-graph.v1.json",
+        "docs/app-task-ledger.v1.json"
+      ],
+      "expected_statuses": [
+        "app-functional-graph.validate"
+      ],
+      "proof_ref_kind": "app-task-ledger.status_evidence_refs"
+    },
+    {
+      "id": "app-source",
+      "owner": "app-dev",
+      "path_patterns": [
+        "src/**",
+        "app/**",
+        "apps/**",
+        "services/**",
+        "packages/**",
+        "tests/**"
+      ],
+      "expected_statuses": [
+        "app.autoCI.fast"
+      ],
+      "proof_ref_kind": "app-task-ledger.status_evidence_refs"
+    },
+    {
+      "id": "app-docs",
+      "owner": "app-plan",
+      "path_patterns": [
+        "docs/**",
+        "README.md",
+        "AGENTS.md"
+      ],
+      "expected_statuses": [
+        "app.docs.autoCI.fast"
+      ],
+      "proof_ref_kind": "app-task-ledger.status_evidence_refs"
+    },
+    {
+      "id": "role-coverage",
+      "owner": "subagents-roles",
+      "path_patterns": [
+        "agents/*.toml",
+        "assets/catalog/platform-role-catalog.v1.json",
+        "skills/*/SKILL.md",
+        "scripts/subagents_roles.py"
+      ],
+      "expected_statuses": [
+        "subagents_roles.route.autoCI",
+        "subagents_roles.audit.autoCI"
+      ],
+      "proof_ref_kind": "local_commit_validation.autoCI_selection"
+    }
+  ]
+}

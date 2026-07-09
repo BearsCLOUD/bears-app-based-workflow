@@ -1,0 +1,104 @@
+{
+  "artifact_root": "docs/audits/external-review-2026-06-25",
+  "artifacts": [
+    {
+      "id": "package_index",
+      "kind": "human_summary",
+      "path": "docs/audits/external-review-2026-06-25/README.md",
+      "required_for_external_review": true
+    },
+    {
+      "id": "issue_state",
+      "kind": "issue_state_contract",
+      "path": "docs/audits/external-review-2026-06-25/issue-state.md",
+      "required_for_external_review": true
+    },
+    {
+      "id": "changelog",
+      "kind": "changelog_release_note_contract",
+      "path": "docs/audits/external-review-2026-06-25/changelog.md",
+      "required_for_external_review": true
+    },
+    {
+      "id": "decisions",
+      "kind": "decision_ledger_contract",
+      "path": "docs/audits/external-review-2026-06-25/decisions.md",
+      "required_for_external_review": true
+    },
+    {
+      "id": "machine_index",
+      "kind": "machine_index",
+      "path": "docs/audits/external-review-2026-06-25/audit-index.v1.json",
+      "required_for_external_review": true
+    },
+    {
+      "id": "old_backlog_reconciliation_summary",
+      "kind": "external_review_delivery_summary",
+      "path": "docs/audits/external-review-2026-06-25/old-backlog-reconciliation-summary.v1.json",
+      "required_for_external_review": true
+    }
+  ],
+  "blocking_gaps": [
+    {
+      "issue": "#404",
+      "reason": "Solved issue closeout contract is not complete until solved-open detection and close-covered closeout are implemented."
+    },
+    {
+      "issue": "#411",
+      "reason": "Repo-visible summary packet now exists; external_review_audit check-delivery must stay pass before closeout trust."
+    },
+    {
+      "issue": "#423",
+      "reason": "Open GitHub backlog is not yet ingested into executable roadmap state with fillability proof."
+    },
+    {
+      "issue": "#425",
+      "reason": "Issue state, changelog, and decisions are not yet enforced as first-class closeout surfaces."
+    }
+  ],
+  "external_review_failure_conditions": [
+    "covered issue missing from delivery manifest",
+    "solved covered issue remains open",
+    "partial or blocked issue auto-closed",
+    "behavior change missing changelog or release-note entry",
+    "governance or workflow decision missing decision-ledger entry",
+    "validation proof missing or stale",
+    "bears_doctor proof missing or stale",
+    "audit evidence exists only in chat or ignored runtime files"
+  ],
+  "forbidden_content": [
+    "raw logs",
+    "raw chat",
+    "secrets",
+    "credentials",
+    "environment values",
+    "VPN configs",
+    "production data"
+  ],
+  "purpose": "Expose issue state, changelog or release-note state, and decision records as repo-visible audit surfaces for external review.",
+  "related_issues": [
+    404,
+    411,
+    423,
+    425,
+    384,
+    388,
+    392,
+    394,
+    400,
+    403
+  ],
+  "repository": "BearsCLOUD/bears_plugin",
+  "required_audit_chain": [
+    "github_issue_state",
+    "delivery_manifest",
+    "decision_ledger",
+    "changelog_or_release_note",
+    "validation_proof",
+    "bears_doctor_closeout_summary"
+  ],
+  "schema": "bears-external-review-audit-index.v1",
+  "status": "external_review_enforced_pending_chain",
+  "updated_at": "2026-06-25T13:20:00Z",
+  "version": "1"
+}

@@ -1,0 +1,83 @@
+{
+  "description": "Deterministic L0-L3 stub matrix for GitHub issue #451.",
+  "fixture_id": "l0_l3_stub_matrix",
+  "scenarios": [
+    {
+      "allowed_paths": [],
+      "executor_mode": "none",
+      "expected_gates": {
+        "closeout": "skip",
+        "executor": "skip",
+        "file_plan": "skip",
+        "instruction_coverage": "skip",
+        "issue_intake": "skip",
+        "mcp_policy": "skip",
+        "prompt_compile": "skip",
+        "roadmap_selection": "skip",
+        "role_selection": "skip",
+        "strict_allow_exec": "skip",
+        "validator": "skip"
+      },
+      "harness_stub": {
+        "agents_selected": [],
+        "closeout_decision": "skip",
+        "closeout_packet": null,
+        "context_budget": {
+          "actual_bytes": 0,
+          "actual_files": 0,
+          "max_bytes": 0,
+          "max_files": 0
+        },
+        "denial_reason": null,
+        "evidence": [
+          {
+            "kind": "file",
+            "ref": "assets/schemas/bears-capability-scenario.v1.schema.json",
+            "sha256": null
+          }
+        ],
+        "expected_failed_gate": null,
+        "expected_result": "pass",
+        "files_changed": [],
+        "instructions_loaded": [],
+        "mcp_policy_refs": [],
+        "prompt_authority_sources": [],
+        "role_profile": null,
+        "validators_run": []
+      },
+      "level": "L0",
+      "must_not_mutate": [
+        ".git",
+        "assets/catalog",
+        "scripts",
+        "runtime",
+        "production-data"
+      ],
+      "must_not_read": [
+        ".env",
+        ".git-credentials",
+        ".config/gh/hosts.yml",
+        ".config/google-chrome",
+        "logs/raw",
+        "kubeconfig"
+      ],
+      "purpose": "Validate the governed scenario catalog and schemas without executor access.",
+      "required_reports": [
+        "bears-capability-report.v1"
+      ],
+      "scenario_id": "l0_valid_catalogs_pass",
+      "schema_version": "bears-capability-scenario.v1",
+      "source_of_truth": [
+        "AGENTS.md",
+        "assets/catalog/workflow-roadmap.v1.json",
+        "assets/catalog/issue-execution-priority.v1.json",
+        "assets/catalog/mcp-policy.v1.json",
+        "scripts/issue_autostart.py",
+        "scripts/goal_orchestrator.py",
+        "scripts/prompt_compiler.py",
+        "scripts/issue_closeout.py"
+      ]
+    }
+  ],
+  "schema_version": "bears-plugin-capability-scenarios.v1"
+}

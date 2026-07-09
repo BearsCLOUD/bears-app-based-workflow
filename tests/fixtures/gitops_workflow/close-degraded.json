@@ -1,0 +1,8 @@
+{
+  "delivery_id": "issue-421-fixture",
+  "from_state": "synced",
+  "to_state": "closed",
+  "guard": "closeout_pass",
+  "gitops_state": "degraded",
+  "evidence": ["issue_closeout", "hook_proof", "commit_usage_ledger"]
+}

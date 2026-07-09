@@ -1,0 +1,37 @@
+{
+  "goal_id": "goal-1",
+  "role": "bears-development-workflow-orchestrator",
+  "repo_boundary": "BearsCLOUD/bears_plugin",
+  "allowed_write_scope": [
+    "scripts/development_workflow_validate.py"
+  ],
+  "forbidden_scope": [
+    "runtime",
+    "secrets"
+  ],
+  "validation_commands": [
+    "python3 scripts/development_workflow_validate.py validate"
+  ],
+  "restricted_data_taint": "none",
+  "status": "pass",
+  "tasks": [
+    {
+      "id": "t1",
+      "role": "r",
+      "depends_on": [
+        "t2"
+      ]
+    },
+    {
+      "id": "t2",
+      "role": "r",
+      "depends_on": [
+        "t1"
+      ]
+    }
+  ],
+  "dependencies": [],
+  "parallel_groups": [
+    "t1"
+  ]
+}

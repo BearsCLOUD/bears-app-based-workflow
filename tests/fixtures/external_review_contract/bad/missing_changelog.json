@@ -1,0 +1,17 @@
+{
+  "issue": 462,
+  "json_schema_ref": "assets/schemas/external-review-audit.v1.schema.json#/$defs/contract_packet",
+  "packet_id": "external-review-contract-missing-changelog",
+  "proof": {
+    "path": "tests/fixtures/external_review_contract/good/closed_with_proof.json",
+    "status": "pass"
+  },
+  "review_state": "open",
+  "schema": "bears-external-review-contract-packet.v1",
+  "surface": {
+    "behavior_changing": true,
+    "governance_change": false,
+    "path": "scripts/external_review_contract.py",
+    "surface_type": "validator"
+  }
+}

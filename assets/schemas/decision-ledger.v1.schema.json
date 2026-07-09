@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://bears.local/schemas/decision-ledger.v1.schema.json",
+  "title": "Bears decision ledger",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "version", "updated", "owner_role", "records"],
+  "properties": {
+    "schema": {"const": "bears-decision-ledger.v1"},
+    "version": {"type": "string"},
+    "updated": {"type": "string"},
+    "owner_role": {"type": "string"},
+    "records": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["decision_id", "status", "scope_id", "change_type", "owner_issue", "owner_role", "affected_paths", "decision", "rationale", "unresolved_inputs", "contradictions", "redaction"],
+        "properties": {
+          "decision_id": {"type": "string", "minLength": 3},
+          "status": {"enum": ["proposed", "accepted", "rejected", "superseded"]},
+          "scope_id": {"type": "string", "minLength": 3},
+          "change_type": {"enum": ["policy", "workflow", "role", "schema", "hook", "validation", "artifact"]},
+          "owner_issue": {"type": "string", "minLength": 2},
+          "owner_role": {"type": "string", "minLength": 3},
+          "affected_paths": {"type": "array", "items": {"type": "string"}},
+          "decision": {"type": "string", "minLength": 3},
+          "rationale": {"type": "string", "minLength": 3},
+          "unresolved_inputs": {"type": "array", "items": {"type": "string"}},
+          "contradictions": {"type": "array", "items": {"type": "string"}},
+          "redaction": {"enum": ["safe", "needs_redaction"]},
+          "supersedes": {"type": "string"},
+          "live_confirmation": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["status", "evidence_paths"],
+            "properties": {
+              "status": {"enum": ["confirmed", "refuted", "missing"]},
+              "evidence_paths": {"type": "array", "items": {"type": "string"}},
+              "summary": {"type": "string"}
+            }
+          }
+        }
+      }
+    }
+  }
+}

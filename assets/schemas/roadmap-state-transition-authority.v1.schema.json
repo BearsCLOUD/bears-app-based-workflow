@@ -1,0 +1,103 @@
+{
+  "$id": "https://bears.local/schemas/roadmap-state-transition-authority.v1.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "blocked_reasons": {
+      "items": {
+        "enum": [
+          "manual_review_preserved",
+          "disabled_preserved",
+          "hazard_requires_manual_review",
+          "evidence_file_is_not_transition_authority",
+          "missing_validator_packet",
+          "stale_evidence_hash",
+          "missing_resource_conflict_status",
+          "stale_resource_conflict_status",
+          "blocked_resource_conflict_status",
+          "exclusive_resource_active_elsewhere"
+        ]
+      },
+      "minItems": 1,
+      "type": "array",
+      "uniqueItems": true
+    },
+    "component_issue": {
+      "const": "#517"
+    },
+    "hazard_markers": {
+      "items": {
+        "minLength": 2,
+        "type": "string"
+      },
+      "minItems": 1,
+      "type": "array",
+      "uniqueItems": true
+    },
+    "preserved_autostart_policies": {
+      "items": {
+        "enum": [
+          "disabled",
+          "manual_review"
+        ]
+      },
+      "minItems": 2,
+      "type": "array",
+      "uniqueItems": true
+    },
+    "required_transition_packet_schema": {
+      "const": "bears-roadmap-state-transition-authority-transition.v1"
+    },
+    "resource_conflict_status": {
+      "additionalProperties": false,
+      "properties": {
+        "allow_status": {
+          "const": "allow"
+        },
+        "blocked_statuses": {
+          "items": {
+            "enum": [
+              "blocked",
+              "stale"
+            ]
+          },
+          "minItems": 2,
+          "type": "array",
+          "uniqueItems": true
+        },
+        "exclusive_active_elsewhere_reason": {
+          "const": "exclusive_resource_active_elsewhere"
+        },
+        "required_for": {
+          "const": "validated_or_executable_ready_evidence_transitions"
+        }
+      },
+      "required": [
+        "required_for",
+        "allow_status",
+        "blocked_statuses",
+        "exclusive_active_elsewhere_reason"
+      ],
+      "type": "object"
+    },
+    "schema": {
+      "const": "bears-roadmap-state-transition-authority.v1"
+    },
+    "version": {
+      "minLength": 1,
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "version",
+    "component_issue",
+    "preserved_autostart_policies",
+    "hazard_markers",
+    "required_transition_packet_schema",
+    "blocked_reasons",
+    "resource_conflict_status"
+  ],
+  "title": "Bears roadmap state transition authority v1",
+  "type": "object"
+}

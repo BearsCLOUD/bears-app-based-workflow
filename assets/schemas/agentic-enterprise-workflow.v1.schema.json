@@ -1,0 +1,382 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://bears.local/schemas/agentic-enterprise-workflow.v1.schema.json",
+  "title": "Bears Agentic Enterprise Workflow",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "version",
+    "updated",
+    "owner_plugin",
+    "purpose",
+    "plugin_boundary",
+    "repo_domains",
+    "scope_policy",
+    "owner_lineage_policy",
+    "layer_workflow",
+    "goal_agent_modes",
+    "stage_order",
+    "message_to_scope_rule",
+    "decision_log_policy",
+    "clarification_gate",
+    "hook_policy",
+    "runtime_degradation_policy",
+    "symphony_pattern_mapping",
+    "delivery_policy",
+    "validation",
+    "references"
+  ],
+  "properties": {
+    "schema": {
+      "const": "bears-agentic-enterprise-workflow.v1"
+    },
+    "version": {
+      "type": "string"
+    },
+    "updated": {
+      "type": "string"
+    },
+    "owner_plugin": {
+      "const": "bears"
+    },
+    "purpose": {
+      "type": "string",
+      "minLength": 20
+    },
+    "plugin_boundary": {
+      "type": "object"
+    },
+    "repo_domains": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "purpose",
+          "owns",
+          "must_not_own",
+          "primary_l2_role",
+          "transitional_evidence"
+        ],
+        "properties": {
+          "id": {
+            "enum": [
+              "platform",
+              "gitops",
+              "infra",
+              "product_infra"
+            ]
+          },
+          "purpose": {
+            "type": "string",
+            "minLength": 10
+          },
+          "owns": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1
+          },
+          "must_not_own": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1
+          },
+          "primary_l2_role": {
+            "type": "string"
+          },
+          "transitional_evidence": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "minItems": 4,
+      "maxItems": 4
+    },
+    "scope_policy": {
+      "type": "object"
+    },
+    "owner_lineage_policy": {
+      "type": "object"
+    },
+    "layer_workflow": {
+      "type": "object"
+    },
+    "goal_agent_modes": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "goal_1_agent",
+        "goal_parallel_l1"
+      ],
+      "properties": {
+        "goal_1_agent": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "required_sequence",
+            "state_file",
+            "scope_execution",
+            "helper_agents",
+            "review_fix_policy",
+            "subagent_spawn_policy"
+          ],
+          "properties": {
+            "required_sequence": {
+              "const": [
+                "create_own_state_file",
+                "research",
+                "decompose_operator_goal_prompt_into_scopes",
+                "persist_scopes_in_state",
+                "solve_scopes_sequentially_through_bears_spec_kit_flow",
+                "use_helper_agents_for_token_economy_git_ci_cache_closeout_review_fix_support"
+              ]
+            },
+            "state_file": {
+              "$ref": "#/$defs/state_file_first"
+            },
+            "scope_execution": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "order",
+                "flow"
+              ],
+              "properties": {
+                "order": {
+                  "const": "sequential"
+                },
+                "flow": {
+                  "const": "bears_spec_kit_flow"
+                }
+              }
+            },
+            "helper_agents": {
+              "$ref": "#/$defs/required_helper_policy"
+            },
+            "review_fix_policy": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "real_blocker_only_stops_agent"
+              ],
+              "properties": {
+                "real_blocker_only_stops_agent": {
+                  "const": true
+                }
+              }
+            },
+            "subagent_spawn_policy": {
+              "$ref": "#/$defs/no_parent_context"
+            }
+          }
+        },
+        "goal_parallel_l1": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "required_sequence",
+            "state_file",
+            "scope_execution",
+            "l2_spawn",
+            "l2_helper_agents",
+            "subagent_spawn_policy"
+          ],
+          "properties": {
+            "required_sequence": {
+              "const": [
+                "create_own_state_file",
+                "normalize_operator_goal_prompt_into_scopes",
+                "persist_scopes_in_state",
+                "selected_scope_research",
+                "selected_scope_development_area_design",
+                "selected_scope_requirements",
+                "selected_scope_spec_kit_logic",
+                "spawn_l2_subagent_for_approved_spec_kit_plan",
+                "continue_own_sequential_workflow"
+              ]
+            },
+            "state_file": {
+              "$ref": "#/$defs/state_file_first"
+            },
+            "scope_execution": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "selected_scope_order",
+                "flow"
+              ],
+              "properties": {
+                "selected_scope_order": {
+                  "const": "sequential"
+                },
+                "flow": {
+                  "const": "spec_kit_logic"
+                }
+              }
+            },
+            "l2_spawn": {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/no_parent_context"
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "required",
+                    "step",
+                    "fork_context",
+                    "parent_context",
+                    "l1_tracks_l2_after_spawn",
+                    "l1_waits_for_l2_after_spawn",
+                    "after_spawn_l1_execution"
+                  ],
+                  "properties": {
+                    "required": {
+                      "const": true
+                    },
+                    "step": {
+                      "const": "spawn_l2_subagent_for_approved_spec_kit_plan"
+                    },
+                    "fork_context": {
+                      "const": false
+                    },
+                    "parent_context": {
+                      "const": "none"
+                    },
+                    "l1_tracks_l2_after_spawn": {
+                      "const": false
+                    },
+                    "l1_waits_for_l2_after_spawn": {
+                      "const": false
+                    },
+                    "after_spawn_l1_execution": {
+                      "const": "continue_own_sequential_workflow"
+                    }
+                  }
+                }
+              ]
+            },
+            "l2_helper_agents": {
+              "$ref": "#/$defs/required_helper_policy"
+            },
+            "subagent_spawn_policy": {
+              "$ref": "#/$defs/no_parent_context"
+            }
+          }
+        }
+      }
+    },
+    "stage_order": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "minItems": 5
+    },
+    "message_to_scope_rule": {
+      "type": "object"
+    },
+    "decision_log_policy": {
+      "type": "object"
+    },
+    "clarification_gate": {
+      "type": "object"
+    },
+    "hook_policy": {
+      "type": "object"
+    },
+    "runtime_degradation_policy": {
+      "type": "object"
+    },
+    "symphony_pattern_mapping": {
+      "type": "object"
+    },
+    "validation": {
+      "type": "object"
+    },
+    "references": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1
+    },
+    "delivery_policy": {
+      "type": "object"
+    }
+  },
+  "$defs": {
+    "state_file_first": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "create_own_state_file_first"
+      ],
+      "properties": {
+        "create_own_state_file_first": {
+          "const": true
+        }
+      }
+    },
+    "no_parent_context": {
+      "type": "object",
+      "required": [
+        "fork_context",
+        "parent_context"
+      ],
+      "properties": {
+        "fork_context": {
+          "const": false
+        },
+        "parent_context": {
+          "const": "none"
+        }
+      }
+    },
+    "required_helper_policy": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/no_parent_context"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "required",
+            "purposes",
+            "fork_context",
+            "parent_context"
+          ],
+          "properties": {
+            "required": {
+              "const": true
+            },
+            "purposes": {
+              "const": [
+                "token_economy",
+                "git_ci_cache_closeout",
+                "review_fix_support"
+              ]
+            },
+            "fork_context": {
+              "const": false
+            },
+            "parent_context": {
+              "const": "none"
+            }
+          }
+        }
+      ]
+    }
+  }
+}

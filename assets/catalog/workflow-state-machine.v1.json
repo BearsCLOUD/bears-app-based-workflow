@@ -1,0 +1,332 @@
+{
+  "schema": "bears-workflow-state-machine.v1",
+  "version": "1",
+  "owner_issue": "#439",
+  "states": [
+    "intake",
+    "questioning",
+    "researching",
+    "planning",
+    "covered",
+    "ready_for_execution",
+    "running",
+    "waiting_validation",
+    "remediating",
+    "waiting_closeout",
+    "closed",
+    "blocked",
+    "manual_review",
+    "cancelled"
+  ],
+  "commands": [
+    "python3 scripts/workflow_state_machine.py validate --json",
+    "python3 scripts/workflow_state_machine.py can-transition --packet <path> --json",
+    "python3 scripts/workflow_state_machine.py apply --packet <path> --json",
+    "python3 scripts/workflow_state_machine.py check-invariants --goal-id <id> --json",
+    "python3 scripts/workflow_state_machine.py doctor --json"
+  ],
+  "evidence_authority": [
+    "assets/catalog/question-bank.v1.json",
+    "assets/catalog/workflow-inference-rules.v1.json",
+    "assets/file-context/index.v1.json",
+    "runtime/local-commit-validation/<commit_sha>.json"
+  ],
+  "invariants": [
+    {
+      "schema": "bears-workflow-invariant.v1",
+      "invariant_id": "execution_requires_decision_graph",
+      "description": "Execution states require a validated decision graph.",
+      "required_evidence": [
+        "decision_graph"
+      ],
+      "validator": "scripts/decision_graph.py doctor --json"
+    },
+    {
+      "schema": "bears-workflow-invariant.v1",
+      "invariant_id": "execution_requires_accepted_inference",
+      "description": "Execution states require accepted inference permission.",
+      "required_evidence": [
+        "accepted_inference"
+      ],
+      "validator": "scripts/workflow_inference.py query --predicate execution_allowed --args <json> --json"
+    },
+    {
+      "schema": "bears-workflow-invariant.v1",
+      "invariant_id": "write_requires_file_context",
+      "description": "Write states require file-context evidence.",
+      "required_evidence": [
+        "file_context"
+      ],
+      "validator": "scripts/file_context_index.py doctor --json"
+    },
+    {
+      "schema": "bears-workflow-invariant.v1",
+      "invariant_id": "parallel_requires_disjoint_locks",
+      "description": "Parallel work requires disjoint lock proof.",
+      "required_evidence": [
+        "parallel_unit_allowed"
+      ],
+      "validator": "scripts/workflow_inference.py query --predicate parallel_unit_allowed --args <json> --json"
+    },
+    {
+      "schema": "bears-workflow-invariant.v1",
+      "invariant_id": "closeout_requires_validation_pass",
+      "description": "Closeout requires validation proof.",
+      "required_evidence": [
+        "validation_pass"
+      ],
+      "validator": "scripts/local_commit_validation.py run --commit-sha <sha> --timeout-seconds 600"
+    },
+    {
+      "schema": "bears-workflow-invariant.v1",
+      "invariant_id": "closeout_requires_no_blocking_debt",
+      "description": "Closeout requires no blocking debt.",
+      "required_evidence": [
+        "no_blocking_debt"
+      ],
+      "validator": "scripts/bears_doctor.py validate-closeout --from-git <range> --json"
+    },
+    {
+      "schema": "bears-workflow-invariant.v1",
+      "invariant_id": "stale_context_cannot_unlock_execution",
+      "description": "Stale context cannot unlock execution.",
+      "required_evidence": [
+        "fresh_context"
+      ],
+      "validator": "scripts/file_context_index.py stale --json"
+    },
+    {
+      "schema": "bears-workflow-invariant.v1",
+      "invariant_id": "durable_json_remains_authority",
+      "description": "Durable JSON catalogs remain authority over chat text.",
+      "required_evidence": [
+        "durable_json"
+      ],
+      "validator": "scripts/artifact_registry.py validate"
+    }
+  ],
+  "transitions": [
+    {
+      "schema": "bears-workflow-transition.v1",
+      "goal_id": "template",
+      "from_state": "intake",
+      "to_state": "questioning",
+      "guard": "issue_loaded",
+      "required_evidence": [
+        "github_issue"
+      ],
+      "invariants_checked": [
+        "durable_json_remains_authority"
+      ],
+      "reason_code": "ask_required_questions"
+    },
+    {
+      "schema": "bears-workflow-transition.v1",
+      "goal_id": "template",
+      "from_state": "questioning",
+      "to_state": "researching",
+      "guard": "research_required",
+      "required_evidence": [
+        "question_answer_proof"
+      ],
+      "invariants_checked": [
+        "durable_json_remains_authority"
+      ],
+      "reason_code": "research_needed"
+    },
+    {
+      "schema": "bears-workflow-transition.v1",
+      "goal_id": "template",
+      "from_state": "questioning",
+      "to_state": "planning",
+      "guard": "plan_required",
+      "required_evidence": [
+        "question_answer_proof"
+      ],
+      "invariants_checked": [
+        "durable_json_remains_authority"
+      ],
+      "reason_code": "plan_needed"
+    },
+    {
+      "schema": "bears-workflow-transition.v1",
+      "goal_id": "template",
+      "from_state": "researching",
+      "to_state": "planning",
+      "guard": "research_complete",
+      "required_evidence": [
+        "bounded_research_packet"
+      ],
+      "invariants_checked": [
+        "durable_json_remains_authority"
+      ],
+      "reason_code": "research_done"
+    },
+    {
+      "schema": "bears-workflow-transition.v1",
+      "goal_id": "template",
+      "from_state": "planning",
+      "to_state": "covered",
+      "guard": "coverage_complete",
+      "required_evidence": [
+        "task_graph"
+      ],
+      "invariants_checked": [
+        "durable_json_remains_authority"
+      ],
+      "reason_code": "coverage_done"
+    },
+    {
+      "schema": "bears-workflow-transition.v1",
+      "goal_id": "template",
+      "from_state": "covered",
+      "to_state": "ready_for_execution",
+      "guard": "execution_inputs_ready",
+      "required_evidence": [
+        "decision_graph",
+        "accepted_inference",
+        "file_context"
+      ],
+      "invariants_checked": [
+        "execution_requires_decision_graph",
+        "execution_requires_accepted_inference",
+        "write_requires_file_context",
+        "stale_context_cannot_unlock_execution"
+      ],
+      "reason_code": "execution_ready"
+    },
+    {
+      "schema": "bears-workflow-transition.v1",
+      "goal_id": "template",
+      "from_state": "ready_for_execution",
+      "to_state": "running",
+      "guard": "execution_allowed",
+      "required_evidence": [
+        "decision_graph",
+        "accepted_inference",
+        "file_context"
+      ],
+      "invariants_checked": [
+        "execution_requires_decision_graph",
+        "execution_requires_accepted_inference",
+        "write_requires_file_context"
+      ],
+      "reason_code": "run_start"
+    },
+    {
+      "schema": "bears-workflow-transition.v1",
+      "goal_id": "template",
+      "from_state": "running",
+      "to_state": "waiting_validation",
+      "guard": "implementation_complete",
+      "required_evidence": [
+        "changed_files"
+      ],
+      "invariants_checked": [
+        "write_requires_file_context"
+      ],
+      "reason_code": "validate_next"
+    },
+    {
+      "schema": "bears-workflow-transition.v1",
+      "goal_id": "template",
+      "from_state": "waiting_validation",
+      "to_state": "remediating",
+      "guard": "validation_failed",
+      "required_evidence": [
+        "validation_failure_packet"
+      ],
+      "invariants_checked": [
+        "durable_json_remains_authority"
+      ],
+      "reason_code": "fix_validation"
+    },
+    {
+      "schema": "bears-workflow-transition.v1",
+      "goal_id": "template",
+      "from_state": "remediating",
+      "to_state": "running",
+      "guard": "remediation_started",
+      "required_evidence": [
+        "remediation_packet"
+      ],
+      "invariants_checked": [
+        "write_requires_file_context"
+      ],
+      "reason_code": "continue_fix"
+    },
+    {
+      "schema": "bears-workflow-transition.v1",
+      "goal_id": "template",
+      "from_state": "waiting_validation",
+      "to_state": "waiting_closeout",
+      "guard": "validation_passed",
+      "required_evidence": [
+        "validation_pass"
+      ],
+      "invariants_checked": [
+        "closeout_requires_validation_pass"
+      ],
+      "reason_code": "closeout_ready"
+    },
+    {
+      "schema": "bears-workflow-transition.v1",
+      "goal_id": "template",
+      "from_state": "waiting_closeout",
+      "to_state": "closed",
+      "guard": "closeout_passed",
+      "required_evidence": [
+        "validation_pass",
+        "no_blocking_debt"
+      ],
+      "invariants_checked": [
+        "closeout_requires_validation_pass",
+        "closeout_requires_no_blocking_debt"
+      ],
+      "reason_code": "closed"
+    },
+    {
+      "schema": "bears-workflow-transition.v1",
+      "goal_id": "template",
+      "from_state": "running",
+      "to_state": "manual_review",
+      "guard": "degradation_event",
+      "required_evidence": [
+        "degradation_event",
+        "durable_json"
+      ],
+      "invariants_checked": [
+        "durable_json_remains_authority"
+      ],
+      "reason_code": "degradation_forced_review"
+    },
+    {
+      "schema": "bears-workflow-transition.v1",
+      "goal_id": "template",
+      "from_state": "running",
+      "to_state": "blocked",
+      "guard": "blocking_condition",
+      "required_evidence": [
+        "blocker_packet"
+      ],
+      "invariants_checked": [
+        "durable_json_remains_authority"
+      ],
+      "reason_code": "blocked"
+    },
+    {
+      "schema": "bears-workflow-transition.v1",
+      "goal_id": "template",
+      "from_state": "manual_review",
+      "to_state": "cancelled",
+      "guard": "operator_cancelled",
+      "required_evidence": [
+        "operator_decision"
+      ],
+      "invariants_checked": [
+        "durable_json_remains_authority"
+      ],
+      "reason_code": "cancelled"
+    }
+  ]
+}

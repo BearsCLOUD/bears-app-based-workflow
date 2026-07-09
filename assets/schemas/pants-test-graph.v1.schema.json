@@ -1,0 +1,106 @@
+{
+  "$defs": {
+    "route": {
+      "additionalProperties": false,
+      "properties": {
+        "gate": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "python_sources",
+            "python_tests",
+            "files"
+          ]
+        },
+        "name": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "pants_target": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "patterns": {
+          "items": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "tests": {
+          "items": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "minItems": 1,
+          "type": "array"
+        }
+      },
+      "required": [
+        "name",
+        "kind",
+        "patterns",
+        "pants_target",
+        "tests"
+      ],
+      "type": "object"
+    }
+  },
+  "$id": "https://bears.local/schemas/pants-test-graph.v1.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "authority_script": {
+      "type": "string"
+    },
+    "commands": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 2,
+      "type": "array"
+    },
+    "component_issue": {
+      "const": "#459"
+    },
+    "owner_role": {
+      "minLength": 3,
+      "type": "string"
+    },
+    "owner_script": {
+      "type": "string"
+    },
+    "routes": {
+      "items": {
+        "$ref": "#/$defs/route"
+      },
+      "minItems": 1,
+      "type": "array"
+    },
+    "schema": {
+      "const": "bears-pants-test-graph.v1"
+    },
+    "updated": {
+      "type": "string"
+    },
+    "version": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "version",
+    "owner_script",
+    "authority_script",
+    "commands",
+    "routes",
+    "updated",
+    "owner_role",
+    "component_issue"
+  ],
+  "title": "Bears Pants test graph v1",
+  "type": "object"
+}

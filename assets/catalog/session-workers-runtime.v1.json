@@ -1,0 +1,541 @@
+{
+  "schema": "bears-session-workers-runtime.v1",
+  "version": "1",
+  "updated": "2026-06-19",
+  "owner_plugin": "bears",
+  "runtime_id": "bears-session-workers-runtime-v1",
+  "truth": {
+    "authority": "Spec Kit",
+    "rule": "Current Spec Kit artifacts are the truth source for session worker execution."
+  },
+  "control": {
+    "owner": "Bears plugin",
+    "role_catalog": "assets/catalog/platform-role-catalog.v1.json",
+    "validator": "scripts/session_workers_runtime.py",
+    "docs": "docs/reference/session-workers-runtime.md"
+  },
+  "work": {
+    "surface": "Codex sessions/session workers",
+    "session_model_rule": "Codex sessions are workers, not memory."
+  },
+  "worker_lanes": [
+    {
+      "lane": "constitution",
+      "allowed_roles": [
+        "bears-workflow-overlay-controller",
+        "bears-session-worker-runtime-engineer"
+      ],
+      "artifact_focus": [
+        "constitution.md",
+        "spec.md"
+      ],
+      "description": "Own the current constitution or policy baseline before downstream specification or planning work starts."
+    },
+    {
+      "lane": "specification",
+      "allowed_roles": [
+        "bears-workflow-overlay-controller",
+        "bears-session-worker-runtime-engineer"
+      ],
+      "artifact_focus": [
+        "spec.md",
+        "requirements.md"
+      ],
+      "description": "Own feature specification truth and requirement updates anchored to the current Spec Kit slice."
+    },
+    {
+      "lane": "planning",
+      "allowed_roles": [
+        "bears-workflow-overlay-controller",
+        "bears-session-worker-runtime-engineer"
+      ],
+      "artifact_focus": [
+        "plan.md",
+        "tasks.md"
+      ],
+      "description": "Own plan/task derivation and dependency sequencing from the current specification truth."
+    },
+    {
+      "lane": "docs",
+      "allowed_roles": [
+        "bears-workflow-overlay-controller",
+        "bears-subagents-roles-governor",
+        "bears-session-worker-runtime-engineer",
+        "bears-product-app-zone-engineer",
+        "bears-android-emulator-platform-engineer",
+        "bears-observability-platform-engineer",
+        "bears-ops-runbook-engineer",
+        "bears-analytics-quality-engineer"
+      ],
+      "artifact_focus": [
+        "README.md",
+        "docs/",
+        "AGENTS.md"
+      ],
+      "description": "Own governance docs, dev-core routing docs, runbooks, reference docs, and redacted evidence docs without broadening runtime or deploy scope."
+    },
+    {
+      "lane": "auth",
+      "allowed_roles": [
+        "bears-auth-platform-engineer"
+      ],
+      "artifact_focus": [
+        "spec.md",
+        "plan.md",
+        "tasks.md"
+      ],
+      "description": "Own auth_core and related identity/session implementation or review slices gated by the registered auth role."
+    },
+    {
+      "lane": "gateway",
+      "allowed_roles": [
+        "bears-gateway-platform-engineer"
+      ],
+      "artifact_focus": [
+        "spec.md",
+        "plan.md",
+        "tasks.md"
+      ],
+      "description": "Own bears_gateway implementation or review slices gated by the registered gateway role."
+    },
+    {
+      "lane": "deploy",
+      "allowed_roles": [
+        "bears-deploy-platform-engineer",
+        "bears-android-emulator-platform-engineer",
+        "bears-observability-platform-engineer",
+        "bears-ops-runbook-engineer"
+      ],
+      "artifact_focus": [
+        "spec.md",
+        "plan.md",
+        "tasks.md"
+      ],
+      "description": "Own cd_deploy_stage and Kubernetes deploy-core work requiring explicit rollback, truth-contract, evidence, and operator-approval requirements."
+    },
+    {
+      "lane": "validation",
+      "allowed_roles": [
+        "bears-platform-security-reviewer",
+        "bears-workflow-overlay-controller",
+        "bears-session-worker-runtime-engineer",
+        "bears-analytics-quality-engineer",
+        "bears-android-emulator-platform-engineer",
+        "bears-observability-platform-engineer",
+        "bears-product-app-zone-engineer"
+      ],
+      "artifact_focus": [
+        "tests/",
+        "validation commands",
+        "evidence packets"
+      ],
+      "description": "Own validator, test, redacted observability, emulator, and E2E evidence work that inspects the current slice without redefining scope."
+    },
+    {
+      "lane": "review",
+      "allowed_roles": [
+        "bears-platform-security-reviewer",
+        "bears-workflow-overlay-controller",
+        "bears-session-worker-runtime-engineer",
+        "bears-analytics-quality-engineer",
+        "bears-observability-platform-engineer",
+        "bears-ops-runbook-engineer"
+      ],
+      "artifact_focus": [
+        "review notes",
+        "risk packets",
+        "closeout packets"
+      ],
+      "description": "Own review-only or risk-evidence work requiring explicit closeout and no hidden implementation scope."
+    },
+    {
+      "lane": "audit",
+      "allowed_roles": [
+        "bears-platform-security-reviewer",
+        "bears-subagents-roles-governor",
+        "bears-workflow-overlay-controller",
+        "bears-session-worker-runtime-engineer",
+        "bears-analytics-quality-engineer",
+        "bears-observability-platform-engineer",
+        "bears-ops-runbook-engineer"
+      ],
+      "artifact_focus": [
+        "audit notes",
+        "risk packets",
+        "validation evidence"
+      ],
+      "description": "Own independent audit work requiring a fresh session, no parent context, and no implementation authority."
+    },
+    {
+      "lane": "implementation",
+      "allowed_roles": [
+        "bears-auth-platform-engineer",
+        "bears-gateway-platform-engineer",
+        "bears-deploy-platform-engineer",
+        "bears-telegram-platform-engineer",
+        "bears-workflow-overlay-controller",
+        "bears-session-worker-runtime-engineer",
+        "bears-product-app-zone-engineer",
+        "bears-android-emulator-platform-engineer",
+        "bears-observability-platform-engineer",
+        "bears-ops-runbook-engineer",
+        "bears-analytics-quality-engineer"
+      ],
+      "artifact_focus": [
+        "tasks.md",
+        "implementation diffs",
+        "validation evidence"
+      ],
+      "description": "Own one bounded implementation or migration-proof slice that is already approved and role-gated for the selected exact target surface."
+    }
+  ],
+  "worker_states": [
+    "available",
+    "claimed",
+    "running",
+    "waiting",
+    "blocked",
+    "stale",
+    "completed",
+    "closed"
+  ],
+  "runtime_artifacts": [
+    {
+      "name": "session-workers.json",
+      "schema": "bears-session-workers.v1",
+      "required": true,
+      "description": "Worker registry with per-worker scope, Spec Kit snapshot, and packet references."
+    },
+    {
+      "name": "orchestration-state.json",
+      "schema": "bears-session-orchestration-state.v1",
+      "required": true,
+      "description": "Runtime state summary keyed by worker state with explicit scope-lock reference."
+    },
+    {
+      "name": "worker-heartbeat.json",
+      "schema": "bears-worker-heartbeat.v1",
+      "required": true,
+      "description": "Per-worker heartbeat packet for status, target evidence, and current step summary."
+    },
+    {
+      "name": "worker-closeout.json",
+      "schema": "bears-worker-closeout.v1",
+      "required": true,
+      "description": "Per-worker closeout packet with changed files, validation commands, and resume guidance."
+    },
+    {
+      "name": "scope-locks.json",
+      "schema": "bears-scope-locks.v1",
+      "required": true,
+      "description": "Lock registry that prevents overlapping write scopes across live workers."
+    },
+    {
+      "name": "session-reuse-index.json",
+      "schema": "bears-session-reuse-index.v1",
+      "required": true,
+      "description": "Deterministic reuse registry keyed by lane, role, scope, repo state, Spec Kit snapshot, and roadmap slice."
+    }
+  ],
+  "worker_contract": {
+    "required_fields": [
+      "worker_id",
+      "status",
+      "lane",
+      "registered_role",
+      "context_policy",
+      "questionnaire_ref",
+      "roadmap_id",
+      "goal_id",
+      "target_paths",
+      "allowed_write_scope",
+      "forbidden_scope",
+      "spec_id",
+      "spec_path",
+      "roadmap_slice",
+      "pre_task_hook",
+      "reuse_key",
+      "spec_kit_snapshot",
+      "validation_target",
+      "evidence_target",
+      "heartbeat_packet",
+      "closeout_packet",
+      "resume_policy"
+    ],
+    "spec_kit_snapshot_required_fields": [
+      "captured_at",
+      "repo_head",
+      "artifacts",
+      "spec_id",
+      "spec_path",
+      "snapshot_id"
+    ],
+    "spec_kit_artifact_statuses": [
+      "current",
+      "missing",
+      "stale",
+      "blocked"
+    ],
+    "heartbeat_packet_schema": "bears-worker-heartbeat.v1",
+    "closeout_packet_schema": "bears-worker-closeout.v1",
+    "pre_task_hook_required_fields": [
+      "hook_id",
+      "task_id",
+      "task_path",
+      "goal_id",
+      "roadmap_id",
+      "questionnaire_ref",
+      "context_policy",
+      "spec_id",
+      "spec_path",
+      "roadmap_slice",
+      "repo_head",
+      "missing_data_evidence",
+      "drift_answer_evidence",
+      "task_start_authorization"
+    ],
+    "reuse_key_field": "reuse_key"
+  },
+  "resume_fork_rule": {
+    "allowed_actions": [
+      "resume",
+      "reuse",
+      "fork",
+      "fresh"
+    ],
+    "compatibility_fields": [
+      "goal_compatible",
+      "roadmap_compatible",
+      "lane_compatible",
+      "role_compatible",
+      "scope_compatible",
+      "repo_state_compatible",
+      "spec_kit_snapshot_compatible",
+      "roadmap_slice_compatible"
+    ],
+    "rule": "Historical session resume, reuse, or fork is allowed only when goal_id, roadmap_id, lane, role, scope, current repo state, current Spec Kit snapshot, and roadmap slice match; session reuse or fork also requires validate-runtime success before the action; otherwise spawn fresh with current Spec Kit truth plus bounded prior evidence.",
+    "otherwise_action": "fresh",
+    "required_pre_action_validation": "python3 scripts/session_workers_runtime.py validate-runtime --runtime-dir <dir>",
+    "fresh_fallback": "spawn fresh session with bounded prior evidence when compatibility or validate-runtime fails"
+  },
+  "implementation_lane_policy": {
+    "lane": "implementation",
+    "speckit_command": "/speckit-implement",
+    "rule": "/speckit-implement is one controlled implementation lane, not a global executor."
+  },
+  "validation_commands": [
+    "python3 scripts/session_workers_runtime.py validate",
+    "python3 scripts/session_workers_runtime.py validate-runtime --runtime-dir <dir>"
+  ],
+  "concurrency_policy": {
+    "rule": "Concurrent workers may develop multiple Spec Kit specifications only when each worker binds exactly one spec_id, one spec_path, and one current Spec Kit snapshot.",
+    "spec_binding_fields": [
+      "spec_id",
+      "spec_path",
+      "spec_kit_snapshot"
+    ],
+    "scope_rule": "Concurrent workers for different spec_id values are valid only when scope locks do not overlap.",
+    "fanout_preflight_rule": "Before parent fanout, count active workers and open workers from session-workers.json plus orchestration-state.json, close completed no-longer-needed workers, reserve critical-path wait slots, spawn bounded batches when requested workers exceed available slots, and classify thread-limit spawn failure as WORKFLOW_DRIFT instead of normal recovery.",
+    "fanout_counted_worker_states": {
+      "active": [
+        "claimed",
+        "running",
+        "waiting",
+        "blocked",
+        "stale"
+      ],
+      "open": [
+        "claimed",
+        "running",
+        "waiting",
+        "blocked",
+        "stale",
+        "completed"
+      ],
+      "closed": [
+        "closed"
+      ]
+    },
+    "capacity_fallback_reconciliation": {
+      "required_before_capacity_fallback": true,
+      "rule": "Before capacity fallback or replacement launch, parent must reconcile partial subagent state from session tail, dirty checkout scan, and open PR checks into deterministic buckets; unknown or completed-open agents are not free capacity.",
+      "buckets": [
+        {
+          "bucket": "active",
+          "source_states": [
+            "claimed",
+            "running",
+            "waiting",
+            "stale"
+          ],
+          "required_action": "Keep waiting, interrupt, or explicitly close before replacement launch.",
+          "counts_as_free_capacity": false
+        },
+        {
+          "bucket": "completed-needs-close",
+          "source_states": [
+            "completed"
+          ],
+          "required_action": "Inspect closeout, PR URLs, validation evidence, and dirty files; integrate or close before replacement launch.",
+          "counts_as_free_capacity": false
+        },
+        {
+          "bucket": "failed-needs-review",
+          "source_states": [
+            "capacity",
+            "capacity_error",
+            "error",
+            "errored",
+            "failed"
+          ],
+          "required_action": "Review session tail, tool outputs, checkout state, and open PRs before deciding replacement or quarantine.",
+          "counts_as_free_capacity": false
+        },
+        {
+          "bucket": "unknown-needs-refresh",
+          "source_states": [
+            "missing",
+            "no_status",
+            "null",
+            "unreported",
+            "unknown"
+          ],
+          "required_action": "Refresh worker status, session tail, checkout state, and GitHub branch or PR state before replacement launch.",
+          "counts_as_free_capacity": false
+        },
+        {
+          "bucket": "blocked-needs-parent-action",
+          "source_states": [
+            "blocked"
+          ],
+          "required_action": "Parent must resolve, rescope, quarantine, or explicitly close the blocked worker before replacement launch.",
+          "counts_as_free_capacity": false
+        }
+      ],
+      "fallback_blocking_buckets": [
+        "active",
+        "completed-needs-close",
+        "failed-needs-review",
+        "unknown-needs-refresh",
+        "blocked-needs-parent-action"
+      ],
+      "free_capacity_rule": "Only closed workers are free capacity; unknown, completed-open, failed, blocked, active, dirty-checkout, or open-PR workers are not free capacity.",
+      "duplicate_launch_rule": "Block duplicate worker launch for the same task id until the partial-state check is clean and the prior worker is integrated, quarantined, or closed.",
+      "required_evidence_checks": [
+        "Inspect worker session tail for task_complete, PR URLs, and last tool outputs.",
+        "Inspect the declared checkout or worktree for dirty files.",
+        "Inspect GitHub for open PRs from the worker branch."
+      ]
+    },
+    "critical_path_wait_slots_reserved": true,
+    "thread_limit_failure_classification": "WORKFLOW_DRIFT",
+    "thread_limit_failure_normal_recovery_allowed": false
+  },
+  "session_reuse_index": {
+    "artifact": "session-reuse-index.json",
+    "schema": "bears-session-reuse-index.v1",
+    "key_algorithm": "sha256-json-v1",
+    "key_fields": [
+      "goal_id",
+      "roadmap_id",
+      "lane",
+      "registered_role",
+      "scope_fingerprint",
+      "repo_head",
+      "spec_id",
+      "spec_path",
+      "spec_snapshot_id",
+      "roadmap_slice"
+    ],
+    "rule": "The reuse_key must be deterministic from key_fields and must match goal_id, roadmap_id, and the session-reuse-index.json entry before resume, reuse, or fork; every spawn attempt must record a selection_decision of reuse, fresh, or close_then_fresh; restricted_data_taint blocks reuse; reuse or fork requires validate-runtime success before the action.",
+    "required_entry_fields": [
+      "worker_id",
+      "reuse_key",
+      "goal_id",
+      "roadmap_id",
+      "lane",
+      "registered_role",
+      "scope_fingerprint",
+      "repo_head",
+      "spec_id",
+      "spec_path",
+      "spec_snapshot_id",
+      "roadmap_slice",
+      "status",
+      "validation_target",
+      "continuation_packet_ref",
+      "restricted_data_taint",
+      "last_validation_at",
+      "selection_decision"
+    ],
+    "selection_preflight": {
+      "required_before_spawn": true,
+      "allowed_decisions": [
+        "reuse",
+        "fresh",
+        "close_then_fresh"
+      ],
+      "direct_spawn_without_preflight": "policy_bypass_with_reason",
+      "fresh_required_lanes": [
+        "audit"
+      ],
+      "tainted_worker_decision": "fresh"
+    }
+  },
+  "audit_lane_policy": {
+    "lane": "audit",
+    "rule": "Audit lane workers must start fresh with context_policy=fresh_no_parent_context, no parent context, parent_context_allowed=false, no parent_worker_id, and reuse disallowed.",
+    "required_resume_action": "fresh",
+    "parent_context_allowed": false,
+    "required_context_policy": "fresh_no_parent_context",
+    "parent_worker_id_allowed": false,
+    "reuse_allowed": false,
+    "parallel_monitoring": {
+      "enabled": true,
+      "mode": "non_blocking_parallel_monitoring",
+      "implementation_authority": "forbidden",
+      "blocks_main_workflow": "hard_stop_only",
+      "event_stream": "auditable_events",
+      "finding_issue_policy": "deduplicate_before_create_or_update"
+    }
+  },
+  "wait_checkpoint_policy": {
+    "long_wait_call": "wait_agent",
+    "required_before_wait_fields": [
+      "target_agent",
+      "expected_artifact",
+      "owner_lane",
+      "timeout",
+      "fallback_action"
+    ],
+    "first_timeout_checkpoint_fields": [
+      "waiting_for",
+      "owner",
+      "needed_artifact",
+      "next_action_if_timeout_repeats"
+    ],
+    "repeated_empty_timeout_actions": [
+      "local_read_only_check",
+      "delayed_integration",
+      "blocker_escalation"
+    ],
+    "required_after_wait_result_fields": [
+      "requested_target_ids",
+      "returned_status_ids",
+      "matching_target_ids",
+      "stage_advance_allowed",
+      "mismatch_code",
+      "next_safe_action"
+    ],
+    "target_mismatch_code": "WAIT_AGENT_TARGET_MISMATCH",
+    "target_mismatch_next_safe_actions": [
+      "keep_waiting_original_agents",
+      "interrupt_original_agents",
+      "explicitly_close_original_agents"
+    ],
+    "target_mismatch_rule": "After every wait_agent, parent must compare returned status keys to requested target ids. If no requested target id appears, parent must emit WAIT_AGENT_TARGET_MISMATCH with requested ids, returned ids, and next_safe_action; stage_advance_allowed must be false; parent must keep waiting for, interrupt, or explicitly close the originally requested agents before dependent work.",
+    "stage_advance_rule": "Parent may advance dependent work only when at least one requested target id appears in the returned status keys; unrelated returned ids are out-of-band notifications, not valid wait results.",
+    "blocker_rule": "blocker_escalation is allowed only for missing access, permissions, credentials, ROLE_COVERAGE_BLOCKER, or explicit linked-contract or user stop/rescope that prevents safe progress.",
+    "final_integration_rule": "Final integration must cite evidence artifacts; plain waiting is not accepted as integration evidence."
+  }
+}

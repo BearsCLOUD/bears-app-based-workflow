@@ -1,0 +1,15 @@
+{
+  "schema": "bears-policy-invariant-input.v1",
+  "changed_files": [
+    "tests/test_policy_invariants.py"
+  ],
+  "release_note_status": "pass",
+  "decision_status": "pass",
+  "covered_issues": [
+    {
+      "number": 101,
+      "classification": "closed",
+      "github_state": "OPEN"
+    }
+  ]
+}

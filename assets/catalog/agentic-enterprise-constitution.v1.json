@@ -1,0 +1,192 @@
+{
+  "schema": "bears-agentic-enterprise-constitution.v1",
+  "version": "1",
+  "updated": "2026-06-22",
+  "owner_plugin": "bears",
+  "purpose": "Keep Bears agentic workflow small, parallel, measurable, file-backed, role-scoped, and reusable across plugin, platform, gitops, infra, and product_infra work.",
+  "authority_order": [
+    "operator_directive",
+    "file_backed_decision_log",
+    "workflow_catalog",
+    "role_assignment_packet",
+    "agent_inference"
+  ],
+  "principles": [
+    {
+      "id": "docs_as_code",
+      "rule": "Documentation lives in the repository beside governed logic and is checked by validators."
+    },
+    {
+      "id": "contract_first",
+      "rule": "Durable packet work starts from schema inputs, outputs, required fields, and failure modes before implementation."
+    },
+    {
+      "id": "schema_first",
+      "rule": "State packets, logic packets, scope rows, decision logs, and degradation packets must have JSON Schema coverage."
+    },
+    {
+      "id": "dry",
+      "rule": "Do not duplicate workflow logic across roles, hooks, catalogs, and docs; keep one authoritative source and references."
+    },
+    {
+      "id": "modularity",
+      "rule": "Executable workflow logic is split into small scripts, functions, schemas, fixtures, metrics, and docs."
+    },
+    {
+      "id": "single_responsibility",
+      "rule": "Each module, role, and packet owns one checkable responsibility."
+    },
+    {
+      "id": "reusable_executable_logic",
+      "rule": "Reusable logic is packaged as schema, validator, fixtures, metrics, docs, and a stable command."
+    },
+    {
+      "id": "interface_based_design",
+      "rule": "Agents depend on packet inputs and outputs, not hidden implementation details."
+    },
+    {
+      "id": "composition_over_inheritance",
+      "rule": "Workflow behavior is composed from small policies and packets, not deep role inheritance chains."
+    },
+    {
+      "id": "executable_validation",
+      "rule": "A durable workflow rule is incomplete until CI can run a deterministic validate command for it."
+    },
+    {
+      "id": "bounded_context",
+      "rule": "Each agent layer receives only the smallest packet set needed for its responsibility."
+    },
+    {
+      "id": "file_backed_state",
+      "rule": "Important decisions, scopes, tasks, metrics, blockers, and status live in JSON files, not only chat."
+    },
+    {
+      "id": "no_hidden_state",
+      "rule": "Any decision that changes agent behavior must be present in a file, schema, fixture, metric, doc, or test."
+    },
+    {
+      "id": "deterministic_output",
+      "rule": "The same packet input must produce the same validation decision."
+    },
+    {
+      "id": "idempotency",
+      "rule": "Workflow commands must be safe to rerun without corrupting state."
+    },
+    {
+      "id": "fixtures_as_proof",
+      "rule": "Good and bad packets must exist for durable workflow logic."
+    },
+    {
+      "id": "metrics_required",
+      "rule": "A scope or task is incomplete without time, token, error, heartbeat, progress, and blocker metrics when applicable."
+    },
+    {
+      "id": "docs_causal_map",
+      "rule": "Logic changes name the docs, catalogs, roles, schemas, and fixtures that must change with them."
+    },
+    {
+      "id": "role_gated_edits",
+      "rule": "An agent may edit a governed file only when its role packet permits that file class and write scope."
+    },
+    {
+      "id": "boundary_first",
+      "rule": "Every scope starts by selecting one repo domain before task execution."
+    },
+    {
+      "id": "fail_closed",
+      "rule": "Missing role, schema, metrics, owner, budget, or allowed write scope blocks the affected scope."
+    },
+    {
+      "id": "versioned_contracts",
+      "rule": "Schemas and packets carry schema_version or version and require explicit migration steps for incompatible changes."
+    },
+    {
+      "id": "backward_compatibility",
+      "rule": "New validators must not break old valid packets unless a migration packet exists."
+    },
+    {
+      "id": "single_source_of_truth",
+      "rule": "Every durable workflow rule has one owning catalog or schema."
+    },
+    {
+      "id": "policy_as_code",
+      "rule": "Access, deploy, runtime, role, and security policies are checked by files and commands."
+    },
+    {
+      "id": "observability_as_code",
+      "rule": "Metrics, alerts, dashboards, and compact summaries are repo-described and not free-form chat state."
+    },
+    {
+      "id": "small_composable_units",
+      "rule": "A logic package solves one task and can be reused by another workflow."
+    },
+    {
+      "id": "golden_path",
+      "rule": "There is one recommended launch path and it is always validated."
+    },
+    {
+      "id": "adr",
+      "rule": "Architecture-impacting changes write a short decision record with decision, reason, and changed surface."
+    }
+  ],
+  "role_scoped_principles": {
+    "l1_head_orchestrator": [
+      "bounded_context",
+      "file_backed_state",
+      "no_hidden_state",
+      "metrics_required",
+      "policy_as_code",
+      "single_source_of_truth",
+      "golden_path"
+    ],
+    "l2_domain_orchestrator": [
+      "docs_as_code",
+      "contract_first",
+      "schema_first",
+      "interface_based_design",
+      "boundary_first",
+      "metrics_required",
+      "docs_causal_map",
+      "role_gated_edits"
+    ],
+    "l3_executor": [
+      "single_responsibility",
+      "modularity",
+      "reusable_executable_logic",
+      "deterministic_output",
+      "idempotency",
+      "fixtures_as_proof",
+      "executable_validation"
+    ],
+    "l3_doc_agent": [
+      "docs_as_code",
+      "docs_causal_map",
+      "single_source_of_truth",
+      "adr",
+      "metrics_required"
+    ],
+    "reviewer_or_consistency_controller": [
+      "fail_closed",
+      "policy_as_code",
+      "observability_as_code",
+      "versioned_contracts",
+      "backward_compatibility"
+    ]
+  },
+  "references": [
+    "/srv/bears/platform-enterprise/docs/target-state/layer-boundaries.md",
+    "/srv/bears/platform-enterprise/docs/target-state/workflow-lifecycle.md",
+    "/srv/bears/platform-enterprise/docs/target-state/validation-hooks-spec.md",
+    "/srv/bears/platform-enterprise/docs/target-state/codex-initialization-and-instructions.md",
+    "https://github.com/openai/symphony/blob/main/SPEC.md",
+    "https://openai.com/index/open-source-codex-orchestration-symphony/"
+  ],
+  "validation": {
+    "command": "python3 scripts/agentic_enterprise_workflow.py validate-constitution",
+    "schema": "assets/schemas/agentic-enterprise-constitution.v1.schema.json",
+    "fixtures": [
+      "tests/fixtures/agentic_enterprise_workflow/good/decision-log.valid.json",
+      "tests/fixtures/agentic_enterprise_workflow/bad/decision-log.conflict-missing-contradiction.invalid.json"
+    ]
+  }
+}

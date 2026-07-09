@@ -1,0 +1,15 @@
+{
+  "schema": "bears-github-issue-ref.v1",
+  "version": "1",
+  "repo": "BearsCLOUD/bears-infra",
+  "owner": "BearsCLOUD",
+  "repo_name": "bears-infra",
+  "issue_number": 66,
+  "canonical_ref": "BearsCLOUD/bears-infra#66",
+  "github_url": "https://github.com/BearsCLOUD/bears-infra/issues/66",
+  "state": "resolved",
+  "source_snapshot_ref": null,
+  "source_snapshot_sha256": null,
+  "legacy_local_ref": null,
+  "status": "pass"
+}

@@ -1,0 +1,191 @@
+{
+  "schema": "bears-issue-execution-priority.v1",
+  "version": "1",
+  "status": "active",
+  "scope": "BearsCLOUD/bears_plugin formal logic and orchestration roadmap",
+  "priority_policy": {
+    "source_of_truth": "assets/catalog/formal-logic-workflow-contract.v1.json",
+    "ordering_rule": "execute prerequisites before consumers; do not start downstream write-scoped issues until blocking dependencies are complete or explicitly marked compatible",
+    "autostart_label_policy": {
+      "plugin_safe": ["bears:auto-start", "scope:bears-plugin"],
+      "non_plugin": "read_only_until_write_scope_proof"
+    },
+    "duplicate_policy": "update existing issue instead of creating duplicate issue when objective is already covered",
+    "fallback": "manual_review"
+  },
+  "waves": [
+    {
+      "wave_id": "wave-00-hotfix-hygiene",
+      "priority": "P0",
+      "intent": "Clear accidental or blocking repository hygiene before formal chain execution.",
+      "issues": [],
+      "status": "informational"
+    },
+    {
+      "wave_id": "wave-01-formal-foundation",
+      "priority": "P0",
+      "intent": "Install the formal type/relation foundation that every downstream decision depends on.",
+      "issues": [435],
+      "required_before": [437, 438, 439, 440, 441, 443, 446],
+      "parallelism": "none",
+      "done_when": [
+        "semantic type catalog exists",
+        "relation direction validation exists",
+        "candidate facts cannot unlock execution",
+        "doctor reports formal semantics status"
+      ]
+    },
+    {
+      "wave_id": "wave-02-question-and-principle-decision",
+      "priority": "P0",
+      "intent": "Make decisions question/proof-driven instead of prompt-driven.",
+      "issues": [437, 415],
+      "depends_on": [435],
+      "parallelism": "limited_parallel_allowed",
+      "done_when": [
+        "question operators validate",
+        "decision graph blocks missing proof",
+        "principles/goals are mapped to semantic types"
+      ]
+    },
+    {
+      "wave_id": "wave-03-inference-and-state",
+      "priority": "P0",
+      "intent": "Derive workflow permissions and enforce formal transitions.",
+      "issues": [438, 439],
+      "depends_on": [435, 437],
+      "parallelism": "sequential_preferred",
+      "done_when": [
+        "accepted facts derive execution permissions",
+        "candidate facts cannot derive write permission",
+        "invalid transition fails",
+        "state-machine invariants block execution when evidence is missing"
+      ]
+    },
+    {
+      "wave_id": "wave-04-semantic-and-code-graph",
+      "priority": "P0",
+      "intent": "Build machine-derived repository semantics and file context sources.",
+      "issues": [431, 429, 440],
+      "depends_on": [435],
+      "parallelism": "parallel_allowed_after_435",
+      "done_when": [
+        "workspace semantic graph validates",
+        "file-context freshness policy works",
+        "Python AST/code property facts are extracted",
+        "stale extracted facts cannot unlock execution"
+      ]
+    },
+    {
+      "wave_id": "wave-05-prompt-and-executor-control",
+      "priority": "P0",
+      "intent": "Compile minimal prompts from proof context and gate executor/model/tool choices.",
+      "issues": [441, 405, 414, 417, 416],
+      "depends_on": [435, 437, 438, 429, 431, 440],
+      "parallelism": "limited_parallel_allowed",
+      "done_when": [
+        "prompt compiler rejects missing proof",
+        "role profiles provide bounded instructions",
+        "codex exec requires allow-exec gate",
+        "MCP policy denies by default",
+        "OpenCode adapter is optional and deny-by-default"
+      ]
+    },
+    {
+      "wave_id": "wave-06-goal-orchestration-and-file-fanout",
+      "priority": "P0",
+      "intent": "Enable zero-context goal execution, file-scoped fanout, and safe session reuse.",
+      "issues": [426, 430, 422, 413],
+      "depends_on": [437, 438, 439, 441, 443],
+      "parallelism": "sequential_then_parallel",
+      "done_when": [
+        "goal orchestrator produces goal-state JSON",
+        "file-change plan coverage gates execution",
+        "session reuse never carries raw chat context",
+        "autostart starts roadmap leaf nodes, not arbitrary issues"
+      ]
+    },
+    {
+      "wave_id": "wave-07-invariant-and-gitops-closeout",
+      "priority": "P0",
+      "intent": "Block unsafe execution and closeout through invariants and GitOps degradation state.",
+      "issues": [443, 421, 404],
+      "depends_on": [438, 439, 441],
+      "parallelism": "limited_parallel_allowed",
+      "done_when": [
+        "orchestrator invariant check blocks unsafe execution",
+        "GitOps degraded state blocks closeout",
+        "solved-but-open issues block closeout until reconciled"
+      ]
+    },
+    {
+      "wave_id": "wave-08-usage-degradation-and-self-improvement",
+      "priority": "P0",
+      "intent": "Use traces and analytics to improve roles, contexts, validators, and workflow rules.",
+      "issues": [419, 418, 420, 446],
+      "depends_on": [439, 443],
+      "parallelism": "parallel_allowed_after_event_schema",
+      "done_when": [
+        "usage ledger records per role/executor/context",
+        "context budget detects oversized skills/roles",
+        "degradation event triggers role/context remediation plan",
+        "process mining creates bounded improvement candidates"
+      ]
+    },
+    {
+      "wave_id": "wave-09-legacy-backlog-and-repo-onboarding",
+      "priority": "P1",
+      "intent": "Reconcile old issues and safely onboard other repositories after formal control plane is available.",
+      "issues": [411, 412],
+      "depends_on": [404, 421, 422],
+      "parallelism": "manual_review_first",
+      "done_when": [
+        "old backlog has proof-backed close/keep decisions",
+        "non-plugin repos have read-only or write-scoped onboarding proof"
+      ]
+    },
+    {
+      "wave_id": "wave-10-seller-platform-long-range-planning",
+      "priority": "P1",
+      "intent": "Use the formal orchestrator foundation to plan seller.besrs.ru GitLab to GitHub migration and shared platform integration.",
+      "issues": [],
+      "depends_on": [426, 430, 431, 441, 443, 446],
+      "parallelism": "roadmap_driven",
+      "done_when": [
+        "seller migration roadmap uses semantic graph, formal decisions, file context, and platform-service reuse contracts"
+      ]
+    }
+  ],
+  "blocking_dependencies": [
+    {"issue": 437, "blocked_by": [435]},
+    {"issue": 438, "blocked_by": [435, 437, 431]},
+    {"issue": 439, "blocked_by": [435, 437, 438]},
+    {"issue": 440, "blocked_by": [435, 431, 429]},
+    {"issue": 441, "blocked_by": [435, 437, 438, 439, 429, 431, 440]},
+    {"issue": 443, "blocked_by": [435, 438, 439, 441]},
+    {"issue": 446, "blocked_by": [439, 443, 419, 420, 421]},
+    {"issue": 426, "blocked_by": [437, 438, 439, 441, 443]},
+    {"issue": 430, "blocked_by": [429, 431, 438, 441, 443]},
+    {"issue": 422, "blocked_by": [413, 414, 426]}
+  ],
+  "executor_guidance": {
+    "first_issue_to_run": 435,
+    "do_not_start_before_435": [437, 438, 439, 440, 441, 443, 446],
+    "allowed_parallelism_before_formal_foundation": "none",
+    "allowed_parallelism_after_formal_foundation": "parallelize independent extraction/catalog/profile issues only when write scopes are disjoint",
+    "manual_review_required_when": [
+      "dependency issue is missing or closed without proof",
+      "issue mutates non-plugin repository without write-scope proof",
+      "issue lacks JSON schemas/catalogs/scripts/commands",
+      "issue is prose-only",
+      "autostart safety is unclear"
+    ]
+  },
+  "doctor_expectations": [
+    "validate this priority file against formal-logic contract",
+    "report runnable_next_issue",
+    "report blocked_by_dependency",
+    "report duplicate_or_conflicting_issue",
+    "report unsafe_autostart_label"
+  ]
+}

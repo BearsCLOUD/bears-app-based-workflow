@@ -1,0 +1,15 @@
+{
+  "$id": "https://bears.local/schemas/workflow-invariant.v1.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Bears workflow invariant v1",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schema": {"const": "bears-workflow-invariant.v1"},
+    "invariant_id": {"enum": ["execution_requires_decision_graph", "execution_requires_accepted_inference", "write_requires_file_context", "parallel_requires_disjoint_locks", "closeout_requires_validation_pass", "closeout_requires_no_blocking_debt", "stale_context_cannot_unlock_execution", "durable_json_remains_authority"]},
+    "description": {"type": "string", "minLength": 1},
+    "required_evidence": {"type": "array", "items": {"type": "string", "minLength": 1}, "uniqueItems": true},
+    "validator": {"type": "string", "minLength": 1}
+  },
+  "required": ["schema", "invariant_id", "description", "required_evidence", "validator"]
+}

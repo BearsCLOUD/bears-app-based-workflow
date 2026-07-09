@@ -1,0 +1,22 @@
+{
+  "$id": "https://bears.local/schemas/bears-capability-report.v1.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Bears capability report v1",
+  "type": "object",
+  "additionalProperties": true,
+  "properties": {
+    "schema_version": {"const": "bears-capability-report.v1"},
+    "run_id": {"type": "string", "minLength": 1},
+    "repo": {"const": "BearsCLOUD/bears_plugin"},
+    "git_sha": {"type": "string", "minLength": 1},
+    "executor_mode": {"const": "deterministic_harness"},
+    "mode": {"type": "string", "minLength": 1},
+    "overall_result": {"enum": ["pass", "fail", "blocked"]},
+    "task_levels_added": {"type": "array"},
+    "metric_fields_added": {"type": "array", "items": {"type": "string"}},
+    "results": {"type": "array", "items": {"type": "object"}},
+    "ledger_refs": {"type": "array", "items": {"type": "string"}},
+    "reports": {"type": "array", "items": {"type": "string"}}
+  },
+  "required": ["schema_version", "run_id", "repo", "git_sha", "executor_mode", "mode", "overall_result", "task_levels_added", "metric_fields_added", "results", "ledger_refs", "reports"]
+}

@@ -1,0 +1,25 @@
+{
+  "schema": "bears-process-mining-policy.v1",
+  "version": "1",
+  "owner_issue": "#446",
+  "max_event_files": 200,
+  "max_events": 2000,
+  "high_context_token_threshold": 12000,
+  "repeated_failure_threshold": 2,
+  "allowed_transitions": [
+    "queued->running",
+    "running->validation",
+    "validation->closed",
+    "validation->blocked",
+    "blocked->manual_review",
+    "manual_review->running"
+  ],
+  "commands": [
+    "scripts/process_mining.py validate",
+    "scripts/process_mining.py ingest --paths <glob> --json",
+    "scripts/process_mining.py compare --model <path> --events <path> --json",
+    "scripts/workflow_improvement_candidates.py generate --report <path> --json",
+    "scripts/workflow_improvement_candidates.py create-issues --candidates <path> --dry-run --json",
+    "scripts/process_mining.py doctor --json"
+  ]
+}

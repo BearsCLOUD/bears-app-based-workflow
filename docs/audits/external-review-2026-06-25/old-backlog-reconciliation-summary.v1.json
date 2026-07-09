@@ -1,0 +1,213 @@
+{
+  "counts": {
+    "blockers": 0,
+    "completed_candidates": 6,
+    "phase_2_remaining": 9,
+    "rows": 15
+  },
+  "covered_issues": [
+    {
+      "action": "leave_open_classified",
+      "classification": "phase_2",
+      "github_state_at_reconciliation": "OPEN",
+      "issue": 370,
+      "proof_commit": null,
+      "proof_path": null,
+      "reason": "phase 2 or manual review needs separate exact proof",
+      "related_delivery_id": null
+    },
+    {
+      "action": "close_completed",
+      "classification": "completed",
+      "github_state_at_reconciliation": "OPEN",
+      "issue": 371,
+      "proof_commit": "1b8332b",
+      "proof_path": "scripts/validation_queue.py",
+      "reason": "async validation queue and worker surfaces exist",
+      "related_delivery_id": "bears-governance-kernel-v1"
+    },
+    {
+      "action": "leave_open_classified",
+      "classification": "phase_2",
+      "github_state_at_reconciliation": "OPEN",
+      "issue": 372,
+      "proof_commit": null,
+      "proof_path": null,
+      "reason": "phase 2 or manual review needs separate exact proof",
+      "related_delivery_id": null
+    },
+    {
+      "action": "leave_open_classified",
+      "classification": "phase_2",
+      "github_state_at_reconciliation": "OPEN",
+      "issue": 373,
+      "proof_commit": null,
+      "proof_path": null,
+      "reason": "phase 2 or manual review needs separate exact proof",
+      "related_delivery_id": null
+    },
+    {
+      "action": "leave_open_classified",
+      "classification": "phase_2",
+      "github_state_at_reconciliation": "OPEN",
+      "issue": 374,
+      "proof_commit": null,
+      "proof_path": null,
+      "reason": "phase 2 or manual review needs separate exact proof",
+      "related_delivery_id": null
+    },
+    {
+      "action": "leave_open_classified",
+      "classification": "phase_2",
+      "github_state_at_reconciliation": "OPEN",
+      "issue": 375,
+      "proof_commit": null,
+      "proof_path": null,
+      "reason": "phase 2 or manual review needs separate exact proof",
+      "related_delivery_id": null
+    },
+    {
+      "action": "leave_open_classified",
+      "classification": "phase_2",
+      "github_state_at_reconciliation": "OPEN",
+      "issue": 376,
+      "proof_commit": null,
+      "proof_path": null,
+      "reason": "phase 2 or manual review needs separate exact proof",
+      "related_delivery_id": null
+    },
+    {
+      "action": "leave_open_classified",
+      "classification": "phase_2",
+      "github_state_at_reconciliation": "OPEN",
+      "issue": 379,
+      "proof_commit": null,
+      "proof_path": null,
+      "reason": "phase 2 or manual review needs separate exact proof",
+      "related_delivery_id": null
+    },
+    {
+      "action": "leave_open_classified",
+      "classification": "phase_2",
+      "github_state_at_reconciliation": "OPEN",
+      "issue": 380,
+      "proof_commit": null,
+      "proof_path": null,
+      "reason": "phase 2 or manual review needs separate exact proof",
+      "related_delivery_id": null
+    },
+    {
+      "action": "leave_open_classified",
+      "classification": "phase_2",
+      "github_state_at_reconciliation": "OPEN",
+      "issue": 381,
+      "proof_commit": null,
+      "proof_path": null,
+      "reason": "phase 2 or manual review needs separate exact proof",
+      "related_delivery_id": null
+    },
+    {
+      "action": "close_completed",
+      "classification": "completed",
+      "github_state_at_reconciliation": "OPEN",
+      "issue": 382,
+      "proof_commit": "cb0580b",
+      "proof_path": "scripts/artifact_registry.py",
+      "reason": "artifact registry and pre-commit added-file gate exist",
+      "related_delivery_id": "bears-governance-kernel-v1"
+    },
+    {
+      "action": "close_completed",
+      "classification": "completed",
+      "github_state_at_reconciliation": "OPEN",
+      "issue": 383,
+      "proof_commit": "3bd430c",
+      "proof_path": "scripts/decision_ledger.py",
+      "reason": "decision ledger validator and required-decision gate exist",
+      "related_delivery_id": "bears-governance-kernel-v1"
+    },
+    {
+      "action": "close_completed",
+      "classification": "completed",
+      "github_state_at_reconciliation": "OPEN",
+      "issue": 387,
+      "proof_commit": "7615239",
+      "proof_path": "scripts/workflow_tree.py",
+      "reason": "canonical workflow tree contract and validator exist",
+      "related_delivery_id": "bears-governance-kernel-v1"
+    },
+    {
+      "action": "close_completed",
+      "classification": "completed",
+      "github_state_at_reconciliation": "OPEN",
+      "issue": 388,
+      "proof_commit": "14b8df0655983ae243acb25d0d9a1f1b181c1916",
+      "proof_path": "scripts/bears_doctor.py",
+      "reason": "bears_doctor closeout validator is active and passed this closeout",
+      "related_delivery_id": "bears-governance-kernel-v1"
+    },
+    {
+      "action": "close_completed",
+      "classification": "completed",
+      "github_state_at_reconciliation": "OPEN",
+      "issue": 389,
+      "proof_commit": "abcd665",
+      "proof_path": "scripts/sequential_codex_exec.py",
+      "reason": "sequential codex exec runner and role budget tests exist",
+      "related_delivery_id": "bears-governance-kernel-v1"
+    }
+  ],
+  "delivery_id": "issue-411-p0-reconcile-old-open-backlog-af",
+  "evidence_chain": {
+    "bears_doctor_closeout_summary": {
+      "path": "docs/audits/external-review-2026-06-25/old-backlog-reconciliation-summary.v1.json",
+      "runtime_reference": "runtime/deliveries/issue-411-p0-reconcile-old-open-backlog-af/delivery-manifest.v1.json",
+      "status": "pass"
+    },
+    "changelog_or_release_note": {
+      "path": "docs/audits/external-review-2026-06-25/CHANGELOG.md",
+      "status": "pass"
+    },
+    "decision_ledger": {
+      "path": "docs/audits/external-review-2026-06-25/decisions.md",
+      "status": "pass"
+    },
+    "delivery_manifest": {
+      "path": "docs/audits/external-review-2026-06-25/old-backlog-reconciliation-summary.v1.json",
+      "runtime_reference": "runtime/deliveries/issue-411-p0-reconcile-old-open-backlog-af/delivery-manifest.v1.json",
+      "status": "pass"
+    },
+    "github_issue_state": {
+      "checked_command": "gh issue view 411 --repo BearsCLOUD/bears_plugin --json number,state,url,closedAt,title",
+      "closed_at": "2026-06-25T13:12:22Z",
+      "reference": "https://github.com/BearsCLOUD/bears_plugin/issues/411",
+      "state": "CLOSED",
+      "status": "pass"
+    },
+    "validation_proof": {
+      "path": "docs/audits/external-review-2026-06-25/old-backlog-reconciliation-summary.v1.json",
+      "status": "pass",
+      "validated_command": "python3 scripts/old_backlog_reconciliation.py validate"
+    }
+  },
+  "external_review_limits": [
+    "This packet contains bounded issue metadata only.",
+    "Ignored runtime files remain supporting references, not the sole proof."
+  ],
+  "generated_at": "2026-06-25T13:20:00Z",
+  "issue_ref": "#411",
+  "repo": "BearsCLOUD/bears_plugin",
+  "runtime_evidence_refs": [
+    "runtime/issue-reconciliation/old-open-backlog.v1.json",
+    "runtime/deliveries/issue-411-p0-reconcile-old-open-backlog-af/delivery-manifest.v1.json"
+  ],
+  "schema": "bears-external-review-delivery-summary.v1",
+  "status": "externally_reviewable",
+  "summary": "Issue #411 has repo-visible bounded proof for old backlog reconciliation. Runtime packet references are summarized here for external review.",
+  "summary_path": "docs/audits/external-review-2026-06-25/old-backlog-reconciliation-summary.v1.json",
+  "validation_commands": [
+    "python3 scripts/old_backlog_reconciliation.py validate",
+    "python3 scripts/external_review_audit.py check-delivery --delivery-id issue-411-p0-reconcile-old-open-backlog-af --json"
+  ],
+  "version": "1"
+}

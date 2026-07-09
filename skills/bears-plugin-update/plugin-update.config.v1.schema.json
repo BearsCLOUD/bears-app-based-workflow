@@ -1,0 +1,188 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://bears.local/schemas/plugin-update.config.v1.schema.json",
+  "title": "Bears plugin update config",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "version",
+    "owner_plugin",
+    "root_resolution",
+    "owner_surfaces",
+    "changed_fact_classification",
+    "sequential_audit_review",
+    "audit_packet"
+  ],
+  "properties": {
+    "schema": {
+      "const": "bears-plugin-update.config.v1"
+    },
+    "version": {
+      "type": "string",
+      "minLength": 1
+    },
+    "owner_plugin": {
+      "const": "bears"
+    },
+    "root_resolution": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "marker",
+        "search",
+        "absolute_path_required"
+      ],
+      "properties": {
+        "marker": {
+          "const": ".codex-plugin/plugin.json"
+        },
+        "search": {
+          "const": "nearest_ancestor"
+        },
+        "absolute_path_required": {
+          "const": false
+        }
+      }
+    },
+    "owner_surfaces": {
+      "type": "array",
+      "minItems": 3,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "description"
+        ],
+        "properties": {
+          "id": {
+            "enum": [
+              "central_plugin_config",
+              "target_agents_md",
+              "target_codex"
+            ]
+          },
+          "description": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "changed_fact_classification": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "default_owner_surface",
+        "target_specific_rule_owner",
+        "target_runtime_codex_owner"
+      ],
+      "properties": {
+        "default_owner_surface": {
+          "const": "central_plugin_config"
+        },
+        "target_specific_rule_owner": {
+          "const": "target_agents_md"
+        },
+        "target_runtime_codex_owner": {
+          "const": "target_codex"
+        }
+      }
+    },
+    "sequential_audit_review": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "triggers",
+        "exemptions",
+        "manifest_scope",
+        "review_order",
+        "file_kinds",
+        "text_review",
+        "directory_review",
+        "generated_file_review"
+      ],
+      "properties": {
+        "triggers": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "minItems": 1
+        },
+        "exemptions": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "manifest_scope": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "git_tracked_files",
+              "git_untracked_unignored_files"
+            ]
+          },
+          "minItems": 1
+        },
+        "review_order": {
+          "const": "sorted_path"
+        },
+        "file_kinds": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "text_file",
+              "generated_file",
+              "directory",
+              "binary_or_non_text"
+            ]
+          },
+          "minItems": 4
+        },
+        "text_review": {
+          "const": "line_by_line"
+        },
+        "directory_review": {
+          "const": "child_inventory"
+        },
+        "generated_file_review": {
+          "const": "record_generator_source"
+        }
+      }
+    },
+    "audit_packet": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema",
+        "required_fields",
+        "file_entry_fields"
+      ],
+      "properties": {
+        "schema": {
+          "const": "bears-plugin-update.audit-packet.v1"
+        },
+        "required_fields": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "minItems": 6
+        },
+        "file_entry_fields": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "minItems": 7
+        }
+      }
+    }
+  }
+}

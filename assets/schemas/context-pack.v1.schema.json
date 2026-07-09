@@ -1,0 +1,82 @@
+{
+  "$id": "https://bears.local/schemas/context-pack.v1.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Bears context pack v1",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schema": {"const": "bears-context-pack.v1"},
+    "status": {"enum": ["pass", "blocked"]},
+    "goal_id": {"type": "string", "minLength": 1},
+    "role_id": {"type": "string", "minLength": 1},
+    "execution_unit": {"type": ["string", "null"]},
+    "context_level": {"enum": ["L0", "L1", "L2", "L3", "L4"]},
+    "max_tokens": {"type": "integer", "minimum": 1},
+    "token_estimate": {"type": "integer", "minimum": 0},
+    "required_outputs": {"type": "array", "items": {"type": "string"}},
+    "accepted_facts": {"type": "array", "items": {"type": "object"}},
+    "accepted_proofs": {"type": "array", "items": {"type": "object"}},
+    "inference_proofs": {"type": "array", "items": {"type": "object"}},
+    "selected_contexts": {"type": "array", "items": {"$ref": "#/$defs/selected_context"}},
+    "gates": {"$ref": "#/$defs/gates"},
+    "role_profile": {"type": ["object", "null"]},
+    "errors": {"type": "array", "items": {"type": "string"}}
+  },
+  "required": [
+    "schema",
+    "status",
+    "goal_id",
+    "role_id",
+    "execution_unit",
+    "context_level",
+    "max_tokens",
+    "token_estimate",
+    "required_outputs",
+    "accepted_facts",
+    "accepted_proofs",
+    "inference_proofs",
+    "selected_contexts",
+    "gates",
+    "role_profile",
+    "errors"
+  ],
+  "$defs": {
+    "gates": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "unlocked": {"type": "array", "items": {"type": "string"}},
+        "blocked": {"type": "array", "items": {"type": "string"}}
+      },
+      "required": ["unlocked", "blocked"]
+    },
+    "selected_context": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "context_id": {"type": "string", "minLength": 1},
+        "path": {"type": "string", "minLength": 1},
+        "level": {"enum": ["L2", "L3", "L4"]},
+        "source_hash": {"type": "string", "minLength": 1},
+        "summary": {"type": "string", "minLength": 1},
+        "public_interfaces": {"type": "array", "items": {"type": "string"}},
+        "symbols": {"type": "array", "items": {"type": "string"}},
+        "contracts": {"type": "array", "items": {"type": "string"}},
+        "policy": {"type": "object"},
+        "full_file_content": {"type": ["string", "null"]}
+      },
+      "required": [
+        "context_id",
+        "path",
+        "level",
+        "source_hash",
+        "summary",
+        "public_interfaces",
+        "symbols",
+        "contracts",
+        "policy",
+        "full_file_content"
+      ]
+    }
+  }
+}

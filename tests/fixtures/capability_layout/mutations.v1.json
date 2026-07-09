@@ -1,0 +1,20 @@
+{
+  "schema": "bears-plugin-capability-layout-test-mutations.v1",
+  "mutations": [
+    {
+      "id": "duplicate-active-front-door",
+      "type": "append_front_door_to_second_capability",
+      "expected_code": "DUPLICATE_ACTIVE_SKILL_MAPPING"
+    },
+    {
+      "id": "unmapped-active-front-door",
+      "type": "remove_first_active_front_door",
+      "expected_code": "UNMAPPED_ACTIVE_SKILL"
+    },
+    {
+      "id": "disabled-skill-active-front-door",
+      "type": "append_first_disabled_front_door",
+      "expected_code": "DISABLED_SKILL_ACTIVE_FRONT_DOOR"
+    }
+  ]
+}

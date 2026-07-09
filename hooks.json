@@ -1,0 +1,5 @@
+{
+  "hooks": {},
+  "disabled": true,
+  "reason": "@Bears plugin is a tooling package and must not run instruction or policy hooks."
+}

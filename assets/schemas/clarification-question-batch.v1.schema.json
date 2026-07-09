@@ -1,0 +1,371 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://bears.local/schemas/clarification-question-batch.v1.schema.json",
+  "title": "Bears clarification question batch v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "goal_id",
+    "question_batch_id",
+    "decision_graph_id",
+    "questions",
+    "dedupe_policy",
+    "priority_order"
+  ],
+  "properties": {
+    "schema": {
+      "const": "bears-clarification-question-batch.v1"
+    },
+    "goal_id": {
+      "type": "string",
+      "minLength": 3
+    },
+    "question_batch_id": {
+      "type": "string",
+      "minLength": 3,
+      "pattern": "^[a-z0-9][a-z0-9_.:-]*$"
+    },
+    "decision_graph_id": {
+      "type": "string",
+      "minLength": 3,
+      "pattern": "^[a-z0-9][a-z0-9_.:-]*$"
+    },
+    "known_answer_refs": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true
+    },
+    "questions": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/clarification_question"
+      }
+    },
+    "dedupe_policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "fingerprint_field",
+        "duplicate_status"
+      ],
+      "properties": {
+        "fingerprint_field": {
+          "const": "question_fingerprint"
+        },
+        "duplicate_status": {
+          "const": "manual_review"
+        }
+      }
+    },
+    "priority_order": {
+      "type": "array",
+      "minItems": 3,
+      "items": {
+        "enum": [
+          "P0",
+          "P1",
+          "P2"
+        ]
+      },
+      "uniqueItems": true
+    }
+  },
+  "allOf": [
+    {
+      "not": {
+        "required": [
+          "implementation_steps"
+        ]
+      }
+    },
+    {
+      "not": {
+        "required": [
+          "planning_steps"
+        ]
+      }
+    },
+    {
+      "not": {
+        "required": [
+          "next_steps"
+        ]
+      }
+    },
+    {
+      "not": {
+        "required": [
+          "tasks"
+        ]
+      }
+    }
+  ],
+  "$defs": {
+    "clarification_question": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema",
+        "question_id",
+        "operator_id",
+        "operator_version",
+        "gate_id",
+        "question_text",
+        "answer_type",
+        "allowed_values",
+        "answer_shape",
+        "answer_examples",
+        "invalid_examples",
+        "required_evidence_types",
+        "question_fingerprint",
+        "priority",
+        "blocks_execution",
+        "status",
+        "scope_change_request"
+      ],
+      "properties": {
+        "schema": {
+          "const": "bears-clarification-question.v1"
+        },
+        "question_id": {
+          "type": "string",
+          "minLength": 3,
+          "pattern": "^[a-z0-9][a-z0-9_.:-]*$"
+        },
+        "operator_id": {
+          "type": "string",
+          "minLength": 3,
+          "pattern": "^[a-z0-9][a-z0-9_.:-]*$"
+        },
+        "operator_version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "gate_id": {
+          "type": "string",
+          "minLength": 3,
+          "pattern": "^[a-z0-9][a-z0-9_.:-]*$"
+        },
+        "question_text": {
+          "type": "string",
+          "minLength": 16
+        },
+        "answer_type": {
+          "enum": [
+            "boolean",
+            "enum",
+            "path",
+            "repo",
+            "issue",
+            "number",
+            "range",
+            "freeform_bounded",
+            "evidence_ref"
+          ]
+        },
+        "allowed_values": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        },
+        "answer_shape": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "description"
+          ],
+          "properties": {
+            "type": {
+              "enum": [
+                "boolean",
+                "enum",
+                "path",
+                "repo",
+                "issue",
+                "number",
+                "range",
+                "freeform_bounded",
+                "evidence_ref"
+              ]
+            },
+            "description": {
+              "type": "string",
+              "minLength": 8
+            },
+            "byte_limit": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "pattern": {
+              "type": "string",
+              "minLength": 1
+            },
+            "minimum": {
+              "type": "number"
+            },
+            "maximum": {
+              "type": "number"
+            }
+          }
+        },
+        "answer_examples": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        },
+        "invalid_examples": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        },
+        "required_evidence_types": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "enum": [
+              "human",
+              "repo_file",
+              "github_issue",
+              "git_diff",
+              "test_output",
+              "runtime_packet",
+              "research_note"
+            ]
+          },
+          "uniqueItems": true
+        },
+        "evidence_refs": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        },
+        "question_fingerprint": {
+          "type": "string",
+          "minLength": 8,
+          "pattern": "^[a-z0-9][a-z0-9_.:-]*$"
+        },
+        "priority": {
+          "enum": [
+            "P0",
+            "P1",
+            "P2"
+          ]
+        },
+        "blocks_execution": {
+          "type": "boolean"
+        },
+        "status": {
+          "enum": [
+            "answered",
+            "declined",
+            "research_required",
+            "manual_review",
+            "expired"
+          ]
+        },
+        "scope_change_request": {
+          "type": "boolean"
+        },
+        "rationale": {
+          "type": "string",
+          "minLength": 8
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "priority": {
+                "const": "P0"
+              }
+            },
+            "required": [
+              "priority"
+            ]
+          },
+          "then": {
+            "properties": {
+              "blocks_execution": {
+                "const": true
+              }
+            },
+            "required": [
+              "blocks_execution"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "answer_type": {
+                "const": "freeform_bounded"
+              }
+            },
+            "required": [
+              "answer_type"
+            ]
+          },
+          "then": {
+            "properties": {
+              "answer_shape": {
+                "required": [
+                  "byte_limit"
+                ]
+              }
+            },
+            "required": [
+              "answer_shape"
+            ]
+          }
+        },
+        {
+          "not": {
+            "required": [
+              "implementation_steps"
+            ]
+          }
+        },
+        {
+          "not": {
+            "required": [
+              "planning_steps"
+            ]
+          }
+        },
+        {
+          "not": {
+            "required": [
+              "next_steps"
+            ]
+          }
+        },
+        {
+          "not": {
+            "required": [
+              "tasks"
+            ]
+          }
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "answer": "git_json",
+  "answer_type": "execution",
+  "blocked_gates": [],
+  "evidence_paths": ["assets/catalog/formal-semantics-kernel.v1.json"],
+  "evidence_types": ["catalog", "contract"],
+  "operator_id": "resolve_source_of_truth",
+  "proof_id": "fixture-candidate-unlocks",
+  "schema": "bears-question-answer-proof.v1",
+  "semantic_fact_refs": ["fact-435-implements-formal-semantics-kernel"],
+  "status": "candidate",
+  "unlocked_gates": ["source_of_truth_resolved"],
+  "validator": "scripts/question_calculus.py prove-answer --packet <path> --json"
+}

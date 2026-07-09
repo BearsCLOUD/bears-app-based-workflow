@@ -1,0 +1,56 @@
+[
+  {
+    "body": "fixture",
+    "labels": [],
+    "number": 404,
+    "repo": "BearsCLOUD/bears_plugin",
+    "state": "CLOSED",
+    "title": "Issue 404",
+    "url": "https://github.com/BearsCLOUD/bears_plugin/issues/404"
+  },
+  {
+    "body": "fixture",
+    "labels": [],
+    "number": 405,
+    "repo": "BearsCLOUD/bears_plugin",
+    "state": "OPEN",
+    "title": "Issue 405",
+    "url": "https://github.com/BearsCLOUD/bears_plugin/issues/405"
+  },
+  {
+    "body": "fixture",
+    "labels": [],
+    "number": 406,
+    "repo": "BearsCLOUD/bears_plugin",
+    "state": "CLOSED",
+    "title": "Issue 406",
+    "url": "https://github.com/BearsCLOUD/bears_plugin/issues/406"
+  },
+  {
+    "body": "fixture",
+    "labels": [],
+    "number": 407,
+    "repo": "BearsCLOUD/bears_plugin",
+    "state": "OPEN",
+    "title": "Issue 407",
+    "url": "https://github.com/BearsCLOUD/bears_plugin/issues/407"
+  },
+  {
+    "body": "fixture",
+    "labels": [],
+    "number": 408,
+    "repo": "BearsCLOUD/bears_plugin",
+    "state": "OPEN",
+    "title": "Issue 408",
+    "url": "https://github.com/BearsCLOUD/bears_plugin/issues/408"
+  },
+  {
+    "body": "fixture",
+    "labels": [],
+    "number": 409,
+    "repo": "BearsCLOUD/bears_plugin",
+    "state": "OPEN",
+    "title": "Issue 409",
+    "url": "https://github.com/BearsCLOUD/bears_plugin/issues/409"
+  }
+]

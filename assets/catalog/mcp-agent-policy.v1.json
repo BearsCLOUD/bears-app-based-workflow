@@ -1,0 +1,164 @@
+{
+  "commands": [
+    "python3 scripts/mcp_agent_policy.py validate",
+    "python3 scripts/mcp_agent_policy.py decide --packet <path>",
+    "python3 scripts/mcp_agent_policy.py render-opencode-permissions --packet <path>",
+    "python3 scripts/mcp_agent_policy.py doctor",
+    "python3 scripts/mcp_agent_policy.py decide --agent-profile <id> --issue <N> --json",
+    "python3 scripts/mcp_agent_policy.py render-opencode-permissions --agent-profile <id>"
+  ],
+  "decision_packet_contract": {
+    "allow_fields": [
+      "allowed_mcp_tools",
+      "explicit_read_only_allowlist"
+    ],
+    "closeout_gate_fields": [
+      "gate",
+      "status",
+      "proof_ref"
+    ],
+    "required_fields": [
+      "schema",
+      "profile_id",
+      "requested_tools"
+    ],
+    "schema": "bears-mcp-agent-policy-decision-packet.v1"
+  },
+  "default_mcp_policy": {
+    "deny_unknown_profiles": true,
+    "deny_when_decision_packet_missing": true,
+    "mode": "deny_all",
+    "profile_and_decision_packet_required": true
+  },
+  "issue": "#417",
+  "opencode_permissions": {
+    "allowed_value": "allow",
+    "default_fragment": {
+      "mcp_*": "deny"
+    },
+    "denied_value": "deny"
+  },
+  "output_contract": {
+    "json_only": true,
+    "packet_schema_prefix": "bears-mcp-agent-policy",
+    "statuses": [
+      "pass",
+      "deny",
+      "partial",
+      "fail",
+      "blocked"
+    ]
+  },
+  "owner_plugin": "bears",
+  "profiles": [
+    {
+      "allowed_tool_patterns": [
+        "mcp__context7__*",
+        "mcp__github__get_*",
+        "mcp__github__list_*",
+        "mcp__github__search_*",
+        "mcp__github__read_*"
+      ],
+      "closeout_gate_tools_allowed": false,
+      "decision_packet_required": true,
+      "default_mcp_access": "deny",
+      "github_mutation_default": "deny",
+      "profile_id": "bears_implementation_worker",
+      "profile_kind": "implementation"
+    },
+    {
+      "allowed_tool_patterns": [
+        "mcp__context7__*",
+        "mcp__github__get_*",
+        "mcp__github__list_*",
+        "mcp__github__search_*"
+      ],
+      "closeout_gate_tools_allowed": false,
+      "decision_packet_required": true,
+      "default_mcp_access": "deny",
+      "explicit_read_only_allowlist_required": true,
+      "github_mutation_default": "deny",
+      "profile_id": "oc_research_shard",
+      "profile_kind": "research",
+      "read_only_tool_allowlist": [
+        "mcp__context7__resolve-library-id",
+        "mcp__context7__get-library-docs",
+        "mcp__github__get_issue",
+        "mcp__github__list_issues",
+        "mcp__github__search_issues",
+        "mcp__github__get_pull_request"
+      ]
+    },
+    {
+      "allowed_tool_patterns": [
+        "mcp__github__get_*",
+        "mcp__github__list_*",
+        "mcp__github__search_*",
+        "mcp__github__add_issue_comment",
+        "mcp__github__update_issue",
+        "mcp__github__close_issue"
+      ],
+      "closeout_gate_tools_allowed": true,
+      "decision_packet_required": true,
+      "default_mcp_access": "deny",
+      "github_mutation_default": "deny",
+      "profile_id": "bears_closeout_gate",
+      "profile_kind": "closeout"
+    },
+    {
+      "allowed_tool_patterns": [
+        "mcp__context7__*",
+        "mcp__github__get_*",
+        "mcp__github__list_*",
+        "mcp__github__search_*"
+      ],
+      "closeout_gate_tools_allowed": false,
+      "decision_packet_required": true,
+      "default_mcp_access": "deny",
+      "github_mutation_default": "deny",
+      "profile_id": "bears_review_worker",
+      "profile_kind": "review"
+    }
+  ],
+  "purpose": "Default-deny MCP tool access for agent profiles, with explicit decision-packet allowlists and a narrow GitHub closeout exception.",
+  "schema": "bears-mcp-agent-policy.v1",
+  "tool_rules": {
+    "github_mutation": {
+      "closeout_exception": {
+        "allowed_tools": [
+          "mcp__github__add_issue_comment",
+          "mcp__github__update_issue",
+          "mcp__github__close_issue"
+        ],
+        "gate": "closeout",
+        "required_status": "pass"
+      },
+      "default": "deny",
+      "tool_patterns": [
+        "mcp__github__add_*",
+        "mcp__github__close_*",
+        "mcp__github__create_*",
+        "mcp__github__delete_*",
+        "mcp__github__merge_*",
+        "mcp__github__request_*",
+        "mcp__github__submit_*",
+        "mcp__github__update_*"
+      ]
+    },
+    "mcp_tool_prefix": "mcp__",
+    "research_shard": {
+      "default": "deny",
+      "explicit_read_only_allowlist_required": true,
+      "mutation_tools_allowed": false
+    }
+  },
+  "updated": "2026-06-25",
+  "validation": {
+    "commands": [
+      "python3 scripts/mcp_agent_policy.py validate",
+      "python3 scripts/mcp_agent_policy.py doctor",
+      "python3 -m unittest tests/test_mcp_agent_policy.py"
+    ]
+  },
+  "version": "1"
+}

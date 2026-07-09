@@ -1,0 +1,32 @@
+{
+  "schema": "bears-policy-invariant-input.v1",
+  "changed_files": [
+    "scripts/policy_invariants.py",
+    "assets/catalog/policy-invariants.v1.json"
+  ],
+  "release_note_covered_files": [
+    "scripts/policy_invariants.py",
+    "assets/catalog/policy-invariants.v1.json"
+  ],
+  "decision_covered_files": [
+    "scripts/policy_invariants.py",
+    "assets/catalog/policy-invariants.v1.json"
+  ],
+  "covered_issues": [
+    {
+      "number": 425,
+      "classification": "closed",
+      "github_state": "CLOSED",
+      "solved": true,
+      "auto_close_requested": true
+    },
+    {
+      "number": 460,
+      "classification": "manual_review",
+      "github_state": "OPEN",
+      "solved": false,
+      "auto_close_requested": false
+    }
+  ],
+  "audit_summary": "redacted fixture evidence"
+}

@@ -1,0 +1,24 @@
+{
+  "goal_id": "goal-1",
+  "role": "bears-development-workflow-orchestrator",
+  "repo_boundary": "BearsCLOUD/bears_plugin",
+  "allowed_write_scope": [
+    "scripts/development_workflow_validate.py"
+  ],
+  "forbidden_scope": [
+    "runtime",
+    "secrets"
+  ],
+  "validation_commands": [
+    "python3 scripts/development_workflow_validate.py validate"
+  ],
+  "restricted_data_taint": "none",
+  "status": "pass",
+  "task_id": "t1",
+  "branch_worktree": "codex/workflow",
+  "required_tests": [
+    "python3 -m unittest tests/test_development_workflow_validate.py"
+  ],
+  "closeout_schema": "worker-closeout.v1",
+  "no_secret_no_live_mutation_rules": "no restricted data or live mutation"
+}

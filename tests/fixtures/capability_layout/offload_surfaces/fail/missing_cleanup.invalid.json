@@ -1,0 +1,508 @@
+{
+  "schema": "bears-plugin-offload-claims.v1",
+  "version": "1",
+  "packet_id": "offload-all-surfaces-pass",
+  "effective_config_snapshot_id": "fixture-effective-config-trusted-project",
+  "redaction_status": "clean",
+  "required_surfaces": [
+    "local_thread",
+    "cloud_thread",
+    "worktree",
+    "automation",
+    "mcp",
+    "browser",
+    "chrome",
+    "computer_use"
+  ],
+  "claims": [
+    {
+      "claim_id": "offload-local-thread",
+      "surface": "local_thread",
+      "permission_policy": "operator_scoped_permission_required",
+      "write_isolation": "bounded_write_scope_declared",
+      "cleanup_command": "python3 scripts/capability_layout.py validate --json",
+      "rollback_command": "git checkout -- scripts/capability_layout.py",
+      "target_surfaces": [
+        "Codex local threads"
+      ],
+      "effective_config_snapshot_id": "fixture-effective-config-trusted-project",
+      "redaction_status": "clean",
+      "environment_operation_packet": {
+        "schema": "bears-plugin-environment-operation.v1",
+        "version": "1",
+        "operation_id": "env-op-thread-offload-request-fixture",
+        "operation_type": "thread_offload_request",
+        "source_capability_id": "validation-hooks",
+        "source_paths": [
+          "scripts/capability_layout.py"
+        ],
+        "target_environment_surfaces": [
+          "Codex local threads"
+        ],
+        "operator_authorization_required": true,
+        "authorization_artifact": "operator_authorization_required_before_apply",
+        "default_mode": "dry_run",
+        "preflight_command": "python3 scripts/capability_layout.py validate-environment-packet --packet <packet> --json",
+        "dry_run_command": "python3 scripts/capability_layout.py plan-environment-operation --operation thread_offload_request --json",
+        "apply_command": "operator_authorized_external_change --authorization-artifact ${authorization_artifact}",
+        "rollback_command": "operator_authorized_external_rollback --authorization-artifact ${authorization_artifact}",
+        "validation_command": "python3 scripts/capability_layout.py validate --json",
+        "sanitized_evidence_fields": [
+          "presence",
+          "counts",
+          "hashes",
+          "statuses",
+          "paths"
+        ],
+        "forbidden_raw_sources": [
+          "raw_config_values",
+          "raw_hook_bodies",
+          "raw_sessions",
+          "raw_logs",
+          "raw_chat",
+          "raw_tool_output",
+          "shell_history",
+          "raw_vpn_configs",
+          "private_keys",
+          "payment_identifiers",
+          "personal_contact_identifiers",
+          "tokens",
+          "credentials",
+          ".env values",
+          "production_data"
+        ],
+        "expected_status_after_apply": "pending_post_apply_validation",
+        "blocking_reasons": [],
+        "effective_config_snapshot_id": "fixture-effective-config-trusted-project"
+      }
+    },
+    {
+      "claim_id": "offload-cloud-thread",
+      "surface": "cloud_thread",
+      "permission_policy": "operator_scoped_permission_required",
+      "write_isolation": "bounded_write_scope_declared",
+      "cleanup_command": "python3 scripts/capability_layout.py validate --json",
+      "rollback_command": "git checkout -- scripts/capability_layout.py",
+      "target_surfaces": [
+        "Codex cloud threads"
+      ],
+      "effective_config_snapshot_id": "fixture-effective-config-trusted-project",
+      "redaction_status": "clean",
+      "environment_operation_packet": {
+        "schema": "bears-plugin-environment-operation.v1",
+        "version": "1",
+        "operation_id": "env-op-cloud-thread-request-fixture",
+        "operation_type": "cloud_thread_request",
+        "source_capability_id": "validation-hooks",
+        "source_paths": [
+          "scripts/capability_layout.py"
+        ],
+        "target_environment_surfaces": [
+          "Codex cloud threads"
+        ],
+        "operator_authorization_required": true,
+        "authorization_artifact": "operator_authorization_required_before_apply",
+        "default_mode": "dry_run",
+        "preflight_command": "python3 scripts/capability_layout.py validate-environment-packet --packet <packet> --json",
+        "dry_run_command": "python3 scripts/capability_layout.py plan-environment-operation --operation cloud_thread_request --json",
+        "apply_command": "operator_authorized_external_change --authorization-artifact ${authorization_artifact}",
+        "rollback_command": "operator_authorized_external_rollback --authorization-artifact ${authorization_artifact}",
+        "validation_command": "python3 scripts/capability_layout.py validate --json",
+        "sanitized_evidence_fields": [
+          "presence",
+          "counts",
+          "hashes",
+          "statuses",
+          "paths"
+        ],
+        "forbidden_raw_sources": [
+          "raw_config_values",
+          "raw_hook_bodies",
+          "raw_sessions",
+          "raw_logs",
+          "raw_chat",
+          "raw_tool_output",
+          "shell_history",
+          "raw_vpn_configs",
+          "private_keys",
+          "payment_identifiers",
+          "personal_contact_identifiers",
+          "tokens",
+          "credentials",
+          ".env values",
+          "production_data"
+        ],
+        "expected_status_after_apply": "pending_post_apply_validation",
+        "blocking_reasons": [],
+        "effective_config_snapshot_id": "fixture-effective-config-trusted-project"
+      }
+    },
+    {
+      "claim_id": "offload-worktree",
+      "surface": "worktree",
+      "permission_policy": "operator_scoped_permission_required",
+      "write_isolation": "bounded_write_scope_declared",
+      "cleanup_command": "",
+      "rollback_command": "git checkout -- scripts/capability_layout.py",
+      "target_surfaces": [
+        "Codex managed worktrees"
+      ],
+      "effective_config_snapshot_id": "fixture-effective-config-trusted-project",
+      "redaction_status": "clean",
+      "environment_operation_packet": {
+        "schema": "bears-plugin-environment-operation.v1",
+        "version": "1",
+        "operation_id": "env-op-worktree-creation-request-fixture",
+        "operation_type": "worktree_creation_request",
+        "source_capability_id": "validation-hooks",
+        "source_paths": [
+          "scripts/capability_layout.py"
+        ],
+        "target_environment_surfaces": [
+          "Codex managed worktrees"
+        ],
+        "operator_authorization_required": true,
+        "authorization_artifact": "operator_authorization_required_before_apply",
+        "default_mode": "dry_run",
+        "preflight_command": "python3 scripts/capability_layout.py validate-environment-packet --packet <packet> --json",
+        "dry_run_command": "python3 scripts/capability_layout.py plan-environment-operation --operation worktree_creation_request --json",
+        "apply_command": "operator_authorized_external_change --authorization-artifact ${authorization_artifact}",
+        "rollback_command": "operator_authorized_external_rollback --authorization-artifact ${authorization_artifact}",
+        "validation_command": "python3 scripts/capability_layout.py validate --json",
+        "sanitized_evidence_fields": [
+          "presence",
+          "counts",
+          "hashes",
+          "statuses",
+          "paths"
+        ],
+        "forbidden_raw_sources": [
+          "raw_config_values",
+          "raw_hook_bodies",
+          "raw_sessions",
+          "raw_logs",
+          "raw_chat",
+          "raw_tool_output",
+          "shell_history",
+          "raw_vpn_configs",
+          "private_keys",
+          "payment_identifiers",
+          "personal_contact_identifiers",
+          "tokens",
+          "credentials",
+          ".env values",
+          "production_data"
+        ],
+        "expected_status_after_apply": "pending_post_apply_validation",
+        "blocking_reasons": [],
+        "effective_config_snapshot_id": "fixture-effective-config-trusted-project"
+      }
+    },
+    {
+      "claim_id": "offload-automation",
+      "surface": "automation",
+      "permission_policy": "operator_scoped_permission_required",
+      "write_isolation": "bounded_write_scope_declared",
+      "cleanup_command": "python3 scripts/capability_layout.py validate --json",
+      "rollback_command": "git checkout -- scripts/capability_layout.py",
+      "target_surfaces": [
+        "Codex automations"
+      ],
+      "effective_config_snapshot_id": "fixture-effective-config-trusted-project",
+      "redaction_status": "clean",
+      "environment_operation_packet": {
+        "schema": "bears-plugin-environment-operation.v1",
+        "version": "1",
+        "operation_id": "env-op-automation-schedule-request-fixture",
+        "operation_type": "automation_schedule_request",
+        "source_capability_id": "validation-hooks",
+        "source_paths": [
+          "scripts/capability_layout.py"
+        ],
+        "target_environment_surfaces": [
+          "Codex automations"
+        ],
+        "operator_authorization_required": true,
+        "authorization_artifact": "operator_authorization_required_before_apply",
+        "default_mode": "dry_run",
+        "preflight_command": "python3 scripts/capability_layout.py validate-environment-packet --packet <packet> --json",
+        "dry_run_command": "python3 scripts/capability_layout.py plan-environment-operation --operation automation_schedule_request --json",
+        "apply_command": "operator_authorized_external_change --authorization-artifact ${authorization_artifact}",
+        "rollback_command": "operator_authorized_external_rollback --authorization-artifact ${authorization_artifact}",
+        "validation_command": "python3 scripts/capability_layout.py validate --json",
+        "sanitized_evidence_fields": [
+          "presence",
+          "counts",
+          "hashes",
+          "statuses",
+          "paths"
+        ],
+        "forbidden_raw_sources": [
+          "raw_config_values",
+          "raw_hook_bodies",
+          "raw_sessions",
+          "raw_logs",
+          "raw_chat",
+          "raw_tool_output",
+          "shell_history",
+          "raw_vpn_configs",
+          "private_keys",
+          "payment_identifiers",
+          "personal_contact_identifiers",
+          "tokens",
+          "credentials",
+          ".env values",
+          "production_data"
+        ],
+        "expected_status_after_apply": "pending_post_apply_validation",
+        "blocking_reasons": [],
+        "effective_config_snapshot_id": "fixture-effective-config-trusted-project"
+      }
+    },
+    {
+      "claim_id": "offload-mcp",
+      "surface": "mcp",
+      "permission_policy": "operator_scoped_permission_required",
+      "write_isolation": "bounded_write_scope_declared",
+      "cleanup_command": "python3 scripts/capability_layout.py validate --json",
+      "rollback_command": "git checkout -- scripts/capability_layout.py",
+      "target_surfaces": [
+        "Codex MCP server configuration"
+      ],
+      "effective_config_snapshot_id": "fixture-effective-config-trusted-project",
+      "redaction_status": "clean",
+      "environment_operation_packet": {
+        "schema": "bears-plugin-environment-operation.v1",
+        "version": "1",
+        "operation_id": "env-op-mcp-tool-policy-request-fixture",
+        "operation_type": "mcp_tool_policy_request",
+        "source_capability_id": "validation-hooks",
+        "source_paths": [
+          "scripts/capability_layout.py"
+        ],
+        "target_environment_surfaces": [
+          "Codex MCP server configuration"
+        ],
+        "operator_authorization_required": true,
+        "authorization_artifact": "operator_authorization_required_before_apply",
+        "default_mode": "dry_run",
+        "preflight_command": "python3 scripts/capability_layout.py validate-environment-packet --packet <packet> --json",
+        "dry_run_command": "python3 scripts/capability_layout.py plan-environment-operation --operation mcp_tool_policy_request --json",
+        "apply_command": "operator_authorized_external_change --authorization-artifact ${authorization_artifact}",
+        "rollback_command": "operator_authorized_external_rollback --authorization-artifact ${authorization_artifact}",
+        "validation_command": "python3 scripts/capability_layout.py validate --json",
+        "sanitized_evidence_fields": [
+          "presence",
+          "counts",
+          "hashes",
+          "statuses",
+          "paths"
+        ],
+        "forbidden_raw_sources": [
+          "raw_config_values",
+          "raw_hook_bodies",
+          "raw_sessions",
+          "raw_logs",
+          "raw_chat",
+          "raw_tool_output",
+          "shell_history",
+          "raw_vpn_configs",
+          "private_keys",
+          "payment_identifiers",
+          "personal_contact_identifiers",
+          "tokens",
+          "credentials",
+          ".env values",
+          "production_data"
+        ],
+        "expected_status_after_apply": "pending_post_apply_validation",
+        "blocking_reasons": [],
+        "effective_config_snapshot_id": "fixture-effective-config-trusted-project"
+      }
+    },
+    {
+      "claim_id": "offload-browser",
+      "surface": "browser",
+      "permission_policy": "operator_scoped_permission_required",
+      "write_isolation": "bounded_write_scope_declared",
+      "cleanup_command": "python3 scripts/capability_layout.py validate --json",
+      "rollback_command": "git checkout -- scripts/capability_layout.py",
+      "target_surfaces": [
+        "Codex Browser permission state"
+      ],
+      "effective_config_snapshot_id": "fixture-effective-config-trusted-project",
+      "redaction_status": "clean",
+      "environment_operation_packet": {
+        "schema": "bears-plugin-environment-operation.v1",
+        "version": "1",
+        "operation_id": "env-op-browser-use-permission-request-fixture",
+        "operation_type": "browser_use_permission_request",
+        "source_capability_id": "validation-hooks",
+        "source_paths": [
+          "scripts/capability_layout.py"
+        ],
+        "target_environment_surfaces": [
+          "Codex Browser permission state"
+        ],
+        "operator_authorization_required": true,
+        "authorization_artifact": "operator_authorization_required_before_apply",
+        "default_mode": "dry_run",
+        "preflight_command": "python3 scripts/capability_layout.py validate-environment-packet --packet <packet> --json",
+        "dry_run_command": "python3 scripts/capability_layout.py plan-environment-operation --operation browser_use_permission_request --json",
+        "apply_command": "operator_authorized_external_change --authorization-artifact ${authorization_artifact}",
+        "rollback_command": "operator_authorized_external_rollback --authorization-artifact ${authorization_artifact}",
+        "validation_command": "python3 scripts/capability_layout.py validate --json",
+        "sanitized_evidence_fields": [
+          "presence",
+          "counts",
+          "hashes",
+          "statuses",
+          "paths"
+        ],
+        "forbidden_raw_sources": [
+          "raw_config_values",
+          "raw_hook_bodies",
+          "raw_sessions",
+          "raw_logs",
+          "raw_chat",
+          "raw_tool_output",
+          "shell_history",
+          "raw_vpn_configs",
+          "private_keys",
+          "payment_identifiers",
+          "personal_contact_identifiers",
+          "tokens",
+          "credentials",
+          ".env values",
+          "production_data"
+        ],
+        "expected_status_after_apply": "pending_post_apply_validation",
+        "blocking_reasons": [],
+        "effective_config_snapshot_id": "fixture-effective-config-trusted-project"
+      }
+    },
+    {
+      "claim_id": "offload-chrome",
+      "surface": "chrome",
+      "permission_policy": "operator_scoped_permission_required",
+      "write_isolation": "bounded_write_scope_declared",
+      "cleanup_command": "python3 scripts/capability_layout.py validate --json",
+      "rollback_command": "git checkout -- scripts/capability_layout.py",
+      "target_surfaces": [
+        "Codex Chrome permission state"
+      ],
+      "effective_config_snapshot_id": "fixture-effective-config-trusted-project",
+      "redaction_status": "clean",
+      "environment_operation_packet": {
+        "schema": "bears-plugin-environment-operation.v1",
+        "version": "1",
+        "operation_id": "env-op-browser-use-permission-request-fixture",
+        "operation_type": "browser_use_permission_request",
+        "source_capability_id": "validation-hooks",
+        "source_paths": [
+          "scripts/capability_layout.py"
+        ],
+        "target_environment_surfaces": [
+          "Codex Chrome permission state"
+        ],
+        "operator_authorization_required": true,
+        "authorization_artifact": "operator_authorization_required_before_apply",
+        "default_mode": "dry_run",
+        "preflight_command": "python3 scripts/capability_layout.py validate-environment-packet --packet <packet> --json",
+        "dry_run_command": "python3 scripts/capability_layout.py plan-environment-operation --operation browser_use_permission_request --json",
+        "apply_command": "operator_authorized_external_change --authorization-artifact ${authorization_artifact}",
+        "rollback_command": "operator_authorized_external_rollback --authorization-artifact ${authorization_artifact}",
+        "validation_command": "python3 scripts/capability_layout.py validate --json",
+        "sanitized_evidence_fields": [
+          "presence",
+          "counts",
+          "hashes",
+          "statuses",
+          "paths"
+        ],
+        "forbidden_raw_sources": [
+          "raw_config_values",
+          "raw_hook_bodies",
+          "raw_sessions",
+          "raw_logs",
+          "raw_chat",
+          "raw_tool_output",
+          "shell_history",
+          "raw_vpn_configs",
+          "private_keys",
+          "payment_identifiers",
+          "personal_contact_identifiers",
+          "tokens",
+          "credentials",
+          ".env values",
+          "production_data"
+        ],
+        "expected_status_after_apply": "pending_post_apply_validation",
+        "blocking_reasons": [],
+        "effective_config_snapshot_id": "fixture-effective-config-trusted-project"
+      }
+    },
+    {
+      "claim_id": "offload-computer-use",
+      "surface": "computer_use",
+      "permission_policy": "operator_scoped_permission_required",
+      "write_isolation": "bounded_write_scope_declared",
+      "cleanup_command": "python3 scripts/capability_layout.py validate --json",
+      "rollback_command": "git checkout -- scripts/capability_layout.py",
+      "target_surfaces": [
+        "Codex Computer Use permission state"
+      ],
+      "effective_config_snapshot_id": "fixture-effective-config-trusted-project",
+      "redaction_status": "clean",
+      "environment_operation_packet": {
+        "schema": "bears-plugin-environment-operation.v1",
+        "version": "1",
+        "operation_id": "env-op-computer-use-permission-request-fixture",
+        "operation_type": "computer_use_permission_request",
+        "source_capability_id": "validation-hooks",
+        "source_paths": [
+          "scripts/capability_layout.py"
+        ],
+        "target_environment_surfaces": [
+          "Codex Computer Use permission state"
+        ],
+        "operator_authorization_required": true,
+        "authorization_artifact": "operator_authorization_required_before_apply",
+        "default_mode": "dry_run",
+        "preflight_command": "python3 scripts/capability_layout.py validate-environment-packet --packet <packet> --json",
+        "dry_run_command": "python3 scripts/capability_layout.py plan-environment-operation --operation computer_use_permission_request --json",
+        "apply_command": "operator_authorized_external_change --authorization-artifact ${authorization_artifact}",
+        "rollback_command": "operator_authorized_external_rollback --authorization-artifact ${authorization_artifact}",
+        "validation_command": "python3 scripts/capability_layout.py validate --json",
+        "sanitized_evidence_fields": [
+          "presence",
+          "counts",
+          "hashes",
+          "statuses",
+          "paths"
+        ],
+        "forbidden_raw_sources": [
+          "raw_config_values",
+          "raw_hook_bodies",
+          "raw_sessions",
+          "raw_logs",
+          "raw_chat",
+          "raw_tool_output",
+          "shell_history",
+          "raw_vpn_configs",
+          "private_keys",
+          "payment_identifiers",
+          "personal_contact_identifiers",
+          "tokens",
+          "credentials",
+          ".env values",
+          "production_data"
+        ],
+        "expected_status_after_apply": "pending_post_apply_validation",
+        "blocking_reasons": [],
+        "effective_config_snapshot_id": "fixture-effective-config-trusted-project"
+      }
+    }
+  ],
+  "expected_code": "OFFLOAD_CLEANUP_COMMAND"
+}

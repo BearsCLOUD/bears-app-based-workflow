@@ -1,0 +1,1407 @@
+{
+  "always_fast_tests": [
+    "tests/test_plugin_validation_scripts.py",
+    "tests/test_plugin_manifests.py"
+  ],
+  "mappings": [
+    {
+      "name": "file-scoped-execution",
+      "patterns": [
+        "scripts/file_change_planner.py",
+        "scripts/session_pool.py",
+        "assets/catalog/session-reuse-policy.v1.json",
+        "assets/schemas/file-change-plan.v1.schema.json",
+        "assets/schemas/session-reuse-plan.v1.schema.json",
+        "assets/schemas/session-pool-state.v1.schema.json",
+        "tests/fixtures/file_scoped_execution/**",
+        "tests/fixtures/session_pool/**",
+        "scripts/agent_usage.py",
+        "assets/file-context/index.v1.json",
+        "assets/catalog/bears-doctor.v1.json"
+      ],
+      "tests": [
+        "tests/test_test_selection.py",
+        "tests/test_release_notes_gate.py",
+        "tests/test_artifact_registry.py",
+        "tests/test_decision_ledger.py"
+      ]
+    },
+    {
+      "name": "workflow-map",
+      "patterns": [
+        "scripts/agent_workflow_map.py",
+        "scripts/local_json_schema.py",
+        "assets/catalog/agent-workflow-map.v1.json",
+        "assets/schemas/agent-workflow*.json",
+        "docs/reference/agent-workflow-map.md"
+      ],
+      "tests": [
+        "tests/test_agent_workflow_map.py",
+        "tests/test_development_workflow_validate.py"
+      ]
+    },
+    {
+      "name": "workflow-tree-contract",
+      "patterns": [
+        "assets/catalog/workflow-tree-contract.v1.json",
+        "assets/schemas/workflow-tree.v1.schema.json",
+        "assets/schemas/workflow-node.v1.schema.json",
+        "docs/reference/workflow-tree.md",
+        "tests/fixtures/workflow_tree/**"
+      ],
+      "tests": [
+        "tests/test_workflow_tree.py",
+        "tests/test_test_selection.py"
+      ]
+    },
+    {
+      "name": "git-hook-bootstrap",
+      "patterns": [
+        "scripts/bears_git_hook.py",
+        "assets/catalog/git-hook-bootstrap.v1.json",
+        "assets/schemas/effective-hooks-proof.v1.schema.json",
+        "docs/reference/git-hook-bootstrap.md",
+        "tests/fixtures/git_hook_bootstrap/**"
+      ],
+      "tests": [
+        "tests/test_bears_git_hook.py",
+        "tests/test_test_selection.py"
+      ]
+    },
+    {
+      "name": "async-validation",
+      "patterns": [
+        "assets/catalog/async-validation.v1.json",
+        "assets/schemas/validation-job.v1.schema.json",
+        "assets/schemas/validation-state.v1.schema.json",
+        "tests/fixtures/async_validation/**"
+      ],
+      "tests": [
+        "tests/test_local_commit_validation.py",
+        "tests/test_plugin_cache_sync.py",
+        "tests/test_bears_git_hook.py",
+        "tests/test_test_selection.py"
+      ]
+    },
+    {
+      "name": "deterministic-runners",
+      "patterns": [
+        "scripts/git_workflow_runner.py",
+        "scripts/validation_job_runner.py",
+        "scripts/cache_sync_runner.py",
+        "scripts/evidence_compactor.py",
+        "assets/catalog/deterministic-runners.v1.json",
+        "assets/schemas/git-workflow-runner-packet.v1.schema.json",
+        "assets/schemas/validation-runner-packet.v1.schema.json",
+        "assets/schemas/cache-sync-runner-packet.v1.schema.json",
+        "assets/schemas/evidence-compaction-packet.v1.schema.json",
+        "docs/reference/deterministic-runners.md",
+        "tests/fixtures/deterministic_runners/**"
+      ],
+      "tests": [
+        "tests/test_deterministic_runners.py",
+        "tests/test_test_selection.py"
+      ]
+    },
+    {
+      "name": "artifact-registry",
+      "patterns": [
+        "scripts/artifact_registry.py",
+        "assets/catalog/artifact-registry.v1.json",
+        "assets/schemas/artifact-registry.v1.schema.json",
+        "docs/reference/artifact-registry.md",
+        "tests/fixtures/artifact_registry/**"
+      ],
+      "tests": [
+        "tests/test_artifact_registry.py",
+        "tests/test_bears_git_hook.py",
+        "tests/test_test_selection.py"
+      ]
+    },
+    {
+      "name": "decision-ledger",
+      "patterns": [
+        "scripts/decision_ledger.py",
+        "scripts/bears_git_hook.py",
+        "assets/catalog/decision-ledger.v1.json",
+        "assets/schemas/decision-ledger.v1.schema.json",
+        "docs/reference/decision-ledger.md",
+        "tests/fixtures/decision_ledger/**"
+      ],
+      "tests": [
+        "tests/test_decision_ledger.py",
+        "tests/test_bears_git_hook.py",
+        "tests/test_test_selection.py"
+      ]
+    },
+    {
+      "name": "commit-closeout",
+      "patterns": [
+        "scripts/commit_closeout.py",
+        "scripts/bears_doctor.py",
+        "assets/catalog/commit-closeout.v1.json",
+        "assets/schemas/commit-closeout.v1.schema.json",
+        "assets/catalog/bears-doctor.v1.json",
+        "assets/schemas/bears-doctor-result.v1.schema.json",
+        "docs/reference/commit-closeout.md",
+        "docs/reference/bears-doctor.md",
+        "tests/fixtures/commit_closeout/**",
+        "tests/fixtures/bears_doctor/**"
+      ],
+      "tests": [
+        "tests/test_commit_closeout.py",
+        "tests/test_bears_doctor.py",
+        "tests/test_local_commit_validation.py",
+        "tests/test_test_selection.py"
+      ]
+    },
+    {
+      "name": "bears-doctor",
+      "patterns": [
+        "scripts/bears_doctor.py",
+        "scripts/local_commit_validation.py",
+        "hooks/stop_closeout_guard.py",
+        "assets/catalog/bears-doctor.v1.json",
+        "assets/schemas/bears-doctor-result.v1.schema.json",
+        "docs/reference/bears-doctor.md",
+        "tests/fixtures/bears_doctor/**",
+        ".codex-plugin/plugin.json",
+        "README.md",
+        "SPEC.md"
+      ],
+      "tests": [
+        "tests/test_bears_doctor.py",
+        "tests/test_local_commit_validation.py",
+        "tests/test_plugin_manifests.py",
+        "tests/test_test_selection.py"
+      ]
+    },
+    {
+      "name": "workspace-hygiene",
+      "patterns": [
+        "scripts/workspace_hygiene.py",
+        "scripts/local_commit_validation.py",
+        "scripts/plugin_cache_sync.py",
+        "scripts/bears_doctor.py",
+        "assets/catalog/workspace-hygiene.v1.json",
+        "assets/schemas/workspace-hygiene.v1.schema.json",
+        "docs/reference/workspace-hygiene.md",
+        "tests/fixtures/workspace_hygiene/**",
+        ".gitignore",
+        ".codex-plugin/plugin.json",
+        "README.md",
+        "SPEC.md"
+      ],
+      "tests": [
+        "tests/test_workspace_hygiene.py",
+        "tests/test_bears_doctor.py",
+        "tests/test_local_commit_validation.py",
+        "tests/test_plugin_cache_sync.py",
+        "tests/test_plugin_manifests.py",
+        "tests/test_test_selection.py"
+      ]
+    },
+    {
+      "name": "development-workflow",
+      "patterns": [
+        "scripts/development_workflow_validate.py",
+        "tests/fixtures/development_workflow/**"
+      ],
+      "tests": [
+        "tests/test_development_workflow_validate.py"
+      ]
+    },
+    {
+      "name": "release-notes-gate",
+      "patterns": [
+        "scripts/release_notes_gate.py",
+        "scripts/local_commit_validation.py",
+        "assets/catalog/release-notes-gate.v1.json",
+        "assets/catalog/release-notes.v1.json",
+        "assets/schemas/release-notes.v1.schema.json",
+        "docs/reference/release-notes-gate.md",
+        "tests/fixtures/release_notes_gate/**"
+      ],
+      "tests": [
+        "tests/test_release_notes_gate.py",
+        "tests/test_local_commit_validation.py",
+        "tests/test_bears_doctor.py",
+        "tests/test_test_selection.py"
+      ]
+    },
+    {
+      "name": "authority-map",
+      "patterns": [
+        "scripts/authority_map.py",
+        "scripts/local_commit_validation.py",
+        "assets/catalog/authority-map.v1.json",
+        "assets/schemas/authority-map.v1.schema.json",
+        "docs/reference/authority-map.md",
+        "tests/fixtures/authority_map/**"
+      ],
+      "tests": [
+        "tests/test_authority_map.py",
+        "tests/test_local_commit_validation.py",
+        "tests/test_bears_doctor.py",
+        "tests/test_test_selection.py"
+      ]
+    },
+    {
+      "name": "test-selection",
+      "patterns": [
+        "scripts/test_selection.py",
+        "assets/catalog/test-selection.v1.json",
+        "assets/schemas/test-selection.v1.schema.json",
+        "assets/catalog/autoci-graph.v1.json"
+      ],
+      "tests": [
+        "tests/test_test_selection.py",
+        "tests/test_local_commit_validation.py"
+      ]
+    },
+    {
+      "name": "tech-debt-matrix",
+      "patterns": [
+        "scripts/tech_debt_matrix.py",
+        "assets/catalog/tech-debt-matrix.v1.json",
+        "assets/schemas/tech-debt-matrix.v1.schema.json"
+      ],
+      "tests": [
+        "tests/test_tech_debt_matrix.py"
+      ]
+    },
+    {
+      "name": "ci-and-pr-pipeline",
+      "patterns": [
+        ".github/workflows/**",
+        "scripts/pr_pipeline.py",
+        "scripts/ci_requirements.py",
+        "assets/catalog/ci-requirements.v1.json"
+      ],
+      "tests": [
+        "tests/test_pr_pipeline.py",
+        "tests/test_agent_github_dev_cd.py"
+      ]
+    },
+    {
+      "name": "github-dev-cd",
+      "patterns": [
+        "scripts/agent_github_dev_cd.py",
+        "assets/catalog/agent-github-dev-cd.v1.json",
+        "docs/reference/agent-github-dev-cd.md",
+        "workflows/agent-github-dev-cd/**",
+        ".github/ISSUE_TEMPLATE/01-governance-work.yml",
+        "docs/reference/workflow-backlog-issue-classification.tsv",
+        "tests/fixtures/projects.v1.json"
+      ],
+      "tests": [
+        "tests/test_agent_github_dev_cd.py",
+        "tests/test_pr_pipeline.py"
+      ]
+    },
+    {
+      "name": "auth-gateway-deploy-readiness",
+      "patterns": [
+        "assets/catalog/auth-gateway-deploy-readiness.v1.json",
+        "scripts/auth_gateway_deploy_readiness.py",
+        "tests/test_auth_gateway_deploy_readiness.py",
+        "workflows/auth-gateway-deploy-core/workflow.yml"
+      ],
+      "tests": [
+        "tests/test_auth_gateway_deploy_readiness.py",
+        "tests/test_subagents_roles.py",
+        "tests/test_validate_overlay.py"
+      ]
+    },
+    {
+      "name": "platform-roles",
+      "patterns": [
+        "scripts/agent_registration_sync.py",
+        "scripts/subagents_roles.py",
+        "assets/catalog/platform-role-catalog.v1.json",
+        "docs/reference/agent-registration-sync.md",
+        "docs/reference/role-gate-methodology.md",
+        "agents/*.toml",
+        "agents/README.md",
+        "tests/test_subagents_roles.py",
+        "scripts/validate_overlay.py"
+      ],
+      "tests": [
+        "tests/test_subagents_roles.py",
+        "tests/test_role_gate_methodology.py",
+        "tests/test_agent_registration_sync.py",
+        "tests/test_validate_overlay.py",
+        "tests/test_test_selection.py"
+      ]
+    },
+    {
+      "name": "subagents-roles-gate-action",
+      "patterns": [
+        "actions/subagents-roles-gate/action.yml"
+      ],
+      "tests": [
+        "tests/test_platform_role_gate_action.py",
+        "tests/test_test_selection.py"
+      ]
+    },
+    {
+      "name": "role-gate-methodology",
+      "patterns": [
+        "scripts/role_gate_methodology.py",
+        "assets/catalog/role-gate-methodology.v1.json"
+      ],
+      "tests": [
+        "tests/test_role_gate_methodology.py",
+        "tests/test_subagents_roles.py"
+      ]
+    },
+    {
+      "name": "subagent-orchestration",
+      "patterns": [
+        "scripts/subagent_orchestration_policy.py",
+        "assets/catalog/subagent-orchestration-policy.v1.json",
+        "docs/reference/roadmap-control.md",
+        "docs/reference/workflow-backlog-lane.md"
+      ],
+      "tests": [
+        "tests/test_subagent_orchestration_policy.py",
+        "tests/test_plugin_validation_scripts.py"
+      ]
+    },
+    {
+      "name": "git-discipline",
+      "patterns": [
+        "scripts/git_discipline.py",
+        "assets/catalog/git-discipline.v1.json",
+        "docs/reference/git-discipline.md"
+      ],
+      "tests": [
+        "tests/test_git_discipline.py"
+      ]
+    },
+    {
+      "name": "session-workers",
+      "patterns": [
+        "scripts/session_workers_runtime.py",
+        "assets/catalog/session-workers-runtime.v1.json"
+      ],
+      "tests": [
+        "tests/test_session_workers_runtime.py"
+      ]
+    },
+    {
+      "name": "plugin-surface",
+      "patterns": [
+        ".codex-plugin/plugin.json",
+        ".agents/plugins/marketplace.json",
+        ".mcp.json",
+        "bin/*",
+        "README.md",
+        "SPEC.md",
+        "requirements.md",
+        "skills/**",
+        "assets/catalog/plugin-skill-catalog.v1.json",
+        "docs/generated/*.skill-inventory.md"
+      ],
+      "tests": [
+        "tests/test_plugin_manifests.py",
+        "tests/test_plugin_marketplace.py",
+        "tests/test_skill_catalog.py",
+        "tests/test_validate_overlay.py"
+      ]
+    },
+    {
+      "name": "instruction-artifacts",
+      "patterns": [
+        "src/bears_workflow/instruction_artifacts/**",
+        "docs/reference/instruction-artifacts-mcp.md",
+        "plans/instruction-artifacts-hardening-mcp.md",
+        "skills/instruction-hardening/SKILL.md"
+      ],
+      "tests": [
+        "tests/test_instruction_artifacts.py",
+        "tests/test_plugin_manifests.py",
+        "tests/test_validate_overlay.py"
+      ],
+      "fast_required_tests": [
+        "tests/test_pants_test_graph.py",
+        "tests/test_test_selection.py"
+      ]
+    },
+    {
+      "name": "speckit-boundary",
+      "patterns": [
+        ".specify/**",
+        "docs/reference/spec-kit-source-boundary.md",
+        "workflows/upstream-speckit/**"
+      ],
+      "tests": [
+        "tests/test_plugin_manifests.py",
+        "tests/test_test_selection.py"
+      ]
+    },
+    {
+      "name": "capabilities",
+      "patterns": [
+        "capabilities/**",
+        "scripts/capability_layout.py",
+        "skills/subagents-roles/SKILL.md"
+      ],
+      "tests": [
+        "tests/test_capability_agent_registration.py",
+        "tests/test_capability_effective_config.py",
+        "tests/test_capability_environment_packets.py",
+        "tests/test_capability_hook_claims.py",
+        "tests/test_capability_layout.py",
+        "tests/test_capability_offload_surfaces.py",
+        "tests/test_capability_optimization_lanes.py",
+        "tests/test_capability_performance_lanes.py",
+        "tests/test_capability_programmatic_surfaces.py",
+        "tests/test_capability_refactor_gate.py",
+        "tests/test_capability_restricted_data.py",
+        "tests/test_capability_reviewer_lanes.py",
+        "tests/test_capability_rule_coverage.py"
+      ]
+    },
+    {
+      "name": "function-test-loader",
+      "patterns": [
+        "tests/function_test_loader.py",
+        "tests/test_plugin_marketplace.py",
+        "tests/test_role_gate_methodology.py",
+        "tests/test_validate_overlay.py"
+      ],
+      "tests": [
+        "tests/test_function_test_loader.py",
+        "tests/test_test_selection.py"
+      ]
+    },
+    {
+      "name": "plugin-cache-sync",
+      "patterns": [
+        "scripts/plugin_cache_sync.py",
+        "scripts/local_commit_validation.py",
+        "assets/catalog/plugin-cache-sync.v1.json",
+        "assets/schemas/plugin-cache-sync-state.v1.schema.json",
+        "tests/fixtures/plugin_cache_sync/**"
+      ],
+      "tests": [
+        "tests/test_local_commit_validation.py",
+        "tests/test_plugin_cache_sync.py",
+        "tests/test_test_selection.py"
+      ]
+    },
+    {
+      "name": "root-governance",
+      "patterns": [
+        ".gitignore",
+        "AGENTS.md",
+        "pyproject.toml"
+      ],
+      "tests": [
+        "tests/test_plugin_manifests.py",
+        "tests/test_plugin_validation_scripts.py",
+        "tests/test_test_selection.py"
+      ]
+    },
+    {
+      "name": "agentic-enterprise-governance",
+      "patterns": [
+        "assets/catalog/agentic-enterprise-constitution.v1.json",
+        "assets/catalog/agentic-enterprise-workflow.v1.json",
+        "assets/catalog/platform-role-catalog.v1.json",
+        "assets/schemas/agentic-enterprise-constitution.v1.schema.json",
+        "assets/schemas/agentic-enterprise-workflow.v1.schema.json",
+        "assets/schemas/decision-log.v1.schema.json",
+        "assets/schemas/scope-matrix.v1.schema.json",
+        "docs/reference/agentic-enterprise-workflow.md",
+        "docs/reference/governance-drift-summary.md",
+        "hooks.json",
+        "hooks/_agentic_enterprise_hook_common.py",
+        "hooks/pre_task_guard.py",
+        "hooks/pre_tool_policy.py",
+        "hooks/session_start.py",
+        "hooks/stop_closeout_guard.py",
+        "scripts/agentic_enterprise_workflow.py",
+        "tests/fixtures/agentic_enterprise_workflow/**"
+      ],
+      "tests": [
+        "tests/test_agentic_enterprise_workflow.py",
+        "tests/test_subagents_roles.py",
+        "tests/test_development_workflow_validate.py",
+        "tests/test_capability_hook_claims.py",
+        "tests/test_test_selection.py"
+      ]
+    },
+    {
+      "name": "secret-factory-docs",
+      "patterns": [
+        "assets/catalog/secret-factory.v1.json",
+        "docs/reference/secret-factory.md"
+      ],
+      "tests": [
+        "tests/test_secret_factory.py"
+      ]
+    },
+    {
+      "name": "git-cd-contracts",
+      "patterns": [
+        "assets/catalog/git-deploy-contract.v1.json",
+        "assets/catalog/cd-kube-deploy-contract.v1.json",
+        "scripts/bears_auto_cd.py"
+      ],
+      "tests": [
+        "tests/test_bears_auto_cd.py",
+        "tests/test_subagents_roles.py",
+        "tests/test_plugin_manifests.py"
+      ]
+    },
+    {
+      "name": "telegram-catalogs",
+      "patterns": [
+        "assets/catalog/telegram-aiogram-migration-backlog.v1.json",
+        "assets/catalog/telegram-runtime-readiness.v1.json",
+        "assets/catalog/telegram-workflow-catalog.v1.json"
+      ],
+      "tests": [
+        "tests/test_telegram_runtime_readiness.py",
+        "tests/test_telegram_surface_inventory.py"
+      ]
+    },
+    {
+      "name": "self-solving-issue-loop",
+      "patterns": [
+        "scripts/delivery_manifest.py",
+        "assets/catalog/delivery-manifest.v1.json",
+        "assets/schemas/delivery-manifest.v1.schema.json",
+        "assets/schemas/issue-intake.v1.schema.json",
+        "assets/catalog/bears-doctor.v1.json",
+        "README.md",
+        "tests/fixtures/delivery_manifest/**",
+        "tests/fixtures/issue_intake/**",
+        "tests/fixtures/issue_reconciler/**",
+        "tests/fixtures/issue_closeout/**"
+      ],
+      "tests": [
+        "tests/test_delivery_manifest.py",
+        "tests/test_bears_doctor.py",
+        "tests/test_test_selection.py"
+      ]
+    },
+    {
+      "name": "goal-orchestrator",
+      "patterns": [
+        "scripts/goal_question_bank.py",
+        "scripts/context_budget.py",
+        "scripts/agent_usage.py",
+        "scripts/role_degradation.py",
+        "assets/catalog/goal-question-bank.v1.json",
+        "assets/schemas/goal-question.v1.schema.json",
+        "assets/schemas/goal-decision-graph.v1.schema.json"
+      ],
+      "tests": [
+        "tests/test_bears_doctor.py",
+        "tests/test_test_selection.py"
+      ]
+    },
+    {
+      "name": "agent-registration-sync",
+      "patterns": [
+        "agents/*.toml"
+      ],
+      "tests": [
+        "tests/test_agent_registration_sync.py"
+      ]
+    },
+    {
+      "name": "direct-test-file",
+      "patterns": [
+        "tests/test_*.py"
+      ],
+      "tests": [
+        "<changed-test-file>"
+      ]
+    },
+    {
+      "name": "enterprise-issue-automation-release",
+      "patterns": [
+        "assets/catalog/enterprise-issue-automation-release.v1.json",
+        "assets/schemas/enterprise-issue-automation-release.v1.schema.json",
+        "scripts/enterprise_issue_release.py",
+        "docs/reference/enterprise-issue-automation-release.md"
+      ],
+      "tests": [
+        "tests/test_enterprise_issue_release.py",
+        "tests/test_test_selection.py"
+      ]
+    },
+    {
+      "name": "formal-semantics-kernel",
+      "patterns": [
+        "assets/schemas/formal-semantics-kernel.v1.schema.json",
+        "assets/schemas/semantic-type.v1.schema.json",
+        "assets/schemas/semantic-relation.v1.schema.json",
+        "assets/catalog/formal-semantics-kernel.v1.json",
+        "assets/catalog/semantic-type-system.v1.json",
+        "scripts/formal_semantics.py",
+        "docs/reference/formal-semantics-kernel.md",
+        "tests/test_formal_semantics.py"
+      ],
+      "tests": [
+        "tests/test_formal_semantics.py",
+        "tests/test_test_selection.py",
+        "tests/test_artifact_registry.py",
+        "tests/test_decision_ledger.py",
+        "tests/test_release_notes_gate.py",
+        "tests/test_bears_doctor.py"
+      ]
+    },
+    {
+      "name": "question-calculus",
+      "patterns": [
+        "assets/schemas/question-operator.v1.schema.json",
+        "assets/schemas/question-answer-proof.v1.schema.json",
+        "assets/schemas/decision-graph.v1.schema.json",
+        "assets/catalog/question-calculus.v1.json",
+        "assets/catalog/question-bank.v1.json",
+        "scripts/question_calculus.py",
+        "scripts/decision_graph.py",
+        "docs/reference/question-calculus.md",
+        "tests/test_question_calculus.py",
+        "tests/fixtures/question_calculus/**"
+      ],
+      "tests": [
+        "tests/test_question_calculus.py",
+        "tests/test_formal_semantics.py",
+        "tests/test_bears_doctor.py",
+        "tests/test_artifact_registry.py",
+        "tests/test_decision_ledger.py",
+        "tests/test_release_notes_gate.py",
+        "tests/test_test_selection.py"
+      ]
+    },
+    {
+      "name": "workflow-inference",
+      "patterns": [
+        "assets/schemas/inference-fact.v1.schema.json",
+        "assets/schemas/inference-rule.v1.schema.json",
+        "assets/schemas/inference-query.v1.schema.json",
+        "assets/catalog/workflow-inference-rules.v1.json",
+        "scripts/workflow_inference.py",
+        "docs/reference/workflow-inference.md",
+        "tests/test_workflow_inference.py",
+        "tests/fixtures/workflow_inference/**"
+      ],
+      "tests": [
+        "tests/test_workflow_inference.py",
+        "tests/test_formal_semantics.py",
+        "tests/test_question_calculus.py",
+        "tests/test_bears_doctor.py",
+        "tests/test_artifact_registry.py",
+        "tests/test_decision_ledger.py",
+        "tests/test_release_notes_gate.py",
+        "tests/test_test_selection.py"
+      ]
+    },
+    {
+      "name": "workflow-state-machine",
+      "patterns": [
+        "assets/schemas/workflow-state-machine.v1.schema.json",
+        "assets/schemas/workflow-transition.v1.schema.json",
+        "assets/schemas/workflow-invariant.v1.schema.json",
+        "assets/catalog/workflow-state-machine.v1.json",
+        "scripts/workflow_state_machine.py",
+        "docs/reference/workflow-state-machine.md",
+        "tests/test_workflow_state_machine.py",
+        "tests/fixtures/workflow_state_machine/**"
+      ],
+      "tests": [
+        "tests/test_workflow_state_machine.py",
+        "tests/test_workflow_inference.py",
+        "tests/test_bears_doctor.py",
+        "tests/test_artifact_registry.py",
+        "tests/test_decision_ledger.py",
+        "tests/test_release_notes_gate.py",
+        "tests/test_test_selection.py"
+      ]
+    },
+    {
+      "fast_required_tests": [
+        "tests/test_workspace_semantic_graph.py"
+      ],
+      "name": "workspace-semantic-graph",
+      "patterns": [
+        "assets/catalog/workspace-semantic-graph.v1.json",
+        "assets/catalog/workspace-dictionary.v1.json",
+        "assets/catalog/metadata-store-policy.v1.json",
+        "assets/schemas/workspace-semantic-*.json",
+        "assets/schemas/workspace-*.schema.json",
+        "assets/schemas/metadata-store-policy.v1.schema.json",
+        "scripts/workspace_semantic_graph.py",
+        "scripts/workspace_dictionary.py",
+        "scripts/metadata_store.py",
+        "docs/reference/workspace-semantic-graph.md",
+        "tests/test_workspace_semantic_graph.py"
+      ],
+      "tests": [
+        "tests/test_workspace_semantic_graph.py"
+      ]
+    },
+    {
+      "fast_required_tests": [
+        "tests/test_code_property_graph.py"
+      ],
+      "name": "code-property-graph",
+      "patterns": [
+        "assets/catalog/code-property-graph.v1.json",
+        "assets/schemas/code-property-*.schema.json",
+        "scripts/code_property_graph.py",
+        "docs/reference/code-property-graph.md",
+        "tests/test_code_property_graph.py"
+      ],
+      "tests": [
+        "tests/test_code_property_graph.py"
+      ]
+    },
+    {
+      "fast_required_tests": [
+        "tests/test_file_context_index.py"
+      ],
+      "name": "file-context-index",
+      "patterns": [
+        "assets/catalog/file-context-policy.v1.json",
+        "assets/file-context/index.v1.json",
+        "assets/schemas/file-context*.schema.json",
+        "scripts/file_context_index.py",
+        "scripts/file_context_refresh.py",
+        "docs/reference/file-context-index.md",
+        "tests/test_file_context_index.py"
+      ],
+      "tests": [
+        "tests/test_file_context_index.py"
+      ]
+    },
+    {
+      "fast_required_tests": [
+        "tests/test_mcp_agent_policy.py"
+      ],
+      "name": "mcp-agent-policy",
+      "patterns": [
+        "assets/schemas/mcp-agent-policy.v1.schema.json",
+        "assets/catalog/mcp-agent-policy.v1.json",
+        "scripts/mcp_agent_policy.py",
+        "docs/reference/mcp-agent-policy.md",
+        "tests/test_mcp_agent_policy.py"
+      ],
+      "tests": [
+        "tests/test_mcp_agent_policy.py"
+      ]
+    },
+    {
+      "fast_required_tests": [
+        "tests/test_prompt_compiler.py"
+      ],
+      "name": "prompt-compiler",
+      "patterns": [
+        "assets/schemas/context-pack.v1.schema.json",
+        "assets/schemas/prompt-compile-*.schema.json",
+        "assets/catalog/prompt-compiler.v1.json",
+        "scripts/context_pack.py",
+        "scripts/prompt_compiler.py",
+        "docs/reference/prompt-compiler.md",
+        "tests/test_prompt_compiler.py"
+      ],
+      "tests": [
+        "tests/test_prompt_compiler.py"
+      ]
+    },
+    {
+      "name": "gitops-workflow",
+      "patterns": [
+        "assets/schemas/gitops-workflow.v1.schema.json",
+        "assets/schemas/gitops-degradation-event.v1.schema.json",
+        "assets/catalog/gitops-workflow.v1.json",
+        "scripts/gitops_workflow.py",
+        "scripts/gitops_degradation.py",
+        "docs/reference/gitops-workflow.md",
+        "tests/fixtures/gitops_workflow/**"
+      ],
+      "tests": [
+        "tests/test_gitops_workflow.py",
+        "tests/test_bears_doctor.py"
+      ]
+    },
+    {
+      "name": "orchestrator-invariants",
+      "patterns": [
+        "assets/schemas/model-check-result.v1.schema.json"
+      ],
+      "tests": [
+        "tests/test_bears_doctor.py"
+      ]
+    },
+    {
+      "name": "agent-usage-ledger",
+      "patterns": [
+        "assets/schemas/agent-usage-event.v1.schema.json",
+        "assets/schemas/commit-usage-ledger.v1.schema.json",
+        "assets/catalog/agent-usage-policy.v1.json",
+        "scripts/agent_usage.py",
+        "scripts/commit_usage_ledger.py",
+        "docs/reference/agent-usage-analytics.md",
+        "tests/test_agent_usage.py"
+      ],
+      "tests": [
+        "tests/test_agent_usage.py",
+        "tests/test_bears_doctor.py"
+      ]
+    },
+    {
+      "name": "context-budget-governance",
+      "patterns": [
+        "assets/schemas/context-surface.v1.schema.json",
+        "assets/schemas/skill-split-decision.v1.schema.json",
+        "assets/catalog/context-budget-policy.v1.json",
+        "scripts/context_budget.py",
+        "scripts/skill_surface.py",
+        "docs/reference/context-budget-governance.md",
+        "tests/test_context_budget.py"
+      ],
+      "tests": [
+        "tests/test_context_budget.py",
+        "tests/test_bears_doctor.py"
+      ]
+    },
+    {
+      "name": "role-degradation-loop",
+      "patterns": [
+        "assets/schemas/role-degradation-event.v1.schema.json",
+        "assets/schemas/role-remediation-plan.v1.schema.json",
+        "assets/catalog/role-degradation-policy.v1.json",
+        "scripts/role_degradation.py",
+        "scripts/role_remediation.py",
+        "docs/reference/role-degradation.md",
+        "tests/test_role_degradation.py"
+      ],
+      "tests": [
+        "tests/test_role_degradation.py",
+        "tests/test_bears_doctor.py"
+      ]
+    },
+    {
+      "name": "process-mining-feedback",
+      "patterns": [
+        "assets/schemas/process-trace-event.v1.schema.json",
+        "assets/schemas/process-mining-report.v1.schema.json",
+        "assets/schemas/workflow-improvement-candidate.v1.schema.json",
+        "assets/catalog/process-mining-policy.v1.json",
+        "scripts/process_mining.py",
+        "scripts/workflow_improvement_candidates.py",
+        "docs/reference/process-mining-feedback.md",
+        "tests/test_process_mining.py"
+      ],
+      "tests": [
+        "tests/test_process_mining.py",
+        "tests/test_bears_doctor.py"
+      ]
+    },
+    {
+      "name": "old-backlog-reconciliation",
+      "patterns": [
+        "assets/catalog/old-backlog-reconciliation.v1.json",
+        "scripts/old_backlog_reconciliation.py",
+        "docs/reference/old-backlog-reconciliation.md",
+        "tests/test_old_backlog_reconciliation.py"
+      ],
+      "tests": [
+        "tests/test_old_backlog_reconciliation.py",
+        "tests/test_bears_doctor.py"
+      ]
+    },
+    {
+      "name": "repo-onboarding",
+      "patterns": [
+        "assets/schemas/repo-onboarding-inventory.v1.schema.json",
+        "assets/catalog/repo-onboarding-policy.v1.json",
+        "assets/schemas/delivery-manifest.v1.schema.json",
+        "scripts/repo_onboarding.py",
+        "docs/reference/repo-onboarding.md",
+        "tests/test_repo_onboarding.py"
+      ],
+      "tests": [
+        "tests/test_repo_onboarding.py",
+        "tests/test_bears_doctor.py"
+      ]
+    },
+    {
+      "name": "cross-repo-infra-evidence",
+      "patterns": [
+        "assets/catalog/cross-repo-infra-evidence.v1.json",
+        "assets/schemas/cross-repo-infra-evidence.v1.schema.json",
+        "scripts/cross_repo_infra_evidence.py",
+        "docs/reference/cross-repo-infra-evidence.md",
+        "tests/test_cross_repo_infra_evidence.py",
+        "scripts/gitops_degradation.py",
+        "scripts/gitops_workflow.py",
+        "assets/catalog/gitops-workflow.v1.json",
+        "assets/catalog/bears-doctor.v1.json"
+      ],
+      "tests": [
+        "tests/test_cross_repo_infra_evidence.py",
+        "tests/test_gitops_workflow.py",
+        "tests/test_bears_doctor.py",
+        "tests/test_test_selection.py",
+        "tests/test_release_notes_gate.py",
+        "tests/test_artifact_registry.py",
+        "tests/test_decision_ledger.py"
+      ]
+    },
+    {
+      "name": "external-review-audit",
+      "patterns": [
+        "assets/schemas/external-review-audit.v1.schema.json",
+        "assets/catalog/external-review-audit.v1.json",
+        "scripts/external_review_audit.py",
+        "docs/audits/external-review-2026-06-25/**",
+        "tests/test_external_review_audit.py"
+      ],
+      "tests": [
+        "tests/test_external_review_audit.py",
+        "tests/test_bears_doctor.py",
+        "tests/test_artifact_registry.py",
+        "tests/test_test_selection.py"
+      ]
+    },
+    {
+      "name": "issue-closeout-covered-issues",
+      "patterns": [
+        "assets/schemas/delivery-manifest.v1.schema.json",
+        "scripts/delivery_manifest.py",
+        "tests/fixtures/issue_reconciler/covered/**"
+      ],
+      "tests": [
+        "tests/test_delivery_manifest.py",
+        "tests/test_bears_doctor.py"
+      ]
+    },
+    {
+      "name": "roadmap-backlog-ingest",
+      "patterns": [
+        "scripts/roadmap_backlog_ingest.py",
+        "assets/catalog/workflow-roadmap.v1.json",
+        "tests/test_roadmap_backlog_ingest.py",
+        "assets/catalog/roadmap-backlog-ingestion.v1.json"
+      ],
+      "tests": [
+        "tests/test_roadmap_backlog_ingest.py",
+        "tests/test_test_selection.py",
+        "tests/test_artifact_registry.py"
+      ]
+    },
+    {
+      "name": "capability-harness",
+      "patterns": [
+        "scripts/capability_harness.py",
+        "assets/catalog/bears-plugin-capability-scenarios.v1.json",
+        "assets/schemas/bears-capability-report.v1.schema.json",
+        "assets/schemas/bears-capability-scenario.v1.schema.json",
+        "assets/schemas/capability-progress.v1.schema.json",
+        "assets/schemas/cost-quality-summary.v1.schema.json",
+        "assets/schemas/external-fact.v1.schema.json",
+        "assets/schemas/usage-ledger.v1.schema.json",
+        "docs/reference/capability-harness.md",
+        "tests/fixtures/capability/**",
+        "tests/test_capability_harness.py"
+      ],
+      "tests": [
+        "tests/test_capability_harness.py",
+        "tests/test_bears_doctor.py",
+        "tests/test_artifact_registry.py",
+        "tests/test_test_selection.py"
+      ]
+    },
+    {
+      "name": "policy-invariants",
+      "patterns": [
+        "assets/catalog/policy-invariants.v1.json",
+        "assets/schemas/policy-invariant-result.v1.schema.json",
+        "scripts/policy_invariants.py",
+        "docs/reference/policy-invariants.md",
+        "tests/test_policy_invariants.py",
+        "tests/fixtures/policy_invariants/**",
+        "assets/catalog/bears-doctor.v1.json"
+      ],
+      "tests": [
+        "tests/test_policy_invariants.py",
+        "tests/test_bears_doctor.py",
+        "tests/test_test_selection.py"
+      ]
+    },
+    {
+      "name": "pants-test-graph",
+      "patterns": [
+        "pants.toml",
+        "BUILD",
+        "scripts/pants_test_graph.py",
+        "assets/catalog/pants-test-graph.v1.json",
+        "assets/schemas/pants-test-graph.v1.schema.json",
+        "docs/reference/pants-test-graph.md",
+        "tests/test_pants_test_graph.py"
+      ],
+      "tests": [
+        "tests/test_pants_test_graph.py",
+        "tests/test_local_commit_validation.py",
+        "tests/test_bears_doctor.py",
+        "tests/test_artifact_registry.py",
+        "tests/test_test_selection.py",
+        "tests/test_release_notes_gate.py",
+        "tests/test_decision_ledger.py"
+      ]
+    },
+    {
+      "name": "dagger-delivery-pipeline",
+      "patterns": [
+        "dagger.json",
+        "scripts/dagger_delivery.py",
+        "assets/catalog/dagger-delivery-pipeline.v1.json",
+        "assets/schemas/dagger-delivery-result.v1.schema.json",
+        "docs/reference/dagger-delivery-pipeline.md",
+        "tests/test_dagger_delivery.py"
+      ],
+      "tests": [
+        "tests/test_dagger_delivery.py",
+        "tests/test_bears_doctor.py",
+        "tests/test_artifact_registry.py",
+        "tests/test_test_selection.py",
+        "tests/test_release_notes_gate.py",
+        "tests/test_decision_ledger.py"
+      ]
+    },
+    {
+      "name": "external-review-contract",
+      "patterns": [
+        "assets/schemas/external-review-audit.v1.schema.json",
+        "contracts/external-review-audit.cue",
+        "docs/reference/external-review-contract.md",
+        "scripts/external_review_contract.py",
+        "tests/fixtures/external_review_contract/**",
+        "tests/test_external_review_contract.py"
+      ],
+      "tests": [
+        "tests/test_external_review_contract.py",
+        "tests/test_external_review_audit.py",
+        "tests/test_bears_doctor.py",
+        "tests/test_artifact_registry.py",
+        "tests/test_test_selection.py",
+        "tests/test_release_notes_gate.py",
+        "tests/test_decision_ledger.py"
+      ]
+    },
+    {
+      "name": "temporal-evaluation",
+      "patterns": [
+        "docs/research/temporal-evaluation.md",
+        "assets/catalog/temporal-evaluation.v1.json",
+        "scripts/temporal_evaluation.py",
+        "tests/test_temporal_evaluation.py"
+      ],
+      "tests": [
+        "tests/test_temporal_evaluation.py",
+        "tests/test_bears_doctor.py",
+        "tests/test_artifact_registry.py",
+        "tests/test_test_selection.py",
+        "tests/test_release_notes_gate.py",
+        "tests/test_decision_ledger.py"
+      ]
+    },
+    {
+      "name": "doctor-component-coverage",
+      "patterns": [
+        "assets/catalog/doctor-component-coverage.v1.json",
+        "assets/schemas/doctor-component-coverage.v1.schema.json",
+        "assets/schemas/doctor-component-gap.v1.schema.json",
+        "assets/catalog/bears-doctor.v1.json",
+        "assets/schemas/bears-doctor-result.v1.schema.json",
+        "assets/catalog/issue-execution-priority.v1.json",
+        "assets/catalog/workflow-roadmap.v1.json",
+        "scripts/bears_doctor.py",
+        "scripts/doctor_component_coverage.py",
+        "docs/reference/doctor-component-coverage.md",
+        "tests/fixtures/doctor_component_coverage/**",
+        "tests/test_doctor_component_coverage.py"
+      ],
+      "tests": [
+        "tests/test_doctor_component_coverage.py",
+        "tests/test_bears_doctor.py",
+        "tests/test_test_selection.py",
+        "tests/test_artifact_registry.py"
+      ]
+    },
+    {
+      "name": "local-commit-validation-enforcement",
+      "patterns": [
+        "scripts/local_commit_validation.py",
+        "scripts/bears_commit.py",
+        "hooks/pre-commit.local-commit-validation.template",
+        "tests/test_local_commit_validation.py"
+      ],
+      "tests": [
+        "tests/test_local_commit_validation.py",
+        "tests/test_bears_doctor.py",
+        "tests/test_commit_closeout.py",
+        "tests/test_test_selection.py",
+        "tests/test_pants_test_graph.py"
+      ]
+    },
+    {
+      "name": "orchestrator-start-loop",
+      "patterns": [
+        "assets/schemas/issue-reference-fact.v1.schema.json",
+        "assets/schemas/role-patch-plan.v1.schema.json",
+        "assets/schemas/issue-progress-comment.v1.schema.json"
+      ],
+      "tests": [
+        "tests/test_test_selection.py",
+        "tests/test_pants_test_graph.py",
+        "tests/test_release_notes_gate.py",
+        "tests/test_artifact_registry.py"
+      ]
+    },
+    {
+      "name": "orchestrator-issue-daemon",
+      "patterns": [
+        "assets/schemas/issue-reference-fact.v1.schema.json"
+      ],
+      "tests": [
+        "tests/test_test_selection.py",
+        "tests/test_pants_test_graph.py",
+        "tests/test_release_notes_gate.py",
+        "tests/test_artifact_registry.py"
+      ]
+    },
+    {
+      "name": "roadmap-state-transition-authority",
+      "patterns": [
+        "assets/catalog/roadmap-state-transition-authority.v1.json",
+        "assets/schemas/roadmap-state-transition-authority.v1.schema.json",
+        "assets/schemas/roadmap-state-transition-authority-transition.v1.schema.json",
+        "assets/schemas/workflow-roadmap.v1.schema.json",
+        "scripts/roadmap_state_transition_authority.py",
+        "scripts/workflow_roadmap.py",
+        "docs/reference/roadmap-state-transition-authority.md",
+        "docs/reference/workflow-roadmap.md",
+        "tests/test_roadmap_state_transition_authority.py",
+        "tests/test_workflow_roadmap.py",
+        "tests/fixtures/roadmap_state_transition_authority/**",
+        "assets/catalog/bears-doctor.v1.json"
+      ],
+      "tests": [
+        "tests/test_roadmap_state_transition_authority.py",
+        "tests/test_workflow_roadmap.py",
+        "tests/test_bears_doctor.py",
+        "tests/test_test_selection.py"
+      ]
+    },
+    {
+      "name": "open-issues-workstreams-audit",
+      "patterns": [
+        "docs/audits/open-issues-workstreams-2026-06-27/**"
+      ],
+      "tests": [
+        "tests/test_artifact_registry.py",
+        "tests/test_test_selection.py",
+        "tests/test_pants_test_graph.py"
+      ]
+    },
+    {
+      "name": "validate-overlay",
+      "patterns": [
+        "scripts/validate_overlay.py",
+        "tests/test_validate_overlay.py"
+      ],
+      "tests": [
+        "tests/test_validate_overlay.py",
+        "tests/test_test_selection.py"
+      ]
+    },
+    {
+      "name": "clarification-architect",
+      "patterns": [
+        "agents/bears-clarification-architect.toml",
+        "assets/catalog/clarification-question-methodology.v1.json",
+        "assets/catalog/role-profiles/clarification-architect.v1.json",
+        "assets/schemas/clarification-question.v1.schema.json",
+        "assets/schemas/clarification-question-batch.v1.schema.json",
+        "assets/schemas/clarification-role-result.v1.schema.json",
+        "prompts/roles/clarification-architect.md",
+        "docs/reference/clarification-architect.md",
+        "tests/test_clarification_architect_role.py",
+        "tests/fixtures/clarification_architect/**"
+      ],
+      "tests": [
+        "tests/test_clarification_architect_role.py",
+        "tests/test_subagents_roles.py",
+        "tests/test_validate_overlay.py",
+        "tests/test_bears_doctor.py",
+        "tests/test_test_selection.py",
+        "tests/test_pants_test_graph.py",
+        "tests/test_artifact_registry.py",
+        "tests/test_release_notes_gate.py"
+      ]
+    },
+    {
+      "name": "github-issue-ref",
+      "patterns": [
+        "assets/catalog/github-issue-ref-policy.v1.json",
+        "assets/schemas/github-issue-ref.v1.schema.json",
+        "scripts/github_issue_ref.py",
+        "docs/reference/github-issue-ref.md",
+        "tests/fixtures/github_issue_ref/**",
+        "tests/test_github_issue_ref.py"
+      ],
+      "tests": [
+        "tests/test_github_issue_ref.py",
+        "tests/test_artifact_registry.py",
+        "tests/test_test_selection.py",
+        "tests/test_pants_test_graph.py",
+        "tests/test_release_notes_gate.py"
+      ]
+    },
+    {
+      "name": "roadmap-issue-coverage",
+      "patterns": [
+        "assets/catalog/roadmap-issue-coverage.v1.json",
+        "assets/catalog/issue-priority-freshness.v1.json",
+        "assets/schemas/roadmap-issue-coverage.v1.schema.json",
+        "assets/schemas/issue-priority-freshness.v1.schema.json",
+        "scripts/roadmap_issue_coverage.py",
+        "docs/reference/roadmap-issue-coverage.md",
+        "tests/fixtures/roadmap_issue_coverage/**",
+        "tests/test_roadmap_issue_coverage.py"
+      ],
+      "tests": [
+        "tests/test_roadmap_issue_coverage.py",
+        "tests/test_artifact_registry.py",
+        "tests/test_test_selection.py",
+        "tests/test_pants_test_graph.py",
+        "tests/test_release_notes_gate.py"
+      ]
+    },
+    {
+      "name": "github-project-subagents",
+      "patterns": [
+        "assets/catalog/github-project-subagents.v1.json",
+        "assets/schemas/github-project-subagents.v1.schema.json",
+        "scripts/github_project_subagents.py",
+        "docs/reference/github-project-subagents.md",
+        "skills/app-dev/SKILL.md",
+        "skills/app-dev/references/github-project-issue-flow.md",
+        "agents/bears-github-project-issues-orchestrator.toml"
+      ],
+      "tests": [
+        "tests/test_agent_registration_sync.py",
+        "tests/test_artifact_registry.py",
+        "tests/test_bears_doctor.py",
+        "tests/test_decision_ledger.py",
+        "tests/test_pants_test_graph.py",
+        "tests/test_plugin_validation_scripts.py",
+        "tests/test_release_notes_gate.py",
+        "tests/test_test_selection.py"
+      ]
+    },
+    {
+      "name": "execution-kernel-authority-support",
+      "patterns": [
+        "scripts/goal_orchestrator.py",
+        "scripts/validation_worker.py",
+        "scripts/issue_autostart.py",
+        "scripts/issue_state_reconciler.py",
+        "scripts/opencode_executor.py",
+        "scripts/workflow_tree.py",
+        "scripts/issue_intake.py",
+        "scripts/issue_closeout.py",
+        "scripts/file_execution_join.py",
+        "scripts/model_check_orchestrator.py",
+        "scripts/orchestrator_closeout_manifest_authority.py",
+        "assets/catalog/issue-autostart.v1.json",
+        "docs/reference/async-validation.md",
+        "docs/reference/issue-autostart.md",
+        "docs/reference/self-solving-issue-loop.md"
+      ],
+      "tests": [
+        "tests/test_artifact_registry.py",
+        "tests/test_bears_doctor.py",
+        "tests/test_decision_ledger.py",
+        "tests/test_pants_test_graph.py",
+        "tests/test_plugin_validation_scripts.py",
+        "tests/test_release_notes_gate.py",
+        "tests/test_test_selection.py"
+      ]
+    },
+    {
+      "name": "subagents-roles-governance-surfaces",
+      "patterns": [
+        "assets/catalog/*.json",
+        "docs/reference/**",
+        "docs/audits/max-plugin-audit-2026-06-07/**",
+        "docs/audits/subagents-roles/**",
+        "docs/audits/capability-v2/**",
+        "tests/fixtures/capability/**",
+        "tests/fixtures/capability_layout/**",
+        "tests/fixtures/projects.v1.json",
+        "tests/fixtures/workflow_tree/**",
+        "workflows/**",
+        ".github/ISSUE_TEMPLATE/**",
+        "scripts/*.py"
+      ],
+      "tests": [
+        "tests/test_test_selection.py",
+        "tests/test_pants_test_graph.py",
+        "tests/test_release_notes_gate.py",
+        "tests/test_plugin_manifests.py"
+      ]
+    },
+    {
+      "name": "app-functional-graph",
+      "patterns": [
+        "scripts/app_functional_graph.py",
+        "assets/schemas/app-functional-graph.v1.schema.json",
+        "assets/schemas/app-task-ledger.v1.schema.json",
+        "skills/app-functional-graph/**",
+        "skills/app-plan/SKILL.md",
+        "skills/app-dev/SKILL.md",
+        "skills/app-dev/references/github-project-issue-flow.md",
+        "skills/app-analyze/SKILL.md",
+        "agents/bears-app-functional-graph-orchestrator.toml",
+        "tests/fixtures/app_functional_graph/**",
+        "assets/catalog/autoci-graph.v1.json",
+        "scripts/local_commit_validation.py"
+      ],
+      "tests": [
+        "tests/test_app_functional_graph.py",
+        "tests/test_skill_catalog.py",
+        "tests/test_test_selection.py",
+        "tests/test_pants_test_graph.py",
+        "tests/test_subagents_roles.py",
+        "tests/test_local_commit_validation.py"
+      ]
+    }
+  ],
+  "policy": {
+    "fast_gate": "Run mapped fast tests through local commit validation: pre-commit blocks staged drift; post-commit writes exact-SHA proof.",
+    "full_suite": "Full suite is a manual emergency diagnostic tool only; it is not a pull-request, merge, main, or dev push gate.",
+    "slow_gate": "Slow tests are selected only when an operator explicitly requests the slow tier.",
+    "unknown_path": "When a changed path has no mapping, run every fast test and mark full-suite diagnostics as advisory."
+  },
+  "schema_version": "test-selection.v1",
+  "slow_tests": [
+    "tests/test_agent_github_dev_cd.py",
+    "tests/test_git_discipline.py",
+    "tests/test_subagents_roles.py",
+    "tests/test_project_registry_gate.py",
+    "tests/test_role_gate_methodology.py",
+    "tests/test_session_workers_runtime.py",
+    "tests/test_subagent_orchestration_policy.py",
+    "tests/test_validate_overlay.py"
+  ]
+}

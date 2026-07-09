@@ -1,0 +1,1 @@
+{"schema":"bears-workflow-transition.v1","goal_id":"goal-439","from_state":"running","to_state":"blocked","guard":"degradation_event","required_evidence":["degradation_event","durable_json"],"invariants_checked":["durable_json_remains_authority"],"reason_code":"bad_degradation"}

@@ -1,0 +1,18 @@
+{
+  "body": "Route issue to repo/worktree only through canonical plugin catalogs. Scope: @Bears plugin governance. Target repo/worktree is the @Bears plugin checkout.",
+  "labels": [
+    {
+      "name": "bears:auto-start"
+    },
+    {
+      "name": "scope:bears-plugin"
+    }
+  ],
+  "number": 402,
+  "repo": "BearsCLOUD/bears_plugin",
+  "schema": "bears-issue-intake.v1",
+  "state": "OPEN",
+  "title": "P1: Add multi-repo governance routing for issue autostart",
+  "url": "https://github.com/BearsCLOUD/bears_plugin/issues/402",
+  "version": "1"
+}

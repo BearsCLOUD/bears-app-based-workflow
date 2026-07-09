@@ -1,0 +1,18 @@
+{
+  "$id": "https://bears.local/schemas/cost-quality-summary.v1.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Bears cost quality summary v1",
+  "type": "object",
+  "additionalProperties": true,
+  "properties": {
+    "schema": {"const": "bears-cost-quality-summary.v1"},
+    "run_id": {"type": "string", "minLength": 1},
+    "total_input_estimated_tokens": {"type": "integer", "minimum": 0},
+    "total_output_estimated_tokens": {"type": "integer", "minimum": 0},
+    "total_estimated_tokens": {"type": "integer", "minimum": 0},
+    "average_quality_score": {"type": "number", "minimum": 0, "maximum": 1},
+    "run_count": {"type": "integer", "minimum": 0},
+    "best_mode": {"type": ["string", "null"]}
+  },
+  "required": ["schema", "run_id", "total_input_estimated_tokens", "total_output_estimated_tokens", "total_estimated_tokens", "average_quality_score", "run_count", "best_mode"]
+}

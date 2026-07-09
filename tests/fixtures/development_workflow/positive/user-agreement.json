@@ -1,0 +1,24 @@
+{
+  "goal_id": "goal-1",
+  "goal": "Add workflow governance",
+  "explicit_user_constraints": "English artifacts only",
+  "forbidden_surfaces": [
+    "runtime",
+    "secrets"
+  ],
+  "allowed_repositories": [
+    "BearsCLOUD/bears_plugin"
+  ],
+  "live_mutation_rules": "none",
+  "secret_data_handling_rules": "no restricted data",
+  "target_readiness_definition": "validators pass",
+  "review_rules": "read-only review",
+  "merge_rules": "REVIEW_PASS and unchanged head",
+  "parallelization_permission": true,
+  "unresolved_questions": [],
+  "accepted_assumptions": [
+    "metadata-only"
+  ],
+  "restricted_data_taint": "none",
+  "status": "pass"
+}

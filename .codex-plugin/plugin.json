@@ -2,41 +2,49 @@
   "author": {
     "email": "noreply@example.invalid",
     "name": "Bears Workspace",
-    "url": "https://github.com/BearsCLOUD"
+    "url": "https://bears.local"
   },
-  "description": "Bears automatic CD tooling package with the MCP Designer skill. It is not a workspace instruction authority.",
-  "homepage": "https://github.com/BearsCLOUD/bears_plugin",
+  "description": "Bears local tooling package. It is not an instruction source.",
+  "homepage": "https://bears.local/plugins/bears",
   "interface": {
     "brandColor": "#F97316",
     "capabilities": [
-      "Automatic CD executor",
-      "Machine-readable CD contract shapes",
-      "MCP surface design and review"
+      "Local CD executor scripts",
+      "Machine-readable schema pointers",
+      "Preserved non-discoverable migration evidence"
     ],
     "category": "Development",
     "developerName": "Bears Workspace",
     "displayName": "Bears",
-    "longDescription": "This package provides one automatic CD executor, two machine-readable contract-shape files, and the mcp-designer skill for MCP surface design/review. Plugin skills are task procedures; workspace behavior remains owned by active AGENTS.md files and non-plugin contracts.",
-    "privacyPolicyURL": "https://github.com/BearsCLOUD/bears_plugin",
-    "shortDescription": "Bears automatic CD tooling plus MCP Designer skill.",
-    "termsOfServiceURL": "https://github.com/BearsCLOUD/bears_plugin",
-    "websiteURL": "https://github.com/BearsCLOUD/bears_plugin",
-    "defaultPrompt": [
-      "Use $mcp-designer to design an MCP server surface before implementation.",
-      "Use $mcp-designer to review MCP tools, resources, prompts, schemas, and startup limits."
-    ]
+    "longDescription": "This package provides local scripts and data files only. It must not expose skills, hooks, role profiles, prompts, or workflow policy. Agent behavior is owned by active AGENTS.md files and tracked non-plugin contracts.",
+    "privacyPolicyURL": "https://bears.local/privacy",
+    "shortDescription": "Bears local tooling package; no agent instructions.",
+    "termsOfServiceURL": "https://bears.local/terms",
+    "websiteURL": "https://bears.local/plugins/bears"
   },
   "keywords": [
     "bears-tooling",
     "automatic-cd",
     "kubernetes-cd",
-    "mcp-designer",
-    "mcp-surface-design",
-    "codex-skills"
+    "schema-pointers",
+    "local-scripts"
   ],
   "license": "UNLICENSED",
+  "metadata": {
+    "automaticKubernetesCd": {
+      "executor": "scripts/bears_auto_cd.py",
+      "gitContractFallback": "assets/catalog/git-deploy-contract.v1.json",
+      "cdContractFallback": "assets/catalog/cd-kube-deploy-contract.v1.json",
+      "repoPolicyPreferred": "local_cd/policy/*.v1.json"
+    },
+    "instructionSource": {
+      "enabled": false,
+      "activeSkills": false,
+      "activeHooks": false,
+      "activeRoleProfiles": false
+    }
+  },
   "name": "bears",
   "repository": "https://github.com/BearsCLOUD/bears_plugin",
-  "version": "0.1.0+codex.20260709115021",
-  "skills": "./skills/"
+  "version": "0.1.0"
 }

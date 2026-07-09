@@ -1,0 +1,524 @@
+{
+  "schema": "bears-plugin-performance-claims.v1",
+  "version": "1",
+  "packet_id": "performance-all-surfaces-pass",
+  "effective_config_snapshot_id": "fixture-effective-config-trusted-project",
+  "redaction_status": "clean",
+  "required_surfaces": [
+    "fast_mode",
+    "service_tier",
+    "shell_snapshot",
+    "web_search_mode",
+    "permission_profile",
+    "approval_reviewer",
+    "model_selection",
+    "subagent_caps",
+    "context_reduction"
+  ],
+  "claims": [
+    {
+      "claim_id": "perf-fast-mode",
+      "surface": "fast_mode",
+      "metric_field": "elapsed_seconds",
+      "baseline": 10,
+      "target": 5,
+      "measurement_command": "python3 scripts/capability_layout.py status --json",
+      "validation_command": "python3 scripts/capability_layout.py validate --json",
+      "rollback_command": "git checkout -- scripts/capability_layout.py",
+      "operator_authorization_required": true,
+      "effective_config_snapshot_id": "fixture-effective-config-trusted-project",
+      "redaction_status": "clean",
+      "cost_acknowledgement": true,
+      "environment_operation_packet": {
+        "schema": "bears-plugin-environment-operation.v1",
+        "version": "1",
+        "operation_id": "env-op-service-tier-change-request-fixture",
+        "operation_type": "service_tier_change_request",
+        "source_capability_id": "validation-hooks",
+        "source_paths": [
+          "scripts/capability_layout.py"
+        ],
+        "target_environment_surfaces": [
+          "Codex service tier"
+        ],
+        "operator_authorization_required": true,
+        "authorization_artifact": "operator_authorization_required_before_apply",
+        "default_mode": "dry_run",
+        "preflight_command": "python3 scripts/capability_layout.py validate-environment-packet --packet <packet> --json",
+        "dry_run_command": "python3 scripts/capability_layout.py plan-environment-operation --operation service_tier_change_request --json",
+        "apply_command": "operator_authorized_external_change --authorization-artifact ${authorization_artifact}",
+        "rollback_command": "operator_authorized_external_rollback --authorization-artifact ${authorization_artifact}",
+        "validation_command": "python3 scripts/capability_layout.py validate --json",
+        "sanitized_evidence_fields": [
+          "presence",
+          "counts",
+          "hashes",
+          "statuses",
+          "paths"
+        ],
+        "forbidden_raw_sources": [
+          "raw_config_values",
+          "raw_hook_bodies",
+          "raw_sessions",
+          "raw_logs",
+          "raw_chat",
+          "raw_tool_output",
+          "shell_history",
+          "raw_vpn_configs",
+          "private_keys",
+          "payment_identifiers",
+          "personal_contact_identifiers",
+          "tokens",
+          "credentials",
+          ".env values",
+          "production_data"
+        ],
+        "expected_status_after_apply": "pending_post_apply_validation",
+        "blocking_reasons": [],
+        "effective_config_snapshot_id": "fixture-effective-config-trusted-project"
+      }
+    },
+    {
+      "claim_id": "perf-service-tier",
+      "surface": "service_tier",
+      "metric_field": "p95_latency_ms",
+      "baseline": 10,
+      "target": 5,
+      "measurement_command": "python3 scripts/capability_layout.py status --json",
+      "validation_command": "python3 scripts/capability_layout.py validate --json",
+      "rollback_command": "git checkout -- scripts/capability_layout.py",
+      "operator_authorization_required": true,
+      "effective_config_snapshot_id": "fixture-effective-config-trusted-project",
+      "redaction_status": "clean",
+      "cost_acknowledgement": true,
+      "environment_operation_packet": {
+        "schema": "bears-plugin-environment-operation.v1",
+        "version": "1",
+        "operation_id": "env-op-service-tier-change-request-fixture",
+        "operation_type": "service_tier_change_request",
+        "source_capability_id": "validation-hooks",
+        "source_paths": [
+          "scripts/capability_layout.py"
+        ],
+        "target_environment_surfaces": [
+          "Codex service tier"
+        ],
+        "operator_authorization_required": true,
+        "authorization_artifact": "operator_authorization_required_before_apply",
+        "default_mode": "dry_run",
+        "preflight_command": "python3 scripts/capability_layout.py validate-environment-packet --packet <packet> --json",
+        "dry_run_command": "python3 scripts/capability_layout.py plan-environment-operation --operation service_tier_change_request --json",
+        "apply_command": "operator_authorized_external_change --authorization-artifact ${authorization_artifact}",
+        "rollback_command": "operator_authorized_external_rollback --authorization-artifact ${authorization_artifact}",
+        "validation_command": "python3 scripts/capability_layout.py validate --json",
+        "sanitized_evidence_fields": [
+          "presence",
+          "counts",
+          "hashes",
+          "statuses",
+          "paths"
+        ],
+        "forbidden_raw_sources": [
+          "raw_config_values",
+          "raw_hook_bodies",
+          "raw_sessions",
+          "raw_logs",
+          "raw_chat",
+          "raw_tool_output",
+          "shell_history",
+          "raw_vpn_configs",
+          "private_keys",
+          "payment_identifiers",
+          "personal_contact_identifiers",
+          "tokens",
+          "credentials",
+          ".env values",
+          "production_data"
+        ],
+        "expected_status_after_apply": "pending_post_apply_validation",
+        "blocking_reasons": [],
+        "effective_config_snapshot_id": "fixture-effective-config-trusted-project"
+      }
+    },
+    {
+      "claim_id": "perf-shell-snapshot",
+      "surface": "shell_snapshot",
+      "metric_field": "elapsed_seconds",
+      "baseline": 10,
+      "target": 5,
+      "measurement_command": "python3 scripts/capability_layout.py status --json",
+      "validation_command": "python3 scripts/capability_layout.py validate --json",
+      "rollback_command": "git checkout -- scripts/capability_layout.py",
+      "operator_authorization_required": true,
+      "effective_config_snapshot_id": "fixture-other",
+      "redaction_status": "clean",
+      "environment_operation_packet": {
+        "schema": "bears-plugin-environment-operation.v1",
+        "version": "1",
+        "operation_id": "env-op-performance-config-change-request-fixture",
+        "operation_type": "performance_config_change_request",
+        "source_capability_id": "validation-hooks",
+        "source_paths": [
+          "scripts/capability_layout.py"
+        ],
+        "target_environment_surfaces": [
+          "/srv/bears/.codex/config.toml"
+        ],
+        "operator_authorization_required": true,
+        "authorization_artifact": "operator_authorization_required_before_apply",
+        "default_mode": "dry_run",
+        "preflight_command": "python3 scripts/capability_layout.py validate-environment-packet --packet <packet> --json",
+        "dry_run_command": "python3 scripts/capability_layout.py plan-environment-operation --operation performance_config_change_request --json",
+        "apply_command": "operator_authorized_external_change --authorization-artifact ${authorization_artifact}",
+        "rollback_command": "operator_authorized_external_rollback --authorization-artifact ${authorization_artifact}",
+        "validation_command": "python3 scripts/capability_layout.py validate --json",
+        "sanitized_evidence_fields": [
+          "presence",
+          "counts",
+          "hashes",
+          "statuses",
+          "paths"
+        ],
+        "forbidden_raw_sources": [
+          "raw_config_values",
+          "raw_hook_bodies",
+          "raw_sessions",
+          "raw_logs",
+          "raw_chat",
+          "raw_tool_output",
+          "shell_history",
+          "raw_vpn_configs",
+          "private_keys",
+          "payment_identifiers",
+          "personal_contact_identifiers",
+          "tokens",
+          "credentials",
+          ".env values",
+          "production_data"
+        ],
+        "expected_status_after_apply": "pending_post_apply_validation",
+        "blocking_reasons": [],
+        "effective_config_snapshot_id": "fixture-effective-config-trusted-project"
+      }
+    },
+    {
+      "claim_id": "perf-web-search-mode",
+      "surface": "web_search_mode",
+      "metric_field": "elapsed_seconds",
+      "baseline": 10,
+      "target": 5,
+      "measurement_command": "python3 scripts/capability_layout.py status --json",
+      "validation_command": "python3 scripts/capability_layout.py validate --json",
+      "rollback_command": "git checkout -- scripts/capability_layout.py",
+      "operator_authorization_required": true,
+      "effective_config_snapshot_id": "fixture-effective-config-trusted-project",
+      "redaction_status": "clean",
+      "environment_operation_packet": {
+        "schema": "bears-plugin-environment-operation.v1",
+        "version": "1",
+        "operation_id": "env-op-web-search-mode-change-request-fixture",
+        "operation_type": "web_search_mode_change_request",
+        "source_capability_id": "validation-hooks",
+        "source_paths": [
+          "scripts/capability_layout.py"
+        ],
+        "target_environment_surfaces": [
+          "Codex web search mode"
+        ],
+        "operator_authorization_required": true,
+        "authorization_artifact": "operator_authorization_required_before_apply",
+        "default_mode": "dry_run",
+        "preflight_command": "python3 scripts/capability_layout.py validate-environment-packet --packet <packet> --json",
+        "dry_run_command": "python3 scripts/capability_layout.py plan-environment-operation --operation web_search_mode_change_request --json",
+        "apply_command": "operator_authorized_external_change --authorization-artifact ${authorization_artifact}",
+        "rollback_command": "operator_authorized_external_rollback --authorization-artifact ${authorization_artifact}",
+        "validation_command": "python3 scripts/capability_layout.py validate --json",
+        "sanitized_evidence_fields": [
+          "presence",
+          "counts",
+          "hashes",
+          "statuses",
+          "paths"
+        ],
+        "forbidden_raw_sources": [
+          "raw_config_values",
+          "raw_hook_bodies",
+          "raw_sessions",
+          "raw_logs",
+          "raw_chat",
+          "raw_tool_output",
+          "shell_history",
+          "raw_vpn_configs",
+          "private_keys",
+          "payment_identifiers",
+          "personal_contact_identifiers",
+          "tokens",
+          "credentials",
+          ".env values",
+          "production_data"
+        ],
+        "expected_status_after_apply": "pending_post_apply_validation",
+        "blocking_reasons": [],
+        "effective_config_snapshot_id": "fixture-effective-config-trusted-project"
+      }
+    },
+    {
+      "claim_id": "perf-permission-profile",
+      "surface": "permission_profile",
+      "metric_field": "validator_exit_code",
+      "baseline": 10,
+      "target": 5,
+      "measurement_command": "python3 scripts/capability_layout.py status --json",
+      "validation_command": "python3 scripts/capability_layout.py validate --json",
+      "rollback_command": "git checkout -- scripts/capability_layout.py",
+      "operator_authorization_required": true,
+      "effective_config_snapshot_id": "fixture-effective-config-trusted-project",
+      "redaction_status": "clean",
+      "environment_operation_packet": {
+        "schema": "bears-plugin-environment-operation.v1",
+        "version": "1",
+        "operation_id": "env-op-permission-profile-change-request-fixture",
+        "operation_type": "permission_profile_change_request",
+        "source_capability_id": "validation-hooks",
+        "source_paths": [
+          "scripts/capability_layout.py"
+        ],
+        "target_environment_surfaces": [
+          "Codex permission profile selection"
+        ],
+        "operator_authorization_required": true,
+        "authorization_artifact": "operator_authorization_required_before_apply",
+        "default_mode": "dry_run",
+        "preflight_command": "python3 scripts/capability_layout.py validate-environment-packet --packet <packet> --json",
+        "dry_run_command": "python3 scripts/capability_layout.py plan-environment-operation --operation permission_profile_change_request --json",
+        "apply_command": "operator_authorized_external_change --authorization-artifact ${authorization_artifact}",
+        "rollback_command": "operator_authorized_external_rollback --authorization-artifact ${authorization_artifact}",
+        "validation_command": "python3 scripts/capability_layout.py validate --json",
+        "sanitized_evidence_fields": [
+          "presence",
+          "counts",
+          "hashes",
+          "statuses",
+          "paths"
+        ],
+        "forbidden_raw_sources": [
+          "raw_config_values",
+          "raw_hook_bodies",
+          "raw_sessions",
+          "raw_logs",
+          "raw_chat",
+          "raw_tool_output",
+          "shell_history",
+          "raw_vpn_configs",
+          "private_keys",
+          "payment_identifiers",
+          "personal_contact_identifiers",
+          "tokens",
+          "credentials",
+          ".env values",
+          "production_data"
+        ],
+        "expected_status_after_apply": "pending_post_apply_validation",
+        "blocking_reasons": [],
+        "effective_config_snapshot_id": "fixture-effective-config-trusted-project"
+      }
+    },
+    {
+      "claim_id": "perf-approval-reviewer",
+      "surface": "approval_reviewer",
+      "metric_field": "wall_time_seconds",
+      "baseline": 10,
+      "target": 5,
+      "measurement_command": "python3 scripts/capability_layout.py status --json",
+      "validation_command": "python3 scripts/capability_layout.py validate --json",
+      "rollback_command": "git checkout -- scripts/capability_layout.py",
+      "operator_authorization_required": true,
+      "effective_config_snapshot_id": "fixture-effective-config-trusted-project",
+      "redaction_status": "clean",
+      "environment_operation_packet": {
+        "schema": "bears-plugin-environment-operation.v1",
+        "version": "1",
+        "operation_id": "env-op-approval-reviewer-change-request-fixture",
+        "operation_type": "approval_reviewer_change_request",
+        "source_capability_id": "validation-hooks",
+        "source_paths": [
+          "scripts/capability_layout.py"
+        ],
+        "target_environment_surfaces": [
+          "Codex approval reviewer selection"
+        ],
+        "operator_authorization_required": true,
+        "authorization_artifact": "operator_authorization_required_before_apply",
+        "default_mode": "dry_run",
+        "preflight_command": "python3 scripts/capability_layout.py validate-environment-packet --packet <packet> --json",
+        "dry_run_command": "python3 scripts/capability_layout.py plan-environment-operation --operation approval_reviewer_change_request --json",
+        "apply_command": "operator_authorized_external_change --authorization-artifact ${authorization_artifact}",
+        "rollback_command": "operator_authorized_external_rollback --authorization-artifact ${authorization_artifact}",
+        "validation_command": "python3 scripts/capability_layout.py validate --json",
+        "sanitized_evidence_fields": [
+          "presence",
+          "counts",
+          "hashes",
+          "statuses",
+          "paths"
+        ],
+        "forbidden_raw_sources": [
+          "raw_config_values",
+          "raw_hook_bodies",
+          "raw_sessions",
+          "raw_logs",
+          "raw_chat",
+          "raw_tool_output",
+          "shell_history",
+          "raw_vpn_configs",
+          "private_keys",
+          "payment_identifiers",
+          "personal_contact_identifiers",
+          "tokens",
+          "credentials",
+          ".env values",
+          "production_data"
+        ],
+        "expected_status_after_apply": "pending_post_apply_validation",
+        "blocking_reasons": [],
+        "effective_config_snapshot_id": "fixture-effective-config-trusted-project"
+      }
+    },
+    {
+      "claim_id": "perf-model-selection",
+      "surface": "model_selection",
+      "metric_field": "p95_latency_ms",
+      "baseline": 10,
+      "target": 5,
+      "measurement_command": "python3 scripts/capability_layout.py status --json",
+      "validation_command": "python3 scripts/capability_layout.py validate --json",
+      "rollback_command": "git checkout -- scripts/capability_layout.py",
+      "operator_authorization_required": true,
+      "effective_config_snapshot_id": "fixture-effective-config-trusted-project",
+      "redaction_status": "clean",
+      "environment_operation_packet": {
+        "schema": "bears-plugin-environment-operation.v1",
+        "version": "1",
+        "operation_id": "env-op-performance-config-change-request-fixture",
+        "operation_type": "performance_config_change_request",
+        "source_capability_id": "validation-hooks",
+        "source_paths": [
+          "scripts/capability_layout.py"
+        ],
+        "target_environment_surfaces": [
+          "Codex model selection"
+        ],
+        "operator_authorization_required": true,
+        "authorization_artifact": "operator_authorization_required_before_apply",
+        "default_mode": "dry_run",
+        "preflight_command": "python3 scripts/capability_layout.py validate-environment-packet --packet <packet> --json",
+        "dry_run_command": "python3 scripts/capability_layout.py plan-environment-operation --operation performance_config_change_request --json",
+        "apply_command": "operator_authorized_external_change --authorization-artifact ${authorization_artifact}",
+        "rollback_command": "operator_authorized_external_rollback --authorization-artifact ${authorization_artifact}",
+        "validation_command": "python3 scripts/capability_layout.py validate --json",
+        "sanitized_evidence_fields": [
+          "presence",
+          "counts",
+          "hashes",
+          "statuses",
+          "paths"
+        ],
+        "forbidden_raw_sources": [
+          "raw_config_values",
+          "raw_hook_bodies",
+          "raw_sessions",
+          "raw_logs",
+          "raw_chat",
+          "raw_tool_output",
+          "shell_history",
+          "raw_vpn_configs",
+          "private_keys",
+          "payment_identifiers",
+          "personal_contact_identifiers",
+          "tokens",
+          "credentials",
+          ".env values",
+          "production_data"
+        ],
+        "expected_status_after_apply": "pending_post_apply_validation",
+        "blocking_reasons": [],
+        "effective_config_snapshot_id": "fixture-effective-config-trusted-project"
+      }
+    },
+    {
+      "claim_id": "perf-subagent-caps",
+      "surface": "subagent_caps",
+      "metric_field": "max_threads",
+      "baseline": 10,
+      "target": 5,
+      "measurement_command": "python3 scripts/capability_layout.py status --json",
+      "validation_command": "python3 scripts/capability_layout.py validate --json",
+      "rollback_command": "git checkout -- scripts/capability_layout.py",
+      "operator_authorization_required": true,
+      "effective_config_snapshot_id": "fixture-effective-config-trusted-project",
+      "redaction_status": "clean",
+      "environment_operation_packet": {
+        "schema": "bears-plugin-environment-operation.v1",
+        "version": "1",
+        "operation_id": "env-op-subagent-runtime-cap-change-request-fixture",
+        "operation_type": "subagent_runtime_cap_change_request",
+        "source_capability_id": "validation-hooks",
+        "source_paths": [
+          "scripts/capability_layout.py"
+        ],
+        "target_environment_surfaces": [
+          "Codex subagent runtime caps"
+        ],
+        "operator_authorization_required": true,
+        "authorization_artifact": "operator_authorization_required_before_apply",
+        "default_mode": "dry_run",
+        "preflight_command": "python3 scripts/capability_layout.py validate-environment-packet --packet <packet> --json",
+        "dry_run_command": "python3 scripts/capability_layout.py plan-environment-operation --operation subagent_runtime_cap_change_request --json",
+        "apply_command": "operator_authorized_external_change --authorization-artifact ${authorization_artifact}",
+        "rollback_command": "operator_authorized_external_rollback --authorization-artifact ${authorization_artifact}",
+        "validation_command": "python3 scripts/capability_layout.py validate --json",
+        "sanitized_evidence_fields": [
+          "presence",
+          "counts",
+          "hashes",
+          "statuses",
+          "paths"
+        ],
+        "forbidden_raw_sources": [
+          "raw_config_values",
+          "raw_hook_bodies",
+          "raw_sessions",
+          "raw_logs",
+          "raw_chat",
+          "raw_tool_output",
+          "shell_history",
+          "raw_vpn_configs",
+          "private_keys",
+          "payment_identifiers",
+          "personal_contact_identifiers",
+          "tokens",
+          "credentials",
+          ".env values",
+          "production_data"
+        ],
+        "expected_status_after_apply": "pending_post_apply_validation",
+        "blocking_reasons": [],
+        "effective_config_snapshot_id": "fixture-effective-config-trusted-project"
+      }
+    },
+    {
+      "claim_id": "perf-context-reduction",
+      "surface": "context_reduction",
+      "metric_field": "context_token_count",
+      "baseline": 10,
+      "target": 5,
+      "measurement_command": "python3 scripts/capability_layout.py status --json",
+      "validation_command": "python3 scripts/capability_layout.py validate --json",
+      "rollback_command": "git checkout -- scripts/capability_layout.py",
+      "operator_authorization_required": false,
+      "effective_config_snapshot_id": "fixture-effective-config-trusted-project",
+      "redaction_status": "clean"
+    }
+  ],
+  "expected_code": "PERFORMANCE_EFFECTIVE_SNAPSHOT_ID"
+}

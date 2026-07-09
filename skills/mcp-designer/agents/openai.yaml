@@ -1,4 +1,0 @@
-interface:
-  display_name: "MCP Designer"
-  short_description: "Design MCP server surfaces"
-  default_prompt: "Use $mcp-designer to design an MCP server surface before implementation."

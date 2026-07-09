@@ -1,0 +1,231 @@
+{
+  "$defs": {
+    "contract_packet": {
+      "additionalProperties": false,
+      "properties": {
+        "changelog": {
+          "additionalProperties": false,
+          "properties": {
+            "path": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "reference": {
+              "type": "string"
+            },
+            "status": {
+              "enum": [
+                "pass",
+                "fail"
+              ]
+            }
+          },
+          "required": [
+            "path",
+            "status"
+          ],
+          "type": [
+            "object",
+            "null"
+          ]
+        },
+        "decision": {
+          "additionalProperties": false,
+          "properties": {
+            "path": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "reference": {
+              "type": "string"
+            },
+            "status": {
+              "enum": [
+                "pass",
+                "fail"
+              ]
+            }
+          },
+          "required": [
+            "path",
+            "status"
+          ],
+          "type": [
+            "object",
+            "null"
+          ]
+        },
+        "issue": {
+          "minimum": 1,
+          "type": "integer"
+        },
+        "json_schema_ref": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "packet_id": {
+          "minLength": 3,
+          "type": "string"
+        },
+        "proof": {
+          "additionalProperties": false,
+          "properties": {
+            "path": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "reference": {
+              "type": "string"
+            },
+            "status": {
+              "enum": [
+                "pass",
+                "fail"
+              ]
+            }
+          },
+          "required": [
+            "path",
+            "status"
+          ],
+          "type": [
+            "object",
+            "null"
+          ]
+        },
+        "review_state": {
+          "enum": [
+            "open",
+            "closed",
+            "superseded"
+          ]
+        },
+        "schema": {
+          "const": "bears-external-review-contract-packet.v1"
+        },
+        "surface": {
+          "additionalProperties": false,
+          "properties": {
+            "behavior_changing": {
+              "type": "boolean"
+            },
+            "governance_change": {
+              "type": "boolean"
+            },
+            "notes": {
+              "type": "string"
+            },
+            "path": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "surface_type": {
+              "enum": [
+                "behavior",
+                "governance",
+                "docs",
+                "validator",
+                "schema",
+                "other"
+              ]
+            }
+          },
+          "required": [
+            "path",
+            "behavior_changing",
+            "governance_change",
+            "surface_type"
+          ],
+          "type": "object"
+        }
+      },
+      "required": [
+        "schema",
+        "packet_id",
+        "issue",
+        "review_state",
+        "surface",
+        "json_schema_ref"
+      ],
+      "type": "object"
+    },
+    "delivery": {
+      "additionalProperties": false,
+      "properties": {
+        "delivery_id": {
+          "minLength": 3,
+          "type": "string"
+        },
+        "issue": {
+          "type": "integer"
+        },
+        "summary_path": {
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "required": [
+        "delivery_id",
+        "issue",
+        "summary_path"
+      ],
+      "type": "object"
+    }
+  },
+  "$id": "https://bears.local/schemas/external-review-audit.v1.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "commands": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "deliveries": {
+      "items": {
+        "$ref": "#/$defs/delivery"
+      },
+      "type": "array"
+    },
+    "forbidden_content": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "owner_issue": {
+      "const": "#425"
+    },
+    "required_chain": {
+      "items": {
+        "enum": [
+          "github_issue_state",
+          "delivery_manifest",
+          "decision_ledger",
+          "changelog_or_release_note",
+          "validation_proof",
+          "bears_doctor_closeout_summary"
+        ]
+      },
+      "minItems": 6,
+      "type": "array"
+    },
+    "schema": {
+      "const": "bears-external-review-audit.v1"
+    },
+    "version": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema",
+    "version",
+    "owner_issue",
+    "commands",
+    "required_chain",
+    "deliveries"
+  ],
+  "title": "Bears external review audit v1",
+  "type": "object"
+}

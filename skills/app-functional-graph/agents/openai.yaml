@@ -1,0 +1,4 @@
+interface:
+  display_name: "App Functional Graph"
+  short_description: "Bind app tasks to functional graph refs."
+  default_prompt: "Use $app-functional-graph to create or validate an app functional graph and app task ledger before app-plan/app-dev work."

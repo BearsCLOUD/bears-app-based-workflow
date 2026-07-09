@@ -1,0 +1,18 @@
+{
+  "schema": "bears-issue-intake.v1",
+  "version": "1",
+  "repo": "BearsCLOUD/bears_plugin",
+  "number": 392,
+  "title": "P0: Add self-solving issue loop for sequential codex exec",
+  "state": "OPEN",
+  "url": "https://github.com/BearsCLOUD/bears_plugin/issues/392",
+  "body": "Implement the first self-solving issue loop with delivery manifest, issue intake, sequential codex exec steps, async validation, fixer remediation, bears_doctor, issue closeout, and reconciler. Scope: @Bears plugin governance.",
+  "labels": [
+    {
+      "name": "bears:auto-start"
+    },
+    {
+      "name": "scope:bears-plugin"
+    }
+  ]
+}

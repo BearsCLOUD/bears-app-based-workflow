@@ -1,0 +1,4 @@
+interface:
+  display_name: "App Dev"
+  short_description: "Execute app ledger tasks."
+  default_prompt: "Use $app-dev to execute dependency-ready app-task-ledger tasks with valid functional graph refs, L2/L3 lanes, critic confirmation, and ledger closeout evidence."

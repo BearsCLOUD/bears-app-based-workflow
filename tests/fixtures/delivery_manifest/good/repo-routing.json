@@ -1,0 +1,80 @@
+{
+  "blocking_debt": [],
+  "cleanup_status": "clean",
+  "closeout": {
+    "closed_issues": [],
+    "issue_comment_url": "",
+    "status": "ready"
+  },
+  "commits": [
+    {
+      "role_step": "implement-delivery",
+      "sha": "2222222222222222222222222222222222222222",
+      "validation_proof": "runtime/local-commit-validation/2222222222222222222222222222222222222222.json"
+    }
+  ],
+  "covered_issues": [
+    {
+      "classification": "closed",
+      "github_state": "OPEN",
+      "number": 402,
+      "proof_commit": "2222222222222222222222222222222222222222",
+      "proof_path": "runtime/local-commit-validation/2222222222222222222222222222222222222222.json",
+      "reason": "fixture closeout classification",
+      "repo": "BearsCLOUD/bears_plugin",
+      "url": "https://github.com/BearsCLOUD/bears_plugin/issues/402"
+    }
+  ],
+  "delivery_id": "bears-governance-kernel-v1",
+  "doctor": {
+    "result_path": "runtime/bears-doctor/2222222222222222222222222222222222222222.closeout.json",
+    "status": "pass"
+  },
+  "issues": [
+    {
+      "number": 402,
+      "repo": "BearsCLOUD/bears_plugin",
+      "state": "OPEN",
+      "url": "https://github.com/BearsCLOUD/bears_plugin/issues/402"
+    }
+  ],
+  "release_gate": {
+    "delivery_id": "bears-governance-kernel-v1",
+    "reference": "release-note-gate:#384 delivery_id:bears-governance-kernel-v1",
+    "status": "linked"
+  },
+  "repo": "BearsCLOUD/bears_plugin",
+  "schema": "bears-delivery-manifest.v1",
+  "sequential_plan": "runtime/deliveries/bears-governance-kernel-v1/sequential-plan.v1.json",
+  "state": "ready_for_closeout",
+  "touched_repos": [
+    {
+      "access": "write_scoped",
+      "authority_topics": [
+        "issue_autostart",
+        "delivery_manifest",
+        "git_hook_bootstrap"
+      ],
+      "hook_proof": "/srv/bears/plugins/bears/runtime/effective-hooks/plugins_bears/effective-hooks-proof.v1.json",
+      "repo": "BearsCLOUD/bears_plugin",
+      "repo_id": "plugins_bears",
+      "worktree_path": "/srv/bears/plugins/bears"
+    },
+    {
+      "access": "read_only",
+      "purpose": "workspace router evidence only",
+      "repo": "Bears workspace",
+      "repo_id": "bears_workspace",
+      "worktree_path": "/srv/bears"
+    }
+  ],
+  "updated_at": "2026-06-25T00:00:00Z",
+  "validation": {
+    "async_state": "runtime/validation-state/2222222222222222222222222222222222222222/validation-state.v1.json",
+    "exact_proof": "runtime/local-commit-validation/2222222222222222222222222222222222222222.json",
+    "remediation_state": "none",
+    "status": "pass"
+  },
+  "version": "1",
+  "workflow_tree": "runtime/deliveries/bears-governance-kernel-v1/workflow-tree.v1.json"
+}

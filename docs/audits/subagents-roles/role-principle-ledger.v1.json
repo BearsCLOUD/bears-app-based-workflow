@@ -1,0 +1,2350 @@
+{
+  "entries": [
+    {
+      "evidence_ref": "skills/subagents-roles/references/well-specified-artifacts.md",
+      "executable_consumer": "specialist",
+      "executable_owner": "bears-analytics-quality-engineer",
+      "issue_ref": null,
+      "principle_id": "well_specified_agent_artifacts",
+      "role_profile": "bears-analytics-quality-engineer",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-analytics-quality-engineer.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/runtime-result-efficiency.md",
+      "executable_consumer": "specialist",
+      "executable_owner": "bears-analytics-quality-engineer",
+      "issue_ref": null,
+      "principle_id": "runtime_result_efficiency",
+      "role_profile": "bears-analytics-quality-engineer",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-analytics-quality-engineer.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/repeatable-process-automation.md",
+      "executable_consumer": "specialist",
+      "executable_owner": "bears-analytics-quality-engineer",
+      "issue_ref": null,
+      "principle_id": "repeatable_process_automation",
+      "role_profile": "bears-analytics-quality-engineer",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-analytics-quality-engineer.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/well-specified-artifacts.md",
+      "executable_consumer": "specialist",
+      "executable_owner": "bears-android-emulator-platform-engineer",
+      "issue_ref": null,
+      "principle_id": "well_specified_agent_artifacts",
+      "role_profile": "bears-android-emulator-platform-engineer",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-android-emulator-platform-engineer.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/runtime-result-efficiency.md",
+      "executable_consumer": "specialist",
+      "executable_owner": "bears-android-emulator-platform-engineer",
+      "issue_ref": null,
+      "principle_id": "runtime_result_efficiency",
+      "role_profile": "bears-android-emulator-platform-engineer",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-android-emulator-platform-engineer.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/repeatable-process-automation.md",
+      "executable_consumer": "specialist",
+      "executable_owner": "bears-android-emulator-platform-engineer",
+      "issue_ref": null,
+      "principle_id": "repeatable_process_automation",
+      "role_profile": "bears-android-emulator-platform-engineer",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-android-emulator-platform-engineer.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/well-specified-artifacts.md",
+      "executable_consumer": "codex subagent profile",
+      "executable_owner": "@Bears role/skill/subagent flow",
+      "issue_ref": null,
+      "principle_id": "well_specified_agent_artifacts",
+      "role_profile": "bears-auth-domain-orchestrator",
+      "status": "review_required",
+      "target_files": [
+        "agents/bears-auth-domain-orchestrator.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/runtime-result-efficiency.md",
+      "executable_consumer": "codex subagent profile",
+      "executable_owner": "@Bears role/skill/subagent flow",
+      "issue_ref": null,
+      "principle_id": "runtime_result_efficiency",
+      "role_profile": "bears-auth-domain-orchestrator",
+      "status": "review_required",
+      "target_files": [
+        "agents/bears-auth-domain-orchestrator.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/repeatable-process-automation.md",
+      "executable_consumer": "codex subagent profile",
+      "executable_owner": "@Bears role/skill/subagent flow",
+      "issue_ref": null,
+      "principle_id": "repeatable_process_automation",
+      "role_profile": "bears-auth-domain-orchestrator",
+      "status": "review_required",
+      "target_files": [
+        "agents/bears-auth-domain-orchestrator.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/well-specified-artifacts.md",
+      "executable_consumer": "specialist",
+      "executable_owner": "bears-auth-platform-engineer",
+      "issue_ref": null,
+      "principle_id": "well_specified_agent_artifacts",
+      "role_profile": "bears-auth-platform-engineer",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-auth-platform-engineer.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/runtime-result-efficiency.md",
+      "executable_consumer": "specialist",
+      "executable_owner": "bears-auth-platform-engineer",
+      "issue_ref": null,
+      "principle_id": "runtime_result_efficiency",
+      "role_profile": "bears-auth-platform-engineer",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-auth-platform-engineer.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/repeatable-process-automation.md",
+      "executable_consumer": "specialist",
+      "executable_owner": "bears-auth-platform-engineer",
+      "issue_ref": null,
+      "principle_id": "repeatable_process_automation",
+      "role_profile": "bears-auth-platform-engineer",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-auth-platform-engineer.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/well-specified-artifacts.md",
+      "executable_consumer": "codex subagent profile",
+      "executable_owner": "@Bears role/skill/subagent flow",
+      "issue_ref": null,
+      "principle_id": "well_specified_agent_artifacts",
+      "role_profile": "bears-clarification-architect",
+      "status": "review_required",
+      "target_files": [
+        "agents/bears-clarification-architect.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/runtime-result-efficiency.md",
+      "executable_consumer": "codex subagent profile",
+      "executable_owner": "@Bears role/skill/subagent flow",
+      "issue_ref": null,
+      "principle_id": "runtime_result_efficiency",
+      "role_profile": "bears-clarification-architect",
+      "status": "review_required",
+      "target_files": [
+        "agents/bears-clarification-architect.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/repeatable-process-automation.md",
+      "executable_consumer": "codex subagent profile",
+      "executable_owner": "@Bears role/skill/subagent flow",
+      "issue_ref": null,
+      "principle_id": "repeatable_process_automation",
+      "role_profile": "bears-clarification-architect",
+      "status": "review_required",
+      "target_files": [
+        "agents/bears-clarification-architect.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/well-specified-artifacts.md",
+      "executable_consumer": "specialist",
+      "executable_owner": "bears-codex-daemon-engineer",
+      "issue_ref": null,
+      "principle_id": "well_specified_agent_artifacts",
+      "role_profile": "bears-codex-daemon-engineer",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-codex-daemon-engineer.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/runtime-result-efficiency.md",
+      "executable_consumer": "specialist",
+      "executable_owner": "bears-codex-daemon-engineer",
+      "issue_ref": null,
+      "principle_id": "runtime_result_efficiency",
+      "role_profile": "bears-codex-daemon-engineer",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-codex-daemon-engineer.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/repeatable-process-automation.md",
+      "executable_consumer": "specialist",
+      "executable_owner": "bears-codex-daemon-engineer",
+      "issue_ref": null,
+      "principle_id": "repeatable_process_automation",
+      "role_profile": "bears-codex-daemon-engineer",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-codex-daemon-engineer.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/well-specified-artifacts.md",
+      "executable_consumer": "specialist",
+      "executable_owner": "bears-codex-health-engineer",
+      "issue_ref": null,
+      "principle_id": "well_specified_agent_artifacts",
+      "role_profile": "bears-codex-health-engineer",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-codex-health-engineer.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/runtime-result-efficiency.md",
+      "executable_consumer": "specialist",
+      "executable_owner": "bears-codex-health-engineer",
+      "issue_ref": null,
+      "principle_id": "runtime_result_efficiency",
+      "role_profile": "bears-codex-health-engineer",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-codex-health-engineer.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/repeatable-process-automation.md",
+      "executable_consumer": "specialist",
+      "executable_owner": "bears-codex-health-engineer",
+      "issue_ref": null,
+      "principle_id": "repeatable_process_automation",
+      "role_profile": "bears-codex-health-engineer",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-codex-health-engineer.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/well-specified-artifacts.md",
+      "executable_consumer": "specialist",
+      "executable_owner": "bears-codex-workspace-config-engineer",
+      "issue_ref": null,
+      "principle_id": "well_specified_agent_artifacts",
+      "role_profile": "bears-codex-workspace-config-engineer",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-codex-workspace-config-engineer.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/runtime-result-efficiency.md",
+      "executable_consumer": "specialist",
+      "executable_owner": "bears-codex-workspace-config-engineer",
+      "issue_ref": null,
+      "principle_id": "runtime_result_efficiency",
+      "role_profile": "bears-codex-workspace-config-engineer",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-codex-workspace-config-engineer.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/repeatable-process-automation.md",
+      "executable_consumer": "specialist",
+      "executable_owner": "bears-codex-workspace-config-engineer",
+      "issue_ref": null,
+      "principle_id": "repeatable_process_automation",
+      "role_profile": "bears-codex-workspace-config-engineer",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-codex-workspace-config-engineer.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/well-specified-artifacts.md",
+      "executable_consumer": "specialist",
+      "executable_owner": "bears-deploy-platform-engineer",
+      "issue_ref": null,
+      "principle_id": "well_specified_agent_artifacts",
+      "role_profile": "bears-deploy-platform-engineer",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-deploy-platform-engineer.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/runtime-result-efficiency.md",
+      "executable_consumer": "specialist",
+      "executable_owner": "bears-deploy-platform-engineer",
+      "issue_ref": null,
+      "principle_id": "runtime_result_efficiency",
+      "role_profile": "bears-deploy-platform-engineer",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-deploy-platform-engineer.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/repeatable-process-automation.md",
+      "executable_consumer": "specialist",
+      "executable_owner": "bears-deploy-platform-engineer",
+      "issue_ref": null,
+      "principle_id": "repeatable_process_automation",
+      "role_profile": "bears-deploy-platform-engineer",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-deploy-platform-engineer.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/well-specified-artifacts.md",
+      "executable_consumer": "specialist",
+      "executable_owner": "bears-deprecated-git-remote-hygiene-engineer",
+      "issue_ref": null,
+      "principle_id": "well_specified_agent_artifacts",
+      "role_profile": "bears-deprecated-git-remote-hygiene-engineer",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-deprecated-git-remote-hygiene-engineer.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/runtime-result-efficiency.md",
+      "executable_consumer": "specialist",
+      "executable_owner": "bears-deprecated-git-remote-hygiene-engineer",
+      "issue_ref": null,
+      "principle_id": "runtime_result_efficiency",
+      "role_profile": "bears-deprecated-git-remote-hygiene-engineer",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-deprecated-git-remote-hygiene-engineer.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/repeatable-process-automation.md",
+      "executable_consumer": "specialist",
+      "executable_owner": "bears-deprecated-git-remote-hygiene-engineer",
+      "issue_ref": null,
+      "principle_id": "repeatable_process_automation",
+      "role_profile": "bears-deprecated-git-remote-hygiene-engineer",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-deprecated-git-remote-hygiene-engineer.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/well-specified-artifacts.md",
+      "executable_consumer": "helper",
+      "executable_owner": "bears-development-workflow-orchestrator",
+      "issue_ref": null,
+      "principle_id": "well_specified_agent_artifacts",
+      "role_profile": "bears-development-workflow-orchestrator",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-development-workflow-orchestrator.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/runtime-result-efficiency.md",
+      "executable_consumer": "helper",
+      "executable_owner": "bears-development-workflow-orchestrator",
+      "issue_ref": null,
+      "principle_id": "runtime_result_efficiency",
+      "role_profile": "bears-development-workflow-orchestrator",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-development-workflow-orchestrator.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/repeatable-process-automation.md",
+      "executable_consumer": "helper",
+      "executable_owner": "bears-development-workflow-orchestrator",
+      "issue_ref": null,
+      "principle_id": "repeatable_process_automation",
+      "role_profile": "bears-development-workflow-orchestrator",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-development-workflow-orchestrator.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/well-specified-artifacts.md",
+      "executable_consumer": "specialist",
+      "executable_owner": "bears-docs-maintainer",
+      "issue_ref": null,
+      "principle_id": "well_specified_agent_artifacts",
+      "role_profile": "bears-docs-maintainer",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-docs-maintainer.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/runtime-result-efficiency.md",
+      "executable_consumer": "specialist",
+      "executable_owner": "bears-docs-maintainer",
+      "issue_ref": null,
+      "principle_id": "runtime_result_efficiency",
+      "role_profile": "bears-docs-maintainer",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-docs-maintainer.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/repeatable-process-automation.md",
+      "executable_consumer": "specialist",
+      "executable_owner": "bears-docs-maintainer",
+      "issue_ref": null,
+      "principle_id": "repeatable_process_automation",
+      "role_profile": "bears-docs-maintainer",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-docs-maintainer.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/well-specified-artifacts.md",
+      "executable_consumer": "codex subagent profile",
+      "executable_owner": "@Bears role/skill/subagent flow",
+      "issue_ref": null,
+      "principle_id": "well_specified_agent_artifacts",
+      "role_profile": "bears-gateway-domain-orchestrator",
+      "status": "review_required",
+      "target_files": [
+        "agents/bears-gateway-domain-orchestrator.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/runtime-result-efficiency.md",
+      "executable_consumer": "codex subagent profile",
+      "executable_owner": "@Bears role/skill/subagent flow",
+      "issue_ref": null,
+      "principle_id": "runtime_result_efficiency",
+      "role_profile": "bears-gateway-domain-orchestrator",
+      "status": "review_required",
+      "target_files": [
+        "agents/bears-gateway-domain-orchestrator.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/repeatable-process-automation.md",
+      "executable_consumer": "codex subagent profile",
+      "executable_owner": "@Bears role/skill/subagent flow",
+      "issue_ref": null,
+      "principle_id": "repeatable_process_automation",
+      "role_profile": "bears-gateway-domain-orchestrator",
+      "status": "review_required",
+      "target_files": [
+        "agents/bears-gateway-domain-orchestrator.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/well-specified-artifacts.md",
+      "executable_consumer": "specialist",
+      "executable_owner": "bears-gateway-platform-engineer",
+      "issue_ref": null,
+      "principle_id": "well_specified_agent_artifacts",
+      "role_profile": "bears-gateway-platform-engineer",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-gateway-platform-engineer.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/runtime-result-efficiency.md",
+      "executable_consumer": "specialist",
+      "executable_owner": "bears-gateway-platform-engineer",
+      "issue_ref": null,
+      "principle_id": "runtime_result_efficiency",
+      "role_profile": "bears-gateway-platform-engineer",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-gateway-platform-engineer.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/repeatable-process-automation.md",
+      "executable_consumer": "specialist",
+      "executable_owner": "bears-gateway-platform-engineer",
+      "issue_ref": null,
+      "principle_id": "repeatable_process_automation",
+      "role_profile": "bears-gateway-platform-engineer",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-gateway-platform-engineer.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/well-specified-artifacts.md",
+      "executable_consumer": "helper",
+      "executable_owner": "bears-git-workflow-helper",
+      "issue_ref": null,
+      "principle_id": "well_specified_agent_artifacts",
+      "role_profile": "bears-git-workflow-helper",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-git-workflow-helper.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/runtime-result-efficiency.md",
+      "executable_consumer": "helper",
+      "executable_owner": "bears-git-workflow-helper",
+      "issue_ref": null,
+      "principle_id": "runtime_result_efficiency",
+      "role_profile": "bears-git-workflow-helper",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-git-workflow-helper.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/repeatable-process-automation.md",
+      "executable_consumer": "helper",
+      "executable_owner": "bears-git-workflow-helper",
+      "issue_ref": null,
+      "principle_id": "repeatable_process_automation",
+      "role_profile": "bears-git-workflow-helper",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-git-workflow-helper.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/well-specified-artifacts.md",
+      "executable_consumer": "helper",
+      "executable_owner": "bears-github-actions-access-settings-governor",
+      "issue_ref": null,
+      "principle_id": "well_specified_agent_artifacts",
+      "role_profile": "bears-github-actions-access-settings-governor",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-github-actions-access-settings-governor.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/runtime-result-efficiency.md",
+      "executable_consumer": "helper",
+      "executable_owner": "bears-github-actions-access-settings-governor",
+      "issue_ref": null,
+      "principle_id": "runtime_result_efficiency",
+      "role_profile": "bears-github-actions-access-settings-governor",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-github-actions-access-settings-governor.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/repeatable-process-automation.md",
+      "executable_consumer": "helper",
+      "executable_owner": "bears-github-actions-access-settings-governor",
+      "issue_ref": null,
+      "principle_id": "repeatable_process_automation",
+      "role_profile": "bears-github-actions-access-settings-governor",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-github-actions-access-settings-governor.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/well-specified-artifacts.md",
+      "executable_consumer": "helper",
+      "executable_owner": "bears-github-actions-secrets-governor",
+      "issue_ref": null,
+      "principle_id": "well_specified_agent_artifacts",
+      "role_profile": "bears-github-actions-secrets-governor",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-github-actions-secrets-governor.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/runtime-result-efficiency.md",
+      "executable_consumer": "helper",
+      "executable_owner": "bears-github-actions-secrets-governor",
+      "issue_ref": null,
+      "principle_id": "runtime_result_efficiency",
+      "role_profile": "bears-github-actions-secrets-governor",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-github-actions-secrets-governor.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/repeatable-process-automation.md",
+      "executable_consumer": "helper",
+      "executable_owner": "bears-github-actions-secrets-governor",
+      "issue_ref": null,
+      "principle_id": "repeatable_process_automation",
+      "role_profile": "bears-github-actions-secrets-governor",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-github-actions-secrets-governor.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/well-specified-artifacts.md",
+      "executable_consumer": "helper",
+      "executable_owner": "bears-github-branch-protection-settings-governor",
+      "issue_ref": null,
+      "principle_id": "well_specified_agent_artifacts",
+      "role_profile": "bears-github-branch-protection-settings-governor",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-github-branch-protection-settings-governor.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/runtime-result-efficiency.md",
+      "executable_consumer": "helper",
+      "executable_owner": "bears-github-branch-protection-settings-governor",
+      "issue_ref": null,
+      "principle_id": "runtime_result_efficiency",
+      "role_profile": "bears-github-branch-protection-settings-governor",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-github-branch-protection-settings-governor.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/repeatable-process-automation.md",
+      "executable_consumer": "helper",
+      "executable_owner": "bears-github-branch-protection-settings-governor",
+      "issue_ref": null,
+      "principle_id": "repeatable_process_automation",
+      "role_profile": "bears-github-branch-protection-settings-governor",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-github-branch-protection-settings-governor.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/well-specified-artifacts.md",
+      "executable_consumer": "helper",
+      "executable_owner": "bears-github-project-issues-orchestrator",
+      "issue_ref": null,
+      "principle_id": "well_specified_agent_artifacts",
+      "role_profile": "bears-github-project-issues-orchestrator",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-github-project-issues-orchestrator.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/runtime-result-efficiency.md",
+      "executable_consumer": "helper",
+      "executable_owner": "bears-github-project-issues-orchestrator",
+      "issue_ref": null,
+      "principle_id": "runtime_result_efficiency",
+      "role_profile": "bears-github-project-issues-orchestrator",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-github-project-issues-orchestrator.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/repeatable-process-automation.md",
+      "executable_consumer": "helper",
+      "executable_owner": "bears-github-project-issues-orchestrator",
+      "issue_ref": null,
+      "principle_id": "repeatable_process_automation",
+      "role_profile": "bears-github-project-issues-orchestrator",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-github-project-issues-orchestrator.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/well-specified-artifacts.md",
+      "executable_consumer": "helper",
+      "executable_owner": "bears-goal-prompt-generator",
+      "issue_ref": null,
+      "principle_id": "well_specified_agent_artifacts",
+      "role_profile": "bears-goal-prompt-generator",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-goal-prompt-generator.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/runtime-result-efficiency.md",
+      "executable_consumer": "helper",
+      "executable_owner": "bears-goal-prompt-generator",
+      "issue_ref": null,
+      "principle_id": "runtime_result_efficiency",
+      "role_profile": "bears-goal-prompt-generator",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-goal-prompt-generator.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/repeatable-process-automation.md",
+      "executable_consumer": "helper",
+      "executable_owner": "bears-goal-prompt-generator",
+      "issue_ref": null,
+      "principle_id": "repeatable_process_automation",
+      "role_profile": "bears-goal-prompt-generator",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-goal-prompt-generator.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/well-specified-artifacts.md",
+      "executable_consumer": "codex subagent profile",
+      "executable_owner": "@Bears role/skill/subagent flow",
+      "issue_ref": null,
+      "principle_id": "well_specified_agent_artifacts",
+      "role_profile": "bears-infra-domain-orchestrator",
+      "status": "review_required",
+      "target_files": [
+        "agents/bears-infra-domain-orchestrator.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/runtime-result-efficiency.md",
+      "executable_consumer": "codex subagent profile",
+      "executable_owner": "@Bears role/skill/subagent flow",
+      "issue_ref": null,
+      "principle_id": "runtime_result_efficiency",
+      "role_profile": "bears-infra-domain-orchestrator",
+      "status": "review_required",
+      "target_files": [
+        "agents/bears-infra-domain-orchestrator.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/repeatable-process-automation.md",
+      "executable_consumer": "codex subagent profile",
+      "executable_owner": "@Bears role/skill/subagent flow",
+      "issue_ref": null,
+      "principle_id": "repeatable_process_automation",
+      "role_profile": "bears-infra-domain-orchestrator",
+      "status": "review_required",
+      "target_files": [
+        "agents/bears-infra-domain-orchestrator.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/well-specified-artifacts.md",
+      "executable_consumer": "specialist",
+      "executable_owner": "bears-infrastructure-network-engineer",
+      "issue_ref": null,
+      "principle_id": "well_specified_agent_artifacts",
+      "role_profile": "bears-infrastructure-network-engineer",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-infrastructure-network-engineer.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/runtime-result-efficiency.md",
+      "executable_consumer": "specialist",
+      "executable_owner": "bears-infrastructure-network-engineer",
+      "issue_ref": null,
+      "principle_id": "runtime_result_efficiency",
+      "role_profile": "bears-infrastructure-network-engineer",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-infrastructure-network-engineer.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/repeatable-process-automation.md",
+      "executable_consumer": "specialist",
+      "executable_owner": "bears-infrastructure-network-engineer",
+      "issue_ref": null,
+      "principle_id": "repeatable_process_automation",
+      "role_profile": "bears-infrastructure-network-engineer",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-infrastructure-network-engineer.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/well-specified-artifacts.md",
+      "executable_consumer": "specialist",
+      "executable_owner": "bears-kubernetes-data-platform-engineer",
+      "issue_ref": null,
+      "principle_id": "well_specified_agent_artifacts",
+      "role_profile": "bears-kubernetes-data-platform-engineer",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-kubernetes-data-platform-engineer.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/runtime-result-efficiency.md",
+      "executable_consumer": "specialist",
+      "executable_owner": "bears-kubernetes-data-platform-engineer",
+      "issue_ref": null,
+      "principle_id": "runtime_result_efficiency",
+      "role_profile": "bears-kubernetes-data-platform-engineer",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-kubernetes-data-platform-engineer.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/repeatable-process-automation.md",
+      "executable_consumer": "specialist",
+      "executable_owner": "bears-kubernetes-data-platform-engineer",
+      "issue_ref": null,
+      "principle_id": "repeatable_process_automation",
+      "role_profile": "bears-kubernetes-data-platform-engineer",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-kubernetes-data-platform-engineer.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/well-specified-artifacts.md",
+      "executable_consumer": "specialist",
+      "executable_owner": "bears-machine-first-execution-kernel-engineer",
+      "issue_ref": null,
+      "principle_id": "well_specified_agent_artifacts",
+      "role_profile": "bears-machine-first-execution-kernel-engineer",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-machine-first-execution-kernel-engineer.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/runtime-result-efficiency.md",
+      "executable_consumer": "specialist",
+      "executable_owner": "bears-machine-first-execution-kernel-engineer",
+      "issue_ref": null,
+      "principle_id": "runtime_result_efficiency",
+      "role_profile": "bears-machine-first-execution-kernel-engineer",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-machine-first-execution-kernel-engineer.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/repeatable-process-automation.md",
+      "executable_consumer": "specialist",
+      "executable_owner": "bears-machine-first-execution-kernel-engineer",
+      "issue_ref": null,
+      "principle_id": "repeatable_process_automation",
+      "role_profile": "bears-machine-first-execution-kernel-engineer",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-machine-first-execution-kernel-engineer.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/well-specified-artifacts.md",
+      "executable_consumer": "specialist",
+      "executable_owner": "bears-notifications-platform-engineer",
+      "issue_ref": null,
+      "principle_id": "well_specified_agent_artifacts",
+      "role_profile": "bears-notifications-platform-engineer",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-notifications-platform-engineer.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/runtime-result-efficiency.md",
+      "executable_consumer": "specialist",
+      "executable_owner": "bears-notifications-platform-engineer",
+      "issue_ref": null,
+      "principle_id": "runtime_result_efficiency",
+      "role_profile": "bears-notifications-platform-engineer",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-notifications-platform-engineer.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/repeatable-process-automation.md",
+      "executable_consumer": "specialist",
+      "executable_owner": "bears-notifications-platform-engineer",
+      "issue_ref": null,
+      "principle_id": "repeatable_process_automation",
+      "role_profile": "bears-notifications-platform-engineer",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-notifications-platform-engineer.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/well-specified-artifacts.md",
+      "executable_consumer": "specialist",
+      "executable_owner": "bears-observability-platform-engineer",
+      "issue_ref": null,
+      "principle_id": "well_specified_agent_artifacts",
+      "role_profile": "bears-observability-platform-engineer",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-observability-platform-engineer.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/runtime-result-efficiency.md",
+      "executable_consumer": "specialist",
+      "executable_owner": "bears-observability-platform-engineer",
+      "issue_ref": null,
+      "principle_id": "runtime_result_efficiency",
+      "role_profile": "bears-observability-platform-engineer",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-observability-platform-engineer.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/repeatable-process-automation.md",
+      "executable_consumer": "specialist",
+      "executable_owner": "bears-observability-platform-engineer",
+      "issue_ref": null,
+      "principle_id": "repeatable_process_automation",
+      "role_profile": "bears-observability-platform-engineer",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-observability-platform-engineer.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/well-specified-artifacts.md",
+      "executable_consumer": "specialist",
+      "executable_owner": "bears-ops-runbook-engineer",
+      "issue_ref": null,
+      "principle_id": "well_specified_agent_artifacts",
+      "role_profile": "bears-ops-runbook-engineer",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-ops-runbook-engineer.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/runtime-result-efficiency.md",
+      "executable_consumer": "specialist",
+      "executable_owner": "bears-ops-runbook-engineer",
+      "issue_ref": null,
+      "principle_id": "runtime_result_efficiency",
+      "role_profile": "bears-ops-runbook-engineer",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-ops-runbook-engineer.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/repeatable-process-automation.md",
+      "executable_consumer": "specialist",
+      "executable_owner": "bears-ops-runbook-engineer",
+      "issue_ref": null,
+      "principle_id": "repeatable_process_automation",
+      "role_profile": "bears-ops-runbook-engineer",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-ops-runbook-engineer.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/well-specified-artifacts.md",
+      "executable_consumer": "codex subagent profile",
+      "executable_owner": "@Bears role/skill/subagent flow",
+      "issue_ref": null,
+      "principle_id": "well_specified_agent_artifacts",
+      "role_profile": "bears-payments-domain-orchestrator",
+      "status": "review_required",
+      "target_files": [
+        "agents/bears-payments-domain-orchestrator.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/runtime-result-efficiency.md",
+      "executable_consumer": "codex subagent profile",
+      "executable_owner": "@Bears role/skill/subagent flow",
+      "issue_ref": null,
+      "principle_id": "runtime_result_efficiency",
+      "role_profile": "bears-payments-domain-orchestrator",
+      "status": "review_required",
+      "target_files": [
+        "agents/bears-payments-domain-orchestrator.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/repeatable-process-automation.md",
+      "executable_consumer": "codex subagent profile",
+      "executable_owner": "@Bears role/skill/subagent flow",
+      "issue_ref": null,
+      "principle_id": "repeatable_process_automation",
+      "role_profile": "bears-payments-domain-orchestrator",
+      "status": "review_required",
+      "target_files": [
+        "agents/bears-payments-domain-orchestrator.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/well-specified-artifacts.md",
+      "executable_consumer": "specialist",
+      "executable_owner": "bears-payments-platform-engineer",
+      "issue_ref": null,
+      "principle_id": "well_specified_agent_artifacts",
+      "role_profile": "bears-payments-platform-engineer",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-payments-platform-engineer.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/runtime-result-efficiency.md",
+      "executable_consumer": "specialist",
+      "executable_owner": "bears-payments-platform-engineer",
+      "issue_ref": null,
+      "principle_id": "runtime_result_efficiency",
+      "role_profile": "bears-payments-platform-engineer",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-payments-platform-engineer.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/repeatable-process-automation.md",
+      "executable_consumer": "specialist",
+      "executable_owner": "bears-payments-platform-engineer",
+      "issue_ref": null,
+      "principle_id": "repeatable_process_automation",
+      "role_profile": "bears-payments-platform-engineer",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-payments-platform-engineer.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/well-specified-artifacts.md",
+      "executable_consumer": "helper",
+      "executable_owner": "bears-platform-security-reviewer",
+      "issue_ref": null,
+      "principle_id": "well_specified_agent_artifacts",
+      "role_profile": "bears-platform-security-reviewer",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-platform-security-reviewer.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/runtime-result-efficiency.md",
+      "executable_consumer": "helper",
+      "executable_owner": "bears-platform-security-reviewer",
+      "issue_ref": null,
+      "principle_id": "runtime_result_efficiency",
+      "role_profile": "bears-platform-security-reviewer",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-platform-security-reviewer.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/repeatable-process-automation.md",
+      "executable_consumer": "helper",
+      "executable_owner": "bears-platform-security-reviewer",
+      "issue_ref": null,
+      "principle_id": "repeatable_process_automation",
+      "role_profile": "bears-platform-security-reviewer",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-platform-security-reviewer.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/well-specified-artifacts.md",
+      "executable_consumer": "helper",
+      "executable_owner": "bears-plugin-update-engineer",
+      "issue_ref": null,
+      "principle_id": "well_specified_agent_artifacts",
+      "role_profile": "bears-plugin-update-engineer",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-plugin-update-engineer.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/runtime-result-efficiency.md",
+      "executable_consumer": "helper",
+      "executable_owner": "bears-plugin-update-engineer",
+      "issue_ref": null,
+      "principle_id": "runtime_result_efficiency",
+      "role_profile": "bears-plugin-update-engineer",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-plugin-update-engineer.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/repeatable-process-automation.md",
+      "executable_consumer": "helper",
+      "executable_owner": "bears-plugin-update-engineer",
+      "issue_ref": null,
+      "principle_id": "repeatable_process_automation",
+      "role_profile": "bears-plugin-update-engineer",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-plugin-update-engineer.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/well-specified-artifacts.md",
+      "executable_consumer": "specialist",
+      "executable_owner": "bears-product-app-zone-engineer",
+      "issue_ref": null,
+      "principle_id": "well_specified_agent_artifacts",
+      "role_profile": "bears-product-app-zone-engineer",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-product-app-zone-engineer.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/runtime-result-efficiency.md",
+      "executable_consumer": "specialist",
+      "executable_owner": "bears-product-app-zone-engineer",
+      "issue_ref": null,
+      "principle_id": "runtime_result_efficiency",
+      "role_profile": "bears-product-app-zone-engineer",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-product-app-zone-engineer.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/repeatable-process-automation.md",
+      "executable_consumer": "specialist",
+      "executable_owner": "bears-product-app-zone-engineer",
+      "issue_ref": null,
+      "principle_id": "repeatable_process_automation",
+      "role_profile": "bears-product-app-zone-engineer",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-product-app-zone-engineer.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/well-specified-artifacts.md",
+      "executable_consumer": "codex subagent profile",
+      "executable_owner": "@Bears role/skill/subagent flow",
+      "issue_ref": null,
+      "principle_id": "well_specified_agent_artifacts",
+      "role_profile": "bears-qa-governance-orchestrator",
+      "status": "review_required",
+      "target_files": [
+        "agents/bears-qa-governance-orchestrator.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/runtime-result-efficiency.md",
+      "executable_consumer": "codex subagent profile",
+      "executable_owner": "@Bears role/skill/subagent flow",
+      "issue_ref": null,
+      "principle_id": "runtime_result_efficiency",
+      "role_profile": "bears-qa-governance-orchestrator",
+      "status": "review_required",
+      "target_files": [
+        "agents/bears-qa-governance-orchestrator.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/repeatable-process-automation.md",
+      "executable_consumer": "codex subagent profile",
+      "executable_owner": "@Bears role/skill/subagent flow",
+      "issue_ref": null,
+      "principle_id": "repeatable_process_automation",
+      "role_profile": "bears-qa-governance-orchestrator",
+      "status": "review_required",
+      "target_files": [
+        "agents/bears-qa-governance-orchestrator.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/well-specified-artifacts.md",
+      "executable_consumer": "helper",
+      "executable_owner": "bears-review-fix-helper",
+      "issue_ref": null,
+      "principle_id": "well_specified_agent_artifacts",
+      "role_profile": "bears-review-fix-helper",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-review-fix-helper.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/runtime-result-efficiency.md",
+      "executable_consumer": "helper",
+      "executable_owner": "bears-review-fix-helper",
+      "issue_ref": null,
+      "principle_id": "runtime_result_efficiency",
+      "role_profile": "bears-review-fix-helper",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-review-fix-helper.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/repeatable-process-automation.md",
+      "executable_consumer": "helper",
+      "executable_owner": "bears-review-fix-helper",
+      "issue_ref": null,
+      "principle_id": "repeatable_process_automation",
+      "role_profile": "bears-review-fix-helper",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-review-fix-helper.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/well-specified-artifacts.md",
+      "executable_consumer": "specialist",
+      "executable_owner": "bears-secret-factory-engineer",
+      "issue_ref": null,
+      "principle_id": "well_specified_agent_artifacts",
+      "role_profile": "bears-secret-factory-engineer",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-secret-factory-engineer.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/runtime-result-efficiency.md",
+      "executable_consumer": "specialist",
+      "executable_owner": "bears-secret-factory-engineer",
+      "issue_ref": null,
+      "principle_id": "runtime_result_efficiency",
+      "role_profile": "bears-secret-factory-engineer",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-secret-factory-engineer.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/repeatable-process-automation.md",
+      "executable_consumer": "specialist",
+      "executable_owner": "bears-secret-factory-engineer",
+      "issue_ref": null,
+      "principle_id": "repeatable_process_automation",
+      "role_profile": "bears-secret-factory-engineer",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-secret-factory-engineer.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/well-specified-artifacts.md",
+      "executable_consumer": "specialist",
+      "executable_owner": "bears-session-worker-runtime-engineer",
+      "issue_ref": null,
+      "principle_id": "well_specified_agent_artifacts",
+      "role_profile": "bears-session-worker-runtime-engineer",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-session-worker-runtime-engineer.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/runtime-result-efficiency.md",
+      "executable_consumer": "specialist",
+      "executable_owner": "bears-session-worker-runtime-engineer",
+      "issue_ref": null,
+      "principle_id": "runtime_result_efficiency",
+      "role_profile": "bears-session-worker-runtime-engineer",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-session-worker-runtime-engineer.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/repeatable-process-automation.md",
+      "executable_consumer": "specialist",
+      "executable_owner": "bears-session-worker-runtime-engineer",
+      "issue_ref": null,
+      "principle_id": "repeatable_process_automation",
+      "role_profile": "bears-session-worker-runtime-engineer",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-session-worker-runtime-engineer.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/well-specified-artifacts.md",
+      "executable_consumer": "helper",
+      "executable_owner": "bears-subagent-orchestration-engineer",
+      "issue_ref": null,
+      "principle_id": "well_specified_agent_artifacts",
+      "role_profile": "bears-subagent-orchestration-engineer",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-subagent-orchestration-engineer.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/runtime-result-efficiency.md",
+      "executable_consumer": "helper",
+      "executable_owner": "bears-subagent-orchestration-engineer",
+      "issue_ref": null,
+      "principle_id": "runtime_result_efficiency",
+      "role_profile": "bears-subagent-orchestration-engineer",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-subagent-orchestration-engineer.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/repeatable-process-automation.md",
+      "executable_consumer": "helper",
+      "executable_owner": "bears-subagent-orchestration-engineer",
+      "issue_ref": null,
+      "principle_id": "repeatable_process_automation",
+      "role_profile": "bears-subagent-orchestration-engineer",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-subagent-orchestration-engineer.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/well-specified-artifacts.md",
+      "executable_consumer": "helper",
+      "executable_owner": "bears-subagents-roles-governor",
+      "issue_ref": null,
+      "principle_id": "well_specified_agent_artifacts",
+      "role_profile": "bears-subagents-roles-governor",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-subagents-roles-governor.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/runtime-result-efficiency.md",
+      "executable_consumer": "helper",
+      "executable_owner": "bears-subagents-roles-governor",
+      "issue_ref": null,
+      "principle_id": "runtime_result_efficiency",
+      "role_profile": "bears-subagents-roles-governor",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-subagents-roles-governor.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/repeatable-process-automation.md",
+      "executable_consumer": "helper",
+      "executable_owner": "bears-subagents-roles-governor",
+      "issue_ref": null,
+      "principle_id": "repeatable_process_automation",
+      "role_profile": "bears-subagents-roles-governor",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-subagents-roles-governor.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/well-specified-artifacts.md",
+      "executable_consumer": "specialist",
+      "executable_owner": "bears-telegram-platform-engineer",
+      "issue_ref": null,
+      "principle_id": "well_specified_agent_artifacts",
+      "role_profile": "bears-telegram-platform-engineer",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-telegram-platform-engineer.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/runtime-result-efficiency.md",
+      "executable_consumer": "specialist",
+      "executable_owner": "bears-telegram-platform-engineer",
+      "issue_ref": null,
+      "principle_id": "runtime_result_efficiency",
+      "role_profile": "bears-telegram-platform-engineer",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-telegram-platform-engineer.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/repeatable-process-automation.md",
+      "executable_consumer": "specialist",
+      "executable_owner": "bears-telegram-platform-engineer",
+      "issue_ref": null,
+      "principle_id": "repeatable_process_automation",
+      "role_profile": "bears-telegram-platform-engineer",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-telegram-platform-engineer.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/well-specified-artifacts.md",
+      "executable_consumer": "codex subagent profile",
+      "executable_owner": "@Bears role/skill/subagent flow",
+      "issue_ref": null,
+      "principle_id": "well_specified_agent_artifacts",
+      "role_profile": "bears-tenant-domain-orchestrator",
+      "status": "review_required",
+      "target_files": [
+        "agents/bears-tenant-domain-orchestrator.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/runtime-result-efficiency.md",
+      "executable_consumer": "codex subagent profile",
+      "executable_owner": "@Bears role/skill/subagent flow",
+      "issue_ref": null,
+      "principle_id": "runtime_result_efficiency",
+      "role_profile": "bears-tenant-domain-orchestrator",
+      "status": "review_required",
+      "target_files": [
+        "agents/bears-tenant-domain-orchestrator.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/repeatable-process-automation.md",
+      "executable_consumer": "codex subagent profile",
+      "executable_owner": "@Bears role/skill/subagent flow",
+      "issue_ref": null,
+      "principle_id": "repeatable_process_automation",
+      "role_profile": "bears-tenant-domain-orchestrator",
+      "status": "review_required",
+      "target_files": [
+        "agents/bears-tenant-domain-orchestrator.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/well-specified-artifacts.md",
+      "executable_consumer": "specialist",
+      "executable_owner": "bears-tenant-registry-platform-engineer",
+      "issue_ref": null,
+      "principle_id": "well_specified_agent_artifacts",
+      "role_profile": "bears-tenant-registry-platform-engineer",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-tenant-registry-platform-engineer.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/runtime-result-efficiency.md",
+      "executable_consumer": "specialist",
+      "executable_owner": "bears-tenant-registry-platform-engineer",
+      "issue_ref": null,
+      "principle_id": "runtime_result_efficiency",
+      "role_profile": "bears-tenant-registry-platform-engineer",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-tenant-registry-platform-engineer.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/repeatable-process-automation.md",
+      "executable_consumer": "specialist",
+      "executable_owner": "bears-tenant-registry-platform-engineer",
+      "issue_ref": null,
+      "principle_id": "repeatable_process_automation",
+      "role_profile": "bears-tenant-registry-platform-engineer",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-tenant-registry-platform-engineer.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/well-specified-artifacts.md",
+      "executable_consumer": "helper",
+      "executable_owner": "bears-token-budget-helper",
+      "issue_ref": null,
+      "principle_id": "well_specified_agent_artifacts",
+      "role_profile": "bears-token-budget-helper",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-token-budget-helper.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/runtime-result-efficiency.md",
+      "executable_consumer": "helper",
+      "executable_owner": "bears-token-budget-helper",
+      "issue_ref": null,
+      "principle_id": "runtime_result_efficiency",
+      "role_profile": "bears-token-budget-helper",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-token-budget-helper.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/repeatable-process-automation.md",
+      "executable_consumer": "helper",
+      "executable_owner": "bears-token-budget-helper",
+      "issue_ref": null,
+      "principle_id": "repeatable_process_automation",
+      "role_profile": "bears-token-budget-helper",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-token-budget-helper.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/well-specified-artifacts.md",
+      "executable_consumer": "specialist",
+      "executable_owner": "bears-vpn-bot-engineer",
+      "issue_ref": null,
+      "principle_id": "well_specified_agent_artifacts",
+      "role_profile": "bears-vpn-bot-engineer",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-vpn-bot-engineer.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/runtime-result-efficiency.md",
+      "executable_consumer": "specialist",
+      "executable_owner": "bears-vpn-bot-engineer",
+      "issue_ref": null,
+      "principle_id": "runtime_result_efficiency",
+      "role_profile": "bears-vpn-bot-engineer",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-vpn-bot-engineer.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/repeatable-process-automation.md",
+      "executable_consumer": "specialist",
+      "executable_owner": "bears-vpn-bot-engineer",
+      "issue_ref": null,
+      "principle_id": "repeatable_process_automation",
+      "role_profile": "bears-vpn-bot-engineer",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-vpn-bot-engineer.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/well-specified-artifacts.md",
+      "executable_consumer": "specialist",
+      "executable_owner": "bears-vpn-client-app-engineer",
+      "issue_ref": null,
+      "principle_id": "well_specified_agent_artifacts",
+      "role_profile": "bears-vpn-client-app-engineer",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-vpn-client-app-engineer.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/runtime-result-efficiency.md",
+      "executable_consumer": "specialist",
+      "executable_owner": "bears-vpn-client-app-engineer",
+      "issue_ref": null,
+      "principle_id": "runtime_result_efficiency",
+      "role_profile": "bears-vpn-client-app-engineer",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-vpn-client-app-engineer.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/repeatable-process-automation.md",
+      "executable_consumer": "specialist",
+      "executable_owner": "bears-vpn-client-app-engineer",
+      "issue_ref": null,
+      "principle_id": "repeatable_process_automation",
+      "role_profile": "bears-vpn-client-app-engineer",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-vpn-client-app-engineer.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/well-specified-artifacts.md",
+      "executable_consumer": "specialist",
+      "executable_owner": "bears-vpn-ingress-engineer",
+      "issue_ref": null,
+      "principle_id": "well_specified_agent_artifacts",
+      "role_profile": "bears-vpn-ingress-engineer",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-vpn-ingress-engineer.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/runtime-result-efficiency.md",
+      "executable_consumer": "specialist",
+      "executable_owner": "bears-vpn-ingress-engineer",
+      "issue_ref": null,
+      "principle_id": "runtime_result_efficiency",
+      "role_profile": "bears-vpn-ingress-engineer",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-vpn-ingress-engineer.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/repeatable-process-automation.md",
+      "executable_consumer": "specialist",
+      "executable_owner": "bears-vpn-ingress-engineer",
+      "issue_ref": null,
+      "principle_id": "repeatable_process_automation",
+      "role_profile": "bears-vpn-ingress-engineer",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-vpn-ingress-engineer.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/well-specified-artifacts.md",
+      "executable_consumer": "specialist",
+      "executable_owner": "bears-vpn-project-governance-engineer",
+      "issue_ref": null,
+      "principle_id": "well_specified_agent_artifacts",
+      "role_profile": "bears-vpn-project-governance-engineer",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-vpn-project-governance-engineer.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/runtime-result-efficiency.md",
+      "executable_consumer": "specialist",
+      "executable_owner": "bears-vpn-project-governance-engineer",
+      "issue_ref": null,
+      "principle_id": "runtime_result_efficiency",
+      "role_profile": "bears-vpn-project-governance-engineer",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-vpn-project-governance-engineer.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/repeatable-process-automation.md",
+      "executable_consumer": "specialist",
+      "executable_owner": "bears-vpn-project-governance-engineer",
+      "issue_ref": null,
+      "principle_id": "repeatable_process_automation",
+      "role_profile": "bears-vpn-project-governance-engineer",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-vpn-project-governance-engineer.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/well-specified-artifacts.md",
+      "executable_consumer": "specialist",
+      "executable_owner": "bears-vpn-proxy-engineer",
+      "issue_ref": null,
+      "principle_id": "well_specified_agent_artifacts",
+      "role_profile": "bears-vpn-proxy-engineer",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-vpn-proxy-engineer.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/runtime-result-efficiency.md",
+      "executable_consumer": "specialist",
+      "executable_owner": "bears-vpn-proxy-engineer",
+      "issue_ref": null,
+      "principle_id": "runtime_result_efficiency",
+      "role_profile": "bears-vpn-proxy-engineer",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-vpn-proxy-engineer.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/repeatable-process-automation.md",
+      "executable_consumer": "specialist",
+      "executable_owner": "bears-vpn-proxy-engineer",
+      "issue_ref": null,
+      "principle_id": "repeatable_process_automation",
+      "role_profile": "bears-vpn-proxy-engineer",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-vpn-proxy-engineer.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/well-specified-artifacts.md",
+      "executable_consumer": "specialist",
+      "executable_owner": "bears-vpn-runtime-engineer",
+      "issue_ref": null,
+      "principle_id": "well_specified_agent_artifacts",
+      "role_profile": "bears-vpn-runtime-engineer",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-vpn-runtime-engineer.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/runtime-result-efficiency.md",
+      "executable_consumer": "specialist",
+      "executable_owner": "bears-vpn-runtime-engineer",
+      "issue_ref": null,
+      "principle_id": "runtime_result_efficiency",
+      "role_profile": "bears-vpn-runtime-engineer",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-vpn-runtime-engineer.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/repeatable-process-automation.md",
+      "executable_consumer": "specialist",
+      "executable_owner": "bears-vpn-runtime-engineer",
+      "issue_ref": null,
+      "principle_id": "repeatable_process_automation",
+      "role_profile": "bears-vpn-runtime-engineer",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-vpn-runtime-engineer.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/well-specified-artifacts.md",
+      "executable_consumer": "specialist",
+      "executable_owner": "bears-wb-integration-platform-engineer",
+      "issue_ref": null,
+      "principle_id": "well_specified_agent_artifacts",
+      "role_profile": "bears-wb-integration-platform-engineer",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-wb-integration-platform-engineer.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/runtime-result-efficiency.md",
+      "executable_consumer": "specialist",
+      "executable_owner": "bears-wb-integration-platform-engineer",
+      "issue_ref": null,
+      "principle_id": "runtime_result_efficiency",
+      "role_profile": "bears-wb-integration-platform-engineer",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-wb-integration-platform-engineer.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/repeatable-process-automation.md",
+      "executable_consumer": "specialist",
+      "executable_owner": "bears-wb-integration-platform-engineer",
+      "issue_ref": null,
+      "principle_id": "repeatable_process_automation",
+      "role_profile": "bears-wb-integration-platform-engineer",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-wb-integration-platform-engineer.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/well-specified-artifacts.md",
+      "executable_consumer": "specialist",
+      "executable_owner": "bears-workflow-overlay-platform-engineer",
+      "issue_ref": null,
+      "principle_id": "well_specified_agent_artifacts",
+      "role_profile": "bears-workflow-overlay-platform-engineer",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-workflow-overlay-platform-engineer.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/runtime-result-efficiency.md",
+      "executable_consumer": "specialist",
+      "executable_owner": "bears-workflow-overlay-platform-engineer",
+      "issue_ref": null,
+      "principle_id": "runtime_result_efficiency",
+      "role_profile": "bears-workflow-overlay-platform-engineer",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-workflow-overlay-platform-engineer.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/repeatable-process-automation.md",
+      "executable_consumer": "specialist",
+      "executable_owner": "bears-workflow-overlay-platform-engineer",
+      "issue_ref": null,
+      "principle_id": "repeatable_process_automation",
+      "role_profile": "bears-workflow-overlay-platform-engineer",
+      "status": "covered",
+      "target_files": [
+        "agents/bears-workflow-overlay-platform-engineer.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/well-specified-artifacts.md",
+      "executable_consumer": "codex subagent profile",
+      "executable_owner": "@Bears role/skill/subagent flow",
+      "issue_ref": null,
+      "principle_id": "well_specified_agent_artifacts",
+      "role_profile": "bears-workflow-overlay-blocker-taxonomy-evaluator",
+      "status": "review_required",
+      "target_files": [
+        "agents/blocker-taxonomy-evaluator.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/runtime-result-efficiency.md",
+      "executable_consumer": "codex subagent profile",
+      "executable_owner": "@Bears role/skill/subagent flow",
+      "issue_ref": null,
+      "principle_id": "runtime_result_efficiency",
+      "role_profile": "bears-workflow-overlay-blocker-taxonomy-evaluator",
+      "status": "review_required",
+      "target_files": [
+        "agents/blocker-taxonomy-evaluator.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/repeatable-process-automation.md",
+      "executable_consumer": "codex subagent profile",
+      "executable_owner": "@Bears role/skill/subagent flow",
+      "issue_ref": null,
+      "principle_id": "repeatable_process_automation",
+      "role_profile": "bears-workflow-overlay-blocker-taxonomy-evaluator",
+      "status": "review_required",
+      "target_files": [
+        "agents/blocker-taxonomy-evaluator.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/well-specified-artifacts.md",
+      "executable_consumer": "codex subagent profile",
+      "executable_owner": "@Bears role/skill/subagent flow",
+      "issue_ref": null,
+      "principle_id": "well_specified_agent_artifacts",
+      "role_profile": "bears-workflow-overlay-deploy-gate",
+      "status": "review_required",
+      "target_files": [
+        "agents/deploy-impact-gate.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/runtime-result-efficiency.md",
+      "executable_consumer": "codex subagent profile",
+      "executable_owner": "@Bears role/skill/subagent flow",
+      "issue_ref": null,
+      "principle_id": "runtime_result_efficiency",
+      "role_profile": "bears-workflow-overlay-deploy-gate",
+      "status": "review_required",
+      "target_files": [
+        "agents/deploy-impact-gate.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/repeatable-process-automation.md",
+      "executable_consumer": "codex subagent profile",
+      "executable_owner": "@Bears role/skill/subagent flow",
+      "issue_ref": null,
+      "principle_id": "repeatable_process_automation",
+      "role_profile": "bears-workflow-overlay-deploy-gate",
+      "status": "review_required",
+      "target_files": [
+        "agents/deploy-impact-gate.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/well-specified-artifacts.md",
+      "executable_consumer": "codex subagent profile",
+      "executable_owner": "@Bears role/skill/subagent flow",
+      "issue_ref": null,
+      "principle_id": "well_specified_agent_artifacts",
+      "role_profile": "bears-workflow-overlay-project-router",
+      "status": "review_required",
+      "target_files": [
+        "agents/governance-project-router.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/runtime-result-efficiency.md",
+      "executable_consumer": "codex subagent profile",
+      "executable_owner": "@Bears role/skill/subagent flow",
+      "issue_ref": null,
+      "principle_id": "runtime_result_efficiency",
+      "role_profile": "bears-workflow-overlay-project-router",
+      "status": "review_required",
+      "target_files": [
+        "agents/governance-project-router.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/repeatable-process-automation.md",
+      "executable_consumer": "codex subagent profile",
+      "executable_owner": "@Bears role/skill/subagent flow",
+      "issue_ref": null,
+      "principle_id": "repeatable_process_automation",
+      "role_profile": "bears-workflow-overlay-project-router",
+      "status": "review_required",
+      "target_files": [
+        "agents/governance-project-router.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/well-specified-artifacts.md",
+      "executable_consumer": "helper",
+      "executable_owner": "l2-gitops-domain-orchestrator",
+      "issue_ref": null,
+      "principle_id": "well_specified_agent_artifacts",
+      "role_profile": "l2-gitops-domain-orchestrator",
+      "status": "covered",
+      "target_files": [
+        "agents/l2-gitops-domain-orchestrator.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/runtime-result-efficiency.md",
+      "executable_consumer": "helper",
+      "executable_owner": "l2-gitops-domain-orchestrator",
+      "issue_ref": null,
+      "principle_id": "runtime_result_efficiency",
+      "role_profile": "l2-gitops-domain-orchestrator",
+      "status": "covered",
+      "target_files": [
+        "agents/l2-gitops-domain-orchestrator.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/repeatable-process-automation.md",
+      "executable_consumer": "helper",
+      "executable_owner": "l2-gitops-domain-orchestrator",
+      "issue_ref": null,
+      "principle_id": "repeatable_process_automation",
+      "role_profile": "l2-gitops-domain-orchestrator",
+      "status": "covered",
+      "target_files": [
+        "agents/l2-gitops-domain-orchestrator.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/well-specified-artifacts.md",
+      "executable_consumer": "helper",
+      "executable_owner": "l2-infra-domain-orchestrator",
+      "issue_ref": null,
+      "principle_id": "well_specified_agent_artifacts",
+      "role_profile": "l2-infra-domain-orchestrator",
+      "status": "covered",
+      "target_files": [
+        "agents/l2-infra-domain-orchestrator.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/runtime-result-efficiency.md",
+      "executable_consumer": "helper",
+      "executable_owner": "l2-infra-domain-orchestrator",
+      "issue_ref": null,
+      "principle_id": "runtime_result_efficiency",
+      "role_profile": "l2-infra-domain-orchestrator",
+      "status": "covered",
+      "target_files": [
+        "agents/l2-infra-domain-orchestrator.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/repeatable-process-automation.md",
+      "executable_consumer": "helper",
+      "executable_owner": "l2-infra-domain-orchestrator",
+      "issue_ref": null,
+      "principle_id": "repeatable_process_automation",
+      "role_profile": "l2-infra-domain-orchestrator",
+      "status": "covered",
+      "target_files": [
+        "agents/l2-infra-domain-orchestrator.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/well-specified-artifacts.md",
+      "executable_consumer": "helper",
+      "executable_owner": "l2-platform-domain-orchestrator",
+      "issue_ref": null,
+      "principle_id": "well_specified_agent_artifacts",
+      "role_profile": "l2-platform-domain-orchestrator",
+      "status": "covered",
+      "target_files": [
+        "agents/l2-platform-domain-orchestrator.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/runtime-result-efficiency.md",
+      "executable_consumer": "helper",
+      "executable_owner": "l2-platform-domain-orchestrator",
+      "issue_ref": null,
+      "principle_id": "runtime_result_efficiency",
+      "role_profile": "l2-platform-domain-orchestrator",
+      "status": "covered",
+      "target_files": [
+        "agents/l2-platform-domain-orchestrator.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/repeatable-process-automation.md",
+      "executable_consumer": "helper",
+      "executable_owner": "l2-platform-domain-orchestrator",
+      "issue_ref": null,
+      "principle_id": "repeatable_process_automation",
+      "role_profile": "l2-platform-domain-orchestrator",
+      "status": "covered",
+      "target_files": [
+        "agents/l2-platform-domain-orchestrator.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/well-specified-artifacts.md",
+      "executable_consumer": "helper",
+      "executable_owner": "l2-product-infra-domain-orchestrator",
+      "issue_ref": null,
+      "principle_id": "well_specified_agent_artifacts",
+      "role_profile": "l2-product-infra-domain-orchestrator",
+      "status": "covered",
+      "target_files": [
+        "agents/l2-product-infra-domain-orchestrator.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/runtime-result-efficiency.md",
+      "executable_consumer": "helper",
+      "executable_owner": "l2-product-infra-domain-orchestrator",
+      "issue_ref": null,
+      "principle_id": "runtime_result_efficiency",
+      "role_profile": "l2-product-infra-domain-orchestrator",
+      "status": "covered",
+      "target_files": [
+        "agents/l2-product-infra-domain-orchestrator.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/repeatable-process-automation.md",
+      "executable_consumer": "helper",
+      "executable_owner": "l2-product-infra-domain-orchestrator",
+      "issue_ref": null,
+      "principle_id": "repeatable_process_automation",
+      "role_profile": "l2-product-infra-domain-orchestrator",
+      "status": "covered",
+      "target_files": [
+        "agents/l2-product-infra-domain-orchestrator.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/well-specified-artifacts.md",
+      "executable_consumer": "helper",
+      "executable_owner": "bears-workflow-overlay-controller",
+      "issue_ref": null,
+      "principle_id": "well_specified_agent_artifacts",
+      "role_profile": "bears-workflow-overlay-controller",
+      "status": "covered",
+      "target_files": [
+        "agents/overlay-controller.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/runtime-result-efficiency.md",
+      "executable_consumer": "helper",
+      "executable_owner": "bears-workflow-overlay-controller",
+      "issue_ref": null,
+      "principle_id": "runtime_result_efficiency",
+      "role_profile": "bears-workflow-overlay-controller",
+      "status": "covered",
+      "target_files": [
+        "agents/overlay-controller.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/repeatable-process-automation.md",
+      "executable_consumer": "helper",
+      "executable_owner": "bears-workflow-overlay-controller",
+      "issue_ref": null,
+      "principle_id": "repeatable_process_automation",
+      "role_profile": "bears-workflow-overlay-controller",
+      "status": "covered",
+      "target_files": [
+        "agents/overlay-controller.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/well-specified-artifacts.md",
+      "executable_consumer": "codex subagent profile",
+      "executable_owner": "@Bears role/skill/subagent flow",
+      "issue_ref": null,
+      "principle_id": "well_specified_agent_artifacts",
+      "role_profile": "bears-workflow-overlay-role-coverage-gate",
+      "status": "review_required",
+      "target_files": [
+        "agents/role-coverage-gate.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/runtime-result-efficiency.md",
+      "executable_consumer": "codex subagent profile",
+      "executable_owner": "@Bears role/skill/subagent flow",
+      "issue_ref": null,
+      "principle_id": "runtime_result_efficiency",
+      "role_profile": "bears-workflow-overlay-role-coverage-gate",
+      "status": "review_required",
+      "target_files": [
+        "agents/role-coverage-gate.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    },
+    {
+      "evidence_ref": "skills/subagents-roles/references/repeatable-process-automation.md",
+      "executable_consumer": "codex subagent profile",
+      "executable_owner": "@Bears role/skill/subagent flow",
+      "issue_ref": null,
+      "principle_id": "repeatable_process_automation",
+      "role_profile": "bears-workflow-overlay-role-coverage-gate",
+      "status": "review_required",
+      "target_files": [
+        "agents/role-coverage-gate.toml"
+      ],
+      "updated": "2026-07-05T03:09:40Z"
+    }
+  ],
+  "owner_plugin": "bears",
+  "principles": [
+    {
+      "id": "well_specified_agent_artifacts",
+      "ledger_fields": [
+        "role_profile",
+        "target_files",
+        "executable_consumer",
+        "executable_owner",
+        "status",
+        "evidence_ref",
+        "issue_ref"
+      ],
+      "reference": "skills/subagents-roles/references/well-specified-artifacts.md"
+    },
+    {
+      "id": "runtime_result_efficiency",
+      "ledger_fields": [
+        "role_profile",
+        "target_files",
+        "executable_consumer",
+        "executable_owner",
+        "status",
+        "evidence_ref",
+        "issue_ref"
+      ],
+      "reference": "skills/subagents-roles/references/runtime-result-efficiency.md"
+    },
+    {
+      "id": "repeatable_process_automation",
+      "ledger_fields": [
+        "role_profile",
+        "target_files",
+        "executable_consumer",
+        "executable_owner",
+        "status",
+        "evidence_ref",
+        "issue_ref"
+      ],
+      "reference": "skills/subagents-roles/references/repeatable-process-automation.md"
+    }
+  ],
+  "schema": "bears-role-principle-ledger.v1",
+  "updated": "2026-07-05T03:09:40Z",
+  "version": "1"
+}

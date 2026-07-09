@@ -1,0 +1,95 @@
+{
+  "schema": "bears-clarification-role-result.v1",
+  "goal_id": "goal-442-fixture",
+  "role_id": "clarification_architect",
+  "question_batch_id": "clarify-goal-442-001",
+  "questions": [
+    {
+      "schema": "bears-clarification-question.v1",
+      "question_id": "cq-442-write-scope",
+      "operator_id": "select_file_scope",
+      "operator_version": "1",
+      "gate_id": "write_scope_confirmed",
+      "question_text": "Which declared file set is the only write scope for this goal?",
+      "answer_type": "enum",
+      "allowed_values": [
+        "issue_442_declared_files_only",
+        "manual_review"
+      ],
+      "answer_shape": {
+        "type": "enum",
+        "description": "One allowed write-scope selection string."
+      },
+      "answer_examples": [
+        "issue_442_declared_files_only"
+      ],
+      "invalid_examples": [
+        "any plugin file"
+      ],
+      "required_evidence_types": [
+        "human",
+        "github_issue"
+      ],
+      "evidence_refs": [
+        "goal_packet",
+        "github_issue:#442"
+      ],
+      "question_fingerprint": "cqfp-442-write-scope",
+      "priority": "P0",
+      "blocks_execution": true,
+      "status": "manual_review",
+      "scope_change_request": false,
+      "rationale": "Write target ambiguity can authorize edits outside the bounded issue scope."
+    },
+    {
+      "schema": "bears-clarification-question.v1",
+      "question_id": "cq-442-operator-source",
+      "operator_id": "resolve_source_of_truth",
+      "operator_version": "1",
+      "gate_id": "question_operator_source_resolved",
+      "question_text": "Which supplied operator catalog is authoritative for clarification questions?",
+      "answer_type": "evidence_ref",
+      "allowed_values": [
+        "assets/catalog/question-calculus.v1.json",
+        "research_required"
+      ],
+      "answer_shape": {
+        "type": "evidence_ref",
+        "description": "Repository path or research_required marker."
+      },
+      "answer_examples": [
+        "assets/catalog/question-calculus.v1.json"
+      ],
+      "invalid_examples": [
+        "use the closest operator list from memory"
+      ],
+      "required_evidence_types": [
+        "repo_file"
+      ],
+      "evidence_refs": [
+        "assets/catalog/question-calculus.v1.json"
+      ],
+      "question_fingerprint": "cqfp-442-operator-source",
+      "priority": "P1",
+      "blocks_execution": false,
+      "status": "research_required",
+      "scope_change_request": false,
+      "rationale": "The operator source must be proven from a repo file before the batch can bind decisions."
+    }
+  ],
+  "no_questions_reason": null,
+  "source_context": {
+    "goal_packet_ref": "fixture:goal-442",
+    "decision_graph_ref": "fixture:decision-graph-442",
+    "operator_catalog_ref": "assets/catalog/question-calculus.v1.json",
+    "known_answer_refs": [
+      "fixture:known-answer-write-scope"
+    ],
+    "context_pack_ids": [
+      "ctx-442-clarification"
+    ]
+  },
+  "implementation_steps": [
+    "edit the file after the answer"
+  ]
+}

@@ -1,0 +1,135 @@
+{
+  "active_skills": [],
+  "disabled_skills": [
+    {
+      "name": "secret-factory",
+      "path": "skills/secret-factory",
+      "reason": "Removed from active discovery by operator request on 2026-07-07."
+    },
+    {
+      "name": "codex-telegram-operator-gate",
+      "path": "skills/codex-telegram-operator-gate",
+      "reason": "Removed from active discovery by operator request on 2026-07-07."
+    },
+    {
+      "name": "bears-infisical-ops",
+      "path": "skills/bears-infisical-ops",
+      "reason": "Removed from active discovery by operator request on 2026-07-07."
+    },
+    {
+      "name": "bears-kubernetes-ops",
+      "path": "skills/bears-kubernetes-ops",
+      "reason": "Removed from active discovery by operator request on 2026-07-07."
+    },
+    {
+      "name": "bears-plugin-update",
+      "path": "skills/bears-plugin-update",
+      "reason": "Removed from active discovery by operator request on 2026-07-07."
+    },
+    {
+      "name": "bears-blocker-eval",
+      "path": "skills/bears-blocker-eval",
+      "reason": "Removed from active discovery by operator request on 2026-07-07."
+    },
+    {
+      "name": "bears-codex-health",
+      "path": "skills/bears-codex-health",
+      "reason": "Removed from active discovery by operator request on 2026-07-07."
+    },
+    {
+      "name": "bears-deploy-gate",
+      "path": "skills/bears-deploy-gate",
+      "reason": "Removed from active discovery by operator request on 2026-07-07."
+    },
+    {
+      "name": "bears-goal-prompt",
+      "path": "skills/bears-goal-prompt",
+      "reason": "Removed from plugin discovery because @Bears plugin is tooling only and not an instruction source."
+    },
+    {
+      "name": "subagents-roles",
+      "path": "skills/subagents-roles",
+      "reason": "Removed from plugin discovery because @Bears plugin is tooling only and not an instruction source."
+    },
+    {
+      "name": "bears-agents",
+      "path": "skills/bears-agents",
+      "reason": "Removed from plugin discovery because @Bears plugin is tooling only and not an instruction source."
+    },
+    {
+      "name": "python-codeflow",
+      "path": "skills/python-codeflow",
+      "reason": "Removed from plugin discovery because @Bears plugin is tooling only and not an instruction source."
+    },
+    {
+      "name": "app-constitution",
+      "path": "skills/app-constitution",
+      "reason": "Removed from plugin discovery because @Bears plugin is tooling only and not an instruction source."
+    },
+    {
+      "name": "app-research",
+      "path": "skills/app-research",
+      "reason": "Removed from plugin discovery because @Bears plugin is tooling only and not an instruction source."
+    },
+    {
+      "name": "app-specify",
+      "path": "skills/app-specify",
+      "reason": "Removed from plugin discovery because @Bears plugin is tooling only and not an instruction source."
+    },
+    {
+      "name": "app-functional-graph",
+      "path": "skills/app-functional-graph",
+      "reason": "Removed from plugin discovery because @Bears plugin is tooling only and not an instruction source."
+    },
+    {
+      "name": "app-plan",
+      "path": "skills/app-plan",
+      "reason": "Removed from plugin discovery because @Bears plugin is tooling only and not an instruction source."
+    },
+    {
+      "name": "github-project-planning",
+      "path": "skills/github-project-planning",
+      "reason": "Removed from plugin discovery because @Bears plugin is tooling only and not an instruction source."
+    },
+    {
+      "name": "app-analyze",
+      "path": "skills/app-analyze",
+      "reason": "Removed from plugin discovery because @Bears plugin is tooling only and not an instruction source."
+    },
+    {
+      "name": "yandex360-dns",
+      "path": "skills/yandex360-dns",
+      "reason": "Removed from plugin discovery because @Bears plugin is tooling only and not an instruction source."
+    },
+    {
+      "name": "subagents",
+      "path": "skills/subagents",
+      "reason": "Removed from plugin discovery because @Bears plugin is tooling only and not an instruction source."
+    },
+    {
+      "name": "app-dev",
+      "path": "skills/app-dev",
+      "reason": "Removed from plugin discovery because @Bears plugin is tooling only and not an instruction source."
+    },
+    {
+      "name": "instruction-hardening",
+      "path": "skills/instruction-hardening",
+      "reason": "Removed from plugin discovery because @Bears plugin is tooling only and not an instruction source."
+    }
+  ],
+  "discovery_policy": {
+    "active_skill_file": "SKILL.md",
+    "disabled_skill_file": "SKILL.disabled.md",
+    "disabled_skill_rule": "Plugin skills are not discoverable. Preserved docs live only in SKILL.disabled.md.",
+    "manifest_skill_root": null,
+    "plugin_instruction_source": "disabled"
+  },
+  "generated_fragments": {
+    "readme": "docs/generated/README.skill-inventory.md",
+    "spec": "docs/generated/SPEC.skill-inventory.md"
+  },
+  "owner_plugin": "bears",
+  "schema": "bears-plugin-skill-catalog.v1",
+  "updated": "2026-07-08",
+  "version": "1"
+}

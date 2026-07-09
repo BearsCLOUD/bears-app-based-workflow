@@ -1,0 +1,19 @@
+{
+  "expected_gap_types": ["missing_doctor_check", "closed_issue_still_not_available"],
+  "generated_at": "2026-06-25T00:00:00Z",
+  "components": [
+    {
+      "issue": "#902",
+      "title": "Closed missing fixture",
+      "status": "closed",
+      "requires_doctor": true,
+      "requires_validator": true,
+      "required_commands": [],
+      "required_files": [],
+      "doctor_check_ids": [],
+      "test_selection_refs": [],
+      "coverage_status": "manual_review",
+      "gap_ids": []
+    }
+  ]
+}

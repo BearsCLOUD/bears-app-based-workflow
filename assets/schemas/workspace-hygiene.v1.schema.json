@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://bears.local/schemas/workspace-hygiene.v1.schema.json",
+  "title": "Bears workspace hygiene policy",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "version", "updated", "owner_role", "classes"],
+  "properties": {
+    "schema": {"const": "bears-workspace-hygiene.v1"},
+    "version": {"type": "string"},
+    "updated": {"type": "string"},
+    "owner_role": {"type": "string"},
+    "classes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["class_id", "lifecycle_class", "path_patterns", "git_tracked", "cleanup_policy"],
+        "properties": {
+          "class_id": {"type": "string", "minLength": 3},
+          "lifecycle_class": {
+            "enum": [
+              "durable_tracked",
+              "generated_tracked",
+              "fixture",
+              "ignored_runtime",
+              "local_validation_proof",
+              "cache_snapshot",
+              "temporary_planning_state",
+              "stale_worker_state",
+              "abandoned_task_state"
+            ]
+          },
+          "path_patterns": {"type": "array", "items": {"type": "string"}},
+          "git_tracked": {"type": "boolean"},
+          "ttl_seconds": {"type": "integer"},
+          "cleanup_policy": {"enum": ["preserve", "dry_run_only", "allow_apply_with_allow_path"]},
+          "source_of_truth": {"type": "string"},
+          "description": {"type": "string"}
+        }
+      }
+    }
+  }
+}

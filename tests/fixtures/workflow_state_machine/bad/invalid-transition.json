@@ -1,0 +1,1 @@
+{"schema":"bears-workflow-transition.v1","goal_id":"goal-439","from_state":"intake","to_state":"running","guard":"skip","required_evidence":["decision_graph"],"invariants_checked":["execution_requires_decision_graph"],"reason_code":"invalid_skip"}

@@ -1,0 +1,17 @@
+{
+  "schema": "bears-context-budget-policy.v1",
+  "version": "1",
+  "owner_issue": "#418",
+  "default_token_limit": 3000,
+  "hard_token_limit": 6000,
+  "section_index_token_limit": 1200,
+  "surface_globs": ["skills/*/SKILL.md", "agents/*.toml", "AGENTS.md", "docs/reference/*.md", "assets/catalog/*.json", "assets/schemas/*.json"],
+  "surface_types": ["skill", "agent_role_profile", "developer_instructions", "AGENTS.md", "reference_doc", "runbook", "catalog", "schema"],
+  "commands": [
+    "scripts/context_budget.py scan --json",
+    "scripts/context_budget.py validate",
+    "scripts/context_budget.py surface --path <path> --json",
+    "scripts/skill_surface.py split-decision --path <path> --json",
+    "scripts/skill_surface.py doctor --json"
+  ]
+}

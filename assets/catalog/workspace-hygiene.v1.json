@@ -1,0 +1,103 @@
+{
+  "classes": [
+    {
+      "class_id": "durable-source",
+      "cleanup_policy": "preserve",
+      "description": "Tracked plugin source and governance artifacts.",
+      "git_tracked": true,
+      "lifecycle_class": "durable_tracked",
+      "path_patterns": [
+        "assets/**",
+        "scripts/**",
+        "hooks/**",
+        "docs/**",
+        "tests/**",
+        "README.md",
+        "SPEC.md",
+        ".codex-plugin/plugin.json"
+      ],
+      "source_of_truth": "git index"
+    },
+    {
+      "class_id": "ignored-runtime-root",
+      "cleanup_policy": "dry_run_only",
+      "description": "Ignored runtime root and unclassified runtime children.",
+      "git_tracked": false,
+      "lifecycle_class": "ignored_runtime",
+      "path_patterns": [
+        "runtime"
+      ],
+      "source_of_truth": "assets/catalog/workspace-hygiene.v1.json",
+      "ttl_seconds": 604800
+    },
+    {
+      "class_id": "local-validation-proof",
+      "cleanup_policy": "allow_apply_with_allow_path",
+      "description": "Exact-SHA local validation proof packets.",
+      "git_tracked": false,
+      "lifecycle_class": "local_validation_proof",
+      "path_patterns": [
+        "runtime/local-commit-validation/**"
+      ],
+      "source_of_truth": "scripts/local_commit_validation.py",
+      "ttl_seconds": 1209600
+    },
+    {
+      "class_id": "async-worker-state",
+      "cleanup_policy": "allow_apply_with_allow_path",
+      "description": "Async validation queue and worker state.",
+      "git_tracked": false,
+      "lifecycle_class": "stale_worker_state",
+      "path_patterns": [
+        "runtime/validation-state/**",
+        "runtime/validation-jobs/**"
+      ],
+      "source_of_truth": "scripts/validation_queue.py",
+      "ttl_seconds": 604800
+    },
+    {
+      "class_id": "plugin-cache-sync-state",
+      "cleanup_policy": "dry_run_only",
+      "description": "Local plugin cache sync status snapshots.",
+      "git_tracked": false,
+      "lifecycle_class": "cache_snapshot",
+      "path_patterns": [
+        "runtime/plugin-cache-sync/**"
+      ],
+      "source_of_truth": "scripts/plugin_cache_sync.py",
+      "ttl_seconds": 604800
+    },
+    {
+      "class_id": "temporary-planning-state",
+      "cleanup_policy": "allow_apply_with_allow_path",
+      "description": "Task-local temporary planning files.",
+      "git_tracked": false,
+      "lifecycle_class": "temporary_planning_state",
+      "path_patterns": [
+        "runtime/plans/**",
+        ".tmp/**",
+        "tmp/**",
+        "*.tmp"
+      ],
+      "ttl_seconds": 86400
+    },
+    {
+      "class_id": "python-cache",
+      "cleanup_policy": "allow_apply_with_allow_path",
+      "description": "Local Python tool caches.",
+      "git_tracked": false,
+      "lifecycle_class": "cache_snapshot",
+      "path_patterns": [
+        "__pycache__/**",
+        "tests/__pycache__/**",
+        ".pytest_cache/**",
+        ".ruff_cache/**"
+      ],
+      "ttl_seconds": 86400
+    }
+  ],
+  "owner_role": "bears-machine-first-execution-kernel-engineer",
+  "schema": "bears-workspace-hygiene.v1",
+  "updated": "2026-06-24",
+  "version": "1"
+}

@@ -1,0 +1,60 @@
+{
+  "schema": "bears-plugin-rule-coverage-ledger.v1",
+  "version": "1",
+  "rule_coverage": [
+    {
+      "rule_id": "automation-first-refactor-gate",
+      "source_path": "docs/reference/capability-governance-rules.md",
+      "source_anchor": "P1-16 automation-first-refactor-gate",
+      "rule_class": "refactor_closeout",
+      "owner_capability_id": "validation-hooks",
+      "router_allowed": false,
+      "schema_paths": [
+        "capabilities/inventory.v1.json",
+        "tests/fixtures/capability_layout/refactor_gate/pass/phase1_matrix.valid.json"
+      ],
+      "validator_subcommands": [
+        "validate-rule-coverage",
+        "validate-refactor-gate"
+      ],
+      "pass_fixture_ids": [
+        "pass/rule_coverage_matrix.valid.json",
+        "refactor_gate/pass/phase1_matrix.valid.json"
+      ],
+      "fail_fixture_ids": [
+        "fail/instruction_only_gate.invalid.json",
+        "refactor_gate/fail/policy_only_closeout.invalid.json"
+      ],
+      "failure_class": "missing_rule_coverage_row|instruction_only_rule_without_validator|policy_only_refactor_closeout|refactor_gate_invalid",
+      "status_packet_field": "refactor_gate_status",
+      "legacy_exception_id": "",
+      "sunset_phase": "phase-1"
+    },
+    {
+      "rule_id": "executable-logic-preference",
+      "source_path": "docs/reference/capability-governance-rules.md",
+      "source_anchor": "P1-17 executable-logic-preference",
+      "rule_class": "policy",
+      "owner_capability_id": "validation-hooks",
+      "router_allowed": false,
+      "schema_paths": [
+        "capabilities/inventory.v1.json",
+        "tests/fixtures/capability_layout/rule_coverage/pass/rule_coverage_matrix.valid.json"
+      ],
+      "validator_subcommands": [
+        "validate-rule-coverage"
+      ],
+      "pass_fixture_ids": [
+        "pass/rule_coverage_matrix.valid.json"
+      ],
+      "fail_fixture_ids": [
+        "fail/instruction_only_gate.invalid.json"
+      ],
+      "failure_class": "instruction_only_rule_without_validator|router_rule_claims_pass_fail_authority|rule_coverage_status_field_missing",
+      "status_packet_field": "rule_coverage_status",
+      "legacy_exception_id": "",
+      "sunset_phase": "phase-1"
+    }
+  ],
+  "restricted_data_status": "clean"
+}

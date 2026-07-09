@@ -1,0 +1,7 @@
+{
+  "delivery_id": "issue-421-fixture",
+  "from_state": "rollback_required",
+  "to_state": "closed",
+  "guard": "closeout_pass",
+  "evidence": ["issue_closeout"]
+}

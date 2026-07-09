@@ -1,0 +1,37 @@
+{
+  "schema": "bears-workflow-inference-rules.v1",
+  "version": "1",
+  "owner_issue": "#438",
+  "owner_role": "bears-machine-first-execution-kernel-engineer",
+  "updated": "2026-06-25",
+  "commands": [
+    "python3 scripts/workflow_inference.py validate --json",
+    "python3 scripts/workflow_inference.py materialize --input <path> --json",
+    "python3 scripts/workflow_inference.py query --predicate <name> --args <json> --json",
+    "python3 scripts/workflow_inference.py explain --fact <id> --json",
+    "python3 scripts/workflow_inference.py doctor --json"
+  ],
+  "closed_world_predicates": ["file_scope", "role_profile", "executor_profile", "validator", "lock_scope", "roadmap_node"],
+  "facts": [
+    {"schema":"bears-inference-fact.v1","fact_id":"fact-438-role-owns-file","predicate":"role_owns_file","arguments":["bears-machine-first-execution-kernel-engineer","scripts/workflow_inference.py"],"source":"file_context","confidence":"accepted","evidence_paths":["assets/catalog/artifact-registry.v1.json"]},
+    {"schema":"bears-inference-fact.v1","fact_id":"fact-438-goal-role-executor","predicate":"goal_role_executor","arguments":["goal-438","bears-machine-first-execution-kernel-engineer","codex_exec"],"source":"workflow_state","confidence":"accepted","evidence_paths":["assets/catalog/question-calculus.v1.json"]},
+    {"schema":"bears-inference-fact.v1","fact_id":"fact-438-validator","predicate":"validator_for_file","arguments":["scripts/workflow_inference.py","scripts/workflow_inference.py validate --json"],"source":"semantic_graph","confidence":"accepted","evidence_paths":["assets/catalog/workflow-inference-rules.v1.json"]},
+    {"schema":"bears-inference-fact.v1","fact_id":"fact-438-roadmap-leaf","predicate":"roadmap_leaf","arguments":["node-438"],"source":"semantic_graph","confidence":"accepted","evidence_paths":["assets/catalog/workflow-roadmap.v1.json"]},
+    {"schema":"bears-inference-fact.v1","fact_id":"fact-438-disjoint-units","predicate":"disjoint_lock_scope","arguments":["unit-a","unit-b"],"source":"workflow_state","confidence":"accepted","evidence_paths":["assets/catalog/workflow-inference-rules.v1.json"]},
+    {"schema":"bears-inference-fact.v1","fact_id":"fact-438-candidate-risk","predicate":"goal_has_unknowns","arguments":["goal-candidate"],"source":"github_issue","confidence":"candidate","evidence_paths":["https://github.com/BearsCLOUD/bears_plugin/issues/438"]},
+    {"schema":"bears-inference-fact.v1","fact_id":"fact-438-blocking-debt","predicate":"goal_has_blocking_debt","arguments":["goal-blocked","missing_validation"],"source":"workflow_state","confidence":"accepted","evidence_paths":["assets/catalog/bears-doctor.v1.json"]}
+  ],
+  "rules": [
+    {"schema":"bears-inference-rule.v1","rule_id":"rule-context-required","group":"context_required","head":{"predicate":"context_required","arguments":["$file","$role"]},"body":[{"predicate":"role_owns_file","arguments":["$role","$file"]}],"confidence_policy":"accepted_only","stratified":true,"proof_required":true},
+    {"schema":"bears-inference-rule.v1","rule_id":"rule-can-read","group":"can_read","head":{"predicate":"can_read","arguments":["$role","$file"]},"body":[{"predicate":"role_owns_file","arguments":["$role","$file"]}],"confidence_policy":"accepted_only","stratified":true,"proof_required":true},
+    {"schema":"bears-inference-rule.v1","rule_id":"rule-can-write","group":"can_write","head":{"predicate":"can_write","arguments":["$role","$file"]},"body":[{"predicate":"role_owns_file","arguments":["$role","$file"]}],"confidence_policy":"accepted_only","stratified":true,"proof_required":true},
+    {"schema":"bears-inference-rule.v1","rule_id":"rule-execution-allowed","group":"execution_allowed","head":{"predicate":"execution_allowed","arguments":["$goal","$role","$executor"]},"body":[{"predicate":"goal_role_executor","arguments":["$goal","$role","$executor"]}],"confidence_policy":"accepted_only","stratified":true,"proof_required":true},
+    {"schema":"bears-inference-rule.v1","rule_id":"rule-research-required","group":"research_required","head":{"predicate":"research_required","arguments":["$goal"]},"body":[{"predicate":"goal_has_unknowns","arguments":["$goal"]}],"confidence_policy":"candidate_to_research","stratified":true,"proof_required":true},
+    {"schema":"bears-inference-rule.v1","rule_id":"rule-planning-required","group":"planning_required","head":{"predicate":"planning_required","arguments":["$goal"]},"body":[{"predicate":"goal_has_unknowns","arguments":["$goal"]}],"confidence_policy":"candidate_to_research","stratified":true,"proof_required":true},
+    {"schema":"bears-inference-rule.v1","rule_id":"rule-validator-required","group":"validator_required","head":{"predicate":"validator_required","arguments":["$file","$validator"]},"body":[{"predicate":"validator_for_file","arguments":["$file","$validator"]}],"confidence_policy":"accepted_only","stratified":true,"proof_required":true},
+    {"schema":"bears-inference-rule.v1","rule_id":"rule-closeout-blocked","group":"closeout_blocked","head":{"predicate":"closeout_blocked","arguments":["$goal","$reason"]},"body":[{"predicate":"goal_has_blocking_debt","arguments":["$goal","$reason"]}],"confidence_policy":"accepted_only","stratified":true,"proof_required":true},
+    {"schema":"bears-inference-rule.v1","rule_id":"rule-roadmap-leaf-eligible","group":"roadmap_leaf_eligible","head":{"predicate":"roadmap_leaf_eligible","arguments":["$node"]},"body":[{"predicate":"roadmap_leaf","arguments":["$node"]}],"confidence_policy":"accepted_only","stratified":true,"proof_required":true},
+    {"schema":"bears-inference-rule.v1","rule_id":"rule-parallel-unit-allowed","group":"parallel_unit_allowed","head":{"predicate":"parallel_unit_allowed","arguments":["$unit_a","$unit_b"]},"body":[{"predicate":"disjoint_lock_scope","arguments":["$unit_a","$unit_b"]}],"confidence_policy":"accepted_only","stratified":true,"proof_required":true},
+    {"schema":"bears-inference-rule.v1","rule_id":"rule-manual-review-required","group":"manual_review_required","head":{"predicate":"manual_review_required","arguments":["$goal","unknowns"]},"body":[{"predicate":"goal_has_unknowns","arguments":["$goal"]}],"confidence_policy":"candidate_to_manual_review","stratified":true,"proof_required":true}
+  ]
+}

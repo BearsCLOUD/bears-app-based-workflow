@@ -1,0 +1,20 @@
+{
+  "schema": "bears-issue-autostart.v1",
+  "version": "1",
+  "updated": "2026-07-02",
+  "owner_role": "bears-machine-first-execution-kernel-engineer",
+  "commands": ["discover", "enqueue", "run-next", "status", "roadmap-status", "pause", "resume", "drain", "cancel"],
+  "runtime_outputs": [
+    "runtime/issue-autostart/jobs/<issue>.json",
+    "runtime/issue-autostart/leases/<issue>.json",
+    "runtime/issue-autostart/events/*.json",
+    "runtime/issue-autostart/control.json",
+    "runtime/issue-autostart/recovery-events/*.json"
+  ],
+  "policy": {
+    "eligible_issue_class": "safe_auto",
+    "lease_required_before_execution": true,
+    "stale_lease_recovery_required": true,
+    "issue_intake_eligibility_required": true
+  }
+}

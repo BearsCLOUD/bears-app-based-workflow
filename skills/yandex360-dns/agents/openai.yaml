@@ -1,0 +1,4 @@
+interface:
+  display_name: "Yandex 360 DNS"
+  short_description: "Manage bears.ru DNS via Yandex 360 API"
+  default_prompt: "Use $yandex360-dns to list bears.ru DNS records and prepare a safe record change."

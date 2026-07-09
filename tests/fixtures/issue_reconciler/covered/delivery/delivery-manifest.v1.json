@@ -1,0 +1,132 @@
+{
+  "blocking_debt": [],
+  "cleanup_status": "clean",
+  "closeout": {
+    "closed_issues": [],
+    "issue_comment_url": "",
+    "status": "ready"
+  },
+  "commits": [
+    {
+      "role_step": "implement-delivery",
+      "sha": "1111111111111111111111111111111111111111",
+      "validation_proof": "runtime/local-commit-validation/1111111111111111111111111111111111111111.json"
+    }
+  ],
+  "covered_issues": [
+    {
+      "classification": "closed",
+      "github_state": "OPEN",
+      "number": 404,
+      "proof_commit": "1111111111111111111111111111111111111111",
+      "proof_path": "runtime/local-commit-validation/1111111111111111111111111111111111111111.json",
+      "reason": "fixture closeout classification",
+      "repo": "BearsCLOUD/bears_plugin",
+      "url": "https://github.com/BearsCLOUD/bears_plugin/issues/404"
+    },
+    {
+      "classification": "partial",
+      "github_state": "OPEN",
+      "number": 405,
+      "reason": "fixture closeout classification",
+      "repo": "BearsCLOUD/bears_plugin",
+      "url": "https://github.com/BearsCLOUD/bears_plugin/issues/405"
+    },
+    {
+      "classification": "superseded",
+      "github_state": "CLOSED",
+      "number": 406,
+      "proof_commit": "1111111111111111111111111111111111111111",
+      "proof_path": "runtime/local-commit-validation/1111111111111111111111111111111111111111.json",
+      "reason": "fixture closeout classification",
+      "repo": "BearsCLOUD/bears_plugin",
+      "url": "https://github.com/BearsCLOUD/bears_plugin/issues/406"
+    },
+    {
+      "classification": "blocked",
+      "github_state": "OPEN",
+      "number": 407,
+      "reason": "fixture closeout classification",
+      "repo": "BearsCLOUD/bears_plugin",
+      "url": "https://github.com/BearsCLOUD/bears_plugin/issues/407"
+    },
+    {
+      "classification": "out_of_scope",
+      "github_state": "OPEN",
+      "number": 408,
+      "reason": "fixture closeout classification",
+      "repo": "BearsCLOUD/bears_plugin",
+      "url": "https://github.com/BearsCLOUD/bears_plugin/issues/408"
+    },
+    {
+      "classification": "manual_review",
+      "github_state": "OPEN",
+      "number": 409,
+      "reason": "fixture closeout classification",
+      "repo": "BearsCLOUD/bears_plugin",
+      "url": "https://github.com/BearsCLOUD/bears_plugin/issues/409"
+    }
+  ],
+  "delivery_id": "issue-404-closeout-reconcile",
+  "doctor": {
+    "result_path": "runtime/bears-doctor/1111111111111111111111111111111111111111.closeout.json",
+    "status": "pass"
+  },
+  "issues": [
+    {
+      "closeout_state": "closed",
+      "number": 404,
+      "repo": "BearsCLOUD/bears_plugin",
+      "state": "OPEN",
+      "url": "https://github.com/BearsCLOUD/bears_plugin/issues/404"
+    },
+    {
+      "closeout_state": "partial",
+      "number": 405,
+      "repo": "BearsCLOUD/bears_plugin",
+      "state": "OPEN",
+      "url": "https://github.com/BearsCLOUD/bears_plugin/issues/405"
+    },
+    {
+      "closeout_state": "superseded",
+      "number": 406,
+      "repo": "BearsCLOUD/bears_plugin",
+      "state": "CLOSED",
+      "url": "https://github.com/BearsCLOUD/bears_plugin/issues/406"
+    },
+    {
+      "closeout_state": "blocked",
+      "number": 407,
+      "repo": "BearsCLOUD/bears_plugin",
+      "state": "OPEN",
+      "url": "https://github.com/BearsCLOUD/bears_plugin/issues/407"
+    },
+    {
+      "closeout_state": "out_of_scope",
+      "number": 408,
+      "repo": "BearsCLOUD/bears_plugin",
+      "state": "OPEN",
+      "url": "https://github.com/BearsCLOUD/bears_plugin/issues/408"
+    },
+    {
+      "closeout_state": "manual_review",
+      "number": 409,
+      "repo": "BearsCLOUD/bears_plugin",
+      "state": "OPEN",
+      "url": "https://github.com/BearsCLOUD/bears_plugin/issues/409"
+    }
+  ],
+  "repo": "BearsCLOUD/bears_plugin",
+  "schema": "bears-delivery-manifest.v1",
+  "sequential_plan": "runtime/deliveries/issue-404-closeout-reconcile/sequential-plan.v1.json",
+  "state": "ready_for_closeout",
+  "updated_at": "2026-06-24T00:00:00Z",
+  "validation": {
+    "async_state": "runtime/validation-state/1111111111111111111111111111111111111111/validation-state.v1.json",
+    "exact_proof": "runtime/local-commit-validation/1111111111111111111111111111111111111111.json",
+    "remediation_state": "none",
+    "status": "pass"
+  },
+  "version": "1",
+  "workflow_tree": "runtime/deliveries/issue-404-closeout-reconcile/workflow-tree.v1.json"
+}

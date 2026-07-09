@@ -1,0 +1,14 @@
+{
+  "answer": "telegram_magic",
+  "answer_type": "execution",
+  "blocked_gates": [],
+  "evidence_paths": ["assets/catalog/question-calculus.v1.json"],
+  "evidence_types": ["catalog", "decision"],
+  "operator_id": "select_executor",
+  "proof_id": "fixture-invalid-answer",
+  "schema": "bears-question-answer-proof.v1",
+  "semantic_fact_refs": ["fact-435-implements-formal-semantics-kernel"],
+  "status": "accepted",
+  "unlocked_gates": ["executor_selected"],
+  "validator": "scripts/question_calculus.py prove-answer --packet <path> --json"
+}

@@ -1,0 +1,43 @@
+{
+  "schema": "bears-workflow-roadmap.v1",
+  "version": "1",
+  "updated": "2026-06-27",
+  "delivery_id": "fixture-roadmap",
+  "owner_role": "bears-workflow-overlay-platform-engineer",
+  "state_model": ["idea", "researched", "contracted", "decomposed", "queued", "running", "validated", "closed", "blocked", "manual_review"],
+  "node_type_model": ["research", "contract", "implementation", "validator", "migration", "cleanup", "closeout"],
+  "agent_roles": [],
+  "commands": [],
+  "nodes": [
+    {
+      "node_id": "issue-1-implementation",
+      "issue": "#1",
+      "node_type": "implementation",
+      "state": "queued",
+      "owner_role": "roadmap_executor",
+      "source_of_truth": ["github_issue", "catalog"],
+      "inputs": ["fixture issue #1 metadata"],
+      "outputs": ["fixture coverage"],
+      "depends_on": [],
+      "decomposes_to": [],
+      "blocked_by": [],
+      "autostart_policy": "eligible",
+      "evidence_paths": ["https://github.com/example/repo/issues/1"]
+    },
+    {
+      "node_id": "issue-2-implementation",
+      "issue": "#2",
+      "node_type": "implementation",
+      "state": "manual_review",
+      "owner_role": "roadmap_executor",
+      "source_of_truth": ["github_issue", "catalog"],
+      "inputs": ["fixture issue #2 metadata"],
+      "outputs": ["fixture coverage"],
+      "depends_on": [],
+      "decomposes_to": [],
+      "blocked_by": [],
+      "autostart_policy": "manual_review",
+      "evidence_paths": ["https://github.com/example/repo/issues/2"]
+    }
+  ]
+}

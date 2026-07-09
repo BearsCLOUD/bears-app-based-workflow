@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://bears.local/schemas/validation-runner-packet.v1.schema.json",
+  "title": "Bears validation runner packet",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "version", "command_id", "commit_sha", "allowed_validators", "shard_id", "timeout_seconds", "dry_run", "max_output_bytes"],
+  "properties": {
+    "schema": {"const": "bears-validation-runner-packet.v1"},
+    "version": {"type": "string"},
+    "command_id": {"type": "string", "minLength": 3},
+    "commit_sha": {"type": "string", "minLength": 7},
+    "allowed_validators": {"type": "array", "items": {"type": "string"}},
+    "shard_id": {"type": "string"},
+    "timeout_seconds": {"type": "integer"},
+    "dry_run": {"type": "boolean"},
+    "max_output_bytes": {"type": "integer"}
+  }
+}

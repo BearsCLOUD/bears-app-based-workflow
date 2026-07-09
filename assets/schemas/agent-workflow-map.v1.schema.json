@@ -1,0 +1,607 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "agent-workflow-map.v1",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "workflow_id",
+    "authority",
+    "canonical_order",
+    "process_graph",
+    "stages",
+    "subagent_execution_tree",
+    "review_policy",
+    "state_bindings",
+    "dirty_triage_policy",
+    "worker_state_policy",
+    "hook_automation_policy",
+    "roles",
+    "invariants",
+    "generated_mermaid"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string"
+    },
+    "workflow_id": {
+      "type": "string"
+    },
+    "authority": {
+      "type": "object",
+      "required": [
+        "primary_executable_process_authority",
+        "authority_scope",
+        "non_authority_surfaces"
+      ],
+      "properties": {
+        "primary_executable_process_authority": {
+          "type": "string"
+        },
+        "authority_scope": {
+          "type": "string"
+        },
+        "non_authority_surfaces": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "canonical_order": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "process_graph": {
+      "type": "object",
+      "required": [
+        "spine",
+        "loop_edges",
+        "blocking_gates",
+        "non_blocking_intermediate_stages",
+        "edges"
+      ],
+      "properties": {
+        "spine": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "loop_edges": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/loop_edge"
+          }
+        },
+        "blocking_gates": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "non_blocking_intermediate_stages": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "edges": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/edge"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "stages": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/$defs/stage"
+      }
+    },
+    "subagent_execution_tree": {
+      "type": "object",
+      "required": [
+        "root_orchestrator",
+        "domain_orchestrators",
+        "worker_waves",
+        "parallel_groups"
+      ],
+      "properties": {
+        "root_orchestrator": {
+          "type": "string"
+        },
+        "domain_orchestrators": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/domain_orchestrator"
+          }
+        },
+        "worker_waves": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/worker_wave"
+          }
+        },
+        "parallel_groups": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "review_policy": {
+      "type": "object",
+      "required": [
+        "intermediate_review_blockers",
+        "global_review_required_before",
+        "blocking_gates",
+        "global_review",
+        "orchestrator_policy"
+      ],
+      "properties": {
+        "intermediate_review_blockers": {
+          "type": "boolean"
+        },
+        "global_review_required_before": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "blocking_gates": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "global_review": {
+          "type": "object"
+        },
+        "orchestrator_policy": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "state_bindings": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/$defs/state_binding"
+      }
+    },
+    "dirty_triage_policy": {
+      "type": "object",
+      "required": [
+        "blocking_gates",
+        "states"
+      ],
+      "properties": {
+        "blocking_gates": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "states": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/dirty_state"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "roles": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/$defs/role"
+      }
+    },
+    "invariants": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "generated_mermaid": {
+      "type": "string"
+    },
+    "worker_state_policy": {
+      "$ref": "#/$defs/worker_state_policy"
+    },
+    "hook_automation_policy": {
+      "$ref": "#/$defs/hook_automation_policy"
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "edge": {
+      "type": "object",
+      "required": [
+        "from",
+        "to"
+      ],
+      "properties": {
+        "from": {
+          "type": "string"
+        },
+        "to": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "loop_edge": {
+      "type": "object",
+      "required": [
+        "from",
+        "through",
+        "to",
+        "condition"
+      ],
+      "properties": {
+        "from": {
+          "type": "string"
+        },
+        "through": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "to": {
+          "type": "string"
+        },
+        "condition": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "stage": {
+      "type": "object",
+      "required": [
+        "purpose",
+        "required_inputs",
+        "required_outputs",
+        "allowed_next",
+        "blocking",
+        "evidence_required"
+      ],
+      "properties": {
+        "purpose": {
+          "type": "string"
+        },
+        "required_inputs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "required_outputs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "allowed_next": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "blocking": {
+          "type": "boolean"
+        },
+        "evidence_required": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    },
+    "domain_orchestrator": {
+      "type": "object",
+      "required": [
+        "domain",
+        "role",
+        "scope"
+      ],
+      "properties": {
+        "domain": {
+          "type": "string"
+        },
+        "role": {
+          "type": "string"
+        },
+        "scope": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "worker_wave": {
+      "type": "object",
+      "required": [
+        "wave",
+        "stage",
+        "parallel_group",
+        "required_closeout"
+      ],
+      "properties": {
+        "wave": {
+          "type": "string"
+        },
+        "stage": {
+          "type": "string"
+        },
+        "parallel_group": {
+          "type": "string"
+        },
+        "required_closeout": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "state_binding": {
+      "type": "object",
+      "required": [
+        "packet_kind",
+        "workflow_state_section"
+      ],
+      "properties": {
+        "packet_kind": {
+          "type": "string"
+        },
+        "workflow_state_section": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "dirty_state": {
+      "type": "object",
+      "required": [
+        "meaning",
+        "actions",
+        "gate_effect"
+      ],
+      "properties": {
+        "meaning": {
+          "type": "string"
+        },
+        "actions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "gate_effect": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "role": {
+      "type": "object",
+      "required": [
+        "may_run_at",
+        "must_not_run_at",
+        "required_evidence"
+      ],
+      "properties": {
+        "may_run_at": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "must_not_run_at": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "required_evidence": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "worker_state_policy": {
+      "type": "object",
+      "required": [
+        "global_workflow_state_role",
+        "worker_state_path_template",
+        "worker_write_scope",
+        "shared_aggregate_write_policy",
+        "required_worker_file_fields",
+        "contention_policy",
+        "orchestrator_non_blocking_policy",
+        "blocking_gates"
+      ],
+      "properties": {
+        "global_workflow_state_role": {
+          "type": "string"
+        },
+        "worker_state_path_template": {
+          "type": "string"
+        },
+        "worker_write_scope": {
+          "type": "string"
+        },
+        "shared_aggregate_write_policy": {
+          "type": "string"
+        },
+        "required_worker_file_fields": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1
+        },
+        "contention_policy": {
+          "type": "string"
+        },
+        "orchestrator_non_blocking_policy": {
+          "type": "string"
+        },
+        "blocking_gates": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "hook_automation_policy": {
+      "type": "object",
+      "required": [
+        "status",
+        "scope",
+        "runtime_hook_registration",
+        "trust_gate",
+        "hooks",
+        "contention_policy",
+        "orchestrator_non_blocking_policy",
+        "blocking_gates"
+      ],
+      "properties": {
+        "status": {
+          "type": "string"
+        },
+        "scope": {
+          "type": "string"
+        },
+        "runtime_hook_registration": {
+          "type": "string"
+        },
+        "trust_gate": {
+          "type": "object",
+          "required": [
+            "required_proof",
+            "default",
+            "enforcement"
+          ],
+          "properties": {
+            "required_proof": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "minItems": 1
+            },
+            "default": {
+              "type": "string"
+            },
+            "enforcement": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "hooks": {
+          "type": "object",
+          "required": [
+            "pre_task",
+            "heartbeat",
+            "closeout",
+            "aggregator_index_refresh"
+          ],
+          "properties": {
+            "pre_task": {
+              "$ref": "#/$defs/hook_step"
+            },
+            "heartbeat": {
+              "$ref": "#/$defs/hook_step"
+            },
+            "closeout": {
+              "$ref": "#/$defs/hook_step"
+            },
+            "aggregator_index_refresh": {
+              "$ref": "#/$defs/hook_step"
+            }
+          },
+          "additionalProperties": false
+        },
+        "contention_policy": {
+          "type": "string"
+        },
+        "orchestrator_non_blocking_policy": {
+          "type": "string"
+        },
+        "blocking_gates": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "hook_step": {
+      "type": "object",
+      "required": [
+        "writes",
+        "reads",
+        "actions",
+        "forbidden_writes"
+      ],
+      "properties": {
+        "writes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "reads": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "actions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1
+        },
+        "forbidden_writes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

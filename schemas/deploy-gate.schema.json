@@ -1,0 +1,69 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://bears.local/plugins/bears/schemas/deploy-gate.schema.json",
+  "title": "Bears workflow-overlay deploy gate packet",
+  "type": "object",
+  "required": [
+    "schema",
+    "version",
+    "status",
+    "scope",
+    "impact",
+    "risk_owner"
+  ],
+  "properties": {
+    "schema": {
+      "type": "string",
+      "const": "bears-workflow-overlay.deploy-gate"
+    },
+    "version": {
+      "type": "string",
+      "enum": ["1", "1.0", "v1"]
+    },
+    "status": {
+      "type": "string",
+      "enum": ["approved", "blocked", "needs-review", "not-applicable"]
+    },
+    "scope": {
+      "type": "string",
+      "enum": ["overlay-only", "workspace-control", "target-local", "cross-target"]
+    },
+    "impact": {
+      "type": "object",
+      "required": ["deploy", "rollback", "secret", "runtime"],
+      "properties": {
+        "deploy": {
+          "type": "string",
+          "enum": ["none", "low", "medium", "high"]
+        },
+        "rollback": {
+          "type": "string",
+          "enum": ["none", "low", "medium", "high", "required"]
+        },
+        "secret": {
+          "type": "string",
+          "enum": ["none", "low", "medium", "high"]
+        },
+        "runtime": {
+          "type": "string",
+          "enum": ["none", "low", "medium", "high"]
+        }
+      },
+      "additionalProperties": true
+    },
+    "risk_owner": {
+      "type": "string",
+      "minLength": 1
+    },
+    "rollback_plan": {
+      "type": "string",
+      "minLength": 1
+    },
+    "approvals": {
+      "type": "array",
+      "items": {"type": "string", "minLength": 1},
+      "default": []
+    }
+  },
+  "additionalProperties": true
+}

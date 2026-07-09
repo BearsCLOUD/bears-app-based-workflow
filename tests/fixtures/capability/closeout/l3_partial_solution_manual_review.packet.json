@@ -1,0 +1,6 @@
+{
+  "decision": "manual_review",
+  "reason": "partial solution is not eligible for auto-close",
+  "scenario_id": "l3_partial_solution_manual_review_not_close",
+  "schema_version": "bears-closeout-decision.v1"
+}

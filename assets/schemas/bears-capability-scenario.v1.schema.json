@@ -1,0 +1,22 @@
+{
+  "$id": "https://bears.local/schemas/bears-capability-scenario.v1.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Bears capability task scenario v1",
+  "type": "object",
+  "additionalProperties": true,
+  "properties": {
+    "schema": {"const": "bears-capability-task.v1"},
+    "task_id": {"type": "string", "minLength": 1},
+    "issue_task_id": {"type": "string", "minLength": 1},
+    "level": {"enum": ["L1", "L2", "L3", "L4", "L5", "L6", "L7"]},
+    "capability": {"type": "string", "minLength": 1},
+    "synthetic_issue": {"type": "object"},
+    "roadmap_node": {"type": "object"},
+    "related_file_patterns": {"type": "array", "items": {"type": "string", "minLength": 1}},
+    "files_read": {"type": "array", "items": {"type": "string"}},
+    "files_changed": {"type": "array", "items": {"type": "string"}},
+    "context_budget": {"type": "object"},
+    "model_executor": {"type": "string"}
+  },
+  "required": ["schema", "task_id", "issue_task_id", "level", "capability", "synthetic_issue", "related_file_patterns", "context_budget"]
+}

@@ -1,0 +1,6 @@
+{
+  "name": "bears-objective-runtime-proof-policy",
+  "sdk": "python",
+  "source": ".",
+  "engineVersion": "v0.21.7"
+}

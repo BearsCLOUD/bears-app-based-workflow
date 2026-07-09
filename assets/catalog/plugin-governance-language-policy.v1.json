@@ -1,0 +1,135 @@
+{
+  "schema": "bears-plugin-governance-language-policy.v1",
+  "version": "1",
+  "updated": "2026-06-06",
+  "owner_plugin": "bears",
+  "artifact_language": "en",
+  "subagent_message_language": "en",
+  "wording_policy": {
+    "style": "strict_entity_bound_concise",
+    "abstract_drift": "blocked",
+    "section_mode": "policy_only",
+    "required_entity_terms": [
+      "local_cd",
+      "kubernetes_deployment"
+    ],
+    "allowed_exact_terms": [
+      "github_ci",
+      "local_cd",
+      "dev-cd-gate",
+      "git_discipline",
+      "kubernetes_deployment",
+      "fresh_no_parent_context"
+    ],
+    "forbidden_token_rules": [
+      {
+        "token": "deploy",
+        "status": "forbidden",
+        "when_entity_is": [
+          "local_cd",
+          "kubernetes_deployment"
+        ]
+      }
+    ],
+    "entity_term_policy": {
+      "app": {
+        "meaning": "Bears product application source under /srv/bears/dev/app or a BearsCLOUD/apps app directory.",
+        "required_precision": "Write product app, app directory, or /srv/bears/dev/app when the surface is application source.",
+        "forbidden_meanings": [
+          "local repository authority outside /srv/bears/dev/app",
+          "plugin, connector, MCP server, or runtime surface unless the exact external product term is named"
+        ]
+      },
+      "project": {
+        "meaning": "GitHub Project planning board with linked Issues and metadata fields.",
+        "required_precision": "Write GitHub Project when planning board authority is meant; write repo, path, target, app directory, or workspace surface for filesystem or source ownership.",
+        "forbidden_meanings": [
+          "product application",
+          "local repository",
+          "workspace directory",
+          "deprecated /srv/bears/projects parent authority"
+        ]
+      }
+    }
+  },
+  "repo_proof": {
+    "proof_scope": "repo_only",
+    "runtime_chat_out_of_scope": true,
+    "governed_artifacts": [
+      {
+        "path": "AGENTS.md",
+        "must_be_english_only": true,
+        "must_include_required_entity_terms": true,
+        "forbid_illustrative_sections": true,
+        "required_fragments": [
+          "Artifacts and subagent messages must use English only.",
+          "Wording must stay strict, concise, and entity-bound."
+        ]
+      },
+      {
+        "path": "README.md",
+        "must_be_english_only": true,
+        "must_include_required_entity_terms": true,
+        "forbid_illustrative_sections": true,
+        "required_fragments": [
+          "Artifacts and subagent messages must use English only.",
+          "Repo-proof validation is deterministic and repo-only."
+        ]
+      },
+      {
+        "path": "SPEC.md",
+        "must_be_english_only": true,
+        "must_include_required_entity_terms": true,
+        "forbid_illustrative_sections": true,
+        "required_fragments": [
+          "The language policy is hard: `artifact_language=en`, `subagent_message_language=en`, and wording stays strict, concise, and entity-bound.",
+          "Repo-proof validation is deterministic and repo-only."
+        ]
+      },
+      {
+        "path": ".codex-plugin/plugin.json",
+        "must_be_english_only": true,
+        "must_include_required_entity_terms": true,
+        "forbid_illustrative_sections": true,
+        "required_fragments": [
+          "Keep plugin artifacts, assignment packets, subagent task text, and subagent messages in English.",
+          "Do not add sample, example, or illustrative sections."
+        ]
+      },
+      {
+        "path": "assets/catalog/plugin-governance-language-policy.v1.json",
+        "must_be_english_only": true,
+        "must_include_required_entity_terms": true,
+        "forbid_illustrative_sections": true,
+        "required_fragments": [
+          "\"artifact_language\": \"en\"",
+          "\"subagent_message_language\": \"en\"",
+          "\"proof_scope\": \"repo_only\""
+        ]
+      },
+      {
+        "path": "assets/catalog/subagent-orchestration-policy.v1.json",
+        "must_be_english_only": true,
+        "must_include_required_entity_terms": true,
+        "forbid_illustrative_sections": true,
+        "required_fragments": [
+          "Assignment packets, subagent task text, and subagent messages must use English only.",
+          "\"assignment_packet_language\": \"en\"",
+          "\"task_template_language\": \"en\"",
+          "\"subagent_message_language\": \"en\""
+        ]
+      },
+      {
+        "path": "docs/reference/roadmap-control.md",
+        "must_be_english_only": true,
+        "must_include_required_entity_terms": true,
+        "forbid_illustrative_sections": true,
+        "required_fragments": [
+          "Assignment packets, subagent task text, and subagent messages must use English only.",
+          "Fresh audit subagents use no parent context.",
+          "Repo-proof validation covers only repo artifacts. It does not claim live runtime chat proof."
+        ]
+      }
+    ]
+  }
+}

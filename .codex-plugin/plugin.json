@@ -4,45 +4,39 @@
     "name": "Bears Workspace",
     "url": "https://github.com/BearsCLOUD"
   },
-  "description": "Bears automatic CD tooling package. It is not an instruction source.",
+  "description": "Bears automatic CD tooling package with the MCP Designer skill. It is not a workspace instruction authority.",
   "homepage": "https://github.com/BearsCLOUD/bears_plugin",
   "interface": {
     "brandColor": "#F97316",
     "capabilities": [
       "Automatic CD executor",
-      "Machine-readable CD contract shapes"
+      "Machine-readable CD contract shapes",
+      "MCP surface design and review"
     ],
     "category": "Development",
     "developerName": "Bears Workspace",
     "displayName": "Bears",
-    "longDescription": "This package provides one automatic CD executor and two machine-readable contract-shape files. It exposes no skills, hooks, role profiles, prompts, workflows, generated inventories, or issue templates.",
+    "longDescription": "This package provides one automatic CD executor, two machine-readable contract-shape files, and the mcp-designer skill for MCP surface design/review. Plugin skills are task procedures; workspace behavior remains owned by active AGENTS.md files and non-plugin contracts.",
     "privacyPolicyURL": "https://github.com/BearsCLOUD/bears_plugin",
-    "shortDescription": "Bears automatic CD tooling; no agent instructions.",
+    "shortDescription": "Bears automatic CD tooling plus MCP Designer skill.",
     "termsOfServiceURL": "https://github.com/BearsCLOUD/bears_plugin",
-    "websiteURL": "https://github.com/BearsCLOUD/bears_plugin"
+    "websiteURL": "https://github.com/BearsCLOUD/bears_plugin",
+    "defaultPrompt": [
+      "Use $mcp-designer to design an MCP server surface before implementation.",
+      "Use $mcp-designer to review MCP tools, resources, prompts, schemas, and startup limits."
+    ]
   },
   "keywords": [
     "bears-tooling",
     "automatic-cd",
-    "kubernetes-cd"
+    "kubernetes-cd",
+    "mcp-designer",
+    "mcp-surface-design",
+    "codex-skills"
   ],
   "license": "UNLICENSED",
-  "metadata": {
-    "automaticKubernetesCd": {
-      "executor": "scripts/bears_auto_cd.py",
-      "gitContractFallback": "assets/catalog/git-deploy-contract.v1.json",
-      "cdContractFallback": "assets/catalog/cd-kube-deploy-contract.v1.json",
-      "repoPolicyPreferred": "local_cd/policy/*.v1.json"
-    },
-    "instructionSource": {
-      "enabled": false,
-      "activeSkills": false,
-      "activeHooks": false,
-      "activeRoleProfiles": false,
-      "activeWorkflows": false
-    }
-  },
   "name": "bears",
   "repository": "https://github.com/BearsCLOUD/bears_plugin",
-  "version": "0.1.0"
+  "version": "0.1.0+codex.20260709115021",
+  "skills": "./skills/"
 }

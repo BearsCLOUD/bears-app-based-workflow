@@ -1,4 +1,0 @@
-interface:
-  display_name: "Yandex 360 DNS"
-  short_description: "Prepare DNS change packets"
-  default_prompt: "Use $yandex360-dns to prepare a safe Yandex 360 DNS change packet."

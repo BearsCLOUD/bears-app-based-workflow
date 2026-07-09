@@ -2,13 +2,14 @@
 
 ## Purpose
 
-Provide a compact Codex plugin that turns product-app intent into researched waves, detailed specs, functional graph nodes, graph-linked ledger tasks, implementation dispatch packets, and convergence analysis.
+Provide a compact Codex plugin that turns product-app intent into researched waves, detailed specs, functional graph nodes, graph-linked ledger tasks, hardened implementation dispatch packets, and convergence analysis.
 
 ## Terms
 
 - `wave`: one app workflow slice created by research, specified by user interaction, planned through graph-linked ledger tasks, analyzed against code state, and dispatched when dependency-ready.
 - `functional graph`: `docs/app-functional-graph.v1.json`, the app-local map of functionality, nodes, edges, state transitions, API calls, and evidence references.
 - `task ledger`: `docs/app-task-ledger.v1.json`, the app-local source of executable tasks.
+- `instruction hardening`: read-only compression of wave plans, dispatch packets, or workflow prose without changing product decisions, task scope, instruction authority, `AGENTS.md`, or contracts.
 - `L1`: the parent app-dev coordinator.
 - `L2`: one orchestrator lane for a ready wave or wave partition.
 - `L3`: one worker or critic assigned a bounded ledger task.
@@ -24,7 +25,8 @@ flowchart LR
   P --> A["app-analyze"]
   A -->|needs-spec| S
   A -->|needs-plan| P
-  A -->|ready ledger work| D["app-dev"]
+  A -->|ready ledger work| H["instruction-hardening optional"]
+  H --> D["app-dev"]
   D --> A
   A -->|pass| X["close wave"]
   A -->|blocked| B["operator unblock"]
@@ -77,7 +79,7 @@ Output:
 - updated `docs/app-functional-graph.v1.json`
 - updated `docs/app-task-ledger.v1.json`
 
-`app-plan` creates only decision-complete tasks. Missing decisions return to `app-specify`.
+`app-plan` creates only decision-complete tasks. Missing decisions return to `app-specify`. It may run a read-only `instruction-hardening` pass when the operator allows subagents in the current run.
 
 ### app-analyze
 
@@ -87,13 +89,21 @@ Output: `waves/<wave-id>/analysis.md` with status `pass`, `needs-plan`, `needs-s
 
 Missing functionality returns to `app-plan`. Missing requirements return to `app-specify`. Ready ledger work goes to `app-dev`. `pass` closes the wave.
 
+### instruction-hardening
+
+Input: wave plan, candidate dispatch packets, and target `AGENTS.md` or linked contracts.
+
+Output: compressed text, removed-content summary, and authority or drift note.
+
+`instruction-hardening` is read-only. It never creates tasks, changes product decisions, or overrides `AGENTS.md` and contracts.
+
 ### app-dev
 
 Input: ledger tasks with valid graph refs and ready dependencies.
 
 Output: L2 dispatch packets, L3 task packets, ledger status updates, and wave closeout notes.
 
-`app-dev` never invents implementation tasks outside the ledger. L1 starts L2 lanes. L2 starts L3 workers and critics through `subagents`. `bears-agents` selects role coverage.
+`app-dev` never invents implementation tasks outside the ledger. L1 starts L2 lanes. L2 starts L3 workers and critics only when the operator allows delegation in the current run. Role and subagent helper skills live under `/home/ai1/.codex/skills` when available.
 
 ## Scenario prompts
 
@@ -101,4 +111,5 @@ Output: L2 dispatch packets, L3 task packets, ledger status updates, and wave cl
 - “specify this wave” uses `app-specify` and expands wave docs.
 - “plan unbuilt functionality” uses `app-plan` and writes graph-linked ledger tasks.
 - “analyze implemented state” uses `app-analyze` and reports missing or drifted functionality.
+- “harden this wave” uses `instruction-hardening` and tightens wave prose without changing authority.
 - “dev ready wave” uses `app-dev` and prepares L2/L3 dispatch packets.

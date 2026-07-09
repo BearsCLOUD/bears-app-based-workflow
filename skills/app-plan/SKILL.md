@@ -1,6 +1,6 @@
 ---
 name: app-plan
-description: Detect unbuilt Bears app functionality and create graph-linked wave plans and ledger tasks. Use when Codex must decompose specified waves into dependencies, ready tasks, owner roles, target paths, and app-dev handoff packets.
+description: Detect unbuilt Bears app functionality and create graph-linked wave plans and ledger tasks. Use when Codex must decompose specified waves into dependencies, ready tasks, owner roles, target paths, optional instruction-hardening checks, and app-dev handoff packets.
 ---
 
 # App Plan
@@ -31,7 +31,8 @@ Find missing or unbuilt functionality and create only decision-complete tasks ti
 3. Mark built, partial, missing, and drifted functionality.
 4. Create or update ledger tasks only for missing or drifted functionality.
 5. Add dependencies, target paths, owner role, lane, and proof requirement.
-6. Group dependency-ready tasks into waves or wave partitions for `app-dev`.
+6. Optionally run `$instruction-hardening` on the wave plan as a read-only pass when the operator allows subagents in the current run.
+7. Group dependency-ready tasks into waves or wave partitions for `app-dev`.
 
 ## Task rules
 
@@ -41,3 +42,4 @@ Find missing or unbuilt functionality and create only decision-complete tasks ti
 - Use `blocked_by_decision` for tasks that need `app-specify`.
 - Use `ready` only when dependencies and decisions are closed.
 - Route implementation to `app-dev` only through the ledger.
+- Instruction hardening must not create tasks, change product decisions, or override `AGENTS.md` and contracts.

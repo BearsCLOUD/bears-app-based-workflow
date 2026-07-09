@@ -1,4 +1,0 @@
-interface:
-  display_name: "Subagents"
-  short_description: "Prepare L2/L3 delegation"
-  default_prompt: "Use $subagents to prepare bounded delegation packets for L2 and L3 app-dev work."

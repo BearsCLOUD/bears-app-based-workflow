@@ -1,6 +1,6 @@
 # Bears App-Based Workflow
 
-`bears-app-based-workflow` is a Codex plugin for Bears application work. It follows a Spec Kit-style lifecycle and adds Bears-specific waves, functional graph planning, graph-linked ledger tasks, and parallel app-dev orchestration.
+`bears-app-based-workflow` is a Codex plugin for Bears application work. It follows a Spec Kit-style lifecycle and adds Bears-specific waves, functional graph planning, graph-linked ledger tasks, hardened dispatch packets, and parallel app-dev orchestration.
 
 ## Lifecycle
 
@@ -10,8 +10,9 @@
 4. `app-functional-graph` maps requirements to graph nodes and ledger references.
 5. `app-plan` finds unbuilt functionality and writes graph-linked task plans.
 6. `app-analyze` compares docs, graph, ledger, and implemented state.
-7. `app-dev` dispatches ready ledger tasks through L2 orchestrators and L3 workers.
-8. `app-analyze` closes the convergence loop after implementation.
+7. `instruction-hardening` can tighten wave plans or dispatch packets without changing authority.
+8. `app-dev` dispatches ready ledger tasks through L2 orchestrators and L3 workers.
+9. `app-analyze` closes the convergence loop after implementation.
 
 ## Core artifacts
 
@@ -23,11 +24,24 @@
 - `docs/app-functional-graph.v1.json` — app-local functionality graph.
 - `docs/app-task-ledger.v1.json` — app-local task ledger.
 
-## Skill set
+## Plugin skills
 
-Core skills: `app-constitution`, `app-research`, `app-specify`, `app-functional-graph`, `app-plan`, `app-analyze`, `app-dev`.
+App workflow skills: `app-constitution`, `app-research`, `app-specify`, `app-functional-graph`, `app-plan`, `app-analyze`, `app-dev`.
 
-Helper skills: `bears-agents`, `instruction-hardening`, `python-codeflow`, `subagents`, `subagents-roles`, `yandex360-dns`, `mcp-designer`.
+Workflow hardening skill: `instruction-hardening`.
+
+## Local Codex skill dependencies
+
+General helper skills live outside this plugin under `/home/ai1/.codex/skills`:
+
+- `bears-agents`
+- `mcp-designer`
+- `python-codeflow`
+- `subagents`
+- `subagents-roles`
+- `yandex360-dns`
+
+These local skills are optional helpers. They do not make this plugin an instruction authority and do not override `AGENTS.md` or contracts.
 
 ## Repository target
 

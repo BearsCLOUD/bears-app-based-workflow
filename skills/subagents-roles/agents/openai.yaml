@@ -1,0 +1,4 @@
+interface:
+  display_name: "Subagents Roles"
+  short_description: "Map tasks to worker roles"
+  default_prompt: "Use $subagents-roles to map graph-linked tasks to owner, critic, helper, lane, and parallel-safety roles."

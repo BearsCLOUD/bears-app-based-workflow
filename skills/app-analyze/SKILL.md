@@ -16,7 +16,7 @@ Write `waves/<wave-id>/analysis.md` with one status:
 - `pass`: docs, graph, ledger, and code state agree.
 - `needs-plan`: functionality is specified but missing, partial, drifted, or not in ledger.
 - `needs-spec`: decisions, flows, data, errors, or acceptance criteria are missing.
-- `blocked`: progress requires access, credentials, unavailable source, or an explicit operator decision.
+- `blocked`: progress requires access, credentials, unavailable source, or an explicit stop signal.
 
 ## Analysis sections
 
@@ -27,12 +27,15 @@ Write `waves/<wave-id>/analysis.md` with one status:
 - Ledger coverage.
 - Implemented-state comparison.
 - Missing or drifted functionality.
+- Parallel lane opportunities with disjoint repo, path, and target sets.
 - Next skill and exact handoff.
 
 ## Rules
 
 - Do not fix implementation during analysis.
+- Use role-matched critic subagents for independent requirement, graph, ledger, or implementation slices.
 - Send missing functionality to `app-plan`.
 - Send missing requirement detail to `app-specify`.
 - Send ready ledger work to `app-dev`.
-- Use `blocked` only for access, credentials, unavailable source, or explicit operator stop.
+- Use `blocked` only for access, credentials, unavailable source, or explicit stop signal.
+- Validation, test, audit, route, cache, cachebuster, quick-validate, and plugin-validate scripts belong to pre-commit autoCI; agents do not run them manually.

@@ -1,7 +1,7 @@
 {
   "name": "bears-app-based-workflow",
   "version": "0.1.0+codex.20260709143733",
-  "description": "Spec Kit-style app workflow plugin for Bears waves, functional graphs, task ledgers, hardened dispatch packets, and app development orchestration.",
+  "description": "Spec Kit-style app workflow plugin for Bears waves, functional graphs, task ledgers, instruction hardening, role-matched subagents, and parallel app development orchestration.",
   "author": {
     "name": "BearsCLOUD",
     "url": "https://github.com/BearsCLOUD"
@@ -15,13 +15,16 @@
     "waves",
     "functional-graph",
     "task-ledger",
-    "instruction-hardening"
+    "instruction-hardening",
+    "subagents",
+    "role-orchestration",
+    "parallel-planning"
   ],
   "skills": "./skills/",
   "interface": {
     "displayName": "Bears App-Based Workflow",
-    "shortDescription": "Wave-based app specification, planning, hardening, analysis, and development orchestration.",
-    "longDescription": "Bears App-Based Workflow provides a Spec Kit-style application workflow: constitution, research waves, detailed specification, functional graph planning, ledger tasks, read-only wave instruction hardening, analysis, and app-dev orchestration.",
+    "shortDescription": "Wave-based app specification, planning, hardening, analysis, and subagent orchestration.",
+    "longDescription": "Bears App-Based Workflow provides a Spec Kit-style application workflow: constitution, research waves, detailed specification, functional graph planning, ledger tasks, read-only wave instruction hardening, role-matched subagents, parallel L2/L3 app-dev orchestration, and autoCI-owned script evidence.",
     "developerName": "BearsCLOUD",
     "category": "Development",
     "capabilities": [
@@ -30,15 +33,20 @@
       "Detailed app specification",
       "Functional graph planning",
       "Graph-linked task ledger",
+      "Subagent role mapping",
+      "Bears role coverage",
+      "Bounded L2/L3 subagent dispatch",
+      "Parallel planning by disjoint target sets",
       "Implementation analysis",
-      "Parallel L2/L3 app-dev orchestration",
-      "Wave instruction hardening"
+      "Wave instruction hardening",
+      "Pre-commit autoCI evidence handoff"
     ],
     "websiteURL": "https://github.com/BearsCLOUD/bears-app-based-workflow",
     "defaultPrompt": [
       "Research app feature waves.",
+      "Plan ready wave with role-matched subagents.",
       "Harden a ready wave plan.",
-      "Dev ready wave with subagents."
+      "Dev ready wave with parallel L2/L3 subagents."
     ],
     "brandColor": "#3B82F6"
   }

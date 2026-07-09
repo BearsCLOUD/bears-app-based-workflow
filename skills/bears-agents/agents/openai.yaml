@@ -1,0 +1,4 @@
+interface:
+  display_name: "Bears Agents"
+  short_description: "Select app-dev role coverage"
+  default_prompt: "Use $bears-agents to select owner, critic, and helper role coverage for app-dev ledger tasks."

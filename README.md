@@ -1,18 +1,20 @@
 # Bears App-Based Workflow
 
-`bears-app-based-workflow` is a Codex plugin for Bears application work. It follows a Spec Kit-style lifecycle and adds Bears-specific waves, functional graph planning, graph-linked ledger tasks, hardened dispatch packets, and parallel app-dev orchestration.
+`bears-app-based-workflow` is a Codex plugin for Bears application work. It follows a Spec Kit-style lifecycle and adds Bears-specific waves, functional graph planning, graph-linked ledger tasks, instruction hardening, role-matched subagents, and parallel app-dev orchestration.
 
 ## Lifecycle
 
 1. `app-constitution` records the app baseline and decision rules.
 2. `app-research` creates or updates research waves and synchronizes the wave registry.
-3. `app-specify` works with the user to expand wave docs into detailed functional specs.
+3. `app-specify` expands wave docs into detailed functional specs.
 4. `app-functional-graph` maps requirements to graph nodes and ledger references.
-5. `app-plan` finds unbuilt functionality and writes graph-linked task plans.
-6. `app-analyze` compares docs, graph, ledger, and implemented state.
-7. `instruction-hardening` can tighten wave plans or dispatch packets without changing authority.
-8. `app-dev` dispatches ready ledger tasks through L2 orchestrators and L3 workers.
-9. `app-analyze` closes the convergence loop after implementation.
+5. `app-plan` finds unbuilt functionality, writes graph-linked task plans, and maximizes disjoint parallel lanes.
+6. `subagents-roles` maps tasks to owner and critic roles.
+7. `bears-agents` confirms Bears role coverage for every lane.
+8. `subagents` creates bounded L2/L3 delegation packets.
+9. `instruction-hardening` tightens wave plans or dispatch packets without changing authority.
+10. `app-dev` dispatches ready ledger tasks through L2 orchestrators, L3 workers, and critics.
+11. `app-analyze` closes the convergence loop after implementation.
 
 ## Core artifacts
 
@@ -28,23 +30,28 @@
 
 App workflow skills: `app-constitution`, `app-research`, `app-specify`, `app-functional-graph`, `app-plan`, `app-analyze`, `app-dev`.
 
+Subagent orchestration skills: `subagents`, `subagents-roles`, `bears-agents`.
+
 Workflow hardening skill: `instruction-hardening`.
 
 ## Local Codex skill dependencies
 
-General helper skills live outside this plugin under `/home/ai1/.codex/skills`:
+General helper skills that stay outside this plugin under `/home/ai1/.codex/skills`:
 
-- `bears-agents`
 - `mcp-designer`
 - `python-codeflow`
-- `subagents`
-- `subagents-roles`
 - `yandex360-dns`
 
-These local skills are optional helpers. They do not make this plugin an instruction authority and do not override `AGENTS.md` or contracts.
+These local skills are external dependencies. They do not make this plugin an instruction authority and do not override `AGENTS.md` or contracts.
+
+## Script ownership
+
+Validation, test, audit, route, cache, cachebuster, quick-validate, and plugin-validate scripts are pre-commit autoCI responsibilities. Agents do not run them manually. Agents read generated autoCI or local-commit-validation evidence only after it exists, then fix known failures in owned files.
+
+This plugin must not add plugin-local `scripts/`, `hooks.json`, or `.mcp.json`.
 
 ## Repository target
 
 Target GitHub repository: `BearsCLOUD/bears-app-based-workflow`.
 
-GitHub repository rename and push are operator steps. Local plugin identity and local remotes can point at the target name before the remote repository exists.
+Repository rename and push are repository-publishing steps. Local plugin identity and local remotes can point at the target name before the remote repository exists.

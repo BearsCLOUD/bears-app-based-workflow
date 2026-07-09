@@ -33,6 +33,8 @@ Turn an instruction surface into a smaller, stricter version with the same requi
 - Forbidden actions.
 - Handoff and escalation rules.
 - Secret and access boundaries.
+- Pre-commit autoCI ownership of validation, test, audit, route, cache, cachebuster, quick-validate, and plugin-validate scripts.
+- Role-matched subagent usage for bounded work and disjoint parallel lanes.
 
 ## Rules
 
@@ -40,6 +42,9 @@ Turn an instruction surface into a smaller, stricter version with the same requi
 - Never make plugin output override `AGENTS.md` or contracts.
 - Follow the nearest `AGENTS.md` and referenced contracts for the target path.
 - Do not create implementation tasks or product decisions.
+- Do not run scripts.
+- Do not tell agents to run validation, test, audit, route, cache, cachebuster, quick-validate, or plugin-validate scripts manually.
+- Keep script execution evidence sourced only from generated autoCI or local-commit-validation artifacts that already exist.
 - Mark conflicts between source text and owning instructions in the authority or drift note.
 
 ## Remove
@@ -47,5 +52,5 @@ Turn an instruction surface into a smaller, stricter version with the same requi
 - Setup narration.
 - Repeated definitions.
 - Generic best practices.
-- Test, validation, or audit prose unless it is the explicit purpose of the artifact.
-- Local machine commands unless the artifact owns that command.
+- Manual validation, test, audit, route, cache, cachebuster, quick-validate, or plugin-validate commands.
+- Local machine commands unless the artifact owns that command and is not assigning it to an agent.

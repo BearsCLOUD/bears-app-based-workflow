@@ -65,5 +65,8 @@ Every executable ledger task needs:
 
 - Never create a task without graph refs.
 - Never delete graph ids that existing ledger tasks reference; mark replacement and add a new id.
+- Use role-matched graph subagents for independent functionality groups, API groups, UI flows, data flows, state transitions, or integration edges.
+- Keep graph subagent scopes disjoint by functionality id, node group, or target path set.
 - If a requirement has no graph home, add a graph node before planning tasks.
 - If a graph node lacks a decision-complete requirement, return it to `app-specify`.
+- Validation, test, audit, route, cache, cachebuster, quick-validate, and plugin-validate scripts belong to pre-commit autoCI; agents do not run them manually.

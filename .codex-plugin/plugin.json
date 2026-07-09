@@ -1,7 +1,7 @@
 {
   "name": "bears-app-based-workflow",
   "version": "0.1.0+codex.20260709143733",
-  "description": "Spec Kit-style app workflow plugin for Bears waves, functional graphs, task ledgers, instruction hardening, role-matched subagents, and parallel app development orchestration.",
+  "description": "Spec Kit-style app workflow plugin for Bears functional baselines, waves, functional graphs, task ledgers, instruction hardening, role-matched subagents, and parallel app development orchestration.",
   "author": {
     "name": "BearsCLOUD",
     "url": "https://github.com/BearsCLOUD"
@@ -18,17 +18,22 @@
     "instruction-hardening",
     "subagents",
     "role-orchestration",
-    "parallel-planning"
+    "parallel-planning",
+    "functional-baseline",
+    "agents-alignment"
   ],
   "skills": "./skills/",
   "interface": {
     "displayName": "Bears App-Based Workflow",
-    "shortDescription": "Wave-based app specification, planning, hardening, analysis, and subagent orchestration.",
-    "longDescription": "Bears App-Based Workflow provides a Spec Kit-style application workflow: constitution, research waves, detailed specification, functional graph planning, ledger tasks, read-only wave instruction hardening, role-matched subagents, parallel L2/L3 app-dev orchestration, and autoCI-owned script evidence.",
+    "shortDescription": "App functional baseline, wave specification, planning, hardening, analysis, and subagent orchestration.",
+    "longDescription": "Bears App-Based Workflow provides a Spec Kit-style application workflow: a short app constitution functional baseline, app-local AGENTS alignment, research waves, detailed specification, functional graph planning, ledger tasks, read-only wave instruction hardening, role-matched subagents, parallel L2/L3 app-dev orchestration, and autoCI-owned script evidence.",
     "developerName": "BearsCLOUD",
     "category": "Development",
     "capabilities": [
       "Spec Kit-style app workflow",
+      "Short app functional baseline",
+      "App-local AGENTS alignment pass",
+      "App constitution gap register",
       "Wave research and synchronization",
       "Detailed app specification",
       "Functional graph planning",
@@ -43,6 +48,7 @@
     ],
     "websiteURL": "https://github.com/BearsCLOUD/bears-app-based-workflow",
     "defaultPrompt": [
+      "Create app constitution baseline and align app-local AGENTS.",
       "Research app feature waves.",
       "Plan ready wave with role-matched subagents.",
       "Harden a ready wave plan.",

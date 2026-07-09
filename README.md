@@ -4,11 +4,11 @@
 
 ## Lifecycle
 
-1. `app-constitution` records the app baseline and decision rules.
-2. `app-research` creates or updates research waves and synchronizes the wave registry.
+1. `app-constitution` records `docs/app-constitution.md` in the target app: a 100-line-or-less functional baseline, important functional gaps, and an app-local `AGENTS.md` alignment note or edit.
+2. `app-research` checks the constitution and nearest/app-local `AGENTS.md`, then creates or updates research waves and synchronizes the wave registry.
 3. `app-specify` expands wave docs into detailed functional specs.
 4. `app-functional-graph` maps requirements to graph nodes and ledger references.
-5. `app-plan` finds unbuilt functionality, writes graph-linked task plans, and maximizes disjoint parallel lanes.
+5. `app-plan` checks tasks against constitution gaps and `AGENTS.md` constraints, writes graph-linked task plans, and maximizes disjoint parallel lanes.
 6. `subagents-roles` maps tasks to owner and critic roles.
 7. `bears-agents` confirms Bears role coverage for every lane.
 8. `subagents` creates bounded L2/L3 delegation packets.
@@ -19,6 +19,8 @@
 ## Core artifacts
 
 - `waves/index.md` — wave registry.
+- Target app `docs/app-constitution.md` — short functional baseline, capped at 100 lines.
+- Target app `AGENTS.md` — optional app-local router for stable app-specific path and instruction rules.
 - `waves/<wave-id>/research.md` — wave research packet.
 - `waves/<wave-id>/spec.md` — detailed functional specification.
 - `waves/<wave-id>/plan.md` — task and dependency plan.
@@ -33,6 +35,8 @@ App workflow skills: `app-constitution`, `app-research`, `app-specify`, `app-fun
 Subagent orchestration skills: `subagents`, `subagents-roles`, `bears-agents`.
 
 Workflow hardening skill: `instruction-hardening`.
+
+`app-constitution` may create or update a target app `AGENTS.md` only for stable app-specific rules. It does not make the plugin, the constitution, or any skill an instruction authority over parent `AGENTS.md` files or contracts.
 
 ## Local Codex skill dependencies
 

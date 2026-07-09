@@ -6,6 +6,8 @@ Provide a compact Codex plugin that turns product-app intent into researched wav
 
 ## Terms
 
+- `app constitution`: `docs/app-constitution.md`, the app-local functional baseline, functional gap register, open-decision list, and AGENTS alignment note. It is capped at 100 lines.
+- `app-local AGENTS.md`: a short router for stable app-specific path, source, instruction, and evidence rules. It has instruction authority over the constitution inside its subtree.
 - `wave`: one app workflow slice created by research, specified through source-backed decisions, planned through graph-linked ledger tasks, analyzed against code state, and dispatched when dependency-ready.
 - `functional graph`: `docs/app-functional-graph.v1.json`, the app-local map of functionality, nodes, edges, state transitions, API calls, and evidence references.
 - `task ledger`: `docs/app-task-ledger.v1.json`, the app-local source of executable tasks.
@@ -48,13 +50,21 @@ The plugin package must not add `scripts/`, `hooks.json`, `.mcp.json`, or manife
 
 ### app-constitution
 
-Input: app target, owner, product constraints, non-negotiable rules, existing docs.
+Input: app target, owner, product constraints, non-negotiable rules, existing docs, nearest parent `AGENTS.md`, and app-local `AGENTS.md` when present.
 
-Output: `docs/app-constitution.md` and wave links when they already exist.
+Output: `docs/app-constitution.md` with 100 lines or fewer, wave links when they already exist, functional gaps, open decisions, and an `AGENTS.md` alignment note. If a stable app-specific instruction rule is missing or stale, `app-constitution` creates or updates the app-local `AGENTS.md` as a short router.
+
+Required constitution sections: `Functional summary`, `Core capabilities`, `Actors and runtime surfaces`, `Constraints and evidence`, `Functional gaps`, `Open decisions`, `AGENTS alignment note`, and `Next skill`.
+
+Each functional gap records `gap`, `impact`, `evidence`, and `route`.
+
+An app-local `AGENTS.md` router contains the app path, parent rule narrowed, constitution link, stable app rules, and evidence/source boundaries.
+
+`app-constitution` does not write workspace-wide rules and does not override parent `AGENTS.md` files or contracts. Temporary, disputed, or functional details stay in the constitution.
 
 ### app-research
 
-Input: user intent, app target, existing waves, relevant sources.
+Input: user intent, app target, `docs/app-constitution.md`, nearest/app-local `AGENTS.md`, existing waves, and relevant sources.
 
 Output:
 
@@ -62,7 +72,7 @@ Output:
 - `waves/index.md`
 - `waves/<wave-id>/research.md`
 
-Each wave records scope, unknowns, sources, decisions, follow-up questions, sync status, and candidate parallel lanes.
+Each wave records scope, constitution context, unknowns, sources, decisions, follow-up questions, sync status, and candidate parallel lanes. New important functional gaps return to `app-constitution`.
 
 ### app-specify
 
@@ -83,7 +93,7 @@ Every executable task must reference at least one functionality id and one graph
 
 ### app-plan
 
-Input: wave specs, graph, ledger, and implemented-state notes.
+Input: `docs/app-constitution.md`, nearest/app-local `AGENTS.md`, wave specs, graph, ledger, and implemented-state notes.
 
 Output:
 
@@ -92,7 +102,9 @@ Output:
 - updated `docs/app-task-ledger.v1.json`
 - L2/L3 lane plan with disjoint repo, path, and target sets
 
-`app-plan` creates only decision-complete tasks. Missing decisions return to `app-specify`. It applies read-only `instruction-hardening` to the wave plan and candidate dispatch packets before app-dev handoff. It maximizes parallel lanes when write scopes and evidence outputs do not overlap.
+`app-plan` creates only decision-complete tasks that match constitution gaps, graph refs, and `AGENTS.md` constraints. Missing decisions return to `app-specify`. New important functional gaps return to `app-constitution`. It applies read-only `instruction-hardening` to the wave plan and candidate dispatch packets before app-dev handoff. It maximizes parallel lanes when write scopes and evidence outputs do not overlap.
+
+If `docs/app-constitution.md` and `AGENTS.md` disagree, `AGENTS.md` is authority. The constitution receives a drift note and a route to the owning `AGENTS.md` or contract.
 
 ### subagents-roles
 

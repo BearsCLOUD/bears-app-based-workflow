@@ -7,6 +7,8 @@ description: Initialize the persistent selector, then select and dispatch bounde
 
 ## Ownership
 
+This procedure receives only work that the primary already classified `DELEGATED` under the active caller instruction chain and `/srv/bears/contracts/developer_instructions_contract.md`. `DIRECT` work remains with the primary and never enters this procedure. After delegation, the selector chooses L3 execution coverage; it must never decide whether work is `DIRECT` or `DELEGATED`.
+
 This instruction procedure is the sole owner of:
 
 - role selection for one concrete L3 assignment;
@@ -17,9 +19,9 @@ This instruction procedure is the sole owner of:
 
 ## Hard boundary
 
-Parent, L1, and L2 may speak with the user, plan, manage subagents, and combine compact packets. They must not read or edit files, inspect logs, use a terminal or Git, call scripts, access MCP or runtime state, use the network, or run commands.
+This boundary begins only after the primary has classified the work `DELEGATED` under the active caller instruction chain and contract. For an assignment inside that work, parent, L1, and L2 may speak with the user, plan, manage subagents, and combine compact packets. They must not read or edit files, inspect logs, use a terminal or Git, call scripts, access MCP or runtime state, use the network, or run commands.
 
-Every such action requires an L3 helper, worker, or critic selected through this skill. Missing role registration, selector, subagent capability, or slot returns `DELEGATION_BLOCKED`. Direct execution is never a fallback.
+Every such action for that `DELEGATED` assignment requires an L3 helper, worker, or critic selected through this skill. Missing role registration, selector, subagent capability, or slot returns `DELEGATION_BLOCKED`. Primary execution is never a fallback after `DELEGATED` entry. `DIRECT` work never enters this procedure.
 
 ## Selector lifecycle
 
@@ -156,9 +158,11 @@ Do not return raw file bodies, logs, command dumps, secrets, or production data.
 
 ## Failure outcomes
 
+These outcomes apply only to work already classified `DELEGATED`; `DIRECT` work never enters this procedure.
+
 - `ROLE_GAP`: no installed role has the required boundary, model, and sandbox. Route the role proposal to `role-profile-architect`; do not execute the dependent assignment.
 - `DELEGATION_BLOCKED`: the concrete assignment is incomplete, or the selector, subagent tool, required slot, or selected role cannot start. Report the missing field or capability and stop the dependent work.
 - `registration-stale`: run the explicit plugin installer through an authorized L3 config helper or operator, then start a new task.
 - `runtime-reload-required`: start a new Codex task before dispatch.
 
-Never convert these outcomes into parent execution.
+Never convert these outcomes into parent execution after `DELEGATED` entry.

@@ -47,9 +47,6 @@ Role TOML files live only in `agents/`. Register their `config_file` links after
 
 The installer updates only its marked config block and archives known legacy duplicates. Start a new Codex task after a changed install.
 
-## External role-sync autoCD
-
-After one-time local marketplace bootstrap, a local post-push candidate records the exact `main` SHA only. The external controller installs roles from a clean local marketplace checkout automatically when local autoCI reports `PASS` for the same SHA. It refreshes the marketplace cache at that SHA before installation. This repository has no candidate producer, controller, cache-refresh code, validation, or deployment fallback. See `/srv/bears/docs/architecture/local-autocd-role-sync.md`.
 
 ## Ownership
 

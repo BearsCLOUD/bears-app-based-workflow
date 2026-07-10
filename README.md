@@ -47,6 +47,10 @@ Role TOML files live only in `agents/`. Register their `config_file` links after
 
 The installer updates only its marked config block and archives known legacy duplicates. Start a new Codex task after a changed install.
 
+## External role-sync autoCD
+
+A push to `main` creates an external queue record only. The external controller installs roles from a clean checkout only after external autoCI reports `PASS` for the same commit SHA and an operator-approved webhook handoff releases that SHA. This repository has no GitHub Action, webhook receiver, post-receive hook, controller, validation, or deployment fallback. See `/srv/bears/docs/architecture/local-autocd-role-sync.md`.
+
 ## Ownership
 
 - Nearest `AGENTS.md`: mandatory local rules.

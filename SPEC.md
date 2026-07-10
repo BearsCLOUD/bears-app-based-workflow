@@ -79,3 +79,7 @@ Partitions dependency-ready ledger tasks into fixed non-overlapping L2 lanes. Ea
 `agents/` is the only TOML source. `./install` adds marked `config_file` links to `$CODEX_HOME/config.toml`; `./install uninstall` removes only that managed block. A changed registration requires a new Codex task.
 
 The plugin contains no tests, validator scripts, audit scripts, or manual verification workflow. Pending external autoCI evidence is not a pass.
+
+## External role-sync autoCD
+
+A push to `main` may create an external queue record for its exact SHA. It does not run `./install`. An external controller may install only the queued SHA after external autoCI returns `PASS` for that same SHA and an operator-approved webhook handoff releases it. The controller uses a clean checkout. The plugin provides no GitHub Action, webhook receiver, post-receive hook, controller, validation, or parent fallback.

@@ -13,7 +13,7 @@ L1 and L2 coordinate from compact packets. They do not access files, logs, termi
 
 ## Required input
 
-Start from an `app-stage-handoff.v1` with status `ready` produced by `app-plan` or `app-analyze`. It includes app id, wave ids, graph revision, ledger ref, and complete canonical task records. Each candidate task needs:
+Start from canonical `app-stage-handoff.v1` status `plan-ready` produced by `app-plan` or status `ready` produced by `app-analyze` re-entry. Each carries every common field defined by `app-functional-graph` plus `task_records`, each a complete canonical executable ledger task. Each candidate task needs:
 
 - `task_id`, `wave_id`, `requirement_refs`, `functionality_refs`, and `graph_node_refs`;
 - `target_paths`, `allowed_files`, `owner_role`, and `lane`;
@@ -58,4 +58,4 @@ A solo parent with one bounded task acts as the L2 analogue. It decomposes that 
 - Return product decision gaps to `app-specify` and planning gaps to `app-plan`.
 - Never write the functional graph, graph anchors, wave plan, or analysis artifact.
 - Update only ledger fields named by the task's `ledger_update_contract`, through a concrete L3 assignment. Use only `ready -> in_progress -> done|failed`.
-- Return `app-stage-handoff.v1` with `implemented` and completed task/result refs to `app-analyze`; return `needs-plan` with exact gap facts to `app-plan`, `needs-spec` with decision refs to `app-specify`, or `blocked` only for access, credential, unavailable-source, or explicit operator stops.
+- Return a canonical `app-stage-handoff.v1` with every common field and the fields for its status: `implemented` adds `completed_task_refs` and `result_refs` and targets `app-analyze`; `needs-plan` adds `source_handoff_ref`, `ledger_coverage_refs`, and `implementation_state_by_requirement` and targets `app-plan`; `needs-spec` adds `source_handoff_ref` and `question_refs`, populates common decision and requirement refs, and targets `app-specify`; `blocked` adds `blocker_refs` and `operator_action_refs` and targets `none`. Use `blocked` only for access, credential, unavailable-source, or explicit operator stops.

@@ -1,7 +1,7 @@
 name = "vpn-bot-editor"
 description = "Choose when VPN-specific Telegram commands, callbacks, notifications, or operator flows must change; a VPN bot specialist owns one bot interaction change set."
-role_kind = "specialist"
-execution_class = "specialist"
+role_kind = "worker"
+execution_class = "worker"
 primary_eligible = true
 model = "gpt-5.6-terra"
 model_reasoning_effort = "high"
@@ -19,6 +19,6 @@ Escalate: return `VPN_BOT_CONTRACT_GAP` when the VPN action contract, actor auth
 Conflict: Follow authority order. Contradictory equal-authority rules with overlapping scope produce `ROLE_CONFLICT` unless an explicit applicable resolution rule is supplied.
 
 Acceptance: commands and callbacks map to supplied VPN actions; authorization and failure paths are explicit; general Telegram contracts remain unchanged; credentials are absent.
-Return: `vpn-bot-change.v1` with fields `changed_files`, `user_flow`, `commands`, `callbacks`, `authorization`, `runtime_dependencies`, `error_feedback`, and `compatibility`.
+Return: emit only canonical `result-packet.v1` with `agent_kind` set to `worker`; under `facts`, place one role-specific deliverable defined as follows: `vpn-bot-change.v1` with fields `changed_files`, `user_flow`, `commands`, `callbacks`, `authorization`, `runtime_dependencies`, `error_feedback`, and `compatibility`. Do not replace or extend the envelope.
 Example: A VPN bot specialist produces a connection-status callback flow with explicit authorization and failure feedback.
 """

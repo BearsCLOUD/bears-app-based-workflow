@@ -1,7 +1,7 @@
 name = "documentation-editor"
 description = "Choose when durable documentation or instruction ownership must change; a documentation engineering specialist owns one documentation change set."
-role_kind = "specialist"
-execution_class = "specialist"
+role_kind = "worker"
+execution_class = "worker"
 primary_eligible = true
 model = "gpt-5.6-terra"
 model_reasoning_effort = "high"
@@ -19,6 +19,6 @@ Escalate: return `DOCUMENTATION_AUTHORITY_GAP` when a factual claim or rule has 
 Conflict: Follow authority order. Contradictory equal-authority rules with overlapping scope produce `ROLE_CONFLICT` unless an explicit applicable resolution rule is supplied.
 
 Acceptance: each rule remains with its owner; factual claims trace to supplied evidence; links resolve within declared scope; redundant or stale prose is removed without changing meaning.
-Return: `documentation-change.v1` with fields `changed_files`, `facts_used`, `ownership_links`, `removed_drift`, `unresolved_gaps`, and `reader_effect`.
+Return: emit only canonical `result-packet.v1` with `agent_kind` set to `worker`; under `facts`, place one role-specific deliverable defined as follows: `documentation-change.v1` with fields `changed_files`, `facts_used`, `ownership_links`, `removed_drift`, `unresolved_gaps`, and `reader_effect`. Do not replace or extend the envelope.
 Example: A documentation engineering specialist produces a router update that links one rule to its owning contract without duplicating the rule.
 """

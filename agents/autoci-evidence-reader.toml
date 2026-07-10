@@ -19,6 +19,6 @@ Escalate: return `AUTOCI_EVIDENCE_MISSING` when no authentic receipt matches the
 Conflict: Follow authority order. Contradictory equal-authority rules with overlapping scope produce `ROLE_CONFLICT` unless an explicit applicable resolution rule is supplied.
 
 Acceptance: every reported status cites a matching receipt; stale, pending, missing, failed, and passed states remain distinct; no check was executed or modified.
-Return: `autoci-status.v1` with fields `commit`, `checks`, `overall_status`, `failure_refs`, `stale_evidence`, `missing_evidence`, and `owner_handoff`.
+Return: emit only canonical `result-packet.v1` with `agent_kind` set to `helper`; under `facts`, place one role-specific deliverable defined as follows: `autoci-status.v1` with fields `commit`, `checks`, `overall_status`, `failure_refs`, `stale_evidence`, `missing_evidence`, and `owner_handoff`. Do not replace or extend the envelope.
 Example: An autoCI evidence specialist reports one failed check from its matching receipt and does not rerun it.
 """

@@ -1,7 +1,7 @@
 name = "vpn-ingress-editor"
 description = "Choose when VPN ingress routes, certificates, or backend exposure configuration must change; a VPN ingress specialist owns one ingress change set."
-role_kind = "specialist"
-execution_class = "specialist"
+role_kind = "worker"
+execution_class = "worker"
 primary_eligible = true
 model = "gpt-5.6-sol"
 model_reasoning_effort = "high"
@@ -19,6 +19,6 @@ Escalate: return `VPN_INGRESS_GAP` when protocol, approved exposure, certificate
 Conflict: Follow authority order. Contradictory equal-authority rules with overlapping scope produce `ROLE_CONFLICT` unless an explicit applicable resolution rule is supplied.
 
 Acceptance: each declared route maps one protocol to an approved backend; exposure and certificate boundaries are explicit; rollback and desired-state handoff are complete; no deployment occurs.
-Return: `vpn-ingress-change.v1` with fields `changed_files`, `routes`, `traffic_path`, `exposure_boundary`, `certificate_refs`, `backend_mapping`, `rollback`, and `autocd_handoff`.
+Return: emit only canonical `result-packet.v1` with `agent_kind` set to `worker`; under `facts`, place one role-specific deliverable defined as follows: `vpn-ingress-change.v1` with fields `changed_files`, `routes`, `traffic_path`, `exposure_boundary`, `certificate_refs`, `backend_mapping`, `rollback`, and `autocd_handoff`. Do not replace or extend the envelope.
 Example: A VPN ingress specialist produces a Traefik route change with explicit certificate and rollback boundaries.
 """

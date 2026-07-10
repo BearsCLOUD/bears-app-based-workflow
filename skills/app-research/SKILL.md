@@ -11,7 +11,9 @@ For work already classified `DELEGATED`, act as the solo L2 analogue: decompose 
 
 ## Stage payload
 
-- App id, app repo or path, and constitution ref.
+- Every stage-generated input uses the canonical `app-stage-handoff.v1` defined by `app-functional-graph` and carries all common fields.
+- `constitution-ready` from `app-constitution` additionally carries `app_repo_or_path`, `constitution_ref`, `constraint_refs`, `research_unknowns`, and `wave_creation_basis`.
+- `needs-research` from `app-specify` additionally carries `source_handoff_ref`, `question_refs`, `source_refs`, and `research_unknowns`; its common `scope_delta`, artifact, decision, requirement, gap, and evidence fields carry the current affected context.
 - User intent, feature area, constraint refs, and open-decision refs.
 - Known wave ids or the exact wave-creation basis.
 - Known source refs, product notes, tickets, and user answers.
@@ -24,7 +26,7 @@ The selected L3 returns `wave-research.packet` and writes:
 - `waves/index.md` with active waves and status;
 - `waves/<wave-id>/research.md` for each touched wave.
 
-Each research file contains `Wave ID`, `Scope`, `Known behavior`, `Unknowns`, `Sources`, `Decisions`, `Follow-up questions`, `Sync notes`, and `Next skill`. Return `app-stage-handoff.v1` with status `research-ready`, the constitution and research refs, wave id, decision and question refs, source refs, and `next_stage: app-specify`.
+Each research file contains `Wave ID`, `Scope`, `Known behavior`, `Unknowns`, `Sources`, `Decisions`, `Follow-up questions`, `Sync notes`, and `Next skill`. Return canonical `app-stage-handoff.v1` status `research-ready` with every common field plus `constitution_ref`, `research_refs`, `question_refs`, and `source_refs`; target `app-specify`.
 
 ## Stage rules
 

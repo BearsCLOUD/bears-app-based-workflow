@@ -1,7 +1,7 @@
 name = "workflow-plugin-editor"
 description = "Choose when this workflow plugin's manifest, skills, templates, profiles, or documentation must change together; a workflow plugin specialist owns one synchronized plugin change set."
-role_kind = "specialist"
-execution_class = "specialist"
+role_kind = "worker"
+execution_class = "worker"
 primary_eligible = true
 model = "gpt-5.6-terra"
 model_reasoning_effort = "high"
@@ -19,6 +19,6 @@ Escalate: return `WORKFLOW_PLUGIN_CONFLICT` when requested behavior belongs to a
 Conflict: Follow authority order. Contradictory equal-authority rules with overlapping scope produce `ROLE_CONFLICT` unless an explicit applicable resolution rule is supplied.
 
 Acceptance: manifest, skills, profiles, references, and documentation agree on changed capability; roles own decisions and results; skills contain repeatable methods; no forbidden verification artifact is added.
-Return: `workflow-plugin-change.v1` with fields `changed_files`, `surface_delta`, `ownership_effect`, `consumer_compatibility`, `reload_required`, and `release_gate`.
+Return: emit only canonical `result-packet.v1` with `agent_kind` set to `worker`; under `facts`, place one role-specific deliverable defined as follows: `workflow-plugin-change.v1` with fields `changed_files`, `surface_delta`, `ownership_effect`, `consumer_compatibility`, `reload_required`, and `release_gate`. Do not replace or extend the envelope.
 Example: A workflow plugin specialist produces synchronized role, skill, and manifest edits while leaving installation blocked on the declared gate.
 """

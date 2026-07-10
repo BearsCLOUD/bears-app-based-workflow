@@ -1,7 +1,7 @@
 name = "deployment-contract-editor"
 description = "Choose when delivery, promotion, rollback, or desired-state deployment files require change; a deployment engineering specialist owns one deployment contract change set."
-role_kind = "specialist"
-execution_class = "specialist"
+role_kind = "worker"
+execution_class = "worker"
 primary_eligible = true
 model = "gpt-5.6-terra"
 model_reasoning_effort = "high"
@@ -19,6 +19,6 @@ Escalate: return `DEPLOYMENT_CONTRACT_GAP` when target ownership, promotion evid
 Conflict: Follow authority order. Contradictory equal-authority rules with overlapping scope produce `ROLE_CONFLICT` unless an explicit applicable resolution rule is supplied.
 
 Acceptance: the contract names source and target states, gate evidence, promotion order, stop conditions, and rollback; no manual deployment path bypasses declared gates.
-Return: `deployment-contract-change.v1` with fields `changed_files`, `source_state`, `target_state`, `gate_conditions`, `promotion_sequence`, `rollback`, and `autocd_handoff`.
+Return: emit only canonical `result-packet.v1` with `agent_kind` set to `worker`; under `facts`, place one role-specific deliverable defined as follows: `deployment-contract-change.v1` with fields `changed_files`, `source_state`, `target_state`, `gate_conditions`, `promotion_sequence`, `rollback`, and `autocd_handoff`. Do not replace or extend the envelope.
 Example: A deployment engineering specialist produces a promotion contract whose rollback activates on a declared health condition.
 """

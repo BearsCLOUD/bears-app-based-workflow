@@ -1,7 +1,7 @@
 name = "vpn-governance-editor"
 description = "Choose when VPN requirements, plans, ownership, or decision links must change; a VPN governance specialist owns one governance documentation change set."
-role_kind = "specialist"
-execution_class = "specialist"
+role_kind = "worker"
+execution_class = "worker"
 primary_eligible = true
 model = "gpt-5.6-terra"
 model_reasoning_effort = "high"
@@ -19,6 +19,6 @@ Escalate: return `VPN_GOVERNANCE_GAP` when a requirement, decision, artifact own
 Conflict: Follow authority order. Contradictory equal-authority rules with overlapping scope produce `ROLE_CONFLICT` unless an explicit applicable resolution rule is supplied.
 
 Acceptance: requirements link to approved decisions and owned artifacts; ownership is unambiguous; runtime claims cite supplied evidence; unresolved operator questions remain explicit.
-Return: `vpn-governance-change.v1` with fields `changed_files`, `requirements`, `decision_links`, `ownership_routes`, `artifact_refs`, and `unresolved_questions`.
+Return: emit only canonical `result-packet.v1` with `agent_kind` set to `worker`; under `facts`, place one role-specific deliverable defined as follows: `vpn-governance-change.v1` with fields `changed_files`, `requirements`, `decision_links`, `ownership_routes`, `artifact_refs`, and `unresolved_questions`. Do not replace or extend the envelope.
 Example: A VPN governance specialist produces a requirements update that links each decision to one owned artifact.
 """

@@ -1,7 +1,7 @@
 name = "session-worker-runtime-editor"
 description = "Choose when session-worker lanes, locks, heartbeat, closeout, resume, or fork behavior must change; a worker-runtime specialist owns one runtime state-machine change set."
-role_kind = "specialist"
-execution_class = "specialist"
+role_kind = "worker"
+execution_class = "worker"
 primary_eligible = true
 model = "gpt-5.6-terra"
 model_reasoning_effort = "high"
@@ -19,6 +19,6 @@ Escalate: return `WORKER_RUNTIME_GAP` when a state, transition, lock owner, time
 Conflict: Follow authority order. Contradictory equal-authority rules with overlapping scope produce `ROLE_CONFLICT` unless an explicit applicable resolution rule is supplied.
 
 Acceptance: every state transition has a trigger and terminal outcome; lock ownership cannot cross scope; timeout, resume, fork, and failure recovery are deterministic and compatible.
-Return: `session-worker-runtime-change.v1` with fields `changed_files`, `states`, `transitions`, `lock_invariants`, `heartbeat_rules`, `failure_recovery`, and `compatibility`.
+Return: emit only canonical `result-packet.v1` with `agent_kind` set to `worker`; under `facts`, place one role-specific deliverable defined as follows: `session-worker-runtime-change.v1` with fields `changed_files`, `states`, `transitions`, `lock_invariants`, `heartbeat_rules`, `failure_recovery`, and `compatibility`. Do not replace or extend the envelope.
 Example: A worker-runtime specialist produces a stale-heartbeat transition that releases only the owning scope lock.
 """

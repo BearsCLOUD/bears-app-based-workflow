@@ -11,11 +11,10 @@ For work already classified `DELEGATED`, act as the solo L2 analogue: decompose 
 
 ## Stage payload
 
-- `implemented`, `no-work`, or diagnostic handoff with target app id and wave id.
-- Constitution, research, specification, graph, ledger, and plan refs.
-- Exact graph revision and ledger task refs.
-- Implemented-state target paths.
-- Existing autoCI evidence refs.
+- Every stage-generated input uses the canonical `app-stage-handoff.v1` defined by `app-functional-graph` and carries all common fields.
+- `implemented` from `app-dev` additionally carries `completed_task_refs` and `result_refs`.
+- `no-work` from `app-plan` additionally carries `plan_refs`.
+- A direct diagnostic request is not an inter-stage handoff; it must still identify the target app and waves plus constitution, research, specification, graph, ledger, plan, implemented-state, and existing autoCI evidence refs.
 
 ## L3 output
 
@@ -33,6 +32,6 @@ It sets one status:
 
 - Do not fix implementation during analysis.
 - Pending or missing required autoCI evidence is not `pass`.
-- Return `app-stage-handoff.v1`. Send `ready` with complete canonical task records to `app-dev`; send `needs-plan` with per-requirement implementation state, graph revision, ledger coverage, gap refs, and evidence refs to `app-plan`; send `needs-spec` with exact decision and requirement refs to `app-specify`; close only on `pass`.
+- Return canonical `app-stage-handoff.v1` with every common field and the fields for its status. `ready` adds complete canonical `task_records` and targets `app-dev`. `needs-plan` adds `source_handoff_ref`, `ledger_coverage_refs`, and `implementation_state_by_requirement`, populates common graph revision, gap, evidence, and implemented-state refs, and targets `app-plan`. `needs-spec` adds `source_handoff_ref` and `question_refs`, populates common decision and requirement refs, and targets `app-specify`. `pass` adds `analysis_refs` and targets `none`; `blocked` adds `blocker_refs` and `operator_action_refs` and targets `none`.
 - If graph refs are missing or graph meaning drifted, report them inside `needs-plan`; `app-plan` returns the required `needs-graph` handoff without editing the graph.
 - Do not use `blocked` for ordinary risk or incomplete work.

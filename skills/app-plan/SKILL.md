@@ -11,10 +11,10 @@ For work already classified `DELEGATED`, act as the solo L2 analogue: decompose 
 
 ## Stage payload
 
-- `graph-ready` or `needs-plan` handoff with app id, wave ids, and artifact refs.
-- Functional graph ref and revision plus task-ledger ref.
-- Delegated implemented-state facts classified by requirement when available.
-- Target wave ids and known dependencies.
+- Every stage-generated input uses the canonical `app-stage-handoff.v1` defined by `app-functional-graph` and carries all common fields.
+- `graph-ready` from `app-functional-graph` additionally carries `graph_ref`, `functionality_refs`, `graph_node_refs`, `coverage_refs`, `replacement_refs`, and `graph_anchor_refs`.
+- `needs-plan` from `app-dev` or `app-analyze` additionally carries `source_handoff_ref`, `ledger_coverage_refs`, and `implementation_state_by_requirement`.
+- `waiting` resume from `app-plan` additionally carries `source_handoff_ref`, `blocked_task_refs`, and `dependency_state_evidence_refs`; `app-plan` owns dependency-state reevaluation and the resume decision.
 
 ## L3 output
 
@@ -22,13 +22,13 @@ The selected L3 writes `waves/<wave-id>/plan.md` and creates or updates only exe
 
 For each specified requirement it records graph revision and coverage plus `built`, `partial`, `missing`, or `drifted` implementation state. It creates or updates canonical executable ledger tasks for `partial`, `missing`, or `drifted` behavior. Each task carries every field defined by `app-functional-graph`, including the complete artifact refs and `ledger_update_contract` required by `app-dev`.
 
-Return one `app-stage-handoff.v1` status:
+Return one canonical `app-stage-handoff.v1` with every common field and the fields for its status:
 
-- `ready`: at least one canonical task has closed decisions, closed dependencies, valid current graph refs, and status `ready`; include its complete compact task record and use `next_stage: app-dev`;
-- `waiting`: tasks exist but none is ready; include dependency refs and keep `next_stage: app-plan`;
-- `no-work`: all specified behavior is built and no executable task remains; use `next_stage: app-analyze`;
-- `needs-graph`: behavior is unmapped, graph refs are stale, or graph meaning drifted; include requirement, graph-gap, evidence, and current artifact refs and use `next_stage: app-functional-graph`;
-- `needs-spec`: a product decision or required behavior is incomplete; include exact decision and requirement refs and use `next_stage: app-specify`.
+- `plan-ready`: at least one canonical task has closed decisions, closed dependencies, valid current graph refs, and ledger status `ready`; add `task_records` with each complete compact task and target `app-dev`;
+- `waiting`: tasks exist but none is ready; add `source_handoff_ref`, `blocked_task_refs`, and `dependency_state_evidence_refs`, populate common dependency refs, and target `app-plan`;
+- `no-work`: all specified behavior is built and no executable task remains; add `plan_refs` and target `app-analyze`;
+- `needs-graph`: behavior is unmapped, graph refs are stale, or graph meaning drifted; add `source_handoff_ref`, `graph_ref`, and `affected_graph_refs`, populate common requirement, gap, evidence, artifact, and implemented-state fields, and target `app-functional-graph`;
+- `needs-spec`: a product decision or required behavior is incomplete; add `source_handoff_ref` and `question_refs`, populate common decision, requirement, gap, artifact, and evidence fields, and target `app-specify`.
 
 ## Mutation boundary
 

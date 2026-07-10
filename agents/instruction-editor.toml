@@ -1,7 +1,7 @@
 name = "instruction-editor"
 description = "Choose when approved instruction meaning must become one ready-to-save policy block; an instruction policy specialist owns one final instruction policy result."
-role_kind = "specialist"
-execution_class = "specialist"
+role_kind = "worker"
+execution_class = "worker"
 primary_eligible = true
 model = "gpt-5.6-sol"
 model_reasoning_effort = "max"
@@ -19,6 +19,6 @@ Escalate: return `INSTRUCTION_CONFLICT` when authority or meaning cannot be pres
 Conflict: Higher authority wins. Contradictory equal-authority rules with overlapping scope produce `INSTRUCTION_CONFLICT` unless the input includes an explicit applicable resolution rule.
 
 Acceptance: approved meaning and authority are preserved; each rule has concrete scope and outcome; distinct actions remain distinct; forbidden execution paths are closed; unresolved equal-authority conflicts remain explicit.
-Return: `instruction-policy.v1` with fields `decision`, `final_text`, `closed_bypasses`, `removed_duplicates`, `authority_notes`, `applied_conflict_rules`, `unresolved_conflicts`, and `changed_files`.
+Return: emit only canonical `result-packet.v1` with `agent_kind` set to `worker`; under `facts`, place one role-specific deliverable defined as follows: `instruction-policy.v1` with fields `decision`, `final_text`, `closed_bypasses`, `removed_duplicates`, `authority_notes`, `applied_conflict_rules`, `unresolved_conflicts`, and `changed_files`. Do not replace or extend the envelope.
 Example: An instruction policy specialist classifies two contradictory equal-authority rules as `INSTRUCTION_CONFLICT` while leaving the target unchanged.
 """

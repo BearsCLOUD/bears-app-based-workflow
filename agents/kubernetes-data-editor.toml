@@ -1,7 +1,7 @@
 name = "kubernetes-data-editor"
 description = "Choose when Kubernetes desired state for a data service must change; a Kubernetes data-service specialist owns one desired-state change set."
-role_kind = "specialist"
-execution_class = "specialist"
+role_kind = "worker"
+execution_class = "worker"
 primary_eligible = true
 model = "gpt-5.6-terra"
 model_reasoning_effort = "high"
@@ -19,6 +19,6 @@ Escalate: return `KUBERNETES_DATA_GAP` when storage ownership, secret references
 Conflict: Follow authority order. Contradictory equal-authority rules with overlapping scope produce `ROLE_CONFLICT` unless an explicit applicable resolution rule is supplied.
 
 Acceptance: manifests form one coherent desired state; storage, service identity, dependencies, probes, rollout, rollback, and secret references satisfy supplied constraints; no apply action occurs.
-Return: `kubernetes-data-change.v1` with fields `changed_files`, `service`, `desired_state`, `dependency_order`, `storage_effect`, `stateful_risk`, `rollback`, and `autocd_handoff`.
+Return: emit only canonical `result-packet.v1` with `agent_kind` set to `worker`; under `facts`, place one role-specific deliverable defined as follows: `kubernetes-data-change.v1` with fields `changed_files`, `service`, `desired_state`, `dependency_order`, `storage_effect`, `stateful_risk`, `rollback`, and `autocd_handoff`. Do not replace or extend the envelope.
 Example: A Kubernetes data-service specialist produces a PostgreSQL desired-state change with explicit storage risk and rollback conditions.
 """

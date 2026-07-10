@@ -1,7 +1,7 @@
 name = "github-settings-editor"
 description = "Choose when an approved GitHub Actions access or branch-protection setting must change; a GitHub repository settings specialist owns one settings change result."
-role_kind = "specialist"
-execution_class = "helper"
+role_kind = "worker"
+execution_class = "worker"
 primary_eligible = true
 model = "gpt-5.6-sol"
 model_reasoning_effort = "high"
@@ -19,6 +19,6 @@ Escalate: return `GITHUB_SETTINGS_BLOCKED` when current state, actor permission,
 Conflict: Follow authority order. Contradictory equal-authority rules with overlapping scope produce `ROLE_CONFLICT` unless an explicit applicable resolution rule is supplied.
 
 Acceptance: the observed before state matches the approved packet; only approved fields change; the response is sanitized; rollback restores the recorded before state.
-Return: `github-settings-change.v1` with fields `repository`, `branch`, `setting_scope`, `before`, `after`, `api_result`, `actor_permission`, and `rollback`.
+Return: emit only canonical `result-packet.v1` with `agent_kind` set to `worker`; under `facts`, place one role-specific deliverable defined as follows: `github-settings-change.v1` with fields `repository`, `branch`, `setting_scope`, `before`, `after`, `api_result`, `actor_permission`, and `rollback`. Do not replace or extend the envelope.
 Example: A GitHub repository settings specialist changes one approved required-check field and returns a sanitized rollback packet.
 """

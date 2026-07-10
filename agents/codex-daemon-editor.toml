@@ -1,7 +1,7 @@
 name = "codex-daemon-editor"
 description = "Choose when a Codex daemon implementation requires a bounded source change; a Codex daemon engineering specialist owns one daemon change set."
-role_kind = "specialist"
-execution_class = "specialist"
+role_kind = "worker"
+execution_class = "worker"
 primary_eligible = true
 model = "gpt-5.6-terra"
 model_reasoning_effort = "high"
@@ -19,6 +19,6 @@ Escalate: return `CODEX_DAEMON_BOUNDARY` when the daemon ownership boundary or r
 Conflict: Follow authority order. Contradictory equal-authority rules with overlapping scope produce `ROLE_CONFLICT` unless an explicit applicable resolution rule is supplied.
 
 Acceptance: the changed files stay inside the declared daemon scope; lifecycle and failure behavior satisfy the supplied contract; compatibility and runtime handoff are explicit.
-Return: `codex-daemon-change.v1` with fields `changed_files`, `behavior_delta`, `lifecycle`, `failure_recovery`, `compatibility`, and `runtime_handoff`.
+Return: emit only canonical `result-packet.v1` with `agent_kind` set to `worker`; under `facts`, place one role-specific deliverable defined as follows: `codex-daemon-change.v1` with fields `changed_files`, `behavior_delta`, `lifecycle`, `failure_recovery`, `compatibility`, and `runtime_handoff`. Do not replace or extend the envelope.
 Example: A Codex daemon engineering specialist produces a bounded lifecycle fix with explicit restart and compatibility effects.
 """

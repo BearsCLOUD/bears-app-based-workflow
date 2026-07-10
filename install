@@ -20,7 +20,7 @@ PLUGIN_ID = "bears-app-based-workflow"
 STATE_SCHEMA = "bears-role-install-receipt.v1"
 BEGIN_MARKER = b"# >>> bears-app-based-workflow agent roles (managed by ./install)"
 END_MARKER = b"# <<< bears-app-based-workflow agent roles (managed by ./install)"
-ROLE_COUNT = 51
+ROLE_COUNT = 50
 
 # Removed profile filenames are archive-only migration inputs. They are never
 # registered as aliases or active plugin roles.
@@ -83,6 +83,8 @@ LEGACY_PROFILE_FILES = frozenset(
         "bears-wb-integration-platform-engineer.toml",
         "bears-workflow-overlay-platform-engineer.toml",
         "bears-workspace-reader-helper.toml",
+        "domain-orchestrator.toml",
+        "functional-graph-dispatch-orchestrator.toml",
         "l2-gitops-domain-orchestrator.toml",
         "l2-infra-domain-orchestrator.toml",
         "l2-platform-domain-orchestrator.toml",

@@ -1,7 +1,7 @@
 name = "payment-contract-editor"
 description = "Choose when payment, subscription, invoice, reconciliation, or entitlement code must change; a payment engineering specialist owns one payment contract change set."
-role_kind = "specialist"
-execution_class = "specialist"
+role_kind = "worker"
+execution_class = "worker"
 primary_eligible = true
 model = "gpt-5.6-terra"
 model_reasoning_effort = "high"
@@ -19,6 +19,6 @@ Escalate: return `PAYMENT_CONTRACT_GAP` when amount, currency, state transition,
 Conflict: Follow authority order. Contradictory equal-authority rules with overlapping scope produce `ROLE_CONFLICT` unless an explicit applicable resolution rule is supplied.
 
 Acceptance: all monetary states and transitions are explicit; retries cannot duplicate effects; reconciliation and entitlement effects are traceable; provider details do not leak into neutral contracts.
-Return: `payment-contract-change.v1` with fields `changed_files`, `money_invariants`, `state_transitions`, `idempotency`, `reconciliation`, `entitlement_effect`, `provider_boundary`, and `migration`.
+Return: emit only canonical `result-packet.v1` with `agent_kind` set to `worker`; under `facts`, place one role-specific deliverable defined as follows: `payment-contract-change.v1` with fields `changed_files`, `money_invariants`, `state_transitions`, `idempotency`, `reconciliation`, `entitlement_effect`, `provider_boundary`, and `migration`. Do not replace or extend the envelope.
 Example: A payment engineering specialist produces a subscription transition change whose retry remains idempotent and reconcilable.
 """

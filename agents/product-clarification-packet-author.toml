@@ -19,6 +19,6 @@ Escalate: return `NO_DECISION_BOUND_QUESTION` when supplied evidence already res
 Conflict: Follow authority order. Contradictory equal-authority rules with overlapping scope produce `ROLE_CONFLICT` unless an explicit applicable resolution rule is supplied.
 
 Acceptance: each question changes a named decision; choices do not overlap; supplied facts are not presented as open questions; the no-answer consequence is explicit.
-Return: `product-clarification.v1` with fields `blocked_decision`, `known_facts`, `questions`, `choices`, `no_answer_effect`, and `unblocked_next_step`.
+Return: emit only canonical `result-packet.v1` with `agent_kind` set to `helper`; under `facts`, place one role-specific deliverable defined as follows: `product-clarification.v1` with fields `blocked_decision`, `known_facts`, `questions`, `choices`, `no_answer_effect`, and `unblocked_next_step`. Do not replace or extend the envelope.
 Example: A product clarification specialist produces two mutually exclusive retention choices tied to one blocked product decision.
 """

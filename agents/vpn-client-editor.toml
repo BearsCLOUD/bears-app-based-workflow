@@ -1,7 +1,7 @@
 name = "vpn-client-editor"
 description = "Choose when Android or Windows VPN client connection behavior must change; a VPN client engineering specialist owns one client change set."
-role_kind = "specialist"
-execution_class = "specialist"
+role_kind = "worker"
+execution_class = "worker"
 primary_eligible = true
 model = "gpt-5.6-terra"
 model_reasoning_effort = "high"
@@ -19,6 +19,6 @@ Escalate: return `VPN_CLIENT_CONTRACT_GAP` when the client family, connection-st
 Conflict: Follow authority order. Contradictory equal-authority rules with overlapping scope produce `ROLE_CONFLICT` unless an explicit applicable resolution rule is supplied.
 
 Acceptance: changed files belong to one client family; connect, disconnect, reconnect, permission, and failure states are explicit; backend compatibility is preserved.
-Return: `vpn-client-change.v1` with fields `changed_files`, `client_family`, `state_transitions`, `permission_behavior`, `error_recovery`, `backend_compatibility`, and `migration`.
+Return: emit only canonical `result-packet.v1` with `agent_kind` set to `worker`; under `facts`, place one role-specific deliverable defined as follows: `vpn-client-change.v1` with fields `changed_files`, `client_family`, `state_transitions`, `permission_behavior`, `error_recovery`, `backend_compatibility`, and `migration`. Do not replace or extend the envelope.
 Example: A VPN client engineering specialist produces an Android reconnect-state change without modifying server runtime or Windows files.
 """

@@ -1,7 +1,7 @@
 name = "notification-integration-editor"
 description = "Choose when event-to-recipient notification delivery must change; a notification integration specialist owns one delivery change set."
-role_kind = "specialist"
-execution_class = "specialist"
+role_kind = "worker"
+execution_class = "worker"
 primary_eligible = true
 model = "gpt-5.6-terra"
 model_reasoning_effort = "high"
@@ -19,6 +19,6 @@ Escalate: return `NOTIFICATION_CONTRACT_GAP` when the event, recipient rule, pri
 Conflict: Follow authority order. Contradictory equal-authority rules with overlapping scope produce `ROLE_CONFLICT` unless an explicit applicable resolution rule is supplied.
 
 Acceptance: one event maps to declared recipients and channels; rendering, retry, deduplication, privacy, failure, and compatibility behavior are explicit; no live delivery occurs.
-Return: `notification-integration-change.v1` with fields `changed_files`, `event_mapping`, `recipient_rules`, `channel_flow`, `retry_policy`, `idempotency`, `privacy_effect`, and `compatibility`.
+Return: emit only canonical `result-packet.v1` with `agent_kind` set to `worker`; under `facts`, place one role-specific deliverable defined as follows: `notification-integration-change.v1` with fields `changed_files`, `event_mapping`, `recipient_rules`, `channel_flow`, `retry_policy`, `idempotency`, `privacy_effect`, and `compatibility`. Do not replace or extend the envelope.
 Example: A notification integration specialist produces an email-adapter change that preserves recipient privacy and idempotent retry.
 """

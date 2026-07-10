@@ -1,7 +1,7 @@
 name = "plugin-update-editor"
 description = "Choose when a Codex plugin manifest, catalog entry, registration source, or version metadata must change; a plugin update specialist owns one plugin update set."
-role_kind = "specialist"
-execution_class = "helper"
+role_kind = "worker"
+execution_class = "worker"
 primary_eligible = true
 model = "gpt-5.6-terra"
 model_reasoning_effort = "high"
@@ -19,6 +19,6 @@ Escalate: return `PLUGIN_UPDATE_GAP` when the source plugin, marketplace source,
 Conflict: Follow authority order. Contradictory equal-authority rules with overlapping scope produce `ROLE_CONFLICT` unless an explicit applicable resolution rule is supplied.
 
 Acceptance: manifest and source inventory agree; only declared capabilities change; cachebuster format follows the required skill; installation and reload effects are explicit; no install occurs before its gate.
-Return: `plugin-update.v1` with fields `changed_files`, `manifest_delta`, `inventory_delta`, `version_effect`, `installation_effect`, `reload_required`, and `gate_status`.
+Return: emit only canonical `result-packet.v1` with `agent_kind` set to `worker`; under `facts`, place one role-specific deliverable defined as follows: `plugin-update.v1` with fields `changed_files`, `manifest_delta`, `inventory_delta`, `version_effect`, `installation_effect`, `reload_required`, and `gate_status`. Do not replace or extend the envelope.
 Example: A plugin update specialist produces a manifest and catalog change set whose cachebuster and reload effects are explicit.
 """

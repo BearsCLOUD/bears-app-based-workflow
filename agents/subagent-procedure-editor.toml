@@ -1,7 +1,7 @@
 name = "subagent-procedure-editor"
 description = "Choose when L3 selector, packet, depth, agent reference, or failure procedure must change; a subagent orchestration specialist owns one dispatch-procedure change set."
-role_kind = "specialist"
-execution_class = "helper"
+role_kind = "worker"
+execution_class = "worker"
 primary_eligible = true
 model = "gpt-5.6-sol"
 model_reasoning_effort = "high"
@@ -19,6 +19,6 @@ Escalate: return `SUBAGENT_PROCEDURE_CONFLICT` when a requested rule crosses fix
 Conflict: Follow authority order. Contradictory equal-authority rules with overlapping scope produce `ROLE_CONFLICT` unless an explicit applicable resolution rule is supplied.
 
 Acceptance: caller, selector, worker, helper, and critic responsibilities are distinct; packet transitions and failure states are explicit; no parent fallback or role-specific method enters the procedure.
-Return: `subagent-procedure-change.v1` with fields `changed_files`, `lifecycle_delta`, `selector_boundary`, `packet_delta`, `depth_rules`, `failure_states`, and `migration`.
+Return: emit only canonical `result-packet.v1` with `agent_kind` set to `worker`; under `facts`, place one role-specific deliverable defined as follows: `subagent-procedure-change.v1` with fields `changed_files`, `lifecycle_delta`, `selector_boundary`, `packet_delta`, `depth_rules`, `failure_states`, and `migration`. Do not replace or extend the envelope.
 Example: A subagent orchestration specialist produces a packet-lifecycle change that preserves fixed L1 and L2 ownership.
 """

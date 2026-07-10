@@ -3,11 +3,11 @@
   "app": "<app-id>",
   "functions": [
     {
-      "functionality_id": "capability-id",
+      "functionality_id": "cap-example",
       "wave_id": "wave-id",
       "title": "<modeled behavior>",
       "constitution_refs": [
-        "capability-id"
+        "cap-example"
       ],
       "research_refs": [
         "waves/wave-id/research.md#constitution-mapping"
@@ -16,11 +16,11 @@
       "nodes": [
         {
           "node_id": "node-id",
-          "functionality_id": "capability-id",
+          "functionality_id": "cap-example",
           "kind": "workflow",
           "dev_model_kind": "implementation",
           "constitution_refs": [
-            "capability-id"
+            "cap-example"
           ],
           "research_refs": [
             "waves/wave-id/research.md#constitution-mapping"

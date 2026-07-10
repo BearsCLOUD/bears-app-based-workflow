@@ -7,7 +7,7 @@
       "wave_id": "wave-id",
       "order": 1,
       "title": "<microtask title>",
-      "constitution_refs": ["capability-id"],
+      "constitution_refs": ["cap-example"],
       "research_refs": ["waves/wave-id/research.md#constitution-mapping"],
       "target_paths": ["<path>"],
       "definition_of_done": "<done>",

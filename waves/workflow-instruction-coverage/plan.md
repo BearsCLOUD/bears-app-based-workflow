@@ -8,6 +8,7 @@
 
 - `waves/workflow-instruction-coverage/research.md#constitution-mapping` explains all self-test constitution ids.
 - `waves/workflow-instruction-coverage/research.md#plan-inputs` lists the required documentation, skill, packet, role, graph, ledger, manifest, and analysis updates.
+- Plan inputs contain only research-confirmed `cap-*` records; no `inference-*` record is transferred.
 
 ## Sequential microtasks
 
@@ -21,6 +22,7 @@
 | 6 | `task-self-test-lineage` | `cap-lineage-analysis`, `cap-self-contained-plugin`, `cap-no-test-tooling-loop` | `waves/workflow-instruction-coverage/research.md#drift-notes` | `docs/app-constitution.md`, `waves/`, `docs/app-task-ledger.v1.json`, `docs/app-functional-graph.v1.json`, `docs/backtests/plugin-self-test.md` | `task-remove-external-role-trace` | `documentation-engineer` | `reviewer` | Self-test artifacts form complete constitution to research to plan to graph lineage without creating workflow-test tooling. | Every graph node has constitution, research, plan, concrete evidence refs, and every ledger task links back to graph nodes. | `graph_modeled` |
 | 7 | `task-app-analyze-file-audit` | `cap-lineage-analysis`, `cap-file-reuse-audit`, `cap-no-test-tooling-loop` | `waves/workflow-instruction-coverage/research.md#constitution-mapping`, `waves/workflow-instruction-coverage/research.md#decisions` | `skills/app-analyze/SKILL.md`, `waves/workflow-instruction-coverage/analysis.md`, `docs/artifact-contracts.md`, `templates/waves/wave-id/analysis.md` | `task-self-test-lineage` | `instruction-reviewer` | `reviewer` | `app-analyze` covers every plugin file for reuse quality, portability, continuous-development readiness, and no-test-tooling risk. | The analysis file lists every plugin file with a pass or exact concern and does not require a new audit script. | `graph_modeled` |
 | 8 | `task-manifest-positioning` | `cap-sequential-workflow`, `cap-self-contained-plugin`, `cap-packet-contracts`, `cap-file-reuse-audit` | `waves/workflow-instruction-coverage/research.md#plan-inputs` | `.codex-plugin/plugin.json`, `.agents/plugins/marketplace.json` | `task-app-analyze-file-audit` | `documentation-engineer` | `reviewer` | Manifest describes the sequential, self-contained workflow, packet contracts, role mapping, and reuse-quality audit. | JSON parses and manifest capabilities match the sequential model. | `graph_modeled` |
+| 9 | `task-constitution-precision` | `cap-constitution-precision`, `cap-user-message-evidence` | `waves/workflow-instruction-coverage/research.md#constitution-mapping`, `waves/workflow-instruction-coverage/research.md#decisions`, `waves/workflow-instruction-coverage/research.md#plan-inputs` | `docs/artifact-contracts.md`, `docs/functional-graph-ledger-contract.md`, `docs/app-constitution.md`, `docs/app-user-evidence.md`, `skills/app-constitution/SKILL.md`, `skills/app-constitution/agents/openai.yaml`, `skills/app-research/SKILL.md`, `skills/app-plan/SKILL.md`, `skills/app-functional-graph/SKILL.md`, `skills/app-analyze/SKILL.md`, `templates/docs/app-constitution.md`, `templates/docs/app-user-evidence.md`, `templates/docs/app-task-ledger.v1.json`, `templates/docs/app-functional-graph.v1.json`, `templates/waves/index.md`, `templates/waves/wave-id/research.md`, `templates/waves/wave-id/plan.md`, `README.md`, `SPEC.md`, `docs/workflow-stage-gates.md`, `.codex-plugin/plugin.json`, `docs/app-task-ledger.v1.json`, `docs/app-functional-graph.v1.json`, `docs/backtests/plugin-self-test.md`, `waves/index.md`, `waves/workflow-instruction-coverage/research.md`, `waves/workflow-instruction-coverage/plan.md`, `waves/workflow-instruction-coverage/analysis.md` | `task-manifest-positioning` | `instruction-reviewer` | `reviewer` | Constitution output uses only populated, exact records; cited session messages use safe immutable evidence entries; research is the only next stage; inferences cannot enter planning or graph modeling. | Targeted inspection covers a minimal constitution, more than 100 necessary lines, omitted empty sections, inference exclusion, exact excerpts, supersession, conflicting active messages, sensitive-text rejection, and constitution-to-research-to-plan-to-graph lineage. | `graph_modeled` |
 
 ## Ledger updates
 
@@ -34,6 +36,7 @@
 
 - No functional drift remains for this wave.
 - Any future artifact change must refresh this plan, ledger, graph, and analysis when the behavior changes.
+- An `inference-*` is never a plan or graph reference; research must first replace it with a confirmed `cap-*` or `gap-*`.
 
 ## Next skill
 

@@ -1003,6 +1003,104 @@
         "waves/workflow-instruction-coverage/plan.md",
         "docs/app-task-ledger.v1.json"
       ]
+    },
+    {
+      "functionality_id": "cap-constitution-precision",
+      "wave_id": "workflow-instruction-coverage",
+      "title": "Precise constitution records",
+      "constitution_refs": [
+        "cap-constitution-precision"
+      ],
+      "research_refs": [
+        "waves/workflow-instruction-coverage/research.md#constitution-mapping",
+        "waves/workflow-instruction-coverage/research.md#decisions",
+        "waves/workflow-instruction-coverage/research.md#plan-inputs"
+      ],
+      "status": "modeled",
+      "nodes": [
+        {
+          "node_id": "precision-contract",
+          "functionality_id": "cap-constitution-precision",
+          "kind": "instruction",
+          "dev_model_kind": "implementation",
+          "constitution_refs": [
+            "cap-constitution-precision"
+          ],
+          "research_refs": [
+            "waves/workflow-instruction-coverage/research.md#constitution-mapping",
+            "waves/workflow-instruction-coverage/research.md#decisions"
+          ],
+          "plan_task_refs": [
+            "task-constitution-precision"
+          ],
+          "depends_on": [
+            "cap-constitution-truth:constitution-skill"
+          ],
+          "evidence_refs": [
+            "docs/artifact-contracts.md#docsapp-constitutionmd",
+            "docs/app-user-evidence.md#user-msg-0001",
+            "skills/app-constitution/SKILL.md",
+            "templates/docs/app-constitution.md",
+            "docs/backtests/plugin-self-test.md#constitution-precision-cases"
+          ]
+        }
+      ],
+      "edges": [],
+      "evidence_refs": [
+        "docs/app-constitution.md",
+        "waves/workflow-instruction-coverage/research.md",
+        "waves/workflow-instruction-coverage/plan.md",
+        "docs/app-task-ledger.v1.json"
+      ]
+    },
+    {
+      "functionality_id": "cap-user-message-evidence",
+      "wave_id": "workflow-instruction-coverage",
+      "title": "Durable user-message evidence",
+      "constitution_refs": [
+        "cap-user-message-evidence"
+      ],
+      "research_refs": [
+        "waves/workflow-instruction-coverage/research.md#constitution-mapping",
+        "waves/workflow-instruction-coverage/research.md#decisions",
+        "waves/workflow-instruction-coverage/research.md#plan-inputs"
+      ],
+      "status": "modeled",
+      "nodes": [
+        {
+          "node_id": "user-evidence-contract",
+          "functionality_id": "cap-user-message-evidence",
+          "kind": "instruction",
+          "dev_model_kind": "implementation",
+          "constitution_refs": [
+            "cap-user-message-evidence"
+          ],
+          "research_refs": [
+            "waves/workflow-instruction-coverage/research.md#constitution-mapping",
+            "waves/workflow-instruction-coverage/research.md#decisions"
+          ],
+          "plan_task_refs": [
+            "task-constitution-precision"
+          ],
+          "depends_on": [
+            "cap-constitution-precision:precision-contract"
+          ],
+          "evidence_refs": [
+            "docs/artifact-contracts.md#docsapp-user-evidencemd",
+            "docs/app-user-evidence.md#user-msg-0002",
+            "templates/docs/app-user-evidence.md",
+            "skills/app-constitution/SKILL.md"
+          ]
+        }
+      ],
+      "edges": [],
+      "evidence_refs": [
+        "docs/app-constitution.md",
+        "docs/app-user-evidence.md",
+        "waves/workflow-instruction-coverage/research.md",
+        "waves/workflow-instruction-coverage/plan.md",
+        "docs/app-task-ledger.v1.json"
+      ]
     }
   ]
 }

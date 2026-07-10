@@ -14,6 +14,7 @@ Compare constitution truth, research explanations, plan microtasks, graph lineag
 Read only the target wave artifacts and target files needed for the requested mode:
 
 - `docs/app-constitution.md`
+- `docs/app-user-evidence.md` when a constitution record cites it
 - `waves/<wave-id>/research.md`
 - `waves/<wave-id>/plan.md`
 - `docs/app-task-ledger.v1.json`
@@ -39,7 +40,7 @@ Write `waves/<wave-id>/analysis.md` or return `analysis-audit.packet.v1` with on
 
 `waves/<wave-id>/analysis.md` must contain the same values in the sections below.
 
-- `pass`: constitution, research, plan, graph, ledger, code state, and requested file-audit checks agree.
+- `pass`: constitution sources resolve; research, plan, graph, ledger, code state, and requested file-audit checks agree; plan and graph use only research-confirmed `cap-*` and `gap-*` ids.
 - `needs-constitution`: functional truth is missing, partial, or drifted.
 - `needs-research`: constitution truth lacks source-backed explanation.
 - `needs-plan`: research explanation lacks a microtask or the microtask is wrong.
@@ -77,6 +78,8 @@ For each target file, score these dimensions as `pass` or `concern` and cite exa
 - Do not fix implementation during analysis.
 - Do not create tests, validators, scripts, cache tools, plugin validators, or workflow-testing software.
 - Check graph node lineage in this order: constitution refs, research refs, plan task refs, graph backlinks, implementation state.
+- Check every cited `user-msg-*` anchor, status, related constitution id, and exact excerpt before accepting its source link.
+- Fail lineage when a plan task or graph node uses `constraint-*`, `decision-*`, or `inference-*` as its functional source.
 - Send functional drift to `app-constitution`.
 - Send missing research explanation to `app-research`.
 - Send missing or wrong microtasks to `app-plan`.

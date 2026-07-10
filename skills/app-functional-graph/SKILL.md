@@ -41,6 +41,8 @@ Every graph node needs:
 ## Rules
 
 - Build graph nodes only from approved plan microtasks.
+- Require every graph-bound plan task to reference at least one research-confirmed `cap-*` or `gap-*` id.
+- Never create a function or node from `constraint-*`, `decision-*`, or `inference-*`.
 - Never create graph nodes directly from research without a plan microtask.
 - Every graph node must prove lineage: constitution -> research -> plan.
 - Write graph node refs back to matching ledger tasks.

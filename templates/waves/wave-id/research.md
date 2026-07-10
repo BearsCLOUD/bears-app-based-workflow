@@ -12,7 +12,7 @@
 
 | Constitution ref | Research explanation | Source refs | Decision state |
 | --- | --- | --- | --- |
-| `capability-id` | `<why this wave covers the constitution item>` | `<source-ref>` | `closed|open` |
+| `cap-example` | `<why this wave covers the constitution item>` | `<source-ref>` | `closed|open` |
 
 ## Known behavior
 
@@ -36,7 +36,7 @@
 
 ## Plan inputs
 
-- `<microtask candidate>` from `<constitution-ref>` and `<research-section>`.
+- `<microtask candidate>` from a research-confirmed `cap-*` or `gap-*` and `<research-section>`. Never include an `inference-*`.
 
 ## Drift notes
 
@@ -44,4 +44,4 @@
 
 ## Next skill
 
-- `app-plan`
+- `<app-plan|app-specify|app-constitution>`

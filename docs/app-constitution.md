@@ -1,60 +1,123 @@
 # App Constitution
 
-## Functional summary
+- App: `bears-app-based-workflow`
 
-- App target: `bears-app-based-workflow`.
-- Source-of-truth rule: this file owns plugin functional workflow intent.
-- Required order: `app-constitution -> app-research -> app-plan -> app-functional-graph -> app-dev -> app-analyze`.
-- Support skills are helpers inside the ordered flow, not extra main gates.
+## Capabilities
 
-## Core capabilities
+### cap-sequential-workflow
 
-| ID | Capability | Owner | Evidence need | State |
-| --- | --- | --- | --- | --- |
-| `cap-sequential-workflow` | Keep the app workflow strictly sequential from constitution truth through graph-modeled development and analysis. | Plugin workflow | `SPEC.md#core-workflow` | accepted |
-| `cap-constitution-truth` | Treat constitution as functional source of truth for capabilities, gaps, decisions, constraints, and drift. | `app-constitution` | `skills/app-constitution/SKILL.md` | accepted |
-| `cap-research-explains-truth` | Require research waves to explain constitution ids through sources, decisions, unknowns, and wave scope. | `app-research` | `skills/app-research/SKILL.md` | accepted |
-| `cap-plan-microtasks` | Require plan to create ordered microtasks from research and constitution refs before graph modeling. | `app-plan` | `skills/app-plan/SKILL.md` | accepted |
-| `cap-graph-dev-model` | Build the functional graph after planning as the model for future `app-dev` work. | `app-functional-graph` | `skills/app-functional-graph/SKILL.md` | accepted |
-| `cap-lineage-analysis` | Analyze exact broken links across constitution, research, plan, graph, ledger, dev, and closeout. | `app-analyze` | `skills/app-analyze/SKILL.md` | accepted |
-| `cap-file-reuse-audit` | Let `app-analyze` audit every plugin file for usefulness, consistency, brevity, unambiguity, coverage, portability, degradation resistance, continuous-development readiness, and no-test-tooling risk. | `app-analyze` | `waves/workflow-instruction-coverage/analysis.md#file-reuse-audit` | accepted |
-| `cap-packet-contracts` | Keep versioned handoff packets aligned so downstream skills never require fields missing from upstream packets. | Plugin contracts | `docs/handoff-packet-contracts.md` | accepted |
-| `cap-self-contained-roles` | Provide self-contained role names for handoff packets without an external role inventory. | `subagents-roles` | `docs/role-catalog.md` | accepted |
-| `cap-self-contained-plugin` | Keep plugin artifacts independent from host workspace instruction files, runtime services, hooks, MCP servers, role inventories, and validation scripts. | Plugin docs | `README.md#independence-and-script-ownership` | accepted |
-| `cap-no-test-tooling-loop` | Prevent agents from creating validation software, test harnesses, or workflow-testing scripts just to prove the workflow. | Plugin workflow | `README.md#independence-and-script-ownership` | accepted |
+- Condition: A main stage before `app-analyze` passes its exit gate.
+- Actor/System: Workflow runner.
+- Observable result: The runner follows the next edge in `SPEC.md#core-workflow` without skipping a main stage.
+- Source: `SPEC.md#core-workflow`.
 
-## Actors and runtime surfaces
+### cap-constitution-truth
 
-- Codex agent uses plugin skills to create and inspect workflow artifacts.
-- Role-matched subagent may receive one bounded sequential dispatch packet when subagents are available.
-- Parent agent may execute the same packet locally when subagents are unavailable.
-- External automation may create validation or test evidence outside this plugin contract.
+- Condition: App functionality is added, changed, removed, or found inconsistent downstream.
+- Actor/System: `app-constitution`.
+- Observable result: Each downstream constitution ID and source link resolves to the current record.
+- Source: `docs/workflow-stage-gates.md#drift-routing`.
 
-## Constraints and evidence
+### cap-research-explains-truth
 
-- `constraint-no-env-dependency`: plugin artifacts must not depend on a specific host workspace instruction file, MCP server, hook, role inventory, or runtime.
-- `constraint-no-manual-scripts`: plugin skills must not instruct agents to run validation, test, audit, route, cache, cachebuster, quick-validate, or plugin-validate scripts manually.
-- `constraint-no-workflow-test-tooling`: plugin skills must not create scripts, validators, harnesses, or extra software just to test the workflow.
-- `constraint-sequential-only`: planning and development handoffs are sequential by default.
-- `constraint-complete-lineage`: every graph node used by `app-dev` must carry constitution, research, and plan refs.
+- Condition: A constitution record needs explanation or verification.
+- Actor/System: `app-research`.
+- Observable result: The wave research maps the constitution ID to exact sources, its decision or unknown state, and its eligibility for planning.
+- Source: `SPEC.md#app-research`.
 
-## Functional gaps
+### cap-plan-microtasks
 
-| ID | Gap | Impact | Evidence | Route |
-| --- | --- | --- | --- | --- |
-| `gap-none-current` | No current functional gap for the self-test wave. | None | `docs/backtests/plugin-self-test.md` | `app-analyze` |
+- Condition: Research confirms a source-backed `cap-*` or `gap-*` as a plan input.
+- Actor/System: `app-plan`.
+- Observable result: The plan row and ledger task satisfy `docs/functional-graph-ledger-contract.md#ledger-microtask-requirements`.
+- Source: `docs/functional-graph-ledger-contract.md#ledger-microtask-requirements`.
 
-## Open decisions
+### cap-graph-dev-model
 
-| ID | Decision | Blocks | Owner |
-| --- | --- | --- | --- |
-| `decision-none-current` | No open decision for the self-test wave. | Nothing | Plugin workflow |
+- Condition: Plan microtasks are approved and recorded in the ledger.
+- Actor/System: `app-functional-graph`.
+- Observable result: Each modeled node satisfies `docs/functional-graph-ledger-contract.md#graph-node-requirements` and links back to its ledger task.
+- Source: `docs/functional-graph-ledger-contract.md#graph-node-requirements`.
 
-## Execution constraints
+### cap-lineage-analysis
 
-- Live session instructions may constrain a run, but they are not plugin functional truth.
-- When execution constraints drift from plugin behavior, record the constraint separately and preserve constitution truth unless the user changes functional intent.
+- Condition: A workflow wave reaches analysis.
+- Actor/System: `app-analyze`.
+- Observable result: The analysis records `pass` or names the earliest broken workflow link and its reroute stage.
+- Source: `SPEC.md#app-analyze`.
 
-## Next skill
+### cap-file-reuse-audit
 
-- `app-research`
+- Condition: `app-analyze` runs in plugin file-audit mode.
+- Actor/System: `app-analyze`.
+- Observable result: The analysis has one row per plugin file with a named consumer and all nine file-audit results.
+- Source: `skills/app-analyze/SKILL.md#file-audit-mode`.
+
+### cap-packet-contracts
+
+- Condition: A support skill emits or consumes a workflow handoff packet.
+- Actor/System: `app-research`, `app-specify`, `subagents-roles`, `subagents`, `instruction-hardening`, and `app-analyze`.
+- Observable result: The packet uses the exact fields and version named in `docs/handoff-packet-contracts.md`.
+- Source: `docs/handoff-packet-contracts.md#handoff-packet-contracts`.
+
+### cap-self-contained-roles
+
+- Condition: A graph-backed task needs an owner, critic, or helper role.
+- Actor/System: `subagents-roles`.
+- Observable result: The returned role name exists in `docs/role-catalog.md`, or the packet records the missing role requirement.
+- Source: `docs/role-catalog.md#rules`.
+
+### cap-self-contained-plugin
+
+- Condition: The plugin receives valid app inputs in a host workspace other than this checkout.
+- Actor/System: Plugin workflow.
+- Observable result: It produces the same artifact sequence using only plugin-owned skills, contracts, templates, and packets.
+- Source: `README.md#independence-and-script-ownership`.
+
+### cap-no-test-tooling-loop
+
+- Condition: An agent must inspect or prove workflow behavior.
+- Actor/System: Plugin skills.
+- Observable result: The agent returns inspection evidence without creating or requiring a plugin-owned verification tool.
+- Source: `SPEC.md#script-ownership`.
+
+### cap-constitution-precision
+
+- Condition: `app-constitution` creates or updates the constitution.
+- Actor/System: `app-constitution`.
+- Observable result: The output contains exactly the independently changeable, contract-valid records supported by current inputs; line count neither adds nor removes content.
+- Source: `docs/app-user-evidence.md#user-msg-0001`; `docs/artifact-contracts.md#docsapp-constitutionmd`.
+
+### cap-user-message-evidence
+
+- Condition: A session message is the exact source for a constitution record.
+- Actor/System: `app-constitution`.
+- Observable result: The source resolves to a contract-valid `user-msg-*` entry whose quote is the shortest unchanged safe continuous excerpt that preserves the condition and result.
+- Source: `docs/app-user-evidence.md#user-msg-0002`; `docs/artifact-contracts.md#docsapp-user-evidencemd`.
+
+## Constraints
+
+### constraint-no-env-dependency
+
+- Rule: The plugin must run without a file or service supplied only by its host workspace.
+- Source: `README.md#independence-and-script-ownership`.
+
+### constraint-no-manual-scripts
+
+- Rule: Plugin skills must not require manual execution of scripts owned by external automation.
+- Source: `SPEC.md#script-ownership`.
+
+### constraint-no-workflow-test-tooling
+
+- Rule: No software may be added solely to prove this workflow.
+- Source: `SPEC.md#script-ownership`.
+
+### constraint-sequential-only
+
+- Rule: One main stage must finish its artifact before the next main stage begins.
+- Source: `docs/workflow-stage-gates.md#rule-summary`.
+
+### constraint-complete-lineage
+
+- Rule: `app-dev` may consume only graph nodes that satisfy the complete-lineage gate.
+- Source: `docs/functional-graph-ledger-contract.md#graph-node-requirements`.

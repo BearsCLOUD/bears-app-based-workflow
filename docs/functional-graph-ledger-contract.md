@@ -2,11 +2,13 @@
 
 ## Ownership
 
-- `docs/app-constitution.md` owns functional truth.
+- `docs/app-constitution.md` owns source-backed app rules, gaps, open decisions, and explicit research-only inferences.
 - `waves/<wave-id>/research.md` owns source-backed explanation of constitution ids.
 - `waves/<wave-id>/plan.md` and `docs/app-task-ledger.v1.json` own ordered microtasks.
 - `docs/app-functional-graph.v1.json` owns the dev-stage model built from approved microtasks.
-- Execution constraints, when present, constrain execution but do not own functional truth.
+- Session execution constraints constrain current work; only their non-sensitive descriptions are returned in closeout. They are not graph or ledger inputs.
+
+The constitution eligibility rules do not change the v1 JSON fields or schema value.
 
 ## Graph node requirements
 
@@ -16,7 +18,7 @@ Every graph node must include:
 - `functionality_id`: stable function record id; graph refs use `<functionality_id>:<node_id>`.
 - `kind`: `ui`, `api`, `state`, `job`, `integration`, `data`, `error`, `instruction`, or `workflow`.
 - `dev_model_kind`: `implementation`, `review`, `integration`, `evidence`, `handoff`, or `analysis`.
-- `constitution_refs`: one or more ids from `docs/app-constitution.md`.
+- `constitution_refs`: one or more research-confirmed `cap-*` or `gap-*` ids from `docs/app-constitution.md`.
 - `research_refs`: one or more `waves/<wave-id>/research.md#section` refs.
 - `plan_task_refs`: one or more ledger task ids.
 - `depends_on`: graph node refs formatted as `<functionality_id>:<node_id>`.
@@ -28,7 +30,7 @@ A graph node without all three lineage arrays is not ready for `app-dev`.
 
 Every function record must include:
 
-- `functionality_id`: stable id from the constitution capability or gap.
+- `functionality_id`: stable id from a research-confirmed constitution `cap-*` or `gap-*` record.
 - `wave_id`: owning wave id.
 - `title`: user-visible or operator-visible behavior.
 - `constitution_refs`: constitution ids covered by the function.
@@ -56,6 +58,8 @@ Every ledger microtask must include:
 - `depends_on`
 - `owner_role`
 - `critic_role`
+
+Each ledger `constitution_refs` array contains only research-confirmed `cap-*` or `gap-*` ids. `constraint-*`, `decision-*`, and `inference-*` ids cannot become tasks or graph functions. An inference must be verified through `app-research` and replaced by a source-backed constitution record before planning.
 
 Allowed `status` values: `proposed`, `blocked_by_decision`, `blocked_by_research`, `ready_for_graph`, `graph_modeled`, `ready_for_dev`, `in_progress`, `in_review`, `done`, `superseded`, `blocked`.
 

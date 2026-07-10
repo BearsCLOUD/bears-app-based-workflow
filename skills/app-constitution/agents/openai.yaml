@@ -1,4 +1,4 @@
 interface:
   display_name: "App Constitution"
-  short_description: "Set app functional source of truth"
-  default_prompt: "Use $app-constitution to record functional truth, gaps, decisions, constraints, and evidence needs before research."
+  short_description: "Write exact typed app records"
+  default_prompt: "Use $app-constitution to write each independently changeable capability, constraint, gap, decision, or inference as one exact typed record; add every required source link, capture cited user excerpts safely, omit empty sections, and route to $app-research."

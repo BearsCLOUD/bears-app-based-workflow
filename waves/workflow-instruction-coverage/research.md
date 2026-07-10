@@ -6,29 +6,33 @@
 
 ## Scope
 
-- Cover the plugin workflow instructions so a future agent can follow constitution, research, plan, graph modeling, dev handoff, and analysis without relying on host-specific docs, role inventories, runtime services, hooks, MCP servers, or workflow-testing scripts.
+- Cover the plugin workflow instructions so a future agent can produce a precise constitution with every required source and follow research, planning, graph modeling, development, and analysis without host-specific dependencies or workflow-testing software.
 
 ## Constitution mapping
 
 | Constitution ref | Research explanation | Source refs | Decision state |
 | --- | --- | --- | --- |
 | `cap-sequential-workflow` | The workflow must be linear. Research confirms graph modeling happens after approved plan microtasks and models dev. | `SPEC.md#core-workflow`, `docs/workflow-stage-gates.md#rule-summary` | closed |
-| `cap-constitution-truth` | Functional drift is resolved against constitution first; this keeps research, plan, graph, dev, and analysis aligned. | `docs/workflow-stage-gates.md#drift-routing`, `skills/app-constitution/SKILL.md#drift-rules` | closed |
+| `cap-constitution-truth` | Functional drift is resolved against constitution first; this keeps research, plan, graph, dev, and analysis aligned. | `docs/workflow-stage-gates.md#drift-routing`, `SPEC.md#app-constitution` | closed |
 | `cap-research-explains-truth` | Every wave must show which constitution ids it explains and what sources support each explanation before plan. | `docs/artifact-contracts.md#waveswave-idresearchmd`, `skills/app-research/SKILL.md#research-file-sections` | closed |
-| `cap-plan-microtasks` | Planning turns research explanations into ordered microtasks with constitution refs, research refs, target paths, dependencies, roles, done, and proof. | `docs/functional-graph-ledger-contract.md#ledger-microtask-requirements`, `templates/waves/wave-id/plan.md` | closed |
+| `cap-plan-microtasks` | Planning turns research explanations into ordered microtasks with constitution refs, research refs, target paths, dependencies, roles, done, and proof. | `docs/functional-graph-ledger-contract.md#ledger-microtask-requirements`, `templates/waves/wave-id/plan.md#sequential-microtasks` | closed |
 | `cap-graph-dev-model` | The graph is built from approved microtasks and every node carries constitution, research, plan, dependency, and evidence refs. | `docs/functional-graph-ledger-contract.md#graph-node-requirements`, `skills/app-functional-graph/SKILL.md#graph-node-requirements` | closed |
 | `cap-lineage-analysis` | Analysis checks lineage, implementation convergence, and broken-link routing across the ordered flow. | `docs/artifact-contracts.md#waveswave-idanalysismd`, `skills/app-analyze/SKILL.md#rules` | closed |
 | `cap-file-reuse-audit` | File-audit mode reviews every plugin file for a named consumer, agreement with workflow order, concise wording, single route, coverage, portability, degradation resistance, next-agent readiness, and no-test-tooling risk. | `skills/app-analyze/SKILL.md#file-audit-mode`, `waves/workflow-instruction-coverage/analysis.md#file-reuse-audit` | closed |
-| `cap-packet-contracts` | Versioned packets keep support skills aligned and prevent downstream fields from drifting away from upstream outputs. | `docs/handoff-packet-contracts.md`, `docs/artifact-contracts.md#packets` | closed |
-| `cap-self-contained-roles` | Role mapping must use a plugin-local role catalog so the plugin stays portable and does not require external role inventory files. | `docs/role-catalog.md`, `skills/subagents-roles/SKILL.md` | closed |
+| `cap-packet-contracts` | Versioned packets keep support skills aligned and prevent downstream fields from drifting away from upstream outputs. | `docs/handoff-packet-contracts.md#handoff-packet-contracts`, `docs/artifact-contracts.md#packets` | closed |
+| `cap-self-contained-roles` | Role mapping must use a plugin-local role catalog so the plugin stays portable and does not require external role inventory files. | `docs/role-catalog.md#rules`, `skills/subagents-roles/SKILL.md#rules` | closed |
 | `cap-self-contained-plugin` | Plugin docs are portable; execution constraints are optional live-session limits and not plugin functional truth. | `README.md#independence-and-script-ownership`, `SPEC.md#script-ownership` | closed |
 | `cap-no-test-tooling-loop` | The plugin must not cause recursive workflow testing by asking agents to create validators, harnesses, scripts, cache tools, or plugin-specific validation software just to prove the workflow. | `README.md#independence-and-script-ownership`, `skills/app-analyze/SKILL.md#rules`, `docs/handoff-packet-contracts.md#dispatch-packetv1` | closed |
+| `cap-constitution-precision` | Constitution records have type-specific fields, exact sources, and independently changeable scope. Empty sections, placeholders, size padding, and size truncation are forbidden. | `docs/app-user-evidence.md#user-msg-0001`, `docs/artifact-contracts.md#docsapp-constitutionmd` | closed |
+| `cap-user-message-evidence` | A session message used as a constitution source is stored as a stable, safe evidence entry with an unchanged minimal continuous excerpt. | `docs/app-user-evidence.md#user-msg-0002`, `docs/artifact-contracts.md#docsapp-user-evidencemd` | closed |
 
 ## Known behavior
 
 - Existing plugin skills cover the same named stages, but stale traces previously mixed graph input with plan output and pointed to host-specific role or policy concepts.
 - The target behavior is sequential, lineage-first, self-contained, and resistant to recursive test-tool creation.
 - `app-analyze` now owns the broad plugin-file audit instead of creating a separate audit tool.
+- The previous constitution used eight fixed sections, placeholder rows, and synthetic no-gap and no-decision records; the precise shape keeps only populated record sections.
+- Both cited user-message excerpts are active, contain no sensitive text, and support the two new capability records without paraphrasing.
 
 ## Sources
 
@@ -37,6 +41,7 @@
 - `docs/workflow-stage-gates.md`: required reads, writes, forbidden writes, exits, and drift routes.
 - `docs/functional-graph-ledger-contract.md`: graph node fields, function fields, ledger fields, statuses, and backlinks.
 - `docs/artifact-contracts.md`: required sections for constitution, waves, analysis, and packets.
+- `docs/app-user-evidence.md`: unchanged user-message excerpts cited by the constitution precision capabilities.
 - `docs/handoff-packet-contracts.md`: versioned packet fields for research, clarification, roles, dispatch, hardening, and analysis.
 - `docs/role-catalog.md`: self-contained role names and role-gap rules.
 - `templates/`: copy-ready constitution, wave, ledger, and graph shapes.
@@ -55,10 +60,13 @@
 - `decision-exact-packet-fields`: Support skills must use the exact versioned field names from `docs/handoff-packet-contracts.md`.
 - `decision-graph-dev-exit`: Complete graph lineage with ledger backlinks routes to `app-dev`; incomplete lineage routes upstream.
 - `decision-exact-graph-evidence`: Graph evidence refs must name concrete files or anchors, not directories or wildcard paths.
+- `decision-constitution-record-shape`: Use only the record fields owned by `docs/artifact-contracts.md`; omit unpopulated constitution sections and size-based filler.
+- `decision-user-evidence-excerpt`: Store the shortest unchanged continuous excerpt that preserves the user's condition and result; append corrections instead of editing committed quotes.
+- `decision-inference-boundary`: Research may inspect `inference-*`, but plan, ledger, and graph accept only research-confirmed `cap-*` and `gap-*` IDs.
 
 ## Unknowns
 
-- None for this self-test wave.
+- This wave has no unresolved research question.
 
 ## Clarifications
 
@@ -75,6 +83,7 @@
 - Extend `app-analyze` to perform broad file reuse-quality audits without creating testing software.
 - Create self-test graph and ledger with complete lineage and concrete evidence refs for all constitution capabilities.
 - Update manifests to present the plugin as self-contained and sequential.
+- Replace the fixed constitution shape with populated record sections and exact source fields, and add optional user-message evidence only when cited.
 
 ## Drift notes
 
@@ -83,6 +92,7 @@
 - Plan mismatch maps back to this research explanation and a constitution id.
 - Graph mismatch maps back to a plan microtask, this wave, and a constitution id.
 - Execution-constraint mismatch is reported separately and must not rewrite functional truth.
+- An unverified constitution inference stays in research and cannot be repaired by copying it into a plan or graph.
 
 ## Next skill
 

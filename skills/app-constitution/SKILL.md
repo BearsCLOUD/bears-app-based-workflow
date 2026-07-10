@@ -1,48 +1,49 @@
 ---
 name: app-constitution
-description: Create or update the first-stage app constitution as the functional source of truth for sequential Bears app workflow artifacts. Use when Codex needs functional capabilities, gaps, decisions, constraints, evidence needs, or drift routing before research, planning, graph modeling, development, or analysis.
+description: Create or update the first-stage app constitution with exact capability, constraint, gap, decision, and inference records plus required source links. Use when Codex must capture app rules or cited user-message evidence for app research.
 ---
 
 # App Constitution
 
 ## Purpose
 
-Maintain `docs/app-constitution.md` as the source of truth for functional capabilities, gaps, decisions, constraints, and evidence needs.
+Maintain `docs/app-constitution.md` as a compact index of app rules that `app-research` must explain or verify. Use `docs/artifact-contracts.md` as the authority for record fields and artifact format.
 
-## Required sections
+## Procedure
 
-1. `Functional summary`
-2. `Core capabilities`
-3. `Actors and runtime surfaces`
-4. `Constraints and evidence`
-5. `Functional gaps`
-6. `Open decisions`
-7. `Execution constraints`
-8. `Next skill`
+1. Read `docs/artifact-contracts.md` and the current app sources.
+2. Record the exact app ID or path.
+3. Convert each supported statement into one independently changeable record.
+4. Link an existing exact rule instead of copying it from `SPEC.md`, research, a plan, or code.
+5. Add a section only when it contains at least one record.
+6. Send every added or changed record to `app-research` in the closeout.
 
-## Capability and gap rules
+A constitution file requires at least one exact record in addition to the title and app target. If no record meets the artifact contract, do not create or retain the file; ask one concrete question that would supply the missing field.
 
-- Give every capability and gap a stable id.
-- Record owner, evidence need, and state for every capability.
-- Record impact, evidence, and route for every gap.
-- Keep execution constraints separate from functional truth.
-- Do not depend on a specific host instruction file, workspace path, role inventory, MCP server, hook, or runtime.
+## Record procedure
 
-## Drift rules
+Copy the exact field labels and order for these record types from `docs/artifact-contracts.md`; do not redefine the shape in this skill.
 
-- Functional drift is resolved here before research, plan, graph, dev, or analysis changes.
-- Research drift must point back to a constitution id or add a constitution gap.
-- Plan drift must point back to a constitution id and research explanation.
-- Graph drift must point back to a constitution id, research explanation, and plan microtask.
-- Execution-constraint drift must not rewrite functional truth.
+- Use `cap-*` for one observable app behavior.
+- Use `constraint-*` for one mandatory app restriction.
+- Use `gap-*` when required and observed behavior differ.
+- Use `decision-*` when one authority must answer one blocking question.
+- Use `inference-*` only for an unverified conclusion derived from cited facts. Send it to `app-research`; do not pass it to `app-plan` or `app-functional-graph`.
 
-## Routing rules
+## User-message evidence
 
-- Route missing source or domain evidence to `app-research`.
-- Route unresolved actors, flows, data ownership, errors, or acceptance criteria to helper `app-specify` after research cannot resolve them.
-- Route ready constitution ids to `app-research`.
+When a constitution source is a user message, apply the exact format and lifecycle in `docs/artifact-contracts.md`.
 
-## Rules
+1. Select the shortest continuous excerpt that preserves the condition and result.
+2. Reject excerpts containing secrets, credentials, or production data; ask for one sanitized statement instead.
+3. Create or update `docs/app-user-evidence.md` only when the constitution will cite the entry.
+4. Put the exact `docs/app-user-evidence.md#user-msg-*` anchor in the constitution; never use `user said`, `session`, or a paraphrase as the source.
 
-- Do not create research waves, plan microtasks, graph nodes, dev packets, or test tooling here.
+## Precision rules
+
+- Keep the title and exact app target. Omit empty sections and all tables.
+- Do not use placeholder records or `None`, `N/A`, or `TBD`.
+- Do not add, remove, or shorten text to meet a line count.
+- Do not store session execution constraints or `Next skill` in the constitution. Return non-sensitive descriptions of session constraints in the closeout; the next stage is always `app-research`.
+- Do not create research waves, plan microtasks, graph nodes, development packets, or test tooling here.
 - Do not ask agents to run validation, test, audit, route, cache, cachebuster, quick-validate, or plugin-validate scripts manually.

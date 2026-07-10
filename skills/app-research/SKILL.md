@@ -1,6 +1,6 @@
 ---
 name: app-research
-description: Create, update, synchronize, and refine Bears app research waves that explain constitution ids before planning. Use when Codex must turn app intent, constitution gaps, sources, existing docs, or unknowns into wave research files and wave-research.packet.v1 handoffs.
+description: Create and update Bears app research waves that verify constitution records before planning. Use when Codex must check app intent, gaps, inferences, cited user messages, source documents, code observations, or unknowns and return wave-research.packet.v1.
 ---
 
 # App Research
@@ -13,9 +13,11 @@ Create or update `waves/index.md` and one `waves/<wave-id>/research.md` file per
 
 - User intent or feature area.
 - App target path or repo.
-- `docs/app-constitution.md` capabilities, constraints, gaps, decisions, and execution constraints.
+- `docs/app-constitution.md` records.
+- `docs/app-user-evidence.md` only when a constitution record cites it.
 - Existing wave registry and wave docs.
 - Source docs, code observations, tickets, product notes, and user answers.
+- Execution constraints supplied by the live session.
 
 ## Outputs
 
@@ -56,17 +58,22 @@ Return `wave-research.packet.v1` with:
 ## Research steps
 
 1. Read `docs/app-constitution.md` before creating or updating waves.
-2. Map each wave to one or more constitution ids.
-3. Record source-backed explanations for every mapped constitution id.
-4. Record decisions and unknowns separately.
-5. Use `app-specify` only when actors, flows, data, errors, or acceptance details cannot be resolved from sources.
-6. Route new functional truth or functional drift back to `app-constitution`.
-7. Route explained, decision-complete wave scope to `app-plan`.
+2. Open each exact source cited by the records in scope, including linked `docs/app-user-evidence.md#user-msg-*` entries.
+3. Map each wave to one or more constitution ids.
+4. Record source-backed explanations for every mapped `cap-*` or `gap-*` id.
+5. Treat each `inference-*` as an unverified research target: check its stated facts and verification route, then return the confirmed result to `app-constitution` under the matching non-inference record type.
+6. Record decisions and unknowns separately.
+7. Use `app-specify` only when actors, flows, data, errors, or acceptance details cannot be resolved from sources.
+8. Route new functional truth or functional drift back to `app-constitution`.
+9. Route only explained, decision-complete `cap-*` and `gap-*` scope to `app-plan`.
 
 ## Rules
 
 - Create a new wave only when the scope has a distinct functional value or dependency set.
 - Update existing waves when new information changes scope, sources, decisions, unknowns, or constitution mapping.
+- Copy exact source links into `source_refs`; do not replace a user-evidence link with a paraphrase or session reference.
+- Never place an `inference-*`, `constraint-*`, or `decision-*` id in `plan_inputs`.
+- Keep an unverified inference in `unknowns`; it cannot pass to `app-plan` or `app-functional-graph`.
 - Do not create plan microtasks here.
 - Do not create graph nodes here.
 - Do not route directly to `app-functional-graph` or `app-dev`.

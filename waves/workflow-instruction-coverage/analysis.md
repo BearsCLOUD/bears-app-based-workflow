@@ -9,6 +9,8 @@
 ## Inputs reviewed
 
 - `docs/app-constitution.md`
+- `docs/app-user-evidence.md`
+- `docs/artifact-contracts.md`
 - `waves/workflow-instruction-coverage/research.md`
 - `waves/workflow-instruction-coverage/plan.md`
 - `docs/app-task-ledger.v1.json`
@@ -57,6 +59,17 @@
 | `cap-no-test-tooling-loop:no-recursive-tooling-rules` | `cap-no-test-tooling-loop` | `waves/workflow-instruction-coverage/research.md#decisions` | `task-remove-external-role-trace` | `pass` |
 | `cap-no-test-tooling-loop:backtest-readonly` | `cap-no-test-tooling-loop` | `waves/workflow-instruction-coverage/research.md#drift-notes` | `task-self-test-lineage` | `pass` |
 | `cap-no-test-tooling-loop:analyze-no-tooling` | `cap-no-test-tooling-loop` | `waves/workflow-instruction-coverage/research.md#constitution-mapping, waves/workflow-instruction-coverage/research.md#decisions` | `task-app-analyze-file-audit` | `pass` |
+| `cap-constitution-precision:precision-contract` | `cap-constitution-precision` | `waves/workflow-instruction-coverage/research.md#constitution-mapping, waves/workflow-instruction-coverage/research.md#decisions` | `task-constitution-precision` | `pass` |
+| `cap-user-message-evidence:user-evidence-contract` | `cap-user-message-evidence` | `waves/workflow-instruction-coverage/research.md#constitution-mapping, waves/workflow-instruction-coverage/research.md#decisions` | `task-constitution-precision` | `pass` |
+
+## Constitution precision check
+
+- The fixture contains populated `Capabilities` and `Constraints` sections; empty gap, decision, and inference sections are absent.
+- The fixture exceeds 100 lines because it retains 13 capabilities and 5 constraints; no record exists to reach a line count.
+- `cap-constitution-precision` and `cap-user-message-evidence` resolve to active exact excerpts in `docs/app-user-evidence.md`.
+- Both capabilities resolve through research, `task-constitution-precision`, ledger backlinks, and graph nodes.
+- Plan, ledger, and graph inputs contain no `inference-*` ID.
+- `docs/backtests/plugin-self-test.md#constitution-precision-cases` states the required outcomes for minimal, over-100-line, supersession, conflict, and sensitive-text cases.
 
 ## Implementation comparison
 
@@ -65,6 +78,7 @@
 - Obsolete legacy role-skill files were removed because role mapping now uses `docs/role-catalog.md` and versioned packets.
 - No validation software, test harness, cache tool, plugin validator, or workflow-testing script was added.
 - No-context skill and governance audit concerns were fixed: support skills now use exact packet fields, `app-functional-graph` has a success route to `app-dev`, and graph evidence refs use concrete files or anchors.
+- Constitution rules now use exact type fields, optional populated sections, immutable user-message evidence, and a research-only inference boundary.
 
 ## File reuse audit
 
@@ -78,6 +92,7 @@ Dimensions scored per file: usefulness, consistency, brevity, unambiguity, instr
 | `README.md` | New user and marketplace reader | 9/9 pass | clear consumer, single owner, portable wording |
 | `SPEC.md` | Workflow contract reader | 9/9 pass | clear consumer, single owner, portable wording |
 | `docs/app-constitution.md` | Constitution, research, plan, graph, and analyze skills | 9/9 pass | clear consumer, single owner, portable wording |
+| `docs/app-user-evidence.md` | Constitution and research skills | 9/9 pass | two stable citations with safe unchanged excerpts |
 | `docs/app-functional-graph.v1.json` | app-functional-graph and app-dev | 9/9 pass | concrete evidence refs, clear consumer, single owner |
 | `docs/app-task-ledger.v1.json` | app-plan, app-functional-graph, and app-dev | 9/9 pass | clear consumer, single owner, portable wording |
 | `docs/artifact-contracts.md` | Workflow skill contract reader | 9/9 pass | clear consumer, single owner, portable wording |
@@ -88,15 +103,15 @@ Dimensions scored per file: usefulness, consistency, brevity, unambiguity, instr
 | `docs/workflow-stage-gates.md` | Workflow skill contract reader | 9/9 pass | clear consumer, single owner, portable wording |
 | `skills/app-analyze/SKILL.md` | Codex skill trigger and stage procedure | 9/9 pass | exact `analysis-audit.packet.v1` fields and reroute rules |
 | `skills/app-analyze/agents/openai.yaml` | OpenAI skill interface metadata | 9/9 pass | minimal metadata only; no workflow authority |
-| `skills/app-constitution/SKILL.md` | Codex skill trigger and stage procedure | 9/9 pass | clear consumer, single owner, portable wording |
+| `skills/app-constitution/SKILL.md` | Codex skill trigger and stage procedure | 9/9 pass | concise procedure delegates record fields to the artifact contract |
 | `skills/app-constitution/agents/openai.yaml` | OpenAI skill interface metadata | 9/9 pass | minimal metadata only; no workflow authority |
 | `skills/app-dev/SKILL.md` | Codex skill trigger and stage procedure | 9/9 pass | exact `dispatch-packet.v1` fields and sequential handoff |
 | `skills/app-dev/agents/openai.yaml` | OpenAI skill interface metadata | 9/9 pass | minimal metadata only; no workflow authority |
 | `skills/app-functional-graph/SKILL.md` | Codex skill trigger and stage procedure | 9/9 pass | graph-after-plan rules and `app-dev` success route |
 | `skills/app-functional-graph/agents/openai.yaml` | OpenAI skill interface metadata | 9/9 pass | minimal metadata only; no workflow authority |
-| `skills/app-plan/SKILL.md` | Codex skill trigger and stage procedure | 9/9 pass | clear consumer, single owner, portable wording |
+| `skills/app-plan/SKILL.md` | Codex skill trigger and stage procedure | 9/9 pass | accepts only research-confirmed capability and gap IDs |
 | `skills/app-plan/agents/openai.yaml` | OpenAI skill interface metadata | 9/9 pass | minimal metadata only; no workflow authority |
-| `skills/app-research/SKILL.md` | Codex skill trigger and stage procedure | 9/9 pass | exact `wave-research.packet.v1` fields |
+| `skills/app-research/SKILL.md` | Codex skill trigger and stage procedure | 9/9 pass | resolves cited user evidence and keeps inferences outside plan inputs |
 | `skills/app-research/agents/openai.yaml` | OpenAI skill interface metadata | 9/9 pass | minimal metadata only; no workflow authority |
 | `skills/app-specify/SKILL.md` | Codex skill trigger and stage procedure | 9/9 pass | exact `clarification.packet.v1` fields |
 | `skills/app-specify/agents/openai.yaml` | OpenAI skill interface metadata | 9/9 pass | minimal metadata only; no workflow authority |
@@ -107,6 +122,7 @@ Dimensions scored per file: usefulness, consistency, brevity, unambiguity, instr
 | `skills/subagents-roles/SKILL.md` | Codex skill trigger and stage procedure | 9/9 pass | exact `role-packet.v1` fields |
 | `skills/subagents-roles/agents/openai.yaml` | OpenAI skill interface metadata | 9/9 pass | minimal metadata only; no workflow authority |
 | `templates/docs/app-constitution.md` | Future app artifact author | 9/9 pass | copy-ready shape aligned with current contracts |
+| `templates/docs/app-user-evidence.md` | Future app evidence author | 9/9 pass | copy-ready entry fields aligned with the artifact contract |
 | `templates/docs/app-functional-graph.v1.json` | Future app artifact author | 9/9 pass | copy-ready shape aligned with current contracts |
 | `templates/docs/app-task-ledger.v1.json` | Future app artifact author | 9/9 pass | copy-ready shape aligned with current contracts |
 | `templates/waves/index.md` | Future app artifact author | 9/9 pass | copy-ready shape aligned with current contracts |
@@ -120,7 +136,7 @@ Dimensions scored per file: usefulness, consistency, brevity, unambiguity, instr
 
 ## Broken links
 
-- None.
+- All inspected lineage links resolve.
 - Graph evidence refs use concrete files or anchors; no directory-only or wildcard evidence ref remains.
 
 ## Status

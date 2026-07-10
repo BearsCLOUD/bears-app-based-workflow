@@ -6,8 +6,9 @@ Provide a self-contained Codex plugin that turns app functional truth into sourc
 
 ## Terms
 
-- `app constitution`: `docs/app-constitution.md`, the app-local source of truth for functional capabilities, gaps, decisions, constraints, and evidence needs.
-- `execution constraints`: session-specific instruction, path, secret, evidence, or tool limits. They constrain execution but do not own plugin functional truth.
+- `app constitution`: `docs/app-constitution.md`, the app-local register of capabilities, constraints, gaps, open decisions, explicit research-only inferences, and each source required by their record types.
+- `user evidence`: optional `docs/app-user-evidence.md` entries that preserve the minimum safe verbatim excerpt needed to cite a user message from the constitution.
+- `execution constraints`: session-specific instruction, path, secret-handling, evidence, or tool limits. Their non-sensitive descriptions are returned in the current-stage closeout and are never stored as app functional truth.
 - `wave`: one sequential workflow slice that explains constitution items through research, decomposes them through plan microtasks, models future dev behavior through the functional graph, and then supports app-dev and app-analyze.
 - `research explanation`: a wave section that names sources, decisions, unknowns, and the constitution ids it explains.
 - `plan microtask`: one ordered app-plan unit recorded in `docs/app-task-ledger.v1.json`, linked to constitution and research refs.
@@ -43,7 +44,7 @@ flowchart LR
   A -->|blocked| B["record blocker"]
 ```
 
-The main artifact order is always `app-constitution -> app-research -> app-plan -> app-functional-graph -> app-dev -> app-analyze`. Support skills do not create new main stages.
+The main artifact order is always `app-constitution -> app-research -> app-plan -> app-functional-graph -> app-dev -> app-analyze`. `app-constitution` never routes directly to `app-plan`. Support skills do not create new main stages.
 
 ## Script ownership
 
@@ -55,15 +56,15 @@ The plugin package must not add `scripts/`, `hooks.json`, `.mcp.json`, or manife
 
 ### app-constitution
 
-Input: app target, owner, product constraints, non-negotiable functional rules, existing docs, existing workflow artifacts, and execution constraints when supplied by the current session.
+Input: exact app target, user intent, product constraints, existing docs, existing workflow artifacts, and execution constraints supplied by the current session.
 
-Output: `docs/app-constitution.md` with functional ids, capabilities, gaps, open decisions, execution constraints, and evidence needs.
+Output: `docs/app-constitution.md` and, only when cited, `docs/app-user-evidence.md`, using the exact shapes in `docs/artifact-contracts.md`. When no exact record is available, output one concrete question and do not create an empty artifact.
 
-Gate: every functional capability has a stable id, owner, evidence need, and known gap or accepted state.
+Gate: every stored record satisfies its type contract, empty sections and placeholders are absent, and the next main stage is `app-research`. Report non-sensitive descriptions of session execution constraints in the closeout; do not store them in the constitution.
 
 ### app-research
 
-Input: user intent, app target, `docs/app-constitution.md`, existing waves, relevant sources, execution constraints when supplied, and user answers.
+Input: user intent, app target, `docs/app-constitution.md`, every cited `docs/app-user-evidence.md#user-msg-*` entry, existing waves, relevant sources, execution constraints when supplied, and user answers.
 
 Output:
 
@@ -71,7 +72,7 @@ Output:
 - `waves/index.md`
 - `waves/<wave-id>/research.md`
 
-Gate: every touched wave states which constitution ids it explains and records sources, decisions, unknowns, and next route. New functional truth or drift returns to `app-constitution`.
+Gate: every touched wave states which constitution ids it explains and records sources, decisions, unknowns, and next route. Only research-confirmed `cap-*` and `gap-*` records may become plan inputs. An `inference-*` stays in research until verification produces a source-backed constitution record. New functional truth or drift returns to `app-constitution`.
 
 ### app-specify
 
@@ -79,11 +80,11 @@ Input: research wave questions that cannot be resolved from current sources.
 
 Output: `clarification.packet.v1` folded back into `waves/<wave-id>/research.md` when a wave file exists, or returned in the response when no wave file exists.
 
-Gate: clarification is complete enough for `app-plan`; this helper does not create plan tasks or graph nodes.
+Gate: clarification is folded back into `app-research`. This helper does not route directly to `app-plan` or create plan tasks or graph nodes.
 
 ### app-plan
 
-Input: `docs/app-constitution.md`, wave research, current task ledger, implemented-state notes when present, and execution constraints when supplied.
+Input: research-confirmed `cap-*` and `gap-*` records from `docs/app-constitution.md`, wave research, current task ledger, implemented-state notes when present, and execution constraints when supplied.
 
 Output:
 
@@ -91,7 +92,7 @@ Output:
 - updated `docs/app-task-ledger.v1.json`
 - approved microtasks with constitution and research refs
 
-Gate: every microtask references one or more constitution ids and research sections, has an order, target paths, dependencies, planned owner and critic roles, definition of done, proof requirement, and status. Planning does not create graph nodes.
+Gate: every microtask references one or more research-confirmed `cap-*` or `gap-*` ids and research sections, has an order, target paths, dependencies, planned owner and critic roles, definition of done, proof requirement, and status. `constraint-*`, `decision-*`, and `inference-*` records are not plan inputs. Planning does not create graph nodes.
 
 ### app-functional-graph
 
@@ -102,7 +103,7 @@ Output:
 - `docs/app-functional-graph.v1.json`
 - graph refs and backlinks for `docs/app-task-ledger.v1.json`
 
-Gate: every graph node has complete lineage through constitution refs, research refs, and plan task refs. The graph models the future `app-dev` stage.
+Gate: every graph node has complete lineage through confirmed `cap-*` or `gap-*` refs, research refs, and plan task refs. Inferences never enter the graph. The graph models the future `app-dev` stage.
 
 ### app-dev
 
@@ -114,13 +115,13 @@ Output: task status updates, changed-file lists, generated evidence refs when pr
 
 ### app-analyze
 
-Input: constitution, research, plan, graph, ledger, implementation state, and plugin files when file-audit mode is requested.
+Input: constitution, every user-evidence entry it cites, research, plan, graph, ledger, implementation state, and plugin files when file-audit mode is requested.
 
 Output: `waves/<wave-id>/analysis.md` with status `pass`, `needs-constitution`, `needs-research`, `needs-plan`, `needs-graph`, `needs-dev`, or `blocked`.
 
 `app-analyze` also owns file-level instruction quality audits for usefulness, consistency, brevity, unambiguity, instruction coverage, portability, degradation resistance, and no-test-tooling risk.
 
-Functional drift returns to `app-constitution`. Research drift returns to `app-research`. Plan drift returns to `app-plan`. Graph drift returns to `app-functional-graph`. Dev drift returns to `app-dev`. Execution-constraint drift is reported separately and must not rewrite functional truth.
+Functional drift returns to `app-constitution`. Research drift returns to `app-research`. Plan drift returns to `app-plan`. Graph drift returns to `app-functional-graph`. Dev drift returns to `app-dev`. Execution-constraint drift is reported in closeout and must not rewrite functional truth.
 
 ## Support skill contracts
 

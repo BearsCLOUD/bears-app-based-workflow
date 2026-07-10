@@ -1,7 +1,7 @@
 {
   "name": "bears-app-based-workflow",
   "version": "0.1.0+codex.20260709180407",
-  "description": "Self-contained sequential app workflow plugin for constitution truth, research waves, approved plan microtasks, dev-stage functional graphs, task ledgers, packet contracts, role-matched handoffs, and app-analyze reuse-quality audits.",
+  "description": "Self-contained sequential app workflow plugin for concise app rules, exact user-message evidence, research waves, approved plan microtasks, dev-stage functional graphs, task ledgers, packet contracts, role-matched handoffs, and lineage audits.",
   "author": {
     "name": "BearsCLOUD",
     "url": "https://github.com/BearsCLOUD"
@@ -28,14 +28,15 @@
   "skills": "./skills/",
   "interface": {
     "displayName": "Bears App-Based Workflow",
-    "shortDescription": "Sequential constitution, research, plan, graph, dev, analysis, and reuse audit workflow.",
-    "longDescription": "Bears App-Based Workflow provides a self-contained application workflow: app constitution as functional source of truth, research waves that explain constitution ids, approved sequential plan microtasks, a functional graph that models future app-dev work after planning, graph-linked task ledgers, versioned handoff packet contracts, role-matched sequential handoffs, read-only instruction hardening, and app-analyze lineage plus file reuse-quality audit. The plugin artifacts do not depend on a specific host workspace instruction file, runtime service, role inventory, or validation script.",
+    "shortDescription": "Exact constitution, evidence, research, plan, graph, dev, and audit workflow.",
+    "longDescription": "Bears App-Based Workflow provides a self-contained application workflow: a concise app constitution with only populated typed records and required sources, optional immutable excerpts from user messages, research that verifies capabilities and gaps, approved sequential plan microtasks, a dev-stage functional graph, graph-linked task ledgers, versioned handoff packets, role-matched handoffs, read-only instruction hardening, and exact lineage audits. Inferences stop at research until confirmed. The plugin artifacts do not depend on a host workspace instruction file, runtime service, role inventory, or validation script.",
     "developerName": "BearsCLOUD",
     "category": "Development",
     "capabilities": [
       "Self-contained app workflow",
-      "App constitution functional truth",
-      "Constitution gap register",
+      "Exact typed app constitution records",
+      "Optional immutable user-message evidence",
+      "Research-only inference handling",
       "Research waves mapped to constitution ids",
       "Approved sequential plan microtasks",
       "Dev-stage functional graph from approved plan microtasks",
@@ -51,8 +52,8 @@
     ],
     "websiteURL": "https://github.com/BearsCLOUD/bears-app-based-workflow",
     "defaultPrompt": [
-      "Create or update the app constitution functional truth.",
-      "Research and plan a wave with constitution refs.",
+      "Write only exact typed constitution records and every required source.",
+      "Verify capabilities and gaps in research before planning.",
       "Model plan microtasks in the graph and analyze lineage."
     ],
     "brandColor": "#3B82F6"

@@ -286,6 +286,63 @@
       ],
       "wave_id": "workflow-instruction-coverage",
       "status": "graph_modeled"
+    },
+    {
+      "task_id": "task-constitution-precision",
+      "order": 9,
+      "title": "Enforce precise constitution records and user evidence",
+      "constitution_refs": [
+        "cap-constitution-precision",
+        "cap-user-message-evidence"
+      ],
+      "research_refs": [
+        "waves/workflow-instruction-coverage/research.md#constitution-mapping",
+        "waves/workflow-instruction-coverage/research.md#decisions",
+        "waves/workflow-instruction-coverage/research.md#plan-inputs"
+      ],
+      "target_paths": [
+        "docs/artifact-contracts.md",
+        "docs/functional-graph-ledger-contract.md",
+        "docs/app-constitution.md",
+        "docs/app-user-evidence.md",
+        "skills/app-constitution/SKILL.md",
+        "skills/app-constitution/agents/openai.yaml",
+        "skills/app-research/SKILL.md",
+        "skills/app-plan/SKILL.md",
+        "skills/app-functional-graph/SKILL.md",
+        "skills/app-analyze/SKILL.md",
+        "templates/docs/app-constitution.md",
+        "templates/docs/app-user-evidence.md",
+        "templates/docs/app-task-ledger.v1.json",
+        "templates/docs/app-functional-graph.v1.json",
+        "templates/waves/index.md",
+        "templates/waves/wave-id/research.md",
+        "templates/waves/wave-id/plan.md",
+        "README.md",
+        "SPEC.md",
+        "docs/workflow-stage-gates.md",
+        ".codex-plugin/plugin.json",
+        "docs/app-task-ledger.v1.json",
+        "docs/app-functional-graph.v1.json",
+        "docs/backtests/plugin-self-test.md",
+        "waves/index.md",
+        "waves/workflow-instruction-coverage/research.md",
+        "waves/workflow-instruction-coverage/plan.md",
+        "waves/workflow-instruction-coverage/analysis.md"
+      ],
+      "depends_on": [
+        "task-manifest-positioning"
+      ],
+      "owner_role": "instruction-reviewer",
+      "critic_role": "reviewer",
+      "definition_of_done": "Constitution output contains only populated exact records, cited session messages use safe immutable evidence entries, research is the only next stage, and inferences cannot enter planning or graph modeling.",
+      "proof_requirement": "Targeted inspection covers a minimal constitution, more than 100 necessary lines, omitted empty sections, inference exclusion, exact excerpts, supersession, conflicting active messages, sensitive-text rejection, and constitution-to-research-to-plan-to-graph lineage.",
+      "graph_node_refs": [
+        "cap-constitution-precision:precision-contract",
+        "cap-user-message-evidence:user-evidence-contract"
+      ],
+      "wave_id": "workflow-instruction-coverage",
+      "status": "graph_modeled"
     }
   ]
 }

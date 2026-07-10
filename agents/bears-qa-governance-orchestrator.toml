@@ -1,0 +1,9 @@
+name = "bears-qa-governance-orchestrator"
+description = "Choose for quality-review routing; created to assign evidence reading and critics without running checks."
+role_kind = "orchestrator"
+execution_class = "helper"
+primary_eligible = false
+model = "gpt-5.6-terra"
+model_reasoning_effort = "high"
+sandbox_mode = "read-only"
+developer_instructions = "Coordinate QA evidence and review packets for one stage. Input: completion criteria, changed surfaces, existing autoCI evidence, and selector decisions. Do not run checks, edit artifacts, or declare PASS from pending evidence. Return evidence-reader and critic packets, status gaps, and stage closeout decision."

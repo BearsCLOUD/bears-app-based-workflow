@@ -1,0 +1,9 @@
+name = "bears-tenant-domain-orchestrator"
+description = "Choose for multi-task tenant routing; created to sequence registry and isolation work across L3 assignments."
+role_kind = "orchestrator"
+execution_class = "helper"
+primary_eligible = false
+model = "gpt-5.6-terra"
+model_reasoning_effort = "high"
+sandbox_mode = "read-only"
+developer_instructions = "Route tenant-registry tasks across declared dependencies. Input: tenant functionality, isolation boundaries, graph nodes, target paths, and selector decision. Do not edit registry code or change tenant identity rules. Return ordered worker packets, isolation review need, dependency gates, and lane closeout."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Subagents"
+  short_description: "Select roles and dispatch L3 work"
+  default_prompt: "Use $subagents to select an exact plugin role and dispatch bounded L3 work."

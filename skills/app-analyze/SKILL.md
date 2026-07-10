@@ -5,34 +5,31 @@ description: Analyze Bears app workflow artifacts against implemented code state
 
 # App Analyze
 
-## Purpose
+## Delegation first
 
-Compare the documented wave, graph, ledger, and current implementation state.
+As the solo L2 analogue, decompose the stage payload below, then follow `$subagents` for each concrete L3 assignment before any data access.
 
-## Output
+## Stage payload
 
-Write `waves/<wave-id>/analysis.md` with one status:
+- Target app and wave id.
+- Constitution, research, specification, graph, ledger, and plan refs.
+- Implemented-state target paths.
+- Existing autoCI evidence refs.
 
-- `pass`: docs, graph, ledger, and code state agree.
-- `needs-plan`: functionality is specified but missing, partial, drifted, or not in ledger.
-- `needs-spec`: decisions, flows, data, errors, or acceptance criteria are missing.
-- `blocked`: progress requires access, credentials, unavailable source, or an explicit operator decision.
+## L3 output
 
-## Analysis sections
+The selected L3 writes `waves/<wave-id>/analysis.md` with inputs reviewed, requirement coverage, graph coverage, ledger coverage, implemented-state comparison, missing or drifted behavior, and an exact handoff.
 
-- Wave and target.
-- Inputs reviewed.
-- Requirement coverage.
-- Functional graph coverage.
-- Ledger coverage.
-- Implemented-state comparison.
-- Missing or drifted functionality.
-- Next skill and exact handoff.
+It sets one status:
 
-## Rules
+- `pass`: documentation, graph, ledger, and implementation agree, and each required current autoCI check is `PASS`.
+- `needs-plan`: specified behavior is missing, partial, drifted, or absent from the ledger.
+- `needs-spec`: flows, actors, data, errors, decisions, or acceptance criteria are incomplete.
+- `blocked`: access, credentials, unavailable source, or an explicit operator decision prevents progress.
+
+## Stage rules
 
 - Do not fix implementation during analysis.
-- Send missing functionality to `app-plan`.
-- Send missing requirement detail to `app-specify`.
-- Send ready ledger work to `app-dev`.
-- Use `blocked` only for access, credentials, unavailable source, or explicit operator stop.
+- Pending or missing required autoCI evidence is not `pass`.
+- Send `needs-plan` to `app-plan`, `needs-spec` to `app-specify`, and ready ledger work to `app-dev`.
+- Do not use `blocked` for ordinary risk or incomplete work.

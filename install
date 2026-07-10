@@ -1,0 +1,744 @@
+#!/usr/bin/env python3
+"""Register Bears App-Based Workflow agent profiles in a Codex home."""
+
+from __future__ import annotations
+
+import argparse
+import fcntl
+import hashlib
+import json
+import os
+from pathlib import Path
+import re
+import stat
+import sys
+import tempfile
+import tomllib
+from typing import Any
+
+PLUGIN_ID = "bears-app-based-workflow"
+STATE_SCHEMA = "bears-role-install-receipt.v1"
+BEGIN_MARKER = b"# >>> bears-app-based-workflow agent roles (managed by ./install)"
+END_MARKER = b"# <<< bears-app-based-workflow agent roles (managed by ./install)"
+ROLE_COUNT = 61
+
+# Only these legacy global profiles may be archived. The first eighteen were
+# historical same-name conflicts; bears-orchestrator was the prior global L1.
+LEGACY_PROFILE_FILES = frozenset(
+    {
+        "bears-analytics-quality-engineer.toml",
+        "bears-auth-domain-orchestrator.toml",
+        "bears-auth-platform-engineer.toml",
+        "bears-deploy-platform-engineer.toml",
+        "bears-development-workflow-orchestrator.toml",
+        "bears-gateway-domain-orchestrator.toml",
+        "bears-gateway-platform-engineer.toml",
+        "bears-github-branch-protection-settings-governor.toml",
+        "bears-infra-domain-orchestrator.toml",
+        "bears-notifications-platform-engineer.toml",
+        "bears-payments-domain-orchestrator.toml",
+        "bears-payments-platform-engineer.toml",
+        "bears-platform-security-reviewer.toml",
+        "bears-product-app-zone-engineer.toml",
+        "bears-qa-governance-orchestrator.toml",
+        "bears-tenant-domain-orchestrator.toml",
+        "bears-tenant-registry-platform-engineer.toml",
+        "bears-wb-integration-platform-engineer.toml",
+        "bears-orchestrator.toml",
+    }
+)
+
+
+class InstallError(Exception):
+    """A failure whose code is safe to expose."""
+
+    def __init__(self, code: str):
+        super().__init__(code)
+        self.code = code
+
+
+def safe_component(value: str) -> str:
+    clean = re.sub(r"[^A-Za-z0-9._+-]+", "_", value)
+    return clean[:96] or "unknown"
+
+
+def parse_cli() -> argparse.Namespace:
+    argv = sys.argv[1:]
+    operation = "install"
+    if argv and argv[0] in {"install", "uninstall"}:
+        operation = argv.pop(0)
+    parser = argparse.ArgumentParser(
+        prog="./install",
+        description="Register or unregister plugin-owned Codex agent profiles.",
+    )
+    parser.add_argument("--codex-home", type=Path)
+    parser.add_argument("--dry-run", action="store_true")
+    args = parser.parse_args(argv)
+    args.operation = operation
+    return args
+
+
+def plugin_metadata(plugin_root: Path) -> tuple[str, list[tuple[str, Path]]]:
+    manifest = plugin_root / ".codex-plugin" / "plugin.json"
+    try:
+        manifest_data = json.loads(manifest.read_text(encoding="utf-8"))
+        version = manifest_data["version"]
+    except (OSError, UnicodeError, json.JSONDecodeError, KeyError, TypeError):
+        raise InstallError("plugin-manifest-invalid") from None
+    if not isinstance(version, str) or not version:
+        raise InstallError("plugin-version-invalid")
+
+    agents_dir = plugin_root / "agents"
+    try:
+        paths = sorted(agents_dir.glob("*.toml"))
+    except OSError:
+        raise InstallError("profile-catalog-unreadable") from None
+    if len(paths) != ROLE_COUNT:
+        raise InstallError("profile-count-invalid")
+
+    profiles: list[tuple[str, Path]] = []
+    required = {
+        "name",
+        "description",
+        "role_kind",
+        "execution_class",
+        "primary_eligible",
+        "model",
+        "model_reasoning_effort",
+        "sandbox_mode",
+        "developer_instructions",
+    }
+    seen: set[str] = set()
+    for path in paths:
+        try:
+            if path.is_symlink() or not path.is_file():
+                raise InstallError("profile-path-invalid")
+            with path.open("rb") as stream:
+                data = tomllib.load(stream)
+        except InstallError:
+            raise
+        except (OSError, tomllib.TOMLDecodeError):
+            raise InstallError("profile-toml-invalid") from None
+        if not required.issubset(data):
+            raise InstallError("profile-fields-missing")
+        name = data.get("name")
+        if not isinstance(name, str) or name != path.stem or name in seen:
+            raise InstallError("profile-name-invalid")
+        seen.add(name)
+        profiles.append((name, path.resolve()))
+    return version, profiles
+
+
+def build_block(version: str, profiles: list[tuple[str, Path]]) -> bytes:
+    lines = [BEGIN_MARKER.decode(), f"# plugin_version = {json.dumps(version)}"]
+    for name, path in profiles:
+        lines.extend(
+            (
+                f"[agents.{json.dumps(name)}]",
+                f"config_file = {json.dumps(str(path))}",
+            )
+        )
+    lines.append(END_MARKER.decode())
+    return ("\n".join(lines) + "\n").encode("utf-8")
+
+
+def find_managed_block(data: bytes) -> tuple[int, int, bytes] | None:
+    begin_count = data.count(BEGIN_MARKER)
+    end_count = data.count(END_MARKER)
+    if begin_count == 0 and end_count == 0:
+        return None
+    if begin_count != 1 or end_count != 1:
+        raise InstallError("managed-block-conflict")
+    start = data.find(BEGIN_MARKER)
+    end_start = data.find(END_MARKER)
+    if end_start < start:
+        raise InstallError("managed-block-conflict")
+    end = end_start + len(END_MARKER)
+    if data[end : end + 2] == b"\r\n":
+        end += 2
+    elif data[end : end + 1] == b"\n":
+        end += 1
+    return start, end, data[start:end]
+
+
+def digest_bytes(data: bytes) -> str:
+    return hashlib.sha256(data).hexdigest()
+
+
+def load_toml_bytes(data: bytes) -> dict[str, Any]:
+    try:
+        parsed = tomllib.loads(data.decode("utf-8")) if data else {}
+    except (UnicodeError, tomllib.TOMLDecodeError):
+        raise InstallError("config-toml-invalid") from None
+    if not isinstance(parsed, dict):
+        raise InstallError("config-toml-invalid")
+    return parsed
+
+
+def remove_legacy_orchestrator_registration(
+    data: bytes, parsed: dict[str, Any], codex_home: Path
+) -> tuple[bytes, bool]:
+    agents = parsed.get("agents", {})
+    if not isinstance(agents, dict):
+        raise InstallError("agents-table-invalid")
+    legacy = agents.get("bears-orchestrator")
+    if legacy is None:
+        return data, False
+    if not isinstance(legacy, dict) or set(legacy) != {"config_file"}:
+        raise InstallError("legacy-registration-conflict")
+    config_file = legacy.get("config_file")
+    if not isinstance(config_file, str):
+        raise InstallError("legacy-registration-conflict")
+    expected = os.path.normpath(str(codex_home / "agents" / "bears-orchestrator.toml"))
+    actual = os.path.normpath(os.path.expanduser(config_file))
+    if actual != expected:
+        raise InstallError("legacy-registration-conflict")
+
+    try:
+        text = data.decode("utf-8")
+    except UnicodeError:
+        raise InstallError("config-toml-invalid") from None
+    lines = text.splitlines(keepends=True)
+    header = re.compile(r'^\s*\[agents(?:\.bears-orchestrator|\."bears-orchestrator")\]\s*(?:#.*)?(?:\r?\n)?$')
+    table_header = re.compile(r"^\s*\[")
+    assignment = re.compile(r"^\s*config_file\s*=")
+    header_indexes = [index for index, line in enumerate(lines) if header.fullmatch(line)]
+    if len(header_indexes) != 1:
+        raise InstallError("legacy-registration-conflict")
+    start = header_indexes[0]
+    stop = len(lines)
+    for index in range(start + 1, len(lines)):
+        if table_header.match(lines[index]):
+            stop = index
+            break
+    assignment_indexes: list[int] = []
+    for index in range(start + 1, stop):
+        stripped = lines[index].strip()
+        if not stripped or stripped.startswith("#"):
+            continue
+        if assignment.match(lines[index]):
+            assignment_indexes.append(index)
+        else:
+            raise InstallError("legacy-registration-conflict")
+    if len(assignment_indexes) != 1:
+        raise InstallError("legacy-registration-conflict")
+    remove = {start, assignment_indexes[0]}
+    result = "".join(line for index, line in enumerate(lines) if index not in remove).encode("utf-8")
+    load_toml_bytes(result)
+    return result, True
+
+
+def reject_unmanaged_roles(parsed: dict[str, Any], role_names: set[str]) -> None:
+    agents = parsed.get("agents", {})
+    if not isinstance(agents, dict):
+        raise InstallError("agents-table-invalid")
+    if role_names.intersection(agents):
+        raise InstallError("unmanaged-role-conflict")
+
+
+def load_state(path: Path) -> tuple[dict[str, Any] | None, bytes | None]:
+    if not path.exists():
+        return None, None
+    if path.is_symlink() or not path.is_file():
+        raise InstallError("receipt-path-invalid")
+    try:
+        raw = path.read_bytes()
+        state = json.loads(raw.decode("utf-8"))
+    except (OSError, UnicodeError, json.JSONDecodeError):
+        raise InstallError("receipt-invalid") from None
+    if not isinstance(state, dict) or state.get("schema") != STATE_SCHEMA:
+        raise InstallError("receipt-invalid")
+    if state.get("plugin") != PLUGIN_ID:
+        raise InstallError("receipt-invalid")
+    return state, raw
+
+
+def read_regular_or_empty(path: Path) -> tuple[bytes, os.stat_result | None]:
+    if not path.exists():
+        return b"", None
+    if path.is_symlink() or not path.is_file():
+        raise InstallError("config-path-invalid")
+    try:
+        return path.read_bytes(), path.stat()
+    except OSError:
+        raise InstallError("config-unreadable") from None
+
+
+def ensure_safe_directory(path: Path, *, create: bool) -> None:
+    if path.exists():
+        if path.is_symlink() or not path.is_dir():
+            raise InstallError("directory-path-invalid")
+        return
+    if not create:
+        return
+    parent = path.parent
+    if parent != path:
+        ensure_safe_directory(parent, create=True)
+    try:
+        path.mkdir(mode=0o700)
+    except FileExistsError:
+        pass
+    except OSError:
+        raise InstallError("directory-create-failed") from None
+    if path.is_symlink() or not path.is_dir():
+        raise InstallError("directory-path-invalid")
+
+
+def archive_candidates(codex_home: Path) -> list[Path]:
+    agents_dir = codex_home / "agents"
+    if not agents_dir.exists():
+        return []
+    if agents_dir.is_symlink() or not agents_dir.is_dir():
+        raise InstallError("global-agents-path-invalid")
+    candidates: list[Path] = []
+    for filename in sorted(LEGACY_PROFILE_FILES):
+        path = agents_dir / filename
+        if not path.exists():
+            continue
+        if path.is_symlink() or not path.is_file():
+            raise InstallError("legacy-profile-path-invalid")
+        candidates.append(path)
+    return candidates
+
+
+def choose_archive_dir(codex_home: Path, version: str, digest: str) -> Path:
+    parent = codex_home / "archive" / PLUGIN_ID / safe_component(version)
+    stem = f"sync-{digest[:12]}"
+    for sequence in range(1, 1000):
+        candidate = parent / f"{stem}-{sequence:03d}"
+        if not candidate.exists():
+            return candidate
+    raise InstallError("archive-capacity-exceeded")
+
+
+def state_document(
+    *,
+    version: str,
+    installed: bool,
+    digest: str | None,
+    added_joiner: bool,
+    archives: list[dict[str, Any]],
+) -> dict[str, Any]:
+    return {
+        "schema": STATE_SCHEMA,
+        "plugin": PLUGIN_ID,
+        "version": version,
+        "status": "installed" if installed else "uninstalled",
+        "changed": True,
+        "role_count": ROLE_COUNT,
+        "managed_digest": digest,
+        "managed_joiner_added": added_joiner,
+        "archives": archives,
+    }
+
+
+def encode_state(state: dict[str, Any]) -> bytes:
+    return (json.dumps(state, indent=2, sort_keys=True) + "\n").encode("utf-8")
+
+
+def atomic_write(
+    path: Path,
+    data: bytes,
+    previous_stat: os.stat_result | None,
+    *,
+    default_mode: int = 0o600,
+) -> None:
+    ensure_safe_directory(path.parent, create=True)
+    if path.exists() and (path.is_symlink() or not path.is_file()):
+        raise InstallError("atomic-target-invalid")
+    mode = stat.S_IMODE(previous_stat.st_mode) if previous_stat else default_mode
+    uid = previous_stat.st_uid if previous_stat else os.geteuid()
+    gid = previous_stat.st_gid if previous_stat else os.getegid()
+    fd = -1
+    temp_name = ""
+    try:
+        fd, temp_name = tempfile.mkstemp(prefix=f".{path.name}.", dir=path.parent)
+        os.fchmod(fd, mode)
+        current = os.fstat(fd)
+        if current.st_uid != uid or current.st_gid != gid:
+            os.fchown(fd, uid, gid)
+        with os.fdopen(fd, "wb", closefd=True) as stream:
+            fd = -1
+            stream.write(data)
+            stream.flush()
+            os.fsync(stream.fileno())
+        os.replace(temp_name, path)
+        temp_name = ""
+        directory_fd = os.open(path.parent, os.O_RDONLY | os.O_DIRECTORY)
+        try:
+            os.fsync(directory_fd)
+        finally:
+            os.close(directory_fd)
+    except (OSError, PermissionError):
+        raise InstallError("atomic-write-failed") from None
+    finally:
+        if fd >= 0:
+            os.close(fd)
+        if temp_name:
+            try:
+                os.unlink(temp_name)
+            except OSError:
+                pass
+
+
+def relative_to_home(path: Path, codex_home: Path) -> str:
+    try:
+        return str(path.relative_to(codex_home))
+    except ValueError:
+        raise InstallError("archive-path-invalid") from None
+
+
+def plan_operation(
+    *,
+    operation: str,
+    codex_home: Path,
+    version: str,
+    profiles: list[tuple[str, Path]],
+    block: bytes,
+) -> dict[str, Any]:
+    config_path = codex_home / "config.toml"
+    state_path = codex_home / "state" / f"{PLUGIN_ID}-role-sync.json"
+    config_data, config_stat = read_regular_or_empty(config_path)
+    state, state_raw = load_state(state_path)
+    managed = find_managed_block(config_data)
+    block_digest = digest_bytes(block)
+    existing_archives = [] if state is None else state.get("archives", [])
+    if not isinstance(existing_archives, list):
+        raise InstallError("receipt-invalid")
+
+    if managed is not None:
+        current_digest = digest_bytes(managed[2])
+        if state is None or state.get("status") != "installed":
+            raise InstallError("managed-block-unowned")
+        if state.get("managed_digest") != current_digest:
+            raise InstallError("managed-block-drift")
+    elif state is not None and state.get("status") == "installed":
+        raise InstallError("managed-block-missing")
+
+    candidates: list[Path] = []
+    archive_dir: Path | None = None
+    legacy_removed = False
+    role_names = {name for name, _ in profiles}
+
+    if operation == "install":
+        if managed is None:
+            parsed = load_toml_bytes(config_data)
+            config_base, legacy_removed = remove_legacy_orchestrator_registration(
+                config_data, parsed, codex_home
+            )
+            parsed_base = load_toml_bytes(config_base)
+            reject_unmanaged_roles(parsed_base, role_names)
+            added_joiner = bool(config_base and not config_base.endswith((b"\n", b"\r")))
+            desired_config = config_base + (b"\n" if added_joiner else b"") + block
+        else:
+            added_joiner = bool(state.get("managed_joiner_added", False))
+            desired_config = config_data[: managed[0]] + block + config_data[managed[1] :]
+            unmanaged = config_data[: managed[0]] + config_data[managed[1] :]
+            reject_unmanaged_roles(load_toml_bytes(unmanaged), role_names)
+        candidates = archive_candidates(codex_home)
+        if candidates:
+            archive_dir = choose_archive_dir(codex_home, version, block_digest)
+            archive_entry = {
+                "directory": relative_to_home(archive_dir, codex_home),
+                "count": len(candidates),
+                "files": [path.name for path in candidates],
+            }
+            archives = [*existing_archives, archive_entry]
+        else:
+            archives = existing_archives
+        desired_state = state_document(
+            version=version,
+            installed=True,
+            digest=block_digest,
+            added_joiner=added_joiner,
+            archives=archives,
+        )
+    else:
+        candidates = []
+        archive_dir = None
+        legacy_removed = False
+        if managed is None:
+            desired_config = config_data
+            if state is None:
+                desired_state = None
+            else:
+                desired_state = state_document(
+                    version=version,
+                    installed=False,
+                    digest=None,
+                    added_joiner=False,
+                    archives=existing_archives,
+                )
+        else:
+            remove_start = managed[0]
+            if bool(state.get("managed_joiner_added", False)):
+                if remove_start < 1 or config_data[remove_start - 1 : remove_start] != b"\n":
+                    raise InstallError("managed-joiner-conflict")
+                remove_start -= 1
+            desired_config = config_data[:remove_start] + config_data[managed[1] :]
+            desired_state = state_document(
+                version=version,
+                installed=False,
+                digest=None,
+                added_joiner=False,
+                archives=existing_archives,
+            )
+
+    desired_state_raw = None if desired_state is None else encode_state(desired_state)
+    config_changed = desired_config != config_data
+    state_changed = desired_state_raw != state_raw
+    changed = config_changed or state_changed or bool(candidates)
+    return {
+        "config_path": config_path,
+        "config_data": config_data,
+        "config_stat": config_stat,
+        "desired_config": desired_config,
+        "config_changed": config_changed,
+        "state_path": state_path,
+        "state_data": state_raw,
+        "state_stat": state_path.stat() if state_path.exists() else None,
+        "desired_state": desired_state_raw,
+        "state_changed": state_changed,
+        "candidates": candidates,
+        "archive_dir": archive_dir,
+        "legacy_removed": legacy_removed,
+        "changed": changed,
+        "digest": block_digest,
+        "archive_history_count": len(existing_archives),
+    }
+
+
+def move_archives(candidates: list[Path], archive_dir: Path) -> list[tuple[Path, Path]]:
+    ensure_safe_directory(archive_dir.parent, create=True)
+    if archive_dir.exists():
+        raise InstallError("archive-conflict")
+    try:
+        archive_dir.mkdir(mode=0o700)
+    except OSError:
+        raise InstallError("archive-create-failed") from None
+    moved: list[tuple[Path, Path]] = []
+    try:
+        for source in candidates:
+            destination = archive_dir / source.name
+            if destination.exists():
+                raise InstallError("archive-conflict")
+            os.replace(source, destination)
+            moved.append((source, destination))
+        directory_fd = os.open(archive_dir, os.O_RDONLY | os.O_DIRECTORY)
+        try:
+            os.fsync(directory_fd)
+        finally:
+            os.close(directory_fd)
+    except (OSError, InstallError) as error:
+        restored = True
+        for source, destination in reversed(moved):
+            try:
+                os.replace(destination, source)
+            except OSError:
+                restored = False
+        try:
+            archive_dir.rmdir()
+        except OSError:
+            restored = False
+        if not restored:
+            raise InstallError("rollback-failed") from None
+        if isinstance(error, InstallError):
+            raise error
+        raise InstallError("archive-move-failed") from None
+    return moved
+
+
+def rollback(
+    *,
+    plan: dict[str, Any],
+    moved: list[tuple[Path, Path]],
+    config_attempted: bool,
+    state_attempted: bool,
+) -> bool:
+    try:
+        if state_attempted:
+            state_path: Path = plan["state_path"]
+            if plan["state_data"] is None:
+                if state_path.exists():
+                    state_path.unlink()
+            else:
+                atomic_write(state_path, plan["state_data"], plan["state_stat"])
+        if config_attempted:
+            config_path: Path = plan["config_path"]
+            if plan["config_stat"] is None and plan["config_data"] == b"":
+                if config_path.exists():
+                    config_path.unlink()
+            else:
+                atomic_write(config_path, plan["config_data"], plan["config_stat"])
+        for source, destination in reversed(moved):
+            if source.exists() or not destination.exists():
+                raise OSError
+            os.replace(destination, source)
+        archive_dir: Path | None = plan["archive_dir"]
+        if archive_dir is not None and archive_dir.exists():
+            archive_dir.rmdir()
+        return True
+    except (OSError, InstallError):
+        return False
+
+
+def apply_plan(plan: dict[str, Any]) -> None:
+    moved: list[tuple[Path, Path]] = []
+    config_attempted = False
+    state_attempted = False
+    try:
+        if plan["candidates"]:
+            moved = move_archives(plan["candidates"], plan["archive_dir"])
+        if plan["config_changed"]:
+            config_attempted = True
+            atomic_write(
+                plan["config_path"],
+                plan["desired_config"],
+                plan["config_stat"],
+            )
+        if plan["state_changed"]:
+            state_attempted = True
+            desired_state = plan["desired_state"]
+            if desired_state is None:
+                if plan["state_path"].exists():
+                    plan["state_path"].unlink()
+            else:
+                atomic_write(
+                    plan["state_path"],
+                    desired_state,
+                    plan["state_stat"],
+                )
+    except InstallError as error:
+        if not rollback(
+            plan=plan,
+            moved=moved,
+            config_attempted=config_attempted,
+            state_attempted=state_attempted,
+        ):
+            raise InstallError("rollback-failed") from None
+        raise error
+
+
+def emit(
+    *,
+    operation: str,
+    version: str,
+    status: str,
+    changed: bool,
+    digest: str,
+    archived: int,
+    code: str | None = None,
+) -> None:
+    receipt: dict[str, Any] = {
+        "plugin": PLUGIN_ID,
+        "version": version,
+        "operation": operation,
+        "status": status,
+        "changed": changed,
+        "role_count": ROLE_COUNT,
+        "archived_count": archived,
+        "digest": digest,
+    }
+    if operation in {"install", "uninstall"} and status in {"changed", "no-op"}:
+        receipt["new_task_required"] = True
+    if code is not None:
+        receipt["code"] = code
+    print(json.dumps(receipt, sort_keys=True, separators=(",", ":")))
+
+
+def main() -> int:
+    args = parse_cli()
+    plugin_root = Path(__file__).resolve().parent
+    version = "unknown"
+    digest = ""
+    try:
+        version, profiles = plugin_metadata(plugin_root)
+        block = build_block(version, profiles)
+        digest = digest_bytes(block)
+        home_arg = args.codex_home
+        if home_arg is None:
+            home_arg = Path(os.environ.get("CODEX_HOME", "~/.codex"))
+        codex_home = home_arg.expanduser().absolute()
+
+        if args.dry_run:
+            if codex_home.exists() and (codex_home.is_symlink() or not codex_home.is_dir()):
+                raise InstallError("codex-home-invalid")
+            plan = plan_operation(
+                operation=args.operation,
+                codex_home=codex_home,
+                version=version,
+                profiles=profiles,
+                block=block,
+            )
+            emit(
+                operation=args.operation,
+                version=version,
+                status="dry-run",
+                changed=plan["changed"],
+                digest=plan["digest"],
+                archived=len(plan["candidates"]),
+            )
+            return 0
+
+        if args.operation == "uninstall" and not codex_home.exists():
+            emit(
+                operation=args.operation,
+                version=version,
+                status="no-op",
+                changed=False,
+                digest=digest,
+                archived=0,
+            )
+            return 0
+        ensure_safe_directory(codex_home, create=args.operation == "install")
+        lock_path = codex_home / f".{PLUGIN_ID}.lock"
+        try:
+            flags = os.O_RDWR | os.O_CREAT
+            if hasattr(os, "O_NOFOLLOW"):
+                flags |= os.O_NOFOLLOW
+            lock_fd = os.open(lock_path, flags, 0o600)
+        except OSError:
+            raise InstallError("lock-open-failed") from None
+        try:
+            lock_stat = os.fstat(lock_fd)
+            if not stat.S_ISREG(lock_stat.st_mode):
+                raise InstallError("lock-path-invalid")
+            fcntl.flock(lock_fd, fcntl.LOCK_EX)
+            plan = plan_operation(
+                operation=args.operation,
+                codex_home=codex_home,
+                version=version,
+                profiles=profiles,
+                block=block,
+            )
+            if plan["changed"]:
+                apply_plan(plan)
+                status = "changed"
+            else:
+                status = "no-op"
+        finally:
+            os.close(lock_fd)
+        emit(
+            operation=args.operation,
+            version=version,
+            status=status,
+            changed=plan["changed"],
+            digest=plan["digest"],
+            archived=len(plan["candidates"]),
+        )
+        return 0
+    except InstallError as error:
+        emit(
+            operation=getattr(args, "operation", "install"),
+            version=version,
+            status="error",
+            changed=False,
+            digest=digest,
+            archived=0,
+            code=error.code,
+        )
+        return 1
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

@@ -2,17 +2,24 @@
 
 ## Purpose
 
-Provide a compact Codex plugin that turns product-app intent into researched waves, detailed specs, functional graph nodes, graph-linked ledger tasks, hardened implementation dispatch packets, and convergence analysis.
+Turn app intent into researched waves, decision-complete specifications, functional graph nodes, graph-linked ledger tasks, delegated implementation, and convergence analysis.
 
-## Terms
+## Instruction ownership
 
-- `wave`: one app workflow slice created by research, specified by user interaction, planned through graph-linked ledger tasks, analyzed against code state, and dispatched when dependency-ready.
-- `functional graph`: `docs/app-functional-graph.v1.json`, the app-local map of functionality, nodes, edges, state transitions, API calls, and evidence references.
-- `task ledger`: `docs/app-task-ledger.v1.json`, the app-local source of executable tasks.
-- `instruction hardening`: read-only compression of wave plans, dispatch packets, or workflow prose without changing product decisions, task scope, instruction authority, `AGENTS.md`, or contracts.
-- `L1`: the parent app-dev coordinator.
-- `L2`: one orchestrator lane for a ready wave or wave partition.
-- `L3`: one worker or critic assigned a bounded ledger task.
+- Root and nearest `AGENTS.md` files own mandatory local rules.
+- Workspace contracts own shared invariants.
+- `skills/app-dev` owns fixed L1-to-L2 orchestration, L2 task decomposition, lane partitioning, and wave closeout.
+- `skills/subagents` owns the role-selection and dispatch procedure, packets, lifecycle, and fail-closed outcomes for each concrete L3 assignment.
+- Other `app-*` skills own only their stage goal, payload, artifact, and transition rules.
+- `skills/instruction-hardening` owns instruction-edit routing.
+- `agents/*.toml` owns each role's unique behavior, model, reasoning effort, and sandbox.
+- External autoCI owns tests, validators, audits, and cache checks.
+
+## Delegation contract
+
+Every `app-*` skill uses `subagents` before data access. A solo parent or app-dev L2 decomposes its bounded task first, then follows the procedure for each concrete L3 assignment. Parent, L1, and L2 coordinate through compact packets only. Selected L3 helpers, workers, and critics perform file, log, terminal, Git, script, MCP, runtime, and network work.
+
+`skills/app-dev/SKILL.md` defines the parent-as-L1 sequence, fixed L2 lanes, and L2 decomposition boundaries. `skills/subagents/SKILL.md` is the only definition of the concrete L3 selector and dispatch procedure, failure outcomes, and `role-request.v1`, `role-selection.v1`, `dispatch-packet.v1`, and `result-packet.v1`. The skill is not a task recipient or runtime. Outside app-dev, a solo parent performs the L2 sequence without creating an L1 or L2 subagent.
 
 ## Workflow
 
@@ -23,93 +30,52 @@ flowchart LR
   S --> G["app-functional-graph"]
   G --> P["app-plan"]
   P --> A["app-analyze"]
-  A -->|needs-spec| S
-  A -->|needs-plan| P
-  A -->|ready ledger work| H["instruction-hardening optional"]
-  H --> D["app-dev"]
+  A -->|"needs-spec"| S
+  A -->|"needs-plan"| P
+  A -->|"ready work"| D["app-dev"]
   D --> A
-  A -->|pass| X["close wave"]
-  A -->|blocked| B["operator unblock"]
+  A -->|"pass"| X["close wave"]
+  A -->|"blocked"| B["operator decision"]
 ```
 
-## Stage contracts
+Before data access at each node, the solo parent decomposes its stage task and follows `subagents` per assignment. In app-dev, its fixed L2 performs that decomposition instead.
 
-### app-constitution
+## Stage outputs
 
-Input: app target, owner, product constraints, non-negotiable rules, existing docs.
+### `app-constitution`
 
-Output: `docs/app-constitution.md` and optional wave links.
+Writes `docs/app-constitution.md` with app scope, decision owner, actors, constraints, data and secret boundaries, closeout evidence, and open decisions.
 
-### app-research
+### `app-research`
 
-Input: user intent, app target, existing waves, relevant sources.
+Writes the wave registry plus `waves/<wave-id>/research.md` with scope, sources, known behavior, unknowns, decisions, and follow-up questions.
 
-Output:
+### `app-specify`
 
-- `wave-research.packet`
-- `waves/index.md`
-- `waves/<wave-id>/research.md`
+Writes `waves/<wave-id>/spec.md` with actors, permissions, flows, data ownership, errors, integrations, acceptance criteria, graph hints, and unresolved decisions.
 
-Each wave records scope, unknowns, sources, decisions, follow-up questions, and sync status.
+### `app-functional-graph`
 
-### app-specify
+Writes `docs/app-functional-graph.v1.json` and ledger anchors. Every executable task references at least one functionality id and graph node.
 
-Input: one or more research waves and open questions.
+### `app-plan`
 
-Output: `waves/<wave-id>/spec.md` with actors, flows, data, errors, acceptance criteria, unresolved decisions, and graph hints.
+Writes `waves/<wave-id>/plan.md` and updates graph-linked ledger tasks for missing or drifted, decision-complete behavior.
 
-### app-functional-graph
+### `app-analyze`
 
-Input: specified waves and existing graph or ledger files.
+Writes `waves/<wave-id>/analysis.md` with `pass`, `needs-plan`, `needs-spec`, or `blocked` status and one exact handoff.
 
-Output:
+### `app-dev`
 
-- `docs/app-functional-graph.v1.json`
-- graph references for `docs/app-task-ledger.v1.json`
+Partitions dependency-ready ledger tasks into fixed non-overlapping L2 lanes. Each L2 decomposes its lane tasks, then follows `subagents` for each concrete L3 assignment; app-dev never duplicates L3 role selection or lifecycle logic.
 
-Every executable task must reference at least one functionality id and one graph node ref.
+## Instruction editing
 
-### app-plan
+`skills/instruction-hardening/SKILL.md` is the canonical instruction-edit procedure. It always uses `bears-instruction-editor`; a role change first uses `bears-role-editor-auditor` for approved semantics.
 
-Input: wave specs, graph, ledger, and implemented-state notes.
+## Role registration
 
-Output:
+`agents/` is the only TOML source. `./install` adds marked `config_file` links to `$CODEX_HOME/config.toml`; `./install uninstall` removes only that managed block. A changed registration requires a new Codex task.
 
-- `waves/<wave-id>/plan.md`
-- updated `docs/app-functional-graph.v1.json`
-- updated `docs/app-task-ledger.v1.json`
-
-`app-plan` creates only decision-complete tasks. Missing decisions return to `app-specify`. It may run a read-only `instruction-hardening` pass when the operator allows subagents in the current run.
-
-### app-analyze
-
-Input: docs, graph, ledger, and implemented code state.
-
-Output: `waves/<wave-id>/analysis.md` with status `pass`, `needs-plan`, `needs-spec`, or `blocked`.
-
-Missing functionality returns to `app-plan`. Missing requirements return to `app-specify`. Ready ledger work goes to `app-dev`. `pass` closes the wave.
-
-### instruction-hardening
-
-Input: wave plan, candidate dispatch packets, and target `AGENTS.md` or linked contracts.
-
-Output: compressed text, removed-content summary, and authority or drift note.
-
-`instruction-hardening` is read-only. It never creates tasks, changes product decisions, or overrides `AGENTS.md` and contracts.
-
-### app-dev
-
-Input: ledger tasks with valid graph refs and ready dependencies.
-
-Output: L2 dispatch packets, L3 task packets, ledger status updates, and wave closeout notes.
-
-`app-dev` never invents implementation tasks outside the ledger. L1 starts L2 lanes. L2 starts L3 workers and critics only when the operator allows delegation in the current run. Role and subagent helper skills live under `/home/ai1/.codex/skills` when available.
-
-## Scenario prompts
-
-- “research app feature” uses `app-research` and creates or updates waves.
-- “specify this wave” uses `app-specify` and expands wave docs.
-- “plan unbuilt functionality” uses `app-plan` and writes graph-linked ledger tasks.
-- “analyze implemented state” uses `app-analyze` and reports missing or drifted functionality.
-- “harden this wave” uses `instruction-hardening` and tightens wave prose without changing authority.
-- “dev ready wave” uses `app-dev` and prepares L2/L3 dispatch packets.
+The plugin contains no tests, validator scripts, audit scripts, or manual verification workflow. Pending external autoCI evidence is not a pass.

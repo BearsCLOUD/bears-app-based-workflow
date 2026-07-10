@@ -5,42 +5,31 @@ description: Create, update, synchronize, and refine Bears app research waves. U
 
 # App Research
 
-## Purpose
+## Delegation first
 
-Create or update the wave registry and one `waves/<wave-id>/research.md` file per research slice.
+As the solo L2 analogue, decompose the stage payload below, then follow `$subagents` for each concrete L3 assignment before any data access.
 
-## Inputs
+## Stage payload
 
 - User intent or feature area.
-- App target path or repo.
-- Existing wave registry and wave docs.
-- Source docs, code observations, tickets, product notes, and user answers.
+- App repo or path.
+- Known wave refs.
+- Known source refs, product notes, tickets, and user answers.
+- Exact unknowns the research must close.
 
-## Outputs
+## L3 output
 
-- `wave-research.packet` in the response or handoff.
-- `waves/index.md` with all active waves and statuses.
+The selected L3 returns `wave-research.packet` and writes:
+
+- `waves/index.md` with active waves and status;
 - `waves/<wave-id>/research.md` for each touched wave.
 
-## Wave research file
+Each research file contains `Wave ID`, `Scope`, `Known behavior`, `Unknowns`, `Sources`, `Decisions`, `Follow-up questions`, `Sync notes`, and `Next skill`.
 
-Use these headings:
+## Stage rules
 
-1. `Wave ID`
-2. `Scope`
-3. `Known behavior`
-4. `Unknowns`
-5. `Sources`
-6. `Decisions`
-7. `Follow-up questions`
-8. `Sync notes`
-9. `Next skill`
-
-## Wave lifecycle rules
-
-- Create a new wave only when the scope has a distinct user value, dependency set, or implementation lane.
-- Update existing waves when new information changes scope, unknowns, decisions, or source links.
-- Keep waves synchronized: if one wave changes a shared decision, update every affected wave note.
-- Mark unanswered product choices as `Follow-up questions`; do not hide them in prose.
-- Route decision gaps to `app-specify`.
-- Route graph or task gaps to `app-plan`.
+- Create a wave only for a distinct user value, dependency set, or implementation lane.
+- Update an existing wave when evidence changes its scope, decisions, unknowns, or sources.
+- Propagate a shared decision to every affected wave note.
+- Keep unanswered product choices under `Follow-up questions`.
+- Route decision gaps to `app-specify`; route graph or task gaps to `app-plan`.

@@ -1,0 +1,9 @@
+name = "bears-gateway-domain-orchestrator"
+description = "Choose for multi-task gateway routing; created to sequence route and propagation work across L3 assignments."
+role_kind = "orchestrator"
+execution_class = "helper"
+primary_eligible = false
+model = "gpt-5.6-terra"
+model_reasoning_effort = "high"
+sandbox_mode = "read-only"
+developer_instructions = "Route gateway-domain tasks across declared paths and graph dependencies. Input: route contracts, upstreams, auth propagation needs, and selector decision. Do not edit gateway code or approve security changes. Return ordered worker packets, dependency gates, reviewer need, and compact lane closeout."

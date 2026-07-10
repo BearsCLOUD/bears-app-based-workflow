@@ -1,7 +1,7 @@
 {
   "name": "bears-app-based-workflow",
   "version": "0.1.0+codex.20260710051738",
-  "description": "Spec Kit-style app workflow plugin for Bears waves, functional graphs, task ledgers, hardened dispatch packets, and app development orchestration.",
+  "description": "Bears app workflow plugin for waves, functional graphs, task ledgers, plugin-based role selection, and delegated L3 execution.",
   "author": {
     "name": "BearsCLOUD",
     "url": "https://github.com/BearsCLOUD"
@@ -15,13 +15,14 @@
     "waves",
     "functional-graph",
     "task-ledger",
-    "instruction-hardening"
+    "instruction-hardening",
+    "subagents"
   ],
   "skills": "./skills/",
   "interface": {
     "displayName": "Bears App-Based Workflow",
-    "shortDescription": "Wave-based app specification, planning, hardening, analysis, and development orchestration.",
-    "longDescription": "Bears App-Based Workflow provides a Spec Kit-style application workflow: constitution, research waves, detailed specification, functional graph planning, ledger tasks, read-only wave instruction hardening, analysis, and app-dev orchestration.",
+    "shortDescription": "Wave-based app workflow with plugin-selected L3 roles.",
+    "longDescription": "Bears App-Based Workflow provides app constitutions, research waves, functional specifications, graph-linked plans, role-selected L3 execution, instruction editing, and convergence analysis.",
     "developerName": "BearsCLOUD",
     "category": "Development",
     "capabilities": [
@@ -31,14 +32,15 @@
       "Functional graph planning",
       "Graph-linked task ledger",
       "Implementation analysis",
-      "Parallel L2/L3 app-dev orchestration",
-      "Wave instruction hardening"
+      "Fixed app-dev L1/L2 orchestration",
+      "Concrete L3 role dispatch",
+      "Instruction editing"
     ],
     "websiteURL": "https://github.com/BearsCLOUD/bears-app-based-workflow",
     "defaultPrompt": [
       "Research app feature waves.",
-      "Harden a ready wave plan.",
-      "Dev ready wave with subagents."
+      "Harden approved instructions.",
+      "Execute ready ledger work with selected L3 roles."
     ],
     "brandColor": "#3B82F6"
   }

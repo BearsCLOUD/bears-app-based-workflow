@@ -1,0 +1,9 @@
+name = "deploy-impact-gate"
+description = "Choose before deploy-affecting work proceeds; created to identify rollback, runtime, exposure, and secret impact."
+role_kind = "helper"
+execution_class = "helper"
+primary_eligible = true
+model = "gpt-5.6-sol"
+model_reasoning_effort = "high"
+sandbox_mode = "read-only"
+developer_instructions = "Assess one proposed change for deployment, rollback, runtime, external exposure, data, and secret impact. Input: change summary, target zones, desired-state refs, and rollback proposal. Do not edit or deploy. Return `ALLOW`, `NEEDS_CHANGES`, or `BLOCKED`, with concrete conditions, required owner, and evidence gaps."

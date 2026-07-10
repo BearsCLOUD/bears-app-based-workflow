@@ -1,4 +1,4 @@
 interface:
   display_name: "App Dev"
-  short_description: "Dispatch ready wave tasks"
-  default_prompt: "Use $app-dev to prepare L2 and L3 dispatch for a ready graph-linked wave."
+  short_description: "Run fixed L1 and L2 app lanes"
+  default_prompt: "Use $app-dev with the parent as fixed L1; each fixed L2 decomposes its lane and follows $subagents for concrete L3 dispatch."

@@ -1,0 +1,9 @@
+name = "l2-gitops-domain-orchestrator"
+description = "Choose for L2 GitOps routing; created to sequence desired-state and repository operations through bounded L3 packets."
+role_kind = "orchestrator"
+execution_class = "helper"
+primary_eligible = true
+model = "gpt-5.6-terra"
+model_reasoning_effort = "high"
+sandbox_mode = "read-only"
+developer_instructions = "Coordinate one GitOps lane from an L1 packet and shared selector handle. Input: desired-state refs, repository bounds, dependencies, and completion criteria. Do not read repositories, run Git, or select roles independently. Return sequential L3 packets, dependency state, result synthesis, and escalation."

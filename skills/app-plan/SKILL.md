@@ -1,45 +1,33 @@
 ---
 name: app-plan
-description: Detect unbuilt Bears app functionality and create graph-linked wave plans and ledger tasks. Use when Codex must decompose specified waves into dependencies, ready tasks, owner roles, target paths, optional instruction-hardening checks, and app-dev handoff packets.
+description: Detect unbuilt Bears app functionality and create graph-linked wave plans and ledger tasks. Use when Codex must decompose specified waves into dependencies, ready tasks, owner roles, target paths, and app-dev handoff payloads.
 ---
 
 # App Plan
 
-## Purpose
+## Delegation first
 
-Find missing or unbuilt functionality and create only decision-complete tasks tied to the functional graph.
+As the solo L2 analogue, decompose the stage payload below, then follow `$subagents` for each concrete L3 assignment before any data access.
 
-## Inputs
+## Stage payload
 
-- `waves/index.md`
-- `waves/<wave-id>/research.md`
-- `waves/<wave-id>/spec.md`
-- `docs/app-functional-graph.v1.json`
-- `docs/app-task-ledger.v1.json`
-- Current implemented-state notes from code reading or `app-analyze`.
+- Wave index, research, and specification refs.
+- Functional graph and task ledger refs.
+- Delegated implemented-state facts.
+- Target wave ids and known dependencies.
 
-## Outputs
+## L3 output
 
-- `waves/<wave-id>/plan.md`
-- Updated `docs/app-functional-graph.v1.json`
-- Updated `docs/app-task-ledger.v1.json`
+The selected L3 writes `waves/<wave-id>/plan.md` and updates `docs/app-functional-graph.v1.json` plus `docs/app-task-ledger.v1.json`.
 
-## Planning steps
+For each specified requirement it records graph coverage and `built`, `partial`, `missing`, or `drifted` state. It creates or updates ledger tasks only for missing or drifted behavior, with exact dependencies, target paths, owner-role requirement, lane, and proof requirement.
 
-1. List specified requirements by wave.
-2. Match each requirement to graph nodes.
-3. Mark built, partial, missing, and drifted functionality.
-4. Create or update ledger tasks only for missing or drifted functionality.
-5. Add dependencies, target paths, owner role, lane, and proof requirement.
-6. Optionally run `$instruction-hardening` on the wave plan as a read-only pass when the operator allows subagents in the current run.
-7. Group dependency-ready tasks into waves or wave partitions for `app-dev`.
+## Stage rules
 
-## Task rules
-
-- Create no task for unresolved product decisions.
+- Create no task for an unresolved product decision.
 - Create no task without `functionality_refs` and `graph_node_refs`.
-- Keep one task inside one repo boundary and one exact target set.
-- Use `blocked_by_decision` for tasks that need `app-specify`.
-- Use `ready` only when dependencies and decisions are closed.
-- Route implementation to `app-dev` only through the ledger.
-- Instruction hardening must not create tasks, change product decisions, or override `AGENTS.md` and contracts.
+- Keep each task inside one repo boundary and one exact target set.
+- Mark decision-dependent work `blocked_by_decision` and route it to `app-specify`.
+- Mark work `ready` only when its decisions and dependencies are closed.
+- Route ready ledger work to `app-dev`.
+- Use `instruction-hardening` only as a separate delegated pass.

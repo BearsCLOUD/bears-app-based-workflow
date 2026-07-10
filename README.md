@@ -1,50 +1,58 @@
 # Bears App-Based Workflow
 
-`bears-app-based-workflow` is a Codex plugin for Bears application work. It follows a Spec Kit-style lifecycle and adds Bears-specific waves, functional graph planning, graph-linked ledger tasks, hardened dispatch packets, and parallel app-dev orchestration.
+`bears-app-based-workflow` is a Codex plugin for app constitutions, research waves, functional specifications, graph-linked plans, delegated implementation, and convergence analysis.
 
-## Lifecycle
+## Workflow
 
-1. `app-constitution` records the app baseline and decision rules.
-2. `app-research` creates or updates research waves and synchronizes the wave registry.
-3. `app-specify` works with the user to expand wave docs into detailed functional specs.
-4. `app-functional-graph` maps requirements to graph nodes and ledger references.
-5. `app-plan` finds unbuilt functionality and writes graph-linked task plans.
-6. `app-analyze` compares docs, graph, ledger, and implemented state.
-7. `instruction-hardening` can tighten wave plans or dispatch packets without changing authority.
-8. `app-dev` dispatches ready ledger tasks through L2 orchestrators and L3 workers.
-9. `app-analyze` closes the convergence loop after implementation.
+Every `app-*` skill uses `subagents` before file, log, terminal, Git, MCP, runtime, or network access. The solo parent or app-dev L2 first decomposes its task, then follows the skill for each concrete L3 assignment. Selected L3 agents perform the work.
 
-## Core artifacts
+1. `app-constitution` records the app baseline.
+2. `app-research` creates and synchronizes research waves.
+3. `app-specify` closes product decisions with the user.
+4. `app-functional-graph` maps requirements to stable graph nodes.
+5. `app-plan` creates graph-linked ledger tasks for unbuilt behavior.
+6. `app-analyze` compares documentation, graph, ledger, and implementation.
+7. `app-dev` partitions dependency-ready work through fixed L1 and L2 orchestration, then dispatches concrete L3 assignments.
+8. `app-analyze` checks convergence after implementation.
 
-- `waves/index.md` — wave registry.
-- `waves/<wave-id>/research.md` — wave research packet.
-- `waves/<wave-id>/spec.md` — detailed functional specification.
-- `waves/<wave-id>/plan.md` — task and dependency plan.
-- `waves/<wave-id>/analysis.md` — implementation and documentation comparison.
-- `docs/app-functional-graph.v1.json` — app-local functionality graph.
-- `docs/app-task-ledger.v1.json` — app-local task ledger.
+`instruction-hardening` routes approved semantics through the dedicated instruction editor. Role changes first go through the separate role editor/auditor.
 
 ## Plugin skills
 
-App workflow skills: `app-constitution`, `app-research`, `app-specify`, `app-functional-graph`, `app-plan`, `app-analyze`, `app-dev`.
+- Stage procedures: `app-constitution`, `app-research`, `app-specify`, `app-functional-graph`, `app-plan`, `app-analyze`, `app-dev`.
+- Dispatch procedure: `subagents`.
+- Instruction procedure: `instruction-hardening`.
 
-Workflow hardening skill: `instruction-hardening`.
+In `app-dev`, the parent takes the fixed L1 role and starts fixed L2 lanes; each L2 owns task decomposition. `subagents` owns the role-selection and helper-worker-critic dispatch procedure for each concrete L3 assignment, including the four packet schemas. It is not a task recipient. Outside app-dev, a solo parent acts as the L2 analogue. There is no `subagents-roles` skill.
 
-## Local Codex skill dependencies
+## Core artifacts
 
-General helper skills live outside this plugin under `/home/ai1/.codex/skills`:
+- `docs/app-constitution.md`
+- `waves/index.md`
+- `waves/<wave-id>/research.md`
+- `waves/<wave-id>/spec.md`
+- `waves/<wave-id>/plan.md`
+- `waves/<wave-id>/analysis.md`
+- `docs/app-functional-graph.v1.json`
+- `docs/app-task-ledger.v1.json`
 
-- `bears-agents`
-- `mcp-designer`
-- `python-codeflow`
-- `subagents`
-- `subagents-roles`
-- `yandex360-dns`
+## Role installation
 
-These local skills are optional helpers. They do not make this plugin an instruction authority and do not override `AGENTS.md` or contracts.
+Role TOML files live only in `agents/`. Register their `config_file` links after checkout updates:
 
-## Repository target
+```text
+./install [--codex-home PATH] [--dry-run]
+./install uninstall [--codex-home PATH] [--dry-run]
+```
 
-Target GitHub repository: `BearsCLOUD/bears-app-based-workflow`.
+The installer updates only its marked config block and archives known legacy duplicates. Start a new Codex task after a changed install.
 
-GitHub repository rename and push are operator steps. Local plugin identity and local remotes can point at the target name before the remote repository exists.
+## Ownership
+
+- Nearest `AGENTS.md`: mandatory local rules.
+- Workspace contracts: shared invariants.
+- Plugin skills: reusable procedures.
+- Plugin role TOML: unique role behavior.
+- External autoCI: tests, validators, audits, and cache checks.
+
+Target repository: `BearsCLOUD/bears-app-based-workflow`.

@@ -1,0 +1,9 @@
+name = "bears-token-budget-helper"
+description = "Choose when agent work approaches context limits; created to summarize state and recommend a precise split."
+role_kind = "helper"
+execution_class = "helper"
+primary_eligible = true
+model = "gpt-5.6-luna"
+model_reasoning_effort = "low"
+sandbox_mode = "read-only"
+developer_instructions = "Measure supplied task state against token and duration bounds. Input: current packet, remaining work, active handles, and budget limits. Do not read workspace files, alter plans, or execute work. Return compact preserved facts, discardable context, split recommendation, continuation packet, and urgency."

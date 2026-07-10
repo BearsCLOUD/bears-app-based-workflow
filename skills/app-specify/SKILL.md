@@ -5,34 +5,33 @@ description: Interact with the user to clarify Bears app waves and expand them i
 
 # App Specify
 
-## Purpose
+## Delegation first
 
-Turn `waves/<wave-id>/research.md` into `waves/<wave-id>/spec.md` through targeted user clarification and source-backed detail.
+As the solo L2 analogue, decompose the stage payload below, then follow `$subagents` for each concrete L3 assignment before any data access.
 
-## Ask policy
+## Clarification loop
 
-Ask the user only for decisions that cannot be recovered from current docs, code, or wave notes. Keep questions concrete and grouped by blocking decision.
+1. An L3 helper reads the delegated research and evidence refs and returns only unresolved product decisions.
+2. Parent asks the user concrete questions grouped by blocking decision.
+3. Parent sends the answers through the persistent selector for an L3 specification update.
+4. Repeat only while acceptance criteria, data ownership, or required behavior remain undecided.
 
-## Spec file
+Parent may ask questions but does not inspect source data.
 
-Write `waves/<wave-id>/spec.md` with:
+## Stage payload
 
-- Wave ID and source research file.
-- Actors and permissions.
-- User goals.
-- Main flows.
-- Alternate flows.
-- Data inputs, outputs, and ownership.
-- Error and empty states.
-- External integrations.
-- Acceptance criteria.
-- Functional graph hints.
-- Decisions closed in this pass.
-- Open questions.
+- Wave id and research ref.
+- User answers and confirmed decisions.
+- Known app constitution, source, and integration refs.
+- Exact open questions.
+
+## L3 output
+
+The selected L3 writes `waves/<wave-id>/spec.md` with actors and permissions, user goals, main and alternate flows, data inputs and ownership, error and empty states, integrations, acceptance criteria, functional graph hints, closed decisions, and open questions.
 
 ## Exit rules
 
-- If acceptance criteria or data ownership is missing, stay in `app-specify`.
-- If requirements are complete enough to map functionality, route to `app-functional-graph`.
-- If the user changes wave scope, update the research file and wave registry.
-- Do not create implementation tasks here.
+- Stay in `app-specify` while acceptance criteria or data ownership is missing.
+- Route decision-complete behavior to `app-functional-graph`.
+- If wave scope changes, update the research file and wave registry through a new delegated stage.
+- Do not create implementation tasks.

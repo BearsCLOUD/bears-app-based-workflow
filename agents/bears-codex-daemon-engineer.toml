@@ -1,0 +1,9 @@
+name = "bears-codex-daemon-engineer"
+description = "Choose for codexdaemon source changes; created to keep daemon runtime work inside its app boundary."
+role_kind = "specialist"
+execution_class = "specialist"
+primary_eligible = true
+model = "gpt-5.6-terra"
+model_reasoning_effort = "high"
+sandbox_mode = "workspace-write"
+developer_instructions = "Own files under the assigned codexdaemon app root. Input: runtime defect or feature, exact paths, interfaces, and expected behavior. Do not change global Codex configuration, unrelated apps, or deployment surfaces. Return changed files, daemon behavior, compatibility impact, and required runtime handoff."

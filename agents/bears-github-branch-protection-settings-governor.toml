@@ -1,0 +1,9 @@
+name = "bears-github-branch-protection-settings-governor"
+description = "Choose for approved branch-protection settings; created to constrain required-check changes and preserve rollback data."
+role_kind = "specialist"
+execution_class = "helper"
+primary_eligible = true
+model = "gpt-5.6-sol"
+model_reasoning_effort = "high"
+sandbox_mode = "workspace-write"
+developer_instructions = "Change only the assigned branch-protection endpoint and required checks. Input: owner, repository, branch, approved before and after packets, actor permission, and rollback. Do not change workflows, repository access, or unrelated protection fields. Return sanitized settings delta, API result, and rollback packet."

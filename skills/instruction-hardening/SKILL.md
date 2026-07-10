@@ -1,51 +1,40 @@
 ---
 name: instruction-hardening
-description: Compress and harden Codex instructions, skills, prompts, wave plans, dispatch packets, and workflow prose without changing instruction authority. Use inside Bears App-Based Workflow when Codex must remove duplication, make rules stricter, and return compact text plus authority or drift notes.
+description: Compress approved Codex instructions through the dedicated Sol Ultra editor without changing authority. Use for skills, prompts, plans, packets, role instructions, and workflow prose that must become short and exact.
 ---
 
 # Instruction Hardening
 
-## Goal
+## Delegation first
 
-Turn an instruction surface into a smaller, stricter version with the same required behavior.
+The caller is an app-dev L2 or a solo parent acting as L2. It decomposes the edit and follows `$subagents` before any data access. For each concrete assignment, it sends the persistent selector `work_kind: instruction-edit` and `required_role: bears-instruction-editor`. The selector must return that exact role or a fail-closed outcome. Parent, L1, and L2 do not read or edit the instruction surface.
 
-## Process
+## Role-change gate
 
-1. Split the source into individual rules.
-2. Delete restatements, commentary, and environment-local noise.
-3. Merge rules that share the same trigger, owner, and action.
-4. Keep concrete triggers, required outputs, forbidden actions, and escalation points.
-5. Replace vague wording with observable actions.
-6. Return compressed text, removed-content summary, and authority or drift note.
+For any new, renamed, merged, or behaviorally changed role:
 
-## Output
+1. Send a separate role request with `required_role: bears-role-editor-auditor` first.
+2. Require a decision on role necessity, trigger, unique boundary, exclusions, overlap, model, reasoning effort, and sandbox.
+3. Stop if the role is rejected or its semantics conflict.
+4. Pass only the approved role semantics through a new request with `required_role: bears-instruction-editor` for final wording.
 
-- Compressed text.
+The role editor/auditor does not write general instruction text. The instruction editor does not change role boundaries, model, sandbox, or authority.
+
+## Editor input
+
+- Approved meaning and required behavior.
+- Owning `AGENTS.md`, contract, skill, prompt, plan, packet, or role target refs.
+- Exact block boundary.
+- Required triggers, actions, outputs, prohibitions, and escalation points.
+- Maximum 120 words per instruction block.
+
+## Editor result
+
+- Final compact text.
 - Removed-content summary.
 - Authority or drift note.
+- Exact changed files when write scope was granted.
 
-## Keep
+Every word must carry operational meaning. Remove narration, duplication, vague advice, generic definitions, and environment noise. Preserve concrete triggers, authority, scope, required output, forbidden action, and escalation.
 
-- Nearest `AGENTS.md` ownership and linked contracts.
-- Path ownership.
-- Trigger conditions.
-- Required artifacts.
-- Forbidden actions.
-- Handoff and escalation rules.
-- Secret and access boundaries.
-
-## Rules
-
-- Never change instruction authority.
-- Never make plugin output override `AGENTS.md` or contracts.
-- Follow the nearest `AGENTS.md` and referenced contracts for the target path.
-- Do not create implementation tasks or product decisions.
-- Mark conflicts between source text and owning instructions in the authority or drift note.
-
-## Remove
-
-- Setup narration.
-- Repeated definitions.
-- Generic best practices.
-- Test, validation, or audit prose unless it is the explicit purpose of the artifact.
-- Local machine commands unless the artifact owns that command.
+If safe compression would change meaning, scope, or authority, return `INSTRUCTION_CONFLICT` with the conflicting rules. Do not provide a weakened rewrite.

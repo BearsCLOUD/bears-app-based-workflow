@@ -5,24 +5,35 @@ description: Create or update the first-stage app constitution for Bears app wor
 
 # App Constitution
 
-## Output
+## Delegation first
 
-Write `docs/app-constitution.md` for the app target. If a wave already exists, link it instead of duplicating details.
+As the solo L2 analogue, decompose the stage payload below, then follow `$subagents` for each concrete L3 assignment before any data access.
 
-## Required sections
+## Stage payload
 
-- Target app path or repo.
+- App repo or path supplied by the user or a workspace-reader result.
 - Product owner or decision source.
-- In-scope users, actors, and runtime surfaces.
-- Non-negotiable rules and constraints.
-- Data ownership and secret boundaries.
-- Acceptance evidence required before a wave can close.
-- Open decisions that block specification or planning.
+- Known actors and runtime surfaces.
+- Existing constitution or wave refs, when known.
+- Product constraints and unresolved decisions.
 
-## Rules
+## L3 output
 
-- Keep the constitution app-local; do not write workspace-wide rules.
-- Record concrete decisions only. Put uncertain items under `Open decisions`.
-- Do not create implementation tasks here.
-- Send missing product choices to `app-specify`.
-- Send missing source or domain knowledge to `app-research`.
+The selected L3 writes `docs/app-constitution.md` with:
+
+- target app repo or path;
+- product owner or decision source;
+- in-scope users, actors, and runtime surfaces;
+- non-negotiable rules and constraints;
+- data ownership and secret boundaries;
+- evidence required before wave closeout;
+- open decisions that block specification or planning.
+
+If a wave already owns detail, link it instead of copying it.
+
+## Stage rules
+
+- Keep the constitution app-local; do not write workspace rules.
+- Record confirmed decisions. Put unresolved items under `Open decisions`.
+- Do not create implementation tasks.
+- Route product decision gaps to `app-specify` and missing domain evidence to `app-research`.

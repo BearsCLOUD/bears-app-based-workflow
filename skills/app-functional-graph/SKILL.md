@@ -5,65 +5,31 @@ description: Maintain the Bears app functional graph and graph-to-ledger referen
 
 # App Functional Graph
 
-## Purpose
+## Delegation first
 
-Create or update the app-local functional graph and task-ledger anchors.
+As the solo L2 analogue, decompose the stage payload below, then follow `$subagents` for each concrete L3 assignment before any data access.
 
-## Files
+## Stage payload
 
-- `docs/app-functional-graph.v1.json`
-- `docs/app-task-ledger.v1.json`
+- App id and wave ids.
+- Constitution, research, and specification refs.
+- Existing graph and ledger refs.
+- Required functionality, dependency, state, API, data, integration, and error coverage.
 
-## Functional graph shape
+## L3 output
 
-Use stable ids. Keep this minimum structure:
+The selected L3 creates or updates:
 
-```json
-{
-  "schema": "app-functional-graph.v1",
-  "app": "<app-id>",
-  "functions": [
-    {
-      "functionality_id": "<stable-id>",
-      "wave_id": "<wave-id>",
-      "title": "<user-visible behavior>",
-      "nodes": [
-        {
-          "node_id": "<stable-node>",
-          "kind": "ui|api|state|job|integration|data|error",
-          "requirement_refs": ["<spec-section>"],
-          "depends_on": [],
-          "ledger_task_refs": []
-        }
-      ],
-      "edges": [],
-      "evidence_refs": []
-    }
-  ]
-}
-```
+- `docs/app-functional-graph.v1.json`;
+- graph anchors in `docs/app-task-ledger.v1.json`.
 
-## Ledger reference shape
+Each function has a stable `functionality_id`, `wave_id`, title, nodes, edges, and evidence refs. Each node has a stable `node_id`, kind, requirement refs, dependencies, and ledger task refs. Use `<functionality_id>:<node_id>` for `graph_node_refs`.
 
-Every executable ledger task needs:
+Every executable ledger task includes `task_id`, `wave_id`, `functionality_refs`, `graph_node_refs`, `target_paths`, `owner_role`, `lane`, `depends_on`, `decision_state`, `proof_requirement`, and `status`.
 
-- `task_id`
-- `wave_id`
-- `functionality_refs`
-- `graph_node_refs`
-- `target_paths`
-- `owner_role`
-- `lane`
-- `depends_on`
-- `decision_state`
-- `proof_requirement`
-- `status`
-
-`graph_node_refs` use `<functionality_id>:<node_id>`.
-
-## Rules
+## Stage rules
 
 - Never create a task without graph refs.
-- Never delete graph ids that existing ledger tasks reference; mark replacement and add a new id.
-- If a requirement has no graph home, add a graph node before planning tasks.
-- If a graph node lacks a decision-complete requirement, return it to `app-specify`.
+- Never delete an id referenced by a ledger task; record its replacement and add a new id.
+- Add a graph node before planning work for an unmapped requirement.
+- Return undecided requirements to `app-specify`.

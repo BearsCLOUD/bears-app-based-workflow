@@ -15,13 +15,13 @@ Every `app-*` skill uses `subagents` before file, log, terminal, Git, MCP, runti
 7. `app-dev` partitions dependency-ready work through fixed L1 and L2 orchestration, then dispatches concrete L3 assignments.
 8. `app-analyze` checks convergence after implementation.
 
-`instruction-hardening` routes approved semantics through the dedicated instruction editor. Role changes first go through the separate role editor/auditor.
+`instruction-editor` owns final instruction policy decisions and results; `instruction-hardening` supplies its repeatable editing method. `role-profile-architect` owns role-profile decisions and results; `role-profile-maintenance` supplies its comparison and least-privilege method.
 
 ## Plugin skills
 
 - Stage procedures: `app-constitution`, `app-research`, `app-specify`, `app-functional-graph`, `app-plan`, `app-analyze`, `app-dev`.
 - Dispatch procedure: `subagents`.
-- Instruction procedure: `instruction-hardening`.
+- Instruction procedures: `instruction-hardening`, `role-profile-maintenance`.
 
 In `app-dev`, the parent takes the fixed L1 role and starts fixed L2 lanes; each L2 owns task decomposition. `subagents` owns the role-selection and helper-worker-critic dispatch procedure for each concrete L3 assignment, including the four packet schemas. It is not a task recipient. Outside app-dev, a solo parent acts as the L2 analogue. There is no `subagents-roles` skill.
 

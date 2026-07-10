@@ -156,7 +156,7 @@ Do not return raw file bodies, logs, command dumps, secrets, or production data.
 
 ## Failure outcomes
 
-- `ROLE_GAP`: no installed role has the required boundary, model, and sandbox. Route the role proposal to `bears-role-editor-auditor`; do not execute the dependent assignment.
+- `ROLE_GAP`: no installed role has the required boundary, model, and sandbox. Route the role proposal to `role-profile-architect`; do not execute the dependent assignment.
 - `DELEGATION_BLOCKED`: the concrete assignment is incomplete, or the selector, subagent tool, required slot, or selected role cannot start. Report the missing field or capability and stop the dependent work.
 - `registration-stale`: run the explicit plugin installer through an authorized L3 config helper or operator, then start a new task.
 - `runtime-reload-required`: start a new Codex task before dispatch.

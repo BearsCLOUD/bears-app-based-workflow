@@ -1,40 +1,51 @@
 ---
 name: instruction-hardening
-description: Compress approved Codex instructions through the dedicated Sol Ultra editor without changing authority. Use for skills, prompts, plans, packets, role instructions, and workflow prose that must become short and exact.
+description: Apply a repeatable method for converting approved instruction meaning into compact, scoped policy rules while preserving authority, distinct actions, and unresolved conflicts.
 ---
 
 # Instruction Hardening
 
-## Delegation first
+## Boundary
 
-The caller is an app-dev L2 or a solo parent acting as L2. It decomposes the edit and follows `$subagents` before any data access. For each concrete assignment, it sends the persistent selector `work_kind: instruction-edit` and `required_role: bears-instruction-editor`. The selector must return that exact role or a fail-closed outcome. Parent, L1, and L2 do not read or edit the instruction surface.
+This skill supplies a repeatable editing method. The invoking role owns the final wording, policy decisions, permissions, acceptance criteria, and result format. This skill does not choose authority, invent meaning, or resolve a conflict that the input leaves unresolved.
 
-## Role-change gate
+## Security-critical terms
 
-For any new, renamed, merged, or behaviorally changed role:
+Define a term only when ambiguity changes permissions or safety:
 
-1. Send a separate role request with `required_role: bears-role-editor-auditor` first.
-2. Require a decision on role necessity, trigger, unique boundary, exclusions, overlap, model, reasoning effort, and sandbox.
-3. Stop if the role is rejected or its semantics conflict.
-4. Pass only the approved role semantics through a new request with `required_role: bears-instruction-editor` for final wording.
+- `execute`: start code or a command directly or through a script, task runner, wrapper, container, plugin, MCP tool, remote command, module entrypoint, or side-effecting import;
+- `external write`: create, edit, or delete state outside the declared local workspace;
+- `destructive action`: remove or overwrite state when the declared recovery path is absent or materially incomplete;
+- `material scope expansion`: add targets, permissions, systems, or deliverables beyond the approved request.
 
-The role editor/auditor does not write general instruction text. The instruction editor does not change role boundaries, model, sandbox, or authority.
+Do not impose a closed action dictionary. Preserve distinct meanings such as `use`, `check`, and `execute`. Normalize two terms only when they select the same behavior in the declared scope.
 
-## Editor input
+## Inputs
 
-- Approved meaning and required behavior.
-- Owning `AGENTS.md`, contract, skill, prompt, plan, packet, or role target refs.
-- Exact block boundary.
-- Required triggers, actions, outputs, prohibitions, and escalation points.
-- Maximum 120 words per instruction block.
+- Approved meaning and audience.
+- Authority refs in priority order.
+- Exact target and object scope.
+- Required triggers, inputs, actions, permissions, constraints, acceptance criteria, outputs, and escalation targets.
+- Optional explicit conflict-resolution rules with their authority and scope.
 
-## Editor result
+## Method
 
-- Final compact text.
-- Removed-content summary.
-- Authority or drift note.
-- Exact changed files when write scope was granted.
+1. **Policy** — Convert prose into rules. Retain only triggers, inputs, actions, constraints, permissions, acceptance criteria, outputs, and conflict outcomes.
+2. **Dict** — Normalize only true synonyms in the declared scope. Preserve behaviorally distinct verbs.
+3. **Scope** — Bind each rule to exact repositories, paths, globs, shell access, tests, network access, Git actions, or external systems.
+4. **Objects** — Replace informal objects with exact paths, globs, object classes, scripts, task runners, tests, tools, plugins, or MCP servers. Represent a recursive file class as `**/*.ext`.
+5. **Actions** — State the real operation without mapping it to an unrelated canonical verb.
+6. **Mode** — Label each rule `Allowed`, `Forbidden`, `Required`, `Ask`, or `Escalate` when the role's result format uses those modes.
+7. **Conflict** — Apply authority order. For contradictory rules with equal authority and overlapping scope, retain `INSTRUCTION_CONFLICT` unless an explicit applicable resolution rule was supplied.
+8. **Bypass scan** — Identify direct and transitive paths to each security-critical forbidden action.
+9. **Close bypasses** — Cover wrappers, module entrypoints, side-effecting imports, scripts, task runners, containers, remote commands, plugins, MCP tools, and nested commands.
+10. **Dedup** — Combine rules only when action, object, scope, condition, authority, and outcome match.
+11. **Compress** — Remove narration, repeated qualifiers, and words that change no decision.
+12. **Red-team** — Evaluate direct, wrapper, one-off, approval-bypass, and verification-bypass cases.
+13. **Drift** — Remove `carefully`, `appropriate`, `if needed`, `handle`, `work with`, and any term without a fixed effect.
+14. **Token** — Reduce tokens only after authority, permissions, bypass closure, and cases are stable.
+15. **Regression** — Repeat Policy, Dict, Bypass, Compress, Red-team, and Drift until every case retains its decision.
 
-Every word must carry operational meaning. Remove narration, duplication, vague advice, generic definitions, and environment noise. Preserve concrete triggers, authority, scope, required output, forbidden action, and escalation.
+## Handoff
 
-If safe compression would change meaning, scope, or authority, return `INSTRUCTION_CONFLICT` with the conflicting rules. Do not provide a weakened rewrite.
+Give the invoking role the normalized draft, closed-bypass notes, removed duplicates, preserved authority facts, and unresolved conflicts. The role applies its own acceptance criteria and emits its own result contract.

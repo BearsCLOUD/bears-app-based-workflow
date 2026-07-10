@@ -1,4 +1,4 @@
 interface:
   display_name: "Instruction Hardening"
-  short_description: "Compress approved instructions"
-  default_prompt: "Use $instruction-hardening to route approved semantics through the dedicated instruction editor."
+  short_description: "Apply the policy editing method"
+  default_prompt: "Use $instruction-hardening as a method to normalize approved meaning without taking ownership from the invoking role."

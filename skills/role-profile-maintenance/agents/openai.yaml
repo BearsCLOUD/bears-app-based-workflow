@@ -1,0 +1,4 @@
+interface:
+  display_name: "Role Profile Maintenance"
+  short_description: "Compare roles with least privilege"
+  default_prompt: "Use $role-profile-maintenance as a comparison method; keep the operation and delivered result owned by the invoking role."

@@ -11,6 +11,7 @@ This procedure receives only work that the primary already classified `DELEGATED
 
 This instruction procedure is the sole owner of:
 
+- selector reuse for one coherent delegated run;
 - role selection for one concrete L3 assignment;
 - selector, helper, worker, and critic lifecycle inside the L3 dispatch boundary;
 - `role-request.v1`, `role-selection.v1`, `dispatch-packet.v1`, and `result-packet.v1`.
@@ -29,7 +30,8 @@ Every such action for that `DELEGATED` assignment requires an L3 helper, worker,
 2. Reuse the same read-only selector for every concrete assignment until closeout. Never create a selector per worker.
 3. Send every `role-request.v1` to that agent reference; the caller never selects a role itself.
 4. The selector returns exactly one primary role. It may add one helper and one critic.
-5. Reuse the selector after partial results or a changed assignment. End it only after task closeout.
+5. Reuse the selector and the selected role set through follow-up assignments in the same coherent workstream. Replace a selected role only for terminal failure, changed competence, or a true scope split.
+6. End the selector only after task closeout.
 
 The selector is a fast, low-cost decision helper. It must explain why the role exists and why it fits this request. If no exact profile fits, it returns `ROLE_GAP`; it must not substitute a nearby role.
 
@@ -42,6 +44,7 @@ The caller sends this packet directly to its persistent selector:
 ```yaml
 schema: role-request.v1
 task_id: <stable owning task id>
+workstream_id: <stable coherent delegated workstream id>
 assignment_id: <stable concrete assignment id>
 caller_level: solo-l2|L2
 goal: <one exact outcome>
@@ -54,6 +57,7 @@ risk: [<security, data, deploy, cross-service, or none>]
 dependencies: [<closed prerequisite ids>]
 expected_output: <one compact result>
 required_role: <exact role when an owning procedure mandates one; otherwise none>
+reuse_role_from: <prior assignment id or none>
 stage_payload: <optional app-stage fields>
 ```
 
@@ -66,6 +70,7 @@ The selector returns:
 ```yaml
 schema: role-selection.v1
 task_id: <same task id>
+workstream_id: <same workstream id>
 assignment_id: <same assignment id>
 status: selected|ROLE_GAP|registration-stale|runtime-reload-required
 primary_role: <one exact installed role or null>
@@ -79,6 +84,7 @@ exact_goal: <bounded L3 goal>
 target_scope: <exact paths, target ids, or bounded surface>
 helper_role: <optional exact role>
 critic_role: <optional exact role>
+reused_from_assignment: <prior assignment id or none>
 ```
 
 `registration-stale` means the profile exists in the plugin but is not registered. `runtime-reload-required` means registration changed after the current task started. Both fail closed.
@@ -91,6 +97,7 @@ critic_role: <optional exact role>
 - L3 returns to its caller. It does not create L4 unless the current user explicitly authorizes that depth.
 - L4 is forbidden by default.
 - Return `DELEGATION_BLOCKED` when the assignment lacks an exact goal, target scope, allowed actions, or completion criteria. Do not accept a stage, lane, or undecomposed task as an assignment.
+- Forbid L3 redecomposition, selector ownership inside L3, sibling critics, and parent execution fallback after delegated entry.
 
 If a selected helper discovers work rather than completing it, the caller defines a new assignment id and sends a new role request to the persistent selector. Do not expand the helper's scope.
 
@@ -101,6 +108,7 @@ Before starting L3, send:
 ```yaml
 schema: dispatch-packet.v1
 task_id: <stable owning task id>
+workstream_id: <stable coherent delegated workstream id>
 assignment_id: <stable concrete assignment id>
 stage: <skill or workflow stage>
 role: <selected exact role>
@@ -131,9 +139,10 @@ Do not request tests, validators, audits, cache checks, cachebusters, quick vali
 1. Start `helper_role` only when the assignment needs a narrow prerequisite.
 2. Convert its compact facts into sanitized known input refs and preserve its `consumed_input_refs` provenance; do not forward raw files or logs.
 3. Start `primary_role` with its declared `primary_kind`; it owns the assignment outcome.
-4. Start `critic_role` only for the selected risk or acceptance surface. A critic reports findings; it does not silently widen or rewrite worker scope.
-5. If fixes are needed, define a new assignment, ask the selector for the correct worker, and issue a new packet.
+4. Start `critic_role` only for one combined diff or one acceptance surface selected for the assignment. A critic reports findings; it does not silently widen or rewrite worker scope.
+5. If fixes are needed, define a new assignment, ask the selector for the correct worker, and issue a new packet. Reuse the same critic for re-review unless terminal failure, changed competence, or a true scope split requires replacement.
 6. Merge compact results and close the assignment only when its completion criteria are met. The caller closes the owning task after all assignments finish.
+7. Do not issue repeated waits, polling loops, or parallel duplicate critics from this lifecycle.
 
 ## `result-packet.v1`
 
@@ -142,6 +151,7 @@ Every L3 returns:
 ```yaml
 schema: result-packet.v1
 task_id: <same task id>
+workstream_id: <same workstream id>
 assignment_id: <same assignment id>
 role: <executed role>
 agent_kind: helper|worker|critic

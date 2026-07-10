@@ -40,10 +40,12 @@ L1 never treats `$subagents` as a recipient for a stage, wave, or lane.
 2. Decompose each lane task into concrete, sequential L3 assignments without expanding its targets or dependencies.
 3. For each assignment, follow `$subagents`: send `role-request.v1` to the shared selector, use its `role-selection.v1`, build `dispatch-packet.v1`, manage the L3 lifecycle, and accept `result-packet.v1`.
 4. Run at most one L3 helper, worker, or critic at a time. A helper precedes its worker; a critic follows it.
-5. Use separate assignments for implementation, Git, and existing autoCI evidence. Keep a selector-chosen helper, primary agent, and critic in their shared assignment lifecycle; use a separate critic assignment only when critique is the sole outcome.
-6. Return completed behavior, exact changed-file refs, ledger transition, unresolved risk, evidence refs, and the next handoff to L1.
+5. Package each L3 assignment by exact result to produce. Do not package by word count, predicate count, cachebuster, Git step, or wait step.
+6. Use separate assignments only for distinct deliverables; Git closeout remains in the assignment and coherent workstream that produced the result, and Git, cachebuster, or wait operations must never become their own assignment or workstream. Reuse the same selected role through follow-up assignments in the same coherent workstream unless terminal failure, changed competence, or a true scope split requires replacement.
+7. Use at most one critic for one combined diff or acceptance surface. When that critic requests fixes, the same critic re-reviews the follow-up result unless one of the allowed replacement conditions applies.
+8. Return completed behavior, exact changed-file refs, ledger transition, unresolved risk, evidence refs, and the next handoff to L1.
 
-L2 never starts L4 and never executes the assignment itself.
+L2 never starts L4, never redecomposes an L3 assignment inside L3, and never executes the assignment itself.
 
 ## Solo parent
 

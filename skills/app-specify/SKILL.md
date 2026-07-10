@@ -7,7 +7,7 @@ description: Interact with the user to clarify Bears app waves and expand them i
 
 ## Delegation first
 
-As the solo L2 analogue, decompose the stage payload below, then follow `$subagents` for each concrete L3 assignment before any data access.
+For work already classified `DELEGATED`, act as the solo L2 analogue: decompose the stage payload below, then follow `$subagents` for each concrete L3 assignment before any data access. `DIRECT` work never enters `$subagents`.
 
 ## Clarification loop
 
@@ -20,18 +20,20 @@ Parent may ask questions but does not inspect source data.
 
 ## Stage payload
 
-- Wave id and research ref.
+- App id, wave id, constitution ref, and research ref from `research-ready`.
 - User answers and confirmed decisions.
-- Known app constitution, source, and integration refs.
+- Known source and integration refs.
 - Exact open questions.
 
 ## L3 output
 
 The selected L3 writes `waves/<wave-id>/spec.md` with actors and permissions, user goals, main and alternate flows, data inputs and ownership, error and empty states, integrations, acceptance criteria, functional graph hints, closed decisions, and open questions.
 
+When decisions are complete, return `app-stage-handoff.v1` with status `spec-ready`, the constitution, research, and specification refs, requirement refs, required behavior, dependency, state, API, data, integration, and error coverage, and `next_stage: app-functional-graph`.
+
 ## Exit rules
 
 - Stay in `app-specify` while acceptance criteria or data ownership is missing.
-- Route decision-complete behavior to `app-functional-graph`.
-- If wave scope changes, update the research file and wave registry through a new delegated stage.
+- Route only decision-complete behavior to `app-functional-graph`.
+- If wave scope changes, return status `needs-research` with the wave id, current artifact refs, and exact scope delta to `app-research`; do not edit research artifacts in this stage.
 - Do not create implementation tasks.

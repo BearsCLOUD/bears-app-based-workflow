@@ -4,20 +4,25 @@
 
 ## Workflow
 
-Every `app-*` skill uses `subagents` before file, log, terminal, Git, MCP, runtime, or network access. The solo parent or app-dev L2 first decomposes its task, then follows the skill for each concrete L3 assignment. Selected L3 agents perform the work.
+For work already classified `DELEGATED`, every `app-*` skill uses `subagents` before file, log, terminal, Git, MCP, runtime, or network access. The solo parent or app-dev L2 first decomposes its task, then follows the skill for each concrete L3 assignment. `DIRECT` work stays with the primary and never enters `subagents`.
 
 1. `app-constitution` records the app baseline.
 2. `app-research` creates and synchronizes research waves.
 3. `app-specify` closes product decisions with the user.
-4. `app-functional-graph` maps requirements to stable graph nodes.
+4. `app-functional-graph` maps decision-complete requirements to the canonical functional graph.
 5. `app-plan` creates graph-linked ledger tasks for unbuilt behavior.
-6. `app-analyze` compares documentation, graph, ledger, and implementation.
-7. `app-dev` partitions dependency-ready work through fixed L1 and L2 orchestration, then dispatches concrete L3 assignments.
-8. `app-analyze` checks convergence after implementation.
+6. `app-dev` partitions dependency-ready work through fixed L1 and L2 orchestration, then dispatches concrete L3 assignments.
+7. `app-analyze` checks convergence and routes gaps back to the owning stage.
+
+Every stage returns a compact `app-stage-handoff.v1` with `app_id`, `wave_ids`, `from_stage`, `status`, `artifact_refs`, `evidence_refs`, `graph_revision` or `none`, `ledger_task_refs`, `gap_refs`, and `next_stage` or `none`. Stage-specific payloads may add bounded fields but may not replace these fields.
+
+The normal success chain is `constitution-ready` -> `research-ready` -> `spec-ready` -> `graph-ready` -> `ready` -> `implemented` -> `pass`. Feedback returns through named statuses: `needs-research` to `app-research`, `needs-spec` to `app-specify`, `needs-graph` to `app-functional-graph`, and `needs-plan` to `app-plan`. `app-analyze` may return `ready` only for already valid executable ledger tasks and then hands them to `app-dev`.
+
+`docs/app-functional-graph.v1.json` is the source of truth for specified functionality ids, graph nodes, relationships, and functional coverage. Downstream plans, ledger tasks, implementation packets, and analyses carry its revision and refs; they never redefine graph meaning.
 
 `instruction-editor` owns final instruction policy decisions and results; `instruction-hardening` supplies its repeatable editing method. `role-profile-architect` owns role-profile decisions and results; `role-profile-maintenance` supplies its comparison and least-privilege method.
 
-The active catalog contains 52 deliverable-named profiles. Each profile defines its trigger, specialist, dependencies, permissions, conflict behavior, acceptance criteria, result contract, and one declarative example. Removed names are not aliases. `domain-orchestrator`, `domain-lane-orchestrator`, and `github-settings-editor` replace profiles that previously duplicated the same deliverable and permission boundary; `primary-source-researcher` owns evidence packets for decision-critical current claims.
+The active catalog contains 51 deliverable-named profiles. Each profile defines its trigger, specialist, dependencies, permissions, conflict behavior, acceptance criteria, result contract, and one declarative example. Removed names are not aliases. `domain-orchestrator`, `domain-lane-orchestrator`, and `github-settings-editor` replace profiles that previously duplicated the same deliverable and permission boundary; `primary-source-researcher` owns evidence packets for decision-critical current claims.
 
 ## Plugin skills
 
@@ -37,6 +42,16 @@ In `app-dev`, the parent takes the fixed L1 role and starts fixed L2 lanes; each
 - `waves/<wave-id>/analysis.md`
 - `docs/app-functional-graph.v1.json`
 - `docs/app-task-ledger.v1.json`
+
+## Artifact ownership
+
+- `app-constitution` writes only the app constitution.
+- `app-research` writes the wave registry and research files.
+- `app-specify` writes wave specifications.
+- `app-functional-graph` is the sole semantic writer of the functional graph and writes only graph anchors in the ledger.
+- `app-plan` writes wave plans and the planning fields of executable ledger tasks; it never writes the graph or graph anchors.
+- `app-dev` writes implementation targets and only the ledger execution fields authorized by each task's `ledger_update_contract`.
+- `app-analyze` writes wave analysis and treats the graph and ledger as read-only inputs.
 
 ## Role installation
 

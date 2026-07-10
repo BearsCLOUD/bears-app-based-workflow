@@ -1,6 +1,6 @@
 # Plugin Agent Profiles
 
-This directory is the only source for the plugin's 52 active custom-agent TOML files.
+This directory is the only source for the plugin's 51 active custom-agent TOML files.
 
 - `./install` registers every profile through `config_file` entries in `$CODEX_HOME/config.toml`.
 - Do not copy these profiles into the global agent directory.

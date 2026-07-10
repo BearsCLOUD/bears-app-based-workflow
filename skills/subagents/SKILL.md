@@ -109,7 +109,7 @@ caller_level: solo-l2|L2
 cwd: <exact working directory or none>
 target_paths: [<bounded paths or target ids>]
 instruction_refs: [<authority files or contracts>]
-inputs: [<known input refs; no raw secret content>]
+inputs: [<sanitized known input refs or none; never raw content>]
 stage_payload: <stage-owned fields>
 allowed_actions: [<explicit actions>]
 forbidden_actions: [<explicit exclusions>]
@@ -117,6 +117,8 @@ completion_criteria: [<observable outcomes>]
 return_schema: result-packet.v1
 automation_evidence_refs: [<existing autoCI refs or none>]
 ```
+
+Every dispatch packet must include `inputs`. Use `[none]` only when the assignment has no upstream input. Each entry must be a sanitized stable reference, such as a path, assignment id, evidence id, or compact fact id. Before starting any L3, return `PACKET_REJECTED` when `inputs` is absent or any packet field contains raw file bodies, logs, command dumps, secrets, credentials, tokens, or production data. Do not copy prohibited content into another field as a substitute for provenance.
 
 Use a workspace reader, runtime evidence, diagnostic command, Git, autoCI evidence, or token-budget helper when that bounded action is required. Never hide helper work inside the parent packet.
 
@@ -127,7 +129,7 @@ Do not request tests, validators, audits, cache checks, cachebusters, quick vali
 ## L3 lifecycle
 
 1. Start `helper_role` only when the assignment needs a narrow prerequisite.
-2. Convert its `result-packet.v1` into known inputs; do not forward raw files or logs.
+2. Convert its compact facts into sanitized known input refs and preserve its `consumed_input_refs` provenance; do not forward raw files or logs.
 3. Start `primary_role` with its declared `primary_kind`; it owns the assignment outcome.
 4. Start `critic_role` only for the selected risk or acceptance surface. A critic reports findings; it does not silently widen or rewrite worker scope.
 5. If fixes are needed, define a new assignment, ask the selector for the correct worker, and issue a new packet.
@@ -144,6 +146,7 @@ assignment_id: <same assignment id>
 role: <executed role>
 agent_kind: helper|worker|critic
 status: done|partial|blocked
+consumed_input_refs: [<sanitized dispatch input refs actually used or none>]
 facts: [<compact verified facts>]
 files_read: [<exact paths or none>]
 files_changed: [<exact paths or none>]
@@ -154,7 +157,7 @@ risks: [<unresolved concrete risk or none>]
 next_action: <exact next dispatch, user decision, or none>
 ```
 
-Do not return raw file bodies, logs, command dumps, secrets, or production data.
+Every result must include `consumed_input_refs` and may cite only sanitized references from the dispatch packet. Do not return raw file bodies, logs, command dumps, secrets, credentials, tokens, or production data. Reject and do not merge, forward, or persist a result that omits consumed-input provenance or contains prohibited content.
 
 ## Failure outcomes
 
@@ -162,6 +165,7 @@ These outcomes apply only to work already classified `DELEGATED`; `DIRECT` work 
 
 - `ROLE_GAP`: no installed role has the required boundary, model, and sandbox. Route the role proposal to `role-profile-architect`; do not execute the dependent assignment.
 - `DELEGATION_BLOCKED`: the concrete assignment is incomplete, or the selector, subagent tool, required slot, or selected role cannot start. Report the missing field or capability and stop the dependent work.
+- `PACKET_REJECTED`: a dispatch or result packet lacks required input provenance or contains prohibited raw content. Reject it before L3 start or result consumption, identify only the violated rule, and require a sanitized replacement.
 - `registration-stale`: run the explicit plugin installer through an authorized L3 config helper or operator, then start a new task.
 - `runtime-reload-required`: start a new Codex task before dispatch.
 

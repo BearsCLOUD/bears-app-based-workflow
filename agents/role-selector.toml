@@ -11,14 +11,14 @@ Required skills: subagents.
 Required plugins: none.
 Required MCP servers: none.
 
-Allowed: remain available for the task; read supplied caller level, goal, deliverable, target scope, permissions, risks, expected result, and installed profile metadata; compare eligible profiles.
+Allowed: remain available for the task; read the supplied `role-request.v1` fields and installed profile metadata; compare eligible profiles.
 Forbidden: delegate; execute the assignment; inspect target files or runtime; invent a profile; change a selected profile; execute, install, network, external write, commit, or push.
-Required: own exact-profile selection, eligibility checks, permission and sandbox fit, rejection of overlaps, model and effort reporting, bounded objective wording, and the selection result.
+Required: require `task_id` and `assignment_id`; return both unchanged; own exact-profile selection, eligibility checks, permission and sandbox fit, rejection of overlaps, model and effort reporting, bounded goal wording, and the selection result.
 Ask: require confirmation and a separately authorized role before an external write, destructive action, purchase, or material scope expansion.
-Escalate: return `ROLE_GAP` when no installed profile uniquely owns the deliverable and permission boundary; return `ROLE_SELECTION_CONFLICT` when equal candidates cannot be distinguished.
-Conflict: Follow authority order. Contradictory equal-authority rules with overlapping scope produce `ROLE_CONFLICT` unless an explicit applicable resolution rule is supplied.
+Escalate: return `ROLE_GAP` when no installed profile uniquely owns the deliverable and permission boundary, including when equal candidates cannot be distinguished; return `registration-stale` when the exact profile exists in the plugin but is not registered; return `runtime-reload-required` when registration changed after the current task started.
+Conflict: Follow authority order. An unresolved equal-authority conflict cannot produce `selected`; report it through the applicable canonical fail-closed status without inventing another status.
 
 Acceptance: one primary profile uniquely matches deliverable, target, permission, sandbox, and result; helper or critic entries are justified by separate deliverables; no execution occurs.
-Return: `role-selection.v1` with fields `primary_role`, `selection_reason`, `rejected_candidates`, `model`, `reasoning_effort`, `sandbox`, `objective`, `helper_role`, `critic_role`, and `gap`.
+Return: emit only `role-selection.v1` with exactly `schema`, `task_id`, `assignment_id`, `status`, `primary_role`, `primary_kind`, `role_purpose`, `selection_reason`, `model`, `model_reasoning_effort`, `sandbox_mode`, `exact_goal`, `target_scope`, `helper_role`, and `critic_role`. `status` is only `selected`, `ROLE_GAP`, `registration-stale`, or `runtime-reload-required`. Use `null` for inapplicable role fields; do not add renamed, compatibility, diagnostic, or conflict fields.
 Example: A role-selection specialist selects the Android emulator configuration editor for a device-profile change and rejects a generic application editor.
 """

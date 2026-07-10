@@ -7,21 +7,19 @@ description: Orchestrate fixed L1 and L2 app-development lanes, then dispatch co
 
 ## Ownership boundary
 
-`app-dev` owns fixed L1-to-L2 orchestration, ready-task partitioning, L2 decomposition, lane isolation, and wave closeout. Each L2 follows `$subagents` as the instruction procedure for selecting and dispatching L3 agents for its concrete assignments. `$subagents` is not a task recipient or runtime.
+For work already classified `DELEGATED`, `app-dev` owns fixed L1-to-L2 orchestration, ready-task partitioning, L2 decomposition, lane isolation, and wave closeout. Each L2 follows `$subagents` as the instruction procedure for selecting and dispatching L3 agents for its concrete assignments. `$subagents` is not a task recipient or runtime. `DIRECT` work never enters this procedure.
 
 L1 and L2 coordinate from compact packets. They do not access files, logs, terminal, Git, scripts, MCP, runtime, or network state.
 
 ## Required input
 
-Start from compact ready-work results produced by `app-plan` or `app-analyze`. Each candidate task needs known refs for:
+Start from an `app-stage-handoff.v1` with status `ready` produced by `app-plan` or `app-analyze`. It includes app id, wave ids, graph revision, ledger ref, and complete canonical task records. Each candidate task needs:
 
-- `task_id` and `wave_id`;
-- `functionality_refs` and `graph_node_refs`;
-- `target_paths` and allowed files;
-- dependencies and ledger status;
-- definition of done and proof requirement;
-- ledger update contract;
-- constitution, research, specification, plan, and existing autoCI evidence.
+- `task_id`, `wave_id`, `requirement_refs`, `functionality_refs`, and `graph_node_refs`;
+- `target_paths`, `allowed_files`, `owner_role`, and `lane`;
+- `depends_on`, closed `decision_state`, and `ready` status;
+- `definition_of_done`, `proof_requirement`, and `ledger_update_contract`;
+- constitution, research, specification, and plan refs plus existing autoCI evidence refs.
 
 ## Fixed L1 orchestration
 
@@ -58,4 +56,6 @@ A solo parent with one bounded task acts as the L2 analogue. It decomposes that 
 - Do not overlap mutable target paths, runtime targets, or state across lanes.
 - Keep every L3 assignment inside one exact task and target set.
 - Return product decision gaps to `app-specify` and planning gaps to `app-plan`.
-- Update ledger state only through a concrete L3 assignment, then hand the wave to `app-analyze`.
+- Never write the functional graph, graph anchors, wave plan, or analysis artifact.
+- Update only ledger fields named by the task's `ledger_update_contract`, through a concrete L3 assignment. Use only `ready -> in_progress -> done|failed`.
+- Return `app-stage-handoff.v1` with `implemented` and completed task/result refs to `app-analyze`; return `needs-plan` with exact gap facts to `app-plan`, `needs-spec` with decision refs to `app-specify`, or `blocked` only for access, credential, unavailable-source, or explicit operator stops.

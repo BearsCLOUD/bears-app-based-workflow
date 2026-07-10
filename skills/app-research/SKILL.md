@@ -7,13 +7,13 @@ description: Create, update, synchronize, and refine Bears app research waves. U
 
 ## Delegation first
 
-As the solo L2 analogue, decompose the stage payload below, then follow `$subagents` for each concrete L3 assignment before any data access.
+For work already classified `DELEGATED`, act as the solo L2 analogue: decompose the stage payload below, then follow `$subagents` for each concrete L3 assignment before any data access. `DIRECT` work never enters `$subagents`.
 
 ## Stage payload
 
-- User intent or feature area.
-- App repo or path.
-- Known wave refs.
+- App id, app repo or path, and constitution ref.
+- User intent, feature area, constraint refs, and open-decision refs.
+- Known wave ids or the exact wave-creation basis.
 - Known source refs, product notes, tickets, and user answers.
 - Exact unknowns the research must close.
 
@@ -24,7 +24,7 @@ The selected L3 returns `wave-research.packet` and writes:
 - `waves/index.md` with active waves and status;
 - `waves/<wave-id>/research.md` for each touched wave.
 
-Each research file contains `Wave ID`, `Scope`, `Known behavior`, `Unknowns`, `Sources`, `Decisions`, `Follow-up questions`, `Sync notes`, and `Next skill`.
+Each research file contains `Wave ID`, `Scope`, `Known behavior`, `Unknowns`, `Sources`, `Decisions`, `Follow-up questions`, `Sync notes`, and `Next skill`. Return `app-stage-handoff.v1` with status `research-ready`, the constitution and research refs, wave id, decision and question refs, source refs, and `next_stage: app-specify`.
 
 ## Stage rules
 
@@ -32,4 +32,5 @@ Each research file contains `Wave ID`, `Scope`, `Known behavior`, `Unknowns`, `S
 - Update an existing wave when evidence changes its scope, decisions, unknowns, or sources.
 - Propagate a shared decision to every affected wave note.
 - Keep unanswered product choices under `Follow-up questions`.
-- Route decision gaps to `app-specify`; route graph or task gaps to `app-plan`.
+- Route every researched wave to `app-specify`; that stage either closes or asks the remaining product decisions.
+- Record graph or task observations as specification hints. Do not bypass `app-specify` or send research directly to `app-plan`.

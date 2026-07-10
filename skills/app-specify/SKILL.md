@@ -1,40 +1,38 @@
 ---
 name: app-specify
-description: Clarify Bears app research waves when actors, flows, data, errors, acceptance criteria, or product decisions are missing. Use as a helper inside app-research, not as a required main workflow gate.
+description: Interact with the user to clarify Bears app waves and expand them into detailed functional documentation. Use when a wave has open product decisions, unclear flows, actors, data, errors, or acceptance criteria.
 ---
 
 # App Specify
 
 ## Purpose
 
-Resolve blocking research questions and return `clarification.packet.v1` for the research wave.
+Turn `waves/<wave-id>/research.md` into `waves/<wave-id>/spec.md` through targeted user clarification and source-backed detail.
 
 ## Ask policy
 
-Ask the user only for decisions that cannot be recovered from current docs, source observations, wave notes, or supplied execution constraints. Keep questions concrete and grouped by blocking decision.
+Ask the user only for decisions that cannot be recovered from current docs, code, or wave notes. Keep questions concrete and grouped by blocking decision.
 
-## Clarification packet
+## Spec file
 
-Return one packet with:
+Write `waves/<wave-id>/spec.md` with:
 
-- `schema: clarification.packet.v1`
-- `wave_id`
-- `research_refs`
-- `constitution_refs`
-- `closed_questions`
-- `actors`
-- `flows`
-- `data_contracts`
-- `error_states`
-- `acceptance_criteria`
-- `remaining_questions`
-- `next_skill`
+- Wave ID and source research file.
+- Actors and permissions.
+- User goals.
+- Main flows.
+- Alternate flows.
+- Data inputs, outputs, and ownership.
+- Error and empty states.
+- External integrations.
+- Acceptance criteria.
+- Functional graph hints.
+- Decisions closed in this pass.
+- Open questions.
 
 ## Exit rules
 
-- Fold clarified details into `waves/<wave-id>/research.md` when the wave file exists; otherwise return the packet in the response.
-- If acceptance criteria or data ownership is still missing, stay in `app-specify` or record a blocking question.
-- If functional truth changes, route to `app-constitution`.
-- If research is decision-complete, route to `app-plan`.
-- Do not create plan microtasks, graph nodes, dev packets, or test tooling here.
-- Do not ask agents to run validation, test, audit, route, cache, cachebuster, quick-validate, or plugin-validate scripts manually.
+- If acceptance criteria or data ownership is missing, stay in `app-specify`.
+- If requirements are complete enough to map functionality, route to `app-functional-graph`.
+- If the user changes wave scope, update the research file and wave registry.
+- Do not create implementation tasks here.

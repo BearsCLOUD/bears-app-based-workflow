@@ -1,7 +1,7 @@
 {
   "name": "bears-app-based-workflow",
-  "version": "0.1.0+codex.20260709180407",
-  "description": "Self-contained sequential app workflow plugin for concise app rules, exact user-message evidence, research waves, approved plan microtasks, dev-stage functional graphs, task ledgers, packet contracts, role-matched handoffs, and lineage audits.",
+  "version": "0.1.0+codex.20260709143733",
+  "description": "Spec Kit-style app workflow plugin for Bears waves, functional graphs, task ledgers, hardened dispatch packets, and app development orchestration.",
   "author": {
     "name": "BearsCLOUD",
     "url": "https://github.com/BearsCLOUD"
@@ -12,49 +12,33 @@
   "keywords": [
     "bears",
     "spec-kit",
-    "constitution",
-    "research-waves",
-    "sequential-planning",
+    "waves",
     "functional-graph",
     "task-ledger",
-    "lineage-analysis",
-    "file-audit",
-    "packet-contracts",
-    "instruction-hardening",
-    "subagents",
-    "role-orchestration",
-    "functional-baseline"
+    "instruction-hardening"
   ],
   "skills": "./skills/",
   "interface": {
     "displayName": "Bears App-Based Workflow",
-    "shortDescription": "Exact constitution, evidence, research, plan, graph, dev, and audit workflow.",
-    "longDescription": "Bears App-Based Workflow provides a self-contained application workflow: a concise app constitution with only populated typed records and required sources, optional immutable excerpts from user messages, research that verifies capabilities and gaps, approved sequential plan microtasks, a dev-stage functional graph, graph-linked task ledgers, versioned handoff packets, role-matched handoffs, read-only instruction hardening, and exact lineage audits. Inferences stop at research until confirmed. The plugin artifacts do not depend on a host workspace instruction file, runtime service, role inventory, or validation script.",
+    "shortDescription": "Wave-based app specification, planning, hardening, analysis, and development orchestration.",
+    "longDescription": "Bears App-Based Workflow provides a Spec Kit-style application workflow: constitution, research waves, detailed specification, functional graph planning, ledger tasks, read-only wave instruction hardening, analysis, and app-dev orchestration.",
     "developerName": "BearsCLOUD",
     "category": "Development",
     "capabilities": [
-      "Self-contained app workflow",
-      "Exact typed app constitution records",
-      "Optional immutable user-message evidence",
-      "Research-only inference handling",
-      "Research waves mapped to constitution ids",
-      "Approved sequential plan microtasks",
-      "Dev-stage functional graph from approved plan microtasks",
+      "Spec Kit-style app workflow",
+      "Wave research and synchronization",
+      "Detailed app specification",
+      "Functional graph planning",
       "Graph-linked task ledger",
-      "Versioned handoff packet contracts",
-      "Complete graph lineage checks",
-      "Self-contained role mapping",
-      "Bounded sequential subagent handoff",
-      "Implementation analysis with exact broken links",
-      "Plugin file reuse-quality audit",
-      "Wave instruction hardening",
-      "Automation-owned evidence handoff"
+      "Implementation analysis",
+      "Parallel L2/L3 app-dev orchestration",
+      "Wave instruction hardening"
     ],
     "websiteURL": "https://github.com/BearsCLOUD/bears-app-based-workflow",
     "defaultPrompt": [
-      "Write only exact typed constitution records and every required source.",
-      "Verify capabilities and gaps in research before planning.",
-      "Model plan microtasks in the graph and analyze lineage."
+      "Research app feature waves.",
+      "Harden a ready wave plan.",
+      "Dev ready wave with subagents."
     ],
     "brandColor": "#3B82F6"
   }

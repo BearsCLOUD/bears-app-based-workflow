@@ -1,4 +1,0 @@
-interface:
-  display_name: "Subagents"
-  short_description: "Create one bounded handoff packet"
-  default_prompt: "Use $subagents to prepare one bounded sequential delegation packet for graph-backed app-dev work."

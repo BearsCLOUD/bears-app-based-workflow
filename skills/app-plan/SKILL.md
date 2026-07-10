@@ -1,52 +1,45 @@
 ---
 name: app-plan
-description: Create sequential Bears app plan microtasks from research-confirmed capability and gap ids. Use when Codex must turn source-backed `cap-*` and `gap-*` explanations into approved ordered ledger tasks before functional graph modeling.
+description: Detect unbuilt Bears app functionality and create graph-linked wave plans and ledger tasks. Use when Codex must decompose specified waves into dependencies, ready tasks, owner roles, target paths, optional instruction-hardening checks, and app-dev handoff packets.
 ---
 
 # App Plan
 
 ## Purpose
 
-Create only ordered, decision-complete microtasks tied to constitution refs and research refs. Planning happens before graph modeling and must not create graph nodes.
+Find missing or unbuilt functionality and create only decision-complete tasks tied to the functional graph.
 
 ## Inputs
 
-- `docs/app-constitution.md`
 - `waves/index.md`
 - `waves/<wave-id>/research.md`
-- `docs/app-task-ledger.v1.json` when present.
-- Current implemented-state notes when present.
-- Execution constraints when supplied by the live session.
+- `waves/<wave-id>/spec.md`
+- `docs/app-functional-graph.v1.json`
+- `docs/app-task-ledger.v1.json`
+- Current implemented-state notes from code reading or `app-analyze`.
 
 ## Outputs
 
 - `waves/<wave-id>/plan.md`
+- Updated `docs/app-functional-graph.v1.json`
 - Updated `docs/app-task-ledger.v1.json`
-- Approved ordered microtasks for `app-functional-graph`
-- `constitution_update_needed` or `research_update_needed` note when planning finds a missing upstream link.
 
 ## Planning steps
 
-1. Read `docs/app-constitution.md` and the wave research file.
-2. List only `cap-*` and `gap-*` ids explained by the wave.
-3. Confirm every planned item has a source-backed research explanation and no unresolved decision.
-4. Create ordered microtasks only for decision-complete scope.
-5. Attach constitution refs, research refs, target paths, dependencies, planned owner role, planned critic role, definition of done, proof requirement, and status.
-6. Set new decision-complete microtasks to `ready_for_graph`.
-7. Route the completed plan to `app-functional-graph`.
+1. List specified requirements by wave.
+2. Match each requirement to graph nodes.
+3. Mark built, partial, missing, and drifted functionality.
+4. Create or update ledger tasks only for missing or drifted functionality.
+5. Add dependencies, target paths, owner role, lane, and proof requirement.
+6. Optionally run `$instruction-hardening` on the wave plan as a read-only pass when the operator allows subagents in the current run.
+7. Group dependency-ready tasks into waves or wave partitions for `app-dev`.
 
 ## Task rules
 
-- Create no microtask for unresolved decisions.
-- Accept only research-confirmed `cap-*` and `gap-*` ids in `constitution_refs`.
-- Never plan from `constraint-*`, `decision-*`, or `inference-*`; a constraint may limit a task but cannot justify one.
-- Create no microtask without `constitution_refs` and `research_refs`.
-- Do not create graph nodes or graph node ids for new scope.
-- Keep execution order explicit through `order` and `depends_on`.
-- Use `blocked_by_decision` for tasks that need clarification.
-- Use `blocked_by_research` for tasks that lack research explanation.
-- Treat `owner_role` and `critic_role` as planned roles; `subagents-roles` confirms them before dispatch.
-- Set `proof_requirement` to existing evidence, generated automation evidence after it exists, or `none-required`; do not create testing software by default.
-- Live-session execution constraints can limit target paths or proof, but they do not replace constitution refs and are not written to the constitution.
-- Do not route directly to `app-dev`.
-- Do not ask agents to run validation, test, audit, route, cache, cachebuster, quick-validate, or plugin-validate scripts manually.
+- Create no task for unresolved product decisions.
+- Create no task without `functionality_refs` and `graph_node_refs`.
+- Keep one task inside one repo boundary and one exact target set.
+- Use `blocked_by_decision` for tasks that need `app-specify`.
+- Use `ready` only when dependencies and decisions are closed.
+- Route implementation to `app-dev` only through the ledger.
+- Instruction hardening must not create tasks, change product decisions, or override `AGENTS.md` and contracts.

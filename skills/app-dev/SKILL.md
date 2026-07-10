@@ -1,69 +1,54 @@
 ---
 name: app-dev
-description: Run sequential Bears app development handoff from ready graph nodes with complete constitution, research, and plan lineage through role-matched packets, optional subagents, read-only hardening, and ledger updates.
+description: Run Bears app development orchestration from ready graph-linked ledger tasks. Use when Codex must prepare hardened dispatch packets and dispatch L2 lanes, L3 workers, and critics through subagents for dependency-ready waves without inventing tasks outside the ledger.
 ---
 
 # App Dev
 
 ## Purpose
 
-Execute only ledger tasks whose graph nodes have complete lineage.
+Execute only ready ledger tasks that have valid functional graph references.
 
 ## Inputs
 
 - `docs/app-task-ledger.v1.json`
 - `docs/app-functional-graph.v1.json`
 - `waves/<wave-id>/plan.md`
-- `waves/<wave-id>/research.md`
-- `docs/role-catalog.md`
-- Optional `role-packet.v1`, `dispatch-packet.v1`, and `hardening-output.v1` support packets.
+- `waves/<wave-id>/spec.md`
+- Role coverage from local Codex skills when available.
 
 ## Orchestration model
 
-- `L1`: parent coordinator selects the next ready graph-backed task.
-- `L2`: one sequential handoff with bounded target paths.
-- `L3`: worker or critic owns one bounded task packet when subagents are available.
+- `L1`: parent coordinator selects ready waves and closes the wave.
+- `L2`: lane orchestrator owns one wave partition with non-overlapping target paths.
+- `L3`: worker or critic owns one bounded task packet.
 
 ## Dispatch packet
 
-Each packet must include:
+Each L3 packet must include:
 
-- `schema: dispatch-packet.v1`
-- `role`
-- `scope`
-- `handoff_order`
-- `wave_id`
 - `task_id`
-- `constitution_refs`
-- `research_refs`
-- `plan_task_refs`
+- `wave_id`
+- `functionality_refs`
 - `graph_node_refs`
 - `target_paths`
-- `allowed_paths`
-- `forbidden_paths`
+- `allowed_files`
 - `owner_role`
-- `critic_role`
 - `dependencies`
-- `inputs_to_read`
-- `expected_edits_or_read_only_output`
-- `completion_criteria`
 - `definition_of_done`
 - `proof_requirement`
-- `automation_evidence_policy`
 - `ledger_update_contract`
-- `closeout_format`
-- `drift_notes`
-- `next_skill`
+
+## Optional hardening pass
+
+When the operator allows subagents in the current run, start one read-only `$instruction-hardening` subagent before dispatch. The packet must include the wave plan, candidate L2/L3 packets, target `AGENTS.md` or contracts, and completion criteria: return compressed packet text, removed-content summary, and authority or drift note.
 
 ## Rules
 
-- Do not start a task with missing constitution refs, research refs, plan task refs, or graph refs.
+- Do not start a task with missing graph refs.
 - Do not start a task whose dependencies are not closed.
-- Execute handoffs sequentially by default.
-- Confirm owner and critic roles with `subagents-roles` before dispatch.
-- Use `subagents` to create one bounded dispatch packet for the current next task.
-- If subagents are unavailable, execute the same packet locally and record the fallback in closeout.
-- Instruction hardening must be read-only and must not create tasks, change functional decisions, run scripts, or override execution constraints.
-- `automation_evidence_policy` may reference existing generated automation evidence or say `none-required`; it must not request new validation tooling by default.
-- Do not ask agents to run validation, test, audit, route, cache, cachebuster, quick-validate, or plugin-validate scripts manually.
-- Close by updating ledger status and handing the wave to `app-analyze`.
+- Do not run parallel lanes that write the same repo path or target set.
+- Start L2 and L3 work only when the operator allows delegation in the current run.
+- Select owner roles and critic roles before dispatch, using local Codex role skills when available.
+- Instruction hardening must be read-only and must not create tasks, change product decisions, or override `AGENTS.md` and contracts.
+- Close by updating ledger status and handing the wave back to `app-analyze`.

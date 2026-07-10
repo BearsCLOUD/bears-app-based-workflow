@@ -1,4 +1,4 @@
 interface:
   display_name: "App Analyze"
-  short_description: "Check lineage and file reuse quality"
-  default_prompt: "Use $app-analyze to compare constitution, research, plan, graph, ledger, implementation, and plugin-file reuse quality."
+  short_description: "Compare docs, graph, ledger, code"
+  default_prompt: "Use $app-analyze to compare implemented state with wave docs, graph, and ledger."

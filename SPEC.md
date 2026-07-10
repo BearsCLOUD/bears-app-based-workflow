@@ -2,161 +2,114 @@
 
 ## Purpose
 
-Provide a self-contained Codex plugin that turns app functional truth into source-backed research, approved sequential microtasks, a dev-stage functional graph, bounded implementation packets, and `app-analyze` convergence plus reuse-quality audit.
+Provide a compact Codex plugin that turns product-app intent into researched waves, detailed specs, functional graph nodes, graph-linked ledger tasks, hardened implementation dispatch packets, and convergence analysis.
 
 ## Terms
 
-- `app constitution`: `docs/app-constitution.md`, the app-local register of capabilities, constraints, gaps, open decisions, explicit research-only inferences, and each source required by their record types.
-- `user evidence`: optional `docs/app-user-evidence.md` entries that preserve the minimum safe verbatim excerpt needed to cite a user message from the constitution.
-- `execution constraints`: session-specific instruction, path, secret-handling, evidence, or tool limits. Their non-sensitive descriptions are returned in the current-stage closeout and are never stored as app functional truth.
-- `wave`: one sequential workflow slice that explains constitution items through research, decomposes them through plan microtasks, models future dev behavior through the functional graph, and then supports app-dev and app-analyze.
-- `research explanation`: a wave section that names sources, decisions, unknowns, and the constitution ids it explains.
-- `plan microtask`: one ordered app-plan unit recorded in `docs/app-task-ledger.v1.json`, linked to constitution and research refs.
-- `approved microtask`: a microtask with constitution refs, research refs, target paths, dependencies, roles, definition of done, proof requirement, and status `ready_for_graph` or later.
-- `functional graph`: `docs/app-functional-graph.v1.json`, the app-local dev-stage model built after planning from approved microtasks.
-- `graph lineage`: the required chain `constitution_refs -> research_refs -> plan_task_refs` on every graph node.
-- `handoff packet`: a versioned packet from `docs/handoff-packet-contracts.md` used between skills.
-- `instruction hardening`: read-only compression of wave plans, dispatch packets, or workflow prose without changing functional decisions, task scope, constitution truth, or execution constraints.
-- `role-matched subagent`: a bounded worker whose packet names exact task, refs, paths, role, dependencies, and completion criteria.
-- `autoCI`: an external automatic verification line. Plugin skills do not require a specific autoCI implementation.
+- `wave`: one app workflow slice created by research, specified by user interaction, planned through graph-linked ledger tasks, analyzed against code state, and dispatched when dependency-ready.
+- `functional graph`: `docs/app-functional-graph.v1.json`, the app-local map of functionality, nodes, edges, state transitions, API calls, and evidence references.
+- `task ledger`: `docs/app-task-ledger.v1.json`, the app-local source of executable tasks.
+- `instruction hardening`: read-only compression of wave plans, dispatch packets, or workflow prose without changing product decisions, task scope, instruction authority, `AGENTS.md`, or contracts.
+- `L1`: the parent app-dev coordinator.
+- `L2`: one orchestrator lane for a ready wave or wave partition.
+- `L3`: one worker or critic assigned a bounded ledger task.
 
-## Core workflow
+## Workflow
 
 ```mermaid
 flowchart LR
   C["app-constitution"] --> R["app-research"]
-  R --> P["app-plan"]
-  P --> G["app-functional-graph"]
-  G --> D["app-dev"]
-  D --> A["app-analyze"]
-  R -.clarify.-> S["app-specify"]
-  S -.fold back.-> R
-  D -.role map.-> RA["subagents-roles"]
-  RA -.dispatch packet.-> SG["subagents"]
-  SG -.harden packet.-> H["instruction-hardening"]
-  H -.bounded handoff.-> D
-  A -->|functional drift| C
-  A -->|research drift| R
-  A -->|plan drift| P
-  A -->|graph drift| G
-  A -->|dev drift| D
-  A -->|pass| X["wave closed"]
-  A -->|blocked| B["record blocker"]
+  R --> S["app-specify"]
+  S --> G["app-functional-graph"]
+  G --> P["app-plan"]
+  P --> A["app-analyze"]
+  A -->|needs-spec| S
+  A -->|needs-plan| P
+  A -->|ready ledger work| H["instruction-hardening optional"]
+  H --> D["app-dev"]
+  D --> A
+  A -->|pass| X["close wave"]
+  A -->|blocked| B["operator unblock"]
 ```
-
-The main artifact order is always `app-constitution -> app-research -> app-plan -> app-functional-graph -> app-dev -> app-analyze`. `app-constitution` never routes directly to `app-plan`. Support skills do not create new main stages.
-
-## Script ownership
-
-Validation, test, audit, route, cache, cachebuster, quick-validate, and plugin-validate scripts are external automation responsibilities. Plugin skills do not ask agents to run them manually or create validation tooling for this workflow.
-
-The plugin package must not add `scripts/`, `hooks.json`, `.mcp.json`, or manifest fields for those files.
 
 ## Stage contracts
 
 ### app-constitution
 
-Input: exact app target, user intent, product constraints, existing docs, existing workflow artifacts, and execution constraints supplied by the current session.
+Input: app target, owner, product constraints, non-negotiable rules, existing docs.
 
-Output: `docs/app-constitution.md` and, only when cited, `docs/app-user-evidence.md`, using the exact shapes in `docs/artifact-contracts.md`. When no exact record is available, output one concrete question and do not create an empty artifact.
-
-Gate: every stored record satisfies its type contract, empty sections and placeholders are absent, and the next main stage is `app-research`. Report non-sensitive descriptions of session execution constraints in the closeout; do not store them in the constitution.
+Output: `docs/app-constitution.md` and optional wave links.
 
 ### app-research
 
-Input: user intent, app target, `docs/app-constitution.md`, every cited `docs/app-user-evidence.md#user-msg-*` entry, existing waves, relevant sources, execution constraints when supplied, and user answers.
+Input: user intent, app target, existing waves, relevant sources.
 
 Output:
 
-- `wave-research.packet.v1`
+- `wave-research.packet`
 - `waves/index.md`
 - `waves/<wave-id>/research.md`
 
-Gate: every touched wave states which constitution ids it explains and records sources, decisions, unknowns, and next route. Only research-confirmed `cap-*` and `gap-*` records may become plan inputs. An `inference-*` stays in research until verification produces a source-backed constitution record. New functional truth or drift returns to `app-constitution`.
+Each wave records scope, unknowns, sources, decisions, follow-up questions, and sync status.
 
 ### app-specify
 
-Input: research wave questions that cannot be resolved from current sources.
+Input: one or more research waves and open questions.
 
-Output: `clarification.packet.v1` folded back into `waves/<wave-id>/research.md` when a wave file exists, or returned in the response when no wave file exists.
-
-Gate: clarification is folded back into `app-research`. This helper does not route directly to `app-plan` or create plan tasks or graph nodes.
-
-### app-plan
-
-Input: research-confirmed `cap-*` and `gap-*` records from `docs/app-constitution.md`, wave research, current task ledger, implemented-state notes when present, and execution constraints when supplied.
-
-Output:
-
-- `waves/<wave-id>/plan.md`
-- updated `docs/app-task-ledger.v1.json`
-- approved microtasks with constitution and research refs
-
-Gate: every microtask references one or more research-confirmed `cap-*` or `gap-*` ids and research sections, has an order, target paths, dependencies, planned owner and critic roles, definition of done, proof requirement, and status. `constraint-*`, `decision-*`, and `inference-*` records are not plan inputs. Planning does not create graph nodes.
+Output: `waves/<wave-id>/spec.md` with actors, flows, data, errors, acceptance criteria, unresolved decisions, and graph hints.
 
 ### app-functional-graph
 
-Input: constitution, research waves, approved plan microtasks, and existing graph or ledger files.
+Input: specified waves and existing graph or ledger files.
 
 Output:
 
 - `docs/app-functional-graph.v1.json`
-- graph refs and backlinks for `docs/app-task-ledger.v1.json`
+- graph references for `docs/app-task-ledger.v1.json`
 
-Gate: every graph node has complete lineage through confirmed `cap-*` or `gap-*` refs, research refs, and plan task refs. Inferences never enter the graph. The graph models the future `app-dev` stage.
+Every executable task must reference at least one functionality id and one graph node ref.
 
-### app-dev
+### app-plan
 
-Input: graph nodes with complete lineage, ready dependencies, planned roles, optional support packets, and exact target paths.
+Input: wave specs, graph, ledger, and implemented-state notes.
 
-Output: task status updates, changed-file lists, generated evidence refs when present, and wave closeout notes.
+Output:
 
-`app-dev` never invents implementation tasks outside the ledger or graph. If support subagents are unavailable, the parent runs the same bounded packet sequentially and records that fallback.
+- `waves/<wave-id>/plan.md`
+- updated `docs/app-functional-graph.v1.json`
+- updated `docs/app-task-ledger.v1.json`
+
+`app-plan` creates only decision-complete tasks. Missing decisions return to `app-specify`. It may run a read-only `instruction-hardening` pass when the operator allows subagents in the current run.
 
 ### app-analyze
 
-Input: constitution, every user-evidence entry it cites, research, plan, graph, ledger, implementation state, and plugin files when file-audit mode is requested.
+Input: docs, graph, ledger, and implemented code state.
 
-Output: `waves/<wave-id>/analysis.md` with status `pass`, `needs-constitution`, `needs-research`, `needs-plan`, `needs-graph`, `needs-dev`, or `blocked`.
+Output: `waves/<wave-id>/analysis.md` with status `pass`, `needs-plan`, `needs-spec`, or `blocked`.
 
-`app-analyze` also owns file-level instruction quality audits for usefulness, consistency, brevity, unambiguity, instruction coverage, portability, degradation resistance, and no-test-tooling risk.
-
-Functional drift returns to `app-constitution`. Research drift returns to `app-research`. Plan drift returns to `app-plan`. Graph drift returns to `app-functional-graph`. Dev drift returns to `app-dev`. Execution-constraint drift is reported in closeout and must not rewrite functional truth.
-
-## Support skill contracts
-
-### subagents-roles
-
-Input: graph-backed tasks, target paths, proof requirements, dependencies, and `docs/role-catalog.md`.
-
-Output: `role-packet.v1` with confirmed owner role, critic role, helper roles, path scope, sequential readiness, and role gaps.
-
-### subagents
-
-Input: role packet, ready graph-backed tasks, target paths, and completion criteria.
-
-Output: `dispatch-packet.v1` for one bounded sequential handoff.
+Missing functionality returns to `app-plan`. Missing requirements return to `app-specify`. Ready ledger work goes to `app-dev`. `pass` closes the wave.
 
 ### instruction-hardening
 
-Input: wave plan, candidate dispatch packet, and execution constraints when supplied.
+Input: wave plan, candidate dispatch packets, and target `AGENTS.md` or linked contracts.
 
-Output: `hardening-output.v1` with compressed text, removed-content summary, and drift note.
+Output: compressed text, removed-content summary, and authority or drift note.
 
-`instruction-hardening` is read-only. It never creates tasks, changes functional decisions, runs scripts, or overrides execution constraints.
+`instruction-hardening` is read-only. It never creates tasks, changes product decisions, or overrides `AGENTS.md` and contracts.
 
-## Change-management rule
+### app-dev
 
-When `README.md`, `SPEC.md`, `.codex-plugin/plugin.json`, `skills/`, `templates/`, or workflow contracts change, refresh the affected constitution, research, plan, graph, ledger, and analysis artifacts in the same commit unless the change is explicitly cosmetic.
+Input: ledger tasks with valid graph refs and ready dependencies.
+
+Output: L2 dispatch packets, L3 task packets, ledger status updates, and wave closeout notes.
+
+`app-dev` never invents implementation tasks outside the ledger. L1 starts L2 lanes. L2 starts L3 workers and critics only when the operator allows delegation in the current run. Role and subagent helper skills live under `/home/ai1/.codex/skills` when available.
 
 ## Scenario prompts
 
-- “establish app source of truth” uses `app-constitution`.
-- “research app feature” uses `app-research` and explains constitution ids.
-- “clarify this wave” uses `app-specify` as a helper and folds decisions into research.
-- “plan this wave” uses `app-plan` to write approved sequential microtasks.
-- “model planned dev work” uses `app-functional-graph` to build graph nodes from plan microtasks.
-- “dev ready wave” uses `app-dev` only after complete graph lineage exists.
-- “harden this packet” uses `instruction-hardening` and tightens prose without changing functional truth.
-- “analyze implemented state” uses `app-analyze` and reports the exact broken lineage link.
-- “audit plugin reuse quality” uses `app-analyze` file-audit mode and reports exact file-level concerns.
+- “research app feature” uses `app-research` and creates or updates waves.
+- “specify this wave” uses `app-specify` and expands wave docs.
+- “plan unbuilt functionality” uses `app-plan` and writes graph-linked ledger tasks.
+- “analyze implemented state” uses `app-analyze` and reports missing or drifted functionality.
+- “harden this wave” uses `instruction-hardening` and tightens wave prose without changing authority.
+- “dev ready wave” uses `app-dev` and prepares L2/L3 dispatch packets.

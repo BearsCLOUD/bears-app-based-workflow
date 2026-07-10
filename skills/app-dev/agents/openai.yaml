@@ -1,4 +1,4 @@
 interface:
   display_name: "App Dev"
-  short_description: "Run graph-ready sequential handoffs"
-  default_prompt: "Use $app-dev to execute only graph-backed ledger tasks with complete constitution, research, and plan lineage."
+  short_description: "Dispatch ready wave tasks"
+  default_prompt: "Use $app-dev to prepare L2 and L3 dispatch for a ready graph-linked wave."

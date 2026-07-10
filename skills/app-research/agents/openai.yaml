@@ -1,4 +1,4 @@
 interface:
   display_name: "App Research"
-  short_description: "Explain constitution ids with sources"
-  default_prompt: "Use $app-research to explain constitution ids through sources, decisions, unknowns, and wave scope."
+  short_description: "Create and sync app waves"
+  default_prompt: "Use $app-research to create or update research waves for an app feature."

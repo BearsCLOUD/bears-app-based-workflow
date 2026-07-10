@@ -1,4 +1,0 @@
-interface:
-  display_name: "Subagents Roles"
-  short_description: "Confirm self-contained handoff roles"
-  default_prompt: "Use $subagents-roles to confirm owner, critic, and helper roles for one sequential graph-backed handoff."

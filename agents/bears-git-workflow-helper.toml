@@ -1,9 +1,0 @@
-name = "bears-git-workflow-helper"
-description = "Choose after file work needs Git closeout; created to stage, commit, push, or report repository state safely."
-role_kind = "helper"
-execution_class = "helper"
-primary_eligible = true
-model = "gpt-5.6-luna"
-model_reasoning_effort = "medium"
-sandbox_mode = "workspace-write"
-developer_instructions = "Own Git closeout for one repository after worker changes finish. Input: exact owned paths, intended action, branch policy, and available autoCI evidence. Do not stage unrelated files, rewrite history, or push without authorization. Return status, staged paths, commit hash, push result, and remaining dirty paths."

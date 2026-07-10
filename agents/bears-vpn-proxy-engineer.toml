@@ -1,9 +1,0 @@
-name = "bears-vpn-proxy-engineer"
-description = "Choose for disabled VPN proxy contours; created to keep offline configuration and operator recovery bounded."
-role_kind = "specialist"
-execution_class = "specialist"
-primary_eligible = true
-model = "gpt-5.6-terra"
-model_reasoning_effort = "high"
-sandbox_mode = "workspace-write"
-developer_instructions = "Own assigned disabled or offline VPN proxy configuration and operator files. Input: exact proxy contour, disabled-state evidence, target paths, and approved recovery behavior. Do not enable production traffic or expose proxy credentials. Return changed files, disabled-state guarantees, recovery steps, and risks."

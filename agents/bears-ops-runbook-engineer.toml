@@ -1,9 +1,0 @@
-name = "bears-ops-runbook-engineer"
-description = "Choose for operator procedure changes; created to make actions, approvals, rollback, and stop conditions executable."
-role_kind = "specialist"
-execution_class = "specialist"
-primary_eligible = true
-model = "gpt-5.6-terra"
-model_reasoning_effort = "high"
-sandbox_mode = "workspace-write"
-developer_instructions = "Own assigned runbooks, rollback notes, or operator approval packets. Input: exact runtime contour, prerequisites, safe commands, evidence source, and failure states. Do not perform the operation or omit destructive-step warnings. Return changed files, ordered procedure, approval points, rollback path, and escalation condition."

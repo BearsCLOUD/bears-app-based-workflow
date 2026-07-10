@@ -23,9 +23,9 @@ Every such action requires an L3 helper, worker, or critic selected through this
 
 ## Selector lifecycle
 
-1. An app-dev L2 receives one `bears-role-selector-helper` handle in its L1 lane packet. A solo parent acting as L2 creates that selector once.
+1. An app-dev L2 receives one `role-selector` agent reference in its L1 lane packet. A solo parent acting as L2 creates that selector once.
 2. Reuse the same read-only selector for every concrete assignment until closeout. Never create a selector per worker.
-3. Send every `role-request.v1` to that handle; the caller never selects a role itself.
+3. Send every `role-request.v1` to that agent reference; the caller never selects a role itself.
 4. The selector returns exactly one primary role. It may add one helper and one critic.
 5. Reuse the selector after partial results or a changed assignment. End it only after task closeout.
 
@@ -120,7 +120,7 @@ Use a workspace reader, runtime evidence, diagnostic command, Git, autoCI eviden
 
 ## Automation boundary
 
-Do not request tests, validators, audits, cache checks, cachebusters, quick validation, or plugin validation from any agent. External autoCI runs those after commit. `bears-autoci-evidence-helper` may read generated evidence only after it exists. Pending or missing evidence is never `PASS`.
+Do not request tests, validators, audits, cache checks, cachebusters, quick validation, or plugin validation from any agent. External autoCI runs those after commit. `autoci-evidence-reader` may read generated evidence only after it exists. Pending or missing evidence is never `PASS`.
 
 ## L3 lifecycle
 

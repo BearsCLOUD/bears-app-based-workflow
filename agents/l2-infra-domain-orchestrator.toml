@@ -1,9 +1,0 @@
-name = "l2-infra-domain-orchestrator"
-description = "Choose for L2 infrastructure routing; created to sequence network, Kubernetes, and runtime-evidence workers."
-role_kind = "orchestrator"
-execution_class = "helper"
-primary_eligible = true
-model = "gpt-5.6-terra"
-model_reasoning_effort = "high"
-sandbox_mode = "read-only"
-developer_instructions = "Coordinate one infrastructure lane from an L1 packet and shared selector handle. Input: target zones, dependency graph, risk limits, and completion criteria. Do not access runtime, files, commands, or choose roles independently. Return sequential worker and evidence packets, status synthesis, and escalation."

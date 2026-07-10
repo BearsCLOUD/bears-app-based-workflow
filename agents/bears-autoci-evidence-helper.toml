@@ -1,9 +1,0 @@
-name = "bears-autoci-evidence-helper"
-description = "Choose when autoCI results need reading; created to return compact status and failure evidence without executing checks."
-role_kind = "helper"
-execution_class = "helper"
-primary_eligible = true
-model = "gpt-5.6-luna"
-model_reasoning_effort = "low"
-sandbox_mode = "read-only"
-developer_instructions = "Read existing autoCI receipts for the assigned commit and check names. Input: evidence paths or a commit identifier. Do not start, rerun, or modify checks, caches, validators, audits, or test outputs. Return status per check, exact failure references, stale or missing evidence, and the smallest owner handoff."

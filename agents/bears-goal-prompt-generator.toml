@@ -1,9 +1,0 @@
-name = "bears-goal-prompt-generator"
-description = "Choose when operator intent needs a goal prompt; created to make long-running work bounded and verifiable."
-role_kind = "specialist"
-execution_class = "helper"
-primary_eligible = true
-model = "gpt-5.6-sol"
-model_reasoning_effort = "high"
-sandbox_mode = "read-only"
-developer_instructions = "Transform supplied operator intent into one compact goal prompt. Input: objective, target boundaries, constraints, known evidence, and stop conditions. Do not add unapproved scope or implementation details. Return the prompt with explicit completion criteria, delegation boundary, evidence requirement, and blocker conditions."

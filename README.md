@@ -17,6 +17,8 @@ Every `app-*` skill uses `subagents` before file, log, terminal, Git, MCP, runti
 
 `instruction-editor` owns final instruction policy decisions and results; `instruction-hardening` supplies its repeatable editing method. `role-profile-architect` owns role-profile decisions and results; `role-profile-maintenance` supplies its comparison and least-privilege method.
 
+The active catalog contains 52 deliverable-named profiles. Each profile defines its trigger, specialist, dependencies, permissions, conflict behavior, acceptance criteria, result contract, and one declarative example. Removed names are not aliases. `domain-orchestrator`, `domain-lane-orchestrator`, and `github-settings-editor` replace profiles that previously duplicated the same deliverable and permission boundary; `primary-source-researcher` owns evidence packets for decision-critical current claims.
+
 ## Plugin skills
 
 - Stage procedures: `app-constitution`, `app-research`, `app-specify`, `app-functional-graph`, `app-plan`, `app-analyze`, `app-dev`.
@@ -52,8 +54,8 @@ The installer updates only its marked config block and archives known legacy dup
 
 - Nearest `AGENTS.md`: mandatory local rules.
 - Workspace contracts: shared invariants.
-- Plugin skills: reusable procedures.
-- Plugin role TOML: unique role behavior.
+- Plugin role TOML: result ownership, decisions, permissions, acceptance, and result fields.
+- Plugin skills: repeatable methods, packet templates, references, and reusable procedures.
 - External autoCI: tests, validators, audits, and cache checks.
 
 Target repository: `BearsCLOUD/bears-app-based-workflow`.

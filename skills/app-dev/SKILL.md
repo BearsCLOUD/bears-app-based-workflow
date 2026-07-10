@@ -27,11 +27,11 @@ Start from compact ready-work results produced by `app-plan` or `app-analyze`. E
 
 The parent activating `app-dev` takes the fixed L1 role; it does not create an L1 subagent.
 
-1. Start one persistent `bears-role-selector-helper` under the `$subagents` selector lifecycle and keep its handle through wave closeout.
+1. Start one persistent `role-selector` under the `$subagents` selector lifecycle and keep its agent reference through wave closeout.
 2. Accept only tasks reported ready with closed decisions, closed dependencies, and valid graph refs.
 3. If readiness facts are absent, open one read-only L2 discovery lane with exact refs; that L2 follows `$subagents` for the concrete evidence assignment.
 4. Partition known ready tasks into L2 lanes with non-overlapping repo paths, runtime targets, and mutable state.
-5. Start each L2 with exact task ids, target bounds, dependencies, completion criteria, and the shared selector handle. Keep capacity for its L3; otherwise return `DELEGATION_BLOCKED` for that lane.
+5. Start each L2 with exact task ids, target bounds, dependencies, completion criteria, and the shared selector reference. Keep capacity for its L3; otherwise return `DELEGATION_BLOCKED` for that lane.
 6. Combine compact L2 results, route decision or planning gaps, and send completed waves to `app-analyze`.
 
 L1 never treats `$subagents` as a recipient for a stage, wave, or lane.

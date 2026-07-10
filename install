@@ -20,31 +20,73 @@ PLUGIN_ID = "bears-app-based-workflow"
 STATE_SCHEMA = "bears-role-install-receipt.v1"
 BEGIN_MARKER = b"# >>> bears-app-based-workflow agent roles (managed by ./install)"
 END_MARKER = b"# <<< bears-app-based-workflow agent roles (managed by ./install)"
-ROLE_COUNT = 61
+ROLE_COUNT = 52
 
-# Only these legacy global profiles may be archived. The first eighteen were
-# historical same-name conflicts; bears-orchestrator was the prior global L1.
+# Removed profile filenames are archive-only migration inputs. They are never
+# registered as aliases or active plugin roles.
 LEGACY_PROFILE_FILES = frozenset(
     {
         "bears-analytics-quality-engineer.toml",
+        "bears-android-emulator-platform-engineer.toml",
+        "bears-app-functional-graph-orchestrator.toml",
         "bears-auth-domain-orchestrator.toml",
         "bears-auth-platform-engineer.toml",
+        "bears-autoci-evidence-helper.toml",
+        "bears-clarification-architect.toml",
+        "bears-codex-daemon-engineer.toml",
+        "bears-codex-health-engineer.toml",
+        "bears-codex-workspace-config-engineer.toml",
         "bears-deploy-platform-engineer.toml",
         "bears-development-workflow-orchestrator.toml",
+        "bears-diagnostic-command-helper.toml",
+        "bears-docs-maintainer.toml",
         "bears-gateway-domain-orchestrator.toml",
         "bears-gateway-platform-engineer.toml",
+        "bears-git-workflow-helper.toml",
+        "bears-github-actions-access-settings-governor.toml",
+        "bears-github-actions-secrets-governor.toml",
         "bears-github-branch-protection-settings-governor.toml",
+        "bears-github-project-issues-orchestrator.toml",
+        "bears-goal-prompt-generator.toml",
         "bears-infra-domain-orchestrator.toml",
+        "bears-infrastructure-network-engineer.toml",
+        "bears-instruction-editor.toml",
+        "bears-kubernetes-data-platform-engineer.toml",
+        "bears-machine-first-execution-kernel-engineer.toml",
         "bears-notifications-platform-engineer.toml",
+        "bears-observability-platform-engineer.toml",
+        "bears-ops-runbook-engineer.toml",
+        "bears-orchestrator.toml",
         "bears-payments-domain-orchestrator.toml",
         "bears-payments-platform-engineer.toml",
         "bears-platform-security-reviewer.toml",
+        "bears-plugin-update-engineer.toml",
         "bears-product-app-zone-engineer.toml",
         "bears-qa-governance-orchestrator.toml",
+        "bears-review-fix-helper.toml",
+        "bears-role-editor-auditor.toml",
+        "bears-role-selector-helper.toml",
+        "bears-runtime-evidence-helper.toml",
+        "bears-secret-factory-engineer.toml",
+        "bears-session-worker-runtime-engineer.toml",
+        "bears-subagent-orchestration-engineer.toml",
+        "bears-telegram-platform-engineer.toml",
         "bears-tenant-domain-orchestrator.toml",
         "bears-tenant-registry-platform-engineer.toml",
+        "bears-token-budget-helper.toml",
+        "bears-vpn-bot-engineer.toml",
+        "bears-vpn-client-app-engineer.toml",
+        "bears-vpn-ingress-engineer.toml",
+        "bears-vpn-project-governance-engineer.toml",
+        "bears-vpn-proxy-engineer.toml",
+        "bears-vpn-runtime-engineer.toml",
         "bears-wb-integration-platform-engineer.toml",
-        "bears-orchestrator.toml",
+        "bears-workflow-overlay-platform-engineer.toml",
+        "bears-workspace-reader-helper.toml",
+        "l2-gitops-domain-orchestrator.toml",
+        "l2-infra-domain-orchestrator.toml",
+        "l2-platform-domain-orchestrator.toml",
+        "l2-product-infra-domain-orchestrator.toml",
     }
 )
 

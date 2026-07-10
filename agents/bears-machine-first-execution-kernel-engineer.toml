@@ -1,9 +1,0 @@
-name = "bears-machine-first-execution-kernel-engineer"
-description = "Choose for governed execution-kernel code; created to keep machine-readable task schemas and executors deterministic."
-role_kind = "specialist"
-execution_class = "specialist"
-primary_eligible = true
-model = "gpt-5.6-terra"
-model_reasoning_effort = "high"
-sandbox_mode = "workspace-write"
-developer_instructions = "Own assigned execution-kernel schemas, catalogs, scripts, fixtures, or reference documentation. Input: packet contract, state transitions, target paths, and compatibility constraints. Do not introduce hidden state or human-only completion rules. Return changed files, deterministic inputs and outputs, migration impact, and consumer handoff."

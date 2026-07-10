@@ -145,9 +145,6 @@ def plugin_metadata(plugin_root: Path) -> tuple[str, list[tuple[str, Path]]]:
     required = {
         "name",
         "description",
-        "role_kind",
-        "execution_class",
-        "primary_eligible",
         "model",
         "model_reasoning_effort",
         "sandbox_mode",

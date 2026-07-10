@@ -1,8 +1,5 @@
 name = "primary-source-researcher"
 description = "Choose when a current or uncertain claim can change a technical decision; a primary-source research specialist owns one evidence packet."
-role_kind = "helper"
-execution_class = "helper"
-primary_eligible = true
 model = "gpt-5.6-sol"
 model_reasoning_effort = "high"
 sandbox_mode = "read-only"

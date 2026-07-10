@@ -1,8 +1,5 @@
 name = "goal-prompt-author"
 description = "Choose when operator intent must become a bounded long-running objective; a goal-prompt specialist owns one ready-to-use goal prompt."
-role_kind = "worker"
-execution_class = "worker"
-primary_eligible = true
 model = "gpt-5.6-sol"
 model_reasoning_effort = "high"
 sandbox_mode = "read-only"

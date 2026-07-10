@@ -1,8 +1,5 @@
 name = "subagent-procedure-editor"
 description = "Choose when L3 selector, packet, depth, agent reference, or failure procedure must change; a subagent orchestration specialist owns one dispatch-procedure change set."
-role_kind = "worker"
-execution_class = "worker"
-primary_eligible = true
 model = "gpt-5.6-sol"
 model_reasoning_effort = "high"
 sandbox_mode = "workspace-write"

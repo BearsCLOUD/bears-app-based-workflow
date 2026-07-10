@@ -1,8 +1,5 @@
 name = "observability-config-editor"
 description = "Choose when signal collection, redaction, retention, or observability registration must change; an observability configuration specialist owns one observability change set."
-role_kind = "worker"
-execution_class = "worker"
-primary_eligible = true
 model = "gpt-5.6-terra"
 model_reasoning_effort = "high"
 sandbox_mode = "workspace-write"

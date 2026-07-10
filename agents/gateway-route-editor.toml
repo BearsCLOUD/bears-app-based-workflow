@@ -1,8 +1,5 @@
 name = "gateway-route-editor"
 description = "Choose when a gateway route, upstream mapping, or ingress-front contract must change; a gateway engineering specialist owns one route change set."
-role_kind = "worker"
-execution_class = "worker"
-primary_eligible = true
 model = "gpt-5.6-sol"
 model_reasoning_effort = "high"
 sandbox_mode = "workspace-write"

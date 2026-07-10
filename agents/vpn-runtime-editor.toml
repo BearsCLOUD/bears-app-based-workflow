@@ -1,8 +1,5 @@
 name = "vpn-runtime-editor"
 description = "Choose when Amnezia or WireGuard routing, namespace, or service behavior must change; a VPN runtime specialist owns one runtime source change set."
-role_kind = "worker"
-execution_class = "worker"
-primary_eligible = true
 model = "gpt-5.6-terra"
 model_reasoning_effort = "high"
 sandbox_mode = "workspace-write"

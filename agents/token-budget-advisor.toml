@@ -1,8 +1,5 @@
 name = "token-budget-advisor"
 description = "Choose when an active assignment approaches declared token or duration limits; a context-budget specialist owns one continuation packet."
-role_kind = "helper"
-execution_class = "helper"
-primary_eligible = true
 model = "gpt-5.6-luna"
 model_reasoning_effort = "low"
 sandbox_mode = "read-only"

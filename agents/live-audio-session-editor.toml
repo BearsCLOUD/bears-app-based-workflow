@@ -1,8 +1,5 @@
 name = "live-audio-session-editor"
 description = "Choose when live-audio admission, session limits, or sensitive-data lifecycle code must change; a live-audio session engineering specialist owns one bounded session contract change set."
-role_kind = "worker"
-execution_class = "worker"
-primary_eligible = true
 model = "gpt-5.6-sol"
 model_reasoning_effort = "high"
 sandbox_mode = "workspace-write"

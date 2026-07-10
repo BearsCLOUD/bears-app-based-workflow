@@ -1,8 +1,5 @@
 name = "product-clarification-packet-author"
 description = "Choose when unresolved product choices prevent a bounded assignment; a product clarification specialist owns one decision-question packet."
-role_kind = "helper"
-execution_class = "helper"
-primary_eligible = true
 model = "gpt-5.6-sol"
 model_reasoning_effort = "high"
 sandbox_mode = "read-only"

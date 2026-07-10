@@ -1,8 +1,5 @@
 name = "plugin-update-editor"
 description = "Choose when a Codex plugin manifest, catalog entry, registration source, or version metadata must change; a plugin update specialist owns one plugin update set."
-role_kind = "worker"
-execution_class = "worker"
-primary_eligible = true
 model = "gpt-5.6-terra"
 model_reasoning_effort = "high"
 sandbox_mode = "workspace-write"

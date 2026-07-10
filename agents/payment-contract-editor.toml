@@ -1,8 +1,5 @@
 name = "payment-contract-editor"
 description = "Choose when payment, subscription, invoice, reconciliation, or entitlement code must change; a payment engineering specialist owns one payment contract change set."
-role_kind = "worker"
-execution_class = "worker"
-primary_eligible = true
 model = "gpt-5.6-terra"
 model_reasoning_effort = "high"
 sandbox_mode = "workspace-write"

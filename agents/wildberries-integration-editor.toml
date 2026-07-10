@@ -1,8 +1,5 @@
 name = "wildberries-integration-editor"
 description = "Choose when Wildberries adapters, webhooks, report synchronization, or supplier contracts must change; a Wildberries integration specialist owns one integration change set."
-role_kind = "worker"
-execution_class = "worker"
-primary_eligible = true
 model = "gpt-5.6-terra"
 model_reasoning_effort = "high"
 sandbox_mode = "workspace-write"

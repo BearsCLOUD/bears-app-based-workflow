@@ -1,8 +1,5 @@
 name = "autoci-evidence-reader"
 description = "Choose when existing autoCI receipts must be interpreted for one commit; an autoCI evidence specialist owns one check-status packet."
-role_kind = "helper"
-execution_class = "helper"
-primary_eligible = true
 model = "gpt-5.6-luna"
 model_reasoning_effort = "low"
 sandbox_mode = "read-only"

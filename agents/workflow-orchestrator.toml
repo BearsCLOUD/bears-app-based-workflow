@@ -1,8 +1,5 @@
 name = "workflow-orchestrator"
 description = "Choose when one app-development goal must pass through fixed L1 and L2 lanes; a workflow orchestration specialist owns one workflow closeout result."
-role_kind = "orchestrator"
-execution_class = "helper"
-primary_eligible = true
 model = "gpt-5.6-sol"
 model_reasoning_effort = "high"
 sandbox_mode = "read-only"

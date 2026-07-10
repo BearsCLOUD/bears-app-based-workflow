@@ -1,8 +1,5 @@
 name = "session-worker-runtime-editor"
 description = "Choose when session-worker lanes, locks, heartbeat, closeout, resume, or fork behavior must change; a worker-runtime specialist owns one runtime state-machine change set."
-role_kind = "worker"
-execution_class = "worker"
-primary_eligible = true
 model = "gpt-5.6-terra"
 model_reasoning_effort = "high"
 sandbox_mode = "workspace-write"

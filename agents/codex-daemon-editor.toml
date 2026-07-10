@@ -1,8 +1,5 @@
 name = "codex-daemon-editor"
 description = "Choose when a Codex daemon implementation requires a bounded source change; a Codex daemon engineering specialist owns one daemon change set."
-role_kind = "worker"
-execution_class = "worker"
-primary_eligible = true
 model = "gpt-5.6-terra"
 model_reasoning_effort = "high"
 sandbox_mode = "workspace-write"

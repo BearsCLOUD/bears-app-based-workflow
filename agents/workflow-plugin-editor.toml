@@ -1,8 +1,5 @@
 name = "workflow-plugin-editor"
 description = "Choose when this workflow plugin's manifest, skills, templates, profiles, or documentation must change together; a workflow plugin specialist owns one synchronized plugin change set."
-role_kind = "worker"
-execution_class = "worker"
-primary_eligible = true
 model = "gpt-5.6-terra"
 model_reasoning_effort = "high"
 sandbox_mode = "workspace-write"

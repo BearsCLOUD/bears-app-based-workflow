@@ -1,6 +1,6 @@
 {
   "name": "bears-app-based-workflow",
-  "version": "0.1.0+codex.20260709143733",
+  "version": "0.1.0+codex.20260710051738",
   "description": "Spec Kit-style app workflow plugin for Bears waves, functional graphs, task ledgers, hardened dispatch packets, and app development orchestration.",
   "author": {
     "name": "BearsCLOUD",

@@ -49,7 +49,7 @@ The installer updates only its marked config block and archives known legacy dup
 
 ## External role-sync autoCD
 
-A push to `main` creates an external queue record only. The external controller installs roles from a clean checkout only after external autoCI reports `PASS` for the same commit SHA and an operator-approved webhook handoff releases that SHA. This repository has no GitHub Action, webhook receiver, post-receive hook, controller, validation, or deployment fallback. See `/srv/bears/docs/architecture/local-autocd-role-sync.md`.
+After one-time local marketplace bootstrap, a local post-push candidate records the exact `main` SHA only. The external controller installs roles from a clean local marketplace checkout automatically when local autoCI reports `PASS` for the same SHA. It refreshes the marketplace cache at that SHA before installation. This repository has no candidate producer, controller, cache-refresh code, validation, or deployment fallback. See `/srv/bears/docs/architecture/local-autocd-role-sync.md`.
 
 ## Ownership
 

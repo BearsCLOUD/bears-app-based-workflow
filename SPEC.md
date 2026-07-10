@@ -82,4 +82,4 @@ The plugin contains no tests, validator scripts, audit scripts, or manual verifi
 
 ## External role-sync autoCD
 
-A push to `main` may create an external queue record for its exact SHA. It does not run `./install`. An external controller may install only the queued SHA after external autoCI returns `PASS` for that same SHA and an operator-approved webhook handoff releases it. The controller uses a clean checkout. The plugin provides no GitHub Action, webhook receiver, post-receive hook, controller, validation, or parent fallback.
+After one-time local marketplace bootstrap, a local post-push candidate may record the exact `main` SHA. It does not run `./install`. An external controller automatically installs only that SHA after local autoCI returns `PASS` for the same SHA. The controller refreshes the local marketplace cache from a clean checkout pinned to that SHA before installation. The plugin provides no candidate producer, controller, cache-refresh code, validation, or parent fallback.

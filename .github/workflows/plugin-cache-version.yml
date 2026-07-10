@@ -1,0 +1,56 @@
+name: plugin cache version
+
+permissions:
+  contents: write
+
+on:
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: plugin-cache-version-main
+  cancel-in-progress: false
+
+jobs:
+  refresh-version:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Generate a unique Codex cache version
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import datetime as dt
+          import json
+          from pathlib import Path
+
+          manifest_path = Path('.codex-plugin/plugin.json')
+          manifest = json.loads(manifest_path.read_text(encoding='utf-8'))
+          base_version = str(manifest['version']).split('+', 1)[0]
+          suffix = dt.datetime.now(dt.timezone.utc).strftime('%Y%m%d%H%M%S')
+          manifest['version'] = f'{base_version}+codex.{suffix}'
+          manifest_path.write_text(
+              json.dumps(manifest, ensure_ascii=False, indent=2) + '\n',
+              encoding='utf-8',
+          )
+          print(manifest['version'])
+          PY
+
+      - name: Commit generated version
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'Bears autoCI'
+          git config user.email 'autoci@bears.local'
+          git add .codex-plugin/plugin.json
+          git diff --cached --quiet && exit 0
+          git commit -m 'chore(plugin): refresh Codex cache version'
+          git push origin HEAD:main

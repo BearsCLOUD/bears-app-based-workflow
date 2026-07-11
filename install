@@ -271,6 +271,25 @@ def digest_bytes(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
 
 
+def profile_ownership(profiles: list[tuple[str, Path]]) -> list[dict[str, str]]:
+    ownership: list[dict[str, str]] = []
+    for name, path in profiles:
+        if path.is_symlink() or not path.is_file():
+            raise InstallError("profile-path-invalid")
+        try:
+            content_digest = digest_bytes(path.read_bytes())
+        except OSError:
+            raise InstallError("profile-catalog-unreadable") from None
+        ownership.append(
+            {
+                "name": name,
+                "config_file": str(path),
+                "sha256": content_digest,
+            }
+        )
+    return ownership
+
+
 def load_toml_bytes(data: bytes) -> dict[str, Any]:
     try:
         parsed = tomllib.loads(data.decode("utf-8")) if data else {}
@@ -282,7 +301,9 @@ def load_toml_bytes(data: bytes) -> dict[str, Any]:
 
 
 def remove_stale_registrations(
-    data: bytes, parsed: dict[str, Any]
+    data: bytes,
+    parsed: dict[str, Any],
+    owned_registrations: set[tuple[str, str]],
 ) -> tuple[bytes, bool]:
     agents = parsed.get("agents", {})
     if not isinstance(agents, dict):
@@ -295,8 +316,11 @@ def remove_stale_registrations(
         if not isinstance(entry, dict) or set(entry) != {"config_file"}:
             raise InstallError("legacy-registration-conflict")
         config_file = entry.get("config_file")
-        if not isinstance(config_file, str) or Path(config_file).name != f"{name}.toml":
-            raise InstallError("legacy-registration-conflict")
+        if (
+            not isinstance(config_file, str)
+            or (name, config_file) not in owned_registrations
+        ):
+            raise InstallError("legacy-ownership-conflict")
     try:
         text = data.decode("utf-8")
     except UnicodeError:
@@ -361,6 +385,58 @@ def load_state(path: Path) -> tuple[dict[str, Any] | None, bytes | None]:
     return state, raw
 
 
+def receipt_profile_ownership(state: dict[str, Any]) -> dict[tuple[str, str], str]:
+    raw_profiles = state.get("managed_profiles", [])
+    if not isinstance(raw_profiles, list):
+        raise InstallError("receipt-invalid")
+    ownership: dict[tuple[str, str], str] = {}
+    for record in raw_profiles:
+        if not isinstance(record, dict):
+            raise InstallError("receipt-invalid")
+        name = record.get("name")
+        config_file = record.get("config_file")
+        content_digest = record.get("sha256")
+        if (
+            not isinstance(name, str)
+            or not name
+            or not isinstance(config_file, str)
+            or not Path(config_file).is_absolute()
+            or not isinstance(content_digest, str)
+            or re.fullmatch(r"[0-9a-f]{64}", content_digest) is None
+        ):
+            raise InstallError("receipt-invalid")
+        key = (name, config_file)
+        if key in ownership:
+            raise InstallError("receipt-invalid")
+        ownership[key] = content_digest
+    return ownership
+
+
+def managed_registration_ownership(
+    managed_block: bytes,
+    state: dict[str, Any],
+) -> dict[tuple[str, str], str | None]:
+    parsed = load_toml_bytes(managed_block)
+    agents = parsed.get("agents", {})
+    if not isinstance(agents, dict):
+        raise InstallError("managed-block-conflict")
+    recorded = receipt_profile_ownership(state)
+    ownership: dict[tuple[str, str], str | None] = {}
+    for name, entry in agents.items():
+        if (
+            not isinstance(name, str)
+            or not isinstance(entry, dict)
+            or set(entry) != {"config_file"}
+            or not isinstance(entry.get("config_file"), str)
+        ):
+            raise InstallError("managed-block-conflict")
+        key = (name, entry["config_file"])
+        ownership[key] = recorded.get(key)
+    if recorded and set(recorded) != set(ownership):
+        raise InstallError("receipt-invalid")
+    return ownership
+
+
 def read_regular_or_empty(path: Path) -> tuple[bytes, os.stat_result | None]:
     if not path.exists():
         return b"", None
@@ -392,20 +468,44 @@ def ensure_safe_directory(path: Path, *, create: bool) -> None:
         raise InstallError("directory-path-invalid")
 
 
-def archive_candidates(codex_home: Path) -> list[Path]:
+def archive_candidates(
+    codex_home: Path,
+    owned_registrations: dict[tuple[str, str], str | None],
+) -> list[tuple[Path, str]]:
     agents_dir = codex_home / "agents"
+    if agents_dir.is_symlink():
+        raise InstallError("global-agents-path-invalid")
     if not agents_dir.exists():
         return []
-    if agents_dir.is_symlink() or not agents_dir.is_dir():
+    if not agents_dir.is_dir():
         raise InstallError("global-agents-path-invalid")
-    candidates: list[Path] = []
+    candidates: list[tuple[Path, str]] = []
     for filename in sorted(LEGACY_PROFILE_FILES):
         path = agents_dir / filename
+        if path.is_symlink():
+            raise InstallError("legacy-profile-path-invalid")
         if not path.exists():
             continue
-        if path.is_symlink() or not path.is_file():
+        if not path.is_file():
             raise InstallError("legacy-profile-path-invalid")
-        candidates.append(path)
+        expected_digests = {
+            content_digest
+            for (_, config_file), content_digest in owned_registrations.items()
+            if config_file == str(path) and content_digest is not None
+        }
+        path_is_owned = any(
+            config_file == str(path)
+            for _, config_file in owned_registrations
+        )
+        if not path_is_owned:
+            raise InstallError("legacy-ownership-conflict")
+        try:
+            content_digest = digest_bytes(path.read_bytes())
+        except OSError:
+            raise InstallError("legacy-profile-unreadable") from None
+        if expected_digests and content_digest not in expected_digests:
+            raise InstallError("legacy-ownership-conflict")
+        candidates.append((path, content_digest))
     return candidates
 
 
@@ -426,6 +526,7 @@ def state_document(
     digest: str | None,
     added_joiner: bool,
     archives: list[dict[str, Any]],
+    managed_profiles: list[dict[str, str]],
 ) -> dict[str, Any]:
     return {
         "schema": STATE_SCHEMA,
@@ -436,6 +537,7 @@ def state_document(
         "role_count": ROLE_COUNT,
         "managed_digest": digest,
         "managed_joiner_added": added_joiner,
+        "managed_profiles": managed_profiles,
         "archives": archives,
     }
 
@@ -510,20 +612,25 @@ def plan_operation(
     state, state_raw = load_state(state_path)
     managed = find_managed_block(config_data)
     block_digest = digest_bytes(block)
+    current_profiles = profile_ownership(profiles)
     existing_archives = [] if state is None else state.get("archives", [])
     if not isinstance(existing_archives, list):
         raise InstallError("receipt-invalid")
 
+    owned_registrations: dict[tuple[str, str], str | None] = {}
     if managed is not None:
         current_digest = digest_bytes(managed[2])
         if state is None or state.get("status") != "installed":
             raise InstallError("managed-block-unowned")
         if state.get("managed_digest") != current_digest:
             raise InstallError("managed-block-drift")
+        owned_registrations = managed_registration_ownership(managed[2], state)
     elif state is not None and state.get("status") == "installed":
         raise InstallError("managed-block-missing")
+    elif state is not None:
+        receipt_profile_ownership(state)
 
-    candidates: list[Path] = []
+    candidates: list[tuple[Path, str]] = []
     archive_dir: Path | None = None
     legacy_removed = False
     role_names = {name for name, _ in profiles}
@@ -531,7 +638,11 @@ def plan_operation(
     if operation == "install":
         if managed is None:
             parsed = load_toml_bytes(config_data)
-            config_base, legacy_removed = remove_stale_registrations(config_data, parsed)
+            config_base, legacy_removed = remove_stale_registrations(
+                config_data,
+                parsed,
+                set(owned_registrations),
+            )
             parsed_base = load_toml_bytes(config_base)
             reject_unmanaged_roles(parsed_base, role_names)
             added_joiner = bool(config_base and not config_base.endswith((b"\n", b"\r")))
@@ -540,14 +651,30 @@ def plan_operation(
             added_joiner = bool(state.get("managed_joiner_added", False))
             desired_config = config_data[: managed[0]] + block + config_data[managed[1] :]
             unmanaged = config_data[: managed[0]] + config_data[managed[1] :]
-            reject_unmanaged_roles(load_toml_bytes(unmanaged), role_names)
-        candidates = archive_candidates(codex_home)
+            parsed_unmanaged = load_toml_bytes(unmanaged)
+            remove_stale_registrations(
+                unmanaged,
+                parsed_unmanaged,
+                set(),
+            )
+            reject_unmanaged_roles(parsed_unmanaged, role_names)
+        candidates = archive_candidates(codex_home, owned_registrations)
         if candidates:
             archive_dir = choose_archive_dir(codex_home, version, block_digest)
             archive_entry = {
                 "directory": relative_to_home(archive_dir, codex_home),
                 "count": len(candidates),
-                "files": [path.name for path in candidates],
+                "files": [
+                    {
+                        "source": relative_to_home(path, codex_home),
+                        "archived": relative_to_home(
+                            archive_dir / path.name,
+                            codex_home,
+                        ),
+                        "sha256": content_digest,
+                    }
+                    for path, content_digest in candidates
+                ],
             }
             archives = [*existing_archives, archive_entry]
         else:
@@ -558,6 +685,7 @@ def plan_operation(
             digest=block_digest,
             added_joiner=added_joiner,
             archives=archives,
+            managed_profiles=current_profiles,
         )
     else:
         candidates = []
@@ -574,6 +702,7 @@ def plan_operation(
                     digest=None,
                     added_joiner=False,
                     archives=existing_archives,
+                    managed_profiles=[],
                 )
         else:
             remove_start = managed[0]
@@ -588,6 +717,7 @@ def plan_operation(
                 digest=None,
                 added_joiner=False,
                 archives=existing_archives,
+                managed_profiles=[],
             )
 
     desired_state_raw = None if desired_state is None else encode_state(desired_state)
@@ -614,7 +744,10 @@ def plan_operation(
     }
 
 
-def move_archives(candidates: list[Path], archive_dir: Path) -> list[tuple[Path, Path]]:
+def move_archives(
+    candidates: list[tuple[Path, str]],
+    archive_dir: Path,
+) -> list[tuple[Path, Path]]:
     ensure_safe_directory(archive_dir.parent, create=True)
     if archive_dir.exists():
         raise InstallError("archive-conflict")
@@ -624,7 +757,19 @@ def move_archives(candidates: list[Path], archive_dir: Path) -> list[tuple[Path,
         raise InstallError("archive-create-failed") from None
     moved: list[tuple[Path, Path]] = []
     try:
-        for source in candidates:
+        destination_names: set[str] = set()
+        for source, expected_digest in candidates:
+            if source.name in destination_names:
+                raise InstallError("archive-conflict")
+            destination_names.add(source.name)
+            if source.is_symlink() or not source.is_file():
+                raise InstallError("legacy-ownership-conflict")
+            try:
+                current_digest = digest_bytes(source.read_bytes())
+            except OSError:
+                raise InstallError("legacy-profile-unreadable") from None
+            if current_digest != expected_digest:
+                raise InstallError("legacy-ownership-conflict")
             destination = archive_dir / source.name
             if destination.exists():
                 raise InstallError("archive-conflict")

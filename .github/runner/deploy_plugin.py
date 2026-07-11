@@ -31,6 +31,7 @@ CODEX_HOME = Path("/srv/bears/codex/ai1")
 MARKETPLACE_ROOT = CODEX_HOME / ".tmp/marketplaces" / MARKETPLACE
 STATE_DIR = CODEX_HOME / ".local/state/bears-plugin-deploy"
 STATE_FILE = STATE_DIR / f"{PLUGIN}.json"
+INTENT_FILE = STATE_DIR / f"{PLUGIN}.promotion-intent.json"
 LOCK_FILE = STATE_DIR / f"{PLUGIN}.lock"
 MIRROR = STATE_DIR / "repository.git"
 GIT = "/usr/bin/git"
@@ -39,7 +40,9 @@ SHA_RE = re.compile(r"[0-9a-f]{40}")
 FINGERPRINT_RE = re.compile(r"[0-9a-f]{64}")
 VERSION_RE = re.compile(r"\d+\.\d+\.\d+\+codex\.\d{14}")
 DEPLOY_RECEIPT_SCHEMA = "bears-plugin-deploy-state.v1"
+PROMOTION_INTENT_SCHEMA = "bears-plugin-promotion-intent.v1"
 RECEIPT_MAX_BYTES = 16 * 1024
+INTENT_MAX_BYTES = 16 * 1024
 SUBPROCESS_DIAGNOSTIC_LIMIT = 512
 SENTRY_DSN_FILE = Path("/home/ai1/.config/bears-app-based-workflow/credentials/sentry-dsn")
 SENTRY_SERVICE = "bears-app-based-workflow"
@@ -572,6 +575,160 @@ def load_state(state_directory: int) -> dict[str, Any] | None:
     return value
 
 
+def validate_intent(value: Any) -> dict[str, Any]:
+    """Validate one bounded journal entry and its prior convergence state."""
+    fields = {
+        "schema",
+        "repository",
+        "marketplace",
+        "plugin",
+        "requested_sha",
+        "previous_receipt",
+    }
+    if (
+        not isinstance(value, dict)
+        or set(value) != fields
+        or value.get("schema") != PROMOTION_INTENT_SCHEMA
+        or value.get("repository") != REPOSITORY
+        or value.get("marketplace") != MARKETPLACE
+        or value.get("plugin") != PLUGIN
+        or not isinstance(value.get("requested_sha"), str)
+        or not SHA_RE.fullmatch(value["requested_sha"])
+    ):
+        raise DeployError("promotion intent identity is invalid", error_code="receipt-corruption")
+    previous = value["previous_receipt"]
+    receipt_fields = {
+        "schema",
+        "repository",
+        "marketplace",
+        "plugin",
+        "sha",
+        "version",
+        "payload_fingerprint",
+    }
+    if previous is not None and (
+        not isinstance(previous, dict)
+        or set(previous) != receipt_fields
+        or previous.get("schema") != DEPLOY_RECEIPT_SCHEMA
+        or previous.get("repository") != REPOSITORY
+        or previous.get("marketplace") != MARKETPLACE
+        or previous.get("plugin") != PLUGIN
+        or not isinstance(previous.get("sha"), str)
+        or not SHA_RE.fullmatch(previous["sha"])
+        or previous["sha"] == value["requested_sha"]
+        or not isinstance(previous.get("version"), str)
+        or not VERSION_RE.fullmatch(previous["version"])
+        or not isinstance(previous.get("payload_fingerprint"), str)
+        or not FINGERPRINT_RE.fullmatch(previous["payload_fingerprint"])
+    ):
+        raise DeployError(
+            "promotion intent prior convergence state is invalid",
+            error_code="receipt-corruption",
+        )
+    return value
+
+
+def load_intent(state_directory: int) -> dict[str, Any] | None:
+    """Load a secure durable promotion journal without following links."""
+    try:
+        descriptor = os.open(
+            INTENT_FILE.name,
+            os.O_RDONLY | os.O_CLOEXEC | os.O_NOFOLLOW,
+            dir_fd=state_directory,
+        )
+    except FileNotFoundError:
+        return None
+    except OSError as exc:
+        raise DeployError("promotion intent is unsafe", error_code="receipt-corruption") from exc
+    try:
+        file_stat = validate_private_regular(
+            descriptor, "promotion intent", error_code="receipt-corruption"
+        )
+        if file_stat.st_size > INTENT_MAX_BYTES:
+            raise DeployError("promotion intent is oversized", error_code="receipt-corruption")
+        payload = bytearray()
+        while len(payload) <= INTENT_MAX_BYTES:
+            chunk = os.read(descriptor, min(4096, INTENT_MAX_BYTES + 1 - len(payload)))
+            if not chunk:
+                break
+            payload.extend(chunk)
+        if len(payload) > INTENT_MAX_BYTES:
+            raise DeployError("promotion intent is oversized", error_code="receipt-corruption")
+        value = json.loads(payload.decode("utf-8"))
+    except (OSError, UnicodeDecodeError, json.JSONDecodeError) as exc:
+        raise DeployError("promotion intent is unreadable", error_code="receipt-corruption") from exc
+    finally:
+        os.close(descriptor)
+    return validate_intent(value)
+
+
+def save_intent(
+    state_directory: int,
+    requested: str,
+    previous: dict[str, Any] | None,
+) -> dict[str, Any]:
+    """Atomically persist and fsync the convergence journal before activation."""
+    value = validate_intent(
+        {
+            "schema": PROMOTION_INTENT_SCHEMA,
+            "repository": REPOSITORY,
+            "marketplace": MARKETPLACE,
+            "plugin": PLUGIN,
+            "requested_sha": requested,
+            "previous_receipt": dict(previous) if previous is not None else None,
+        }
+    )
+    payload = (json.dumps(value, sort_keys=True) + "\n").encode("utf-8")
+    if len(payload) > INTENT_MAX_BYTES:
+        raise DeployError("promotion intent is oversized")
+    temporary = f".{PLUGIN}.promotion-intent.{secrets.token_hex(16)}.tmp"
+    descriptor = -1
+    try:
+        descriptor = os.open(
+            temporary,
+            os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_CLOEXEC | os.O_NOFOLLOW,
+            0o600,
+            dir_fd=state_directory,
+        )
+        os.fchmod(descriptor, 0o600)
+        validate_private_regular(descriptor, "temporary promotion intent")
+        offset = 0
+        while offset < len(payload):
+            written = os.write(descriptor, payload[offset:])
+            if written <= 0:
+                raise DeployError("temporary promotion intent write did not advance")
+            offset += written
+        os.fsync(descriptor)
+        os.close(descriptor)
+        descriptor = -1
+        os.replace(
+            temporary,
+            INTENT_FILE.name,
+            src_dir_fd=state_directory,
+            dst_dir_fd=state_directory,
+        )
+        temporary = ""
+        os.fsync(state_directory)
+    finally:
+        if descriptor >= 0:
+            os.close(descriptor)
+        if temporary:
+            try:
+                os.unlink(temporary, dir_fd=state_directory)
+            except FileNotFoundError:
+                pass
+    return value
+
+
+def clear_intent(state_directory: int) -> None:
+    """Durably clear the journal only after verified convergence."""
+    try:
+        os.unlink(INTENT_FILE.name, dir_fd=state_directory)
+    except FileNotFoundError:
+        pass
+    os.fsync(state_directory)
+
+
 def save_state(state_directory: int, sha: str, version: str, fingerprint: str) -> None:
     value = {
         "schema": DEPLOY_RECEIPT_SCHEMA,
@@ -655,6 +812,7 @@ def restore_receipted_install(state_directory: int, state: dict[str, Any]) -> No
     run_json([CODEX, "plugin", "add", f"{PLUGIN}@{MARKETPLACE}", "--json"])
     verify_receipted_install(state)
     save_state(state_directory, sha, version, fingerprint)
+    verify_receipted_install(state)
 
 
 def disable_and_verify(state_directory: int) -> None:
@@ -666,35 +824,83 @@ def disable_and_verify(state_directory: int) -> None:
     clear_state(state_directory)
 
 
-def fail_after_recovery(
+def converge_promotion_intent(
     state_directory: int,
-    previous: dict[str, Any] | None,
-    failure: Exception,
-) -> None:
+    intent: dict[str, Any],
+) -> str:
+    """Converge one catchable or crash-recovered promotion to a verified state."""
+    requested = str(intent["requested_sha"])
+    state: dict[str, Any] | None
+    try:
+        state = load_state(state_directory)
+    except DeployError as exc:
+        if exc.error_code != "receipt-corruption":
+            raise
+        state = None
+    if state is not None and state["sha"] == requested:
+        try:
+            verify_receipted_install(state)
+        except Exception:
+            pass
+        else:
+            clear_intent(state_directory)
+            return "requested"
+
+    previous = intent["previous_receipt"]
     if previous is not None:
         try:
             restore_receipted_install(state_directory, previous)
         except Exception:
             pass
         else:
-            raise DeployError(
-                "promotion failed after activation; previous receipted revision was restored",
-                error_code="recovery-activated",
-            ) from failure
+            clear_intent(state_directory)
+            return "previous"
+
+    disable_and_verify(state_directory)
+    clear_intent(state_directory)
+    return "disabled"
+
+
+def recover_promotion_intent(state_directory: int) -> None:
+    """Recover an unfinished durable intent before ordinary receipt handling."""
+    intent = load_intent(state_directory)
+    if intent is None:
+        return
     try:
-        disable_and_verify(state_directory)
+        converge_promotion_intent(state_directory, intent)
+    except Exception as exc:
+        raise DeployError(
+            "unfinished promotion recovery convergence is unproven",
+            error_code="recovery-failure",
+        ) from exc
+
+
+def fail_after_recovery(
+    state_directory: int,
+    intent: dict[str, Any],
+    failure: Exception,
+) -> None:
+    try:
+        outcome = converge_promotion_intent(state_directory, intent)
     except Exception as recovery_failure:
         raise DeployError(
             "promotion failed after activation and recovery convergence is unproven",
             error_code="recovery-failure",
         ) from recovery_failure
+    if outcome == "requested":
+        message = "promotion failed after activation; requested revision is durably receipted and active"
+    elif outcome == "previous":
+        message = "promotion failed after activation; previous receipted revision was restored"
+    else:
+        message = "promotion failed after activation; plugin was disabled"
     raise DeployError(
-        "promotion failed after activation; plugin was disabled",
+        message,
         error_code="recovery-activated",
     ) from failure
 
 
 def promote(requested: str, context: DeployContext, state_directory: int) -> str:
+    recover_promotion_intent(state_directory)
     main_sha = prepare_mirror(requested)
     requested_manifest = manifest(MIRROR, requested)
     context.version = str(requested_manifest["version"])
@@ -713,7 +919,10 @@ def promote(requested: str, context: DeployContext, state_directory: int) -> str
         if not is_ancestor(MIRROR, current, requested):
             raise DeployError("non-fast-forward promotion requires a separate rollback authorization")
         previous = state
+    else:
+        verify_disabled()
 
+    intent = save_intent(state_directory, requested, previous)
     try:
         marketplace_row(create=True, context=context)
         begin_activation_mutation(context)
@@ -730,10 +939,18 @@ def promote(requested: str, context: DeployContext, state_directory: int) -> str
         version = str(requested_manifest["version"])
         fingerprint = verify_install(requested, version)
         save_state(state_directory, requested, version, fingerprint)
+        durable_state = load_state(state_directory)
+        if (
+            durable_state is None
+            or durable_state["sha"] != requested
+            or durable_state["version"] != version
+            or durable_state["payload_fingerprint"] != fingerprint
+        ):
+            raise DeployError("durable deployment receipt disagrees with the verified promotion")
+        verify_receipted_install(durable_state)
+        clear_intent(state_directory)
     except Exception as exc:
-        if context.activation_mutated:
-            fail_after_recovery(state_directory, previous, exc)
-        raise
+        fail_after_recovery(state_directory, intent, exc)
     context.phase = "complete"
     return "deployed"
 

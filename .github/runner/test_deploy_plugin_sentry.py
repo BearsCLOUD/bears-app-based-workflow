@@ -620,7 +620,7 @@ class PinnedBundleCoverage(unittest.TestCase):
         return repo, self.git(repo, "rev-parse", "HEAD")
 
     def clone_fixture(self, source: Path, destination: Path) -> None:
-        destination.parent.mkdir(parents=True)
+        destination.parent.mkdir(parents=True, exist_ok=True)
         subprocess.run(
             ["git", "clone", "-q", str(source), str(destination)],
             check=True,

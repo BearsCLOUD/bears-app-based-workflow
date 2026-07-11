@@ -17,6 +17,7 @@ import stat
 import sys
 import tempfile
 import tomllib
+from types import MappingProxyType
 from typing import Any
 
 PLUGIN_ID = "bears-app-based-workflow"
@@ -78,6 +79,57 @@ RETIRED_PROFILE_NAMES = frozenset(
         "wildberries-integration-editor",
         "workflow-plugin-editor",
         "workspace-context-reader",
+    }
+)
+
+# SHA256 values of the exact retired profile bodies at canonical commit
+# 8db6804cb00c065f0b85c3cf0718165fceedb664. This immutable map is the only
+# ownership fallback for pre-remediation v1 receipts without managed_profiles.
+LEGACY_RETIRED_PROFILE_DIGESTS = MappingProxyType(
+    {
+        "android-emulator-config-editor": "cc2d2e0afca3c58c86d1377d51379219fca21d48f415186fd7abab93e576702c",
+        "application-change-editor": "8f14313f78d16da70417746a6a2dda3c80ee2eb60662888ae2a8b7bfdc346e75",
+        "automation-status-reader": "efe7c29a120acfa448d8035b769cd6430a64959cd9352e805e556b4dbc89bfc3",
+        "codex-config-editor": "2e1a5b411b168870a92dffb16eb10dd99b0eb89227cce6d480a4148d8363b235",
+        "codex-daemon-editor": "3562c454445fdc1537b31e14edceaa72891da0c364842979db40abc62f30a879",
+        "codex-health-diagnostician": "c7491ba8d763c6b0fd14d9bca7e6dcee7f0716fd93a24f61823b7a1b831147ff",
+        "deploy-impact-gate": "11b63271ba2c54efecac44c519f81b76d2a3c4d59c96743069671c5169978237",
+        "deployment-contract-editor": "c680173ac946597f6cee77ba417dc135585d0419af5f13e140568568ffbfe1f2",
+        "documentation-editor": "902ba55b8a46b5274db89b7cd97162e4ebeafd90c21afe05b0d266c620ead78b",
+        "execution-kernel-editor": "d2916f344fc35c166e763f72e04fb5002520484ab305e900e267bcec3d6a74b9",
+        "finding-remediation-editor": "1f412f8069fb43b06a71f8eb83a2bea86c8200d7b23128feb6630d96cbe3c4ac",
+        "gateway-route-editor": "10ca3d2b3d94bf2f73b728ddd9a5035982dd2bc5cc58340b42ca8f7038ef6eb4",
+        "git-closeout-helper": "5b1192a25ca4bacc38767b7d19a3c3b0c101153998d3ec12d9afdbb0020e5be4",
+        "github-secrets-editor": "be59bfce6cd623b4e1c969ef43567d8ceaa3f14c0c362c709de644ff11d2ca55",
+        "github-settings-editor": "4cc7195fcc0b3aa8eb0b983eefdfea82b7143e46fb0760b629189a40df6df974",
+        "goal-prompt-author": "2f7821321a3b3a186bc5a159f631f04f281fde87100e512651bd069835b283dc",
+        "identity-contract-editor": "a7e12e53bc799af0400a4f9d026aca92a351b51b58df88fbdef8ce73473a7b17",
+        "instruction-editor": "b9e7e1250bcd095621047c6ea2d81bc034671c38a0afec75a423583d204cb9c8",
+        "kubernetes-data-editor": "d68fc60e37836905dd713cc8cf0df0b72107539a28694ab9a19bc81baadd617f",
+        "live-audio-session-editor": "3a11cece76fadd743587d4abac6b9b78267683ade35fa230635e91abcb333c66",
+        "network-configuration-editor": "0f32adccaac372b2d901459d5cfcbd38dc4b8dfc65bff54e81ca2aea2b3d3d40",
+        "notification-integration-editor": "f0e0bec1386b57d798bdf893bcfd2ca9ecec4c936b3b145d4c353c62ac21cebd",
+        "observability-config-editor": "a85c14db950ddab4eab5d7b15c9a4e806f010ee997d381a6d42cbc9b864f217e",
+        "operations-runbook-author": "e28c255d0a608533f907efe22981d2ecc6a7d2f284399e8f25d611a0475ee8e4",
+        "payment-contract-editor": "90ba93201bdf5aafbc048f100d4f4d381493cb90a2a92cec7b2315bec2386fe0",
+        "plugin-update-editor": "10988d02d25d0ae4cb032f5c588c03ade86f0236386f0c1959aabe98892bd469",
+        "product-clarification-packet-author": "4c102a529dc08bb680e86888ce44d97fe5e51388de548f03eb75a1641994cc25",
+        "role-selector": "ff5c8066edaf3b4bd1de5fb76f1c5beba586750ab89a901b79a450f472662e1e",
+        "secret-material-writer": "5a409024b9d69b6d71c4fae38f06d535328df4eb39d6c73c362db686db781fb2",
+        "session-worker-runtime-editor": "813ee4aaf1c477dfced4e08aa52de2d77e59b368ab8811e6ce7c4415cd4a6b62",
+        "subagent-procedure-editor": "0149d6f355535e75b6aaad1e908db9c8cdd75db207667ce77e3e21b0a999a320",
+        "telegram-integration-editor": "c6efc3904e528dc18f1d2f5793b41364e7eca1fb8808258ccf7f3bbbe980abf2",
+        "tenant-registry-editor": "c6b3142c34e2f2a843b2be46a14740168c8f7ce5f88d882e8fa94523048f0b3e",
+        "token-budget-advisor": "b9ec33dcd9576193a5435cabd458a69852623da3fa079e5470f2e487c2bcdd22",
+        "vpn-bot-editor": "49cd52dd710a12ec941a97ae2feaad7171eb16b6fcbe3993f24288da1c068ebf",
+        "vpn-client-editor": "fc90a2eed484235550f11d0b95649180ad0c544df968836401f8a1388401d0c7",
+        "vpn-governance-editor": "13527a47b7f9736f872bb81a0cbb5f911ad926509b54ad1a622f529b09785e30",
+        "vpn-ingress-editor": "1b8ca1c6f007e74e14871fe7ba4f410fd172083a91dabb71be729739693ba8fd",
+        "vpn-proxy-editor": "f42abc4642b57c23441aa6da4489ad20071219a04ea9c61c360b4d284dadcf03",
+        "vpn-runtime-editor": "a938dd62b5a19383f27c3dcdc475841bc5853d9f02cdfe6b9ba1cfb838c0ab08",
+        "wildberries-integration-editor": "06df1930295e2d94e27bf8142d38126f05d8944beb6acb56958bf7e05e28c35c",
+        "workflow-plugin-editor": "010c1c0fe0f6a9508f92844888748185a5725910fbe5d246b65cf70f37f64fff",
+        "workspace-context-reader": "da002520647bbe9ac71da62072c1e8636027bdc259da6d3552e6db743563c22d",
     }
 )
 
@@ -503,8 +555,12 @@ def load_state(
     return state, raw, state_stat
 
 
-def receipt_profile_ownership(state: dict[str, Any]) -> dict[tuple[str, str], str]:
-    raw_profiles = state.get("managed_profiles", [])
+def receipt_profile_ownership(
+    state: dict[str, Any],
+) -> dict[tuple[str, str], str] | None:
+    if "managed_profiles" not in state:
+        return None
+    raw_profiles = state["managed_profiles"]
     if not isinstance(raw_profiles, list):
         raise InstallError("receipt-invalid")
     ownership: dict[tuple[str, str], str] = {}
@@ -533,13 +589,13 @@ def receipt_profile_ownership(state: dict[str, Any]) -> dict[tuple[str, str], st
 def managed_registration_ownership(
     managed_block: bytes,
     state: dict[str, Any],
-) -> dict[tuple[str, str], str | None]:
+) -> tuple[dict[tuple[str, str], str], bool]:
     parsed = load_toml_bytes(managed_block)
     agents = parsed.get("agents", {})
     if not isinstance(agents, dict):
         raise InstallError("managed-block-conflict")
     recorded = receipt_profile_ownership(state)
-    ownership: dict[tuple[str, str], str | None] = {}
+    registrations: set[tuple[str, str]] = set()
     for name, entry in agents.items():
         if (
             not isinstance(name, str)
@@ -549,10 +605,14 @@ def managed_registration_ownership(
         ):
             raise InstallError("managed-block-conflict")
         key = (name, entry["config_file"])
-        ownership[key] = recorded.get(key)
-    if recorded and set(recorded) != set(ownership):
+        if key in registrations:
+            raise InstallError("managed-block-conflict")
+        registrations.add(key)
+    if recorded is None:
+        return {}, True
+    if set(recorded) != registrations:
         raise InstallError("receipt-invalid")
-    return ownership
+    return recorded, False
 
 
 def read_regular_or_empty(path: Path) -> tuple[bytes, os.stat_result | None]:
@@ -586,16 +646,19 @@ def ensure_safe_directory(path: Path, *, create: bool) -> None:
 
 def archive_candidates(
     codex_home: Path,
-    owned_registrations: dict[tuple[str, str], str | None],
-) -> list[tuple[Path, str]]:
+    owned_registrations: dict[tuple[str, str], str],
+    *,
+    allow_legacy_digest_fallback: bool,
+) -> tuple[list[tuple[Path, str]], set[tuple[str, str]]]:
     agents_dir = codex_home / "agents"
     if agents_dir.is_symlink():
         raise InstallError("global-agents-path-invalid")
     if not agents_dir.exists():
-        return []
+        return [], set()
     if not agents_dir.is_dir():
         raise InstallError("global-agents-path-invalid")
     candidates: list[tuple[Path, str]] = []
+    retirement_ownership: set[tuple[str, str]] = set()
     for filename in sorted(LEGACY_PROFILE_FILES):
         path = agents_dir / filename
         content, path_stat = read_regular_snapshot(
@@ -606,22 +669,24 @@ def archive_candidates(
         )
         if path_stat is None:
             continue
-        expected_digests = {
-            content_digest
-            for (_, config_file), content_digest in owned_registrations.items()
-            if config_file == str(path) and content_digest is not None
-        }
-        path_is_owned = any(
-            config_file == str(path)
-            for _, config_file in owned_registrations
-        )
-        if not path_is_owned:
+        name = path.stem
+        ownership_key = (name, str(path))
+        expected_digest = owned_registrations.get(ownership_key)
+        canonical_legacy_path = codex_home / "agents" / f"{name}.toml"
+        if (
+            expected_digest is None
+            and allow_legacy_digest_fallback
+            and path == canonical_legacy_path
+        ):
+            expected_digest = LEGACY_RETIRED_PROFILE_DIGESTS.get(name)
+        if expected_digest is None:
             raise InstallError("legacy-ownership-conflict")
         content_digest = digest_bytes(content)
-        if expected_digests and content_digest not in expected_digests:
+        if content_digest != expected_digest:
             raise InstallError("legacy-ownership-conflict")
         candidates.append((path, content_digest))
-    return candidates
+        retirement_ownership.add(ownership_key)
+    return candidates, retirement_ownership
 
 
 def choose_archive_dir(codex_home: Path, version: str, digest: str) -> Path:
@@ -1029,14 +1094,18 @@ def plan_operation(
     if not isinstance(existing_archives, list):
         raise InstallError("receipt-invalid")
 
-    owned_registrations: dict[tuple[str, str], str | None] = {}
+    owned_registrations: dict[tuple[str, str], str] = {}
+    allow_legacy_digest_fallback = False
     if managed is not None:
         current_digest = digest_bytes(managed[2])
         if state is None or state.get("status") != "installed":
             raise InstallError("managed-block-unowned")
         if state.get("managed_digest") != current_digest:
             raise InstallError("managed-block-drift")
-        owned_registrations = managed_registration_ownership(managed[2], state)
+        (
+            owned_registrations,
+            allow_legacy_digest_fallback,
+        ) = managed_registration_ownership(managed[2], state)
     elif state is not None and state.get("status") == "installed":
         raise InstallError("managed-block-missing")
     elif state is not None:
@@ -1048,12 +1117,17 @@ def plan_operation(
     role_names = {name for name, _ in profiles}
 
     if operation == "install":
+        candidates, retirement_ownership = archive_candidates(
+            codex_home,
+            owned_registrations,
+            allow_legacy_digest_fallback=allow_legacy_digest_fallback,
+        )
         if managed is None:
             parsed = load_toml_bytes(config_data)
             config_base, legacy_removed = remove_stale_registrations(
                 config_data,
                 parsed,
-                set(owned_registrations),
+                retirement_ownership,
             )
             parsed_base = load_toml_bytes(config_base)
             reject_unmanaged_roles(parsed_base, role_names)
@@ -1070,7 +1144,6 @@ def plan_operation(
                 set(),
             )
             reject_unmanaged_roles(parsed_unmanaged, role_names)
-        candidates = archive_candidates(codex_home, owned_registrations)
         if candidates:
             archive_dir = choose_archive_dir(codex_home, version, block_digest)
             archive_entry = {

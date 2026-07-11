@@ -139,7 +139,7 @@ RECEIPT_MAX_BYTES = 64 * 1024
 INTENT_MAX_BYTES = 2 * 1024 * 1024
 SUBPROCESS_DIAGNOSTIC_LIMIT = 512
 GITHUB_TOKEN_MAX_BYTES = 1024
-GITHUB_TOKEN_RE = re.compile(rb"[A-Za-z0-9_]+")
+GITHUB_TOKEN_RE = re.compile(rb"[\x21-\x7e]+")
 SENTRY_DSN_FILE = Path("/home/ai1/.config/bears-app-based-workflow/credentials/sentry-dsn")
 SENTRY_SERVICE = "bears-app-based-workflow"
 SENTRY_COMPONENT = "deploy-plugin-gateway"
@@ -443,7 +443,10 @@ def read_github_token(stream: io.BufferedIOBase) -> str:
     ):
         raise DeployError("missing or invalid GitHub job credential")
     token = raw[:-1]
-    if not 20 <= len(token) <= 512 or GITHUB_TOKEN_RE.fullmatch(token) is None:
+    if (
+        not 20 <= len(token) <= GITHUB_TOKEN_MAX_BYTES
+        or GITHUB_TOKEN_RE.fullmatch(token) is None
+    ):
         raise DeployError("missing or invalid GitHub job credential")
     return token.decode("ascii")
 

@@ -119,7 +119,7 @@ class SentryGatewayCoverage(unittest.TestCase):
 
 
 class GitHubCredentialCoverage(unittest.TestCase):
-    TOKEN = "ghs_" + "A" * 36
+    TOKEN = "opaque-job.token_" + "A-b" * 12
 
     def test_job_token_pipe_is_single_line_and_bounded(self) -> None:
         self.assertEqual(

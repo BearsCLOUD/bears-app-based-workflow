@@ -1,4 +1,4 @@
 interface:
   display_name: "Subagents"
-  short_description: "Choose and dispatch one bounded L3 role"
-  default_prompt: "Use $subagents to deterministically choose one installed profile and dispatch one bounded L3 assignment."
+  short_description: "Dispatch one bounded L3 assignment"
+  default_prompt: "Use $subagents to dispatch one bounded L3 assignment, reuse app-worker only for one current canonical task at a time, and start a fresh immutable reviewer."

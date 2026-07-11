@@ -25,7 +25,7 @@ PLUGIN_ID = "bears-app-based-workflow"
 STATE_SCHEMA = "bears-role-install-receipt.v1"
 BEGIN_MARKER = b"# >>> bears-app-based-workflow agent roles (managed by ./install)"
 END_MARKER = b"# <<< bears-app-based-workflow agent roles (managed by ./install)"
-ROLE_COUNT = 9
+ROLE_COUNT = 11
 LEGACY_TRANSACTION_SCHEMA = "bears-role-install-transaction.v1"
 PROVENANCE_TRANSACTION_SCHEMA = "bears-role-install-transaction.v2"
 TRANSACTION_SCHEMA = "bears-role-install-transaction.v3"
@@ -45,7 +45,7 @@ MAX_JOURNAL_BYTES = (MAX_PREIMAGE_BYTES * 6) + (256 * 1024)
 _BOUND_CODEX_HOME_FD = -1
 _BOUND_CODEX_HOME_PATH: Path | None = None
 
-# These 43 names were retired by the nine-profile catalog. Both their files and
+# These 43 names were retired by the eleven-profile catalog. Both their files and
 # unmanaged config registrations are one-way migration inputs, never aliases.
 RETIRED_PROFILE_NAMES = frozenset(
     {

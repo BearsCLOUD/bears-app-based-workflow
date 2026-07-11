@@ -1,7 +1,7 @@
 {
   "name": "bears-app-based-workflow",
-  "version": "0.1.0+codex.20260711144358",
-  "description": "Bears app workflow plugin for waves, functional graphs, task ledgers, deliverable-based role selection, and delegated L3 execution.",
+  "version": "0.1.0+codex.20260711161152",
+  "description": "Bears app workflow plugin for waves, functional graphs, task ledgers, repo-scoped queues, one-task worker sessions, immutable review, and remediation.",
   "author": {
     "name": "BearsCLOUD",
     "url": "https://github.com/BearsCLOUD"
@@ -21,8 +21,8 @@
   "skills": "./skills/",
   "interface": {
     "displayName": "Bears App-Based Workflow",
-    "shortDescription": "Wave-based app workflow with plugin-selected L3 roles.",
-    "longDescription": "Bears App-Based Workflow provides app constitutions, research waves, functional specifications, graph-linked plans, deliverable-based L3 execution, instruction policy editing, role profile architecture, primary-source evidence research, and convergence analysis.",
+    "shortDescription": "Repo-scoped app waves with bounded L3 roles.",
+    "longDescription": "Bears App-Based Workflow provides app constitutions, research waves, functional specifications, graph-linked plans, persistent repo queues, one-task app-worker dispatch, immutable repo-wave review, remediation planning, instruction policy editing, role profile architecture, primary-source evidence research, and convergence analysis.",
     "developerName": "BearsCLOUD",
     "category": "Development",
     "capabilities": [
@@ -32,8 +32,9 @@
       "Functional graph planning",
       "Graph-linked task ledger",
       "Implementation analysis",
-      "Fixed app-dev L1/L2 orchestration",
-      "Concrete L3 role dispatch",
+      "Persistent repo-scoped L1/L2 queues",
+      "One-task app-worker session dispatch",
+      "Immutable repo-wave review and remediation",
       "Instruction policy editing",
       "Role profile architecture",
       "Primary-source evidence research"
@@ -43,7 +44,7 @@
       "Research app feature waves.",
       "Harden approved instructions.",
       "Create a primary-source evidence packet.",
-      "Execute ready ledger work with selected L3 roles."
+      "Execute repo-scoped ledger queues with bounded workers and immutable review."
     ],
     "brandColor": "#3B82F6"
   }

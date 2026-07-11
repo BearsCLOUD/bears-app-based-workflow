@@ -1,17 +1,17 @@
 # Bears App-Based Workflow
 
-`bears-app-based-workflow` is a Codex plugin for app constitutions, research waves, functional specifications, graph-linked plans, delegated implementation, and convergence analysis.
+`bears-app-based-workflow` is a Codex plugin for app constitutions, research waves, functional specifications, graph-linked plans, repo-scoped implementation queues, immutable review, remediation, and convergence analysis.
 
 ## Workflow
 
-For work already classified `DELEGATED`, every `app-*` skill uses `subagents` before file, log, terminal, Git, MCP, runtime, or network access. The solo parent or app-dev L2 first decomposes its task, then follows the skill for each concrete L3 assignment. `DIRECT` work stays with the primary and never enters `subagents`.
+For work already classified `DELEGATED`, every `app-*` skill uses `subagents` before file, log, terminal, Git, MCP, runtime, or network access. A solo parent decomposes its stage work; app-dev instead uses fixed L1 orchestration and persistent repo-L2 queues without decomposing canonical tasks. Each caller follows the skill for every concrete L3 assignment. `DIRECT` work stays with the primary and never enters `subagents`.
 
 1. `app-constitution` records the app baseline.
 2. `app-research` creates and synchronizes research waves.
 3. `app-specify` closes product decisions with the user.
 4. `app-functional-graph` maps decision-complete requirements to the canonical functional graph.
 5. `app-plan` creates graph-linked ledger tasks for unbuilt behavior.
-6. `app-dev` partitions dependency-ready work through fixed L1 and L2 orchestration, then dispatches concrete L3 assignments.
+6. `app-dev` runs dependency-ready work through persistent repo-L2 queues, one-task app-worker dispatch, immutable repo review, and remediation.
 7. `app-analyze` determines convergence and routes gaps back to the owning stage.
 
 Every inter-stage input and output uses the canonical `app-stage-handoff.v1` defined once in `app-functional-graph`. Its common fields are never omitted, unavailable early values use the schema's explicit empty semantics, and every status carries its canonical branch fields.
@@ -20,9 +20,9 @@ The normal success chain is `constitution-ready` -> `research-ready` -> `spec-re
 
 `<app-root>/docs/app-functional-graph.v1.json` in the consuming app repository is the source of truth for specified functionality ids, graph nodes, relationships, and functional coverage. Downstream plans, ledger tasks, implementation packets, and analyses carry its revision and refs; they never redefine graph meaning.
 
-`worker` owns bounded instruction-policy edits and may apply `instruction-hardening` as the editing method. `role-profile-architect` owns only concrete role-profile create, merge, split, or delete operations directly requested by the current user; `role-profile-maintenance` supplies its comparison and least-privilege method. Every write-capable L3 stages only its assigned files and creates its own task-scoped local commit; push requires separate current-task user authorization.
+`worker` remains the generic bounded mutation profile and may apply `instruction-hardening` for instruction-policy edits. `app-worker` owns one canonical app task at a time and may be reused only inside the same repo-wave session. `wave-change-critic` owns one repo's immutable wave review; remediation is represented by new canonical tasks. `role-profile-architect` owns only concrete role-profile create, merge, split, or delete operations directly requested by the current user; `role-profile-maintenance` supplies its comparison and least-privilege method. Every write-capable L3 stages only its assigned files and creates its own task-scoped local commit; push requires separate current-task user authorization.
 
-The active catalog contains exactly nine profiles: `worker`, `explorer`, `diagnostic-command-runner`, `primary-source-researcher`, `runtime-evidence-reader`, `security-analysis-critic`, `workflow-orchestrator`, `domain-lane-orchestrator`, and `role-profile-architect`. Removed names are not aliases. All L3 routing follows the canonical ordered rules in `subagents`; callers do not keep local routing summaries.
+The active catalog contains exactly eleven profiles: `worker`, `app-worker`, `explorer`, `diagnostic-command-runner`, `primary-source-researcher`, `runtime-evidence-reader`, `wave-change-critic`, `security-analysis-critic`, `workflow-orchestrator`, `domain-lane-orchestrator`, and `role-profile-architect`. Removed names are not aliases. All L3 routing follows the canonical ordered rules in `subagents`; callers do not keep local routing summaries.
 
 ## Plugin skills
 
@@ -30,7 +30,7 @@ The active catalog contains exactly nine profiles: `worker`, `explorer`, `diagno
 - Dispatch procedure: `subagents`.
 - Instruction procedures: `instruction-hardening`, `role-profile-maintenance`.
 
-In `app-dev`, the parent takes fixed `workflow-orchestrator` L1 and starts fixed `domain-lane-orchestrator` L2 lanes; each L2 owns task decomposition. `subagents` deterministically selects one eligible L3 for each concrete assignment, emits `dispatch-packet.v2`, and accepts `result-packet.v1`. Each L3 reference ends with its assignment. Outside app-dev, a solo parent acts as the L2 analogue. `subagents` is the only dispatch procedure; callers fail closed if it is unavailable.
+In `app-dev`, the parent takes fixed `workflow-orchestrator` L1 and starts one persistent `domain-lane-orchestrator` L2 per repository. Each repo-L2 owns its canonical queue, reuses one `app-worker` session per repo wave, and sends exactly one current task at a time. A fresh `wave-change-critic` reviews each closed repo wave over an immutable commit range; repo-local findings become new remediation tasks through `app-plan`. `subagents` owns deterministic L3 selection and bounded dispatch. Outside app-dev, a solo parent acts as the L2 analogue. `subagents` is the only dispatch procedure; callers fail closed if it is unavailable.
 
 ## Core artifacts
 
@@ -51,7 +51,7 @@ These paths are relative to the consuming app repository root, not this plugin r
 - `app-research` writes the wave registry and research files.
 - `app-specify` writes wave specifications.
 - `app-functional-graph` is the sole semantic writer of the functional graph and writes only graph anchors in the ledger.
-- `app-plan` writes wave plans and the planning fields of executable ledger tasks; it never writes the graph or graph anchors.
+- `app-plan` writes implementation or remediation wave plans and the planning fields of executable ledger tasks; it never writes the graph or graph anchors.
 - `app-dev` writes implementation targets and only the ledger execution fields authorized by each task's `ledger_update_contract`.
 - `app-analyze` writes wave analysis and treats the graph and ledger as read-only inputs.
 
@@ -64,7 +64,7 @@ Role TOML files live only in `agents/`. Plugin-root agent auto-discovery is undo
 ./install uninstall [--codex-home PATH] [--dry-run]
 ```
 
-The installer registers the nine exact profile names, updates only its marked config block, removes stale retired registrations, and archives known legacy profile files. It creates no aliases. Start a new Codex task after a changed install.
+The installer registers the eleven exact profile names, updates only its marked config block, removes stale retired registrations, and archives known legacy profile files. It creates no aliases. Start a new Codex task after a changed install.
 
 
 ## Ownership

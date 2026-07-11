@@ -1,4 +1,4 @@
 interface:
   display_name: "App Functional Graph"
-  short_description: "Link specs to graph and ledger"
-  default_prompt: "Use $app-functional-graph to connect wave requirements with graph nodes and ledger refs."
+  short_description: "Define graph and repo task contracts"
+  default_prompt: "Use $app-functional-graph to map wave requirements, maintain graph anchors, and define the canonical repo-scoped task contract."

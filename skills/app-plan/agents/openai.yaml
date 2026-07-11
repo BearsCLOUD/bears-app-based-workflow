@@ -1,4 +1,4 @@
 interface:
   display_name: "App Plan"
-  short_description: "Plan unbuilt graph-linked work"
-  default_prompt: "Use $app-plan to find unbuilt functionality and write graph-linked ledger tasks."
+  short_description: "Plan repo implementation and remediation"
+  default_prompt: "Use $app-plan to create repo-scoped canonical implementation tasks or new remediation tasks from immutable review inputs."

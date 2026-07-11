@@ -1,4 +1,4 @@
 interface:
   display_name: "App Analyze"
-  short_description: "Compare docs, graph, ledger, code"
-  default_prompt: "Use $app-analyze to compare implemented state with wave docs, graph, and ledger."
+  short_description: "Analyze repo waves and remediation"
+  default_prompt: "Use $app-analyze to assess one repo's implementation, immutable reviews, remediation, and exact autoCI evidence against wave artifacts."

@@ -1,4 +1,4 @@
 interface:
   display_name: "App Dev"
-  short_description: "Run fixed L1 and L2 app lanes"
-  default_prompt: "Use $app-dev with the parent as fixed L1; each fixed L2 decomposes its lane and follows $subagents for concrete L3 dispatch."
+  short_description: "Orchestrate persistent repo-L2 queues"
+  default_prompt: "Use $app-dev to run repo-scoped queues, one-task app-worker dispatch in reusable repo-wave sessions, immutable review, and remediation."

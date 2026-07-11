@@ -4,6 +4,9 @@
 from __future__ import annotations
 
 import argparse
+import base64
+import binascii
+import errno
 import fcntl
 import hashlib
 import json
@@ -21,6 +24,12 @@ STATE_SCHEMA = "bears-role-install-receipt.v1"
 BEGIN_MARKER = b"# >>> bears-app-based-workflow agent roles (managed by ./install)"
 END_MARKER = b"# <<< bears-app-based-workflow agent roles (managed by ./install)"
 ROLE_COUNT = 9
+TRANSACTION_SCHEMA = "bears-role-install-transaction.v1"
+TRANSACTION_DIRECTORY = ".bears-installer-transactions"
+TRANSACTION_JOURNAL = f"{PLUGIN_ID}-role-sync.json"
+CONFIG_COORDINATION_LOCK = ".config.toml.coordination.lock"
+MAX_PREIMAGE_BYTES = 1024 * 1024
+MAX_JOURNAL_BYTES = (MAX_PREIMAGE_BYTES * 6) + (256 * 1024)
 
 # These 43 names were retired by the nine-profile catalog. Both their files and
 # unmanaged config registrations are one-way migration inputs, never aliases.
@@ -271,6 +280,110 @@ def digest_bytes(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
 
 
+def stat_identity(value: os.stat_result) -> dict[str, int]:
+    return {
+        "device": value.st_dev,
+        "inode": value.st_ino,
+        "mode": stat.S_IMODE(value.st_mode),
+        "uid": value.st_uid,
+        "gid": value.st_gid,
+        "links": value.st_nlink,
+        "size": value.st_size,
+        "mtime_ns": value.st_mtime_ns,
+        "ctime_ns": value.st_ctime_ns,
+    }
+
+
+def fsync_directory(path: Path, code: str) -> None:
+    flags = os.O_RDONLY | os.O_DIRECTORY
+    if hasattr(os, "O_NOFOLLOW"):
+        flags |= os.O_NOFOLLOW
+    try:
+        directory_fd = os.open(path, flags)
+        try:
+            os.fsync(directory_fd)
+        finally:
+            os.close(directory_fd)
+    except OSError:
+        raise InstallError(code) from None
+
+
+def read_regular_snapshot(
+    path: Path,
+    *,
+    invalid_code: str,
+    unreadable_code: str,
+    oversized_code: str,
+    max_bytes: int = MAX_PREIMAGE_BYTES,
+) -> tuple[bytes, os.stat_result | None]:
+    flags = os.O_RDONLY
+    if hasattr(os, "O_NOFOLLOW"):
+        flags |= os.O_NOFOLLOW
+    try:
+        fd = os.open(path, flags)
+    except FileNotFoundError:
+        return b"", None
+    except OSError as error:
+        if error.errno in {errno.ELOOP, errno.EISDIR, errno.ENOTDIR} or path.is_symlink():
+            raise InstallError(invalid_code) from None
+        raise InstallError(unreadable_code) from None
+    try:
+        before = os.fstat(fd)
+        if not stat.S_ISREG(before.st_mode):
+            raise InstallError(invalid_code)
+        with os.fdopen(fd, "rb", closefd=True) as stream:
+            fd = -1
+            data = stream.read(max_bytes + 1)
+            after = os.fstat(stream.fileno())
+        if len(data) > max_bytes:
+            raise InstallError(oversized_code)
+        if stat_identity(before) != stat_identity(after):
+            raise InstallError("snapshot-raced")
+        return data, after
+    except InstallError:
+        raise
+    except OSError:
+        raise InstallError(unreadable_code) from None
+    finally:
+        if fd >= 0:
+            os.close(fd)
+
+
+def snapshot_matches(
+    current_data: bytes,
+    current_stat: os.stat_result | None,
+    expected_data: bytes,
+    expected_stat: os.stat_result | None,
+) -> bool:
+    if expected_stat is None:
+        return current_stat is None and expected_data == b"" and current_data == b""
+    return (
+        current_stat is not None
+        and current_data == expected_data
+        and stat_identity(current_stat) == stat_identity(expected_stat)
+    )
+
+
+def assert_preimage(
+    path: Path,
+    expected_data: bytes,
+    expected_stat: os.stat_result | None,
+    *,
+    code: str,
+    invalid_code: str,
+    max_bytes: int = MAX_PREIMAGE_BYTES,
+) -> None:
+    current_data, current_stat = read_regular_snapshot(
+        path,
+        invalid_code=invalid_code,
+        unreadable_code=code,
+        oversized_code=code,
+        max_bytes=max_bytes,
+    )
+    if not snapshot_matches(current_data, current_stat, expected_data, expected_stat):
+        raise InstallError(code)
+
+
 def profile_ownership(profiles: list[tuple[str, Path]]) -> list[dict[str, str]]:
     ownership: list[dict[str, str]] = []
     for name, path in profiles:
@@ -368,21 +481,26 @@ def reject_unmanaged_roles(parsed: dict[str, Any], role_names: set[str]) -> None
         raise InstallError("unmanaged-role-conflict")
 
 
-def load_state(path: Path) -> tuple[dict[str, Any] | None, bytes | None]:
-    if not path.exists():
-        return None, None
-    if path.is_symlink() or not path.is_file():
-        raise InstallError("receipt-path-invalid")
+def load_state(
+    path: Path,
+) -> tuple[dict[str, Any] | None, bytes | None, os.stat_result | None]:
+    raw, state_stat = read_regular_snapshot(
+        path,
+        invalid_code="receipt-path-invalid",
+        unreadable_code="receipt-invalid",
+        oversized_code="receipt-too-large",
+    )
+    if state_stat is None:
+        return None, None, None
     try:
-        raw = path.read_bytes()
         state = json.loads(raw.decode("utf-8"))
-    except (OSError, UnicodeError, json.JSONDecodeError):
+    except (UnicodeError, json.JSONDecodeError):
         raise InstallError("receipt-invalid") from None
     if not isinstance(state, dict) or state.get("schema") != STATE_SCHEMA:
         raise InstallError("receipt-invalid")
     if state.get("plugin") != PLUGIN_ID:
         raise InstallError("receipt-invalid")
-    return state, raw
+    return state, raw, state_stat
 
 
 def receipt_profile_ownership(state: dict[str, Any]) -> dict[tuple[str, str], str]:
@@ -438,14 +556,12 @@ def managed_registration_ownership(
 
 
 def read_regular_or_empty(path: Path) -> tuple[bytes, os.stat_result | None]:
-    if not path.exists():
-        return b"", None
-    if path.is_symlink() or not path.is_file():
-        raise InstallError("config-path-invalid")
-    try:
-        return path.read_bytes(), path.stat()
-    except OSError:
-        raise InstallError("config-unreadable") from None
+    return read_regular_snapshot(
+        path,
+        invalid_code="config-path-invalid",
+        unreadable_code="config-unreadable",
+        oversized_code="config-too-large",
+    )
 
 
 def ensure_safe_directory(path: Path, *, create: bool) -> None:
@@ -482,12 +598,14 @@ def archive_candidates(
     candidates: list[tuple[Path, str]] = []
     for filename in sorted(LEGACY_PROFILE_FILES):
         path = agents_dir / filename
-        if path.is_symlink():
-            raise InstallError("legacy-profile-path-invalid")
-        if not path.exists():
+        content, path_stat = read_regular_snapshot(
+            path,
+            invalid_code="legacy-profile-path-invalid",
+            unreadable_code="legacy-profile-unreadable",
+            oversized_code="legacy-profile-too-large",
+        )
+        if path_stat is None:
             continue
-        if not path.is_file():
-            raise InstallError("legacy-profile-path-invalid")
         expected_digests = {
             content_digest
             for (_, config_file), content_digest in owned_registrations.items()
@@ -499,10 +617,7 @@ def archive_candidates(
         )
         if not path_is_owned:
             raise InstallError("legacy-ownership-conflict")
-        try:
-            content_digest = digest_bytes(path.read_bytes())
-        except OSError:
-            raise InstallError("legacy-profile-unreadable") from None
+        content_digest = digest_bytes(content)
         if expected_digests and content_digest not in expected_digests:
             raise InstallError("legacy-ownership-conflict")
         candidates.append((path, content_digest))
@@ -552,33 +667,66 @@ def atomic_write(
     previous_stat: os.stat_result | None,
     *,
     default_mode: int = 0o600,
+    metadata: dict[str, int] | None = None,
+    expected_data: bytes | None = None,
+    expected_stat: os.stat_result | None = None,
+    preimage_code: str = "atomic-preimage-drift",
+    invalid_code: str = "atomic-target-invalid",
 ) -> None:
     ensure_safe_directory(path.parent, create=True)
-    if path.exists() and (path.is_symlink() or not path.is_file()):
-        raise InstallError("atomic-target-invalid")
-    mode = stat.S_IMODE(previous_stat.st_mode) if previous_stat else default_mode
-    uid = previous_stat.st_uid if previous_stat else os.geteuid()
-    gid = previous_stat.st_gid if previous_stat else os.getegid()
+    if path.is_symlink() or (path.exists() and not path.is_file()):
+        raise InstallError(invalid_code)
+    if metadata is not None:
+        mode = metadata["mode"]
+        uid = metadata["uid"]
+        gid = metadata["gid"]
+    else:
+        mode = stat.S_IMODE(previous_stat.st_mode) if previous_stat else default_mode
+        uid = previous_stat.st_uid if previous_stat else os.geteuid()
+        gid = previous_stat.st_gid if previous_stat else os.getegid()
     fd = -1
     temp_name = ""
     try:
         fd, temp_name = tempfile.mkstemp(prefix=f".{path.name}.", dir=path.parent)
-        os.fchmod(fd, mode)
         current = os.fstat(fd)
-        if current.st_uid != uid or current.st_gid != gid:
-            os.fchown(fd, uid, gid)
+        if (
+            not stat.S_ISREG(current.st_mode)
+            or current.st_nlink != 1
+            or current.st_uid != os.geteuid()
+            or stat.S_IMODE(current.st_mode) & 0o077
+        ):
+            raise InstallError("atomic-temp-unsafe")
         with os.fdopen(fd, "wb", closefd=True) as stream:
             fd = -1
             stream.write(data)
             stream.flush()
             os.fsync(stream.fileno())
+            if current.st_uid != uid or current.st_gid != gid:
+                os.fchown(stream.fileno(), uid, gid)
+            os.fchmod(stream.fileno(), mode)
+            final_temp = os.fstat(stream.fileno())
+            if (
+                not stat.S_ISREG(final_temp.st_mode)
+                or final_temp.st_nlink != 1
+                or final_temp.st_uid != uid
+                or final_temp.st_gid != gid
+                or stat.S_IMODE(final_temp.st_mode) != mode
+            ):
+                raise InstallError("atomic-temp-unsafe")
+            os.fsync(stream.fileno())
+        if expected_data is not None:
+            assert_preimage(
+                path,
+                expected_data,
+                expected_stat,
+                code=preimage_code,
+                invalid_code=invalid_code,
+            )
         os.replace(temp_name, path)
         temp_name = ""
-        directory_fd = os.open(path.parent, os.O_RDONLY | os.O_DIRECTORY)
-        try:
-            os.fsync(directory_fd)
-        finally:
-            os.close(directory_fd)
+        fsync_directory(path.parent, "atomic-write-failed")
+    except InstallError:
+        raise
     except (OSError, PermissionError):
         raise InstallError("atomic-write-failed") from None
     finally:
@@ -589,6 +737,270 @@ def atomic_write(
                 os.unlink(temp_name)
             except OSError:
                 pass
+
+
+def transaction_journal_path(codex_home: Path) -> Path:
+    return codex_home / TRANSACTION_DIRECTORY / TRANSACTION_JOURNAL
+
+
+def ensure_private_transaction_directory(path: Path, *, create: bool) -> bool:
+    try:
+        directory_stat = path.lstat()
+    except FileNotFoundError:
+        if not create:
+            return False
+        try:
+            path.mkdir(mode=0o700)
+            fsync_directory(path.parent, "transaction-directory-create-failed")
+            directory_stat = path.lstat()
+        except FileExistsError:
+            directory_stat = path.lstat()
+        except OSError:
+            raise InstallError("transaction-directory-create-failed") from None
+    except OSError:
+        raise InstallError("transaction-directory-invalid") from None
+    if (
+        not stat.S_ISDIR(directory_stat.st_mode)
+        or path.is_symlink()
+        or directory_stat.st_uid != os.geteuid()
+        or stat.S_IMODE(directory_stat.st_mode) & 0o077
+    ):
+        raise InstallError("transaction-directory-unsafe")
+    return True
+
+
+def file_image(data: bytes | None, file_stat: os.stat_result | None) -> dict[str, Any]:
+    if data is None:
+        return {
+            "exists": False,
+            "content": "",
+            "sha256": digest_bytes(b""),
+            "metadata": None,
+        }
+    return {
+        "exists": True,
+        "content": base64.b64encode(data).decode("ascii"),
+        "sha256": digest_bytes(data),
+        "metadata": None if file_stat is None else stat_identity(file_stat),
+    }
+
+
+def decode_file_image(value: Any) -> tuple[bytes | None, dict[str, int] | None]:
+    if not isinstance(value, dict) or set(value) != {
+        "exists",
+        "content",
+        "sha256",
+        "metadata",
+    }:
+        raise InstallError("transaction-journal-invalid")
+    exists = value["exists"]
+    encoded = value["content"]
+    content_digest = value["sha256"]
+    metadata = value["metadata"]
+    if (
+        not isinstance(exists, bool)
+        or not isinstance(encoded, str)
+        or not isinstance(content_digest, str)
+        or re.fullmatch(r"[0-9a-f]{64}", content_digest) is None
+    ):
+        raise InstallError("transaction-journal-invalid")
+    try:
+        data = base64.b64decode(encoded.encode("ascii"), validate=True)
+    except (UnicodeError, ValueError, binascii.Error):
+        raise InstallError("transaction-journal-invalid") from None
+    if len(data) > MAX_PREIMAGE_BYTES or digest_bytes(data) != content_digest:
+        raise InstallError("transaction-journal-invalid")
+    if not exists:
+        if data or metadata is not None:
+            raise InstallError("transaction-journal-invalid")
+        return None, None
+    if metadata is not None:
+        identity_keys = {
+            "device",
+            "inode",
+            "mode",
+            "uid",
+            "gid",
+            "links",
+            "size",
+            "mtime_ns",
+            "ctime_ns",
+        }
+        if (
+            not isinstance(metadata, dict)
+            or set(metadata) != identity_keys
+            or any(not isinstance(item, int) for item in metadata.values())
+            or metadata["mode"] < 0
+            or metadata["mode"] > 0o7777
+            or metadata["uid"] < 0
+            or metadata["gid"] < 0
+            or metadata["size"] != len(data)
+        ):
+            raise InstallError("transaction-journal-invalid")
+    return data, metadata
+
+
+def transaction_document(plan: dict[str, Any]) -> dict[str, Any]:
+    archive_dir: Path | None = plan["archive_dir"]
+    archives = [
+        {
+            "source": str(source),
+            "destination": str(archive_dir / source.name),
+            "sha256": content_digest,
+        }
+        for source, content_digest in plan["candidates"]
+    ]
+    config_preimage = (
+        None if plan["config_stat"] is None else plan["config_data"]
+    )
+    return {
+        "schema": TRANSACTION_SCHEMA,
+        "plugin": PLUGIN_ID,
+        "operation": plan["operation"],
+        "paths": {
+            "config": str(plan["config_path"]),
+            "receipt": str(plan["state_path"]),
+            "archive_directory": None if archive_dir is None else str(archive_dir),
+        },
+        "preimages": {
+            "config": file_image(config_preimage, plan["config_stat"]),
+            "receipt": file_image(plan["state_data"], plan["state_stat"]),
+        },
+        "desired": {
+            "config": file_image(plan["desired_config"], None),
+            "receipt": file_image(plan["desired_state"], None),
+        },
+        "archives": archives,
+    }
+
+
+def validate_transaction_document(
+    value: Any,
+    codex_home: Path,
+) -> dict[str, Any]:
+    if not isinstance(value, dict) or set(value) != {
+        "schema",
+        "plugin",
+        "operation",
+        "paths",
+        "preimages",
+        "desired",
+        "archives",
+    }:
+        raise InstallError("transaction-journal-invalid")
+    if (
+        value["schema"] != TRANSACTION_SCHEMA
+        or value["plugin"] != PLUGIN_ID
+        or value["operation"] not in {"install", "uninstall"}
+    ):
+        raise InstallError("transaction-journal-invalid")
+    paths = value["paths"]
+    preimages = value["preimages"]
+    desired = value["desired"]
+    archives = value["archives"]
+    if (
+        not isinstance(paths, dict)
+        or set(paths) != {"config", "receipt", "archive_directory"}
+        or paths["config"] != str(codex_home / "config.toml")
+        or paths["receipt"]
+        != str(codex_home / "state" / f"{PLUGIN_ID}-role-sync.json")
+        or not isinstance(preimages, dict)
+        or set(preimages) != {"config", "receipt"}
+        or not isinstance(desired, dict)
+        or set(desired) != {"config", "receipt"}
+        or not isinstance(archives, list)
+        or len(archives) > len(LEGACY_PROFILE_FILES)
+    ):
+        raise InstallError("transaction-journal-invalid")
+    for image in (*preimages.values(), *desired.values()):
+        decode_file_image(image)
+    raw_archive_dir = paths["archive_directory"]
+    if raw_archive_dir is None:
+        if archives:
+            raise InstallError("transaction-journal-invalid")
+        archive_dir = None
+    elif isinstance(raw_archive_dir, str):
+        archive_dir = Path(raw_archive_dir)
+        try:
+            archive_dir.relative_to(codex_home / "archive" / PLUGIN_ID)
+        except ValueError:
+            raise InstallError("transaction-journal-invalid") from None
+        if not archive_dir.is_absolute() or ".." in archive_dir.parts:
+            raise InstallError("transaction-journal-invalid")
+    else:
+        raise InstallError("transaction-journal-invalid")
+    seen_sources: set[str] = set()
+    seen_destinations: set[str] = set()
+    for record in archives:
+        if not isinstance(record, dict) or set(record) != {
+            "source",
+            "destination",
+            "sha256",
+        }:
+            raise InstallError("transaction-journal-invalid")
+        source_raw = record["source"]
+        destination_raw = record["destination"]
+        content_digest = record["sha256"]
+        if (
+            not isinstance(source_raw, str)
+            or not isinstance(destination_raw, str)
+            or not isinstance(content_digest, str)
+            or re.fullmatch(r"[0-9a-f]{64}", content_digest) is None
+        ):
+            raise InstallError("transaction-journal-invalid")
+        source = Path(source_raw)
+        destination = Path(destination_raw)
+        if (
+            archive_dir is None
+            or source.parent != codex_home / "agents"
+            or source.name not in LEGACY_PROFILE_FILES
+            or destination.parent != archive_dir
+            or destination.name != source.name
+            or source_raw in seen_sources
+            or destination_raw in seen_destinations
+        ):
+            raise InstallError("transaction-journal-invalid")
+        seen_sources.add(source_raw)
+        seen_destinations.add(destination_raw)
+    return value
+
+
+def write_transaction_journal(
+    plan: dict[str, Any],
+) -> tuple[Path, bytes, os.stat_result]:
+    journal_path = transaction_journal_path(plan["codex_home"])
+    ensure_private_transaction_directory(journal_path.parent, create=True)
+    document = transaction_document(plan)
+    raw = (json.dumps(document, sort_keys=True, separators=(",", ":")) + "\n").encode(
+        "utf-8"
+    )
+    if len(raw) > MAX_JOURNAL_BYTES:
+        raise InstallError("transaction-journal-too-large")
+    atomic_write(
+        journal_path,
+        raw,
+        None,
+        expected_data=b"",
+        expected_stat=None,
+        preimage_code="transaction-journal-conflict",
+        invalid_code="transaction-journal-unsafe",
+    )
+    persisted, journal_stat = read_regular_snapshot(
+        journal_path,
+        invalid_code="transaction-journal-unsafe",
+        unreadable_code="transaction-journal-unreadable",
+        oversized_code="transaction-journal-too-large",
+        max_bytes=MAX_JOURNAL_BYTES,
+    )
+    if (
+        journal_stat is None
+        or persisted != raw
+        or journal_stat.st_uid != os.geteuid()
+        or journal_stat.st_nlink != 1
+        or stat.S_IMODE(journal_stat.st_mode) != 0o600
+    ):
+        raise InstallError("transaction-journal-unsafe")
+    return journal_path, raw, journal_stat
 
 
 def relative_to_home(path: Path, codex_home: Path) -> str:
@@ -609,7 +1021,7 @@ def plan_operation(
     config_path = codex_home / "config.toml"
     state_path = codex_home / "state" / f"{PLUGIN_ID}-role-sync.json"
     config_data, config_stat = read_regular_or_empty(config_path)
-    state, state_raw = load_state(state_path)
+    state, state_raw, state_stat = load_state(state_path)
     managed = find_managed_block(config_data)
     block_digest = digest_bytes(block)
     current_profiles = profile_ownership(profiles)
@@ -725,6 +1137,8 @@ def plan_operation(
     state_changed = desired_state_raw != state_raw
     changed = config_changed or state_changed or bool(candidates)
     return {
+        "operation": operation,
+        "codex_home": codex_home,
         "config_path": config_path,
         "config_data": config_data,
         "config_stat": config_stat,
@@ -732,7 +1146,7 @@ def plan_operation(
         "config_changed": config_changed,
         "state_path": state_path,
         "state_data": state_raw,
-        "state_stat": state_path.stat() if state_path.exists() else None,
+        "state_stat": state_stat,
         "desired_state": desired_state_raw,
         "state_changed": state_changed,
         "candidates": candidates,
@@ -744,6 +1158,295 @@ def plan_operation(
     }
 
 
+def load_transaction_journal(
+    codex_home: Path,
+) -> tuple[dict[str, Any], Path, bytes, os.stat_result] | None:
+    journal_path = transaction_journal_path(codex_home)
+    if not ensure_private_transaction_directory(journal_path.parent, create=False):
+        return None
+    raw, journal_stat = read_regular_snapshot(
+        journal_path,
+        invalid_code="transaction-journal-unsafe",
+        unreadable_code="transaction-journal-unreadable",
+        oversized_code="transaction-journal-too-large",
+        max_bytes=MAX_JOURNAL_BYTES,
+    )
+    if journal_stat is None:
+        return None
+    if (
+        journal_stat.st_uid != os.geteuid()
+        or journal_stat.st_nlink != 1
+        or stat.S_IMODE(journal_stat.st_mode) != 0o600
+    ):
+        raise InstallError("transaction-journal-unsafe")
+    try:
+        document = json.loads(raw.decode("utf-8"))
+    except (UnicodeError, json.JSONDecodeError):
+        raise InstallError("transaction-journal-invalid") from None
+    return (
+        validate_transaction_document(document, codex_home),
+        journal_path,
+        raw,
+        journal_stat,
+    )
+
+
+def image_matches_snapshot(
+    data: bytes,
+    file_stat: os.stat_result | None,
+    image: dict[str, Any],
+    *,
+    metadata_required: bool,
+) -> bool:
+    expected_data, metadata = decode_file_image(image)
+    if expected_data is None:
+        return file_stat is None
+    if file_stat is None or data != expected_data:
+        return False
+    if metadata_required and metadata is not None:
+        return (
+            stat.S_IMODE(file_stat.st_mode) == metadata["mode"]
+            and file_stat.st_uid == metadata["uid"]
+            and file_stat.st_gid == metadata["gid"]
+        )
+    return True
+
+
+def read_transaction_target(path: Path, code: str) -> tuple[bytes, os.stat_result | None]:
+    return read_regular_snapshot(
+        path,
+        invalid_code=code,
+        unreadable_code=code,
+        oversized_code=code,
+    )
+
+
+def classify_file_position(
+    path: Path,
+    preimage: dict[str, Any],
+    desired: dict[str, Any],
+    code: str,
+) -> str:
+    data, file_stat = read_transaction_target(path, code)
+    if image_matches_snapshot(data, file_stat, preimage, metadata_required=True):
+        return "preimage"
+    if image_matches_snapshot(data, file_stat, desired, metadata_required=False):
+        return "desired"
+    raise InstallError(code)
+
+
+def archive_position(record: dict[str, str]) -> str:
+    source = Path(record["source"])
+    destination = Path(record["destination"])
+    source_data, source_stat = read_transaction_target(
+        source, "transaction-archive-conflict"
+    )
+    destination_data, destination_stat = read_transaction_target(
+        destination, "transaction-archive-conflict"
+    )
+    expected_digest = record["sha256"]
+    source_matches = (
+        source_stat is not None and digest_bytes(source_data) == expected_digest
+    )
+    destination_matches = (
+        destination_stat is not None
+        and digest_bytes(destination_data) == expected_digest
+    )
+    if source_matches and destination_stat is None:
+        return "preimage"
+    if source_stat is None and destination_matches:
+        return "desired"
+    raise InstallError("transaction-archive-conflict")
+
+
+def validate_transaction_archive_directory(document: dict[str, Any]) -> None:
+    raw_path = document["paths"]["archive_directory"]
+    if raw_path is None:
+        return
+    archive_dir = Path(raw_path)
+    try:
+        archive_stat = archive_dir.lstat()
+    except FileNotFoundError:
+        return
+    except OSError:
+        raise InstallError("transaction-archive-conflict") from None
+    if (
+        not stat.S_ISDIR(archive_stat.st_mode)
+        or archive_dir.is_symlink()
+        or archive_stat.st_uid != os.geteuid()
+        or stat.S_IMODE(archive_stat.st_mode) & 0o077
+    ):
+        raise InstallError("transaction-archive-conflict")
+
+
+def transaction_converged(document: dict[str, Any]) -> bool:
+    validate_transaction_archive_directory(document)
+    paths = document["paths"]
+    desired = document["desired"]
+    for key in ("config", "receipt"):
+        data, file_stat = read_transaction_target(
+            Path(paths[key]), f"transaction-{key}-conflict"
+        )
+        if not image_matches_snapshot(
+            data,
+            file_stat,
+            desired[key],
+            metadata_required=False,
+        ):
+            return False
+    return all(archive_position(record) == "desired" for record in document["archives"])
+
+
+def non_config_targets_at_preimage(document: dict[str, Any]) -> bool:
+    validate_transaction_archive_directory(document)
+    paths = document["paths"]
+    if classify_file_position(
+        Path(paths["receipt"]),
+        document["preimages"]["receipt"],
+        document["desired"]["receipt"],
+        "transaction-receipt-conflict",
+    ) != "preimage":
+        return False
+    return all(archive_position(record) == "preimage" for record in document["archives"])
+
+
+def durable_unlink(
+    path: Path,
+    expected_data: bytes,
+    expected_stat: os.stat_result,
+    *,
+    code: str,
+    max_bytes: int = MAX_PREIMAGE_BYTES,
+) -> None:
+    assert_preimage(
+        path,
+        expected_data,
+        expected_stat,
+        code=code,
+        invalid_code=code,
+        max_bytes=max_bytes,
+    )
+    try:
+        path.unlink()
+        fsync_directory(path.parent, code)
+    except OSError:
+        raise InstallError(code) from None
+
+
+def restore_file_preimage(
+    path: Path,
+    preimage: dict[str, Any],
+    desired: dict[str, Any],
+    code: str,
+) -> None:
+    position = classify_file_position(path, preimage, desired, code)
+    if position == "preimage":
+        return
+    current_data, current_stat = read_transaction_target(path, code)
+    preimage_data, metadata = decode_file_image(preimage)
+    if preimage_data is None:
+        if current_stat is None:
+            return
+        durable_unlink(path, current_data, current_stat, code=code)
+        return
+    atomic_write(
+        path,
+        preimage_data,
+        current_stat,
+        metadata=metadata,
+        expected_data=current_data,
+        expected_stat=current_stat,
+        preimage_code=code,
+        invalid_code=code,
+    )
+
+
+def remove_transaction_archive_directory(document: dict[str, Any]) -> None:
+    raw_path = document["paths"]["archive_directory"]
+    if raw_path is None:
+        return
+    archive_dir = Path(raw_path)
+    try:
+        archive_dir.rmdir()
+        fsync_directory(archive_dir.parent, "transaction-archive-conflict")
+    except FileNotFoundError:
+        return
+    except OSError:
+        raise InstallError("transaction-archive-conflict") from None
+
+
+def restore_transaction_preimages(document: dict[str, Any]) -> None:
+    validate_transaction_archive_directory(document)
+    paths = document["paths"]
+    preimages = document["preimages"]
+    desired = document["desired"]
+    positions = {
+        key: classify_file_position(
+            Path(paths[key]),
+            preimages[key],
+            desired[key],
+            f"transaction-{key}-conflict",
+        )
+        for key in ("config", "receipt")
+    }
+    archive_positions = [archive_position(record) for record in document["archives"]]
+    if positions["config"] == "desired":
+        restore_file_preimage(
+            Path(paths["config"]),
+            preimages["config"],
+            desired["config"],
+            "transaction-config-conflict",
+        )
+    for record, position in zip(document["archives"], archive_positions):
+        if position == "preimage":
+            continue
+        source = Path(record["source"])
+        destination = Path(record["destination"])
+        if archive_position(record) != "desired":
+            raise InstallError("transaction-archive-conflict")
+        try:
+            os.replace(destination, source)
+            fsync_directory(source.parent, "transaction-archive-conflict")
+            fsync_directory(destination.parent, "transaction-archive-conflict")
+        except OSError:
+            raise InstallError("transaction-archive-conflict") from None
+    if positions["receipt"] == "desired":
+        restore_file_preimage(
+            Path(paths["receipt"]),
+            preimages["receipt"],
+            desired["receipt"],
+            "transaction-receipt-conflict",
+        )
+    remove_transaction_archive_directory(document)
+    for key in ("config", "receipt"):
+        if classify_file_position(
+            Path(paths[key]),
+            preimages[key],
+            desired[key],
+            f"transaction-{key}-conflict",
+        ) != "preimage":
+            raise InstallError("rollback-failed")
+    if any(archive_position(record) != "preimage" for record in document["archives"]):
+        raise InstallError("rollback-failed")
+
+
+def recover_unfinished_transaction(codex_home: Path) -> bool:
+    loaded = load_transaction_journal(codex_home)
+    if loaded is None:
+        return False
+    document, journal_path, raw, journal_stat = loaded
+    if not transaction_converged(document):
+        restore_transaction_preimages(document)
+    durable_unlink(
+        journal_path,
+        raw,
+        journal_stat,
+        code="transaction-journal-remove-failed",
+        max_bytes=MAX_JOURNAL_BYTES,
+    )
+    return True
+
+
 def move_archives(
     candidates: list[tuple[Path, str]],
     archive_dir: Path,
@@ -753,6 +1456,7 @@ def move_archives(
         raise InstallError("archive-conflict")
     try:
         archive_dir.mkdir(mode=0o700)
+        fsync_directory(archive_dir.parent, "archive-create-failed")
     except OSError:
         raise InstallError("archive-create-failed") from None
     moved: list[tuple[Path, Path]] = []
@@ -762,24 +1466,19 @@ def move_archives(
             if source.name in destination_names:
                 raise InstallError("archive-conflict")
             destination_names.add(source.name)
-            if source.is_symlink() or not source.is_file():
-                raise InstallError("legacy-ownership-conflict")
-            try:
-                current_digest = digest_bytes(source.read_bytes())
-            except OSError:
-                raise InstallError("legacy-profile-unreadable") from None
-            if current_digest != expected_digest:
+            source_data, source_stat = read_transaction_target(
+                source, "legacy-ownership-conflict"
+            )
+            if source_stat is None or digest_bytes(source_data) != expected_digest:
                 raise InstallError("legacy-ownership-conflict")
             destination = archive_dir / source.name
-            if destination.exists():
+            if destination.is_symlink() or destination.exists():
                 raise InstallError("archive-conflict")
             os.replace(source, destination)
             moved.append((source, destination))
-        directory_fd = os.open(archive_dir, os.O_RDONLY | os.O_DIRECTORY)
-        try:
-            os.fsync(directory_fd)
-        finally:
-            os.close(directory_fd)
+        fsync_directory(archive_dir, "archive-move-failed")
+        for parent in {source.parent for source, _ in candidates}:
+            fsync_directory(parent, "archive-move-failed")
     except (OSError, InstallError) as error:
         restored = True
         for source, destination in reversed(moved):
@@ -791,6 +1490,13 @@ def move_archives(
             archive_dir.rmdir()
         except OSError:
             restored = False
+        if restored:
+            try:
+                fsync_directory(archive_dir.parent, "rollback-failed")
+                for parent in {source.parent for source, _ in candidates}:
+                    fsync_directory(parent, "rollback-failed")
+            except InstallError:
+                restored = False
         if not restored:
             raise InstallError("rollback-failed") from None
         if isinstance(error, InstallError):
@@ -799,73 +1505,92 @@ def move_archives(
     return moved
 
 
-def rollback(
-    *,
-    plan: dict[str, Any],
-    moved: list[tuple[Path, Path]],
-    config_attempted: bool,
-    state_attempted: bool,
-) -> bool:
-    try:
-        if state_attempted:
-            state_path: Path = plan["state_path"]
-            if plan["state_data"] is None:
-                if state_path.exists():
-                    state_path.unlink()
-            else:
-                atomic_write(state_path, plan["state_data"], plan["state_stat"])
-        if config_attempted:
-            config_path: Path = plan["config_path"]
-            if plan["config_stat"] is None and plan["config_data"] == b"":
-                if config_path.exists():
-                    config_path.unlink()
-            else:
-                atomic_write(config_path, plan["config_data"], plan["config_stat"])
-        for source, destination in reversed(moved):
-            if source.exists() or not destination.exists():
-                raise OSError
-            os.replace(destination, source)
-        archive_dir: Path | None = plan["archive_dir"]
-        if archive_dir is not None and archive_dir.exists():
-            archive_dir.rmdir()
-        return True
-    except (OSError, InstallError):
-        return False
-
-
 def apply_plan(plan: dict[str, Any]) -> None:
-    moved: list[tuple[Path, Path]] = []
-    config_attempted = False
-    state_attempted = False
     try:
-        if plan["candidates"]:
-            moved = move_archives(plan["candidates"], plan["archive_dir"])
+        journal_path, journal_raw, journal_stat = write_transaction_journal(plan)
+        assert_preimage(
+            plan["config_path"],
+            plan["config_data"],
+            plan["config_stat"],
+            code="config-preimage-drift",
+            invalid_code="config-path-invalid",
+        )
         if plan["config_changed"]:
-            config_attempted = True
             atomic_write(
                 plan["config_path"],
                 plan["desired_config"],
                 plan["config_stat"],
+                expected_data=plan["config_data"],
+                expected_stat=plan["config_stat"],
+                preimage_code="config-preimage-drift",
+                invalid_code="config-path-invalid",
             )
+        if plan["candidates"]:
+            move_archives(plan["candidates"], plan["archive_dir"])
         if plan["state_changed"]:
-            state_attempted = True
             desired_state = plan["desired_state"]
             if desired_state is None:
-                if plan["state_path"].exists():
-                    plan["state_path"].unlink()
+                durable_unlink(
+                    plan["state_path"],
+                    plan["state_data"],
+                    plan["state_stat"],
+                    code="receipt-preimage-drift",
+                )
             else:
                 atomic_write(
                     plan["state_path"],
                     desired_state,
                     plan["state_stat"],
+                    expected_data=(
+                        b"" if plan["state_data"] is None else plan["state_data"]
+                    ),
+                    expected_stat=plan["state_stat"],
+                    preimage_code="receipt-preimage-drift",
+                    invalid_code="receipt-path-invalid",
                 )
+        document = validate_transaction_document(
+            transaction_document(plan), plan["codex_home"]
+        )
+        if not transaction_converged(document):
+            raise InstallError("transaction-commit-unproven")
+        durable_unlink(
+            journal_path,
+            journal_raw,
+            journal_stat,
+            code="transaction-journal-remove-failed",
+            max_bytes=MAX_JOURNAL_BYTES,
+        )
     except InstallError as error:
-        if not rollback(
-            plan=plan,
-            moved=moved,
-            config_attempted=config_attempted,
-            state_attempted=state_attempted,
-        ):
+        try:
+            loaded = load_transaction_journal(plan["codex_home"])
+            if loaded is None:
+                raise error
+            document, journal_path, journal_raw, journal_stat = loaded
+            if transaction_converged(document):
+                raise error
+            if (
+                error.code == "config-preimage-drift"
+                and non_config_targets_at_preimage(document)
+            ):
+                durable_unlink(
+                    journal_path,
+                    journal_raw,
+                    journal_stat,
+                    code="transaction-journal-remove-failed",
+                    max_bytes=MAX_JOURNAL_BYTES,
+                )
+                raise error
+            restore_transaction_preimages(document)
+            durable_unlink(
+                journal_path,
+                journal_raw,
+                journal_stat,
+                code="transaction-journal-remove-failed",
+                max_bytes=MAX_JOURNAL_BYTES,
+            )
+        except InstallError as rollback_error:
+            if rollback_error is error:
+                raise error
             raise InstallError("rollback-failed") from None
         raise error
 
@@ -897,6 +1622,29 @@ def emit(
     print(json.dumps(receipt, sort_keys=True, separators=(",", ":")))
 
 
+def open_coordination_lock(path: Path) -> int:
+    flags = os.O_RDWR | os.O_CREAT
+    if hasattr(os, "O_NOFOLLOW"):
+        flags |= os.O_NOFOLLOW
+    try:
+        lock_fd = os.open(path, flags, 0o600)
+        lock_stat = os.fstat(lock_fd)
+        if (
+            not stat.S_ISREG(lock_stat.st_mode)
+            or lock_stat.st_nlink != 1
+            or lock_stat.st_uid != os.geteuid()
+            or stat.S_IMODE(lock_stat.st_mode) != 0o600
+        ):
+            raise InstallError("lock-path-invalid")
+        return lock_fd
+    except InstallError:
+        if "lock_fd" in locals():
+            os.close(lock_fd)
+        raise
+    except OSError:
+        raise InstallError("lock-open-failed") from None
+
+
 def main() -> int:
     args = parse_cli()
     plugin_root = Path(__file__).resolve().parent
@@ -914,6 +1662,8 @@ def main() -> int:
         if args.dry_run:
             if codex_home.exists() and (codex_home.is_symlink() or not codex_home.is_dir()):
                 raise InstallError("codex-home-invalid")
+            if load_transaction_journal(codex_home) is not None:
+                raise InstallError("transaction-recovery-required")
             plan = plan_operation(
                 operation=args.operation,
                 codex_home=codex_home,
@@ -942,19 +1692,20 @@ def main() -> int:
             )
             return 0
         ensure_safe_directory(codex_home, create=args.operation == "install")
-        lock_path = codex_home / f".{PLUGIN_ID}.lock"
+        config_lock_fd = open_coordination_lock(
+            codex_home / CONFIG_COORDINATION_LOCK
+        )
         try:
-            flags = os.O_RDWR | os.O_CREAT
-            if hasattr(os, "O_NOFOLLOW"):
-                flags |= os.O_NOFOLLOW
-            lock_fd = os.open(lock_path, flags, 0o600)
-        except OSError:
-            raise InstallError("lock-open-failed") from None
+            operation_lock_fd = open_coordination_lock(
+                codex_home / f".{PLUGIN_ID}.lock"
+            )
+        except InstallError:
+            os.close(config_lock_fd)
+            raise
         try:
-            lock_stat = os.fstat(lock_fd)
-            if not stat.S_ISREG(lock_stat.st_mode):
-                raise InstallError("lock-path-invalid")
-            fcntl.flock(lock_fd, fcntl.LOCK_EX)
+            fcntl.flock(config_lock_fd, fcntl.LOCK_EX)
+            fcntl.flock(operation_lock_fd, fcntl.LOCK_EX)
+            recover_unfinished_transaction(codex_home)
             plan = plan_operation(
                 operation=args.operation,
                 codex_home=codex_home,
@@ -968,7 +1719,8 @@ def main() -> int:
             else:
                 status = "no-op"
         finally:
-            os.close(lock_fd)
+            os.close(operation_lock_fd)
+            os.close(config_lock_fd)
         emit(
             operation=args.operation,
             version=version,

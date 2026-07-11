@@ -170,6 +170,26 @@ class GitHubCredentialCoverage(unittest.TestCase):
             workflow,
         )
 
+    def test_marketplace_create_inherits_only_explicit_auth_environment(self) -> None:
+        environment = DEPLOY.github_authenticated_env(self.TOKEN)
+        row = {
+            "marketplaceSource": DEPLOY.FIXED_MARKETPLACE_SOURCE,
+            "root": str(DEPLOY.MARKETPLACE_ROOT),
+        }
+        with (
+            mock.patch.object(
+                DEPLOY,
+                "configured_marketplace_row",
+                side_effect=[None, row],
+            ),
+            mock.patch.object(DEPLOY, "run_json") as runner,
+        ):
+            self.assertEqual(
+                DEPLOY.marketplace_row(create=True, env=environment),
+                row,
+            )
+        self.assertEqual(runner.call_args.kwargs["env"], environment)
+
 
 class StateDirectoryCoverage(unittest.TestCase):
     @staticmethod
@@ -586,7 +606,12 @@ class RoleReconciliationCoverage(unittest.TestCase):
         with ExitStack() as stack:
             for patcher in patches:
                 stack.enter_context(patcher)
-            status = DEPLOY.promote(self.SHA, DEPLOY.DeployContext(self.SHA), 7)
+            status = DEPLOY.promote(
+                self.SHA,
+                DEPLOY.DeployContext(self.SHA),
+                7,
+                GitHubCredentialCoverage.TOKEN,
+            )
         self.assertEqual(status, "deployed")
         self.assertEqual(events, ["roles", "receipt"])
 
@@ -611,7 +636,12 @@ class RoleReconciliationCoverage(unittest.TestCase):
             mock.patch.object(DEPLOY, "save_state"),
             mock.patch.object(DEPLOY, "clear_intent"),
         ):
-            status = DEPLOY.promote(self.SHA, DEPLOY.DeployContext(self.SHA), 7)
+            status = DEPLOY.promote(
+                self.SHA,
+                DEPLOY.DeployContext(self.SHA),
+                7,
+                GitHubCredentialCoverage.TOKEN,
+            )
         self.assertEqual(status, "already-deployed")
         reconcile.assert_called_once_with(7, state, intent)
 
@@ -637,7 +667,12 @@ class RoleReconciliationCoverage(unittest.TestCase):
             mock.patch.object(DEPLOY, "save_state"),
             mock.patch.object(DEPLOY, "clear_intent"),
         ):
-            status = DEPLOY.promote(requested, DEPLOY.DeployContext(requested), 7)
+            status = DEPLOY.promote(
+                requested,
+                DEPLOY.DeployContext(requested),
+                7,
+                GitHubCredentialCoverage.TOKEN,
+            )
         self.assertEqual(status, "skipped-older-ancestor")
         reconcile.assert_called_once_with(7, state, intent)
 
@@ -661,7 +696,12 @@ class RoleReconciliationCoverage(unittest.TestCase):
             save_state = stack.enter_context(save)
             stack.enter_context(recover)
             with self.assertRaises(DEPLOY.DeployError):
-                DEPLOY.promote(self.SHA, DEPLOY.DeployContext(self.SHA), 7)
+                DEPLOY.promote(
+                    self.SHA,
+                    DEPLOY.DeployContext(self.SHA),
+                    7,
+                    GitHubCredentialCoverage.TOKEN,
+                )
         save_state.assert_not_called()
 
     def test_malformed_or_owned_collision_fails_closed(self) -> None:
@@ -1210,6 +1250,7 @@ class PinnedBundleCoverage(unittest.TestCase):
                         sha,
                         DEPLOY.DeployContext(sha),
                         state_fd,
+                        GitHubCredentialCoverage.TOKEN,
                     )
                     durable = DEPLOY.load_state(state_fd)
                 self.assertEqual(status, "deployed")

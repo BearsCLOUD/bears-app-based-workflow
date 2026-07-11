@@ -390,9 +390,11 @@ def run(
     return result
 
 
-def run_json(argv: list[str]) -> dict[str, Any]:
+def run_json(
+    argv: list[str], *, env: dict[str, str] | None = None
+) -> dict[str, Any]:
     try:
-        value = json.loads(run(argv).stdout)
+        value = json.loads(run(argv, env=env).stdout)
     except json.JSONDecodeError as exc:
         raise DeployError(f"invalid JSON from {command_label(argv)}") from exc
     if not isinstance(value, dict):
@@ -451,12 +453,12 @@ def read_github_token(stream: io.BufferedIOBase) -> str:
     return token.decode("ascii")
 
 
-def fetch_main(repo: Path, github_token: str) -> None:
-    """Fetch fixed GitHub main with a token kept out of argv and diagnostics."""
+def github_authenticated_env(github_token: str) -> dict[str, str]:
+    """Build URL-scoped Git auth without exposing the token through argv."""
     authorization = base64.b64encode(
         f"x-access-token:{github_token}".encode("ascii")
     ).decode("ascii")
-    authenticated_env = {
+    return {
         **ENV,
         "GIT_CONFIG_COUNT": "2",
         "GIT_CONFIG_KEY_0": "credential.helper",
@@ -464,6 +466,11 @@ def fetch_main(repo: Path, github_token: str) -> None:
         "GIT_CONFIG_KEY_1": "http.https://github.com/.extraHeader",
         "GIT_CONFIG_VALUE_1": f"Authorization: Basic {authorization}",
     }
+
+
+def fetch_main(repo: Path, github_token: str) -> None:
+    """Fetch fixed GitHub main with a token kept out of argv and diagnostics."""
+    authenticated_env = github_authenticated_env(github_token)
     run(
         [
             GIT,
@@ -548,7 +555,12 @@ def verify_fixed_marketplace_row(row: dict[str, Any]) -> None:
         raise DeployError("configured marketplace root is not the fixed Codex path")
 
 
-def marketplace_row(*, create: bool, context: DeployContext | None = None) -> dict[str, Any]:
+def marketplace_row(
+    *,
+    create: bool,
+    context: DeployContext | None = None,
+    env: dict[str, str] | None = None,
+) -> dict[str, Any]:
     row = configured_marketplace_row()
     if row is None and create:
         if context is not None:
@@ -565,7 +577,8 @@ def marketplace_row(*, create: bool, context: DeployContext | None = None) -> di
                     "--ref",
                     "main",
                     "--json",
-                ]
+                ],
+                env=env,
             )
         except (DeployError, OSError) as exc:
             add_error = exc
@@ -3839,10 +3852,10 @@ def promote(
     requested: str,
     context: DeployContext,
     state_directory: int,
-    github_token: str | None = None,
+    github_token: str,
 ) -> str:
     recover_promotion_intent(state_directory)
-    main_sha = prepare_mirror(requested, github_token or "")
+    main_sha = prepare_mirror(requested, github_token)
     requested_manifest = manifest(MIRROR, requested)
     context.version = str(requested_manifest["version"])
     validate_marketplace(MIRROR, requested)
@@ -3887,10 +3900,14 @@ def promote(
         verify_disabled()
 
     intent = save_intent(state_directory, requested, previous)
+    authenticated_env = github_authenticated_env(github_token)
     try:
-        marketplace_row(create=True, context=context)
+        marketplace_row(create=True, context=context, env=authenticated_env)
         begin_activation_mutation(context)
-        run_json([CODEX, "plugin", "marketplace", "upgrade", MARKETPLACE, "--json"])
+        run_json(
+            [CODEX, "plugin", "marketplace", "upgrade", MARKETPLACE, "--json"],
+            env=authenticated_env,
+        )
         context.phase = "post-mutation"
         marketplace_row(create=False)
         exact_remote(MARKETPLACE_ROOT)
@@ -3898,7 +3915,10 @@ def promote(
         if snapshot_sha != requested:
             raise DeployError("marketplace snapshot is not the exact requested GitHub SHA")
         begin_activation_mutation(context)
-        run_json([CODEX, "plugin", "add", f"{PLUGIN}@{MARKETPLACE}", "--json"])
+        run_json(
+            [CODEX, "plugin", "add", f"{PLUGIN}@{MARKETPLACE}", "--json"],
+            env=authenticated_env,
+        )
         context.phase = "post-mutation"
         version = str(requested_manifest["version"])
         role_record = reconcile_roles(requested, version, state_directory, intent)

@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from contextlib import ExitStack
 import importlib.util
 import hashlib
@@ -1554,6 +1555,182 @@ class RegistrationMigrationRecoveryCoverage(unittest.TestCase):
                         )
             finally:
                 os.close(state_fd)
+
+
+class UnsafeDeploymentStateFileCoverage(unittest.TestCase):
+    """Reject unsafe durable gateway files before consuming their contents."""
+
+    MIGRATION_STAGE = (
+        f".{DEPLOY.PLUGIN}-v1-registration."
+        "11111111111111111111111111111111.tmp"
+    )
+
+    @staticmethod
+    def migration_material() -> tuple[dict[str, object], bytes]:
+        legacy_fingerprint = "a" * 64
+        requested_sha = "b" * 40
+        role_generation = "c" * 64
+        role_receipt_sha256 = "d" * 64
+        tombstone = DEPLOY.build_migration_tombstone(
+            legacy_fingerprint,
+            requested_sha,
+            role_generation,
+            role_receipt_sha256,
+        )
+        transaction = {
+            "legacy_fingerprint": legacy_fingerprint,
+            "role_generation": role_generation,
+            "role_receipt_sha256": role_receipt_sha256,
+            "tombstone_b64": DEPLOY.encode_journal_bytes(tombstone),
+            "tombstone_exchange_name": (
+                UnsafeDeploymentStateFileCoverage.MIGRATION_STAGE
+            ),
+            "tombstone_sha256": hashlib.sha256(tombstone).hexdigest(),
+        }
+        return transaction, tombstone
+
+    @staticmethod
+    def deployment_receipt_payload() -> bytes:
+        value = RoleReconciliationCoverage().state()
+        DEPLOY.validate_deploy_receipt(value)
+        return (json.dumps(value, sort_keys=True) + "\n").encode("utf-8")
+
+    @staticmethod
+    def promotion_intent_payload() -> bytes:
+        value = {
+            "schema": DEPLOY.PROMOTION_INTENT_SCHEMA,
+            "repository": DEPLOY.REPOSITORY,
+            "marketplace": DEPLOY.MARKETPLACE,
+            "plugin": DEPLOY.PLUGIN,
+            "requested_sha": "a" * 40,
+            "previous_receipt": None,
+            "role_transaction": None,
+        }
+        DEPLOY.validate_intent(value)
+        return (json.dumps(value, sort_keys=True) + "\n").encode("utf-8")
+
+    @staticmethod
+    def make_unsafe(path: Path, scenario: str, payload: bytes) -> object | None:
+        if scenario == "type":
+            path.mkdir(mode=0o700)
+            return None
+        if scenario == "symlink":
+            target = path.with_name(f"{path.name}.target")
+            target.write_bytes(payload)
+            target.chmod(0o600)
+            path.symlink_to(target.name)
+            return None
+        path.write_bytes(payload)
+        path.chmod(0o600)
+        if scenario == "mode":
+            path.chmod(0o640)
+        elif scenario == "nlink":
+            os.link(path, path.with_name(f"{path.name}.hardlink"))
+        elif scenario == "owner":
+            return mock.patch.object(
+                DEPLOY.os,
+                "geteuid",
+                return_value=os.geteuid() + 1,
+            )
+        else:
+            raise AssertionError(f"unsupported unsafe scenario: {scenario}")
+        return None
+
+    def assert_unsafe_matrix(
+        self,
+        filename: str,
+        operation: Callable[[int], object],
+        *,
+        lock: bool = False,
+        payload: bytes = b"",
+    ) -> None:
+        for scenario in ("owner", "mode", "type", "nlink", "symlink"):
+            with (
+                self.subTest(file=filename, scenario=scenario),
+                tempfile.TemporaryDirectory() as temporary,
+            ):
+                state = Path(temporary) / "state"
+                state.mkdir(mode=0o700)
+                state_fd = os.open(state, os.O_RDONLY | os.O_DIRECTORY)
+                try:
+                    owner_patch = self.make_unsafe(
+                        state / filename,
+                        scenario,
+                        payload,
+                    )
+                    with ExitStack() as stack:
+                        if owner_patch is not None:
+                            stack.enter_context(owner_patch)
+                        expected = (
+                            OSError
+                            if lock and scenario in {"type", "symlink"}
+                            else DEPLOY.DeployError
+                        )
+                        with self.assertRaises(expected) as raised:
+                            operation(state_fd)
+                    if isinstance(raised.exception, DEPLOY.DeployError):
+                        expected_code = None if lock else "receipt-corruption"
+                        self.assertEqual(raised.exception.error_code, expected_code)
+                finally:
+                    os.close(state_fd)
+
+    def test_deployment_lock_rejects_unsafe_file_matrix(self) -> None:
+        self.assert_unsafe_matrix(
+            DEPLOY.LOCK_FILE.name,
+            DEPLOY.open_lock_file,
+            lock=True,
+        )
+
+    def test_deployment_lock_create_or_open_failure_is_rejected(self) -> None:
+        for failure in (PermissionError("create denied"), OSError("open failed")):
+            with self.subTest(failure=type(failure).__name__), mock.patch.object(
+                DEPLOY.os,
+                "open",
+                side_effect=failure,
+            ) as opener:
+                with self.assertRaises(type(failure)):
+                    DEPLOY.open_lock_file(37)
+                opener.assert_called_once_with(
+                    DEPLOY.LOCK_FILE.name,
+                    os.O_CREAT | os.O_RDWR | os.O_CLOEXEC | os.O_NOFOLLOW,
+                    0o600,
+                    dir_fd=37,
+                )
+
+    def test_deployment_receipt_rejects_unsafe_file_matrix(self) -> None:
+        self.assert_unsafe_matrix(
+            DEPLOY.STATE_FILE.name,
+            DEPLOY.load_state,
+            payload=self.deployment_receipt_payload(),
+        )
+
+    def test_promotion_intent_rejects_unsafe_file_matrix(self) -> None:
+        self.assert_unsafe_matrix(
+            DEPLOY.INTENT_FILE.name,
+            DEPLOY.load_intent,
+            payload=self.promotion_intent_payload(),
+        )
+
+    def test_registration_migration_tombstone_rejects_unsafe_file_matrix(
+        self,
+    ) -> None:
+        _, tombstone = self.migration_material()
+        self.assert_unsafe_matrix(
+            DEPLOY.MIGRATION_TOMBSTONE_FILE.name,
+            DEPLOY.load_migration_tombstone,
+            payload=tombstone,
+        )
+
+    def test_fixed_migration_stage_rejects_unsafe_file_matrix(self) -> None:
+        transaction, tombstone = self.migration_material()
+        self.assert_unsafe_matrix(
+            self.MIGRATION_STAGE,
+            lambda state_fd: DEPLOY.publish_migration_tombstone(
+                state_fd,
+                transaction,
+            ),
+            payload=tombstone,
+        )
 
 
 if __name__ == "__main__":

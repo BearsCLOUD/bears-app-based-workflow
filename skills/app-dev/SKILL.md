@@ -7,7 +7,7 @@ description: Orchestrate fixed L1 and L2 app-development lanes, then dispatch co
 
 ## Ownership boundary
 
-For work already classified `DELEGATED`, `app-dev` owns fixed L1-to-L2 orchestration, ready-task partitioning, L2 decomposition, lane isolation, and wave closeout. Each L2 follows `$subagents` as the instruction procedure for selecting and dispatching L3 agents for its concrete assignments. `$subagents` is not a task recipient or runtime. `DIRECT` work never enters this procedure.
+For work already classified `DELEGATED`, `app-dev` owns fixed `workflow-orchestrator` L1 to `domain-lane-orchestrator` L2 orchestration, ready-task partitioning, L2 decomposition, lane isolation, and wave closeout. Each L2 follows `$subagents` for deterministic L3 selection and assignment-bounded dispatch. `$subagents` is not a task recipient or runtime. `DIRECT` work never enters this procedure.
 
 L1 and L2 coordinate from compact packets. They do not access files, logs, terminal, Git, scripts, MCP, runtime, or network state.
 
@@ -23,14 +23,13 @@ Start from canonical `app-stage-handoff.v1` status `plan-ready` produced by `app
 
 ## Fixed L1 orchestration
 
-The parent activating `app-dev` takes the fixed L1 role; it does not create an L1 subagent.
+The parent activating `app-dev` takes fixed `workflow-orchestrator` L1; it does not create an L1 subagent.
 
-1. Start one persistent `role-selector` for each coherent workstream under the `$subagents` selector lifecycle and keep each agent reference through that workstream's closeout.
-2. Accept only tasks reported ready with closed decisions, closed dependencies, and valid graph refs.
-3. If readiness facts are absent, open one read-only L2 discovery lane with exact refs; that L2 follows `$subagents` for the concrete evidence assignment.
-4. Partition known ready tasks into L2 lanes with non-overlapping repo paths, runtime targets, and mutable state.
-5. Start each L2 with exact task ids, workstream ids, target bounds, dependencies, completion criteria, and the applicable selector references. Keep capacity for its L3; otherwise return `DELEGATION_BLOCKED` for that lane.
-6. Combine compact L2 results, route decision or planning gaps, and send completed waves to `app-analyze`.
+1. Accept only tasks reported ready with closed decisions, closed dependencies, and valid graph refs.
+2. If readiness facts are absent, open one read-only `domain-lane-orchestrator` L2 discovery lane with exact refs; that L2 follows `$subagents` for the concrete evidence assignment.
+3. Partition known ready tasks into non-overlapping `domain-lane-orchestrator` L2 lanes by repo paths, runtime targets, and mutable state.
+4. Start each L2 with exact task ids, workstream ids, target bounds, dependencies, completion criteria, and capacity for its L3; otherwise return `DELEGATION_BLOCKED` for that lane.
+5. Combine compact L2 results, route decision or planning gaps, and send completed waves to `app-analyze`.
 
 L1 never treats `$subagents` as a recipient for a stage, wave, or lane.
 
@@ -38,19 +37,19 @@ L1 never treats `$subagents` as a recipient for a stage, wave, or lane.
 
 1. Own one lane or wave partition supplied by L1; do not change its task set or bounds.
 2. Decompose each lane task into concrete, sequential L3 assignments without expanding its targets or dependencies.
-3. For each assignment, follow `$subagents`: send `role-request.v1` to that workstream's selector, use its `role-selection.v1`, build `dispatch-packet.v1`, manage the L3 lifecycle, and accept `result-packet.v1`.
-4. Run at most one L3 helper, worker, or critic at a time. A helper precedes its worker; a critic follows it.
+3. For each assignment, apply the ordered `$subagents` rules, record `selection_basis` and `capability_boundary`, build `dispatch-packet.v2`, start one fresh matching L3, and accept `result-packet.v1`.
+4. Run at most one L3 at a time. Dispatch evidence, mutation, or review separately only when the task requires that distinct outcome; never add an automatic helper or critic.
 5. Package each L3 assignment by its distinct deliverable. Never create assignments for word counts, predicates, waits, cachebuster-only work, or intermediate Git actions.
-6. Use one selected editor for a cohesive patch and reuse it for corrections in the same workstream unless terminal failure, changed competence, or a true scope split requires replacement.
-7. Use one critic for the combined diff or acceptance surface and reuse that same critic for reassessment under the same replacement exceptions.
-8. After critic acceptance, create exactly one distinct final Git-closeout assignment in the same workstream because Git is a separate permission and deliverable boundary. Retain `task_id`, `workstream_id`, and selector reuse; use a new `assignment_id` and no intermediate Git assignment.
+6. Route ordinary bounded reads to `explorer`, ordinary bounded mutations to `worker`, runtime-backed evidence to `runtime-evidence-reader`, and generated-file autoCI evidence to `explorer`; all other cases follow the full ordered rules.
+7. Keep every agent reference within one `assignment_id`. A follow-up is allowed only while outcome, role, target scope, and capability boundary remain unchanged; otherwise select and start a new L3.
+8. Let `worker` own its cohesive patch, task-owned diff inspection, exact staging, and one local commit. Do not create an intermediate or final Git-closeout assignment.
 9. Return completed behavior, exact changed-file refs, ledger transition, unresolved risk, evidence refs, and the next handoff to L1.
 
 L2 never starts L4, never redecomposes an L3 assignment inside L3, and never executes the assignment itself.
 
 ## Solo parent
 
-A solo parent with one bounded task acts as the L2 analogue. It decomposes that task into concrete L3 assignments, creates or reuses exactly one persistent selector per coherent workstream, and follows `$subagents` for each assignment. It does not create an L1 or an L2 subagent.
+A solo parent with one bounded delegated task acts as the L2 analogue. It decomposes that task into concrete L3 assignments and independently applies deterministic `$subagents` selection and `dispatch-packet.v2` for each assignment. It does not create an L1 or an L2 subagent.
 
 ## Stage rules
 

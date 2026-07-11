@@ -28,4 +28,4 @@ Installing the materializer and performing the first materialization are separat
 
 ## Public automation projection
 
-The `ci` job always attempts to publish one `automation-status.v1` artifact directly through GitHub Actions; there is no central receiver. Its JSON object contains exactly `schema`, `status`, `commit`, `timestamp`, and immutable `evidence_ref`. `status` is `passed` or `failed` for an emitted run; absence is projected by `automation-status-reader` as `not_run`.
+The `ci` job always attempts to publish one `automation-status.v1` artifact directly through GitHub Actions; there is no central receiver. Its JSON object contains exactly `schema`, `status`, `commit`, `timestamp`, and immutable `evidence_ref`. `status` is `passed` or `failed` for an emitted run. A bounded GitHub or service-interface query routes to `runtime-evidence-reader`; inspection of an already generated artifact file routes to `explorer`. Either route projects absent, stale, pending, mismatched, or unauthenticated evidence as `not_run`.

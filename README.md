@@ -20,9 +20,9 @@ The normal success chain is `constitution-ready` -> `research-ready` -> `spec-re
 
 `docs/app-functional-graph.v1.json` is the source of truth for specified functionality ids, graph nodes, relationships, and functional coverage. Downstream plans, ledger tasks, implementation packets, and analyses carry its revision and refs; they never redefine graph meaning.
 
-`instruction-editor` owns final instruction policy decisions and results; `instruction-hardening` supplies its repeatable editing method. `role-profile-architect` owns role-profile decisions and results; `role-profile-maintenance` supplies its comparison and least-privilege method.
+`worker` owns bounded instruction-policy edits and may apply `instruction-hardening` as the editing method. `role-profile-architect` owns only concrete role-profile create, merge, split, or delete operations directly requested by the current user; `role-profile-maintenance` supplies its comparison and least-privilege method.
 
-The active catalog contains 50 deliverable-named profiles. Each profile defines its trigger, specialist, dependencies, permissions, conflict behavior, acceptance criteria, result contract, and one declarative example. Removed names are not aliases. `domain-lane-orchestrator` and `github-settings-editor` replace profiles that previously duplicated the same deliverable and permission boundary; `primary-source-researcher` owns evidence packets for decision-critical current claims.
+The active catalog contains exactly nine profiles: `worker`, `explorer`, `diagnostic-command-runner`, `primary-source-researcher`, `runtime-evidence-reader`, `security-analysis-critic`, `workflow-orchestrator`, `domain-lane-orchestrator`, and `role-profile-architect`. Removed names are not aliases. Ordinary bounded mutations route to `worker`; ordinary bounded workspace reads route to `explorer`. Runtime-, service-, API-, or MCP-backed evidence routes to `runtime-evidence-reader`, while bounded generated-file evidence routes to `explorer`.
 
 ## Plugin skills
 
@@ -30,7 +30,7 @@ The active catalog contains 50 deliverable-named profiles. Each profile defines 
 - Dispatch procedure: `subagents`.
 - Instruction procedures: `instruction-hardening`, `role-profile-maintenance`.
 
-In `app-dev`, the parent takes the fixed L1 role and starts fixed L2 lanes; each L2 owns task decomposition. `subagents` owns the role-selection and helper-worker-critic dispatch procedure for each concrete L3 assignment, including the four packet schemas. It is not a task recipient. Outside app-dev, a solo parent acts as the L2 analogue. There is no `subagents-roles` skill.
+In `app-dev`, the parent takes fixed `workflow-orchestrator` L1 and starts fixed `domain-lane-orchestrator` L2 lanes; each L2 owns task decomposition. `subagents` deterministically selects one eligible L3 for each concrete assignment, emits `dispatch-packet.v2`, and accepts `result-packet.v1`. Each L3 reference ends with its assignment. Outside app-dev, a solo parent acts as the L2 analogue. There is no `subagents-roles` skill.
 
 ## Core artifacts
 
@@ -55,14 +55,14 @@ In `app-dev`, the parent takes the fixed L1 role and starts fixed L2 lanes; each
 
 ## Role installation
 
-Role TOML files live only in `agents/`. Register their `config_file` links after source updates:
+Role TOML files live only in `agents/`. Plugin-root agent auto-discovery is undocumented, so explicit installer registration remains required after source updates:
 
 ```text
 ./install [--codex-home PATH] [--dry-run]
 ./install uninstall [--codex-home PATH] [--dry-run]
 ```
 
-The installer updates only its marked config block and archives known legacy duplicates. Start a new Codex task after a changed install.
+The installer registers the nine exact profile names, updates only its marked config block, removes stale retired registrations, and archives known legacy profile files. It creates no aliases. Start a new Codex task after a changed install.
 
 
 ## Ownership
@@ -71,6 +71,6 @@ The installer updates only its marked config block and archives known legacy dup
 - Workspace contracts: shared invariants.
 - Plugin role TOML: result ownership, decisions, permissions, acceptance, and result fields.
 - Plugin skills: repeatable methods, packet templates, references, and reusable procedures.
-- External autoCI: machine-owned completion evidence and automation status.
+- External autoCI: machine-owned completion evidence and automation status; read runtime-backed evidence with `runtime-evidence-reader` and generated-file evidence with `explorer`.
 
 Target repository: `BearsCLOUD/bears-app-based-workflow`.

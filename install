@@ -20,7 +20,57 @@ PLUGIN_ID = "bears-app-based-workflow"
 STATE_SCHEMA = "bears-role-install-receipt.v1"
 BEGIN_MARKER = b"# >>> bears-app-based-workflow agent roles (managed by ./install)"
 END_MARKER = b"# <<< bears-app-based-workflow agent roles (managed by ./install)"
-ROLE_COUNT = 50
+ROLE_COUNT = 9
+
+# These 43 names were retired by the nine-profile catalog. Both their files and
+# unmanaged config registrations are one-way migration inputs, never aliases.
+RETIRED_PROFILE_NAMES = frozenset(
+    {
+        "android-emulator-config-editor",
+        "application-change-editor",
+        "automation-status-reader",
+        "codex-config-editor",
+        "codex-daemon-editor",
+        "codex-health-diagnostician",
+        "deploy-impact-gate",
+        "deployment-contract-editor",
+        "documentation-editor",
+        "execution-kernel-editor",
+        "finding-remediation-editor",
+        "gateway-route-editor",
+        "git-closeout-helper",
+        "github-secrets-editor",
+        "github-settings-editor",
+        "goal-prompt-author",
+        "identity-contract-editor",
+        "instruction-editor",
+        "kubernetes-data-editor",
+        "live-audio-session-editor",
+        "network-configuration-editor",
+        "notification-integration-editor",
+        "observability-config-editor",
+        "operations-runbook-author",
+        "payment-contract-editor",
+        "plugin-update-editor",
+        "product-clarification-packet-author",
+        "role-selector",
+        "secret-material-writer",
+        "session-worker-runtime-editor",
+        "subagent-procedure-editor",
+        "telegram-integration-editor",
+        "tenant-registry-editor",
+        "token-budget-advisor",
+        "vpn-bot-editor",
+        "vpn-client-editor",
+        "vpn-governance-editor",
+        "vpn-ingress-editor",
+        "vpn-proxy-editor",
+        "vpn-runtime-editor",
+        "wildberries-integration-editor",
+        "workflow-plugin-editor",
+        "workspace-context-reader",
+    }
+)
 
 # Removed profile filenames are archive-only migration inputs. They are never
 # registered as aliases or active plugin roles.
@@ -94,7 +144,7 @@ LEGACY_PROFILE_FILES = frozenset(
         "re" + "view-fix-editor.toml",
         "security-re" + "viewer.toml",
     }
-)
+) | frozenset(f"{name}.toml" for name in RETIRED_PROFILE_NAMES)
 
 # Exact retired registration keys are assembled only for one-way removal. They
 # never appear in generated configuration, receipts, or active role metadata.
@@ -105,7 +155,7 @@ STALE_ROLE_NAMES = frozenset(
         "re" + "view-fix-editor",
         "security-re" + "viewer",
     }
-)
+) | RETIRED_PROFILE_NAMES
 
 
 class InstallError(Exception):

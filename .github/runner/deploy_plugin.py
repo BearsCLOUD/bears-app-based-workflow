@@ -36,8 +36,11 @@ MIRROR = STATE_DIR / "repository.git"
 GIT = "/usr/bin/git"
 CODEX = "/usr/local/bin/codex"
 SHA_RE = re.compile(r"[0-9a-f]{40}")
+FINGERPRINT_RE = re.compile(r"[0-9a-f]{64}")
 VERSION_RE = re.compile(r"\d+\.\d+\.\d+\+codex\.\d{14}")
 DEPLOY_RECEIPT_SCHEMA = "bears-plugin-deploy-state.v1"
+RECEIPT_MAX_BYTES = 16 * 1024
+SUBPROCESS_DIAGNOSTIC_LIMIT = 512
 SENTRY_DSN_FILE = Path("/home/ai1/.config/bears-app-based-workflow/credentials/sentry-dsn")
 SENTRY_SERVICE = "bears-app-based-workflow"
 SENTRY_COMPONENT = "deploy-plugin-gateway"
@@ -88,6 +91,13 @@ class DeployContext:
         self.sha = sha
         self.version = "unknown"
         self.phase = "pre-mutation"
+        self.activation_mutated = False
+
+
+def begin_activation_mutation(context: DeployContext) -> None:
+    """Mark the point after which any failure requires proven recovery."""
+    context.phase = "mutation"
+    context.activation_mutated = True
 
 
 def sentry_event(error_code: str, context: DeployContext) -> dict[str, Any]:
@@ -199,13 +209,39 @@ def report_sentry(error_code: str, context: DeployContext, *, opener: Any = requ
         return None
 
 
+def normalized_diagnostic(value: str) -> str:
+    """Return one bounded ASCII diagnostic without control characters."""
+    normalized = " ".join(
+        "".join(
+            character if character.isascii() and character.isprintable() else " "
+            for character in value
+        ).split()
+    )
+    if not normalized:
+        return "no diagnostic output"
+    if len(normalized) > SUBPROCESS_DIAGNOSTIC_LIMIT:
+        return normalized[: SUBPROCESS_DIAGNOSTIC_LIMIT - 3] + "..."
+    return normalized
+
+
+def command_label(argv: list[str]) -> str:
+    return "git" if argv[0] == GIT else "codex"
+
+
 def run(argv: list[str], *, ok: tuple[int, ...] = (0,)) -> subprocess.CompletedProcess[str]:
     if not argv or argv[0] not in {GIT, CODEX}:
         raise DeployError("only the fixed git and codex binaries may be invoked")
-    result = subprocess.run(argv, env=ENV, text=True, capture_output=True, check=False)
+    try:
+        result = subprocess.run(argv, env=ENV, text=True, capture_output=True, check=False)
+    except OSError as exc:
+        raise DeployError(
+            f"{command_label(argv)} invocation failed: {normalized_diagnostic(str(exc))}"
+        ) from exc
     if result.returncode not in ok:
-        detail = (result.stderr or result.stdout).strip()
-        raise DeployError(f"command failed ({result.returncode}): {argv[1]}: {detail}")
+        detail = normalized_diagnostic(result.stderr or result.stdout)
+        raise DeployError(
+            f"{command_label(argv)} command failed with exit {result.returncode}: {detail}"
+        )
     return result
 
 
@@ -213,9 +249,9 @@ def run_json(argv: list[str]) -> dict[str, Any]:
     try:
         value = json.loads(run(argv).stdout)
     except json.JSONDecodeError as exc:
-        raise DeployError(f"invalid JSON from {argv[1]}") from exc
+        raise DeployError(f"invalid JSON from {command_label(argv)}") from exc
     if not isinstance(value, dict):
-        raise DeployError(f"unexpected JSON shape from {argv[1]}")
+        raise DeployError(f"unexpected JSON shape from {command_label(argv)}")
     return value
 
 
@@ -305,7 +341,7 @@ def marketplace_row(*, create: bool, context: DeployContext | None = None) -> di
     row = configured_marketplace_row()
     if row is None and create:
         if context is not None:
-            context.phase = "mutation"
+            begin_activation_mutation(context)
         add_error: DeployError | OSError | None = None
         try:
             run_json(
@@ -340,7 +376,7 @@ def payload_fingerprint(repo: Path, sha: str) -> str:
     return hashlib.sha256(listing.encode()).hexdigest()
 
 
-def installed_row() -> dict[str, Any]:
+def plugin_rows() -> list[dict[str, Any]]:
     payload = run_json([CODEX, "plugin", "list", "--available", "--json"])
     installed = payload.get("installed")
     available = payload.get("available")
@@ -350,19 +386,31 @@ def installed_row() -> dict[str, Any]:
         rows = payload.get("plugins")
     if not isinstance(rows, list):
         raise DeployError("Codex plugin state has an unsupported shape")
-    row = next(
-        (
-            item
-            for item in rows
-            if isinstance(item, dict) and item.get("pluginId") == f"{PLUGIN}@{MARKETPLACE}"
-        ),
-        None,
-    )
-    if not isinstance(row, dict):
+    matches = [
+        item
+        for item in rows
+        if isinstance(item, dict) and item.get("pluginId") == f"{PLUGIN}@{MARKETPLACE}"
+    ]
+    if any(item.get("marketplaceSource") != FIXED_MARKETPLACE_SOURCE for item in matches):
+        raise DeployError("plugin state reports a non-fixed marketplace source")
+    if any(
+        not isinstance(item.get("installed"), bool) or not isinstance(item.get("enabled"), bool)
+        for item in matches
+    ):
+        raise DeployError("plugin state has unsupported activation fields")
+    return matches
+
+
+def installed_row() -> dict[str, Any]:
+    matches = [item for item in plugin_rows() if item["installed"]]
+    if len(matches) != 1:
         raise DeployError("fixed plugin is absent from Codex plugin state")
-    if row.get("marketplaceSource") != FIXED_MARKETPLACE_SOURCE:
-        raise DeployError("installed plugin reports a non-fixed marketplace source")
-    return row
+    return matches[0]
+
+
+def verify_disabled() -> None:
+    if any(item["enabled"] for item in plugin_rows()):
+        raise DeployError("fixed plugin remains enabled after recovery")
 
 
 def verify_install(requested: str, expected_version: str) -> str:
@@ -394,19 +442,137 @@ def verify_install(requested: str, expected_version: str) -> str:
     return requested_fingerprint
 
 
-def load_state() -> dict[str, Any] | None:
-    if not STATE_FILE.exists():
-        return None
+def validate_directory_component(
+    descriptor: int,
+    *,
+    require_user_owner: bool,
+    require_private_mode: bool,
+) -> None:
+    """Require a trusted directory component opened without link traversal."""
+    component_stat = os.fstat(descriptor)
+    mode = stat.S_IMODE(component_stat.st_mode)
+    trusted_owners = {os.geteuid()} if require_user_owner else {0, os.geteuid()}
+    unsafe_mode = mode != 0o700 if require_private_mode else bool(mode & 0o022)
+    if (
+        not stat.S_ISDIR(component_stat.st_mode)
+        or component_stat.st_uid not in trusted_owners
+        or unsafe_mode
+    ):
+        raise DeployError("deployment state path component owner, mode, or type is unsafe")
+
+
+def open_state_directory() -> int:
+    """Open and validate every fixed path component without following links."""
+    flags = os.O_RDONLY | os.O_DIRECTORY | os.O_CLOEXEC | os.O_NOFOLLOW
+    descriptor = os.open("/", flags)
+    components = STATE_DIR.parts[1:]
+    home_depth = len(CODEX_HOME.parts) - 1
     try:
-        value = json.loads(STATE_FILE.read_text())
-    except (OSError, json.JSONDecodeError) as exc:
+        validate_directory_component(
+            descriptor,
+            require_user_owner=False,
+            require_private_mode=False,
+        )
+        for depth, component in enumerate(components, start=1):
+            try:
+                child = os.open(component, flags, dir_fd=descriptor)
+            except FileNotFoundError:
+                if depth <= home_depth:
+                    raise DeployError("fixed Codex state path is incomplete")
+                os.mkdir(component, mode=0o700, dir_fd=descriptor)
+                os.fsync(descriptor)
+                child = os.open(component, flags, dir_fd=descriptor)
+            except OSError as exc:
+                raise DeployError("deployment state path component is unsafe") from exc
+            try:
+                validate_directory_component(
+                    child,
+                    require_user_owner=depth >= home_depth,
+                    require_private_mode=depth == len(components),
+                )
+            except Exception:
+                os.close(child)
+                raise
+            os.close(descriptor)
+            descriptor = child
+        return descriptor
+    except Exception:
+        os.close(descriptor)
+        raise
+
+
+def validate_private_regular(descriptor: int, label: str, *, error_code: str | None = None) -> os.stat_result:
+    file_stat = os.fstat(descriptor)
+    if (
+        not stat.S_ISREG(file_stat.st_mode)
+        or file_stat.st_uid != os.geteuid()
+        or stat.S_IMODE(file_stat.st_mode) != 0o600
+        or file_stat.st_nlink != 1
+    ):
+        raise DeployError(f"{label} owner, mode, type, or link count is unsafe", error_code=error_code)
+    return file_stat
+
+
+def open_lock_file(state_directory: int) -> int:
+    descriptor = os.open(
+        LOCK_FILE.name,
+        os.O_CREAT | os.O_RDWR | os.O_CLOEXEC | os.O_NOFOLLOW,
+        0o600,
+        dir_fd=state_directory,
+    )
+    try:
+        validate_private_regular(descriptor, "deployment lock")
+    except Exception:
+        os.close(descriptor)
+        raise
+    return descriptor
+
+
+def load_state(state_directory: int) -> dict[str, Any] | None:
+    try:
+        descriptor = os.open(
+            STATE_FILE.name,
+            os.O_RDONLY | os.O_CLOEXEC | os.O_NOFOLLOW,
+            dir_fd=state_directory,
+        )
+    except FileNotFoundError:
+        return None
+    except OSError as exc:
+        raise DeployError("deployment receipt is unsafe", error_code="receipt-corruption") from exc
+    try:
+        file_stat = validate_private_regular(
+            descriptor, "deployment receipt", error_code="receipt-corruption"
+        )
+        if file_stat.st_size > RECEIPT_MAX_BYTES:
+            raise DeployError("deployment receipt is oversized", error_code="receipt-corruption")
+        payload = bytearray()
+        while len(payload) <= RECEIPT_MAX_BYTES:
+            chunk = os.read(descriptor, min(4096, RECEIPT_MAX_BYTES + 1 - len(payload)))
+            if not chunk:
+                break
+            payload.extend(chunk)
+        if len(payload) > RECEIPT_MAX_BYTES:
+            raise DeployError("deployment receipt is oversized", error_code="receipt-corruption")
+        value = json.loads(payload.decode("utf-8"))
+    except (OSError, UnicodeDecodeError, json.JSONDecodeError) as exc:
         raise DeployError("deployment receipt is unreadable", error_code="receipt-corruption") from exc
-    if not isinstance(value, dict) or value.get("schema") != DEPLOY_RECEIPT_SCHEMA:
-        raise DeployError("deployment receipt has an invalid schema", error_code="receipt-corruption")
+    finally:
+        os.close(descriptor)
+    if (
+        not isinstance(value, dict)
+        or value.get("schema") != DEPLOY_RECEIPT_SCHEMA
+        or value.get("repository") != REPOSITORY
+        or value.get("marketplace") != MARKETPLACE
+        or value.get("plugin") != PLUGIN
+        or not SHA_RE.fullmatch(str(value.get("sha", "")))
+        or not VERSION_RE.fullmatch(str(value.get("version", "")))
+        or not FINGERPRINT_RE.fullmatch(str(value.get("payload_fingerprint", "")))
+    ):
+        raise DeployError("deployment receipt identity is invalid", error_code="receipt-corruption")
     return value
 
 
-def save_state(sha: str, version: str, fingerprint: str) -> None:
+def save_state(state_directory: int, sha: str, version: str, fingerprint: str) -> None:
     value = {
         "schema": DEPLOY_RECEIPT_SCHEMA,
         "repository": REPOSITORY,
@@ -416,51 +582,158 @@ def save_state(sha: str, version: str, fingerprint: str) -> None:
         "version": version,
         "payload_fingerprint": fingerprint,
     }
-    temporary = STATE_FILE.with_suffix(".tmp")
-    temporary.write_text(json.dumps(value, sort_keys=True) + "\n")
-    os.chmod(temporary, 0o600)
-    os.replace(temporary, STATE_FILE)
+    payload = (json.dumps(value, sort_keys=True) + "\n").encode("utf-8")
+    temporary = f".{PLUGIN}.{secrets.token_hex(16)}.tmp"
+    descriptor = -1
+    try:
+        descriptor = os.open(
+            temporary,
+            os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_CLOEXEC | os.O_NOFOLLOW,
+            0o600,
+            dir_fd=state_directory,
+        )
+        os.fchmod(descriptor, 0o600)
+        validate_private_regular(descriptor, "temporary deployment receipt")
+        offset = 0
+        while offset < len(payload):
+            written = os.write(descriptor, payload[offset:])
+            if written <= 0:
+                raise DeployError("temporary deployment receipt write did not advance")
+            offset += written
+        os.fsync(descriptor)
+        os.close(descriptor)
+        descriptor = -1
+        os.replace(
+            temporary,
+            STATE_FILE.name,
+            src_dir_fd=state_directory,
+            dst_dir_fd=state_directory,
+        )
+        temporary = ""
+        os.fsync(state_directory)
+    finally:
+        if descriptor >= 0:
+            os.close(descriptor)
+        if temporary:
+            try:
+                os.unlink(temporary, dir_fd=state_directory)
+            except FileNotFoundError:
+                pass
 
 
-def promote(requested: str, context: DeployContext) -> str:
-    prepare_mirror(requested)
+def clear_state(state_directory: int) -> None:
+    try:
+        os.unlink(STATE_FILE.name, dir_fd=state_directory)
+    except FileNotFoundError:
+        return
+    os.fsync(state_directory)
+
+
+def verify_receipted_install(state: dict[str, Any]) -> None:
+    fingerprint = verify_install(str(state["sha"]), str(state["version"]))
+    if fingerprint != state["payload_fingerprint"]:
+        raise DeployError("active plugin disagrees with its deployment receipt", error_code="receipt-corruption")
+
+
+def restore_receipted_install(state_directory: int, state: dict[str, Any]) -> None:
+    sha = str(state["sha"])
+    version = str(state["version"])
+    fingerprint = str(state["payload_fingerprint"])
+    marketplace_row(create=False)
+    exact_remote(MARKETPLACE_ROOT)
+    git(MARKETPLACE_ROOT, "reset", "--hard", sha)
+    git(MARKETPLACE_ROOT, "clean", "-ffdx", "--", *PAYLOAD_PATHS)
+    if git_text(MARKETPLACE_ROOT, "rev-parse", "HEAD") != sha:
+        raise DeployError("recovery marketplace checkout is not the receipted SHA")
+    dirty_payload = git(
+        MARKETPLACE_ROOT, "status", "--porcelain=v1", "--untracked-files=all", "--", *PAYLOAD_PATHS
+    ).stdout
+    if dirty_payload or manifest(MARKETPLACE_ROOT, sha).get("version") != version:
+        raise DeployError("recovery marketplace checkout is inconsistent")
+    if payload_fingerprint(MARKETPLACE_ROOT, sha) != fingerprint:
+        raise DeployError("recovery marketplace payload disagrees with its receipt")
+    run_json([CODEX, "plugin", "add", f"{PLUGIN}@{MARKETPLACE}", "--json"])
+    verify_receipted_install(state)
+    save_state(state_directory, sha, version, fingerprint)
+
+
+def disable_and_verify(state_directory: int) -> None:
+    try:
+        run_json([CODEX, "plugin", "disable", f"{PLUGIN}@{MARKETPLACE}", "--json"])
+    except Exception:
+        pass
+    verify_disabled()
+    clear_state(state_directory)
+
+
+def fail_after_recovery(
+    state_directory: int,
+    previous: dict[str, Any] | None,
+    failure: Exception,
+) -> None:
+    if previous is not None:
+        try:
+            restore_receipted_install(state_directory, previous)
+        except Exception:
+            pass
+        else:
+            raise DeployError(
+                "promotion failed after activation; previous receipted revision was restored",
+                error_code="recovery-activated",
+            ) from failure
+    try:
+        disable_and_verify(state_directory)
+    except Exception as recovery_failure:
+        raise DeployError(
+            "promotion failed after activation and recovery convergence is unproven",
+            error_code="recovery-failure",
+        ) from recovery_failure
+    raise DeployError(
+        "promotion failed after activation; plugin was disabled",
+        error_code="recovery-activated",
+    ) from failure
+
+
+def promote(requested: str, context: DeployContext, state_directory: int) -> str:
+    main_sha = prepare_mirror(requested)
     requested_manifest = manifest(MIRROR, requested)
     context.version = str(requested_manifest["version"])
     validate_marketplace(MIRROR, requested)
-    state = load_state()
+    state = load_state(state_directory)
+    previous: dict[str, Any] | None = None
     if state is not None:
-        current = str(state.get("sha", ""))
-        current_version = str(state.get("version", ""))
-        if not SHA_RE.fullmatch(current) or not VERSION_RE.fullmatch(current_version):
-            raise DeployError("deployment receipt identity is invalid", error_code="receipt-corruption")
+        current = str(state["sha"])
+        if not is_ancestor(MIRROR, current, main_sha):
+            raise DeployError("receipted SHA is not on fixed main", error_code="receipt-corruption")
+        verify_receipted_install(state)
         if requested == current:
-            verify_install(current, current_version)
             return "already-deployed"
         if is_ancestor(MIRROR, requested, current):
-            verify_install(current, current_version)
             return "skipped-older-ancestor"
         if not is_ancestor(MIRROR, current, requested):
             raise DeployError("non-fast-forward promotion requires a separate rollback authorization")
+        previous = state
 
-    marketplace_row(create=True, context=context)
-    context.phase = "mutation"
-    run_json([CODEX, "plugin", "marketplace", "upgrade", MARKETPLACE, "--json"])
-    context.phase = "post-mutation"
-    marketplace_row(create=False)
-    exact_remote(MARKETPLACE_ROOT)
-    snapshot_sha = git_text(MARKETPLACE_ROOT, "rev-parse", "HEAD")
-    if snapshot_sha != requested:
-        if is_ancestor(MIRROR, requested, snapshot_sha):
-            return "skipped-older-ancestor"
-        raise DeployError("marketplace snapshot is not the requested GitHub SHA")
-
-    context.phase = "mutation"
-    run_json([CODEX, "plugin", "add", f"{PLUGIN}@{MARKETPLACE}", "--json"])
-    context.phase = "post-mutation"
-    version = str(requested_manifest["version"])
-    fingerprint = verify_install(requested, version)
-    context.phase = "mutation"
-    save_state(requested, version, fingerprint)
+    try:
+        marketplace_row(create=True, context=context)
+        begin_activation_mutation(context)
+        run_json([CODEX, "plugin", "marketplace", "upgrade", MARKETPLACE, "--json"])
+        context.phase = "post-mutation"
+        marketplace_row(create=False)
+        exact_remote(MARKETPLACE_ROOT)
+        snapshot_sha = git_text(MARKETPLACE_ROOT, "rev-parse", "HEAD")
+        if snapshot_sha != requested:
+            raise DeployError("marketplace snapshot is not the exact requested GitHub SHA")
+        begin_activation_mutation(context)
+        run_json([CODEX, "plugin", "add", f"{PLUGIN}@{MARKETPLACE}", "--json"])
+        context.phase = "post-mutation"
+        version = str(requested_manifest["version"])
+        fingerprint = verify_install(requested, version)
+        save_state(state_directory, requested, version, fingerprint)
+    except Exception as exc:
+        if context.activation_mutated:
+            fail_after_recovery(state_directory, previous, exc)
+        raise
     context.phase = "complete"
     return "deployed"
 
@@ -473,16 +746,13 @@ def main() -> int:
         print("deploy-plugin: expected one exact lowercase 40-character SHA", file=sys.stderr)
         return 2
     context = DeployContext(sys.argv[1])
+    state_directory = -1
     descriptor = -1
     try:
-        STATE_DIR.mkdir(mode=0o700, parents=True, exist_ok=True)
-        descriptor = os.open(
-            LOCK_FILE,
-            os.O_CREAT | os.O_RDWR | os.O_CLOEXEC | os.O_NOFOLLOW,
-            0o600,
-        )
+        state_directory = open_state_directory()
+        descriptor = open_lock_file(state_directory)
         fcntl.flock(descriptor, fcntl.LOCK_EX)
-        status = promote(sys.argv[1], context)
+        status = promote(sys.argv[1], context, state_directory)
     except (DeployError, OSError) as exc:
         error_code = exc.error_code if isinstance(exc, DeployError) else None
         if error_code is None and context.phase == "mutation":
@@ -500,6 +770,8 @@ def main() -> int:
     finally:
         if descriptor >= 0:
             os.close(descriptor)
+        if state_directory >= 0:
+            os.close(state_directory)
     print(json.dumps({"plugin": PLUGIN, "sha": sys.argv[1], "status": status}, sort_keys=True))
     return 0
 

@@ -23,7 +23,7 @@ from typing import Any
 from urllib import parse, request
 
 PLUGIN = "bears-app-based-workflow"
-MARKETPLACE = "bears-app-based-workflow"
+MARKETPLACE = "bears-app-based-workflow-cd"
 REPOSITORY = "https://github.com/BearsCLOUD/bears-app-based-workflow.git"
 REPOSITORY_SHORTHAND = "BearsCLOUD/bears-app-based-workflow"
 MAIN_REF = "refs/remotes/origin/main"
@@ -70,6 +70,7 @@ ENV = {
     "PATH": "/usr/local/bin:/usr/bin:/bin",
     "LANG": "C.UTF-8",
 }
+FIXED_MARKETPLACE_SOURCE = {"sourceType": "git", "source": REPOSITORY}
 
 
 class DeployError(RuntimeError):
@@ -282,35 +283,55 @@ def validate_marketplace(repo: Path, sha: str) -> None:
         raise DeployError("marketplace identity or plugin source is not fixed")
 
 
-def marketplace_row(*, create: bool, context: DeployContext | None = None) -> dict[str, Any]:
+def configured_marketplace_row() -> dict[str, Any] | None:
     payload = run_json([CODEX, "plugin", "marketplace", "list", "--json"])
     rows = payload.get("marketplaces", [])
-    row = next((item for item in rows if item.get("name") == MARKETPLACE), None)
-    if row is None and create:
-        if context is not None:
-            context.phase = "mutation"
-        run_json(
-            [
-                CODEX,
-                "plugin",
-                "marketplace",
-                "add",
-                REPOSITORY_SHORTHAND,
-                "--ref",
-                "main",
-                "--json",
-            ]
-        )
-        if context is not None:
-            context.phase = "post-mutation"
-        return marketplace_row(create=False, context=context)
-    if not isinstance(row, dict):
-        raise DeployError("fixed marketplace is not configured")
-    source = row.get("marketplaceSource")
-    if source != {"sourceType": "git", "source": REPOSITORY}:
+    if not isinstance(rows, list) or any(not isinstance(item, dict) for item in rows):
+        raise DeployError("unexpected marketplace list shape")
+    matches = [item for item in rows if item.get("name") == MARKETPLACE]
+    if len(matches) > 1:
+        raise DeployError("fixed marketplace has duplicate configuration rows")
+    return matches[0] if matches else None
+
+
+def verify_fixed_marketplace_row(row: dict[str, Any]) -> None:
+    if row.get("marketplaceSource") != FIXED_MARKETPLACE_SOURCE:
         raise DeployError("configured marketplace does not use the fixed Git repository")
     if Path(str(row.get("root", ""))).resolve() != MARKETPLACE_ROOT.resolve():
         raise DeployError("configured marketplace root is not the fixed Codex path")
+
+
+def marketplace_row(*, create: bool, context: DeployContext | None = None) -> dict[str, Any]:
+    row = configured_marketplace_row()
+    if row is None and create:
+        if context is not None:
+            context.phase = "mutation"
+        add_error: DeployError | OSError | None = None
+        try:
+            run_json(
+                [
+                    CODEX,
+                    "plugin",
+                    "marketplace",
+                    "add",
+                    REPOSITORY,
+                    "--ref",
+                    "main",
+                    "--json",
+                ]
+            )
+        except (DeployError, OSError) as exc:
+            add_error = exc
+        if context is not None:
+            context.phase = "post-mutation"
+        row = configured_marketplace_row()
+        if row is None:
+            if add_error is not None:
+                raise add_error
+            raise DeployError("fixed marketplace is absent after add")
+    if not isinstance(row, dict):
+        raise DeployError("fixed marketplace is not configured")
+    verify_fixed_marketplace_row(row)
     return row
 
 
@@ -325,7 +346,7 @@ def installed_row() -> dict[str, Any]:
     row = next((item for item in rows if item.get("pluginId") == f"{PLUGIN}@{MARKETPLACE}"), None)
     if not isinstance(row, dict):
         raise DeployError("fixed plugin is absent from Codex plugin state")
-    if row.get("marketplaceSource") != {"sourceType": "git", "source": REPOSITORY}:
+    if row.get("marketplaceSource") != FIXED_MARKETPLACE_SOURCE:
         raise DeployError("installed plugin reports a non-fixed marketplace source")
     return row
 

@@ -71,9 +71,48 @@ IFS=: read -r _ _ _ group_members < <(/usr/bin/getent group "$RUNNER_GROUP")
   die "$RUNNER_USER must not have supplementary groups"
 
 # Stop every previously managed service before touching runner or gateway state.
-if /usr/bin/systemctl is-active --quiet "$SERVICE_NAME"; then
-  /usr/bin/systemctl stop "$SERVICE_NAME"
-fi
+service_cgroup() {
+  local unit="$1" value
+  value="$(/usr/bin/systemctl show --property=ControlGroup --value "$unit" 2>/dev/null || true)"
+  [[ -z "$value" ]] && return 0
+  [[ "$value" == /* && "$value" != / && "$value" != *..* && "$value" != *$'\n'* ]] || \
+    die "$unit has an unsafe service cgroup"
+  printf '%s\n' "$value"
+}
+
+service_cgroup_empty() {
+  local unit="$1" cgroup="$2" directory events
+  [[ -z "$cgroup" ]] && return 0
+  directory="/sys/fs/cgroup${cgroup}"
+  [[ ! -e "$directory" && ! -L "$directory" ]] && return 0
+  [[ -d "$directory" && ! -L "$directory" ]] || die "$unit service cgroup is unsafe"
+  events="$directory/cgroup.events"
+  [[ -f "$events" && ! -L "$events" ]] || die "$unit service cgroup events are unsafe"
+  /usr/bin/grep -qx 'populated 0' "$events"
+}
+
+quiesce_managed_service() {
+  local unit="$1" cgroup kill_file attempt
+  cgroup="$(service_cgroup "$unit")"
+  if /usr/bin/systemctl is-active --quiet "$unit"; then
+    [[ -n "$cgroup" ]] || die "$unit active service cgroup is missing"
+    /usr/bin/systemctl stop "$unit"
+  fi
+  if ! service_cgroup_empty "$unit" "$cgroup"; then
+    kill_file="/sys/fs/cgroup${cgroup}/cgroup.kill"
+    [[ -f "$kill_file" && ! -L "$kill_file" ]] || \
+      die "$unit service cgroup cannot be terminated safely"
+    printf '1\n' >"$kill_file"
+    for attempt in {1..50}; do
+      service_cgroup_empty "$unit" "$cgroup" && break
+      /usr/bin/sleep 0.1
+    done
+  fi
+  service_cgroup_empty "$unit" "$cgroup" || \
+    die "$unit service cgroup still has running processes"
+}
+
+quiesce_managed_service "$SERVICE_NAME"
 /usr/bin/systemctl disable "$SERVICE_NAME" >/dev/null 2>&1 || true
 if [[ -e "$RUNNER_DIR/.service" || -L "$RUNNER_DIR/.service" ]]; then
   [[ -f "$RUNNER_DIR/.service" && ! -L "$RUNNER_DIR/.service" ]] || \
@@ -81,9 +120,7 @@ if [[ -e "$RUNNER_DIR/.service" || -L "$RUNNER_DIR/.service" ]]; then
   legacy_service="$(<"$RUNNER_DIR/.service")"
   [[ "$legacy_service" =~ ^actions\.runner\.[A-Za-z0-9_.@-]+\.service$ ]] || \
     die "legacy service name is unsafe"
-  if /usr/bin/systemctl is-active --quiet "$legacy_service"; then
-    /usr/bin/systemctl stop "$legacy_service"
-  fi
+  quiesce_managed_service "$legacy_service"
   /usr/bin/systemctl disable "$legacy_service" >/dev/null 2>&1 || true
   /usr/bin/rm -f -- "/etc/systemd/system/$legacy_service"
 fi
@@ -107,7 +144,6 @@ import hmac
 import json
 import os
 import re
-import secrets
 import stat
 import sys
 
@@ -120,6 +156,7 @@ PLUGIN = "bears-app-based-workflow"
 RECEIPT = f"{PLUGIN}.json"
 INTENT = f"{PLUGIN}.promotion-intent.json"
 LOCK = f"{PLUGIN}.lock"
+IMPORT_STAGE = f".{PLUGIN}.legacy-state-import.stage"
 IMPORT_TOMBSTONE = f"{PLUGIN}.legacy-state-imported.json"
 IMPORT_TOMBSTONE_SCHEMA = "bears-plugin-deploy-state-import.v1"
 LEGACY_RECEIPT_SCHEMA = "bears-plugin-deploy-state.v1"
@@ -286,6 +323,19 @@ def entry_exists(directory: int, name: str) -> bool:
     return True
 
 
+def validate_private_file(descriptor: int, label: str) -> os.stat_result:
+    value = os.fstat(descriptor)
+    if (
+        not stat.S_ISREG(value.st_mode)
+        or value.st_uid != AI1_UID
+        or value.st_gid != AI1_GID
+        or stat.S_IMODE(value.st_mode) != 0o600
+        or value.st_nlink != 1
+    ):
+        fail(f"{label} is not a private ai1 regular file")
+    return value
+
+
 def read_private(directory: int, name: str, label: str) -> bytes:
     try:
         descriptor = os.open(
@@ -296,16 +346,9 @@ def read_private(directory: int, name: str, label: str) -> bytes:
     except OSError as exc:
         fail(f"missing or unsafe {label}: {exc.errno}")
     try:
-        value = os.fstat(descriptor)
-        if (
-            not stat.S_ISREG(value.st_mode)
-            or value.st_uid != AI1_UID
-            or value.st_gid != AI1_GID
-            or stat.S_IMODE(value.st_mode) != 0o600
-            or value.st_nlink != 1
-            or value.st_size > MAXIMUM
-        ):
-            fail(f"{label} is not a private ai1 regular file")
+        value = validate_private_file(descriptor, label)
+        if value.st_size > MAXIMUM:
+            fail(f"{label} is oversized")
         payload = bytearray()
         while len(payload) <= MAXIMUM:
             chunk = os.read(descriptor, min(4096, MAXIMUM + 1 - len(payload)))
@@ -317,6 +360,49 @@ def read_private(directory: int, name: str, label: str) -> bytes:
         return bytes(payload)
     finally:
         os.close(descriptor)
+
+
+def open_private_lock(
+    directory: int, name: str, label: str, *, create: bool
+) -> int:
+    flags = os.O_RDWR | os.O_CLOEXEC | os.O_NOFOLLOW
+    created = False
+    if create:
+        try:
+            descriptor = os.open(
+                name,
+                flags | os.O_CREAT | os.O_EXCL,
+                0o600,
+                dir_fd=directory,
+            )
+            created = True
+        except FileExistsError:
+            descriptor = os.open(name, flags, dir_fd=directory)
+    else:
+        try:
+            descriptor = os.open(name, flags, dir_fd=directory)
+        except OSError as exc:
+            fail(f"missing or unsafe {label}: {exc.errno}")
+    try:
+        if created:
+            os.fchown(descriptor, AI1_UID, AI1_GID)
+            os.fchmod(descriptor, 0o600)
+            os.fsync(descriptor)
+            os.fsync(directory)
+        validate_private_file(descriptor, label)
+    except Exception:
+        os.close(descriptor)
+        raise
+    return descriptor
+
+
+def acquire_private_lock(descriptor: int, label: str) -> None:
+    try:
+        fcntl.flock(descriptor, fcntl.LOCK_EX | fcntl.LOCK_NB)
+    except OSError as exc:
+        if exc.errno in (errno.EACCES, errno.EAGAIN):
+            fail(f"{label} is busy")
+        fail(f"{label} acquisition failed: {exc.errno}")
 
 
 def strict_json(payload: bytes, label: str) -> object:
@@ -474,10 +560,33 @@ renameat2.argtypes = [
 renameat2.restype = ctypes.c_int
 
 
-def publish_private_no_replace(name: str, payload: bytes, label: str) -> None:
-    temporary = f".{PLUGIN}.state-import.{secrets.token_hex(16)}.tmp"
+def reconcile_import_stage(
+    expected: bytes, label: str, *, partial_recoverable: bool
+) -> None:
+    if not entry_exists(state, IMPORT_STAGE):
+        return
+    staged = read_private(state, IMPORT_STAGE, "legacy state import staging file")
+    staged_sha256 = hashlib.sha256(staged).digest()
+    expected_sha256 = hashlib.sha256(expected).digest()
+    if len(staged) == len(expected) and hmac.compare_digest(
+        staged_sha256, expected_sha256
+    ) and hmac.compare_digest(staged, expected):
+        return
+    if partial_recoverable and len(staged) < len(expected) and hmac.compare_digest(
+        staged, expected[: len(staged)]
+    ):
+        os.unlink(IMPORT_STAGE, dir_fd=state)
+        os.fsync(state)
+        return
+    fail(f"{label} staging file drifted from the expected first-import state")
+
+
+def write_import_stage(payload: bytes, label: str) -> None:
+    reconcile_import_stage(payload, label, partial_recoverable=True)
+    if entry_exists(state, IMPORT_STAGE):
+        return
     target_fd = os.open(
-        temporary,
+        IMPORT_STAGE,
         os.O_WRONLY
         | os.O_CREAT
         | os.O_EXCL
@@ -498,104 +607,127 @@ def publish_private_no_replace(name: str, payload: bytes, label: str) -> None:
         os.fsync(target_fd)
     finally:
         os.close(target_fd)
+    os.fsync(state)
+    reconcile_import_stage(payload, label, partial_recoverable=False)
+
+
+def publish_private_no_replace(name: str, payload: bytes, label: str) -> None:
+    write_import_stage(payload, label)
     if renameat2(
         state,
-        os.fsencode(temporary),
+        os.fsencode(IMPORT_STAGE),
         state,
         os.fsencode(name),
         RENAME_NOREPLACE,
     ) != 0:
         number = ctypes.get_errno()
         if number != errno.EEXIST:
-            os.unlink(temporary, dir_fd=state)
             fail(f"{label} publication failed: {number}")
-        try:
-            current = read_private(state, name, label)
-            if not hmac.compare_digest(current, payload):
-                fail(f"{label} publication raced")
-        finally:
-            os.unlink(temporary, dir_fd=state)
+        current = read_private(state, name, label)
+        if not hmac.compare_digest(current, payload):
+            fail(f"{label} publication raced")
+        reconcile_import_stage(payload, label, partial_recoverable=False)
+        os.unlink(IMPORT_STAGE, dir_fd=state)
     os.fsync(state)
     durable = read_private(state, name, label)
     if not hmac.compare_digest(durable, payload):
         fail(f"{label} is not durable")
 
 
+gateway_lock_fd = open_private_lock(
+    state, LOCK, "gateway deployment state lock", create=True
+)
+acquire_private_lock(gateway_lock_fd, "gateway deployment state lock")
 import_tombstone_present = entry_exists(state, IMPORT_TOMBSTONE)
 legacy = optional_old_state()
 if legacy is None:
-    if import_tombstone_present:
+    if any(
+        entry_exists(state, name)
+        for name in (RECEIPT, IMPORT_STAGE, IMPORT_TOMBSTONE)
+    ):
         fail("legacy deployment receipt source is missing after import")
 else:
-    receipt_present = entry_exists(legacy, RECEIPT)
-    intent_present = entry_exists(legacy, INTENT)
-    if receipt_present or intent_present or import_tombstone_present:
-        if not entry_exists(legacy, LOCK):
-            fail("legacy deployment state lock is missing")
-        lock_fd = os.open(
-            LOCK,
-            os.O_RDWR | os.O_CLOEXEC | os.O_NOFOLLOW,
-            dir_fd=legacy,
-        )
-        lock_stat = os.fstat(lock_fd)
-        if (
-            not stat.S_ISREG(lock_stat.st_mode)
-            or lock_stat.st_uid != AI1_UID
-            or lock_stat.st_gid != AI1_GID
-            or stat.S_IMODE(lock_stat.st_mode) != 0o600
-            or lock_stat.st_nlink != 1
+    legacy_lock_fd = open_private_lock(
+        legacy, LOCK, "legacy deployment state lock", create=False
+    )
+    acquire_private_lock(legacy_lock_fd, "legacy deployment state lock")
+    if entry_exists(legacy, INTENT):
+        fail("legacy deployment state has an active promotion intent")
+    if not entry_exists(legacy, RECEIPT):
+        if any(
+            entry_exists(state, name)
+            for name in (RECEIPT, IMPORT_STAGE, IMPORT_TOMBSTONE)
         ):
-            fail("legacy deployment state lock is unsafe")
-        fcntl.flock(lock_fd, fcntl.LOCK_EX)
-        if entry_exists(legacy, INTENT):
-            fail("legacy deployment state has an active promotion intent")
-        if not entry_exists(legacy, RECEIPT):
-            if import_tombstone_present:
-                fail("legacy deployment receipt source disappeared after import")
-        else:
-            source = read_private(legacy, RECEIPT, "legacy deployment receipt")
-            source_identity = validate_legacy_receipt(source)
-            source_sha256 = hashlib.sha256(source).hexdigest()
-            destination_present = entry_exists(state, RECEIPT)
-            if import_tombstone_present:
-                tombstone = read_private(
-                    state, IMPORT_TOMBSTONE, "legacy state import tombstone"
-                )
-                validate_import_tombstone(tombstone, source, source_identity)
-                if not destination_present:
-                    fail("new deployment receipt is missing after legacy state import")
-                destination = read_private(state, RECEIPT, "new deployment receipt")
-                validate_destination_receipt(destination)
-            else:
-                if destination_present:
-                    destination = read_private(state, RECEIPT, "new deployment receipt")
-                    if not hmac.compare_digest(source, destination):
-                        fail(
-                            "new deployment state conflicts with the legacy receipt "
-                            "without an import tombstone"
-                        )
-                else:
-                    if os.listdir(state):
-                        fail("new deployment state is non-empty before one-time receipt import")
-                    publish_private_no_replace(
-                        RECEIPT, source, "legacy deployment receipt import"
-                    )
-                imported = read_private(state, RECEIPT, "imported deployment receipt")
-                if not hmac.compare_digest(source, imported):
-                    fail("imported deployment receipt changed before tombstone publication")
-                tombstone = import_tombstone_bytes(source_sha256, source_identity)
+            fail("legacy deployment receipt source disappeared after import")
+    else:
+        source = read_private(legacy, RECEIPT, "legacy deployment receipt")
+        source_identity = validate_legacy_receipt(source)
+        source_sha256 = hashlib.sha256(source).hexdigest()
+        expected_tombstone = import_tombstone_bytes(source_sha256, source_identity)
+        destination_present = entry_exists(state, RECEIPT)
+        import_tombstone_present = entry_exists(state, IMPORT_TOMBSTONE)
+        if import_tombstone_present:
+            reconcile_import_stage(
+                expected_tombstone,
+                "legacy state import tombstone",
+                partial_recoverable=False,
+            )
+            if entry_exists(state, IMPORT_STAGE):
                 publish_private_no_replace(
-                    IMPORT_TOMBSTONE, tombstone, "legacy state import tombstone"
+                    IMPORT_TOMBSTONE,
+                    expected_tombstone,
+                    "legacy state import tombstone",
                 )
-                validate_import_tombstone(
-                    read_private(
-                        state, IMPORT_TOMBSTONE, "legacy state import tombstone"
-                    ),
-                    source,
-                    source_identity,
+            tombstone = read_private(
+                state, IMPORT_TOMBSTONE, "legacy state import tombstone"
+            )
+            validate_import_tombstone(tombstone, source, source_identity)
+            if not destination_present:
+                fail("new deployment receipt is missing after legacy state import")
+            destination = read_private(state, RECEIPT, "new deployment receipt")
+            validate_destination_receipt(destination)
+        else:
+            expected_stage = expected_tombstone if destination_present else source
+            reconcile_import_stage(
+                expected_stage,
+                "legacy state import",
+                partial_recoverable=True,
+            )
+            allowed_entries = {LOCK, IMPORT_STAGE}
+            if destination_present:
+                allowed_entries.add(RECEIPT)
+            if set(os.listdir(state)) - allowed_entries:
+                fail("new deployment state is non-empty before one-time receipt import")
+            if destination_present:
+                destination = read_private(state, RECEIPT, "new deployment receipt")
+                if not hmac.compare_digest(source, destination):
+                    fail(
+                        "new deployment state conflicts with the legacy receipt "
+                        "without an import tombstone"
+                    )
+            else:
+                publish_private_no_replace(
+                    RECEIPT, source, "legacy deployment receipt import"
                 )
-        os.close(lock_fd)
+            imported = read_private(state, RECEIPT, "imported deployment receipt")
+            if not hmac.compare_digest(source, imported):
+                fail("imported deployment receipt changed before tombstone publication")
+            publish_private_no_replace(
+                IMPORT_TOMBSTONE,
+                expected_tombstone,
+                "legacy state import tombstone",
+            )
+            validate_import_tombstone(
+                read_private(
+                    state, IMPORT_TOMBSTONE, "legacy state import tombstone"
+                ),
+                source,
+                source_identity,
+            )
+    os.close(legacy_lock_fd)
     os.close(legacy)
+os.fsync(state)
+os.close(gateway_lock_fd)
 os.close(state)
 os.close(state_root)
 os.close(var_lib)
@@ -711,7 +843,7 @@ Environment=PATH=/usr/local/bin:/usr/bin:/bin
 ExecStart=$RUNNER_DIR/runsvc.sh
 Restart=always
 RestartSec=5
-KillMode=process
+KillMode=control-group
 KillSignal=SIGTERM
 TimeoutStopSec=5min
 PrivateTmp=true

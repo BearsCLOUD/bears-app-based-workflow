@@ -210,10 +210,10 @@ class InstallerStateMigrationCoverage(unittest.TestCase):
             'DEPLOY_STATE_ROOT="/var/lib/bears-plugin-deploy"',
             'DEPLOY_STATE_DIR="$DEPLOY_STATE_ROOT/ai1"',
             'LEGACY_DEPLOY_STATE_DIR="/srv/bears/codex/ai1/.local/state/bears-plugin-deploy"',
+            'IMPORT_STAGE = f".{PLUGIN}.legacy-state-import.stage"',
             'IMPORT_TOMBSTONE = f"{PLUGIN}.legacy-state-imported.json"',
             'IMPORT_TOMBSTONE_SCHEMA = "bears-plugin-deploy-state-import.v1"',
             "os.O_NOFOLLOW",
-            "fcntl.flock(lock_fd, fcntl.LOCK_EX)",
             'fail("legacy deployment state has an active promotion intent")',
             'fail("new deployment state is non-empty before one-time receipt import")',
             "RENAME_NOREPLACE",
@@ -223,12 +223,43 @@ class InstallerStateMigrationCoverage(unittest.TestCase):
         self.assertIn('(\"bears\", \"/srv/bears\", 0, AI1_GID, 0o775)', source)
         self.assertIn('(\"codex\", \"/srv/bears/codex\", AI1_UID, None, 0o2770)', source)
 
+    def test_service_cgroup_is_empty_before_import_and_future_stops_are_complete(self) -> None:
+        source = self.installer_source()
+        importer = source.index("/usr/bin/python3 - \\")
+        for required in (
+            'quiesce_managed_service "$SERVICE_NAME"',
+            "grep -qx 'populated 0'",
+            'kill_file="/sys/fs/cgroup${cgroup}/cgroup.kill"',
+            'die "$unit service cgroup still has running processes"',
+            "KillMode=control-group",
+        ):
+            self.assertIn(required, source)
+        self.assertLess(source.index('quiesce_managed_service "$SERVICE_NAME"'), importer)
+        self.assertNotIn("pkill -KILL -u ai1", source)
+
+    def test_gateway_and_legacy_locks_fail_closed_without_waiting(self) -> None:
+        source = self.importer_source()
+        gateway = source.index("gateway_lock_fd = open_private_lock(")
+        old_state = source.index("legacy = optional_old_state()")
+        for required in (
+            "os.O_CREAT | os.O_EXCL",
+            "os.fchown(descriptor, AI1_UID, AI1_GID)",
+            "os.fchmod(descriptor, 0o600)",
+            "validate_private_file(descriptor, label)",
+            "fcntl.LOCK_EX | fcntl.LOCK_NB",
+            'fail(f"{label} is busy")',
+            'acquire_private_lock(gateway_lock_fd, "gateway deployment state lock")',
+            'acquire_private_lock(legacy_lock_fd, "legacy deployment state lock")',
+        ):
+            self.assertIn(required, source)
+        self.assertLess(gateway, old_state)
+        self.assertLess(source.index("acquire_private_lock(gateway_lock_fd"), old_state)
+        self.assertIn("os.fsync(state)\nos.close(gateway_lock_fd)", source)
+
     def test_first_import_durably_publishes_receipt_then_bound_tombstone(self) -> None:
         source = self.importer_source()
         publication = source[
-            source.index("def publish_private_no_replace"):source.index(
-                "import_tombstone_present ="
-            )
+            source.index("def write_import_stage"):source.index("gateway_lock_fd =")
         ]
         for required in (
             "os.O_CREAT",
@@ -243,7 +274,7 @@ class InstallerStateMigrationCoverage(unittest.TestCase):
             'RECEIPT, source, "legacy deployment receipt import"'
         )
         tombstone_publish = source.index(
-            'IMPORT_TOMBSTONE, tombstone, "legacy state import tombstone"'
+            "IMPORT_TOMBSTONE,\n                expected_tombstone"
         )
         self.assertLess(receipt_publish, tombstone_publish)
         for field in (
@@ -253,7 +284,52 @@ class InstallerStateMigrationCoverage(unittest.TestCase):
         ):
             self.assertIn(field, source)
 
-    def test_rerun_before_promotion_accepts_valid_tombstone_and_v1_receipt(self) -> None:
+    def test_stage_write_crash_rerun_only_recreates_an_exact_source_prefix(self) -> None:
+        source = self.importer_source()
+        recovery = source[
+            source.index("def reconcile_import_stage"):source.index("def write_import_stage")
+        ]
+        for required in (
+            'read_private(state, IMPORT_STAGE, "legacy state import staging file")',
+            "hashlib.sha256(staged).digest()",
+            "hashlib.sha256(expected).digest()",
+            "len(staged) < len(expected)",
+            "staged, expected[: len(staged)]",
+            "os.unlink(IMPORT_STAGE, dir_fd=state)",
+            "os.fsync(state)",
+            'fail(f"{label} staging file drifted from the expected first-import state")',
+        ):
+            self.assertIn(required, recovery)
+
+    def test_receipt_rename_crash_rerun_advances_to_tombstone_stage(self) -> None:
+        source = self.importer_source()
+        recovery = source[source.index("destination_present = entry_exists(state, RECEIPT)"):]
+        stage_choice = recovery.index(
+            "expected_stage = expected_tombstone if destination_present else source"
+        )
+        destination_check = recovery.index("if destination_present:", stage_choice)
+        tombstone_publish = recovery.index("IMPORT_TOMBSTONE,", destination_check)
+        self.assertLess(stage_choice, destination_check)
+        self.assertLess(destination_check, tombstone_publish)
+
+    def test_tombstone_write_crash_rerun_is_idempotent(self) -> None:
+        source = self.importer_source()
+        publisher = source[
+            source.index("def publish_private_no_replace"):source.index("gateway_lock_fd =")
+        ]
+        for required in (
+            "write_import_stage(payload, label)",
+            "number != errno.EEXIST",
+            "hmac.compare_digest(current, payload)",
+            "os.unlink(IMPORT_STAGE, dir_fd=state)",
+            "os.fsync(state)",
+        ):
+            self.assertIn(required, publisher)
+        rerun = source[source.index("if import_tombstone_present:"):]
+        self.assertIn("partial_recoverable=False", rerun)
+        self.assertIn("publish_private_no_replace(\n                    IMPORT_TOMBSTONE", rerun)
+
+    def test_rerun_accepts_bound_tombstone_and_evolved_destination(self) -> None:
         source = self.importer_source()
         rerun = source[source.index("if import_tombstone_present:"):]
         tombstone_check = rerun.index(
@@ -267,22 +343,8 @@ class InstallerStateMigrationCoverage(unittest.TestCase):
             )
         ]
         self.assertIn("if schema == LEGACY_RECEIPT_SCHEMA:", validator)
-        self.assertIn("if set(receipt) != RECEIPT_FIELDS:", validator)
-
-    def test_rerun_after_v2_evolution_does_not_byte_compare_destination(self) -> None:
-        source = self.importer_source()
-        validator = source[
-            source.index("def validate_destination_receipt"):source.index(
-                "def import_tombstone_bytes"
-            )
-        ]
         self.assertIn("schema != DEPLOY_RECEIPT_SCHEMA", validator)
         self.assertIn("RECEIPT_FIELDS | ROLE_RECEIPT_FIELDS", validator)
-        self.assertIn('receipt.get("role_count") != len(ROLE_NAMES)', validator)
-        rerun = source[source.index("if import_tombstone_present:"):]
-        rerun = rerun[:rerun.index("            else:")]
-        self.assertIn("validate_destination_receipt(destination)", rerun)
-        self.assertNotIn("compare_digest(source, destination)", rerun)
 
     def test_changed_legacy_source_is_rejected_against_exact_tombstone(self) -> None:
         source = self.importer_source()
@@ -314,14 +376,12 @@ class InstallerStateMigrationCoverage(unittest.TestCase):
 
     def test_conflicting_destination_without_tombstone_is_rejected(self) -> None:
         source = self.importer_source()
-        missing_tombstone = source[
-            source.index("            else:\n                if destination_present:"):
-        ]
+        missing_tombstone = source[source.index("            expected_stage ="):]
         compare = missing_tombstone.index("hmac.compare_digest(source, destination)")
         rejection = missing_tombstone.index(
             '"new deployment state conflicts with the legacy receipt "'
         )
-        tombstone_publish = missing_tombstone.index("import_tombstone_bytes")
+        tombstone_publish = missing_tombstone.index("publish_private_no_replace(\n                IMPORT_TOMBSTONE")
         self.assertLess(compare, rejection)
         self.assertLess(rejection, tombstone_publish)
         self.assertNotIn("os.unlink(RECEIPT, dir_fd=legacy)", source)

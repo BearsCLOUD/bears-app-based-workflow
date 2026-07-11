@@ -1,6 +1,6 @@
 {
   "name": "bears-app-based-workflow",
-  "version": "0.1.0+codex.20260711060447",
+  "version": "0.1.0+codex.20260711065237",
   "description": "Bears app workflow plugin for waves, functional graphs, task ledgers, deliverable-based role selection, and delegated L3 execution.",
   "author": {
     "name": "BearsCLOUD",

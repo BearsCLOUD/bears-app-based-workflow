@@ -23,7 +23,7 @@ from typing import Any
 from urllib import parse, request
 
 PLUGIN = "bears-app-based-workflow"
-MARKETPLACE = "bears-app-based-workflow-cd"
+MARKETPLACE = "bears-app-based-workflow"
 REPOSITORY = "https://github.com/BearsCLOUD/bears-app-based-workflow.git"
 REPOSITORY_SHORTHAND = "BearsCLOUD/bears-app-based-workflow"
 MAIN_REF = "refs/remotes/origin/main"

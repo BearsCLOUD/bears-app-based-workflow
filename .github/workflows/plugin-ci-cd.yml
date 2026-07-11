@@ -41,7 +41,7 @@ jobs:
           if not re.fullmatch(r"\d+\.\d+\.\d+\+codex\.\d{14}", manifest.get("version", "")):
               fail("plugin version must use the SemVer +codex.YYYYMMDDhhmmss cachebuster")
           entries = marketplace.get("plugins")
-          if marketplace.get("name") != "bears-app-based-workflow-cd" or not isinstance(entries, list) or len(entries) != 1:
+          if marketplace.get("name") != name or not isinstance(entries, list) or len(entries) != 1:
               fail("marketplace must contain exactly the fixed plugin entry")
           entry = entries[0]
           if entry.get("name") != name or entry.get("source") != {"source": "local", "path": "."}:

@@ -533,6 +533,28 @@ def assert_preimage(
         raise InstallError(code)
 
 
+def assert_preimage_at(
+    directory_fd: int,
+    name: str,
+    expected_data: bytes,
+    expected_stat: os.stat_result | None,
+    *,
+    code: str,
+    invalid_code: str,
+    max_bytes: int = MAX_PREIMAGE_BYTES,
+) -> None:
+    current_data, current_stat = read_regular_snapshot_at(
+        directory_fd,
+        name,
+        invalid_code=invalid_code,
+        unreadable_code=code,
+        oversized_code=code,
+        max_bytes=max_bytes,
+    )
+    if not snapshot_matches(current_data, current_stat, expected_data, expected_stat):
+        raise InstallError(code)
+
+
 def profile_ownership(profiles: list[tuple[str, Path]]) -> list[dict[str, str]]:
     ownership: list[dict[str, str]] = []
     for name, path in profiles:
@@ -901,34 +923,171 @@ def atomic_write(
                 pass
 
 
+def atomic_write_at(
+    directory_fd: int,
+    name: str,
+    data: bytes,
+    previous_stat: os.stat_result | None,
+    *,
+    expected_data: bytes,
+    expected_stat: os.stat_result | None,
+    preimage_code: str,
+    invalid_code: str,
+) -> None:
+    if not name or name in {".", ".."} or "/" in name:
+        raise InstallError(invalid_code)
+    mode = stat.S_IMODE(previous_stat.st_mode) if previous_stat else 0o600
+    uid = previous_stat.st_uid if previous_stat else os.geteuid()
+    gid = previous_stat.st_gid if previous_stat else os.getegid()
+    flags = os.O_WRONLY | os.O_CREAT | os.O_EXCL
+    if hasattr(os, "O_NOFOLLOW"):
+        flags |= os.O_NOFOLLOW
+    fd = -1
+    temp_name = ""
+    try:
+        for _ in range(32):
+            temp_name = f".{name}.{os.urandom(16).hex()}"
+            try:
+                fd = os.open(temp_name, flags, 0o600, dir_fd=directory_fd)
+                break
+            except FileExistsError:
+                temp_name = ""
+        if fd < 0:
+            raise InstallError("atomic-write-failed")
+        current = os.fstat(fd)
+        if (
+            not stat.S_ISREG(current.st_mode)
+            or current.st_nlink != 1
+            or current.st_uid != os.geteuid()
+            or stat.S_IMODE(current.st_mode) & 0o077
+        ):
+            raise InstallError("atomic-temp-unsafe")
+        with os.fdopen(fd, "wb", closefd=True) as stream:
+            fd = -1
+            stream.write(data)
+            stream.flush()
+            os.fsync(stream.fileno())
+            if current.st_uid != uid or current.st_gid != gid:
+                os.fchown(stream.fileno(), uid, gid)
+            os.fchmod(stream.fileno(), mode)
+            final_temp = os.fstat(stream.fileno())
+            if (
+                not stat.S_ISREG(final_temp.st_mode)
+                or final_temp.st_nlink != 1
+                or final_temp.st_uid != uid
+                or final_temp.st_gid != gid
+                or stat.S_IMODE(final_temp.st_mode) != mode
+            ):
+                raise InstallError("atomic-temp-unsafe")
+            os.fsync(stream.fileno())
+        assert_preimage_at(
+            directory_fd,
+            name,
+            expected_data,
+            expected_stat,
+            code=preimage_code,
+            invalid_code=invalid_code,
+            max_bytes=MAX_JOURNAL_BYTES,
+        )
+        os.replace(
+            temp_name,
+            name,
+            src_dir_fd=directory_fd,
+            dst_dir_fd=directory_fd,
+        )
+        temp_name = ""
+        fsync_directory_fd(directory_fd, "atomic-write-failed")
+    except InstallError:
+        raise
+    except (OSError, PermissionError):
+        raise InstallError("atomic-write-failed") from None
+    finally:
+        if fd >= 0:
+            os.close(fd)
+        if temp_name:
+            try:
+                os.unlink(temp_name, dir_fd=directory_fd)
+            except OSError:
+                pass
+
+
 def transaction_journal_path(codex_home: Path) -> Path:
     return codex_home / TRANSACTION_DIRECTORY / TRANSACTION_JOURNAL
 
 
-def ensure_private_transaction_directory(path: Path, *, create: bool) -> bool:
+def assert_private_transaction_directory_fd(directory_fd: int) -> None:
     try:
-        directory_stat = path.lstat()
-    except FileNotFoundError:
-        if not create:
-            return False
-        try:
-            path.mkdir(mode=0o700)
-            fsync_directory(path.parent, "transaction-directory-create-failed")
-            directory_stat = path.lstat()
-        except FileExistsError:
-            directory_stat = path.lstat()
-        except OSError:
-            raise InstallError("transaction-directory-create-failed") from None
+        directory_stat = os.fstat(directory_fd)
     except OSError:
         raise InstallError("transaction-directory-invalid") from None
     if (
         not stat.S_ISDIR(directory_stat.st_mode)
-        or path.is_symlink()
         or directory_stat.st_uid != os.geteuid()
         or stat.S_IMODE(directory_stat.st_mode) & 0o077
+        or directory_stat.st_nlink != 2
     ):
         raise InstallError("transaction-directory-unsafe")
-    return True
+
+
+def open_private_transaction_directory(path: Path, *, create: bool) -> int | None:
+    flags = os.O_RDONLY | os.O_DIRECTORY
+    if hasattr(os, "O_NOFOLLOW"):
+        flags |= os.O_NOFOLLOW
+    try:
+        parent_fd = os.open(path.parent, flags)
+    except FileNotFoundError:
+        if not create:
+            return None
+        raise InstallError("transaction-directory-invalid") from None
+    except OSError:
+        raise InstallError("transaction-directory-invalid") from None
+    directory_fd = -1
+    try:
+        try:
+            directory_fd = os.open(path.name, flags, dir_fd=parent_fd)
+        except FileNotFoundError:
+            if not create:
+                return None
+            try:
+                os.mkdir(path.name, mode=0o700, dir_fd=parent_fd)
+                fsync_directory_fd(parent_fd, "transaction-directory-create-failed")
+            except FileExistsError:
+                pass
+            except OSError:
+                raise InstallError("transaction-directory-create-failed") from None
+            try:
+                directory_fd = os.open(path.name, flags, dir_fd=parent_fd)
+            except OSError:
+                raise InstallError("transaction-directory-unsafe") from None
+        except OSError:
+            raise InstallError("transaction-directory-unsafe") from None
+        assert_private_transaction_directory_fd(directory_fd)
+        result = directory_fd
+        directory_fd = -1
+        return result
+    finally:
+        if directory_fd >= 0:
+            os.close(directory_fd)
+        os.close(parent_fd)
+
+
+def assert_transaction_directory_binding(directory_fd: int, path: Path) -> None:
+    assert_private_transaction_directory_fd(directory_fd)
+    rebound_fd = open_private_transaction_directory(path, create=False)
+    if rebound_fd is None:
+        raise InstallError("transaction-directory-unsafe")
+    try:
+        original_stat = os.fstat(directory_fd)
+        rebound_stat = os.fstat(rebound_fd)
+        if (
+            original_stat.st_dev != rebound_stat.st_dev
+            or original_stat.st_ino != rebound_stat.st_ino
+        ):
+            raise InstallError("transaction-directory-unsafe")
+    except OSError:
+        raise InstallError("transaction-directory-invalid") from None
+    finally:
+        os.close(rebound_fd)
 
 
 def file_image(data: bytes | None, file_stat: os.stat_result | None) -> dict[str, Any]:
@@ -1227,41 +1386,55 @@ def validate_transaction_document(
 
 def write_transaction_journal(
     plan: dict[str, Any],
-) -> tuple[dict[str, Any], Path, bytes, os.stat_result]:
+) -> tuple[dict[str, Any], Path, bytes, os.stat_result, int]:
     journal_path = transaction_journal_path(plan["codex_home"])
-    ensure_private_transaction_directory(journal_path.parent, create=True)
+    transaction_fd = open_private_transaction_directory(
+        journal_path.parent,
+        create=True,
+    )
+    if transaction_fd is None:
+        raise InstallError("transaction-directory-create-failed")
     try:
         staging_token = os.urandom(16).hex()
     except OSError:
+        os.close(transaction_fd)
         raise InstallError("transaction-journal-write-failed") from None
     plan["config_staging"] = str(
         journal_path.parent / f"{CONFIG_STAGING_PREFIX}.{staging_token}"
     )
-    document = transaction_document(plan)
-    raw, journal_stat = persist_transaction_journal(
-        document,
-        journal_path,
-        expected_raw=b"",
-        expected_stat=None,
-    )
-    return document, journal_path, raw, journal_stat
+    try:
+        document = transaction_document(plan)
+        raw, journal_stat = persist_transaction_journal(
+            document,
+            journal_path,
+            transaction_fd,
+            expected_raw=b"",
+            expected_stat=None,
+        )
+        return document, journal_path, raw, journal_stat, transaction_fd
+    except InstallError:
+        os.close(transaction_fd)
+        raise
 
 
 def persist_transaction_journal(
     document: dict[str, Any],
     journal_path: Path,
+    transaction_fd: int,
     *,
     expected_raw: bytes,
     expected_stat: os.stat_result | None,
 ) -> tuple[bytes, os.stat_result]:
+    assert_transaction_directory_binding(transaction_fd, journal_path.parent)
     validate_transaction_document(document, journal_path.parent.parent)
     raw = (json.dumps(document, sort_keys=True, separators=(",", ":")) + "\n").encode(
         "utf-8"
     )
     if len(raw) > MAX_JOURNAL_BYTES:
         raise InstallError("transaction-journal-too-large")
-    atomic_write(
-        journal_path,
+    atomic_write_at(
+        transaction_fd,
+        journal_path.name,
         raw,
         expected_stat,
         expected_data=expected_raw,
@@ -1269,8 +1442,9 @@ def persist_transaction_journal(
         preimage_code="transaction-journal-conflict",
         invalid_code="transaction-journal-unsafe",
     )
-    persisted, journal_stat = read_regular_snapshot(
-        journal_path,
+    persisted, journal_stat = read_regular_snapshot_at(
+        transaction_fd,
+        journal_path.name,
         invalid_code="transaction-journal-unsafe",
         unreadable_code="transaction-journal-unreadable",
         oversized_code="transaction-journal-too-large",
@@ -1452,35 +1626,54 @@ def plan_operation(
 
 def load_transaction_journal(
     codex_home: Path,
-) -> tuple[dict[str, Any], Path, bytes, os.stat_result] | None:
+    transaction_fd: int | None = None,
+) -> tuple[dict[str, Any], Path, bytes, os.stat_result, int] | None:
     journal_path = transaction_journal_path(codex_home)
-    if not ensure_private_transaction_directory(journal_path.parent, create=False):
-        return None
-    raw, journal_stat = read_regular_snapshot(
-        journal_path,
-        invalid_code="transaction-journal-unsafe",
-        unreadable_code="transaction-journal-unreadable",
-        oversized_code="transaction-journal-too-large",
-        max_bytes=MAX_JOURNAL_BYTES,
-    )
-    if journal_stat is None:
-        return None
-    if (
-        journal_stat.st_uid != os.geteuid()
-        or journal_stat.st_nlink != 1
-        or stat.S_IMODE(journal_stat.st_mode) != 0o600
-    ):
-        raise InstallError("transaction-journal-unsafe")
+    if transaction_fd is None:
+        loaded_fd = open_private_transaction_directory(
+            journal_path.parent,
+            create=False,
+        )
+        if loaded_fd is None:
+            return None
+    else:
+        assert_transaction_directory_binding(transaction_fd, journal_path.parent)
+        try:
+            loaded_fd = os.dup(transaction_fd)
+        except OSError:
+            raise InstallError("transaction-directory-invalid") from None
     try:
-        document = json.loads(raw.decode("utf-8"))
-    except (UnicodeError, json.JSONDecodeError):
-        raise InstallError("transaction-journal-invalid") from None
-    return (
-        validate_transaction_document(document, codex_home),
-        journal_path,
-        raw,
-        journal_stat,
-    )
+        raw, journal_stat = read_regular_snapshot_at(
+            loaded_fd,
+            journal_path.name,
+            invalid_code="transaction-journal-unsafe",
+            unreadable_code="transaction-journal-unreadable",
+            oversized_code="transaction-journal-too-large",
+            max_bytes=MAX_JOURNAL_BYTES,
+        )
+        if journal_stat is None:
+            os.close(loaded_fd)
+            return None
+        if (
+            journal_stat.st_uid != os.geteuid()
+            or journal_stat.st_nlink != 1
+            or stat.S_IMODE(journal_stat.st_mode) != 0o600
+        ):
+            raise InstallError("transaction-journal-unsafe")
+        try:
+            document = json.loads(raw.decode("utf-8"))
+        except (UnicodeError, json.JSONDecodeError):
+            raise InstallError("transaction-journal-invalid") from None
+        return (
+            validate_transaction_document(document, codex_home),
+            journal_path,
+            raw,
+            journal_stat,
+            loaded_fd,
+        )
+    except InstallError:
+        os.close(loaded_fd)
+        raise
 
 
 def uses_config_exchange(document: dict[str, Any]) -> bool:
@@ -1523,19 +1716,21 @@ def exact_image_match(
 
 def open_config_exchange_directories(
     document: dict[str, Any],
+    authenticated_transaction_fd: int,
 ) -> tuple[int, int]:
+    assert_transaction_directory_binding(
+        authenticated_transaction_fd,
+        Path(document["config_exchange"]["prepared"]).parent,
+    )
     home_fd = open_directory_fd(
         Path(document["paths"]["config"]).parent,
         "transaction-config-conflict",
     )
     try:
-        transaction_fd = open_directory_fd(
-            Path(document["config_exchange"]["prepared"]).parent,
-            "transaction-config-conflict",
-        )
-    except InstallError:
+        transaction_fd = os.dup(authenticated_transaction_fd)
+    except OSError:
         os.close(home_fd)
-        raise
+        raise InstallError("transaction-config-conflict") from None
     return home_fd, transaction_fd
 
 
@@ -1777,8 +1972,12 @@ def displace_and_publish_config(
     journal_path: Path,
     journal_raw: bytes,
     journal_stat: os.stat_result,
+    authenticated_transaction_fd: int,
 ) -> tuple[bytes, os.stat_result]:
-    home_fd, transaction_fd = open_config_exchange_directories(document)
+    home_fd, transaction_fd = open_config_exchange_directories(
+        document,
+        authenticated_transaction_fd,
+    )
     try:
         create_prepared_config(plan, document, transaction_fd)
         if plan["config_stat"] is not None:
@@ -1829,6 +2028,7 @@ def displace_and_publish_config(
         journal_raw, journal_stat = persist_transaction_journal(
             document,
             journal_path,
+            transaction_fd,
             expected_raw=journal_raw,
             expected_stat=journal_stat,
         )
@@ -1853,6 +2053,7 @@ def displace_and_publish_config(
         journal_raw, journal_stat = persist_transaction_journal(
             document,
             journal_path,
+            transaction_fd,
             expected_raw=journal_raw,
             expected_stat=journal_stat,
         )
@@ -2058,7 +2259,6 @@ def remove_desired_exchange_artifact(
 
 
 def resolve_prepared_config(
-    home_fd: int,
     transaction_fd: int,
     desired: dict[str, Any],
 ) -> bool:
@@ -2079,13 +2279,12 @@ def resolve_prepared_config(
             "transaction-config-conflict",
         )
         return False
-    preserve_exchange_artifact(
-        home_fd,
+    retain_exchange_artifact(
         transaction_fd,
         CONFIG_PREPARED,
         prepared_data,
         prepared_stat,
-        "writer",
+        "incomplete-staging",
     )
     return True
 
@@ -2281,8 +2480,14 @@ def retain_v3_exchange_conflict(
     return True
 
 
-def restore_config_exchange_preimage_v3(document: dict[str, Any]) -> bool:
-    home_fd, transaction_fd = open_config_exchange_directories(document)
+def restore_config_exchange_preimage_v3(
+    document: dict[str, Any],
+    authenticated_transaction_fd: int,
+) -> bool:
+    home_fd, transaction_fd = open_config_exchange_directories(
+        document,
+        authenticated_transaction_fd,
+    )
     try:
         discard_config_staging_artifact(document, transaction_fd)
         preimage = document["preimages"]["config"]
@@ -2295,7 +2500,14 @@ def restore_config_exchange_preimage_v3(document: dict[str, Any]) -> bool:
         observed_data, observed_stat = exchange_snapshot(
             transaction_fd, CONFIG_OBSERVED
         )
-        current_data, current_stat = exchange_snapshot(home_fd, "config.toml")
+        try:
+            current_data, current_stat = exchange_snapshot(home_fd, "config.toml")
+        except InstallError:
+            return retain_v3_exchange_conflict(
+                document,
+                home_fd,
+                transaction_fd,
+            )
 
         if (
             prepared_stat is not None
@@ -2441,10 +2653,21 @@ def restore_config_exchange_preimage_v3(document: dict[str, Any]) -> bool:
         os.close(home_fd)
 
 
-def restore_config_exchange_preimage(document: dict[str, Any]) -> bool:
+def restore_config_exchange_preimage(
+    document: dict[str, Any],
+    authenticated_transaction_fd: int,
+) -> str | None:
     if uses_publication_provenance(document):
-        return restore_config_exchange_preimage_v3(document)
-    home_fd, transaction_fd = open_config_exchange_directories(document)
+        if restore_config_exchange_preimage_v3(
+            document,
+            authenticated_transaction_fd,
+        ):
+            return "config-writer-conflict"
+        return None
+    home_fd, transaction_fd = open_config_exchange_directories(
+        document,
+        authenticated_transaction_fd,
+    )
     try:
         writer_conflict = repair_v2_preimage_link_transitions(
             document,
@@ -2454,6 +2677,7 @@ def restore_config_exchange_preimage(document: dict[str, Any]) -> bool:
         preimage = document["preimages"]["config"]
         desired = document["desired"]["config"]
         desired_observed = False
+        incomplete_staging = False
 
         observed_data, observed_stat = exchange_snapshot(
             transaction_fd, CONFIG_OBSERVED
@@ -2556,8 +2780,8 @@ def restore_config_exchange_preimage(document: dict[str, Any]) -> bool:
                             )
                             writer_conflict = True
 
-        if resolve_prepared_config(home_fd, transaction_fd, desired):
-            writer_conflict = True
+        if resolve_prepared_config(transaction_fd, desired):
+            incomplete_staging = True
 
         if desired_observed:
             if remove_desired_exchange_artifact(
@@ -2585,7 +2809,9 @@ def restore_config_exchange_preimage(document: dict[str, Any]) -> bool:
 
         if writer_conflict:
             retain_displaced_preimage(transaction_fd, preimage)
-            return True
+            if incomplete_staging:
+                return "config-incomplete-staging"
+            return "config-writer-conflict"
 
         displaced_data, displaced_stat = exchange_snapshot(
             transaction_fd, CONFIG_DISPLACED
@@ -2611,25 +2837,44 @@ def restore_config_exchange_preimage(document: dict[str, Any]) -> bool:
                 CONFIG_DISPLACED,
             ):
                 retain_displaced_preimage(transaction_fd, preimage)
-                return True
+                if incomplete_staging:
+                    return "config-incomplete-staging"
+                return "config-writer-conflict"
         elif current_stat is not None:
             retain_displaced_preimage(transaction_fd, preimage)
-            return True
+            if incomplete_staging:
+                return "config-incomplete-staging"
+            return "config-writer-conflict"
 
         final_data, final_stat = exchange_snapshot(home_fd, "config.toml")
         if not exact_image_match(final_data, final_stat, preimage):
             raise InstallError("transaction-config-conflict")
-        return False
+        if incomplete_staging:
+            return "config-incomplete-staging"
+        return None
     finally:
         os.close(transaction_fd)
         os.close(home_fd)
 
 
-def finalize_config_exchange_v3(document: dict[str, Any]) -> bool:
-    home_fd, transaction_fd = open_config_exchange_directories(document)
+def finalize_config_exchange_v3(
+    document: dict[str, Any],
+    authenticated_transaction_fd: int,
+) -> bool:
+    home_fd, transaction_fd = open_config_exchange_directories(
+        document,
+        authenticated_transaction_fd,
+    )
     try:
         discard_config_staging_artifact(document, transaction_fd)
-        current_data, current_stat = exchange_snapshot(home_fd, "config.toml")
+        try:
+            current_data, current_stat = exchange_snapshot(home_fd, "config.toml")
+        except InstallError:
+            return retain_v3_exchange_conflict(
+                document,
+                home_fd,
+                transaction_fd,
+            )
         prepared_data, prepared_stat = exchange_snapshot(
             transaction_fd, CONFIG_PREPARED
         )
@@ -2700,6 +2945,25 @@ def finalize_config_exchange_v3(document: dict[str, Any]) -> bool:
                     home_fd,
                     transaction_fd,
                 )
+        assert_transaction_directory_binding(
+            transaction_fd,
+            Path(document["config_exchange"]["prepared"]).parent,
+        )
+        try:
+            commit_data, commit_stat = exchange_snapshot(home_fd, "config.toml")
+        except InstallError:
+            return retain_v3_exchange_conflict(
+                document,
+                home_fd,
+                transaction_fd,
+            )
+        if not publication_snapshot_matches(document, commit_data, commit_stat):
+            return retain_v3_exchange_conflict(
+                document,
+                home_fd,
+                transaction_fd,
+            )
+        if displaced_stat is not None:
             unlink_exchange_artifact(
                 transaction_fd,
                 CONFIG_DISPLACED,
@@ -2711,12 +2975,23 @@ def finalize_config_exchange_v3(document: dict[str, Any]) -> bool:
         os.close(home_fd)
 
 
-def finalize_config_exchange(document: dict[str, Any]) -> bool:
+def finalize_config_exchange(
+    document: dict[str, Any],
+    authenticated_transaction_fd: int,
+) -> str | None:
     if not uses_config_exchange(document):
-        return False
+        return None
     if uses_publication_provenance(document):
-        return finalize_config_exchange_v3(document)
-    home_fd, transaction_fd = open_config_exchange_directories(document)
+        if finalize_config_exchange_v3(
+            document,
+            authenticated_transaction_fd,
+        ):
+            return "config-writer-conflict"
+        return None
+    home_fd, transaction_fd = open_config_exchange_directories(
+        document,
+        authenticated_transaction_fd,
+    )
     try:
         writer_conflict = repair_v2_preimage_link_transitions(
             document,
@@ -2725,6 +3000,7 @@ def finalize_config_exchange(document: dict[str, Any]) -> bool:
         )
         desired = document["desired"]["config"]
         preimage = document["preimages"]["config"]
+        incomplete_staging = False
         current_data, current_stat = exchange_snapshot(home_fd, "config.toml")
         if not image_matches_snapshot(
             current_data,
@@ -2758,11 +3034,13 @@ def finalize_config_exchange(document: dict[str, Any]) -> bool:
                     "writer",
                 )
                 writer_conflict = True
-        if resolve_prepared_config(home_fd, transaction_fd, desired):
-            writer_conflict = True
+        if resolve_prepared_config(transaction_fd, desired):
+            incomplete_staging = True
         if writer_conflict:
             retain_displaced_preimage(transaction_fd, preimage)
-            return True
+            if incomplete_staging:
+                return "config-incomplete-staging"
+            return "config-writer-conflict"
         displaced_data, displaced_stat = exchange_snapshot(
             transaction_fd, CONFIG_DISPLACED
         )
@@ -2778,7 +3056,9 @@ def finalize_config_exchange(document: dict[str, Any]) -> bool:
                 CONFIG_DISPLACED,
                 "transaction-config-conflict",
             )
-        return False
+        if incomplete_staging:
+            return "config-incomplete-staging"
+        return None
     finally:
         os.close(transaction_fd)
         os.close(home_fd)
@@ -2842,8 +3122,14 @@ def validate_transaction_archive_directory(document: dict[str, Any]) -> None:
         raise InstallError("transaction-archive-conflict")
 
 
-def config_exchange_converged_v3(document: dict[str, Any]) -> bool:
-    home_fd, transaction_fd = open_config_exchange_directories(document)
+def config_exchange_converged_v3(
+    document: dict[str, Any],
+    authenticated_transaction_fd: int,
+) -> bool:
+    home_fd, transaction_fd = open_config_exchange_directories(
+        document,
+        authenticated_transaction_fd,
+    )
     try:
         try:
             staging_stat = os.stat(
@@ -2859,7 +3145,10 @@ def config_exchange_converged_v3(document: dict[str, Any]) -> bool:
             raise InstallError("transaction-config-conflict")
         _, prepared_stat = exchange_snapshot(transaction_fd, CONFIG_PREPARED)
         _, observed_stat = exchange_snapshot(transaction_fd, CONFIG_OBSERVED)
-        current_data, current_stat = exchange_snapshot(home_fd, "config.toml")
+        try:
+            current_data, current_stat = exchange_snapshot(home_fd, "config.toml")
+        except InstallError:
+            return False
         return (
             staging_stat is None
             and prepared_stat is None
@@ -2875,7 +3164,10 @@ def config_exchange_converged_v3(document: dict[str, Any]) -> bool:
         os.close(home_fd)
 
 
-def transaction_converged(document: dict[str, Any]) -> bool:
+def transaction_converged(
+    document: dict[str, Any],
+    authenticated_transaction_fd: int,
+) -> bool:
     validate_transaction_archive_directory(document)
     paths = document["paths"]
     desired = document["desired"]
@@ -2896,7 +3188,8 @@ def transaction_converged(document: dict[str, Any]) -> bool:
         ):
             return False
     if uses_publication_provenance(document) and not config_exchange_converged_v3(
-        document
+        document,
+        authenticated_transaction_fd,
     ):
         return False
     return all(archive_position(record) == "desired" for record in document["archives"])
@@ -2934,6 +3227,33 @@ def durable_unlink(
     try:
         path.unlink()
         fsync_directory(path.parent, code)
+    except OSError:
+        raise InstallError(code) from None
+
+
+def durable_unlink_at(
+    directory_fd: int,
+    directory_path: Path,
+    name: str,
+    expected_data: bytes,
+    expected_stat: os.stat_result,
+    *,
+    code: str,
+    max_bytes: int = MAX_PREIMAGE_BYTES,
+) -> None:
+    assert_transaction_directory_binding(directory_fd, directory_path)
+    assert_preimage_at(
+        directory_fd,
+        name,
+        expected_data,
+        expected_stat,
+        code=code,
+        invalid_code=code,
+        max_bytes=max_bytes,
+    )
+    try:
+        os.unlink(name, dir_fd=directory_fd)
+        fsync_directory_fd(directory_fd, code)
     except OSError:
         raise InstallError(code) from None
 
@@ -2980,7 +3300,10 @@ def remove_transaction_archive_directory(document: dict[str, Any]) -> None:
         raise InstallError("transaction-archive-conflict") from None
 
 
-def restore_transaction_preimages(document: dict[str, Any]) -> bool:
+def restore_transaction_preimages(
+    document: dict[str, Any],
+    authenticated_transaction_fd: int,
+) -> str | None:
     validate_transaction_archive_directory(document)
     paths = document["paths"]
     preimages = document["preimages"]
@@ -3000,9 +3323,12 @@ def restore_transaction_preimages(document: dict[str, Any]) -> bool:
         for key in target_keys
     }
     archive_positions = [archive_position(record) for record in document["archives"]]
-    config_writer_conflict = False
+    config_error: str | None = None
     if uses_config_exchange(document):
-        config_writer_conflict = restore_config_exchange_preimage(document)
+        config_error = restore_config_exchange_preimage(
+            document,
+            authenticated_transaction_fd,
+        )
     elif positions["config"] == "desired":
         restore_file_preimage(
             Path(paths["config"]),
@@ -3046,27 +3372,32 @@ def restore_transaction_preimages(document: dict[str, Any]) -> bool:
             raise InstallError("rollback-failed")
     if any(archive_position(record) != "preimage" for record in document["archives"]):
         raise InstallError("rollback-failed")
-    return config_writer_conflict
+    return config_error
 
 
 def recover_unfinished_transaction(codex_home: Path) -> bool:
     loaded = load_transaction_journal(codex_home)
     if loaded is None:
         return False
-    document, journal_path, raw, journal_stat = loaded
-    if transaction_converged(document):
-        config_writer_conflict = finalize_config_exchange(document)
-    else:
-        config_writer_conflict = restore_transaction_preimages(document)
-    durable_unlink(
-        journal_path,
-        raw,
-        journal_stat,
-        code="transaction-journal-remove-failed",
-        max_bytes=MAX_JOURNAL_BYTES,
-    )
-    if config_writer_conflict:
-        raise InstallError("config-writer-conflict")
+    document, journal_path, raw, journal_stat, transaction_fd = loaded
+    try:
+        if transaction_converged(document, transaction_fd):
+            config_error = finalize_config_exchange(document, transaction_fd)
+        else:
+            config_error = restore_transaction_preimages(document, transaction_fd)
+        durable_unlink_at(
+            transaction_fd,
+            journal_path.parent,
+            journal_path.name,
+            raw,
+            journal_stat,
+            code="transaction-journal-remove-failed",
+            max_bytes=MAX_JOURNAL_BYTES,
+        )
+    finally:
+        os.close(transaction_fd)
+    if config_error is not None:
+        raise InstallError(config_error)
     return True
 
 
@@ -3129,8 +3460,9 @@ def move_archives(
 
 
 def apply_plan(plan: dict[str, Any]) -> None:
+    transaction_fd = -1
     try:
-        document, journal_path, journal_raw, journal_stat = (
+        document, journal_path, journal_raw, journal_stat, transaction_fd = (
             write_transaction_journal(plan)
         )
         assert_preimage(
@@ -3147,6 +3479,7 @@ def apply_plan(plan: dict[str, Any]) -> None:
                 journal_path,
                 journal_raw,
                 journal_stat,
+                transaction_fd,
             )
         if plan["candidates"]:
             move_archives(plan["candidates"], plan["archive_dir"])
@@ -3171,30 +3504,46 @@ def apply_plan(plan: dict[str, Any]) -> None:
                     preimage_code="receipt-preimage-drift",
                     invalid_code="receipt-path-invalid",
                 )
-        if not transaction_converged(document):
+        if not transaction_converged(document, transaction_fd):
             raise InstallError("transaction-commit-unproven")
-        config_writer_conflict = finalize_config_exchange(document)
-        durable_unlink(
-            journal_path,
+        config_error = finalize_config_exchange(document, transaction_fd)
+        durable_unlink_at(
+            transaction_fd,
+            journal_path.parent,
+            journal_path.name,
             journal_raw,
             journal_stat,
             code="transaction-journal-remove-failed",
             max_bytes=MAX_JOURNAL_BYTES,
         )
-        if config_writer_conflict:
-            raise InstallError("config-writer-conflict")
+        if config_error is not None:
+            raise InstallError(config_error)
     except InstallError as error:
-        config_writer_conflict = False
+        config_error: str | None = None
         try:
-            loaded = load_transaction_journal(plan["codex_home"])
+            loaded = load_transaction_journal(
+                plan["codex_home"],
+                transaction_fd if transaction_fd >= 0 else None,
+            )
             if loaded is None:
                 raise error
-            document, journal_path, journal_raw, journal_stat = loaded
-            if transaction_converged(document):
-                raise error
-            config_writer_conflict = restore_transaction_preimages(document)
-            durable_unlink(
+            (
+                document,
                 journal_path,
+                journal_raw,
+                journal_stat,
+                recovery_fd,
+            ) = loaded
+            if transaction_fd >= 0:
+                os.close(transaction_fd)
+            transaction_fd = recovery_fd
+            if transaction_converged(document, transaction_fd):
+                raise error
+            config_error = restore_transaction_preimages(document, transaction_fd)
+            durable_unlink_at(
+                transaction_fd,
+                journal_path.parent,
+                journal_path.name,
                 journal_raw,
                 journal_stat,
                 code="transaction-journal-remove-failed",
@@ -3204,11 +3553,17 @@ def apply_plan(plan: dict[str, Any]) -> None:
             if rollback_error is error:
                 raise error
             raise InstallError("rollback-failed") from None
-        if config_writer_conflict:
-            if error.code == "config-publish-conflict":
+        if config_error is not None:
+            if (
+                config_error == "config-writer-conflict"
+                and error.code == "config-publish-conflict"
+            ):
                 raise error
-            raise InstallError("config-writer-conflict")
+            raise InstallError(config_error)
         raise error
+    finally:
+        if transaction_fd >= 0:
+            os.close(transaction_fd)
 
 
 def emit(
@@ -3278,7 +3633,9 @@ def main() -> int:
         if args.dry_run:
             if codex_home.exists() and (codex_home.is_symlink() or not codex_home.is_dir()):
                 raise InstallError("codex-home-invalid")
-            if load_transaction_journal(codex_home) is not None:
+            loaded_transaction = load_transaction_journal(codex_home)
+            if loaded_transaction is not None:
+                os.close(loaded_transaction[4])
                 raise InstallError("transaction-recovery-required")
             plan = plan_operation(
                 operation=args.operation,

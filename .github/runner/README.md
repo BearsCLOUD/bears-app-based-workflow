@@ -4,11 +4,17 @@ These files belong to the repository-owned CI/CD boundary and are not plugin age
 
 ## Module map
 
-- `deploy_plugin.py` is the state-mutating autoCD gateway. Its only entry point is `main`. It owns fixed Git/Codex subprocesses, deployment state, sanitized best-effort Sentry delivery, and the unchanged public deployment receipt. The file remains cohesive above 400 lines because Sentry reporting is required to stay inside the state-mutating gateway rather than a second executable or import boundary. Runtime risks are partial marketplace mutation, receipt corruption, and unavailable telemetry. The owning automation jobs are `ci` and `cd` in `plugin-ci-cd.yml`.
+- `deploy_plugin.py` is the state-mutating autoCD gateway. Its only entry point is `main`. It owns fixed Git/Codex subprocesses, deployment state, the durable promotion-intent journal, sanitized best-effort Sentry delivery, and the unchanged public deployment receipt. The file remains cohesive above 400 lines because recovery and Sentry reporting must stay inside the state-mutating gateway rather than a second executable or import boundary. Runtime risks are partial marketplace mutation, receipt corruption, and unavailable telemetry. The owning automation jobs are `ci` and `cd` in `plugin-ci-cd.yml`.
 - `test_deploy_plugin_sentry.py` provides local, stub-only event and transport coverage inside autoCI. It never opens a live Sentry connection and never creates a synthetic live event.
 - `materialize_sentry_dsn.py` is a root-only atomic writer. It accepts one DSN only on inherited file descriptor 3, writes the fixed target, emits no value, and starts no child process.
 - `install-sentry-materializer.sh` installs only that writer as immutable root-owned code. It does not create an identity, obtain a DSN, or execute the writer.
 - `install-runner.sh` owns the isolated GitHub runner and the sole runner-to-deploy sudo boundary. The runner has no materializer sudo grant and cannot traverse `/home/ai1`.
+
+## Durable promotion recovery
+
+The gateway atomically persists and syncs a promotion-intent journal before activation, then clears it only after the requested revision, the previous receipted revision, or the disabled state is verified. A later invocation recovers an interrupted promotion before ordinary receipt handling by converging to those outcomes in that order.
+
+The operator-visible risk is an interrupted or partially mutated marketplace. Recovery fails closed: if convergence cannot be proven, promotion stops with a recovery failure rather than advancing the receipt or enabling an unverified plugin, and operator repair is required before another promotion can safely proceed.
 
 ## Sentry failure boundary
 

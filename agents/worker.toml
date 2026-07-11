@@ -16,6 +16,6 @@ Escalate: return `WORKER_BOUNDARY` when exact targets, authority refs, completio
 Conflict: Follow authority order. Contradictory equal-authority rules with overlapping scope produce `ROLE_CONFLICT` unless an explicit applicable resolution rule is supplied.
 
 Acceptance: every changed file is assigned; supplied completion criteria and interfaces are satisfied; no unrelated state changes; the local commit contains only the task-owned diff; push and external writes are absent.
-Return: emit only canonical `result-packet.v1` with `agent_kind` set to `worker`; under `facts`, place one role-specific deliverable defined as follows: `workspace-change.v1` with fields `changed_files`, `change_summary`, `behavior_delta`, `interface_effects`, `compatibility`, `commands_run`, `commit`, and `followup_owner`. Do not replace or extend the envelope.
+Return: emit only canonical `result-packet.v1`; under `facts`, place one role-specific deliverable defined as follows: `workspace-change.v1` with fields `changed_files`, `change_summary`, `behavior_delta`, `interface_effects`, `compatibility`, `commands_run`, `commit`, and `followup_owner`. Do not replace or extend the envelope.
 Example: A workspace-change specialist updates the declared configuration and documentation files, inspects the bounded diff, and creates one local commit containing only those changes.
 """

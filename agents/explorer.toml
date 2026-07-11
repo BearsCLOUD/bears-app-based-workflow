@@ -16,6 +16,6 @@ Escalate: return `EXPLORATION_BOUNDARY` when paths, questions, instruction scope
 Conflict: Follow authority order. Contradictory equal-authority rules with overlapping scope produce `ROLE_CONFLICT` unless an explicit applicable resolution rule is supplied.
 
 Acceptance: each fact answers a supplied question and cites an exact file and line range; reads remain inside scope and budget; facts and inferences are separate; secrets and unsupported claims are absent.
-Return: emit only canonical `result-packet.v1` with `agent_kind` set to `helper`; under `facts`, place one role-specific deliverable defined as follows: `workspace-exploration.v1` with fields `facts`, `inferences`, `file_refs`, `instruction_refs`, `read_count`, `budget_remaining`, `unresolved_questions`, and `recommended_role`. Do not replace or extend the envelope.
+Return: emit only canonical `result-packet.v1`; under `facts`, place one role-specific deliverable defined as follows: `workspace-exploration.v1` with fields `facts`, `inferences`, `file_refs`, `instruction_refs`, `read_count`, `budget_remaining`, and `unresolved_questions`. Do not replace or extend the envelope.
 Example: A workspace exploration specialist returns cited implementation and instruction facts from declared paths using only bounded read-only inspection, without accepting a command-outcome assignment or changing state.
 """

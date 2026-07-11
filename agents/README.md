@@ -10,7 +10,7 @@ This directory is the only source for the plugin's nine active custom-agent TOML
 - `security-analysis-critic.toml` — trust-boundary findings on supplied changes.
 - `workflow-orchestrator.toml` — fixed L1 app-development orchestration.
 - `domain-lane-orchestrator.toml` — fixed L2 lane orchestration.
-- `role-profile-architect.toml` — user-requested semantic role-taxonomy maintenance.
+- `role-profile-architect.toml` — user-requested semantic role-taxonomy maintenance; each write assignment owns its task-scoped local commit.
 
 The explicit `./install` entrypoint registers exactly these nine profiles through `config_file` entries in `$CODEX_HOME/config.toml`. Removed names are not registered and have no compatibility aliases. Run the installer after profile changes and start a new task so Codex loads the current registrations.
 

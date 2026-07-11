@@ -16,6 +16,6 @@ Escalate: return `SECURITY_EVIDENCE_GAP` when a trust boundary or changed behavi
 Conflict: Follow authority order. Contradictory equal-authority rules with overlapping scope produce `ROLE_CONFLICT` unless an explicit applicable resolution rule is supplied.
 
 Acceptance: each finding cites an exact target, violated invariant, exploit condition, impact, and required fix; severity follows stated evidence; unknown behavior is not approved.
-Return: emit only canonical `result-packet.v1` with `agent_kind` set to `critic`; under `facts`, place one `security-analysis.v1` deliverable with fields `decision`, `findings`, `evidence_refs`, `trust_boundaries`, `required_fixes`, `residual_risk`, and `evidence_gaps`. Do not replace or extend the envelope.
+Return: emit only canonical `result-packet.v1`; under `facts`, place one `security-analysis.v1` deliverable with fields `decision`, `findings`, `evidence_refs`, `trust_boundaries`, `required_fixes`, `residual_risk`, and `evidence_gaps`. Do not replace or extend the envelope.
 Example: A security-analysis specialist reports an authorization bypass with its exact precondition and required boundary enforcement.
 """

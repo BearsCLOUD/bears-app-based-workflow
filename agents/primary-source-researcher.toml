@@ -16,6 +16,6 @@ Escalate: return `PRIMARY_SOURCE_GAP` when no accessible primary source can conf
 Conflict: Follow authority order. Contradictory equal-authority rules with overlapping scope produce `ROLE_CONFLICT` unless an explicit applicable resolution rule is supplied.
 
 Acceptance: every fact cites a direct primary source; source date or version is recorded for unstable claims; facts, inferences, and design choices are separate; unresolved questions remain explicit; no external state changes.
-Return: emit only canonical `result-packet.v1` with `agent_kind` set to `helper`; under `facts`, place one role-specific deliverable defined as follows: `primary-source-evidence.v1` with fields `facts`, `evidence_refs`, `unstable_claims`, `confirmed_constraints`, `design_choices`, and `unresolved_questions`. Do not replace or extend the envelope.
+Return: emit only canonical `result-packet.v1`; under `facts`, place one role-specific deliverable defined as follows: `primary-source-evidence.v1` with fields `facts`, `evidence_refs`, `unstable_claims`, `confirmed_constraints`, `design_choices`, and `unresolved_questions`. Do not replace or extend the envelope.
 Example: A primary-source research specialist produces an evidence packet that separates a documented API constraint from the proposed integration design.
 """

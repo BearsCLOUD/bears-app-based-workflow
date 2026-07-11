@@ -4662,6 +4662,102 @@ def config_exchange_converged_v3(
         os.close(home_fd)
 
 
+def normalize_interrupted_config_publication(
+    document: dict[str, Any],
+    journal_path: Path,
+    journal_raw: bytes,
+    journal_stat: os.stat_result,
+    authenticated_transaction_fd: int,
+) -> tuple[Path, bytes, os.stat_result]:
+    """Journal an authenticated hardlink publication interrupted at publishing."""
+    if not uses_publication_provenance(document):
+        return journal_path, journal_raw, journal_stat
+    publication = document["config_exchange"]["publication"]
+    if publication["phase"] != "publishing":
+        return journal_path, journal_raw, journal_stat
+    home_fd, transaction_fd = open_config_exchange_directories(
+        document,
+        authenticated_transaction_fd,
+    )
+    retained_fd = -1
+    try:
+        try:
+            current_data, current_stat = exchange_snapshot(home_fd, "config.toml")
+        except InstallError:
+            return journal_path, journal_raw, journal_stat
+        if not publication_snapshot_matches(
+            document,
+            current_data,
+            current_stat,
+            link_delta=1,
+        ):
+            return journal_path, journal_raw, journal_stat
+        publication_quarantine = re.compile(
+            r"\.config-publication\.quarantine\.[0-9a-f]{32}"
+        )
+        try:
+            transaction_names = os.listdir(transaction_fd)
+        except OSError:
+            raise InstallError("transaction-config-conflict") from None
+        matching_names = []
+        for name in transaction_names:
+            if publication_quarantine.fullmatch(name) is None:
+                continue
+            try:
+                candidate_stat = os.stat(
+                    name,
+                    dir_fd=transaction_fd,
+                    follow_symlinks=False,
+                )
+            except OSError:
+                raise InstallError("transaction-config-conflict") from None
+            if same_inode(candidate_stat, current_stat):
+                matching_names.append(name)
+        if len(matching_names) != 1:
+            return journal_path, journal_raw, journal_stat
+        retained_fd, retained_data, retained_stat = open_authenticated_regular_at(
+            transaction_fd,
+            matching_names[0],
+            current_data,
+            current_stat,
+            code="transaction-config-conflict",
+        )
+        confirmed_data, confirmed_stat = exchange_snapshot(home_fd, "config.toml")
+        if (
+            not same_inode(retained_stat, confirmed_stat)
+            or not publication_snapshot_matches(
+                document,
+                retained_data,
+                retained_stat,
+                link_delta=1,
+            )
+            or not stable_snapshot_matches(
+                confirmed_data,
+                confirmed_stat,
+                current_data,
+                current_stat,
+            )
+        ):
+            return journal_path, journal_raw, journal_stat
+        publication["phase"] = "published"
+        publication["identity"] = stable_stat_identity(confirmed_stat)
+        normalized_raw, normalized_stat, normalized_path = (
+            persist_transaction_journal(
+                document,
+                journal_path,
+                transaction_fd,
+                expected_raw=journal_raw,
+                expected_stat=journal_stat,
+            )
+        )
+        return normalized_path, normalized_raw, normalized_stat
+    finally:
+        if retained_fd >= 0:
+            os.close(retained_fd)
+        os.close(transaction_fd)
+        os.close(home_fd)
+
+
 def transaction_converged(
     document: dict[str, Any],
     authenticated_transaction_fd: int,
@@ -5078,6 +5174,13 @@ def recover_unfinished_transaction(codex_home: Path) -> bool:
         return False
     document, journal_path, raw, journal_stat, transaction_fd = loaded
     try:
+        journal_path, raw, journal_stat = normalize_interrupted_config_publication(
+            document,
+            journal_path,
+            raw,
+            journal_stat,
+            transaction_fd,
+        )
         converged = transaction_converged(document, transaction_fd)
         if converged:
             config_error = finalize_config_exchange(document, transaction_fd)

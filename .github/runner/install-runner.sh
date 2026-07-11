@@ -102,6 +102,7 @@ IFS=: read -r _ _ ai1_uid ai1_gid _ _ _ < <(/usr/bin/getent passwd ai1)
 import ctypes
 import errno
 import fcntl
+import hashlib
 import hmac
 import json
 import os
@@ -119,9 +120,45 @@ PLUGIN = "bears-app-based-workflow"
 RECEIPT = f"{PLUGIN}.json"
 INTENT = f"{PLUGIN}.promotion-intent.json"
 LOCK = f"{PLUGIN}.lock"
+IMPORT_TOMBSTONE = f"{PLUGIN}.legacy-state-imported.json"
+IMPORT_TOMBSTONE_SCHEMA = "bears-plugin-deploy-state-import.v1"
+LEGACY_RECEIPT_SCHEMA = "bears-plugin-deploy-state.v1"
+DEPLOY_RECEIPT_SCHEMA = "bears-plugin-deploy-state.v2"
+REPOSITORY = "https://github.com/BearsCLOUD/bears-app-based-workflow.git"
+LEGACY_RECEIPT_PATH = f"{LEGACY_STATE_DIR}/{RECEIPT}"
 MAXIMUM = 64 * 1024
 FLAGS = os.O_RDONLY | os.O_DIRECTORY | os.O_CLOEXEC | os.O_NOFOLLOW
 RENAME_NOREPLACE = 1
+RECEIPT_FIELDS = {
+    "schema",
+    "repository",
+    "marketplace",
+    "plugin",
+    "sha",
+    "version",
+    "payload_fingerprint",
+}
+ROLE_RECEIPT_FIELDS = {
+    "role_generation",
+    "role_count",
+    "role_catalog_sha256",
+    "role_receipt_sha256",
+    "role_source_blobs",
+    "role_profiles",
+}
+ROLE_NAMES = (
+    "app-worker",
+    "diagnostic-command-runner",
+    "domain-lane-orchestrator",
+    "explorer",
+    "primary-source-researcher",
+    "role-profile-architect",
+    "runtime-evidence-reader",
+    "security-analysis-critic",
+    "wave-change-critic",
+    "worker",
+    "workflow-orchestrator",
+)
 
 
 def fail(message: str) -> None:
@@ -282,35 +319,25 @@ def read_private(directory: int, name: str, label: str) -> bytes:
         os.close(descriptor)
 
 
-def strict_object(pairs: list[tuple[str, object]]) -> dict[str, object]:
-    value: dict[str, object] = {}
-    for key, item in pairs:
-        if key in value:
-            fail("legacy deployment receipt contains duplicate JSON keys")
-        value[key] = item
-    return value
+def strict_json(payload: bytes, label: str) -> object:
+    def strict_object(pairs: list[tuple[str, object]]) -> dict[str, object]:
+        value: dict[str, object] = {}
+        for key, item in pairs:
+            if key in value:
+                fail(f"{label} contains duplicate JSON keys")
+            value[key] = item
+        return value
 
-
-def validate_legacy_receipt(payload: bytes) -> None:
     try:
-        value = json.loads(payload, object_pairs_hook=strict_object)
+        return json.loads(payload, object_pairs_hook=strict_object)
     except (UnicodeError, json.JSONDecodeError) as exc:
-        fail(f"legacy deployment receipt is malformed: {exc.msg}")
-    fields = {
-        "schema",
-        "repository",
-        "marketplace",
-        "plugin",
-        "sha",
-        "version",
-        "payload_fingerprint",
-    }
+        fail(f"{label} is malformed: {exc}")
+
+
+def validate_receipt_identity(value: object, label: str) -> dict[str, object]:
     if (
         not isinstance(value, dict)
-        or set(value) != fields
-        or value.get("schema") != "bears-plugin-deploy-state.v1"
-        or value.get("repository")
-        != "https://github.com/BearsCLOUD/bears-app-based-workflow.git"
+        or value.get("repository") != REPOSITORY
         or value.get("marketplace") != PLUGIN
         or value.get("plugin") != PLUGIN
         or not isinstance(value.get("sha"), str)
@@ -322,14 +349,187 @@ def validate_legacy_receipt(payload: bytes) -> None:
         or not isinstance(value.get("payload_fingerprint"), str)
         or not re.fullmatch(r"[0-9a-f]{64}", value["payload_fingerprint"])
     ):
-        fail("legacy deployment receipt identity is invalid")
+        fail(f"{label} identity is invalid")
+    return value
 
 
+def validate_legacy_receipt_value(
+    value: object, label: str = "legacy deployment receipt"
+) -> dict[str, object]:
+    receipt = validate_receipt_identity(value, label)
+    if set(receipt) != RECEIPT_FIELDS or receipt.get("schema") != LEGACY_RECEIPT_SCHEMA:
+        fail(f"{label} shape is invalid")
+    return receipt
+
+
+def validate_legacy_receipt(payload: bytes) -> dict[str, object]:
+    return validate_legacy_receipt_value(
+        strict_json(payload, "legacy deployment receipt")
+    )
+
+
+def validate_destination_receipt(payload: bytes) -> dict[str, object]:
+    label = "new deployment receipt"
+    receipt = validate_receipt_identity(strict_json(payload, label), label)
+    schema = receipt.get("schema")
+    if schema == LEGACY_RECEIPT_SCHEMA:
+        if set(receipt) != RECEIPT_FIELDS:
+            fail("new v1 deployment receipt shape is invalid")
+        return receipt
+    if schema != DEPLOY_RECEIPT_SCHEMA or set(receipt) != RECEIPT_FIELDS | ROLE_RECEIPT_FIELDS:
+        fail("new deployment receipt schema or shape is invalid")
+
+    generation = receipt.get("role_generation")
+    blobs = receipt.get("role_source_blobs")
+    profiles = receipt.get("role_profiles")
+    expected_sources = {
+        ".codex-plugin/plugin.json",
+        *(f"agents/{name}.toml" for name in ROLE_NAMES),
+    }
+    if (
+        not isinstance(generation, str)
+        or not re.fullmatch(r"[0-9a-f]{64}", generation)
+        or receipt.get("role_count") != len(ROLE_NAMES)
+        or receipt.get("role_catalog_sha256") != generation
+        or not isinstance(receipt.get("role_receipt_sha256"), str)
+        or not re.fullmatch(r"[0-9a-f]{64}", receipt["role_receipt_sha256"])
+        or not isinstance(blobs, dict)
+        or set(blobs) != expected_sources
+        or not isinstance(profiles, list)
+        or len(profiles) != len(ROLE_NAMES)
+    ):
+        fail("new v2 deployment receipt role identity is invalid")
+    for relative, record in blobs.items():
+        if (
+            not isinstance(record, dict)
+            or set(record) != {"git_oid", "sha256"}
+            or not isinstance(record.get("git_oid"), str)
+            or not re.fullmatch(r"(?:[0-9a-f]{40}|[0-9a-f]{64})", record["git_oid"])
+            or not isinstance(record.get("sha256"), str)
+            or not re.fullmatch(r"[0-9a-f]{64}", record["sha256"])
+        ):
+            fail(f"new v2 deployment receipt role blob is invalid: {relative}")
+    for name, record in zip(ROLE_NAMES, profiles, strict=True):
+        source_record = blobs[f"agents/{name}.toml"]
+        expected_path = f"{STATE_DIR}/role-generations/{generation}/{name}.toml"
+        if (
+            not isinstance(record, dict)
+            or set(record) != {"name", "config_file", "git_oid", "sha256"}
+            or record.get("name") != name
+            or record.get("config_file") != expected_path
+            or record.get("git_oid") != source_record["git_oid"]
+            or record.get("sha256") != source_record["sha256"]
+        ):
+            fail(f"new v2 deployment receipt role profile is invalid: {name}")
+    return receipt
+
+
+def import_tombstone_bytes(
+    source_sha256: str, source_identity: dict[str, object]
+) -> bytes:
+    value = {
+        "schema": IMPORT_TOMBSTONE_SCHEMA,
+        "source_path": LEGACY_RECEIPT_PATH,
+        "source_sha256": source_sha256,
+        "source_receipt": source_identity,
+    }
+    return json.dumps(value, sort_keys=True, separators=(",", ":")).encode("utf-8") + b"\n"
+
+
+def validate_import_tombstone(
+    payload: bytes, source: bytes, source_identity: dict[str, object]
+) -> None:
+    label = "legacy state import tombstone"
+    value = strict_json(payload, label)
+    expected_fields = {"schema", "source_path", "source_sha256", "source_receipt"}
+    if (
+        not isinstance(value, dict)
+        or set(value) != expected_fields
+        or value.get("schema") != IMPORT_TOMBSTONE_SCHEMA
+        or value.get("source_path") != LEGACY_RECEIPT_PATH
+        or not isinstance(value.get("source_sha256"), str)
+        or not re.fullmatch(r"[0-9a-f]{64}", value["source_sha256"])
+    ):
+        fail("legacy state import tombstone shape is invalid")
+    tombstone_identity = validate_legacy_receipt_value(
+        value.get("source_receipt"), "legacy state import tombstone source receipt"
+    )
+    source_sha256 = hashlib.sha256(source).hexdigest()
+    if (
+        not hmac.compare_digest(value["source_sha256"], source_sha256)
+        or tombstone_identity != source_identity
+    ):
+        fail("legacy deployment receipt drifted from its import tombstone")
+
+
+libc = ctypes.CDLL(None, use_errno=True)
+renameat2 = libc.renameat2
+renameat2.argtypes = [
+    ctypes.c_int,
+    ctypes.c_char_p,
+    ctypes.c_int,
+    ctypes.c_char_p,
+    ctypes.c_uint,
+]
+renameat2.restype = ctypes.c_int
+
+
+def publish_private_no_replace(name: str, payload: bytes, label: str) -> None:
+    temporary = f".{PLUGIN}.state-import.{secrets.token_hex(16)}.tmp"
+    target_fd = os.open(
+        temporary,
+        os.O_WRONLY
+        | os.O_CREAT
+        | os.O_EXCL
+        | os.O_CLOEXEC
+        | os.O_NOFOLLOW,
+        0o600,
+        dir_fd=state,
+    )
+    try:
+        os.fchown(target_fd, AI1_UID, AI1_GID)
+        os.fchmod(target_fd, 0o600)
+        offset = 0
+        while offset < len(payload):
+            advanced = os.write(target_fd, payload[offset:])
+            if advanced <= 0:
+                fail(f"{label} write did not advance")
+            offset += advanced
+        os.fsync(target_fd)
+    finally:
+        os.close(target_fd)
+    if renameat2(
+        state,
+        os.fsencode(temporary),
+        state,
+        os.fsencode(name),
+        RENAME_NOREPLACE,
+    ) != 0:
+        number = ctypes.get_errno()
+        if number != errno.EEXIST:
+            os.unlink(temporary, dir_fd=state)
+            fail(f"{label} publication failed: {number}")
+        try:
+            current = read_private(state, name, label)
+            if not hmac.compare_digest(current, payload):
+                fail(f"{label} publication raced")
+        finally:
+            os.unlink(temporary, dir_fd=state)
+    os.fsync(state)
+    durable = read_private(state, name, label)
+    if not hmac.compare_digest(durable, payload):
+        fail(f"{label} is not durable")
+
+
+import_tombstone_present = entry_exists(state, IMPORT_TOMBSTONE)
 legacy = optional_old_state()
-if legacy is not None:
+if legacy is None:
+    if import_tombstone_present:
+        fail("legacy deployment receipt source is missing after import")
+else:
     receipt_present = entry_exists(legacy, RECEIPT)
     intent_present = entry_exists(legacy, INTENT)
-    if receipt_present or intent_present:
+    if receipt_present or intent_present or import_tombstone_present:
         if not entry_exists(legacy, LOCK):
             fail("legacy deployment state lock is missing")
         lock_fd = os.open(
@@ -349,68 +549,51 @@ if legacy is not None:
         fcntl.flock(lock_fd, fcntl.LOCK_EX)
         if entry_exists(legacy, INTENT):
             fail("legacy deployment state has an active promotion intent")
-        if entry_exists(legacy, RECEIPT):
+        if not entry_exists(legacy, RECEIPT):
+            if import_tombstone_present:
+                fail("legacy deployment receipt source disappeared after import")
+        else:
             source = read_private(legacy, RECEIPT, "legacy deployment receipt")
-            validate_legacy_receipt(source)
+            source_identity = validate_legacy_receipt(source)
+            source_sha256 = hashlib.sha256(source).hexdigest()
             destination_present = entry_exists(state, RECEIPT)
-            if destination_present:
-                destination = read_private(state, RECEIPT, "new deployment receipt")
-                if not hmac.compare_digest(source, destination):
-                    fail("new deployment state conflicts with the legacy receipt")
-            else:
-                if os.listdir(state):
-                    fail("new deployment state is non-empty before one-time receipt import")
-                temporary = f".{PLUGIN}.receipt-import.{secrets.token_hex(16)}.tmp"
-                target_fd = os.open(
-                    temporary,
-                    os.O_WRONLY
-                    | os.O_CREAT
-                    | os.O_EXCL
-                    | os.O_CLOEXEC
-                    | os.O_NOFOLLOW,
-                    0o600,
-                    dir_fd=state,
+            if import_tombstone_present:
+                tombstone = read_private(
+                    state, IMPORT_TOMBSTONE, "legacy state import tombstone"
                 )
-                try:
-                    os.fchown(target_fd, AI1_UID, AI1_GID)
-                    os.fchmod(target_fd, 0o600)
-                    offset = 0
-                    while offset < len(source):
-                        advanced = os.write(target_fd, source[offset:])
-                        if advanced <= 0:
-                            fail("legacy deployment receipt import write did not advance")
-                        offset += advanced
-                    os.fsync(target_fd)
-                finally:
-                    os.close(target_fd)
-                libc = ctypes.CDLL(None, use_errno=True)
-                renameat2 = libc.renameat2
-                renameat2.argtypes = [
-                    ctypes.c_int,
-                    ctypes.c_char_p,
-                    ctypes.c_int,
-                    ctypes.c_char_p,
-                    ctypes.c_uint,
-                ]
-                renameat2.restype = ctypes.c_int
-                if renameat2(
-                    state,
-                    os.fsencode(temporary),
-                    state,
-                    os.fsencode(RECEIPT),
-                    RENAME_NOREPLACE,
-                ) != 0:
-                    number = ctypes.get_errno()
-                    if number != errno.EEXIST:
-                        fail(f"legacy deployment receipt import failed: {number}")
+                validate_import_tombstone(tombstone, source, source_identity)
+                if not destination_present:
+                    fail("new deployment receipt is missing after legacy state import")
+                destination = read_private(state, RECEIPT, "new deployment receipt")
+                validate_destination_receipt(destination)
+            else:
+                if destination_present:
                     destination = read_private(state, RECEIPT, "new deployment receipt")
                     if not hmac.compare_digest(source, destination):
-                        fail("new deployment receipt raced with one-time import")
-                    os.unlink(temporary, dir_fd=state)
-                os.fsync(state)
+                        fail(
+                            "new deployment state conflicts with the legacy receipt "
+                            "without an import tombstone"
+                        )
+                else:
+                    if os.listdir(state):
+                        fail("new deployment state is non-empty before one-time receipt import")
+                    publish_private_no_replace(
+                        RECEIPT, source, "legacy deployment receipt import"
+                    )
                 imported = read_private(state, RECEIPT, "imported deployment receipt")
                 if not hmac.compare_digest(source, imported):
-                    fail("imported deployment receipt is not durable")
+                    fail("imported deployment receipt changed before tombstone publication")
+                tombstone = import_tombstone_bytes(source_sha256, source_identity)
+                publish_private_no_replace(
+                    IMPORT_TOMBSTONE, tombstone, "legacy state import tombstone"
+                )
+                validate_import_tombstone(
+                    read_private(
+                        state, IMPORT_TOMBSTONE, "legacy state import tombstone"
+                    ),
+                    source,
+                    source_identity,
+                )
         os.close(lock_fd)
     os.close(legacy)
 os.close(state)

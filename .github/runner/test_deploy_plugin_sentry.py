@@ -195,12 +195,23 @@ class StateDirectoryCoverage(unittest.TestCase):
 
 
 class InstallerStateMigrationCoverage(unittest.TestCase):
+    @staticmethod
+    def installer_source() -> str:
+        return MODULE_PATH.with_name("install-runner.sh").read_text(encoding="utf-8")
+
+    @classmethod
+    def importer_source(cls) -> str:
+        source = cls.installer_source()
+        return source.split("<<'PY'\n", 1)[1].split("\nPY\n", 1)[0]
+
     def test_reviewed_installer_keeps_old_and_new_path_guards(self) -> None:
-        source = MODULE_PATH.with_name("install-runner.sh").read_text(encoding="utf-8")
+        source = self.installer_source()
         for required in (
             'DEPLOY_STATE_ROOT="/var/lib/bears-plugin-deploy"',
             'DEPLOY_STATE_DIR="$DEPLOY_STATE_ROOT/ai1"',
             'LEGACY_DEPLOY_STATE_DIR="/srv/bears/codex/ai1/.local/state/bears-plugin-deploy"',
+            'IMPORT_TOMBSTONE = f"{PLUGIN}.legacy-state-imported.json"',
+            'IMPORT_TOMBSTONE_SCHEMA = "bears-plugin-deploy-state-import.v1"',
             "os.O_NOFOLLOW",
             "fcntl.flock(lock_fd, fcntl.LOCK_EX)",
             'fail("legacy deployment state has an active promotion intent")',
@@ -211,6 +222,109 @@ class InstallerStateMigrationCoverage(unittest.TestCase):
             self.assertIn(required, source)
         self.assertIn('(\"bears\", \"/srv/bears\", 0, AI1_GID, 0o775)', source)
         self.assertIn('(\"codex\", \"/srv/bears/codex\", AI1_UID, None, 0o2770)', source)
+
+    def test_first_import_durably_publishes_receipt_then_bound_tombstone(self) -> None:
+        source = self.importer_source()
+        publication = source[
+            source.index("def publish_private_no_replace"):source.index(
+                "import_tombstone_present ="
+            )
+        ]
+        for required in (
+            "os.O_CREAT",
+            "os.O_EXCL",
+            "RENAME_NOREPLACE",
+            "os.fsync(target_fd)",
+            "os.fsync(state)",
+            "hmac.compare_digest(durable, payload)",
+        ):
+            self.assertIn(required, publication)
+        receipt_publish = source.index(
+            'RECEIPT, source, "legacy deployment receipt import"'
+        )
+        tombstone_publish = source.index(
+            'IMPORT_TOMBSTONE, tombstone, "legacy state import tombstone"'
+        )
+        self.assertLess(receipt_publish, tombstone_publish)
+        for field in (
+            '"source_path": LEGACY_RECEIPT_PATH',
+            '"source_sha256": source_sha256',
+            '"source_receipt": source_identity',
+        ):
+            self.assertIn(field, source)
+
+    def test_rerun_before_promotion_accepts_valid_tombstone_and_v1_receipt(self) -> None:
+        source = self.importer_source()
+        rerun = source[source.index("if import_tombstone_present:"):]
+        tombstone_check = rerun.index(
+            "validate_import_tombstone(tombstone, source, source_identity)"
+        )
+        destination_check = rerun.index("validate_destination_receipt(destination)")
+        self.assertLess(tombstone_check, destination_check)
+        validator = source[
+            source.index("def validate_destination_receipt"):source.index(
+                "def import_tombstone_bytes"
+            )
+        ]
+        self.assertIn("if schema == LEGACY_RECEIPT_SCHEMA:", validator)
+        self.assertIn("if set(receipt) != RECEIPT_FIELDS:", validator)
+
+    def test_rerun_after_v2_evolution_does_not_byte_compare_destination(self) -> None:
+        source = self.importer_source()
+        validator = source[
+            source.index("def validate_destination_receipt"):source.index(
+                "def import_tombstone_bytes"
+            )
+        ]
+        self.assertIn("schema != DEPLOY_RECEIPT_SCHEMA", validator)
+        self.assertIn("RECEIPT_FIELDS | ROLE_RECEIPT_FIELDS", validator)
+        self.assertIn('receipt.get("role_count") != len(ROLE_NAMES)', validator)
+        rerun = source[source.index("if import_tombstone_present:"):]
+        rerun = rerun[:rerun.index("            else:")]
+        self.assertIn("validate_destination_receipt(destination)", rerun)
+        self.assertNotIn("compare_digest(source, destination)", rerun)
+
+    def test_changed_legacy_source_is_rejected_against_exact_tombstone(self) -> None:
+        source = self.importer_source()
+        validator = source[
+            source.index("def validate_import_tombstone"):source.index(
+                "libc = ctypes.CDLL"
+            )
+        ]
+        for required in (
+            "set(value) != expected_fields",
+            'value.get("source_path") != LEGACY_RECEIPT_PATH',
+            "source_sha256 = hashlib.sha256(source).hexdigest()",
+            'hmac.compare_digest(value["source_sha256"], source_sha256)',
+            "tombstone_identity != source_identity",
+            'fail("legacy deployment receipt drifted from its import tombstone")',
+        ):
+            self.assertIn(required, validator)
+
+    def test_bad_or_missing_tombstone_fails_closed(self) -> None:
+        source = self.importer_source()
+        for required in (
+            'fail("legacy state import tombstone shape is invalid")',
+            'fail("legacy deployment receipt source is missing after import")',
+            'fail("legacy deployment receipt source disappeared after import")',
+            'fail("new deployment receipt is missing after legacy state import")',
+            '"without an import tombstone"',
+        ):
+            self.assertIn(required, source)
+
+    def test_conflicting_destination_without_tombstone_is_rejected(self) -> None:
+        source = self.importer_source()
+        missing_tombstone = source[
+            source.index("            else:\n                if destination_present:"):
+        ]
+        compare = missing_tombstone.index("hmac.compare_digest(source, destination)")
+        rejection = missing_tombstone.index(
+            '"new deployment state conflicts with the legacy receipt "'
+        )
+        tombstone_publish = missing_tombstone.index("import_tombstone_bytes")
+        self.assertLess(compare, rejection)
+        self.assertLess(rejection, tombstone_publish)
+        self.assertNotIn("os.unlink(RECEIPT, dir_fd=legacy)", source)
 
 
 class RoleReconciliationCoverage(unittest.TestCase):

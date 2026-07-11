@@ -61,7 +61,7 @@ app_task_dispatch:
   previous_task_result_ref: <null only for start; immediately preceding session result ref for continue>
 ```
 
-The corresponding `result-packet.v1` contains exactly one `app-task-change.v1` fact with `task_id`, `assignment_id`, `repo_ref`, `batch_id`, `wave_id`, `wave_session_id`, `queue_sequence`, `status: done|failed`, `commit_ref` where a coherent change was retained, exact `changed_targets`, and `cleanup_state: clean|coherent_partial_commit`. A failed result also identifies its coherent partial-state ref or confirms the diff was removed. One task has one result and never more than one commit.
+The corresponding `result-packet.v1` contains exactly one `app-task-change.v1` fact with `assignment_id`, `task_id`, `repo_ref`, `wave_id`, `wave_session_id`, `queue_sequence`, `status: done|failed`, `commit_ref` where a coherent change was retained, exact `changed_targets`, `cleanup_state: clean|coherent_partial_commit`, `partial_state_ref`, and `source_review_refs`. A failed result identifies its coherent partial-state ref or confirms the diff was removed. One task has one result and never more than one commit.
 
 ## Immutable repo-wave review
 
@@ -80,5 +80,5 @@ At the anchor, start a fresh separate `app-plan` assignment. It creates a new re
 
 - Do not invent work outside the ledger, overlap mutable targets, or start tasks with missing graph refs, open decisions, or open dependencies.
 - Return product decisions to `app-specify` and planning gaps to `app-plan`. Never write functional graph meaning, graph anchors, wave plans, or analysis artifacts.
-- Each repo-L2 returns one canonical repo-scoped `app-stage-handoff.v1` with every common field. Status `implemented` adds `repo_ref`, `completed_task_refs`, `failed_task_refs`, `task_result_refs`, `review_result_refs`, `commit_range_refs`, and `remediation_task_refs`, and targets `app-analyze`. Do not emit a generic cross-repo merge.
+- Each repo-L2 returns one canonical repo-scoped `app-stage-handoff.v1` directly as its outer contract, with every common field. Status `implemented` adds `repo_ref`, `completed_task_refs`, `failed_task_refs`, `task_result_refs`, `review_result_refs`, `commit_range_refs`, and `remediation_task_refs`, and targets `app-analyze`. Never wrap or nest this handoff in `domain-lane-closeout.v1`; do not emit a generic cross-repo merge.
 - `needs-plan` adds `source_handoff_ref`, `ledger_coverage_refs`, and `implementation_state_by_requirement`; `needs-spec` adds `source_handoff_ref` and `question_refs`; `blocked` adds `blocker_refs` and `operator_action_refs`. Use `blocked` only for access, credentials, unavailable sources, or explicit operator stops.

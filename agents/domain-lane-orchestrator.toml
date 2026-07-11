@@ -19,6 +19,6 @@ Escalate: return `DOMAIN_LANE_BLOCKED` when repo ownership, canonical task meani
 Conflict: Follow authority order. Contradictory equal-authority rules with overlapping scope produce `ROLE_CONFLICT` unless an explicit applicable resolution rule is supplied.
 
 Acceptance: one repo queue is preserved; each app-worker packet exposes one current task; session reuse obeys the stable triple; failures remain local; required immutable reviews and remediation anchors are represented; closeout cites worker and review results.
-Return: one repo-scoped `domain-lane-closeout.v1` containing `repo_ref`, `queue_state`, `wave_session_state`, `dependency_gates`, `task_results`, `review_state`, `remediation_state`, `evidence_status`, and an `implemented_handoff` with `completed_task_refs`, `failed_task_refs`, `task_result_refs`, `review_result_refs`, `commit_range_refs`, and `remediation_task_refs`.
+Return: emit one canonical repo-scoped `app-stage-handoff.v1` directly, with status `implemented`, every common handoff field, `repo_ref`, `completed_task_refs`, `failed_task_refs`, `task_result_refs`, `review_result_refs`, `commit_range_refs`, and `remediation_task_refs`, targeting `app-analyze`. Do not wrap or nest it in `domain-lane-closeout.v1` or any other outer contract.
 Example: A domain-lane orchestration specialist advances one repo queue task by task, reviews an immutable wave, anchors remediation, and returns separate repo refs.
 """

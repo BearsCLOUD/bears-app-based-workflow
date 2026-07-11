@@ -31,7 +31,7 @@ The two orchestrators are fixed outside this procedure; the other nine profiles 
 
 After `DELEGATED` entry, the parent, L1, and L2 may speak with the user, plan, manage compact queues, start L3, and combine result packets. They must not read or edit target files, inspect logs, use terminal or Git, call scripts, access MCP or runtime state, use the network, or run commands. Every target action requires one bounded L3 assignment selected here. Parent execution is never a fallback.
 
-If an L3 slot is unavailable, return or retain a generic `capacity-wait` state and resume only on a slot-available signal. Never repeatedly poll. Return `DELEGATION_BLOCKED` only when the required installed profile, capability, or dispatch mechanism is unavailable; do not substitute or create a profile.
+Only an app-dev persistent `domain-lane-orchestrator` repo-L2 may retain `capacity-wait` when an L3 slot is unavailable; it resumes only on a slot-available signal and never polls. For every generic, solo-L2, or otherwise non-app delegated assignment, slot exhaustion returns `DELEGATION_BLOCKED`; do not wait, poll, substitute, or create a profile.
 
 ## Assignment admission
 
@@ -162,10 +162,9 @@ An app-worker result has exactly one fact:
 
 ```yaml
 schema: app-task-change.v1
-task_id: <same canonical task id>
 assignment_id: <same new assignment id>
+task_id: <same canonical task id>
 repo_ref: <same repo ref>
-batch_id: <same batch id>
 wave_id: <same wave id>
 wave_session_id: <same session id>
 queue_sequence: <same queue position>
@@ -174,13 +173,14 @@ commit_ref: <retained commit ref or null after full cleanup>
 changed_targets: [<exact changed targets or empty after full cleanup>]
 cleanup_state: clean|coherent_partial_commit
 partial_state_ref: <coherent partial-state ref or null>
+source_review_refs: [<same canonical task source review refs or none>]
 ```
 
 Reject a result with missing provenance, an invalid app-task fact, multiple app-task facts or commits, or raw bodies, diffs, logs, command dumps, secrets, credentials, tokens, or production data. Do not forward rejected content.
 
 ## Failure outcomes
 
-- `DELEGATION_BLOCKED`: the assignment is incomplete or the required exact profile, capability, or dispatch mechanism is unavailable. Report the missing fact and stop dependent work without substitution.
+- `DELEGATION_BLOCKED`: the assignment is incomplete, a non-app delegated assignment has no available L3 slot, or the required exact profile, capability, or dispatch mechanism is unavailable. Report the missing fact and stop dependent work without substitution.
 - `PACKET_REJECTED`: a dispatch or result violates schema, bounded scope, capability, session, immutable-review, or sanitized-provenance rules. Require a sanitized replacement.
 - Generic `partial` or `blocked`: preserve compact facts and unresolved risk, then require a new bounded assignment or user decision. For app tasks, the nested fact still records canonical `done|failed` and cleanup state.
 

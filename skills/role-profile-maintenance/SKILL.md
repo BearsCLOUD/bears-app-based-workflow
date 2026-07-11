@@ -11,14 +11,14 @@ This skill supplies the comparison method and packet templates only for a reques
 
 While evaluating that taxonomy request, the invoking role chooses exactly one result from the existing enum: `reuse`, `refactor`, `merge`, `split`, `create`, `reject`, or `delete`. `reuse`, `refactor`, and `reject` are evaluation outcomes, not independent triggers for this skill. A caller's requested taxonomy outcome is evidence, not the operation decision.
 
-Do not invoke this skill for generic profile review, reuse lookup, prose or rule refactoring, formatting-only edits, prose cleanup, file layout normalization, cachebuster changes, or non-semantic metadata rewrites.
+Do not invoke this skill for generic profile assessment, reuse lookup, prose or rule refactoring, formatting-only edits, prose cleanup, file layout normalization, cachebuster changes, or non-semantic metadata rewrites.
 
 ## Request template
 
 ```yaml
 schema: role-profile-request.v1
 task_id: <stable task id>
-deliverable: <one objectively checkable result>
+deliverable: <one objectively observable result>
 task_examples: [<concrete accepted task>]
 target_profiles: [<exact role TOML path or none>]
 authority_refs: [<ordered instruction refs>]
@@ -34,7 +34,7 @@ Require `deliverable`, `task_examples`, `target_profiles`, and `authority_refs`.
 
 ## Method
 
-1. Confirm that the requested semantic taxonomy change is `create`, `merge`, `split`, or `delete`; otherwise do not invoke this skill. Obtain one deliverable and concrete task examples. Reject a title or technology label without an objectively checkable result.
+1. Confirm that the requested semantic taxonomy change is `create`, `merge`, `split`, or `delete`; otherwise do not invoke this skill. Obtain one deliverable and concrete task examples. Reject a title or technology label without an objectively observable result.
 2. Read the declared profiles and every exact reference to their names.
 3. Derive the minimum sandbox, capabilities, and permissions from the deliverable and task examples. Do not add capability for completeness. Apply narrower caller constraints; reject broader proposed permissions without evidence.
 4. Compare deliverable, allowed actions, forbidden actions, sandbox, external effects, required capabilities, acceptance criteria, and result fields.

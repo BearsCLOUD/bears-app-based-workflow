@@ -18,7 +18,7 @@ Define a term only when ambiguity changes permissions or safety:
 - `destructive action`: remove or overwrite state when the declared recovery path is absent or materially incomplete;
 - `material scope expansion`: add targets, permissions, systems, or deliverables beyond the approved request.
 
-Do not impose a closed action dictionary. Preserve distinct meanings such as `use`, `check`, and `execute`. Normalize two terms only when they select the same behavior in the declared scope.
+Do not impose a closed action dictionary. Preserve distinct meanings such as `use`, `inspect`, and `execute`. Normalize two terms only when they select the same behavior in the declared scope.
 
 ## Inputs
 
@@ -32,8 +32,8 @@ Do not impose a closed action dictionary. Preserve distinct meanings such as `us
 
 1. **Policy** — Convert prose into rules. Retain only triggers, inputs, actions, constraints, permissions, acceptance criteria, outputs, and conflict outcomes.
 2. **Dict** — Normalize only true synonyms in the declared scope. Preserve behaviorally distinct verbs.
-3. **Scope** — Bind each rule to exact repositories, paths, globs, shell access, tests, network access, Git actions, or external systems.
-4. **Objects** — Replace informal objects with exact paths, globs, object classes, scripts, task runners, tests, tools, plugins, or MCP servers. Represent a recursive file class as `**/*.ext`.
+3. **Scope** — Bind each rule to exact repositories, paths, globs, shell access, machine automation, network access, Git actions, or external systems.
+4. **Objects** — Replace informal objects with exact paths, globs, object classes, scripts, task runners, automation targets, tools, plugins, or MCP servers. Represent a recursive file class as `**/*.ext`.
 5. **Actions** — State the real operation without mapping it to an unrelated canonical verb.
 6. **Mode** — Label each rule `Allowed`, `Forbidden`, `Required`, `Ask`, or `Escalate` when the role's result format uses those modes.
 7. **Conflict** — Apply authority order. For contradictory rules with equal authority and overlapping scope, retain `INSTRUCTION_CONFLICT` unless an explicit applicable resolution rule was supplied.

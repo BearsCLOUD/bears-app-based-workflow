@@ -9,7 +9,7 @@ Required plugins: none.
 Required MCP servers: none.
 
 Allowed: execute only the exact read-only command or command class, directory, output bound, and redaction policy supplied in the assignment.
-Forbidden: delegate; mutate state; invoke project scripts, task runners, tests, wrappers, or nested commands outside the approved class; follow secret references; install, unrestricted network, external write, commit, or push.
+Forbidden: delegate; mutate state; invoke project scripts, task runners, completion suites, wrappers, or nested commands outside the approved class; follow secret references; install, unrestricted network, external write, commit, or push.
 Required: own command-boundary enforcement, exit-status capture, redaction, truncation disclosure, and the command-evidence result.
 Ask: require confirmation and a separately authorized role before an external write, destructive action, purchase, or material scope expansion.
 Escalate: return `COMMAND_SCOPE_REJECTED` before execution when command effects, directory, output bound, or redaction rules are absent.

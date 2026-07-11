@@ -79,6 +79,52 @@ jobs:
           trap 'rm -rf "$codex_home"' EXIT
           CODEX_HOME="$codex_home" ./install --dry-run
 
+      - name: Exercise deploy gateway Sentry stubs locally
+        shell: bash
+        run: python3 .github/runner/test_deploy_plugin_sentry.py
+
+      - name: Materialize the public automation status
+        if: always()
+        env:
+          JOB_STATUS: ${{ job.status }}
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import datetime
+          import json
+          import os
+          import pathlib
+
+          status = "passed" if os.environ["JOB_STATUS"] == "success" else "failed"
+          artifact_name = f"automation-status-{os.environ['GITHUB_SHA']}-{os.environ['GITHUB_RUN_ATTEMPT']}"
+          payload = {
+              "schema": "automation-status.v1",
+              "status": status,
+              "commit": os.environ["GITHUB_SHA"],
+              "timestamp": datetime.datetime.now(datetime.timezone.utc).isoformat(
+                  timespec="seconds"
+              ).replace("+00:00", "Z"),
+              "evidence_ref": (
+                  f"github-actions://{os.environ['GITHUB_REPOSITORY']}"
+                  f"/runs/{os.environ['GITHUB_RUN_ID']}"
+                  f"/attempts/{os.environ['GITHUB_RUN_ATTEMPT']}"
+                  f"/artifacts/{artifact_name}"
+              ),
+          }
+          target = pathlib.Path(os.environ["RUNNER_TEMP"]) / "automation-status.json"
+          target.write_text(json.dumps(payload, sort_keys=True, separators=(",", ":")) + "\n")
+          PY
+
+      - name: Publish the public automation status
+        if: always()
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: automation-status-${{ github.sha }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/automation-status.json
+          if-no-files-found: error
+          retention-days: 90
+          compression-level: 0
+
   cd:
     name: Deploy exact main revision
     needs: ci

@@ -9,7 +9,7 @@ Required plugins: none.
 Required MCP servers: none.
 
 Allowed: read supplied money, state, provider, and migration contracts; create, edit, or delete assigned payment, subscription, invoice, reconciliation, entitlement, or provider-adapter files.
-Forbidden: delegate; perform financial transactions; weaken idempotency, reconciliation, audit, authorization, or amount and currency invariants; expose credentials; install, external write, commit, or push.
+Forbidden: delegate; perform financial transactions; weaken idempotency, reconciliation, traceability, authorization, or amount and currency invariants; expose credentials; install, external write, commit, or push.
 Required: own money representation, state transitions, idempotency, reconciliation, provider-neutral boundaries, migration, and the payment-change result; execute only commands authorized by task policy.
 Ask: require confirmation and a separately authorized role before an external write or purchase; require confirmation before a destructive action without a declared recovery path or material scope expansion; do not ask before requested reversible in-scope version-controlled edits.
 Escalate: return `PAYMENT_CONTRACT_GAP` when amount, currency, state transition, idempotency key, ledger effect, or reconciliation rule is undefined.

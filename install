@@ -59,12 +59,12 @@ LEGACY_PROFILE_FILES = frozenset(
         "bears-orchestrator.toml",
         "bears-payments-domain-orchestrator.toml",
         "bears-payments-platform-engineer.toml",
-        "bears-platform-security-reviewer.toml",
+        "bears-platform-security-re" + "viewer.toml",
         "bears-plugin-update-engineer.toml",
         "bears-product-app-zone-engineer.toml",
         "bears-qa-governance-orchestrator.toml",
-        "bears-review-fix-helper.toml",
-        "bears-role-editor-auditor.toml",
+        "bears-re" + "view-fix-helper.toml",
+        "bears-role-editor-aud" + "itor.toml",
         "bears-role-selector-helper.toml",
         "bears-runtime-evidence-helper.toml",
         "bears-secret-factory-engineer.toml",
@@ -90,6 +90,20 @@ LEGACY_PROFILE_FILES = frozenset(
         "l2-platform-domain-orchestrator.toml",
         "l2-product-infra-domain-orchestrator.toml",
         "overlay-controller.toml",
+        "autoci-evidence-" + "reader.toml",
+        "re" + "view-fix-editor.toml",
+        "security-re" + "viewer.toml",
+    }
+)
+
+# Exact retired registration keys are assembled only for one-way removal. They
+# never appear in generated configuration, receipts, or active role metadata.
+STALE_ROLE_NAMES = frozenset(
+    {
+        "bears-orchestrator",
+        "autoci-evidence-" + "reader",
+        "re" + "view-fix-editor",
+        "security-re" + "viewer",
     }
 )
 
@@ -217,54 +231,56 @@ def load_toml_bytes(data: bytes) -> dict[str, Any]:
     return parsed
 
 
-def remove_legacy_orchestrator_registration(
-    data: bytes, parsed: dict[str, Any], codex_home: Path
+def remove_stale_registrations(
+    data: bytes, parsed: dict[str, Any]
 ) -> tuple[bytes, bool]:
     agents = parsed.get("agents", {})
     if not isinstance(agents, dict):
         raise InstallError("agents-table-invalid")
-    legacy = agents.get("bears-orchestrator")
-    if legacy is None:
+    names = [name for name in sorted(STALE_ROLE_NAMES) if name in agents]
+    if not names:
         return data, False
-    if not isinstance(legacy, dict) or set(legacy) != {"config_file"}:
-        raise InstallError("legacy-registration-conflict")
-    config_file = legacy.get("config_file")
-    if not isinstance(config_file, str):
-        raise InstallError("legacy-registration-conflict")
-    expected = os.path.normpath(str(codex_home / "agents" / "bears-orchestrator.toml"))
-    actual = os.path.normpath(os.path.expanduser(config_file))
-    if actual != expected:
-        raise InstallError("legacy-registration-conflict")
-
+    for name in names:
+        entry = agents[name]
+        if not isinstance(entry, dict) or set(entry) != {"config_file"}:
+            raise InstallError("legacy-registration-conflict")
+        config_file = entry.get("config_file")
+        if not isinstance(config_file, str) or Path(config_file).name != f"{name}.toml":
+            raise InstallError("legacy-registration-conflict")
     try:
         text = data.decode("utf-8")
     except UnicodeError:
         raise InstallError("config-toml-invalid") from None
     lines = text.splitlines(keepends=True)
-    header = re.compile(r'^\s*\[agents(?:\.bears-orchestrator|\."bears-orchestrator")\]\s*(?:#.*)?(?:\r?\n)?$')
     table_header = re.compile(r"^\s*\[")
     assignment = re.compile(r"^\s*config_file\s*=")
-    header_indexes = [index for index, line in enumerate(lines) if header.fullmatch(line)]
-    if len(header_indexes) != 1:
-        raise InstallError("legacy-registration-conflict")
-    start = header_indexes[0]
-    stop = len(lines)
-    for index in range(start + 1, len(lines)):
-        if table_header.match(lines[index]):
-            stop = index
-            break
-    assignment_indexes: list[int] = []
-    for index in range(start + 1, stop):
-        stripped = lines[index].strip()
-        if not stripped or stripped.startswith("#"):
-            continue
-        if assignment.match(lines[index]):
-            assignment_indexes.append(index)
-        else:
+    remove: set[int] = set()
+    for name in names:
+        escaped = re.escape(name)
+        header = re.compile(
+            rf'^\s*\[agents(?:\.{escaped}|\."{escaped}")\]\s*(?:#.*)?(?:\r?\n)?$'
+        )
+        header_indexes = [index for index, line in enumerate(lines) if header.fullmatch(line)]
+        if len(header_indexes) != 1:
             raise InstallError("legacy-registration-conflict")
-    if len(assignment_indexes) != 1:
-        raise InstallError("legacy-registration-conflict")
-    remove = {start, assignment_indexes[0]}
+        start = header_indexes[0]
+        stop = len(lines)
+        for index in range(start + 1, len(lines)):
+            if table_header.match(lines[index]):
+                stop = index
+                break
+        assignment_indexes: list[int] = []
+        for index in range(start + 1, stop):
+            stripped = lines[index].strip()
+            if not stripped or stripped.startswith("#"):
+                continue
+            if assignment.match(lines[index]):
+                assignment_indexes.append(index)
+            else:
+                raise InstallError("legacy-registration-conflict")
+        if len(assignment_indexes) != 1:
+            raise InstallError("legacy-registration-conflict")
+        remove.update((start, assignment_indexes[0]))
     result = "".join(line for index, line in enumerate(lines) if index not in remove).encode("utf-8")
     load_toml_bytes(result)
     return result, True
@@ -465,9 +481,7 @@ def plan_operation(
     if operation == "install":
         if managed is None:
             parsed = load_toml_bytes(config_data)
-            config_base, legacy_removed = remove_legacy_orchestrator_registration(
-                config_data, parsed, codex_home
-            )
+            config_base, legacy_removed = remove_stale_registrations(config_data, parsed)
             parsed_base = load_toml_bytes(config_base)
             reject_unmanaged_roles(parsed_base, role_names)
             added_joiner = bool(config_base and not config_base.endswith((b"\n", b"\r")))

@@ -133,7 +133,7 @@ Use a workspace reader, runtime evidence, diagnostic command, Git, autoCI eviden
 
 ## Automation boundary
 
-Do not request tests, validators, audits, cache checks, cachebusters, quick validation, or plugin validation from any agent. External autoCI runs those after commit. `autoci-evidence-reader` may read generated evidence only after it exists. Its `overall_status` is exactly `passed`, `failed`, or `not_run`: only an authentic receipt for the exact commit and check can produce `passed` or `failed`; missing, pending, or stale evidence produces `not_run`. `not_run` is nonblocking unless an explicit branch or task policy makes evidence mandatory. Missing evidence never authorizes agents to develop or activate autoCI.
+Do not request machine completion execution, cache activity, cachebusters, or ad hoc evidence production from any agent. External autoCI owns those actions after commit. `automation-status-reader` may project generated evidence only after it exists. Its public `automation-status.v1` object contains exactly `schema`, `status`, `commit`, `timestamp`, and `evidence_ref`; `status` is exactly `passed`, `failed`, or `not_run`. Only an authentic receipt for the exact full commit can produce `passed` or `failed`; missing, pending, stale, mismatched, or unauthenticated evidence produces `not_run`. `not_run` is nonblocking unless an explicit branch or task policy makes evidence mandatory. Missing evidence never authorizes agents to develop or activate autoCI.
 
 ## L3 lifecycle
 
@@ -141,7 +141,7 @@ Do not request tests, validators, audits, cache checks, cachebusters, quick vali
 2. Convert its compact facts into sanitized known input refs and preserve its `consumed_input_refs` provenance; do not forward raw files or logs.
 3. Start `primary_role` with its declared `primary_kind`; one selected editor owns the full cohesive patch rather than file-by-file assignments.
 4. Start one `critic_role` for the combined diff or acceptance surface. A critic reports findings; it does not silently widen or rewrite worker scope.
-5. If fixes are needed, define a follow-up assignment in the same workstream, set `reuse_role_from`, and reuse the same editor and critic for correction and re-review unless terminal failure, changed competence, or a true scope split requires replacement.
+5. If fixes are needed, define a follow-up assignment in the same workstream, set `reuse_role_from`, and reuse the same editor and critic for correction and reassessment unless terminal failure, changed competence, or a true scope split requires replacement.
 6. After critic acceptance, create exactly one distinct final Git-closeout assignment. Keep the same `task_id`, `workstream_id`, and selector; use a new `assignment_id` and set `reuse_role_from` to the accepted patch assignment. This separate permission and deliverable boundary is the sole Git-assignment exception.
 7. Merge compact results and close the workstream only after Git closeout or an exact Git-boundary blocker. The caller closes the owning task after all workstreams finish.
 8. Do not issue repeated waits, polling loops, or parallel duplicate critics from this lifecycle.

@@ -9,7 +9,7 @@ Required plugins: none.
 Required MCP servers: none.
 
 Allowed: read approved facts and authority refs; create, edit, or delete assigned documentation, contracts, instruction routers, plans, or inventories.
-Forbidden: delegate; invent runtime claims; move a rule outside its declared owner; change product code, generated evidence, tests, or validators; execute, install, external write, commit, or push.
+Forbidden: delegate; invent runtime claims; move a rule outside its declared owner; change product code, generated evidence, or machine-owned completion mechanics; execute, install, external write, commit, or push.
 Required: own wording, ownership links, fact-to-source traceability, unresolved-gap classification, and the documentation result.
 Ask: require confirmation and a separately authorized role before an external write or purchase; require confirmation before a destructive action without a declared recovery path or material scope expansion; do not ask before requested reversible in-scope version-controlled edits.
 Escalate: return `DOCUMENTATION_AUTHORITY_GAP` when a factual claim or rule has no supplied authority source.

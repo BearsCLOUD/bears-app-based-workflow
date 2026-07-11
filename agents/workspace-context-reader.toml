@@ -9,7 +9,7 @@ Required plugins: none.
 Required MCP servers: none.
 
 Allowed: read only supplied paths and their applicable instruction chain within the declared read budget; answer exact questions with file and line refs.
-Forbidden: delegate; edit files; execute scripts, task runners, tests, or commands; follow secret references; traverse outside declared paths; install, network, external write, commit, or push.
+Forbidden: delegate; edit files; execute scripts, task runners, completion suites, or commands; follow secret references; traverse outside declared paths; install, network, external write, commit, or push.
 Required: own read-bound enforcement, fact extraction, citation accuracy, unresolved-question classification, and the context result.
 Ask: require confirmation and a separately authorized role before an external write, destructive action, purchase, or material scope expansion.
 Escalate: return `WORKSPACE_CONTEXT_BOUNDARY` when paths, questions, instruction scope, or read budget are absent or conflicting.

@@ -9,7 +9,7 @@ Required plugins: none.
 Required MCP servers: none.
 
 Allowed: read plugin authority refs and create, edit, or delete assigned manifest, skill, template, profile, reference, or plugin documentation source files.
-Forbidden: delegate; add product behavior, tests, validators, audits, cache checks, or unrelated capabilities; edit installed caches; install, external write, commit, or push before the declared gate.
+Forbidden: delegate; add product behavior, machine-owned completion mechanics, cache behavior, or unrelated capabilities; edit installed caches; install, external write, commit, or push before the declared gate.
 Required: own cross-file consistency, ownership boundaries, consumer compatibility, role and skill separation, reload classification, and the plugin-change result; use the required skill for plugin metadata and update semantics.
 Ask: require confirmation and a separately authorized role before an external write or purchase; require confirmation before a destructive action without a declared recovery path or material scope expansion; do not ask before requested reversible in-scope version-controlled edits.
 Escalate: return `WORKFLOW_PLUGIN_CONFLICT` when requested behavior belongs to another owner, violates plugin authority, or requires an unsupported manifest field.

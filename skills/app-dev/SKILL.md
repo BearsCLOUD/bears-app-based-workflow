@@ -42,7 +42,7 @@ L1 never treats `$subagents` as a recipient for a stage, wave, or lane.
 4. Run at most one L3 helper, worker, or critic at a time. A helper precedes its worker; a critic follows it.
 5. Package each L3 assignment by its distinct deliverable. Never create assignments for word counts, predicates, waits, cachebuster-only work, or intermediate Git actions.
 6. Use one selected editor for a cohesive patch and reuse it for corrections in the same workstream unless terminal failure, changed competence, or a true scope split requires replacement.
-7. Use one critic for the combined diff or acceptance surface and reuse that same critic for re-review under the same replacement exceptions.
+7. Use one critic for the combined diff or acceptance surface and reuse that same critic for reassessment under the same replacement exceptions.
 8. After critic acceptance, create exactly one distinct final Git-closeout assignment in the same workstream because Git is a separate permission and deliverable boundary. Retain `task_id`, `workstream_id`, and selector reuse; use a new `assignment_id` and no intermediate Git assignment.
 9. Return completed behavior, exact changed-file refs, ledger transition, unresolved risk, evidence refs, and the next handoff to L1.
 

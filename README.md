@@ -12,7 +12,7 @@ For work already classified `DELEGATED`, every `app-*` skill uses `subagents` be
 4. `app-functional-graph` maps decision-complete requirements to the canonical functional graph.
 5. `app-plan` creates graph-linked ledger tasks for unbuilt behavior.
 6. `app-dev` partitions dependency-ready work through fixed L1 and L2 orchestration, then dispatches concrete L3 assignments.
-7. `app-analyze` checks convergence and routes gaps back to the owning stage.
+7. `app-analyze` determines convergence and routes gaps back to the owning stage.
 
 Every inter-stage input and output uses the canonical `app-stage-handoff.v1` defined once in `app-functional-graph`. Its common fields are never omitted, unavailable early values use the schema's explicit empty semantics, and every status carries its canonical branch fields.
 
@@ -55,7 +55,7 @@ In `app-dev`, the parent takes the fixed L1 role and starts fixed L2 lanes; each
 
 ## Role installation
 
-Role TOML files live only in `agents/`. Register their `config_file` links after checkout updates:
+Role TOML files live only in `agents/`. Register their `config_file` links after source updates:
 
 ```text
 ./install [--codex-home PATH] [--dry-run]
@@ -71,6 +71,6 @@ The installer updates only its marked config block and archives known legacy dup
 - Workspace contracts: shared invariants.
 - Plugin role TOML: result ownership, decisions, permissions, acceptance, and result fields.
 - Plugin skills: repeatable methods, packet templates, references, and reusable procedures.
-- External autoCI: tests, validators, audits, and cache checks.
+- External autoCI: machine-owned completion evidence and automation status.
 
 Target repository: `BearsCLOUD/bears-app-based-workflow`.

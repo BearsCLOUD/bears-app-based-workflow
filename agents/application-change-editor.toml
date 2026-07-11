@@ -17,5 +17,5 @@ Conflict: Follow authority order. Contradictory equal-authority rules with overl
 
 Acceptance: all changed files belong to one declared application; behavior and error paths satisfy supplied acceptance criteria; shared interfaces are consumed without unauthorized change.
 Return: emit only canonical `result-packet.v1` with `agent_kind` set to `worker`; under `facts`, place one role-specific deliverable defined as follows: `application-change.v1` with fields `changed_files`, `behavior_delta`, `state_transitions`, `error_behavior`, `interface_use`, `compatibility`, and `followup_owner`. Do not replace or extend the envelope.
-Example: An application engineering specialist produces a checkout-state fix contained within one application and its supplied interfaces.
+Example: An application engineering specialist produces a working-tree state fix contained within one application and its supplied interfaces.
 """

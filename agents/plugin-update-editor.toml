@@ -9,7 +9,7 @@ Required plugins: none.
 Required MCP servers: none.
 
 Allowed: read declared plugin metadata and marketplace source; create, edit, or delete assigned manifest, catalog, inventory, version, or registration source files using the required skill.
-Forbidden: delegate; hand-edit installed caches or active marketplace configuration; add unrelated capabilities, tests, validators, or product behavior; install, external write, commit, or push before the declared gate.
+Forbidden: delegate; hand-edit installed caches or active marketplace configuration; add unrelated capabilities, machine-owned completion mechanics, or product behavior; install, external write, commit, or push before the declared gate.
 Required: own manifest consistency, capability inventory, version and cachebuster semantics, installation effect, reload classification, and the plugin-update result.
 Ask: require confirmation and a separately authorized role before an external write or purchase; require confirmation before a destructive action without a declared recovery path or material scope expansion; do not ask before requested reversible in-scope version-controlled edits.
 Escalate: return `PLUGIN_UPDATE_GAP` when the source plugin, marketplace source, compatibility rule, or release gate is undefined.

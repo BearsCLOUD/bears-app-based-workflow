@@ -1,0 +1,31 @@
+# Machine-Owned Runner Surfaces
+
+These files belong to the repository-owned CI/CD boundary and are not plugin agent instructions or installed plugin payload.
+
+## Module map
+
+- `deploy_plugin.py` is the state-mutating autoCD gateway. Its only entry point is `main`. It owns fixed Git/Codex subprocesses, deployment state, sanitized best-effort Sentry delivery, and the unchanged public deployment receipt. The file remains cohesive above 400 lines because Sentry reporting is required to stay inside the state-mutating gateway rather than a second executable or import boundary. Runtime risks are partial marketplace mutation, receipt corruption, and unavailable telemetry. The owning automation jobs are `ci` and `cd` in `plugin-ci-cd.yml`.
+- `test_deploy_plugin_sentry.py` provides local, stub-only event and transport coverage inside autoCI. It never opens a live Sentry connection and never creates a synthetic live event.
+- `materialize_sentry_dsn.py` is a root-only atomic writer. It accepts one DSN only on inherited file descriptor 3, writes the fixed target, emits no value, and starts no child process.
+- `install-sentry-materializer.sh` installs only that writer as immutable root-owned code. It does not create an identity, obtain a DSN, or execute the writer.
+- `install-runner.sh` owns the isolated GitHub runner and the sole runner-to-deploy sudo boundary. The runner has no materializer sudo grant and cannot traverse `/home/ai1`.
+
+## Sentry failure boundary
+
+The gateway reads `/home/ai1/.config/bears-app-based-workflow/credentials/sentry-dsn` only in memory and only after an actionable failure. The file must be a non-linked regular file owned by `ai1` with mode `0600`. The DSN is never copied into a child environment, argument, log, event, or receipt.
+
+Eligible event codes are limited to unhandled exception, receipt corruption, mutation failure after start, post-mutation failure, recovery activation, and recovery failure. Normal success, no-op, dry-run, invalid input, expected policy or authorization refusal, and a missing or unusable DSN produce no event. Delivery failure is swallowed and cannot change deployment status.
+
+Events contain only normalized `error_code`, `service`, `component`, `operation`, repository shorthand, plugin, full Git SHA, plugin version, workflow run, and receipt schema. Their fingerprint is `service + component + error_code`. Raw exceptions, process output, URLs, request bodies, secrets, personal data, and local variables are excluded.
+
+## Operator-gated materialization contract
+
+No Infisical identity, secret coordinate, or credential is defined in this repository. Inventing any of them would cross the observability ownership boundary. The observability owner must first provision one identity limited to read exactly the DSN secret and provide the fixed secret coordinate through the separately authorized operator packet.
+
+The operator-owned bootstrap must supply the Infisical identity credential from a protected file or inherited descriptor. It must not use arguments, standard output, a GitHub job environment, or the runner account. The Infisical client may stream only the single DSN value into file descriptor 3 of the installed materializer. The materializer then atomically replaces the target with owner `ai1:ai1`, directory mode `0700`, and file mode `0600`. No runner access is retained.
+
+Installing the materializer and performing the first materialization are separate operator-authorized actions. This repository performs neither action automatically and defines no manual fallback for CI/CD or telemetry delivery.
+
+## Public automation projection
+
+The `ci` job always attempts to publish one `automation-status.v1` artifact directly through GitHub Actions; there is no central receiver. Its JSON object contains exactly `schema`, `status`, `commit`, `timestamp`, and immutable `evidence_ref`. `status` is `passed` or `failed` for an emitted run; absence is projected by `automation-status-reader` as `not_run`.

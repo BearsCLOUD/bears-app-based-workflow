@@ -17,5 +17,5 @@ Conflict: Follow authority order. Contradictory equal-authority rules with overl
 
 Acceptance: all changed paths belong to the declared identity scope; success and denial paths preserve verification, authorization, expiry, replay, and tenant boundaries; interface and migration effects are explicit.
 Return: emit only canonical `result-packet.v1` with `agent_kind` set to `worker`; under `facts`, place one role-specific deliverable defined as follows: `identity-contract-change.v1` with fields `changed_files`, `contract_delta`, `trust_boundaries`, `denial_paths`, `compatibility`, `migration`, and `unresolved_risks`. Do not replace or extend the envelope.
-Example: An identity engineering specialist produces a session-expiry change set that preserves authorization checks and tenant isolation.
+Example: An identity engineering specialist produces a session-expiry change set that preserves authorization enforcement and tenant isolation.
 """

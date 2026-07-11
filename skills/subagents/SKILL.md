@@ -11,7 +11,7 @@ This procedure receives only work that the primary already classified `DELEGATED
 
 This instruction procedure is the sole owner of:
 
-- selector reuse for one coherent delegated run;
+- one persistent selector for each coherent delegated workstream;
 - role selection for one concrete L3 assignment;
 - selector, helper, worker, and critic lifecycle inside the L3 dispatch boundary;
 - `role-request.v1`, `role-selection.v1`, `dispatch-packet.v1`, and `result-packet.v1`.
@@ -26,12 +26,12 @@ Every such action for that `DELEGATED` assignment requires an L3 helper, worker,
 
 ## Selector lifecycle
 
-1. An app-dev L2 receives one `role-selector` agent reference in its L1 lane packet. A solo parent acting as L2 creates that selector once.
-2. Reuse the same read-only selector for every concrete assignment until closeout. Never create a selector per worker.
+1. An app-dev L2 receives one `role-selector` agent reference for each coherent workstream in its L1 lane packet. A solo parent acting as L2 creates one selector per coherent workstream.
+2. Reuse that read-only selector for every concrete assignment until workstream closeout. Never create a selector per worker or assignment.
 3. Send every `role-request.v1` to that agent reference; the caller never selects a role itself.
 4. The selector returns exactly one primary role. It may add one helper and one critic.
-5. Reuse the selector and the selected role set through follow-up assignments in the same coherent workstream. Replace a selected role only for terminal failure, changed competence, or a true scope split.
-6. End the selector only after task closeout.
+5. Reuse the selector and, for follow-ups to the same deliverable, the selected role. Replace that role only for terminal failure, changed competence, or a true scope split.
+6. End the selector only after workstream closeout.
 
 The selector is a fast, low-cost decision helper. It must explain why the role exists and why it fits this request. If no exact profile fits, it returns `ROLE_GAP`; it must not substitute a nearby role.
 
@@ -98,6 +98,7 @@ reused_from_assignment: <prior assignment id or none>
 - L4 is forbidden by default.
 - Return `DELEGATION_BLOCKED` when the assignment lacks an exact goal, target scope, allowed actions, or completion criteria. Do not accept a stage, lane, or undecomposed task as an assignment.
 - Forbid L3 redecomposition, selector ownership inside L3, sibling critics, and parent execution fallback after delegated entry.
+- Do not create assignments for word counts, predicates, waits, cachebuster-only work, or intermediate Git actions. One final Git-closeout assignment is the only Git-assignment exception.
 
 If a selected helper discovers work rather than completing it, the caller defines a new assignment id and sends a new role request to the persistent selector. Do not expand the helper's scope.
 
@@ -132,17 +133,18 @@ Use a workspace reader, runtime evidence, diagnostic command, Git, autoCI eviden
 
 ## Automation boundary
 
-Do not request tests, validators, audits, cache checks, cachebusters, quick validation, or plugin validation from any agent. External autoCI runs those after commit. `autoci-evidence-reader` may read generated evidence only after it exists. Pending or missing evidence is never `PASS`.
+Do not request tests, validators, audits, cache checks, cachebusters, quick validation, or plugin validation from any agent. External autoCI runs those after commit. `autoci-evidence-reader` may read generated evidence only after it exists. Its `overall_status` is exactly `passed`, `failed`, or `not_run`: only an authentic receipt for the exact commit and check can produce `passed` or `failed`; missing, pending, or stale evidence produces `not_run`. `not_run` is nonblocking unless an explicit branch or task policy makes evidence mandatory. Missing evidence never authorizes agents to develop or activate autoCI.
 
 ## L3 lifecycle
 
 1. Start `helper_role` only when the assignment needs a narrow prerequisite.
 2. Convert its compact facts into sanitized known input refs and preserve its `consumed_input_refs` provenance; do not forward raw files or logs.
-3. Start `primary_role` with its declared `primary_kind`; it owns the assignment outcome.
-4. Start `critic_role` only for one combined diff or one acceptance surface selected for the assignment. A critic reports findings; it does not silently widen or rewrite worker scope.
-5. If fixes are needed, define a new assignment, ask the selector for the correct worker, and issue a new packet. Reuse the same critic for re-review unless terminal failure, changed competence, or a true scope split requires replacement.
-6. Merge compact results and close the assignment only when its completion criteria are met. The caller closes the owning task after all assignments finish.
-7. Do not issue repeated waits, polling loops, or parallel duplicate critics from this lifecycle.
+3. Start `primary_role` with its declared `primary_kind`; one selected editor owns the full cohesive patch rather than file-by-file assignments.
+4. Start one `critic_role` for the combined diff or acceptance surface. A critic reports findings; it does not silently widen or rewrite worker scope.
+5. If fixes are needed, define a follow-up assignment in the same workstream, set `reuse_role_from`, and reuse the same editor and critic for correction and re-review unless terminal failure, changed competence, or a true scope split requires replacement.
+6. After critic acceptance, create exactly one distinct final Git-closeout assignment. Keep the same `task_id`, `workstream_id`, and selector; use a new `assignment_id` and set `reuse_role_from` to the accepted patch assignment. This separate permission and deliverable boundary is the sole Git-assignment exception.
+7. Merge compact results and close the workstream only after Git closeout or an exact Git-boundary blocker. The caller closes the owning task after all workstreams finish.
+8. Do not issue repeated waits, polling loops, or parallel duplicate critics from this lifecycle.
 
 ## `result-packet.v1`
 

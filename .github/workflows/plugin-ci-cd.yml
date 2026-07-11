@@ -137,4 +137,5 @@ jobs:
     steps:
       - name: Promote the verified revision through the fixed gateway
         shell: bash
+        working-directory: /
         run: sudo -n -u ai1 -- /usr/local/sbin/deploy-bears-app-based-workflow '${{ github.sha }}'

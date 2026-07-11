@@ -130,6 +130,12 @@ done
 /usr/bin/tar --extract --gzip --file "$ARCHIVE" --directory "$RUNNER_DIR" --no-same-owner
 /usr/bin/chown -R root:root "$RUNNER_DIR"
 /usr/bin/chmod -R go-w "$RUNNER_DIR"
+[[ -f "$RUNNER_DIR/bin/runsvc.sh" && ! -L "$RUNNER_DIR/bin/runsvc.sh" && \
+  -x "$RUNNER_DIR/bin/runsvc.sh" ]] || die "runner service wrapper is unsafe"
+[[ "$(/usr/bin/stat -c '%U:%G' "$RUNNER_DIR/bin/runsvc.sh")" == root:root ]] || \
+  die "runner service wrapper is not root-owned"
+/usr/bin/install -o root -g root -m 0755 \
+  "$RUNNER_DIR/bin/runsvc.sh" "$RUNNER_DIR/runsvc.sh"
 /usr/bin/install -o root -g root -m 0644 "$stage/.runner" "$RUNNER_DIR/.runner"
 /usr/bin/install -o "$RUNNER_USER" -g "$RUNNER_GROUP" -m 0600 \
   "$stage/.credentials" "$RUNNER_DIR/.credentials"

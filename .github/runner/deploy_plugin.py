@@ -34,10 +34,12 @@ REPOSITORY_SHORTHAND = "BearsCLOUD/bears-app-based-workflow"
 MAIN_REF = "refs/remotes/origin/main"
 CODEX_HOME = Path("/srv/bears/codex/ai1")
 MARKETPLACE_ROOT = CODEX_HOME / ".tmp/marketplaces" / MARKETPLACE
-STATE_DIR = CODEX_HOME / ".local/state/bears-plugin-deploy"
+STATE_ROOT = Path("/var/lib/bears-plugin-deploy")
+STATE_DIR = STATE_ROOT / "ai1"
 STATE_FILE = STATE_DIR / f"{PLUGIN}.json"
 INTENT_FILE = STATE_DIR / f"{PLUGIN}.promotion-intent.json"
 LOCK_FILE = STATE_DIR / f"{PLUGIN}.lock"
+MIGRATION_TOMBSTONE_FILE = STATE_DIR / f"{PLUGIN}.v1-registration-migrated.json"
 ROLE_GENERATIONS_DIR = STATE_DIR / "role-generations"
 ROLE_RECEIPT_DIR = CODEX_HOME / "state"
 ROLE_RECEIPT_FILE = ROLE_RECEIPT_DIR / f"{PLUGIN}-role-sync.json"
@@ -52,6 +54,7 @@ DEPLOY_RECEIPT_SCHEMA = "bears-plugin-deploy-state.v2"
 PROMOTION_INTENT_SCHEMA = "bears-plugin-promotion-intent.v3"
 LEGACY_ROLE_RECEIPT_SCHEMA = "bears-role-install-receipt.v1"
 ROLE_RECEIPT_SCHEMA = "bears-role-install-receipt.v2"
+ROLE_MIGRATION_TOMBSTONE_SCHEMA = "bears-role-registration-migration.v1"
 EXPECTED_ROLE_COUNT = 11
 CANONICAL_ROLE_NAMES = (
     "app-worker",
@@ -66,7 +69,7 @@ CANONICAL_ROLE_NAMES = (
     "worker",
     "workflow-orchestrator",
 )
-LEGACY_ROLE_VERSION = "0.1.0+codex.20260711144358"
+LEGACY_ROLE_VERSION = "0.1.0+codex.20260711074119"
 LEGACY_ROLE_NAMES = (
     "diagnostic-command-runner",
     "domain-lane-orchestrator",
@@ -78,17 +81,47 @@ LEGACY_ROLE_NAMES = (
     "worker",
     "workflow-orchestrator",
 )
-LEGACY_ROLE_SHA256 = {
-    "diagnostic-command-runner": "4ce047462f8f56d945494df90a685c7390c24ba5327e290dac93a3b100031b26",
-    "domain-lane-orchestrator": "a55e4f0be243d1ac3db643dbe3c6caba26451dcea2b731895d30909436a73ccf",
-    "explorer": "7fefdd33d132c136d7ac4cc458abdcbfe06a3921d343dcb10a00ec654cdbee04",
-    "primary-source-researcher": "93a9a36c82b5e496d59ea1d3da57210f1163d6a641c921a469cbda804ce13921",
-    "role-profile-architect": "310ba40757b04847d6bd80e98c34dfd728d17eab96e31f2896e4eb293f1f61d9",
-    "runtime-evidence-reader": "f1f194a3c6424a2237e27a270b545ea673361568ad988683419bc91aceda5961",
-    "security-analysis-critic": "8e1c41b5988155c77dcd356d4f274084a9f8c476fbffde827662b768edb89be2",
-    "worker": "2e6a3faf9c948ce425aa221c6f1e1a80510691489d3d23943937609ed06ebfcb",
-    "workflow-orchestrator": "7d27b39cb78f1e8f8baa531ac129ec6191f62bc0fd42b06957203e136bc437c7",
+LEGACY_ROLE_PATHS = {
+    "diagnostic-command-runner": "/srv/bears/plugins/bears-app-based-workflow/agents/diagnostic-command-runner.toml",
+    "domain-lane-orchestrator": "/srv/bears/plugins/bears-app-based-workflow/agents/domain-lane-orchestrator.toml",
+    "explorer": "/srv/bears/plugins/bears-app-based-workflow/agents/explorer.toml",
+    "primary-source-researcher": "/srv/bears/plugins/bears-app-based-workflow/agents/primary-source-researcher.toml",
+    "role-profile-architect": "/srv/bears/plugins/bears-app-based-workflow/agents/role-profile-architect.toml",
+    "runtime-evidence-reader": "/srv/bears/plugins/bears-app-based-workflow/agents/runtime-evidence-reader.toml",
+    "security-analysis-critic": "/srv/bears/plugins/bears-app-based-workflow/agents/security-analysis-critic.toml",
+    "worker": "/srv/bears/plugins/bears-app-based-workflow/agents/worker.toml",
+    "workflow-orchestrator": "/srv/bears/plugins/bears-app-based-workflow/agents/workflow-orchestrator.toml",
 }
+LEGACY_ROLE_COUNT = 9
+LEGACY_ROLE_BLOCK_LENGTH = 1301
+LEGACY_ROLE_MANAGED_DIGEST = "72938ba5e0bf98464077941dfbd7465f7528ecb6d8937003603f1239415d2901"
+LEGACY_ROLE_RECEIPT_LENGTH = 1445
+LEGACY_ROLE_RECEIPT_SHA256 = "a2d80113324e76668e2afc958da14fc2b53ef061676ec28eaf3ff7ac181d25f2"
+LEGACY_ARCHIVE_DIRECTORY = (
+    "archive/bears-app-based-workflow/0.1.0+codex.20260710051738/"
+    "sync-16f8326f934f-001"
+)
+LEGACY_ARCHIVE_FILES = (
+    "bears-analytics-quality-engineer.toml",
+    "bears-auth-domain-orchestrator.toml",
+    "bears-auth-platform-engineer.toml",
+    "bears-deploy-platform-engineer.toml",
+    "bears-development-workflow-orchestrator.toml",
+    "bears-gateway-domain-orchestrator.toml",
+    "bears-gateway-platform-engineer.toml",
+    "bears-github-branch-protection-settings-governor.toml",
+    "bears-infra-domain-orchestrator.toml",
+    "bears-notifications-platform-engineer.toml",
+    "bears-orchestrator.toml",
+    "bears-payments-domain-orchestrator.toml",
+    "bears-payments-platform-engineer.toml",
+    "bears-platform-security-reviewer.toml",
+    "bears-product-app-zone-engineer.toml",
+    "bears-qa-governance-orchestrator.toml",
+    "bears-tenant-domain-orchestrator.toml",
+    "bears-tenant-registry-platform-engineer.toml",
+    "bears-wb-integration-platform-engineer.toml",
+)
 PROFILE_FIELDS = frozenset(
     {"name", "description", "model", "model_reasoning_effort", "sandbox_mode", "developer_instructions"}
 )
@@ -893,6 +926,23 @@ def parse_config(data: bytes, label: str) -> dict[str, Any]:
     return value
 
 
+def strict_json_loads(data: bytes, label: str) -> Any:
+    """Decode JSON while rejecting duplicate object keys at every depth."""
+
+    def object_without_duplicates(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
+        value: dict[str, Any] = {}
+        for key, item in pairs:
+            if key in value:
+                raise ValueError("duplicate JSON object key")
+            value[key] = item
+        return value
+
+    try:
+        return json.loads(data, object_pairs_hook=object_without_duplicates)
+    except (UnicodeError, json.JSONDecodeError, ValueError) as exc:
+        raise DeployError(f"{label} is malformed") from exc
+
+
 def managed_role_span(data: bytes) -> tuple[int, int] | None:
     begins: list[tuple[int, int]] = []
     ends: list[tuple[int, int]] = []
@@ -916,6 +966,115 @@ def role_block(version: str, catalog: dict[str, str]) -> bytes:
         lines.extend((f"[agents.{json.dumps(name)}]", f"config_file = {json.dumps(path)}"))
     lines.append(END_ROLE_MARKER.decode())
     return ("\n".join(lines) + "\n").encode("utf-8")
+
+
+def legacy_role_receipt_value() -> dict[str, Any]:
+    """Return the sole live v1 receipt admitted by registration migration."""
+    return {
+        "schema": LEGACY_ROLE_RECEIPT_SCHEMA,
+        "plugin": PLUGIN,
+        "version": LEGACY_ROLE_VERSION,
+        "status": "installed",
+        "changed": True,
+        "role_count": LEGACY_ROLE_COUNT,
+        "managed_digest": LEGACY_ROLE_MANAGED_DIGEST,
+        "managed_joiner_added": False,
+        "archives": [
+            {
+                "count": len(LEGACY_ARCHIVE_FILES),
+                "directory": LEGACY_ARCHIVE_DIRECTORY,
+                "files": list(LEGACY_ARCHIVE_FILES),
+            }
+        ],
+    }
+
+
+def legacy_role_receipt_bytes() -> bytes:
+    """Return the exact serialized live v1 receipt, not a generic v1 encoding."""
+    payload = (json.dumps(legacy_role_receipt_value(), indent=2, sort_keys=True) + "\n").encode(
+        "utf-8"
+    )
+    if (
+        len(payload) != LEGACY_ROLE_RECEIPT_LENGTH
+        or not secrets.compare_digest(
+            hashlib.sha256(payload).hexdigest(), LEGACY_ROLE_RECEIPT_SHA256
+        )
+    ):
+        raise DeployError("pinned legacy role receipt fingerprint is internally inconsistent")
+    return payload
+
+
+def legacy_role_block() -> bytes:
+    """Return the exact nine-row live predecessor registration block."""
+    block = role_block(LEGACY_ROLE_VERSION, LEGACY_ROLE_PATHS)
+    if (
+        len(block) != LEGACY_ROLE_BLOCK_LENGTH
+        or not secrets.compare_digest(
+            hashlib.sha256(block).hexdigest(), LEGACY_ROLE_MANAGED_DIGEST
+        )
+    ):
+        raise DeployError("pinned legacy role block fingerprint is internally inconsistent")
+    return block
+
+
+def validate_legacy_role_receipt(value: Any, raw: bytes) -> dict[str, Any]:
+    """Admit only the exact registration-only live predecessor receipt."""
+    expected = legacy_role_receipt_value()
+    archives = value.get("archives") if isinstance(value, dict) else None
+    archive = archives[0] if isinstance(archives, list) and len(archives) == 1 else None
+    if (
+        not isinstance(value, dict)
+        or set(value) != set(expected)
+        or value.get("changed") is not True
+        or value.get("managed_joiner_added") is not False
+        or not isinstance(value.get("role_count"), int)
+        or isinstance(value.get("role_count"), bool)
+        or not isinstance(archive, dict)
+        or set(archive) != {"count", "directory", "files"}
+        or not isinstance(archive.get("count"), int)
+        or isinstance(archive.get("count"), bool)
+        or not isinstance(archive.get("directory"), str)
+        or not isinstance(archive.get("files"), list)
+        or any(not isinstance(name, str) for name in archive.get("files", []))
+        or value != expected
+        or len(raw) != LEGACY_ROLE_RECEIPT_LENGTH
+        or not secrets.compare_digest(raw, legacy_role_receipt_bytes())
+        or not secrets.compare_digest(
+            hashlib.sha256(raw).hexdigest(), LEGACY_ROLE_RECEIPT_SHA256
+        )
+    ):
+        raise DeployError("unknown legacy shared role receipt is not migratable")
+    return value
+
+
+def validate_legacy_registration_payload(config: bytes, receipt: bytes) -> str:
+    """Authenticate only registration bytes; never inspect legacy profile files."""
+    value = validate_legacy_role_receipt(
+        strict_json_loads(receipt, "legacy shared role receipt"), receipt
+    )
+    _, span = config_without_owned_roles(config)
+    if span is None:
+        raise DeployError("exact legacy managed role block is missing")
+    block = config[span[0] : span[1]]
+    expected_block = legacy_role_block()
+    if (
+        len(block) != LEGACY_ROLE_BLOCK_LENGTH
+        or not secrets.compare_digest(block, expected_block)
+        or not secrets.compare_digest(
+            hashlib.sha256(block).hexdigest(), LEGACY_ROLE_MANAGED_DIGEST
+        )
+        or not secrets.compare_digest(str(value["managed_digest"]), LEGACY_ROLE_MANAGED_DIGEST)
+    ):
+        raise DeployError("legacy managed role block is not the exact live predecessor")
+    agents = parse_config(block, "legacy managed role block").get("agents")
+    if not isinstance(agents, dict) or set(agents) != set(LEGACY_ROLE_NAMES):
+        raise DeployError("legacy managed role block catalog is not exact")
+    for name in LEGACY_ROLE_NAMES:
+        if agents.get(name) != {"config_file": LEGACY_ROLE_PATHS[name]}:
+            raise DeployError("legacy managed role registration path is not exact")
+    return hashlib.sha256(
+        b"bears-v1-registration\0" + block + b"\0" + receipt
+    ).hexdigest()
 
 
 def config_without_owned_roles(data: bytes) -> tuple[bytes, tuple[int, int] | None]:
@@ -1112,10 +1271,9 @@ def read_role_receipt_at(directory: int) -> tuple[bytes, os.stat_result] | None:
 def parse_role_receipt(snapshot: tuple[bytes, os.stat_result] | None) -> dict[str, Any] | None:
     if snapshot is None:
         return None
-    try:
-        value = json.loads(snapshot[0])
-    except (UnicodeError, json.JSONDecodeError) as exc:
-        raise DeployError("shared role receipt is malformed") from exc
+    value = strict_json_loads(snapshot[0], "shared role receipt")
+    if isinstance(value, dict) and value.get("schema") == LEGACY_ROLE_RECEIPT_SCHEMA:
+        return validate_legacy_role_receipt(value, snapshot[0])
     required = {
         "schema",
         "plugin",
@@ -1128,21 +1286,14 @@ def parse_role_receipt(snapshot: tuple[bytes, os.stat_result] | None) -> dict[st
         "managed_profiles",
         "archives",
     }
-    legacy_required = required - {"managed_profiles"}
     status = value.get("status") if isinstance(value, dict) else None
     role_count = value.get("role_count") if isinstance(value, dict) else None
     digest = value.get("managed_digest") if isinstance(value, dict) else None
     profiles = value.get("managed_profiles") if isinstance(value, dict) else None
     if (
         not isinstance(value, dict)
-        or value.get("schema") not in {LEGACY_ROLE_RECEIPT_SCHEMA, ROLE_RECEIPT_SCHEMA}
-        or (
-            set(value) != required
-            and not (
-                value.get("schema") == LEGACY_ROLE_RECEIPT_SCHEMA
-                and set(value) == legacy_required
-            )
-        )
+        or value.get("schema") != ROLE_RECEIPT_SCHEMA
+        or set(value) != required
         or value.get("plugin") != PLUGIN
         or not VERSION_RE.fullmatch(str(value.get("version", "")))
         or status not in {"installed", "uninstalled"}
@@ -1154,10 +1305,7 @@ def parse_role_receipt(snapshot: tuple[bytes, os.stat_result] | None) -> dict[st
         or not isinstance(value.get("archives"), list)
     ):
         raise DeployError("shared role receipt identity is invalid")
-    if value["schema"] == LEGACY_ROLE_RECEIPT_SCHEMA:
-        if value["version"] != LEGACY_ROLE_VERSION or role_count != len(LEGACY_ROLE_NAMES):
-            raise DeployError("unknown legacy shared role receipt is not migratable")
-    elif role_count != EXPECTED_ROLE_COUNT or profiles is None:
+    if role_count != EXPECTED_ROLE_COUNT or profiles is None:
         raise DeployError("shared role receipt role catalog is invalid")
     if status == "installed":
         if not isinstance(digest, str) or not FINGERPRINT_RE.fullmatch(digest):
@@ -1180,13 +1328,17 @@ def validate_owned_role_state(
         return value
     if value is None or value.get("status") != "installed":
         raise DeployError("managed role block has no shared ownership receipt")
+    if value.get("schema") == LEGACY_ROLE_RECEIPT_SCHEMA:
+        if receipt is None:
+            raise DeployError("exact legacy shared role receipt is missing")
+        validate_legacy_registration_payload(config, receipt[0])
+        return value
     block = config[span[0] : span[1]]
     digest = hashlib.sha256(block).hexdigest()
     records = value.get("managed_profiles")
-    legacy = value.get("schema") == LEGACY_ROLE_RECEIPT_SCHEMA
-    expected_names = LEGACY_ROLE_NAMES if legacy else CANONICAL_ROLE_NAMES
+    expected_names = CANONICAL_ROLE_NAMES
     if (
-        value.get("managed_digest") != digest
+        not secrets.compare_digest(str(value.get("managed_digest")), digest)
         or not isinstance(value.get("role_count"), int)
         or isinstance(value.get("role_count"), bool)
         or value["role_count"] != len(expected_names)
@@ -1196,18 +1348,7 @@ def validate_owned_role_state(
     if not isinstance(block_agents, dict) or set(block_agents) != set(expected_names):
         raise DeployError("managed role block is not the exact receipted role catalog")
     if records is None:
-        if not legacy:
-            raise DeployError("current shared role receipt omits profile ownership")
-        records = [
-            {
-                "name": name,
-                "config_file": block_agents[name].get("config_file")
-                if isinstance(block_agents[name], dict)
-                else None,
-                "sha256": LEGACY_ROLE_SHA256[name],
-            }
-            for name in expected_names
-        ]
+        raise DeployError("current shared role receipt omits profile ownership")
     if not isinstance(records, list) or [record.get("name") for record in records if isinstance(record, dict)] != list(expected_names):
         raise DeployError("shared role receipt profile catalog is not canonical")
     recorded: dict[str, tuple[str, str]] = {}
@@ -1225,11 +1366,6 @@ def validate_owned_role_state(
             or not FINGERPRINT_RE.fullmatch(content_digest)
         ):
             raise DeployError("shared role receipt profile ownership is invalid")
-        if legacy and (
-            Path(path).name != f"{name}.toml"
-            or not secrets.compare_digest(content_digest, LEGACY_ROLE_SHA256[name])
-        ):
-            raise DeployError("legacy shared role receipt does not match the allowlisted catalog")
         row = block_agents.get(name)
         if not isinstance(row, dict) or row != {"config_file": path}:
             raise DeployError("shared role receipt does not own the managed registration")
@@ -1807,19 +1943,19 @@ def reconcile_roles(
 ) -> dict[str, Any]:
     if intent is None or intent.get("requested_sha") != requested:
         raise DeployError("promotion intent does not target the reconciled role revision")
+    validate_intent(intent)
     fingerprint = verify_install(requested, expected_version)
     cache = plugin_cache(expected_version)
     bundle = pinned_role_bundle(cache, requested, expected_version)
     catalog = materialize_role_generation(state_directory, bundle)
     home_fd, lock_fd = open_role_config_lock()
     receipt_directory = -1
-    before: tuple[bytes, os.stat_result] | None = None
-    receipt_before: tuple[bytes, os.stat_result] | None = None
     config_publication: FilePublication | None = None
     receipt_publication: FilePublication | None = None
     desired = b""
     desired_receipt = b""
     phase = "prepared"
+    operation = "install"
     combined_published = False
     try:
         receipt_directory = open_role_receipt_directory(home_fd)
@@ -1828,6 +1964,18 @@ def reconcile_roles(
         original = b"" if before is None else before[0]
         block = role_block(expected_version, catalog)
         transaction = intent.get("role_transaction")
+        durable_tombstone = load_migration_tombstone(state_directory)
+        live_receipt_value = parse_role_receipt(receipt_before)
+        if (
+            durable_tombstone is not None
+            and live_receipt_value is not None
+            and live_receipt_value.get("schema") == LEGACY_ROLE_RECEIPT_SCHEMA
+        ):
+            raise DeployError(
+                "legacy registration reappeared after its migration tombstone",
+                error_code="receipt-corruption",
+            )
+
         if transaction is None:
             previous_role_receipt = validate_owned_role_state(original, receipt_before)
             desired = desired_role_config(original, expected_version, catalog)
@@ -1848,46 +1996,166 @@ def reconcile_roles(
                 added_joiner=added_joiner,
             )
             record = role_deployment_record(fingerprint, bundle, catalog, desired_receipt)
-            intent = save_role_intent(
-                state_directory,
-                intent,
-                config_preimage=before,
-                desired_block=block,
-                role_receipt_preimage=receipt_before,
-                role_receipt=desired_receipt,
-                role_record=record,
-            )
+            if (
+                previous_role_receipt is not None
+                and previous_role_receipt.get("schema") == LEGACY_ROLE_RECEIPT_SCHEMA
+            ):
+                if durable_tombstone is not None:
+                    raise DeployError(
+                        "legacy registration replay is blocked by its migration tombstone",
+                        error_code="receipt-corruption",
+                    )
+                if before is None or receipt_before is None:
+                    raise DeployError("legacy registration migration preimages are incomplete")
+                legacy_fingerprint = validate_legacy_registration_payload(
+                    before[0], receipt_before[0]
+                )
+                intent = save_registration_migration_intent(
+                    state_directory,
+                    intent,
+                    config_preimage=before,
+                    desired_config=desired,
+                    role_receipt_preimage=receipt_before,
+                    role_receipt=desired_receipt,
+                    role_record=record,
+                    legacy_fingerprint=legacy_fingerprint,
+                )
+            else:
+                intent = save_role_intent(
+                    state_directory,
+                    intent,
+                    config_preimage=before,
+                    desired_block=block,
+                    role_receipt_preimage=receipt_before,
+                    role_receipt=desired_receipt,
+                    role_record=record,
+                )
             transaction = intent["role_transaction"]
         else:
-            if transaction.get("operation") != "install":
+            operation = str(transaction.get("operation"))
+            if operation == "install":
+                preimage = decode_journal_bytes(
+                    transaction["config_preimage_b64"],
+                    CONFIG_MAX_BYTES,
+                    "config preimage",
+                )
+                journaled_block = decode_journal_bytes(
+                    transaction["desired_block_b64"],
+                    CONFIG_MAX_BYTES,
+                    "desired role block",
+                )
+                desired_receipt = decode_journal_bytes(
+                    transaction["role_receipt_b64"],
+                    ROLE_RECEIPT_MAX_BYTES,
+                    "desired role receipt",
+                )
+                desired = config_with_role_block(preimage, journaled_block)
+                record = role_deployment_record(fingerprint, bundle, catalog, desired_receipt)
+                if journaled_block != block or transaction["role_record"] != record:
+                    raise DeployError(
+                        "journaled role transaction disagrees with the exact cached role data"
+                    )
+            elif operation == "migrate-v1-registration":
+                preimage = decode_journal_bytes(
+                    transaction["config_preimage_b64"],
+                    CONFIG_MAX_BYTES,
+                    "config preimage",
+                )
+                desired = decode_journal_bytes(
+                    transaction["desired_config_b64"],
+                    CONFIG_MAX_BYTES,
+                    "desired config",
+                )
+                desired_receipt = decode_journal_bytes(
+                    transaction["role_receipt_b64"],
+                    ROLE_RECEIPT_MAX_BYTES,
+                    "desired role receipt",
+                )
+                receipt_preimage = decode_journal_bytes(
+                    transaction["role_receipt_preimage_b64"],
+                    ROLE_RECEIPT_MAX_BYTES,
+                    "role receipt preimage",
+                )
+                legacy_fingerprint = validate_legacy_registration_payload(
+                    preimage, receipt_preimage
+                )
+                previous_role_receipt = validate_legacy_role_receipt(
+                    strict_json_loads(receipt_preimage, "legacy shared role receipt"),
+                    receipt_preimage,
+                )
+                expected_desired = config_with_role_block(preimage, block)
+                expected_receipt = build_role_receipt(
+                    expected_version,
+                    block,
+                    catalog,
+                    bundle,
+                    previous_role_receipt,
+                    added_joiner=False,
+                )
+                record = role_deployment_record(
+                    fingerprint, bundle, catalog, expected_receipt
+                )
+                expected_tombstone = build_migration_tombstone(
+                    legacy_fingerprint,
+                    requested,
+                    str(record["role_generation"]),
+                    str(record["role_receipt_sha256"]),
+                )
+                journaled_tombstone = decode_journal_bytes(
+                    transaction["tombstone_b64"],
+                    RECEIPT_MAX_BYTES,
+                    "migration tombstone",
+                )
+                if (
+                    transaction["legacy_fingerprint"] != legacy_fingerprint
+                    or transaction["role_record"] != record
+                    or desired != expected_desired
+                    or desired_receipt != expected_receipt
+                    or journaled_tombstone != expected_tombstone
+                ):
+                    raise DeployError(
+                        "registration migration journal disagrees with exact old or requested data"
+                    )
+                current_config = None if before is None else before[0]
+                current_receipt = None if receipt_before is None else receipt_before[0]
+                config_state = (
+                    "old"
+                    if current_config == preimage
+                    else "desired"
+                    if current_config == desired
+                    else "third"
+                )
+                receipt_state = (
+                    "old"
+                    if current_receipt == receipt_preimage
+                    else "desired"
+                    if current_receipt == desired_receipt
+                    else "third"
+                )
+                if "third" in {config_state, receipt_state}:
+                    raise DeployError(
+                        "live registration is outside exact migration recovery states",
+                        error_code="receipt-corruption",
+                    )
+                expected_tombstone_value = parse_migration_tombstone(expected_tombstone)
+                if durable_tombstone is not None:
+                    if durable_tombstone != expected_tombstone_value:
+                        raise DeployError(
+                            "registration migration tombstone conflicts with its journal",
+                            error_code="receipt-corruption",
+                        )
+                    if "old" in {config_state, receipt_state}:
+                        raise DeployError(
+                            "legacy registration rollback or replay detected after tombstone",
+                            error_code="receipt-corruption",
+                        )
+                if config_state == receipt_state == "old":
+                    validate_legacy_registration_payload(current_config, current_receipt)
+                elif config_state == receipt_state == "desired":
+                    validate_owned_role_state(desired, receipt_before)
+            else:
                 raise DeployError("promotion intent contains a non-install role transaction")
-            preimage = decode_journal_bytes(
-                transaction["config_preimage_b64"],
-                CONFIG_MAX_BYTES,
-                "config preimage",
-            )
-            journaled_block = decode_journal_bytes(
-                transaction["desired_block_b64"],
-                CONFIG_MAX_BYTES,
-                "desired role block",
-            )
-            desired_receipt = decode_journal_bytes(
-                transaction["role_receipt_b64"],
-                ROLE_RECEIPT_MAX_BYTES,
-                "desired role receipt",
-            )
-            desired = config_with_role_block(preimage, journaled_block)
-            record = role_deployment_record(fingerprint, bundle, catalog, desired_receipt)
-            if journaled_block != block or transaction["role_record"] != record:
-                raise DeployError("journaled role transaction disagrees with the exact cached role data")
-            preimage_matches = (
-                before is not None and original == preimage
-                if transaction["config_preimage_present"]
-                else before is None
-            )
-            desired_matches = before is not None and original == desired
-            if not preimage_matches and not desired_matches:
-                raise DeployError("live Codex config is outside the journaled role transaction")
+
             receipt_preimage_value = transaction["role_receipt_preimage_b64"]
             receipt_preimage = (
                 None
@@ -1898,13 +2166,19 @@ def reconcile_roles(
                     "role receipt preimage",
                 )
             )
-            receipt_bytes = None if receipt_before is None else receipt_before[0]
-            if receipt_bytes == desired_receipt and desired_matches:
-                validate_owned_role_state(desired, receipt_before)
-            elif receipt_bytes == receipt_preimage and preimage_matches:
-                validate_owned_role_state(preimage, receipt_before)
-            elif receipt_bytes not in {receipt_preimage, desired_receipt}:
+            current_config = None if before is None else original
+            current_receipt = None if receipt_before is None else receipt_before[0]
+            expected_config = preimage if transaction["config_preimage_present"] else None
+            if current_config not in {expected_config, desired}:
+                raise DeployError("live Codex config is outside the journaled role transaction")
+            if current_receipt not in {receipt_preimage, desired_receipt}:
                 raise DeployError("shared role receipt is outside the journaled transaction")
+            if current_config == desired and current_receipt == desired_receipt:
+                validate_owned_role_state(desired, receipt_before)
+            elif current_config == expected_config and current_receipt == receipt_preimage:
+                validate_owned_role_state(preimage, receipt_before)
+
+        operation = str(transaction["operation"])
         phase = str(transaction["phase"])
         preimage = decode_journal_bytes(
             transaction["config_preimage_b64"],
@@ -1964,7 +2238,19 @@ def reconcile_roles(
         combined_published = True
         if phase == "prepared":
             intent = mark_role_transaction_committed(state_directory, intent)
+            transaction = intent["role_transaction"]
             phase = "committed"
+        if operation == "migrate-v1-registration":
+            publish_migration_tombstone(state_directory, transaction)
+            expected_tombstone = parse_migration_tombstone(
+                decode_journal_bytes(
+                    transaction["tombstone_b64"],
+                    RECEIPT_MAX_BYTES,
+                    "migration tombstone",
+                )
+            )
+            if load_migration_tombstone(state_directory) != expected_tombstone:
+                raise DeployError("registration migration tombstone is not durable")
         finalize_publication(receipt_publication)
         finalize_publication(config_publication)
         return record
@@ -1992,14 +2278,13 @@ def reconcile_roles(
         os.close(lock_fd)
         os.close(home_fd)
 
-
 def rollback_journaled_roles(intent: dict[str, Any]) -> None:
     transaction = intent.get("role_transaction")
     if transaction is None:
         return
     validate_intent(intent)
     if transaction.get("operation") != "install":
-        raise DeployError("role-removal transaction must converge forward")
+        raise DeployError("non-install role transaction must converge forward")
     preimage = decode_journal_bytes(
         transaction["config_preimage_b64"],
         CONFIG_MAX_BYTES,
@@ -2272,17 +2557,18 @@ def clear_owned_roles(state_directory: int, intent: dict[str, Any]) -> dict[str,
 def validate_directory_component(
     descriptor: int,
     *,
-    require_user_owner: bool,
-    require_private_mode: bool,
+    expected_uid: int,
+    expected_gid: int,
+    exact_mode: int | None,
 ) -> None:
     """Require a trusted directory component opened without link traversal."""
     component_stat = os.fstat(descriptor)
     mode = stat.S_IMODE(component_stat.st_mode)
-    trusted_owners = {os.geteuid()} if require_user_owner else {0, os.geteuid()}
-    unsafe_mode = mode != 0o700 if require_private_mode else bool(mode & 0o022)
+    unsafe_mode = mode != exact_mode if exact_mode is not None else bool(mode & 0o022)
     if (
         not stat.S_ISDIR(component_stat.st_mode)
-        or component_stat.st_uid not in trusted_owners
+        or component_stat.st_uid != expected_uid
+        or component_stat.st_gid != expected_gid
         or unsafe_mode
     ):
         raise DeployError("deployment state path component owner, mode, or type is unsafe")
@@ -2290,32 +2576,38 @@ def validate_directory_component(
 
 def open_state_directory() -> int:
     """Open and validate every fixed path component without following links."""
+    if (
+        STATE_ROOT != Path("/var/lib/bears-plugin-deploy")
+        or STATE_DIR != STATE_ROOT / "ai1"
+        or ROLE_GENERATIONS_DIR != STATE_DIR / "role-generations"
+        or MIRROR != STATE_DIR / "repository.git"
+    ):
+        raise DeployError("deployment state path constants are inconsistent")
     flags = os.O_RDONLY | os.O_DIRECTORY | os.O_CLOEXEC | os.O_NOFOLLOW
     descriptor = os.open("/", flags)
-    components = STATE_DIR.parts[1:]
-    home_depth = len(CODEX_HOME.parts) - 1
+    components = ("var", "lib", STATE_ROOT.name, STATE_DIR.name)
     try:
         validate_directory_component(
             descriptor,
-            require_user_owner=False,
-            require_private_mode=False,
+            expected_uid=0,
+            expected_gid=0,
+            exact_mode=None,
         )
         for depth, component in enumerate(components, start=1):
             try:
                 child = os.open(component, flags, dir_fd=descriptor)
             except FileNotFoundError:
-                if depth <= home_depth:
-                    raise DeployError("fixed Codex state path is incomplete")
-                os.mkdir(component, mode=0o700, dir_fd=descriptor)
-                os.fsync(descriptor)
-                child = os.open(component, flags, dir_fd=descriptor)
+                raise DeployError("root-provisioned deployment state path is incomplete")
             except OSError as exc:
                 raise DeployError("deployment state path component is unsafe") from exc
             try:
+                leaf = depth == len(components)
+                parent = depth == len(components) - 1
                 validate_directory_component(
                     child,
-                    require_user_owner=depth >= home_depth,
-                    require_private_mode=depth == len(components),
+                    expected_uid=os.geteuid() if leaf else 0,
+                    expected_gid=os.getegid() if leaf else 0,
+                    exact_mode=0o700 if leaf else 0o755 if parent else None,
                 )
             except Exception:
                 os.close(child)
@@ -2355,6 +2647,168 @@ def open_lock_file(state_directory: int) -> int:
     return descriptor
 
 
+def read_private_state_name_at(
+    state_directory: int,
+    name: str,
+    maximum: int,
+    label: str,
+) -> tuple[bytes, os.stat_result] | None:
+    """Read one private state file relative to the already trusted leaf."""
+    descriptor = -1
+    try:
+        descriptor = os.open(
+            name,
+            os.O_RDONLY | os.O_CLOEXEC | os.O_NOFOLLOW,
+            dir_fd=state_directory,
+        )
+    except FileNotFoundError:
+        return None
+    except OSError as exc:
+        raise DeployError(f"{label} is unsafe", error_code="receipt-corruption") from exc
+    try:
+        file_stat = validate_private_regular(
+            descriptor, label, error_code="receipt-corruption"
+        )
+        if file_stat.st_size > maximum:
+            raise DeployError(f"{label} is oversized", error_code="receipt-corruption")
+        payload = bytearray()
+        while len(payload) <= maximum:
+            chunk = os.read(descriptor, min(4096, maximum + 1 - len(payload)))
+            if not chunk:
+                break
+            payload.extend(chunk)
+        if len(payload) > maximum:
+            raise DeployError(f"{label} is oversized", error_code="receipt-corruption")
+        return bytes(payload), file_stat
+    except OSError as exc:
+        raise DeployError(f"{label} is unreadable", error_code="receipt-corruption") from exc
+    finally:
+        os.close(descriptor)
+
+
+def parse_migration_tombstone(data: bytes) -> dict[str, Any]:
+    """Validate the durable anti-replay record for the one v1 migration."""
+    value = strict_json_loads(data, "registration migration tombstone")
+    fields = {
+        "schema",
+        "plugin",
+        "legacy_fingerprint",
+        "requested_sha",
+        "role_generation",
+        "role_receipt_sha256",
+    }
+    if (
+        not isinstance(value, dict)
+        or set(value) != fields
+        or value.get("schema") != ROLE_MIGRATION_TOMBSTONE_SCHEMA
+        or value.get("plugin") != PLUGIN
+        or not isinstance(value.get("legacy_fingerprint"), str)
+        or not FINGERPRINT_RE.fullmatch(value["legacy_fingerprint"])
+        or not isinstance(value.get("requested_sha"), str)
+        or not SHA_RE.fullmatch(value["requested_sha"])
+        or not isinstance(value.get("role_generation"), str)
+        or not FINGERPRINT_RE.fullmatch(value["role_generation"])
+        or not isinstance(value.get("role_receipt_sha256"), str)
+        or not FINGERPRINT_RE.fullmatch(value["role_receipt_sha256"])
+    ):
+        raise DeployError(
+            "registration migration tombstone is invalid",
+            error_code="receipt-corruption",
+        )
+    return value
+
+
+def build_migration_tombstone(
+    legacy_fingerprint: str,
+    requested_sha: str,
+    role_generation: str,
+    role_receipt_sha256: str,
+) -> bytes:
+    value = {
+        "schema": ROLE_MIGRATION_TOMBSTONE_SCHEMA,
+        "plugin": PLUGIN,
+        "legacy_fingerprint": legacy_fingerprint,
+        "requested_sha": requested_sha,
+        "role_generation": role_generation,
+        "role_receipt_sha256": role_receipt_sha256,
+    }
+    payload = (json.dumps(value, sort_keys=True) + "\n").encode("utf-8")
+    parse_migration_tombstone(payload)
+    return payload
+
+
+def load_migration_tombstone(state_directory: int) -> dict[str, Any] | None:
+    snapshot = read_private_state_name_at(
+        state_directory,
+        MIGRATION_TOMBSTONE_FILE.name,
+        RECEIPT_MAX_BYTES,
+        "registration migration tombstone",
+    )
+    return None if snapshot is None else parse_migration_tombstone(snapshot[0])
+
+
+def publish_migration_tombstone(state_directory: int, transaction: dict[str, Any]) -> None:
+    """Durably publish the one-shot anti-replay record without replacement."""
+    payload = decode_journal_bytes(
+        transaction["tombstone_b64"], RECEIPT_MAX_BYTES, "migration tombstone"
+    )
+    if not secrets.compare_digest(
+        hashlib.sha256(payload).hexdigest(), transaction["tombstone_sha256"]
+    ):
+        raise DeployError("journaled migration tombstone digest is invalid")
+    value = parse_migration_tombstone(payload)
+    if (
+        value["legacy_fingerprint"] != transaction["legacy_fingerprint"]
+        or value["role_generation"] != transaction["role_generation"]
+        or value["role_receipt_sha256"] != transaction["role_receipt_sha256"]
+    ):
+        raise DeployError("journaled migration tombstone binding is inconsistent")
+    name = MIGRATION_TOMBSTONE_FILE.name
+    exchange = transaction["tombstone_exchange_name"]
+    current = read_private_state_name_at(
+        state_directory, name, RECEIPT_MAX_BYTES, "registration migration tombstone"
+    )
+    if current is not None:
+        if not secrets.compare_digest(current[0], payload):
+            raise DeployError("conflicting registration migration tombstone")
+        staged = read_private_state_name_at(
+            state_directory, exchange, RECEIPT_MAX_BYTES, "migration tombstone staging file"
+        )
+        if staged is not None:
+            if not secrets.compare_digest(staged[0], payload):
+                raise DeployError("migration tombstone staging file is ambiguous")
+            os.unlink(exchange, dir_fd=state_directory)
+        os.fsync(state_directory)
+        return
+    write_publication_stage(
+        state_directory,
+        exchange,
+        payload,
+        0o600,
+        lambda directory, target: read_private_state_name_at(
+            directory, target, RECEIPT_MAX_BYTES, "migration tombstone staging file"
+        ),
+        "registration migration tombstone",
+    )
+    try:
+        renameat2(state_directory, exchange, name, RENAME_NOREPLACE)
+    except OSError as exc:
+        if exc.errno != errno.EEXIST:
+            raise
+        current = read_private_state_name_at(
+            state_directory, name, RECEIPT_MAX_BYTES, "registration migration tombstone"
+        )
+        if current is None or not secrets.compare_digest(current[0], payload):
+            raise DeployError("registration migration tombstone publication raced") from exc
+        os.unlink(exchange, dir_fd=state_directory)
+    os.fsync(state_directory)
+    durable = read_private_state_name_at(
+        state_directory, name, RECEIPT_MAX_BYTES, "registration migration tombstone"
+    )
+    if durable is None or not secrets.compare_digest(durable[0], payload):
+        raise DeployError("registration migration tombstone is not durable")
+
+
 def validate_deploy_receipt(value: Any) -> dict[str, Any]:
     base_fields = {
         "schema",
@@ -2371,9 +2825,12 @@ def validate_deploy_receipt(value: Any) -> dict[str, Any]:
         or value.get("repository") != REPOSITORY
         or value.get("marketplace") != MARKETPLACE
         or value.get("plugin") != PLUGIN
-        or not SHA_RE.fullmatch(str(value.get("sha", "")))
-        or not VERSION_RE.fullmatch(str(value.get("version", "")))
-        or not FINGERPRINT_RE.fullmatch(str(value.get("payload_fingerprint", "")))
+        or not isinstance(value.get("sha"), str)
+        or not SHA_RE.fullmatch(value["sha"])
+        or not isinstance(value.get("version"), str)
+        or not VERSION_RE.fullmatch(value["version"])
+        or not isinstance(value.get("payload_fingerprint"), str)
+        or not FINGERPRINT_RE.fullmatch(value["payload_fingerprint"])
     ):
         raise DeployError("deployment receipt identity is invalid", error_code="receipt-corruption")
     if value["schema"] == LEGACY_DEPLOY_RECEIPT_SCHEMA:
@@ -2527,6 +2984,17 @@ def validate_intent(value: Any) -> dict[str, Any]:
             "role_record",
         }
         remove_fields = {"desired_config_b64", "desired_config_sha256"}
+        migration_fields = {
+            "desired_config_b64",
+            "desired_config_sha256",
+            "legacy_fingerprint",
+            "role_generation",
+            "role_receipt_preimage_sha256",
+            "role_record",
+            "tombstone_b64",
+            "tombstone_exchange_name",
+            "tombstone_sha256",
+        }
         role_record_fields = {
             "payload_fingerprint",
             "role_generation",
@@ -2538,14 +3006,21 @@ def validate_intent(value: Any) -> dict[str, Any]:
         }
         role_record = transaction.get("role_record") if isinstance(transaction, dict) else None
         operation = transaction.get("operation") if isinstance(transaction, dict) else None
-        expected_fields = common_fields | (install_fields if operation == "install" else remove_fields)
+        operation_fields = (
+            install_fields
+            if operation == "install"
+            else migration_fields
+            if operation == "migrate-v1-registration"
+            else remove_fields
+        )
+        expected_fields = common_fields | operation_fields
         preimage_present = transaction.get("config_preimage_present") if isinstance(transaction, dict) else None
         receipt_preimage_value = (
             transaction.get("role_receipt_preimage_b64") if isinstance(transaction, dict) else None
         )
         if (
             not isinstance(transaction, dict)
-            or operation not in {"install", "remove"}
+            or operation not in {"install", "migrate-v1-registration", "remove"}
             or set(transaction) != expected_fields
             or transaction.get("phase") not in {"prepared", "committed"}
             or not FINGERPRINT_RE.fullmatch(str(transaction.get("config_preimage_sha256", "")))
@@ -2588,6 +3063,29 @@ def validate_intent(value: Any) -> dict[str, Any]:
             or not FINGERPRINT_RE.fullmatch(str(transaction.get("desired_config_sha256", "")))
         ):
             raise DeployError("promotion removal transaction is invalid", error_code="receipt-corruption")
+        if operation == "migrate-v1-registration" and (
+            preimage_present is not True
+            or not isinstance(receipt_preimage_value, str)
+            or not isinstance(transaction.get("desired_config_b64"), str)
+            or not FINGERPRINT_RE.fullmatch(str(transaction.get("desired_config_sha256", "")))
+            or not FINGERPRINT_RE.fullmatch(str(transaction.get("legacy_fingerprint", "")))
+            or not FINGERPRINT_RE.fullmatch(
+                str(transaction.get("role_receipt_preimage_sha256", ""))
+            )
+            or not FINGERPRINT_RE.fullmatch(str(transaction.get("role_generation", "")))
+            or not isinstance(role_record, dict)
+            or set(role_record) != role_record_fields
+            or not isinstance(transaction.get("tombstone_b64"), str)
+            or not FINGERPRINT_RE.fullmatch(str(transaction.get("tombstone_sha256", "")))
+            or not re.fullmatch(
+                rf"\.{re.escape(PLUGIN)}-v1-registration\.[0-9a-f]{{32}}\.tmp",
+                str(transaction.get("tombstone_exchange_name", "")),
+            )
+        ):
+            raise DeployError(
+                "promotion registration migration transaction is invalid",
+                error_code="receipt-corruption",
+            )
         try:
             config_preimage = decode_journal_bytes(
                 transaction["config_preimage_b64"],
@@ -2605,11 +3103,22 @@ def validate_intent(value: Any) -> dict[str, Any]:
                 "desired role receipt",
             )
             if receipt_preimage_value is not None:
-                decode_journal_bytes(
+                receipt_preimage = decode_journal_bytes(
                     receipt_preimage_value,
                     ROLE_RECEIPT_MAX_BYTES,
                     "role receipt preimage",
                 )
+            else:
+                receipt_preimage = None
+            tombstone = (
+                decode_journal_bytes(
+                    transaction["tombstone_b64"],
+                    RECEIPT_MAX_BYTES,
+                    "migration tombstone",
+                )
+                if operation == "migrate-v1-registration"
+                else None
+            )
         except DeployError as exc:
             raise DeployError(
                 "promotion role transaction payload is invalid",
@@ -2625,12 +3134,23 @@ def validate_intent(value: Any) -> dict[str, Any]:
             or hashlib.sha256(role_receipt).hexdigest()
             != transaction["role_receipt_sha256"]
             or (not preimage_present and config_preimage != b"")
+            or (
+                operation == "migrate-v1-registration"
+                and (
+                    receipt_preimage is None
+                    or hashlib.sha256(receipt_preimage).hexdigest()
+                    != transaction["role_receipt_preimage_sha256"]
+                    or tombstone is None
+                    or hashlib.sha256(tombstone).hexdigest()
+                    != transaction["tombstone_sha256"]
+                )
+            )
         ):
             raise DeployError(
                 "promotion role transaction payload digest is invalid",
                 error_code="receipt-corruption",
             )
-        if operation == "install":
+        if operation in {"install", "migrate-v1-registration"}:
             try:
                 validate_deploy_receipt(
                     {
@@ -2655,6 +3175,45 @@ def validate_intent(value: Any) -> dict[str, Any]:
             ):
                 raise DeployError(
                     "promotion role transaction disagrees with its role record",
+                    error_code="receipt-corruption",
+                )
+        if operation == "migrate-v1-registration":
+            try:
+                legacy_fingerprint = validate_legacy_registration_payload(
+                    config_preimage, receipt_preimage
+                )
+                receipt_value = strict_json_loads(role_receipt, "desired v2 role receipt")
+                tombstone_value = parse_migration_tombstone(tombstone)
+                profiles = role_record["role_profiles"]
+                catalog = {
+                    row["name"]: row["config_file"]
+                    for row in profiles
+                    if isinstance(row, dict)
+                }
+                expected_config = config_with_role_block(
+                    config_preimage,
+                    role_block(str(receipt_value.get("version", "")), catalog),
+                )
+            except (AttributeError, DeployError, KeyError, TypeError) as exc:
+                raise DeployError(
+                    "promotion registration migration payload is invalid",
+                    error_code="receipt-corruption",
+                ) from exc
+            if (
+                legacy_fingerprint != transaction["legacy_fingerprint"]
+                or not isinstance(receipt_value, dict)
+                or receipt_value.get("schema") != ROLE_RECEIPT_SCHEMA
+                or receipt_value.get("plugin") != PLUGIN
+                or receipt_value.get("status") != "installed"
+                or expected_config != desired_payload
+                or tombstone_value["legacy_fingerprint"] != legacy_fingerprint
+                or tombstone_value["requested_sha"] != value["requested_sha"]
+                or tombstone_value["role_generation"] != transaction["role_generation"]
+                or tombstone_value["role_receipt_sha256"]
+                != transaction["role_receipt_sha256"]
+            ):
+                raise DeployError(
+                    "promotion registration migration binding is invalid",
                     error_code="receipt-corruption",
                 )
     return value
@@ -2807,6 +3366,56 @@ def save_role_intent(
         "receipt_exchange_name": f".{PLUGIN}-role-sync.{secrets.token_hex(16)}.tmp",
         "role_count": role_record["role_count"],
         "role_record": role_record,
+    }
+    return persist_intent(state_directory, value)
+
+
+def save_registration_migration_intent(
+    state_directory: int,
+    intent: dict[str, Any],
+    *,
+    config_preimage: tuple[bytes, os.stat_result],
+    desired_config: bytes,
+    role_receipt_preimage: tuple[bytes, os.stat_result],
+    role_receipt: bytes,
+    role_record: dict[str, Any],
+    legacy_fingerprint: str,
+) -> dict[str, Any]:
+    """Persist the exact one-shot v1 registration migration before publication."""
+    value = dict(intent)
+    config_bytes = config_preimage[0]
+    receipt_bytes = role_receipt_preimage[0]
+    tombstone = build_migration_tombstone(
+        legacy_fingerprint,
+        str(intent["requested_sha"]),
+        str(role_record["role_generation"]),
+        str(role_record["role_receipt_sha256"]),
+    )
+    value["role_transaction"] = {
+        "operation": "migrate-v1-registration",
+        "phase": "prepared",
+        "config_preimage_b64": encode_journal_bytes(config_bytes),
+        "config_preimage_present": True,
+        "config_preimage_sha256": hashlib.sha256(config_bytes).hexdigest(),
+        "config_preimage_metadata": snapshot_metadata(config_preimage),
+        "config_exchange_name": f".config.toml.bears-gateway.{secrets.token_hex(16)}",
+        "desired_config_b64": encode_journal_bytes(desired_config),
+        "desired_config_sha256": hashlib.sha256(desired_config).hexdigest(),
+        "legacy_fingerprint": legacy_fingerprint,
+        "role_generation": role_record["role_generation"],
+        "role_receipt_b64": encode_journal_bytes(role_receipt),
+        "role_receipt_preimage_b64": encode_journal_bytes(receipt_bytes),
+        "role_receipt_preimage_metadata": snapshot_metadata(role_receipt_preimage),
+        "role_receipt_preimage_sha256": hashlib.sha256(receipt_bytes).hexdigest(),
+        "role_receipt_sha256": role_record["role_receipt_sha256"],
+        "receipt_exchange_name": f".{PLUGIN}-role-sync.{secrets.token_hex(16)}.tmp",
+        "role_count": role_record["role_count"],
+        "role_record": role_record,
+        "tombstone_b64": encode_journal_bytes(tombstone),
+        "tombstone_exchange_name": (
+            f".{PLUGIN}-v1-registration.{secrets.token_hex(16)}.tmp"
+        ),
+        "tombstone_sha256": hashlib.sha256(tombstone).hexdigest(),
     }
     return persist_intent(state_directory, value)
 
@@ -3007,6 +3616,56 @@ def disable_and_verify(state_directory: int, intent: dict[str, Any]) -> None:
     clear_state(state_directory)
 
 
+def converge_registration_migration(
+    state_directory: int,
+    intent: dict[str, Any],
+) -> str:
+    """Recover the one-shot registration migration only by converging forward."""
+    validate_intent(intent)
+    transaction = intent.get("role_transaction")
+    if not isinstance(transaction, dict) or transaction.get("operation") != "migrate-v1-registration":
+        raise DeployError("registration migration recovery journal is absent")
+    desired_receipt = decode_journal_bytes(
+        transaction["role_receipt_b64"],
+        ROLE_RECEIPT_MAX_BYTES,
+        "desired role receipt",
+    )
+    receipt_value = strict_json_loads(desired_receipt, "desired v2 role receipt")
+    version = receipt_value.get("version") if isinstance(receipt_value, dict) else None
+    if (
+        not isinstance(version, str)
+        or not VERSION_RE.fullmatch(version)
+        or receipt_value.get("schema") != ROLE_RECEIPT_SCHEMA
+        or receipt_value.get("plugin") != PLUGIN
+        or receipt_value.get("status") != "installed"
+    ):
+        raise DeployError("registration migration desired receipt is invalid")
+    requested = str(intent["requested_sha"])
+    role_record = reconcile_roles(requested, version, state_directory, intent)
+    save_state(state_directory, requested, version, role_record)
+    durable = load_state(state_directory)
+    if (
+        durable is None
+        or durable.get("schema") != DEPLOY_RECEIPT_SCHEMA
+        or durable.get("sha") != requested
+        or durable.get("version") != version
+        or any(durable.get(field) != value for field, value in role_record.items())
+    ):
+        raise DeployError("registration migration deployment receipt is not durable")
+    expected_tombstone = parse_migration_tombstone(
+        decode_journal_bytes(
+            transaction["tombstone_b64"],
+            RECEIPT_MAX_BYTES,
+            "migration tombstone",
+        )
+    )
+    if load_migration_tombstone(state_directory) != expected_tombstone:
+        raise DeployError("registration migration tombstone disappeared before receipt")
+    verify_receipted_install(durable)
+    clear_intent(state_directory)
+    return "requested"
+
+
 def converge_promotion_intent(
     state_directory: int,
     intent: dict[str, Any],
@@ -3016,6 +3675,8 @@ def converge_promotion_intent(
     if durable_intent is not None:
         intent = durable_intent
     transaction = intent.get("role_transaction")
+    if transaction is not None and transaction.get("operation") == "migrate-v1-registration":
+        return converge_registration_migration(state_directory, intent)
     if transaction is not None and transaction.get("operation") == "remove":
         disable_and_verify(state_directory, intent)
         clear_intent(state_directory)

@@ -16,6 +16,9 @@ readonly REPOSITORY_URL="https://github.com/${REPOSITORY}"
 readonly ARCHIVE="/var/cache/bears-plugin-runner/actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz"
 readonly ARCHIVE_URL="https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz"
 readonly DEPLOY_COMMAND="/usr/local/sbin/deploy-bears-app-based-workflow"
+readonly DEPLOY_STATE_ROOT="/var/lib/bears-plugin-deploy"
+readonly DEPLOY_STATE_DIR="$DEPLOY_STATE_ROOT/ai1"
+readonly LEGACY_DEPLOY_STATE_DIR="/srv/bears/codex/ai1/.local/state/bears-plugin-deploy"
 readonly SUDOERS_FILE="/etc/sudoers.d/bears-plugin-runner-deploy"
 readonly SERVICE_NAME="bears-plugin-runner.service"
 readonly SERVICE_FILE="/etc/systemd/system/${SERVICE_NAME}"
@@ -88,6 +91,334 @@ if /usr/bin/pgrep -u "$RUNNER_USER" >/dev/null; then
   /usr/bin/pkill -KILL -u "$RUNNER_USER" || true
 fi
 /usr/bin/pgrep -u "$RUNNER_USER" >/dev/null && die "$RUNNER_USER still has running processes"
+
+# Provision the gateway-owned state boundary and import only the old deployment receipt.
+IFS=: read -r _ _ ai1_uid ai1_gid _ _ _ < <(/usr/bin/getent passwd ai1)
+[[ "$ai1_uid" =~ ^[0-9]+$ && "$ai1_uid" != 0 && "$ai1_gid" =~ ^[0-9]+$ ]] || \
+  die "ai1 must have a fixed non-root uid and numeric gid"
+/usr/bin/python3 - \
+  "$ai1_uid" "$ai1_gid" "$DEPLOY_STATE_ROOT" "$DEPLOY_STATE_DIR" \
+  "$LEGACY_DEPLOY_STATE_DIR" <<'PY'
+import ctypes
+import errno
+import fcntl
+import hmac
+import json
+import os
+import re
+import secrets
+import stat
+import sys
+
+AI1_UID = int(sys.argv[1])
+AI1_GID = int(sys.argv[2])
+STATE_ROOT = sys.argv[3]
+STATE_DIR = sys.argv[4]
+LEGACY_STATE_DIR = sys.argv[5]
+PLUGIN = "bears-app-based-workflow"
+RECEIPT = f"{PLUGIN}.json"
+INTENT = f"{PLUGIN}.promotion-intent.json"
+LOCK = f"{PLUGIN}.lock"
+MAXIMUM = 64 * 1024
+FLAGS = os.O_RDONLY | os.O_DIRECTORY | os.O_CLOEXEC | os.O_NOFOLLOW
+RENAME_NOREPLACE = 1
+
+
+def fail(message: str) -> None:
+    raise SystemExit(f"install-runner: {message}")
+
+
+if (
+    STATE_ROOT != "/var/lib/bears-plugin-deploy"
+    or STATE_DIR != f"{STATE_ROOT}/ai1"
+    or LEGACY_STATE_DIR
+    != "/srv/bears/codex/ai1/.local/state/bears-plugin-deploy"
+):
+    fail("deployment state path contract drifted")
+
+
+def validate_directory(
+    descriptor: int,
+    label: str,
+    *,
+    uid: int,
+    gid: int | None,
+    exact_mode: int | None,
+    allow_group_write: bool = False,
+) -> None:
+    value = os.fstat(descriptor)
+    mode = stat.S_IMODE(value.st_mode)
+    if (
+        not stat.S_ISDIR(value.st_mode)
+        or value.st_uid != uid
+        or (gid is not None and value.st_gid != gid)
+        or (exact_mode is not None and mode != exact_mode)
+        or (exact_mode is None and (mode & (0o002 if allow_group_write else 0o022)))
+    ):
+        fail(f"unsafe directory in deployment state path: {label}")
+
+
+def open_child(parent: int, name: str, label: str) -> int:
+    try:
+        return os.open(name, FLAGS, dir_fd=parent)
+    except OSError as exc:
+        fail(f"missing or unsafe directory in deployment state path: {label}: {exc.errno}")
+
+
+root = os.open("/", FLAGS)
+validate_directory(root, "/", uid=0, gid=0, exact_mode=None)
+var = open_child(root, "var", "/var")
+validate_directory(var, "/var", uid=0, gid=0, exact_mode=None)
+var_lib = open_child(var, "lib", "/var/lib")
+validate_directory(var_lib, "/var/lib", uid=0, gid=0, exact_mode=None)
+try:
+    state_root = os.open("bears-plugin-deploy", FLAGS, dir_fd=var_lib)
+except FileNotFoundError:
+    os.mkdir("bears-plugin-deploy", 0o755, dir_fd=var_lib)
+    state_root = os.open("bears-plugin-deploy", FLAGS, dir_fd=var_lib)
+    os.fchown(state_root, 0, 0)
+    os.fchmod(state_root, 0o755)
+    os.fsync(state_root)
+    os.fsync(var_lib)
+except OSError as exc:
+    fail(f"unsafe deployment state root: {exc.errno}")
+validate_directory(
+    state_root,
+    "/var/lib/bears-plugin-deploy",
+    uid=0,
+    gid=0,
+    exact_mode=0o755,
+)
+try:
+    state = os.open("ai1", FLAGS, dir_fd=state_root)
+except FileNotFoundError:
+    os.mkdir("ai1", 0o700, dir_fd=state_root)
+    state = os.open("ai1", FLAGS, dir_fd=state_root)
+    os.fchown(state, AI1_UID, AI1_GID)
+    os.fchmod(state, 0o700)
+    os.fsync(state)
+    os.fsync(state_root)
+except OSError as exc:
+    fail(f"unsafe ai1 deployment state leaf: {exc.errno}")
+validate_directory(
+    state,
+    "/var/lib/bears-plugin-deploy/ai1",
+    uid=AI1_UID,
+    gid=AI1_GID,
+    exact_mode=0o700,
+)
+
+
+def optional_old_state() -> int | None:
+    descriptor = os.dup(root)
+    specifications = (
+        ("srv", "/srv", 0, 0, 0o755),
+        ("bears", "/srv/bears", 0, AI1_GID, 0o775),
+        ("codex", "/srv/bears/codex", AI1_UID, None, 0o2770),
+        ("ai1", "/srv/bears/codex/ai1", AI1_UID, AI1_GID, 0o700),
+        (".local", "/srv/bears/codex/ai1/.local", AI1_UID, AI1_GID, 0o775),
+        ("state", "/srv/bears/codex/ai1/.local/state", AI1_UID, AI1_GID, 0o775),
+        (
+            "bears-plugin-deploy",
+            "/srv/bears/codex/ai1/.local/state/bears-plugin-deploy",
+            AI1_UID,
+            AI1_GID,
+            0o700,
+        ),
+    )
+    for name, label, uid, gid, mode in specifications:
+        try:
+            child = os.open(name, FLAGS, dir_fd=descriptor)
+        except FileNotFoundError:
+            os.close(descriptor)
+            return None
+        except OSError as exc:
+            os.close(descriptor)
+            fail(f"unsafe legacy deployment state ancestor {label}: {exc.errno}")
+        os.close(descriptor)
+        descriptor = child
+        validate_directory(descriptor, label, uid=uid, gid=gid, exact_mode=mode)
+    return descriptor
+
+
+def entry_exists(directory: int, name: str) -> bool:
+    try:
+        os.stat(name, dir_fd=directory, follow_symlinks=False)
+    except FileNotFoundError:
+        return False
+    return True
+
+
+def read_private(directory: int, name: str, label: str) -> bytes:
+    try:
+        descriptor = os.open(
+            name,
+            os.O_RDONLY | os.O_CLOEXEC | os.O_NOFOLLOW,
+            dir_fd=directory,
+        )
+    except OSError as exc:
+        fail(f"missing or unsafe {label}: {exc.errno}")
+    try:
+        value = os.fstat(descriptor)
+        if (
+            not stat.S_ISREG(value.st_mode)
+            or value.st_uid != AI1_UID
+            or value.st_gid != AI1_GID
+            or stat.S_IMODE(value.st_mode) != 0o600
+            or value.st_nlink != 1
+            or value.st_size > MAXIMUM
+        ):
+            fail(f"{label} is not a private ai1 regular file")
+        payload = bytearray()
+        while len(payload) <= MAXIMUM:
+            chunk = os.read(descriptor, min(4096, MAXIMUM + 1 - len(payload)))
+            if not chunk:
+                break
+            payload.extend(chunk)
+        if len(payload) > MAXIMUM:
+            fail(f"{label} is oversized")
+        return bytes(payload)
+    finally:
+        os.close(descriptor)
+
+
+def strict_object(pairs: list[tuple[str, object]]) -> dict[str, object]:
+    value: dict[str, object] = {}
+    for key, item in pairs:
+        if key in value:
+            fail("legacy deployment receipt contains duplicate JSON keys")
+        value[key] = item
+    return value
+
+
+def validate_legacy_receipt(payload: bytes) -> None:
+    try:
+        value = json.loads(payload, object_pairs_hook=strict_object)
+    except (UnicodeError, json.JSONDecodeError) as exc:
+        fail(f"legacy deployment receipt is malformed: {exc.msg}")
+    fields = {
+        "schema",
+        "repository",
+        "marketplace",
+        "plugin",
+        "sha",
+        "version",
+        "payload_fingerprint",
+    }
+    if (
+        not isinstance(value, dict)
+        or set(value) != fields
+        or value.get("schema") != "bears-plugin-deploy-state.v1"
+        or value.get("repository")
+        != "https://github.com/BearsCLOUD/bears-app-based-workflow.git"
+        or value.get("marketplace") != PLUGIN
+        or value.get("plugin") != PLUGIN
+        or not isinstance(value.get("sha"), str)
+        or not re.fullmatch(r"[0-9a-f]{40}", value["sha"])
+        or not isinstance(value.get("version"), str)
+        or not re.fullmatch(
+            r"\d+\.\d+\.\d+\+codex\.\d{14}", value["version"]
+        )
+        or not isinstance(value.get("payload_fingerprint"), str)
+        or not re.fullmatch(r"[0-9a-f]{64}", value["payload_fingerprint"])
+    ):
+        fail("legacy deployment receipt identity is invalid")
+
+
+legacy = optional_old_state()
+if legacy is not None:
+    receipt_present = entry_exists(legacy, RECEIPT)
+    intent_present = entry_exists(legacy, INTENT)
+    if receipt_present or intent_present:
+        if not entry_exists(legacy, LOCK):
+            fail("legacy deployment state lock is missing")
+        lock_fd = os.open(
+            LOCK,
+            os.O_RDWR | os.O_CLOEXEC | os.O_NOFOLLOW,
+            dir_fd=legacy,
+        )
+        lock_stat = os.fstat(lock_fd)
+        if (
+            not stat.S_ISREG(lock_stat.st_mode)
+            or lock_stat.st_uid != AI1_UID
+            or lock_stat.st_gid != AI1_GID
+            or stat.S_IMODE(lock_stat.st_mode) != 0o600
+            or lock_stat.st_nlink != 1
+        ):
+            fail("legacy deployment state lock is unsafe")
+        fcntl.flock(lock_fd, fcntl.LOCK_EX)
+        if entry_exists(legacy, INTENT):
+            fail("legacy deployment state has an active promotion intent")
+        if entry_exists(legacy, RECEIPT):
+            source = read_private(legacy, RECEIPT, "legacy deployment receipt")
+            validate_legacy_receipt(source)
+            destination_present = entry_exists(state, RECEIPT)
+            if destination_present:
+                destination = read_private(state, RECEIPT, "new deployment receipt")
+                if not hmac.compare_digest(source, destination):
+                    fail("new deployment state conflicts with the legacy receipt")
+            else:
+                if os.listdir(state):
+                    fail("new deployment state is non-empty before one-time receipt import")
+                temporary = f".{PLUGIN}.receipt-import.{secrets.token_hex(16)}.tmp"
+                target_fd = os.open(
+                    temporary,
+                    os.O_WRONLY
+                    | os.O_CREAT
+                    | os.O_EXCL
+                    | os.O_CLOEXEC
+                    | os.O_NOFOLLOW,
+                    0o600,
+                    dir_fd=state,
+                )
+                try:
+                    os.fchown(target_fd, AI1_UID, AI1_GID)
+                    os.fchmod(target_fd, 0o600)
+                    offset = 0
+                    while offset < len(source):
+                        advanced = os.write(target_fd, source[offset:])
+                        if advanced <= 0:
+                            fail("legacy deployment receipt import write did not advance")
+                        offset += advanced
+                    os.fsync(target_fd)
+                finally:
+                    os.close(target_fd)
+                libc = ctypes.CDLL(None, use_errno=True)
+                renameat2 = libc.renameat2
+                renameat2.argtypes = [
+                    ctypes.c_int,
+                    ctypes.c_char_p,
+                    ctypes.c_int,
+                    ctypes.c_char_p,
+                    ctypes.c_uint,
+                ]
+                renameat2.restype = ctypes.c_int
+                if renameat2(
+                    state,
+                    os.fsencode(temporary),
+                    state,
+                    os.fsencode(RECEIPT),
+                    RENAME_NOREPLACE,
+                ) != 0:
+                    number = ctypes.get_errno()
+                    if number != errno.EEXIST:
+                        fail(f"legacy deployment receipt import failed: {number}")
+                    destination = read_private(state, RECEIPT, "new deployment receipt")
+                    if not hmac.compare_digest(source, destination):
+                        fail("new deployment receipt raced with one-time import")
+                    os.unlink(temporary, dir_fd=state)
+                os.fsync(state)
+                imported = read_private(state, RECEIPT, "imported deployment receipt")
+                if not hmac.compare_digest(source, imported):
+                    fail("imported deployment receipt is not durable")
+        os.close(lock_fd)
+    os.close(legacy)
+os.close(state)
+os.close(state_root)
+os.close(var_lib)
+os.close(var)
+os.close(root)
+PY
 
 /usr/bin/install -d -o root -g root -m 0755 "$(dirname "$ARCHIVE")"
 if [[ -f "$ARCHIVE" ]] && ! printf '%s  %s\n' "$RUNNER_SHA256" "$ARCHIVE" | /usr/bin/sha256sum --check --status; then
@@ -203,7 +534,7 @@ TimeoutStopSec=5min
 PrivateTmp=true
 ProtectSystem=strict
 ProtectHome=read-only
-ReadWritePaths=$RUNNER_DIR/_work $RUNNER_DIR/_diag $RUNNER_DIR/.credentials $RUNNER_DIR/.credentials_rsaparams /srv/bears/codex/ai1
+ReadWritePaths=$RUNNER_DIR/_work $RUNNER_DIR/_diag $RUNNER_DIR/.credentials $RUNNER_DIR/.credentials_rsaparams /srv/bears/codex/ai1 $DEPLOY_STATE_DIR
 UMask=0077
 
 [Install]

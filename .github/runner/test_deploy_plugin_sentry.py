@@ -9,6 +9,7 @@ import hashlib
 import json
 import os
 from pathlib import Path
+import stat
 import sys
 import subprocess
 import tempfile
@@ -113,6 +114,103 @@ class SentryGatewayCoverage(unittest.TestCase):
                 opener=opener,
             )
         self.assertIsNone(reference)
+
+
+class StateDirectoryCoverage(unittest.TestCase):
+    @staticmethod
+    def directory(uid: int, gid: int, mode: int) -> object:
+        return mock.Mock(st_mode=stat.S_IFDIR | mode, st_uid=uid, st_gid=gid)
+
+    def test_safe_root_provisioned_path_is_opened_without_creation(self) -> None:
+        descriptors = [10, 11, 12, 13, 14]
+        metadata = [
+            self.directory(0, 0, 0o755),
+            self.directory(0, 0, 0o755),
+            self.directory(0, 0, 0o755),
+            self.directory(0, 0, 0o755),
+            self.directory(1000, 1000, 0o700),
+        ]
+        with (
+            mock.patch.object(DEPLOY.os, "open", side_effect=descriptors) as opener,
+            mock.patch.object(DEPLOY.os, "fstat", side_effect=metadata),
+            mock.patch.object(DEPLOY.os, "close"),
+            mock.patch.object(DEPLOY.os, "mkdir") as mkdir,
+            mock.patch.object(DEPLOY.os, "geteuid", return_value=1000),
+            mock.patch.object(DEPLOY.os, "getegid", return_value=1000),
+        ):
+            descriptor = DEPLOY.open_state_directory()
+        self.assertEqual(descriptor, 14)
+        self.assertEqual([call.args[0] for call in opener.call_args_list], ["/", "var", "lib", "bears-plugin-deploy", "ai1"])
+        mkdir.assert_not_called()
+
+    def test_missing_root_provision_is_not_created_by_gateway(self) -> None:
+        with (
+            mock.patch.object(
+                DEPLOY.os,
+                "open",
+                side_effect=[10, 11, 12, FileNotFoundError()],
+            ),
+            mock.patch.object(
+                DEPLOY.os,
+                "fstat",
+                side_effect=[
+                    self.directory(0, 0, 0o755),
+                    self.directory(0, 0, 0o755),
+                    self.directory(0, 0, 0o755),
+                ],
+            ),
+            mock.patch.object(DEPLOY.os, "close"),
+            mock.patch.object(DEPLOY.os, "mkdir") as mkdir,
+        ):
+            with self.assertRaisesRegex(DEPLOY.DeployError, "root-provisioned"):
+                DEPLOY.open_state_directory()
+        mkdir.assert_not_called()
+
+    def test_unsafe_new_ancestor_parent_or_leaf_is_rejected(self) -> None:
+        cases = (
+            (1, self.directory(1000, 0, 0o755)),
+            (3, self.directory(0, 0, 0o775)),
+            (4, self.directory(1000, 1001, 0o700)),
+        )
+        baseline = [
+            self.directory(0, 0, 0o755),
+            self.directory(0, 0, 0o755),
+            self.directory(0, 0, 0o755),
+            self.directory(0, 0, 0o755),
+            self.directory(1000, 1000, 0o700),
+        ]
+        for index, unsafe in cases:
+            with self.subTest(index=index):
+                metadata = list(baseline)
+                metadata[index] = unsafe
+                with (
+                    mock.patch.object(DEPLOY.os, "open", side_effect=[10, 11, 12, 13, 14]),
+                    mock.patch.object(DEPLOY.os, "fstat", side_effect=metadata),
+                    mock.patch.object(DEPLOY.os, "close"),
+                    mock.patch.object(DEPLOY.os, "geteuid", return_value=1000),
+                    mock.patch.object(DEPLOY.os, "getegid", return_value=1000),
+                ):
+                    with self.assertRaises(DEPLOY.DeployError):
+                        DEPLOY.open_state_directory()
+
+
+class InstallerStateMigrationCoverage(unittest.TestCase):
+    def test_reviewed_installer_keeps_old_and_new_path_guards(self) -> None:
+        source = MODULE_PATH.with_name("install-runner.sh").read_text(encoding="utf-8")
+        for required in (
+            'DEPLOY_STATE_ROOT="/var/lib/bears-plugin-deploy"',
+            'DEPLOY_STATE_DIR="$DEPLOY_STATE_ROOT/ai1"',
+            'LEGACY_DEPLOY_STATE_DIR="/srv/bears/codex/ai1/.local/state/bears-plugin-deploy"',
+            "os.O_NOFOLLOW",
+            "fcntl.flock(lock_fd, fcntl.LOCK_EX)",
+            'fail("legacy deployment state has an active promotion intent")',
+            'fail("new deployment state is non-empty before one-time receipt import")',
+            "RENAME_NOREPLACE",
+            "$DEPLOY_STATE_DIR",
+        ):
+            self.assertIn(required, source)
+        self.assertIn('(\"bears\", \"/srv/bears\", 0, AI1_GID, 0o775)', source)
+        self.assertIn('(\"codex\", \"/srv/bears/codex\", AI1_UID, None, 0o2770)', source)
 
 
 class RoleReconciliationCoverage(unittest.TestCase):
@@ -336,71 +434,112 @@ class RoleReconciliationCoverage(unittest.TestCase):
         self.assertEqual(parsed["agents"]["personal"], {"config_file": "/opt/personal.toml"})
         self.assertEqual(set(parsed["agents"]).intersection(self.EXPECTED_NAMES), set(self.EXPECTED_NAMES))
 
-    def test_authentic_predecessor_receipt_migrates_to_v2_eleven(self) -> None:
+    def test_exact_live_v1_is_registration_only_and_migrates_to_v2(self) -> None:
+        block = DEPLOY.legacy_role_block()
+        config = b'[agents.personal]\nconfig_file = "/opt/personal.toml"\n\n' + block
+        receipt_bytes = DEPLOY.legacy_role_receipt_bytes()
+        self.assertEqual(len(block), 1301)
+        self.assertEqual(hashlib.sha256(block).hexdigest(), DEPLOY.LEGACY_ROLE_MANAGED_DIGEST)
         with tempfile.TemporaryDirectory() as temporary:
-            root = Path(temporary)
-            profiles = root / "legacy"
-            profiles.mkdir()
-            catalog: dict[str, str] = {}
-            records: list[dict[str, str]] = []
-            for name in DEPLOY.LEGACY_ROLE_NAMES:
-                data = subprocess.run(
-                    ["git", "show", f"22a6017:agents/{name}.toml"],
-                    cwd=MODULE_PATH.parents[2],
-                    check=True,
-                    stdout=subprocess.PIPE,
-                ).stdout
-                path = profiles / f"{name}.toml"
-                path.write_bytes(data)
-                catalog[name] = str(path)
-                digest = hashlib.sha256(data).hexdigest()
-                self.assertEqual(digest, DEPLOY.LEGACY_ROLE_SHA256[name])
-                records.append({"name": name, "config_file": str(path), "sha256": digest})
-            block = DEPLOY.role_block(DEPLOY.LEGACY_ROLE_VERSION, catalog)
-            config = b'[agents.personal]\nconfig_file = "/opt/personal.toml"\n\n' + block
-            receipt_value = {
-                "schema": DEPLOY.LEGACY_ROLE_RECEIPT_SCHEMA,
-                "plugin": DEPLOY.PLUGIN,
-                "version": DEPLOY.LEGACY_ROLE_VERSION,
-                "status": "installed",
-                "changed": True,
-                "role_count": 9,
-                "managed_digest": hashlib.sha256(block).hexdigest(),
-                "managed_joiner_added": False,
-                "managed_profiles": records,
-                "archives": [],
-            }
-            receipt_path = root / "receipt.json"
-            receipt_path.write_text(json.dumps(receipt_value), encoding="utf-8")
+            receipt_path = Path(temporary) / "receipt.json"
+            receipt_path.write_bytes(receipt_bytes)
             receipt_path.chmod(0o600)
-            receipt = (receipt_path.read_bytes(), receipt_path.stat())
-            previous = DEPLOY.validate_owned_role_state(config, receipt)
-            self.assertEqual(previous["role_count"], 9)
-            current_catalog = self.catalog()
-            desired = DEPLOY.desired_role_config(config, self.VERSION, current_catalog)
-            DEPLOY.verify_role_config(desired, current_catalog)
-            bundle = {
-                "profiles": {name: {"sha256": "a" * 64} for name in self.EXPECTED_NAMES}
-            }
-            current_block = DEPLOY.role_block(self.VERSION, current_catalog)
-            migrated = json.loads(
-                DEPLOY.build_role_receipt(
-                    self.VERSION,
-                    current_block,
-                    current_catalog,
-                    bundle,
-                    previous,
-                    added_joiner=False,
-                )
+            snapshot = (receipt_bytes, receipt_path.stat())
+            with mock.patch.object(
+                DEPLOY,
+                "read_regular_bytes",
+                side_effect=AssertionError("legacy profile bytes must not be read"),
+            ):
+                previous = DEPLOY.validate_owned_role_state(config, snapshot)
+        self.assertEqual(previous, DEPLOY.legacy_role_receipt_value())
+        current_catalog = self.catalog()
+        desired = DEPLOY.desired_role_config(config, self.VERSION, current_catalog)
+        DEPLOY.verify_role_config(desired, current_catalog)
+        bundle = {
+            "profiles": {name: {"sha256": "a" * 64} for name in self.EXPECTED_NAMES}
+        }
+        current_block = DEPLOY.role_block(self.VERSION, current_catalog)
+        migrated = json.loads(
+            DEPLOY.build_role_receipt(
+                self.VERSION,
+                current_block,
+                current_catalog,
+                bundle,
+                previous,
+                added_joiner=False,
             )
-            self.assertEqual(migrated["schema"], DEPLOY.ROLE_RECEIPT_SCHEMA)
-            self.assertEqual(migrated["role_count"], 11)
-            self.assertEqual([row["name"] for row in migrated["managed_profiles"]], list(self.EXPECTED_NAMES))
+        )
+        self.assertEqual(migrated["schema"], DEPLOY.ROLE_RECEIPT_SCHEMA)
+        self.assertEqual(migrated["role_count"], 11)
+        self.assertEqual(
+            [row["name"] for row in migrated["managed_profiles"]],
+            list(self.EXPECTED_NAMES),
+        )
+        self.assertEqual(migrated["archives"], DEPLOY.legacy_role_receipt_value()["archives"])
 
-            receipt_value["version"] = "0.1.0+codex.20260711144359"
-            receipt_path.write_text(json.dumps(receipt_value), encoding="utf-8")
-            with self.assertRaises(DEPLOY.DeployError):
-                DEPLOY.validate_owned_role_state(config, (receipt_path.read_bytes(), receipt_path.stat()))
+    def test_every_v1_fingerprint_drift_fails_without_profile_access(self) -> None:
+        block = DEPLOY.legacy_role_block()
+        config = b'[agents.personal]\nconfig_file = "/opt/personal.toml"\n\n' + block
+        receipt = DEPLOY.legacy_role_receipt_bytes()
+
+        def encoded(change: object) -> bytes:
+            value = DEPLOY.legacy_role_receipt_value()
+            change(value)
+            return (json.dumps(value, indent=2, sort_keys=True) + "\n").encode()
+
+        wrong_path = block.replace(
+            DEPLOY.LEGACY_ROLE_PATHS["worker"].encode(),
+            b"/hostile/legacy/worker.toml",
+            1,
+        )
+        duplicate = b'{"schema":"duplicate",' + receipt[1:]
+        cases = {
+            "version": (
+                config,
+                encoded(lambda value: value.__setitem__("version", "0.1.0+codex.20260711074120")),
+            ),
+            "digest": (
+                config,
+                encoded(lambda value: value.__setitem__("managed_digest", "0" * 64)),
+            ),
+            "key": (
+                config,
+                encoded(lambda value: value.__setitem__("unexpected", True)),
+            ),
+            "path": (config[: -len(block)] + wrong_path, receipt),
+            "length": (config[:-1], receipt),
+            "archive": (
+                config,
+                encoded(lambda value: value["archives"][0].__setitem__("count", 18)),
+            ),
+            "profile-field": (
+                config,
+                encoded(lambda value: value.__setitem__("managed_profiles", [])),
+            ),
+            "duplicate-json": (config, duplicate),
+        }
+        with tempfile.TemporaryDirectory() as temporary:
+            receipt_path = Path(temporary) / "receipt.json"
+            for label, (candidate_config, candidate_receipt) in cases.items():
+                with self.subTest(label=label):
+                    receipt_path.write_bytes(candidate_receipt)
+                    receipt_path.chmod(0o600)
+                    original_config = bytes(candidate_config)
+                    original_receipt = bytes(candidate_receipt)
+                    with (
+                        mock.patch.object(
+                            DEPLOY,
+                            "read_regular_bytes",
+                            side_effect=AssertionError("legacy profile bytes must not be read"),
+                        ),
+                        self.assertRaises(DEPLOY.DeployError),
+                    ):
+                        DEPLOY.validate_owned_role_state(
+                            candidate_config,
+                            (candidate_receipt, receipt_path.stat()),
+                        )
+                    self.assertEqual(candidate_config, original_config)
+                    self.assertEqual(candidate_receipt, original_receipt)
 
     def test_missing_or_symlink_role_data_is_rejected(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
@@ -1028,6 +1167,217 @@ class RemovalRecoveryCoverage(unittest.TestCase):
                 self.assertEqual(outcome, "disabled")
                 self.assertIsNone(DEPLOY.load_state(state_fd))
                 self.assertIsNone(DEPLOY.load_intent(state_fd))
+            finally:
+                os.close(state_fd)
+
+
+class RegistrationMigrationRecoveryCoverage(unittest.TestCase):
+    """Exercise every durable boundary in the one-shot v1 registration migration."""
+
+    class SimulatedCrash(BaseException):
+        pass
+
+    def environment(self, root: Path) -> tuple[Path, Path, str, int, dict[str, object]]:
+        repo, sha = PinnedBundleCoverage().repository(root)
+        home = root / "codex-home"
+        home.mkdir(mode=0o700)
+        config = home / "config.toml"
+        config.write_bytes(
+            b'[agents.personal]\nconfig_file = "/opt/personal.toml"\n\n'
+            + DEPLOY.legacy_role_block()
+        )
+        config.chmod(0o600)
+        receipt_directory = home / "state"
+        receipt_directory.mkdir(mode=0o700)
+        receipt = receipt_directory / DEPLOY.ROLE_RECEIPT_FILE.name
+        receipt.write_bytes(DEPLOY.legacy_role_receipt_bytes())
+        receipt.chmod(0o600)
+        deploy_state = root / "deploy-state"
+        deploy_state.mkdir(mode=0o700)
+        state_fd = os.open(deploy_state, os.O_RDONLY | os.O_DIRECTORY)
+        intent = DEPLOY.save_intent(state_fd, sha, None)
+        return home, repo, sha, state_fd, intent
+
+    def gateway_context(
+        self,
+        stack: ExitStack,
+        home: Path,
+        repo: Path,
+        deploy_state: Path,
+    ) -> None:
+        stack.enter_context(mock.patch.object(DEPLOY, "CODEX_HOME", home))
+        stack.enter_context(mock.patch.object(DEPLOY, "plugin_cache", return_value=repo))
+        stack.enter_context(
+            mock.patch.object(
+                DEPLOY,
+                "ROLE_GENERATIONS_DIR",
+                deploy_state / "role-generations",
+            )
+        )
+        stack.enter_context(
+            mock.patch.object(
+                DEPLOY,
+                "verify_install",
+                return_value=RoleReconciliationCoverage.FINGERPRINT,
+            )
+        )
+
+    def test_all_registration_migration_crash_boundaries_converge_forward(self) -> None:
+        scenarios = (
+            "before-config",
+            "after-config",
+            "after-receipt",
+            "before-tombstone",
+            "after-tombstone",
+        )
+        for scenario in scenarios:
+            with self.subTest(scenario=scenario), tempfile.TemporaryDirectory() as temporary:
+                root = Path(temporary)
+                home, repo, sha, state_fd, intent = self.environment(root)
+                publish_calls = 0
+                real_publish = DEPLOY.publish_journaled_file
+
+                def crash_at_publication(*args: object, **kwargs: object) -> object:
+                    nonlocal publish_calls
+                    publish_calls += 1
+                    target = 1 if scenario == "before-config" else 2
+                    if scenario in {"before-config", "after-config"} and publish_calls == target:
+                        raise self.SimulatedCrash()
+                    return real_publish(*args, **kwargs)
+
+                try:
+                    with ExitStack() as stack:
+                        self.gateway_context(stack, home, repo, root / "deploy-state")
+                        if scenario in {"before-config", "after-config"}:
+                            stack.enter_context(
+                                mock.patch.object(
+                                    DEPLOY,
+                                    "publish_journaled_file",
+                                    side_effect=crash_at_publication,
+                                )
+                            )
+                        elif scenario == "after-receipt":
+                            stack.enter_context(
+                                mock.patch.object(
+                                    DEPLOY,
+                                    "mark_role_transaction_committed",
+                                    side_effect=self.SimulatedCrash(),
+                                )
+                            )
+                        elif scenario == "before-tombstone":
+                            stack.enter_context(
+                                mock.patch.object(
+                                    DEPLOY,
+                                    "publish_migration_tombstone",
+                                    side_effect=self.SimulatedCrash(),
+                                )
+                            )
+                        else:
+                            stack.enter_context(
+                                mock.patch.object(
+                                    DEPLOY,
+                                    "finalize_publication",
+                                    side_effect=self.SimulatedCrash(),
+                                )
+                            )
+                        with self.assertRaises(self.SimulatedCrash):
+                            DEPLOY.reconcile_roles(
+                                sha,
+                                PinnedBundleCoverage.VERSION,
+                                state_fd,
+                                intent,
+                            )
+
+                    with ExitStack() as stack:
+                        self.gateway_context(stack, home, repo, root / "deploy-state")
+                        durable = DEPLOY.load_intent(state_fd)
+                        self.assertIsNotNone(durable)
+                        self.assertEqual(
+                            durable["role_transaction"]["operation"],
+                            "migrate-v1-registration",
+                        )
+                        DEPLOY.recover_promotion_intent(state_fd)
+                        DEPLOY.recover_promotion_intent(state_fd)
+                        self.assertIsNone(DEPLOY.load_intent(state_fd))
+                        deployment = DEPLOY.load_state(state_fd)
+                        self.assertIsNotNone(deployment)
+                        self.assertEqual(
+                            deployment["schema"], DEPLOY.DEPLOY_RECEIPT_SCHEMA
+                        )
+                        self.assertIsNotNone(DEPLOY.load_migration_tombstone(state_fd))
+                        live_config = (home / "config.toml").read_bytes()
+                        self.assertNotIn(DEPLOY.legacy_role_block(), live_config)
+                        live_receipt = DEPLOY.parse_role_receipt(
+                            (
+                                (
+                                    home
+                                    / "state"
+                                    / DEPLOY.ROLE_RECEIPT_FILE.name
+                                ).read_bytes(),
+                                (
+                                    home
+                                    / "state"
+                                    / DEPLOY.ROLE_RECEIPT_FILE.name
+                                ).stat(),
+                            )
+                        )
+                        self.assertEqual(
+                            live_receipt["schema"], DEPLOY.ROLE_RECEIPT_SCHEMA
+                        )
+                        self.assertEqual(
+                            live_receipt["archives"],
+                            DEPLOY.legacy_role_receipt_value()["archives"],
+                        )
+                finally:
+                    os.close(state_fd)
+
+    def test_tombstone_blocks_replay_and_conflicting_publication(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            home, repo, sha, state_fd, intent = self.environment(root)
+            try:
+                with ExitStack() as stack:
+                    self.gateway_context(stack, home, repo, root / "deploy-state")
+                    DEPLOY.reconcile_roles(
+                        sha,
+                        PinnedBundleCoverage.VERSION,
+                        state_fd,
+                        intent,
+                    )
+                with ExitStack() as stack:
+                    self.gateway_context(stack, home, repo, root / "deploy-state")
+                    durable = DEPLOY.load_intent(state_fd)
+                    self.assertIsNotNone(durable)
+                    transaction = durable["role_transaction"]
+                    conflicting = dict(transaction)
+                    conflicting_tombstone = DEPLOY.build_migration_tombstone(
+                        transaction["legacy_fingerprint"],
+                        "f" * 40,
+                        transaction["role_generation"],
+                        transaction["role_receipt_sha256"],
+                    )
+                    conflicting["tombstone_b64"] = DEPLOY.encode_journal_bytes(
+                        conflicting_tombstone
+                    )
+                    conflicting["tombstone_sha256"] = hashlib.sha256(
+                        conflicting_tombstone
+                    ).hexdigest()
+                    with self.assertRaisesRegex(DEPLOY.DeployError, "conflicting"):
+                        DEPLOY.publish_migration_tombstone(state_fd, conflicting)
+
+                    (home / "config.toml").write_bytes(
+                        b'[agents.personal]\nconfig_file = "/opt/personal.toml"\n\n'
+                        + DEPLOY.legacy_role_block()
+                    )
+                    receipt = home / "state" / DEPLOY.ROLE_RECEIPT_FILE.name
+                    receipt.write_bytes(DEPLOY.legacy_role_receipt_bytes())
+                    with self.assertRaisesRegex(DEPLOY.DeployError, "reappeared"):
+                        DEPLOY.reconcile_roles(
+                            sha,
+                            PinnedBundleCoverage.VERSION,
+                            state_fd,
+                            durable,
+                        )
             finally:
                 os.close(state_fd)
 

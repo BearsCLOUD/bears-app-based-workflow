@@ -537,6 +537,9 @@ class RoleReconciliationCoverage(unittest.TestCase):
 class PinnedBundleCoverage(unittest.TestCase):
     VERSION = "0.1.0+codex.20260711000000"
 
+    class SimulatedCrash(BaseException):
+        pass
+
     def git(self, repo: Path, *arguments: str) -> str:
         return subprocess.run(
             ["git", *arguments],
@@ -546,7 +549,7 @@ class PinnedBundleCoverage(unittest.TestCase):
             text=True,
         ).stdout.strip()
 
-    def repository(self, root: Path, *, payload_sentinel: bool = False) -> tuple[Path, str]:
+    def repository(self, root: Path, *, payload_marker: Path | None = None) -> tuple[Path, str]:
         repo = root / "repo"
         repo.mkdir()
         self.git(repo, "init", "-q")
@@ -555,7 +558,31 @@ class PinnedBundleCoverage(unittest.TestCase):
         manifest = repo / ".codex-plugin/plugin.json"
         manifest.parent.mkdir()
         manifest.write_text(
-            json.dumps({"name": DEPLOY.PLUGIN, "version": self.VERSION}) + "\n",
+            json.dumps(
+                {
+                    "name": DEPLOY.PLUGIN,
+                    "repository": DEPLOY.REPOSITORY.removesuffix(".git"),
+                    "version": self.VERSION,
+                }
+            )
+            + "\n",
+            encoding="utf-8",
+        )
+        marketplace = repo / ".agents/plugins/marketplace.json"
+        marketplace.parent.mkdir(parents=True)
+        marketplace.write_text(
+            json.dumps(
+                {
+                    "name": DEPLOY.MARKETPLACE,
+                    "plugins": [
+                        {
+                            "name": DEPLOY.PLUGIN,
+                            "source": {"source": "local", "path": "."},
+                        }
+                    ],
+                }
+            )
+            + "\n",
             encoding="utf-8",
         )
         agents = repo / "agents"
@@ -576,13 +603,30 @@ class PinnedBundleCoverage(unittest.TestCase):
                 ),
                 encoding="utf-8",
             )
-        if payload_sentinel:
+        if payload_marker is not None:
+            self.assertTrue(payload_marker.is_absolute())
             installer = repo / "install"
-            installer.write_text("#!/bin/sh\ntouch payload-install-executed\n", encoding="utf-8")
+            installer.write_text(
+                "#!/usr/bin/env python3\n"
+                "from pathlib import Path\n"
+                f"Path({str(payload_marker)!r}).write_text('executed', encoding='utf-8')\n"
+                "raise RuntimeError('hostile payload install executed')\n",
+                encoding="utf-8",
+            )
             installer.chmod(0o755)
         self.git(repo, "add", ".")
         self.git(repo, "commit", "-qm", "fixture")
+        self.git(repo, "remote", "add", "origin", DEPLOY.REPOSITORY)
         return repo, self.git(repo, "rev-parse", "HEAD")
+
+    def clone_fixture(self, source: Path, destination: Path) -> None:
+        destination.parent.mkdir(parents=True)
+        subprocess.run(
+            ["git", "clone", "-q", str(source), str(destination)],
+            check=True,
+            stdout=subprocess.PIPE,
+        )
+        self.git(destination, "remote", "set-url", "origin", DEPLOY.REPOSITORY)
 
     def recommit(self, repo: Path, message: str) -> str:
         self.git(repo, "add", "-A")
@@ -633,11 +677,137 @@ class PinnedBundleCoverage(unittest.TestCase):
             with self.assertRaises(DEPLOY.DeployError):
                 DEPLOY.pinned_role_bundle(repo, sha, self.VERSION)
 
+    def test_committed_reconciliation_recovery_preserves_pair_and_finalizes(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            repo, sha = self.repository(root)
+            home, state_fd, _, _, _ = RemovalRecoveryCoverage().environment(root)
+            legacy_state = RoleReconciliationCoverage().legacy_state()
+            legacy_state["sha"] = sha
+            state_path = root / "deploy-state" / DEPLOY.STATE_FILE.name
+            state_path.write_text(
+                json.dumps(legacy_state, sort_keys=True) + "\n",
+                encoding="utf-8",
+            )
+            state_path.chmod(0o600)
+            intent = DEPLOY.save_intent(state_fd, sha, legacy_state)
+
+            def crash_before_finalize(_: object) -> None:
+                raise self.SimulatedCrash()
+
+            try:
+                with (
+                    mock.patch.object(DEPLOY, "CODEX_HOME", home),
+                    mock.patch.object(DEPLOY, "plugin_cache", return_value=repo),
+                    mock.patch.object(
+                        DEPLOY,
+                        "verify_install",
+                        return_value=RoleReconciliationCoverage.FINGERPRINT,
+                    ),
+                    mock.patch.object(
+                        DEPLOY,
+                        "finalize_publication",
+                        side_effect=crash_before_finalize,
+                    ),
+                ):
+                    with self.assertRaises(self.SimulatedCrash):
+                        DEPLOY.reconcile_roles(sha, self.VERSION, state_fd, intent)
+
+                durable = DEPLOY.load_intent(state_fd)
+                self.assertIsNotNone(durable)
+                transaction = durable["role_transaction"]
+                self.assertEqual(transaction["phase"], "committed")
+                config_exchange = home / transaction["config_exchange_name"]
+                receipt_exchange = (
+                    home / "state" / transaction["receipt_exchange_name"]
+                )
+                self.assertTrue(config_exchange.exists())
+                self.assertTrue(receipt_exchange.exists())
+                desired_config = (home / "config.toml").read_bytes()
+                receipt_path = home / "state" / DEPLOY.ROLE_RECEIPT_FILE.name
+                desired_receipt = receipt_path.read_bytes()
+
+                with (
+                    mock.patch.object(DEPLOY, "CODEX_HOME", home),
+                    mock.patch.object(DEPLOY, "plugin_cache", return_value=repo),
+                    mock.patch.object(
+                        DEPLOY,
+                        "verify_install",
+                        return_value=RoleReconciliationCoverage.FINGERPRINT,
+                    ),
+                ):
+                    DEPLOY.recover_promotion_intent(state_fd)
+                    DEPLOY.recover_promotion_intent(state_fd)
+
+                self.assertEqual((home / "config.toml").read_bytes(), desired_config)
+                self.assertEqual(receipt_path.read_bytes(), desired_receipt)
+                self.assertFalse(config_exchange.exists())
+                self.assertFalse(receipt_exchange.exists())
+                self.assertIsNone(DEPLOY.load_intent(state_fd))
+                recovered_state = DEPLOY.load_state(state_fd)
+                self.assertIsNotNone(recovered_state)
+                self.assertEqual(recovered_state["schema"], DEPLOY.DEPLOY_RECEIPT_SCHEMA)
+            finally:
+                os.close(state_fd)
+
     def test_payload_installer_is_data_and_symlink_swap_is_rejected(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
-            repo, sha = self.repository(Path(temporary), payload_sentinel=True)
-            DEPLOY.pinned_role_bundle(repo, sha, self.VERSION)
-            self.assertFalse((repo / "payload-install-executed").exists())
+            root = Path(temporary)
+            marker = root / "hostile-install-executed"
+            repo, sha = self.repository(root, payload_marker=marker)
+            home = root / "codex-home"
+            home.mkdir(mode=0o700)
+            cache = (
+                home
+                / "plugins/cache"
+                / DEPLOY.MARKETPLACE
+                / DEPLOY.PLUGIN
+                / self.VERSION
+            )
+            marketplace_root = root / "marketplace"
+            self.clone_fixture(repo, cache)
+            self.clone_fixture(repo, marketplace_root)
+            state = root / "deploy-state"
+            state.mkdir(mode=0o700)
+            state_fd = os.open(state, os.O_RDONLY | os.O_DIRECTORY)
+            installed = {
+                "pluginId": f"{DEPLOY.PLUGIN}@{DEPLOY.MARKETPLACE}",
+                "marketplaceSource": DEPLOY.FIXED_MARKETPLACE_SOURCE,
+                "installed": True,
+                "enabled": True,
+                "version": self.VERSION,
+            }
+            try:
+                with (
+                    mock.patch.object(DEPLOY, "CODEX_HOME", home),
+                    mock.patch.object(DEPLOY, "MIRROR", repo),
+                    mock.patch.object(DEPLOY, "MARKETPLACE_ROOT", marketplace_root),
+                    mock.patch.object(
+                        DEPLOY,
+                        "ROLE_GENERATIONS_DIR",
+                        state / "role-generations",
+                    ),
+                    mock.patch.object(DEPLOY, "prepare_mirror", return_value=sha),
+                    mock.patch.object(DEPLOY, "verify_disabled"),
+                    mock.patch.object(DEPLOY, "marketplace_row", return_value={}),
+                    mock.patch.object(DEPLOY, "run_json", return_value={}),
+                    mock.patch.object(DEPLOY, "plugin_rows", return_value=[installed]),
+                ):
+                    status = DEPLOY.promote(
+                        sha,
+                        DEPLOY.DeployContext(sha),
+                        state_fd,
+                    )
+                    durable = DEPLOY.load_state(state_fd)
+                self.assertEqual(status, "deployed")
+                self.assertIsNotNone(durable)
+                self.assertFalse(marker.exists())
+                self.assertTrue((home / "config.toml").is_file())
+                self.assertTrue(
+                    (home / "state" / DEPLOY.ROLE_RECEIPT_FILE.name).is_file()
+                )
+            finally:
+                os.close(state_fd)
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
             repo, sha = self.repository(root)
@@ -742,23 +912,53 @@ class RemovalRecoveryCoverage(unittest.TestCase):
             finally:
                 os.close(state_fd)
 
-    def test_crash_after_receipt_publish_recovers_and_finalizes(self) -> None:
+    def test_committed_removal_recovery_preserves_pair_and_finalizes(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             home, state_fd, intent, _, _ = self.environment(Path(temporary))
+
+            def crash_before_finalize(_: object) -> None:
+                raise self.SimulatedCrash()
+
             try:
                 with (
                     mock.patch.object(DEPLOY, "CODEX_HOME", home),
                     mock.patch.object(
                         DEPLOY,
-                        "mark_role_transaction_committed",
-                        side_effect=self.SimulatedCrash(),
+                        "finalize_publication",
+                        side_effect=crash_before_finalize,
                     ),
                 ):
                     with self.assertRaises(self.SimulatedCrash):
                         DEPLOY.clear_owned_roles(state_fd, intent)
                 durable = DEPLOY.load_intent(state_fd)
-                with mock.patch.object(DEPLOY, "CODEX_HOME", home):
-                    DEPLOY.clear_owned_roles(state_fd, durable)
+                self.assertIsNotNone(durable)
+                transaction = durable["role_transaction"]
+                self.assertEqual(transaction["phase"], "committed")
+                config_exchange = home / transaction["config_exchange_name"]
+                receipt_exchange = (
+                    home / "state" / transaction["receipt_exchange_name"]
+                )
+                self.assertTrue(config_exchange.exists())
+                self.assertTrue(receipt_exchange.exists())
+                desired_config = (home / "config.toml").read_bytes()
+                receipt_path = home / "state" / DEPLOY.ROLE_RECEIPT_FILE.name
+                desired_receipt = receipt_path.read_bytes()
+                self.assert_removed(home)
+
+                with (
+                    mock.patch.object(DEPLOY, "CODEX_HOME", home),
+                    mock.patch.object(DEPLOY, "run_json", return_value={}),
+                    mock.patch.object(DEPLOY, "verify_disabled"),
+                ):
+                    DEPLOY.recover_promotion_intent(state_fd)
+                    DEPLOY.recover_promotion_intent(state_fd)
+
+                self.assertEqual((home / "config.toml").read_bytes(), desired_config)
+                self.assertEqual(receipt_path.read_bytes(), desired_receipt)
+                self.assertFalse(config_exchange.exists())
+                self.assertFalse(receipt_exchange.exists())
+                self.assertIsNone(DEPLOY.load_intent(state_fd))
+                self.assertIsNone(DEPLOY.load_state(state_fd))
                 self.assert_removed(home)
             finally:
                 os.close(state_fd)

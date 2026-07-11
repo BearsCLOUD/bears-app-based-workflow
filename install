@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import base64
 import binascii
+import ctypes
 import errno
 import fcntl
 import hashlib
@@ -26,10 +27,12 @@ BEGIN_MARKER = b"# >>> bears-app-based-workflow agent roles (managed by ./instal
 END_MARKER = b"# <<< bears-app-based-workflow agent roles (managed by ./install)"
 ROLE_COUNT = 9
 LEGACY_TRANSACTION_SCHEMA = "bears-role-install-transaction.v1"
-TRANSACTION_SCHEMA = "bears-role-install-transaction.v2"
+PROVENANCE_TRANSACTION_SCHEMA = "bears-role-install-transaction.v2"
+TRANSACTION_SCHEMA = "bears-role-install-transaction.v3"
 TRANSACTION_DIRECTORY = ".bears-installer-transactions"
 TRANSACTION_JOURNAL = f"{PLUGIN_ID}-role-sync.json"
 CONFIG_PREPARED = f"{PLUGIN_ID}-config.prepared"
+CONFIG_STAGING_PREFIX = f"{PLUGIN_ID}-config.staging"
 CONFIG_DISPLACED = f"{PLUGIN_ID}-config.displaced"
 CONFIG_OBSERVED = f"{PLUGIN_ID}-config.observed"
 CONFIG_CONFLICT_BACKUP_PREFIX = f"{PLUGIN_ID}-config.conflict"
@@ -1032,9 +1035,11 @@ def transaction_document(plan: dict[str, Any]) -> dict[str, Any]:
         },
         "config_exchange": {
             "changed": plan["config_changed"],
+            "staging": plan["config_staging"],
             "prepared": str(transaction_dir / CONFIG_PREPARED),
             "displaced": str(transaction_dir / CONFIG_DISPLACED),
             "observed": str(transaction_dir / CONFIG_OBSERVED),
+            "publication": {"phase": "planned", "identity": None},
         },
         "archives": archives,
     }
@@ -1048,6 +1053,7 @@ def validate_transaction_document(
         raise InstallError("transaction-journal-invalid")
     schema = value.get("schema")
     legacy = schema == LEGACY_TRANSACTION_SCHEMA
+    provenance = schema == PROVENANCE_TRANSACTION_SCHEMA
     expected_keys = {
         "schema",
         "plugin",
@@ -1062,7 +1068,12 @@ def validate_transaction_document(
     if set(value) != expected_keys:
         raise InstallError("transaction-journal-invalid")
     if (
-        schema not in {LEGACY_TRANSACTION_SCHEMA, TRANSACTION_SCHEMA}
+        schema
+        not in {
+            LEGACY_TRANSACTION_SCHEMA,
+            PROVENANCE_TRANSACTION_SCHEMA,
+            TRANSACTION_SCHEMA,
+        }
         or value["plugin"] != PLUGIN_ID
         or value["operation"] not in {"install", "uninstall"}
     ):
@@ -1070,15 +1081,70 @@ def validate_transaction_document(
     if not legacy:
         exchange = value["config_exchange"]
         transaction_dir = transaction_journal_path(codex_home).parent
+        exchange_keys = {"changed", "prepared", "displaced", "observed"}
+        if not provenance:
+            exchange_keys.update({"staging", "publication"})
         if (
             not isinstance(exchange, dict)
-            or set(exchange) != {"changed", "prepared", "displaced", "observed"}
+            or set(exchange) != exchange_keys
             or not isinstance(exchange["changed"], bool)
             or exchange["prepared"] != str(transaction_dir / CONFIG_PREPARED)
             or exchange["displaced"] != str(transaction_dir / CONFIG_DISPLACED)
             or exchange["observed"] != str(transaction_dir / CONFIG_OBSERVED)
         ):
             raise InstallError("transaction-journal-invalid")
+        if not provenance:
+            staging_raw = exchange["staging"]
+            if not isinstance(staging_raw, str):
+                raise InstallError("transaction-journal-invalid")
+            staging = Path(staging_raw)
+            publication = exchange["publication"]
+            identity = (
+                publication.get("identity")
+                if isinstance(publication, dict)
+                else None
+            )
+            stable_identity_keys = {
+                "device",
+                "inode",
+                "mode",
+                "uid",
+                "gid",
+                "links",
+                "size",
+                "mtime_ns",
+            }
+            if (
+                staging.parent != transaction_dir
+                or re.fullmatch(
+                    rf"{re.escape(CONFIG_STAGING_PREFIX)}\.[0-9a-f]{{32}}",
+                    staging.name,
+                )
+                is None
+                or not isinstance(publication, dict)
+                or set(publication) != {"phase", "identity"}
+                or publication["phase"]
+                not in {"planned", "publishing", "published"}
+                or (
+                    publication["phase"] == "planned"
+                    and identity is not None
+                )
+                or (
+                    publication["phase"] != "planned"
+                    and (
+                        not isinstance(identity, dict)
+                        or set(identity) != stable_identity_keys
+                        or any(not isinstance(item, int) for item in identity.values())
+                        or identity["mode"] < 0
+                        or identity["mode"] > 0o7777
+                        or identity["uid"] < 0
+                        or identity["gid"] < 0
+                        or identity["links"] < 1
+                        or identity["size"] < 0
+                    )
+                )
+            ):
+                raise InstallError("transaction-journal-invalid")
     paths = value["paths"]
     preimages = value["preimages"]
     desired = value["desired"]
@@ -1099,6 +1165,15 @@ def validate_transaction_document(
         raise InstallError("transaction-journal-invalid")
     for image in (*preimages.values(), *desired.values()):
         decode_file_image(image)
+    if schema == TRANSACTION_SCHEMA:
+        publication = value["config_exchange"]["publication"]
+        if publication["identity"] is not None:
+            desired_config, _ = decode_file_image(desired["config"])
+            if (
+                desired_config is None
+                or publication["identity"]["size"] != len(desired_config)
+            ):
+                raise InstallError("transaction-journal-invalid")
     raw_archive_dir = paths["archive_directory"]
     if raw_archive_dir is None:
         if archives:
@@ -1152,10 +1227,34 @@ def validate_transaction_document(
 
 def write_transaction_journal(
     plan: dict[str, Any],
-) -> tuple[Path, bytes, os.stat_result]:
+) -> tuple[dict[str, Any], Path, bytes, os.stat_result]:
     journal_path = transaction_journal_path(plan["codex_home"])
     ensure_private_transaction_directory(journal_path.parent, create=True)
+    try:
+        staging_token = os.urandom(16).hex()
+    except OSError:
+        raise InstallError("transaction-journal-write-failed") from None
+    plan["config_staging"] = str(
+        journal_path.parent / f"{CONFIG_STAGING_PREFIX}.{staging_token}"
+    )
     document = transaction_document(plan)
+    raw, journal_stat = persist_transaction_journal(
+        document,
+        journal_path,
+        expected_raw=b"",
+        expected_stat=None,
+    )
+    return document, journal_path, raw, journal_stat
+
+
+def persist_transaction_journal(
+    document: dict[str, Any],
+    journal_path: Path,
+    *,
+    expected_raw: bytes,
+    expected_stat: os.stat_result | None,
+) -> tuple[bytes, os.stat_result]:
+    validate_transaction_document(document, journal_path.parent.parent)
     raw = (json.dumps(document, sort_keys=True, separators=(",", ":")) + "\n").encode(
         "utf-8"
     )
@@ -1164,9 +1263,9 @@ def write_transaction_journal(
     atomic_write(
         journal_path,
         raw,
-        None,
-        expected_data=b"",
-        expected_stat=None,
+        expected_stat,
+        expected_data=expected_raw,
+        expected_stat=expected_stat,
         preimage_code="transaction-journal-conflict",
         invalid_code="transaction-journal-unsafe",
     )
@@ -1185,7 +1284,7 @@ def write_transaction_journal(
         or stat.S_IMODE(journal_stat.st_mode) != 0o600
     ):
         raise InstallError("transaction-journal-unsafe")
-    return journal_path, raw, journal_stat
+    return raw, journal_stat
 
 
 def relative_to_home(path: Path, codex_home: Path) -> str:
@@ -1386,9 +1485,14 @@ def load_transaction_journal(
 
 def uses_config_exchange(document: dict[str, Any]) -> bool:
     return (
-        document["schema"] == TRANSACTION_SCHEMA
+        document["schema"]
+        in {PROVENANCE_TRANSACTION_SCHEMA, TRANSACTION_SCHEMA}
         and document["config_exchange"]["changed"]
     )
+
+
+def uses_publication_provenance(document: dict[str, Any]) -> bool:
+    return document["schema"] == TRANSACTION_SCHEMA and uses_config_exchange(document)
 
 
 def same_inode(left: os.stat_result | None, right: os.stat_result | None) -> bool:
@@ -1448,26 +1552,39 @@ def exchange_snapshot(
     )
 
 
-def link_no_replace(
+def rename_no_replace(
     source_fd: int,
     source: str,
     destination_fd: int,
     destination: str,
     code: str,
 ) -> bool:
+    """Atomically move one descriptor-relative entry without replacing another."""
     try:
-        os.link(
-            source,
-            destination,
-            src_dir_fd=source_fd,
-            dst_dir_fd=destination_fd,
-            follow_symlinks=False,
-        )
+        renameat2 = ctypes.CDLL(None, use_errno=True).renameat2
+    except (AttributeError, OSError):
+        raise InstallError("atomic-rename-unsupported") from None
+    renameat2.argtypes = (
+        ctypes.c_int,
+        ctypes.c_char_p,
+        ctypes.c_int,
+        ctypes.c_char_p,
+        ctypes.c_uint,
+    )
+    renameat2.restype = ctypes.c_int
+    result = renameat2(
+        source_fd,
+        os.fsencode(source),
+        destination_fd,
+        os.fsencode(destination),
+        1,  # RENAME_NOREPLACE
+    )
+    if result == 0:
         return True
-    except FileExistsError:
+    error_number = ctypes.get_errno()
+    if error_number in {errno.EEXIST, errno.ENOTEMPTY}:
         return False
-    except OSError:
-        raise InstallError(code) from None
+    raise InstallError(code) from None
 
 
 def unlink_exchange_artifact(
@@ -1485,11 +1602,100 @@ def unlink_exchange_artifact(
         raise InstallError(code) from None
 
 
-def create_prepared_config(
-    plan: dict[str, Any],
+def config_staging_name(document: dict[str, Any]) -> str:
+    return Path(document["config_exchange"]["staging"]).name
+
+
+def expected_config_metadata(document: dict[str, Any]) -> dict[str, int]:
+    _, metadata = decode_file_image(document["preimages"]["config"])
+    if metadata is not None:
+        return {
+            "mode": metadata["mode"],
+            "uid": metadata["uid"],
+            "gid": metadata["gid"],
+        }
+    return {"mode": 0o600, "uid": os.geteuid(), "gid": os.getegid()}
+
+
+def desired_config_snapshot_matches(
+    document: dict[str, Any],
+    data: bytes,
+    file_stat: os.stat_result | None,
+    *,
+    links: int,
+) -> bool:
+    desired_data, _ = decode_file_image(document["desired"]["config"])
+    metadata = expected_config_metadata(document)
+    return (
+        desired_data is not None
+        and file_stat is not None
+        and data == desired_data
+        and stat.S_IMODE(file_stat.st_mode) == metadata["mode"]
+        and file_stat.st_uid == metadata["uid"]
+        and file_stat.st_gid == metadata["gid"]
+        and file_stat.st_nlink == links
+        and file_stat.st_size == len(desired_data)
+    )
+
+
+def publication_snapshot_matches(
+    document: dict[str, Any],
+    data: bytes,
+    file_stat: os.stat_result | None,
+    *,
+    link_delta: int = 0,
+) -> bool:
+    publication = document["config_exchange"]["publication"]
+    identity = publication["identity"]
+    desired_data, _ = decode_file_image(document["desired"]["config"])
+    if identity is None or desired_data is None or file_stat is None:
+        return False
+    expected_identity = dict(identity)
+    expected_identity["links"] += link_delta
+    return (
+        data == desired_data
+        and stable_stat_identity(file_stat) == expected_identity
+    )
+
+
+def discard_config_staging_artifact(
+    document: dict[str, Any],
     transaction_fd: int,
 ) -> None:
-    for name in (CONFIG_PREPARED, CONFIG_DISPLACED, CONFIG_OBSERVED):
+    name = config_staging_name(document)
+    try:
+        staging_stat = os.stat(name, dir_fd=transaction_fd, follow_symlinks=False)
+    except FileNotFoundError:
+        return
+    except OSError:
+        raise InstallError("transaction-config-conflict") from None
+    expected_metadata = expected_config_metadata(document)
+    if (
+        not stat.S_ISREG(staging_stat.st_mode)
+        or staging_stat.st_nlink != 1
+        or staging_stat.st_uid
+        not in {os.geteuid(), expected_metadata["uid"]}
+    ):
+        raise InstallError("transaction-config-conflict")
+    try:
+        os.unlink(name, dir_fd=transaction_fd)
+        fsync_directory_fd(transaction_fd, "transaction-config-conflict")
+    except OSError:
+        raise InstallError("transaction-config-conflict") from None
+
+
+def create_prepared_config(
+    plan: dict[str, Any],
+    document: dict[str, Any],
+    transaction_fd: int,
+) -> None:
+    staging_name = config_staging_name(document)
+    for name in (
+        staging_name,
+        CONFIG_PREPARED,
+        CONFIG_DISPLACED,
+        CONFIG_OBSERVED,
+    ):
         _, artifact_stat = exchange_snapshot(transaction_fd, name)
         if artifact_stat is not None:
             raise InstallError("config-exchange-artifact-conflict")
@@ -1502,7 +1708,7 @@ def create_prepared_config(
         flags |= os.O_NOFOLLOW
     fd = -1
     try:
-        fd = os.open(CONFIG_PREPARED, flags, 0o600, dir_fd=transaction_fd)
+        fd = os.open(staging_name, flags, 0o600, dir_fd=transaction_fd)
         initial = os.fstat(fd)
         if (
             not stat.S_ISREG(initial.st_mode)
@@ -1529,7 +1735,33 @@ def create_prepared_config(
             ):
                 raise InstallError("atomic-temp-unsafe")
             os.fsync(stream.fileno())
+        staged_data, staged_stat = exchange_snapshot(transaction_fd, staging_name)
+        if not desired_config_snapshot_matches(
+            document,
+            staged_data,
+            staged_stat,
+            links=1,
+        ):
+            raise InstallError("atomic-temp-unsafe")
+        if not rename_no_replace(
+            transaction_fd,
+            staging_name,
+            transaction_fd,
+            CONFIG_PREPARED,
+            "atomic-write-failed",
+        ):
+            raise InstallError("config-exchange-artifact-conflict")
         fsync_directory_fd(transaction_fd, "atomic-write-failed")
+        prepared_data, prepared_stat = exchange_snapshot(
+            transaction_fd, CONFIG_PREPARED
+        )
+        if not desired_config_snapshot_matches(
+            document,
+            prepared_data,
+            prepared_stat,
+            links=1,
+        ):
+            raise InstallError("atomic-temp-unsafe")
     except InstallError:
         raise
     except OSError:
@@ -1542,20 +1774,22 @@ def create_prepared_config(
 def displace_and_publish_config(
     plan: dict[str, Any],
     document: dict[str, Any],
-) -> None:
+    journal_path: Path,
+    journal_raw: bytes,
+    journal_stat: os.stat_result,
+) -> tuple[bytes, os.stat_result]:
     home_fd, transaction_fd = open_config_exchange_directories(document)
     try:
-        create_prepared_config(plan, transaction_fd)
+        create_prepared_config(plan, document, transaction_fd)
         if plan["config_stat"] is not None:
-            try:
-                os.rename(
-                    "config.toml",
-                    CONFIG_DISPLACED,
-                    src_dir_fd=home_fd,
-                    dst_dir_fd=transaction_fd,
-                )
-            except OSError:
-                raise InstallError("config-preimage-drift") from None
+            if not rename_no_replace(
+                home_fd,
+                "config.toml",
+                transaction_fd,
+                CONFIG_DISPLACED,
+                "config-preimage-drift",
+            ):
+                raise InstallError("config-exchange-artifact-conflict")
             fsync_directory_fd(home_fd, "atomic-write-failed")
             fsync_directory_fd(transaction_fd, "atomic-write-failed")
             displaced_data, displaced_stat = exchange_snapshot(
@@ -1578,7 +1812,27 @@ def displace_and_publish_config(
             )
             if current_stat is not None or current_data:
                 raise InstallError("config-preimage-drift")
-        if not link_no_replace(
+        prepared_data, prepared_stat = exchange_snapshot(
+            transaction_fd, CONFIG_PREPARED
+        )
+        if not desired_config_snapshot_matches(
+            document,
+            prepared_data,
+            prepared_stat,
+            links=1,
+        ):
+            raise InstallError("transaction-config-conflict")
+        document["config_exchange"]["publication"] = {
+            "phase": "publishing",
+            "identity": stable_stat_identity(prepared_stat),
+        }
+        journal_raw, journal_stat = persist_transaction_journal(
+            document,
+            journal_path,
+            expected_raw=journal_raw,
+            expected_stat=journal_stat,
+        )
+        if not rename_no_replace(
             transaction_fd,
             CONFIG_PREPARED,
             home_fd,
@@ -1587,11 +1841,22 @@ def displace_and_publish_config(
         ):
             raise InstallError("config-publish-conflict")
         fsync_directory_fd(home_fd, "atomic-write-failed")
-        unlink_exchange_artifact(
-            transaction_fd,
-            CONFIG_PREPARED,
-            "atomic-write-failed",
+        fsync_directory_fd(transaction_fd, "atomic-write-failed")
+        published_data, published_stat = exchange_snapshot(home_fd, "config.toml")
+        if not publication_snapshot_matches(
+            document,
+            published_data,
+            published_stat,
+        ):
+            raise InstallError("transaction-config-conflict")
+        document["config_exchange"]["publication"]["phase"] = "published"
+        journal_raw, journal_stat = persist_transaction_journal(
+            document,
+            journal_path,
+            expected_raw=journal_raw,
+            expected_stat=journal_stat,
         )
+        return journal_raw, journal_stat
     finally:
         os.close(transaction_fd)
         os.close(home_fd)
@@ -1632,7 +1897,10 @@ def restore_exchange_artifact(
     transaction_fd: int,
     name: str,
 ) -> bool:
-    if not link_no_replace(
+    source_data, source_stat = exchange_snapshot(transaction_fd, name)
+    if source_stat is None:
+        raise InstallError("transaction-config-conflict")
+    if not rename_no_replace(
         transaction_fd,
         name,
         home_fd,
@@ -1641,11 +1909,15 @@ def restore_exchange_artifact(
     ):
         return False
     fsync_directory_fd(home_fd, "transaction-config-conflict")
-    unlink_exchange_artifact(
-        transaction_fd,
-        name,
-        "transaction-config-conflict",
-    )
+    fsync_directory_fd(transaction_fd, "transaction-config-conflict")
+    restored_data, restored_stat = exchange_snapshot(home_fd, "config.toml")
+    if not stable_snapshot_matches(
+        restored_data,
+        restored_stat,
+        source_data,
+        source_stat,
+    ):
+        raise InstallError("transaction-config-conflict")
     return True
 
 
@@ -1665,7 +1937,7 @@ def retain_exchange_artifact(
             )
         except OSError:
             raise InstallError("transaction-config-conflict") from None
-        if link_no_replace(
+        if rename_no_replace(
             transaction_fd,
             name,
             transaction_fd,
@@ -1677,11 +1949,6 @@ def retain_exchange_artifact(
     if backup_name is None:
         raise InstallError("transaction-config-conflict")
     fsync_directory_fd(transaction_fd, "transaction-config-conflict")
-    unlink_exchange_artifact(
-        transaction_fd,
-        name,
-        "transaction-config-conflict",
-    )
     retained_data, retained_stat = exchange_snapshot(transaction_fd, backup_name)
     if not stable_snapshot_matches(
         retained_data,
@@ -1731,20 +1998,17 @@ def move_live_config_to_observed(
     _, observed_stat = exchange_snapshot(transaction_fd, CONFIG_OBSERVED)
     if observed_stat is not None:
         raise InstallError("transaction-config-conflict")
-    try:
-        os.rename(
-            "config.toml",
-            CONFIG_OBSERVED,
-            src_dir_fd=home_fd,
-            dst_dir_fd=transaction_fd,
-        )
-    except FileNotFoundError:
-        _, current_stat = exchange_snapshot(home_fd, "config.toml")
-        if current_stat is None:
-            return b"", None
-        raise InstallError("transaction-config-conflict") from None
-    except OSError:
-        raise InstallError("transaction-config-conflict") from None
+    _, current_stat = exchange_snapshot(home_fd, "config.toml")
+    if current_stat is None:
+        return b"", None
+    if not rename_no_replace(
+        home_fd,
+        "config.toml",
+        transaction_fd,
+        CONFIG_OBSERVED,
+        "transaction-config-conflict",
+    ):
+        raise InstallError("transaction-config-conflict")
     fsync_directory_fd(home_fd, "transaction-config-conflict")
     fsync_directory_fd(transaction_fd, "transaction-config-conflict")
     return exchange_snapshot(transaction_fd, CONFIG_OBSERVED)
@@ -1846,12 +2110,349 @@ def retain_displaced_preimage(
     )
 
 
-def restore_config_exchange_preimage(document: dict[str, Any]) -> bool:
+def image_matches_expected_link_delta(
+    data: bytes,
+    file_stat: os.stat_result | None,
+    image: dict[str, Any],
+    *,
+    delta: int,
+) -> bool:
+    expected_data, metadata = decode_file_image(image)
+    if expected_data is None or metadata is None or file_stat is None:
+        return False
+    expected_identity = {
+        key: value for key, value in metadata.items() if key != "ctime_ns"
+    }
+    expected_identity["links"] += delta
+    return (
+        data == expected_data
+        and stable_stat_identity(file_stat) == expected_identity
+    )
+
+
+def repair_v2_preimage_link_transitions(
+    document: dict[str, Any],
+    home_fd: int,
+    transaction_fd: int,
+) -> bool:
+    """Finish authenticated v2 hardlink moves interrupted before source unlink."""
+    preimage = document["preimages"]["config"]
+    current_data, current_stat = exchange_snapshot(home_fd, "config.toml")
+    try:
+        transaction_names = os.listdir(transaction_fd)
+    except OSError:
+        raise InstallError("transaction-config-conflict") from None
+    backup_pattern = re.compile(
+        rf"{re.escape(CONFIG_CONFLICT_BACKUP_PREFIX)}\.preimage\.[0-9a-f]{{32}}"
+    )
+    backup_names = [
+        name
+        for name in transaction_names
+        if backup_pattern.fullmatch(name) is not None
+    ]
+    retained_preimage = False
+    for source_name in (CONFIG_DISPLACED, CONFIG_OBSERVED):
+        source_data, source_stat = exchange_snapshot(transaction_fd, source_name)
+        if not image_matches_expected_link_delta(
+            source_data,
+            source_stat,
+            preimage,
+            delta=1,
+        ):
+            continue
+        if (
+            same_inode(source_stat, current_stat)
+            and image_matches_expected_link_delta(
+                current_data,
+                current_stat,
+                preimage,
+                delta=1,
+            )
+        ):
+            unlink_exchange_artifact(
+                transaction_fd,
+                source_name,
+                "transaction-config-conflict",
+            )
+            current_data, current_stat = exchange_snapshot(home_fd, "config.toml")
+            continue
+        matching_backups = []
+        for backup_name in backup_names:
+            _, backup_stat = exchange_snapshot(transaction_fd, backup_name)
+            if same_inode(source_stat, backup_stat):
+                matching_backups.append(backup_name)
+        if len(matching_backups) == 1:
+            unlink_exchange_artifact(
+                transaction_fd,
+                source_name,
+                "transaction-config-conflict",
+            )
+            retained_preimage = True
+    return retained_preimage
+
+
+def prepared_config_is_owned(
+    document: dict[str, Any],
+    data: bytes,
+    file_stat: os.stat_result | None,
+    *,
+    link_delta: int = 0,
+) -> bool:
+    publication = document["config_exchange"]["publication"]
+    if publication["identity"] is not None:
+        return publication_snapshot_matches(
+            document,
+            data,
+            file_stat,
+            link_delta=link_delta,
+        )
+    return desired_config_snapshot_matches(
+        document,
+        data,
+        file_stat,
+        links=1 + link_delta,
+    )
+
+
+def retain_v3_exchange_conflict(
+    document: dict[str, Any],
+    home_fd: int,
+    transaction_fd: int,
+) -> bool:
+    """Preserve writer state and retire only authenticated v3 artifacts."""
+    discard_config_staging_artifact(document, transaction_fd)
+    preimage = document["preimages"]["config"]
+    prepared_data, prepared_stat = exchange_snapshot(
+        transaction_fd, CONFIG_PREPARED
+    )
+    if prepared_stat is not None:
+        if prepared_config_is_owned(document, prepared_data, prepared_stat):
+            unlink_exchange_artifact(
+                transaction_fd,
+                CONFIG_PREPARED,
+                "transaction-config-conflict",
+            )
+        else:
+            retain_exchange_artifact(
+                transaction_fd,
+                CONFIG_PREPARED,
+                prepared_data,
+                prepared_stat,
+                "writer",
+            )
+    observed_data, observed_stat = exchange_snapshot(
+        transaction_fd, CONFIG_OBSERVED
+    )
+    if observed_stat is not None:
+        if publication_snapshot_matches(
+            document,
+            observed_data,
+            observed_stat,
+        ):
+            unlink_exchange_artifact(
+                transaction_fd,
+                CONFIG_OBSERVED,
+                "transaction-config-conflict",
+            )
+        else:
+            preserve_exchange_artifact(
+                home_fd,
+                transaction_fd,
+                CONFIG_OBSERVED,
+                observed_data,
+                observed_stat,
+                "writer",
+            )
+    displaced_data, displaced_stat = exchange_snapshot(
+        transaction_fd, CONFIG_DISPLACED
+    )
+    if displaced_stat is not None:
+        if exact_image_match(displaced_data, displaced_stat, preimage):
+            retain_displaced_preimage(transaction_fd, preimage)
+        else:
+            preserve_exchange_artifact(
+                home_fd,
+                transaction_fd,
+                CONFIG_DISPLACED,
+                displaced_data,
+                displaced_stat,
+                "writer",
+            )
+    return True
+
+
+def restore_config_exchange_preimage_v3(document: dict[str, Any]) -> bool:
     home_fd, transaction_fd = open_config_exchange_directories(document)
     try:
+        discard_config_staging_artifact(document, transaction_fd)
+        preimage = document["preimages"]["config"]
+        prepared_data, prepared_stat = exchange_snapshot(
+            transaction_fd, CONFIG_PREPARED
+        )
+        displaced_data, displaced_stat = exchange_snapshot(
+            transaction_fd, CONFIG_DISPLACED
+        )
+        observed_data, observed_stat = exchange_snapshot(
+            transaction_fd, CONFIG_OBSERVED
+        )
+        current_data, current_stat = exchange_snapshot(home_fd, "config.toml")
+
+        if (
+            prepared_stat is not None
+            and current_stat is not None
+            and same_inode(prepared_stat, current_stat)
+            and prepared_config_is_owned(
+                document,
+                prepared_data,
+                prepared_stat,
+                link_delta=1,
+            )
+            and publication_snapshot_matches(
+                document,
+                current_data,
+                current_stat,
+                link_delta=1,
+            )
+        ):
+            unlink_exchange_artifact(
+                transaction_fd,
+                CONFIG_PREPARED,
+                "transaction-config-conflict",
+            )
+            prepared_data, prepared_stat = b"", None
+            current_data, current_stat = exchange_snapshot(home_fd, "config.toml")
+
+        displaced_is_preimage = (
+            displaced_stat is not None
+            and exact_image_match(displaced_data, displaced_stat, preimage)
+        )
+        current_is_preimage = exact_image_match(current_data, current_stat, preimage)
+        current_is_publication = publication_snapshot_matches(
+            document,
+            current_data,
+            current_stat,
+        )
+        observed_is_publication = (
+            observed_stat is not None
+            and publication_snapshot_matches(
+                document,
+                observed_data,
+                observed_stat,
+            )
+        )
+        prepared_is_owned = (
+            prepared_stat is not None
+            and prepared_config_is_owned(document, prepared_data, prepared_stat)
+        )
+
+        writer_conflict = False
+        if prepared_stat is not None and not prepared_is_owned:
+            writer_conflict = True
+        if observed_stat is not None and not observed_is_publication:
+            writer_conflict = True
+        if displaced_stat is not None and not displaced_is_preimage:
+            writer_conflict = True
+        if current_stat is not None and not (
+            current_is_publication
+            or (current_is_preimage and displaced_stat is None)
+        ):
+            writer_conflict = True
+        if (
+            prepared_stat is not None
+            and current_stat is not None
+            and not current_is_preimage
+        ):
+            writer_conflict = True
+        publication = document["config_exchange"]["publication"]
+        if (
+            publication["identity"] is not None
+            and prepared_stat is None
+            and not current_is_publication
+            and not observed_is_publication
+            and not (current_is_preimage and displaced_stat is None)
+        ):
+            writer_conflict = True
+        if writer_conflict:
+            return retain_v3_exchange_conflict(
+                document,
+                home_fd,
+                transaction_fd,
+            )
+
+        if prepared_is_owned:
+            unlink_exchange_artifact(
+                transaction_fd,
+                CONFIG_PREPARED,
+                "transaction-config-conflict",
+            )
+        if current_is_publication:
+            observed_data, observed_stat = move_live_config_to_observed(
+                home_fd,
+                transaction_fd,
+            )
+            if not publication_snapshot_matches(
+                document,
+                observed_data,
+                observed_stat,
+            ):
+                raise InstallError("transaction-config-conflict")
+            observed_is_publication = True
+
+        current_data, current_stat = exchange_snapshot(home_fd, "config.toml")
+        if displaced_is_preimage:
+            if current_stat is not None:
+                return retain_v3_exchange_conflict(
+                    document,
+                    home_fd,
+                    transaction_fd,
+                )
+            if not restore_exchange_artifact(
+                home_fd,
+                transaction_fd,
+                CONFIG_DISPLACED,
+            ):
+                return retain_v3_exchange_conflict(
+                    document,
+                    home_fd,
+                    transaction_fd,
+                )
+        if observed_is_publication:
+            observed_data, observed_stat = exchange_snapshot(
+                transaction_fd, CONFIG_OBSERVED
+            )
+            if not publication_snapshot_matches(
+                document,
+                observed_data,
+                observed_stat,
+            ):
+                raise InstallError("transaction-config-conflict")
+            unlink_exchange_artifact(
+                transaction_fd,
+                CONFIG_OBSERVED,
+                "transaction-config-conflict",
+            )
+
+        final_data, final_stat = exchange_snapshot(home_fd, "config.toml")
+        if not exact_image_match(final_data, final_stat, preimage):
+            raise InstallError("transaction-config-conflict")
+        return False
+    finally:
+        os.close(transaction_fd)
+        os.close(home_fd)
+
+
+def restore_config_exchange_preimage(document: dict[str, Any]) -> bool:
+    if uses_publication_provenance(document):
+        return restore_config_exchange_preimage_v3(document)
+    home_fd, transaction_fd = open_config_exchange_directories(document)
+    try:
+        writer_conflict = repair_v2_preimage_link_transitions(
+            document,
+            home_fd,
+            transaction_fd,
+        )
         preimage = document["preimages"]["config"]
         desired = document["desired"]["config"]
-        writer_conflict = False
         desired_observed = False
 
         observed_data, observed_stat = exchange_snapshot(
@@ -2024,11 +2625,104 @@ def restore_config_exchange_preimage(document: dict[str, Any]) -> bool:
         os.close(home_fd)
 
 
+def finalize_config_exchange_v3(document: dict[str, Any]) -> bool:
+    home_fd, transaction_fd = open_config_exchange_directories(document)
+    try:
+        discard_config_staging_artifact(document, transaction_fd)
+        current_data, current_stat = exchange_snapshot(home_fd, "config.toml")
+        prepared_data, prepared_stat = exchange_snapshot(
+            transaction_fd, CONFIG_PREPARED
+        )
+        if (
+            prepared_stat is not None
+            and current_stat is not None
+            and same_inode(prepared_stat, current_stat)
+            and prepared_config_is_owned(
+                document,
+                prepared_data,
+                prepared_stat,
+                link_delta=1,
+            )
+            and publication_snapshot_matches(
+                document,
+                current_data,
+                current_stat,
+                link_delta=1,
+            )
+        ):
+            unlink_exchange_artifact(
+                transaction_fd,
+                CONFIG_PREPARED,
+                "transaction-config-conflict",
+            )
+            prepared_stat = None
+            current_data, current_stat = exchange_snapshot(home_fd, "config.toml")
+        if prepared_stat is not None or not publication_snapshot_matches(
+            document,
+            current_data,
+            current_stat,
+        ):
+            return retain_v3_exchange_conflict(
+                document,
+                home_fd,
+                transaction_fd,
+            )
+        observed_data, observed_stat = exchange_snapshot(
+            transaction_fd, CONFIG_OBSERVED
+        )
+        if observed_stat is not None:
+            if not publication_snapshot_matches(
+                document,
+                observed_data,
+                observed_stat,
+            ):
+                return retain_v3_exchange_conflict(
+                    document,
+                    home_fd,
+                    transaction_fd,
+                )
+            unlink_exchange_artifact(
+                transaction_fd,
+                CONFIG_OBSERVED,
+                "transaction-config-conflict",
+            )
+        displaced_data, displaced_stat = exchange_snapshot(
+            transaction_fd, CONFIG_DISPLACED
+        )
+        if displaced_stat is not None:
+            if not exact_image_match(
+                displaced_data,
+                displaced_stat,
+                document["preimages"]["config"],
+            ):
+                return retain_v3_exchange_conflict(
+                    document,
+                    home_fd,
+                    transaction_fd,
+                )
+            unlink_exchange_artifact(
+                transaction_fd,
+                CONFIG_DISPLACED,
+                "transaction-config-conflict",
+            )
+        return False
+    finally:
+        os.close(transaction_fd)
+        os.close(home_fd)
+
+
 def finalize_config_exchange(document: dict[str, Any]) -> bool:
     if not uses_config_exchange(document):
         return False
+    if uses_publication_provenance(document):
+        return finalize_config_exchange_v3(document)
     home_fd, transaction_fd = open_config_exchange_directories(document)
     try:
+        writer_conflict = repair_v2_preimage_link_transitions(
+            document,
+            home_fd,
+            transaction_fd,
+        )
         desired = document["desired"]["config"]
         preimage = document["preimages"]["config"]
         current_data, current_stat = exchange_snapshot(home_fd, "config.toml")
@@ -2039,7 +2733,6 @@ def finalize_config_exchange(document: dict[str, Any]) -> bool:
             metadata_required=False,
         ):
             raise InstallError("transaction-config-conflict")
-        writer_conflict = False
         observed_data, observed_stat = exchange_snapshot(
             transaction_fd, CONFIG_OBSERVED
         )
@@ -2149,11 +2842,49 @@ def validate_transaction_archive_directory(document: dict[str, Any]) -> None:
         raise InstallError("transaction-archive-conflict")
 
 
+def config_exchange_converged_v3(document: dict[str, Any]) -> bool:
+    home_fd, transaction_fd = open_config_exchange_directories(document)
+    try:
+        try:
+            staging_stat = os.stat(
+                config_staging_name(document),
+                dir_fd=transaction_fd,
+                follow_symlinks=False,
+            )
+        except FileNotFoundError:
+            staging_stat = None
+        except OSError:
+            raise InstallError("transaction-config-conflict") from None
+        if staging_stat is not None and not stat.S_ISREG(staging_stat.st_mode):
+            raise InstallError("transaction-config-conflict")
+        _, prepared_stat = exchange_snapshot(transaction_fd, CONFIG_PREPARED)
+        _, observed_stat = exchange_snapshot(transaction_fd, CONFIG_OBSERVED)
+        current_data, current_stat = exchange_snapshot(home_fd, "config.toml")
+        return (
+            staging_stat is None
+            and prepared_stat is None
+            and observed_stat is None
+            and publication_snapshot_matches(
+                document,
+                current_data,
+                current_stat,
+            )
+        )
+    finally:
+        os.close(transaction_fd)
+        os.close(home_fd)
+
+
 def transaction_converged(document: dict[str, Any]) -> bool:
     validate_transaction_archive_directory(document)
     paths = document["paths"]
     desired = document["desired"]
-    for key in ("config", "receipt"):
+    target_keys = (
+        ("receipt",)
+        if uses_publication_provenance(document)
+        else ("config", "receipt")
+    )
+    for key in target_keys:
         data, file_stat = read_transaction_target(
             Path(paths[key]), f"transaction-{key}-conflict"
         )
@@ -2164,6 +2895,10 @@ def transaction_converged(document: dict[str, Any]) -> bool:
             metadata_required=False,
         ):
             return False
+    if uses_publication_provenance(document) and not config_exchange_converged_v3(
+        document
+    ):
+        return False
     return all(archive_position(record) == "desired" for record in document["archives"])
 
 
@@ -2395,7 +3130,9 @@ def move_archives(
 
 def apply_plan(plan: dict[str, Any]) -> None:
     try:
-        journal_path, journal_raw, journal_stat = write_transaction_journal(plan)
+        document, journal_path, journal_raw, journal_stat = (
+            write_transaction_journal(plan)
+        )
         assert_preimage(
             plan["config_path"],
             plan["config_data"],
@@ -2404,11 +3141,12 @@ def apply_plan(plan: dict[str, Any]) -> None:
             invalid_code="config-path-invalid",
         )
         if plan["config_changed"]:
-            displace_and_publish_config(
+            journal_raw, journal_stat = displace_and_publish_config(
                 plan,
-                validate_transaction_document(
-                    transaction_document(plan), plan["codex_home"]
-                ),
+                document,
+                journal_path,
+                journal_raw,
+                journal_stat,
             )
         if plan["candidates"]:
             move_archives(plan["candidates"], plan["archive_dir"])
@@ -2433,9 +3171,6 @@ def apply_plan(plan: dict[str, Any]) -> None:
                     preimage_code="receipt-preimage-drift",
                     invalid_code="receipt-path-invalid",
                 )
-        document = validate_transaction_document(
-            transaction_document(plan), plan["codex_home"]
-        )
         if not transaction_converged(document):
             raise InstallError("transaction-commit-unproven")
         config_writer_conflict = finalize_config_exchange(document)

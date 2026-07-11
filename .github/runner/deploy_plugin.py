@@ -9,6 +9,8 @@ from __future__ import annotations
 
 import base64
 import binascii
+import ctypes
+import errno
 import fcntl
 import hashlib
 import json
@@ -47,8 +49,9 @@ FINGERPRINT_RE = re.compile(r"[0-9a-f]{64}")
 VERSION_RE = re.compile(r"\d+\.\d+\.\d+\+codex\.\d{14}")
 LEGACY_DEPLOY_RECEIPT_SCHEMA = "bears-plugin-deploy-state.v1"
 DEPLOY_RECEIPT_SCHEMA = "bears-plugin-deploy-state.v2"
-PROMOTION_INTENT_SCHEMA = "bears-plugin-promotion-intent.v2"
-ROLE_RECEIPT_SCHEMA = "bears-role-install-receipt.v1"
+PROMOTION_INTENT_SCHEMA = "bears-plugin-promotion-intent.v3"
+LEGACY_ROLE_RECEIPT_SCHEMA = "bears-role-install-receipt.v1"
+ROLE_RECEIPT_SCHEMA = "bears-role-install-receipt.v2"
 EXPECTED_ROLE_COUNT = 11
 CANONICAL_ROLE_NAMES = (
     "app-worker",
@@ -63,6 +66,29 @@ CANONICAL_ROLE_NAMES = (
     "worker",
     "workflow-orchestrator",
 )
+LEGACY_ROLE_VERSION = "0.1.0+codex.20260711144358"
+LEGACY_ROLE_NAMES = (
+    "diagnostic-command-runner",
+    "domain-lane-orchestrator",
+    "explorer",
+    "primary-source-researcher",
+    "role-profile-architect",
+    "runtime-evidence-reader",
+    "security-analysis-critic",
+    "worker",
+    "workflow-orchestrator",
+)
+LEGACY_ROLE_SHA256 = {
+    "diagnostic-command-runner": "4ce047462f8f56d945494df90a685c7390c24ba5327e290dac93a3b100031b26",
+    "domain-lane-orchestrator": "a55e4f0be243d1ac3db643dbe3c6caba26451dcea2b731895d30909436a73ccf",
+    "explorer": "7fefdd33d132c136d7ac4cc458abdcbfe06a3921d343dcb10a00ec654cdbee04",
+    "primary-source-researcher": "93a9a36c82b5e496d59ea1d3da57210f1163d6a641c921a469cbda804ce13921",
+    "role-profile-architect": "310ba40757b04847d6bd80e98c34dfd728d17eab96e31f2896e4eb293f1f61d9",
+    "runtime-evidence-reader": "f1f194a3c6424a2237e27a270b545ea673361568ad988683419bc91aceda5961",
+    "security-analysis-critic": "8e1c41b5988155c77dcd356d4f274084a9f8c476fbffde827662b768edb89be2",
+    "worker": "2e6a3faf9c948ce425aa221c6f1e1a80510691489d3d23943937609ed06ebfcb",
+    "workflow-orchestrator": "7d27b39cb78f1e8f8baa531ac129ec6191f62bc0fd42b06957203e136bc437c7",
+}
 PROFILE_FIELDS = frozenset(
     {"name", "description", "model", "model_reasoning_effort", "sandbox_mode", "developer_instructions"}
 )
@@ -114,6 +140,11 @@ ENV = {
     "GIT_TERMINAL_PROMPT": "0",
 }
 FIXED_MARKETPLACE_SOURCE = {"sourceType": "git", "source": REPOSITORY}
+RENAME_NOREPLACE = 1
+RENAME_EXCHANGE = 2
+SNAPSHOT_METADATA_FIELDS = frozenset(
+    {"dev", "ino", "mode", "uid", "gid", "nlink", "size", "mtime_ns"}
+)
 
 
 class DeployError(RuntimeError):
@@ -122,6 +153,33 @@ class DeployError(RuntimeError):
     def __init__(self, message: str, *, error_code: str | None = None):
         super().__init__(message)
         self.error_code = error_code
+
+
+class FilePublication:
+    """One renameat2 publication whose displaced preimage remains recoverable."""
+
+    def __init__(
+        self,
+        *,
+        directory: int,
+        target: str,
+        exchange_name: str,
+        expected: tuple[bytes, os.stat_result] | None,
+        published: tuple[bytes, os.stat_result],
+        reader: Any,
+        label: str,
+        retained: bool,
+        created: bool,
+    ):
+        self.directory = directory
+        self.target = target
+        self.exchange_name = exchange_name
+        self.expected = expected
+        self.published = published
+        self.reader = reader
+        self.label = label
+        self.retained = retained
+        self.created = created
 
 
 class DeployContext:
@@ -864,8 +922,15 @@ def config_without_owned_roles(data: bytes) -> tuple[bytes, tuple[int, int] | No
     parse_config(data, "Codex config")
     span = managed_role_span(data)
     outside = data if span is None else data[: span[0]] + data[span[1] :]
-    if "agents" in parse_config(outside, "Codex config outside the managed role block"):
-        raise DeployError("unowned agent registration drift prevents role reconciliation")
+    outside_agents = parse_config(outside, "Codex config outside the managed role block").get(
+        "agents", {}
+    )
+    if not isinstance(outside_agents, dict):
+        raise DeployError("global agent registrations have an unsupported shape")
+    collisions = set(outside_agents).intersection(CANONICAL_ROLE_NAMES)
+    if collisions:
+        names = ", ".join(sorted(collisions))
+        raise DeployError(f"owned role registration collides outside the managed block: {names}")
     return outside, span
 
 
@@ -889,13 +954,14 @@ def config_with_role_block(data: bytes, block: bytes) -> bytes:
 
 
 def verify_role_config(data: bytes, catalog: dict[str, str]) -> None:
-    agents = parse_config(data, "reconciled Codex config").get("agents")
-    if (
-        not isinstance(agents, dict)
-        or len(agents) != EXPECTED_ROLE_COUNT
-        or set(agents) != set(catalog)
-    ):
-        raise DeployError("Codex config does not contain the exact canonical role set")
+    _, span = config_without_owned_roles(data)
+    if span is None:
+        raise DeployError("Codex config is missing the managed role block")
+    agents = parse_config(data[span[0] : span[1]], "managed role block").get("agents")
+    if not isinstance(agents, dict) or set(agents) != set(CANONICAL_ROLE_NAMES):
+        raise DeployError("managed role block does not contain the exact canonical role set")
+    if set(catalog) != set(CANONICAL_ROLE_NAMES) or len(catalog) != EXPECTED_ROLE_COUNT:
+        raise DeployError("role catalog is not the exact canonical role set")
     configured_paths: list[str] = []
     for name, expected_path in catalog.items():
         row = agents.get(name)
@@ -940,11 +1006,11 @@ def open_role_config_lock() -> tuple[int, int]:
         raise
 
 
-def read_config_at(home_fd: int) -> tuple[bytes, os.stat_result] | None:
+def read_config_name_at(home_fd: int, name: str) -> tuple[bytes, os.stat_result] | None:
     flags = os.O_RDONLY | getattr(os, "O_CLOEXEC", 0) | getattr(os, "O_NOFOLLOW", 0)
     descriptor = -1
     try:
-        descriptor = os.open("config.toml", flags, dir_fd=home_fd)
+        descriptor = os.open(name, flags, dir_fd=home_fd)
     except FileNotFoundError:
         return None
     except OSError as exc:
@@ -972,6 +1038,10 @@ def read_config_at(home_fd: int) -> tuple[bytes, os.stat_result] | None:
         os.close(descriptor)
 
 
+def read_config_at(home_fd: int) -> tuple[bytes, os.stat_result] | None:
+    return read_config_name_at(home_fd, "config.toml")
+
+
 def open_role_receipt_directory(home_fd: int) -> int:
     try:
         os.mkdir("state", 0o700, dir_fd=home_fd)
@@ -997,11 +1067,11 @@ def open_role_receipt_directory(home_fd: int) -> int:
         raise
 
 
-def read_role_receipt_at(directory: int) -> tuple[bytes, os.stat_result] | None:
+def read_role_receipt_name_at(directory: int, name: str) -> tuple[bytes, os.stat_result] | None:
     descriptor = -1
     try:
         descriptor = os.open(
-            ROLE_RECEIPT_FILE.name,
+            name,
             os.O_RDONLY | os.O_CLOEXEC | os.O_NOFOLLOW,
             dir_fd=directory,
         )
@@ -1035,6 +1105,10 @@ def read_role_receipt_at(directory: int) -> tuple[bytes, os.stat_result] | None:
         os.close(descriptor)
 
 
+def read_role_receipt_at(directory: int) -> tuple[bytes, os.stat_result] | None:
+    return read_role_receipt_name_at(directory, ROLE_RECEIPT_FILE.name)
+
+
 def parse_role_receipt(snapshot: tuple[bytes, os.stat_result] | None) -> dict[str, Any] | None:
     if snapshot is None:
         return None
@@ -1054,26 +1128,37 @@ def parse_role_receipt(snapshot: tuple[bytes, os.stat_result] | None) -> dict[st
         "managed_profiles",
         "archives",
     }
+    legacy_required = required - {"managed_profiles"}
     status = value.get("status") if isinstance(value, dict) else None
     role_count = value.get("role_count") if isinstance(value, dict) else None
     digest = value.get("managed_digest") if isinstance(value, dict) else None
     profiles = value.get("managed_profiles") if isinstance(value, dict) else None
     if (
         not isinstance(value, dict)
-        or set(value) != required
-        or value.get("schema") != ROLE_RECEIPT_SCHEMA
+        or value.get("schema") not in {LEGACY_ROLE_RECEIPT_SCHEMA, ROLE_RECEIPT_SCHEMA}
+        or (
+            set(value) != required
+            and not (
+                value.get("schema") == LEGACY_ROLE_RECEIPT_SCHEMA
+                and set(value) == legacy_required
+            )
+        )
         or value.get("plugin") != PLUGIN
         or not VERSION_RE.fullmatch(str(value.get("version", "")))
         or status not in {"installed", "uninstalled"}
         or not isinstance(value.get("changed"), bool)
         or not isinstance(role_count, int)
         or isinstance(role_count, bool)
-        or role_count != EXPECTED_ROLE_COUNT
         or not isinstance(value.get("managed_joiner_added"), bool)
-        or not isinstance(profiles, list)
+        or (profiles is not None and not isinstance(profiles, list))
         or not isinstance(value.get("archives"), list)
     ):
         raise DeployError("shared role receipt identity is invalid")
+    if value["schema"] == LEGACY_ROLE_RECEIPT_SCHEMA:
+        if value["version"] != LEGACY_ROLE_VERSION or role_count != len(LEGACY_ROLE_NAMES):
+            raise DeployError("unknown legacy shared role receipt is not migratable")
+    elif role_count != EXPECTED_ROLE_COUNT or profiles is None:
+        raise DeployError("shared role receipt role catalog is invalid")
     if status == "installed":
         if not isinstance(digest, str) or not FINGERPRINT_RE.fullmatch(digest):
             raise DeployError("installed shared role receipt digest is invalid")
@@ -1098,17 +1183,33 @@ def validate_owned_role_state(
     block = config[span[0] : span[1]]
     digest = hashlib.sha256(block).hexdigest()
     records = value.get("managed_profiles")
+    legacy = value.get("schema") == LEGACY_ROLE_RECEIPT_SCHEMA
+    expected_names = LEGACY_ROLE_NAMES if legacy else CANONICAL_ROLE_NAMES
     if (
         value.get("managed_digest") != digest
-        or not isinstance(records, list)
         or not isinstance(value.get("role_count"), int)
         or isinstance(value.get("role_count"), bool)
-        or value["role_count"] != len(records)
+        or value["role_count"] != len(expected_names)
     ):
         raise DeployError("managed role block disagrees with its shared receipt")
     block_agents = parse_config(block, "managed role block").get("agents")
-    if not isinstance(block_agents, dict) or not set(block_agents).issubset(CANONICAL_ROLE_NAMES):
-        raise DeployError("managed role block contains a non-canonical role")
+    if not isinstance(block_agents, dict) or set(block_agents) != set(expected_names):
+        raise DeployError("managed role block is not the exact receipted role catalog")
+    if records is None:
+        if not legacy:
+            raise DeployError("current shared role receipt omits profile ownership")
+        records = [
+            {
+                "name": name,
+                "config_file": block_agents[name].get("config_file")
+                if isinstance(block_agents[name], dict)
+                else None,
+                "sha256": LEGACY_ROLE_SHA256[name],
+            }
+            for name in expected_names
+        ]
+    if not isinstance(records, list) or [record.get("name") for record in records if isinstance(record, dict)] != list(expected_names):
+        raise DeployError("shared role receipt profile catalog is not canonical")
     recorded: dict[str, tuple[str, str]] = {}
     for record in records:
         if not isinstance(record, dict) or set(record) != {"name", "config_file", "sha256"}:
@@ -1116,7 +1217,7 @@ def validate_owned_role_state(
         name, path, content_digest = record["name"], record["config_file"], record["sha256"]
         if (
             not isinstance(name, str)
-            or name not in CANONICAL_ROLE_NAMES
+            or name not in expected_names
             or name in recorded
             or not isinstance(path, str)
             or not Path(path).is_absolute()
@@ -1124,6 +1225,11 @@ def validate_owned_role_state(
             or not FINGERPRINT_RE.fullmatch(content_digest)
         ):
             raise DeployError("shared role receipt profile ownership is invalid")
+        if legacy and (
+            Path(path).name != f"{name}.toml"
+            or not secrets.compare_digest(content_digest, LEGACY_ROLE_SHA256[name])
+        ):
+            raise DeployError("legacy shared role receipt does not match the allowlisted catalog")
         row = block_agents.get(name)
         if not isinstance(row, dict) or row != {"config_file": path}:
             raise DeployError("shared role receipt does not own the managed registration")
@@ -1193,18 +1299,294 @@ def same_config_snapshot(
     return left[0] == right[0] and (
         left_stat.st_dev,
         left_stat.st_ino,
+        left_stat.st_mode,
+        left_stat.st_uid,
+        left_stat.st_gid,
+        left_stat.st_nlink,
         left_stat.st_size,
         left_stat.st_mtime_ns,
-        left_stat.st_ctime_ns,
-        stat.S_IMODE(left_stat.st_mode),
     ) == (
         right_stat.st_dev,
         right_stat.st_ino,
+        right_stat.st_mode,
+        right_stat.st_uid,
+        right_stat.st_gid,
+        right_stat.st_nlink,
         right_stat.st_size,
         right_stat.st_mtime_ns,
-        right_stat.st_ctime_ns,
-        stat.S_IMODE(right_stat.st_mode),
     )
+
+
+def snapshot_metadata(snapshot: tuple[bytes, os.stat_result] | None) -> dict[str, int] | None:
+    if snapshot is None:
+        return None
+    file_stat = snapshot[1]
+    return {
+        "dev": file_stat.st_dev,
+        "ino": file_stat.st_ino,
+        "mode": file_stat.st_mode,
+        "uid": file_stat.st_uid,
+        "gid": file_stat.st_gid,
+        "nlink": file_stat.st_nlink,
+        "size": file_stat.st_size,
+        "mtime_ns": file_stat.st_mtime_ns,
+    }
+
+
+def matches_snapshot_metadata(
+    snapshot: tuple[bytes, os.stat_result] | None,
+    expected: dict[str, Any] | None,
+) -> bool:
+    return snapshot_metadata(snapshot) == expected
+
+
+def renameat2(directory: int, source: str, target: str, flags: int) -> None:
+    """Invoke Linux renameat2 without falling back to a check-then-replace sequence."""
+    libc = ctypes.CDLL(None, use_errno=True)
+    operation = getattr(libc, "renameat2", None)
+    if operation is None:
+        raise OSError(errno.ENOSYS, "renameat2 is unavailable")
+    operation.argtypes = [ctypes.c_int, ctypes.c_char_p, ctypes.c_int, ctypes.c_char_p, ctypes.c_uint]
+    operation.restype = ctypes.c_int
+    if operation(directory, os.fsencode(source), directory, os.fsencode(target), flags) != 0:
+        number = ctypes.get_errno()
+        raise OSError(number, os.strerror(number), target)
+
+
+def write_publication_stage(
+    directory: int,
+    name: str,
+    replacement: bytes,
+    mode: int,
+    reader: Any,
+    label: str,
+) -> None:
+    existing = reader(directory, name)
+    if existing is not None:
+        if existing[0] != replacement or stat.S_IMODE(existing[1].st_mode) != mode:
+            raise DeployError(f"{label} exchange staging file is ambiguous")
+        return
+    descriptor = -1
+    try:
+        flags = (
+            os.O_WRONLY
+            | os.O_CREAT
+            | os.O_EXCL
+            | getattr(os, "O_CLOEXEC", 0)
+            | getattr(os, "O_NOFOLLOW", 0)
+        )
+        descriptor = os.open(name, flags, mode, dir_fd=directory)
+        os.fchmod(descriptor, mode)
+        written = 0
+        while written < len(replacement):
+            advanced = os.write(descriptor, replacement[written:])
+            if advanced <= 0:
+                raise DeployError(f"{label} exchange staging write did not advance")
+            written += advanced
+        os.fsync(descriptor)
+    finally:
+        if descriptor >= 0:
+            os.close(descriptor)
+
+
+def publish_file_cas(
+    directory: int,
+    target: str,
+    exchange_name: str,
+    expected: tuple[bytes, os.stat_result] | None,
+    replacement: bytes,
+    reader: Any,
+    label: str,
+    *,
+    phase: str,
+) -> FilePublication:
+    current = reader(directory, target)
+    if (
+        expected is not None
+        and current is not None
+        and current[0] == replacement
+        and same_config_snapshot(expected, current)
+    ):
+        staged = reader(directory, exchange_name)
+        if staged is not None:
+            if staged[0] != replacement:
+                raise DeployError(f"{label} no-op publication has ambiguous staging data")
+            os.unlink(exchange_name, dir_fd=directory)
+            os.fsync(directory)
+        return FilePublication(
+            directory=directory,
+            target=target,
+            exchange_name=exchange_name,
+            expected=current,
+            published=current,
+            reader=reader,
+            label=label,
+            retained=False,
+            created=False,
+        )
+    if current is not None and current[0] == replacement:
+        retained = reader(directory, exchange_name)
+        if expected is None:
+            if retained is not None:
+                raise DeployError(f"{label} absent-preimage publication retained an unexpected inode")
+            return FilePublication(
+                directory=directory,
+                target=target,
+                exchange_name=exchange_name,
+                expected=None,
+                published=current,
+                reader=reader,
+                label=label,
+                retained=False,
+                created=True,
+            )
+        if retained is None:
+            if phase != "committed":
+                raise DeployError(f"{label} lost its retained preimage before commit")
+            return FilePublication(
+                directory=directory,
+                target=target,
+                exchange_name=exchange_name,
+                expected=expected,
+                published=current,
+                reader=reader,
+                label=label,
+                retained=False,
+                created=False,
+            )
+        if not same_config_snapshot(expected, retained):
+            raise DeployError(f"{label} retained preimage disagrees with its journal")
+        return FilePublication(
+            directory=directory,
+            target=target,
+            exchange_name=exchange_name,
+            expected=expected,
+            published=current,
+            reader=reader,
+            label=label,
+            retained=True,
+            created=False,
+        )
+    if phase != "prepared" or not same_config_snapshot(expected, current):
+        raise DeployError(f"{label} is outside the publication transaction")
+    mode = stat.S_IMODE(expected[1].st_mode) if expected is not None else 0o600
+    write_publication_stage(directory, exchange_name, replacement, mode, reader, label)
+    exchanged = False
+    try:
+        if expected is None:
+            renameat2(directory, exchange_name, target, RENAME_NOREPLACE)
+        else:
+            renameat2(directory, exchange_name, target, RENAME_EXCHANGE)
+            exchanged = True
+            displaced = reader(directory, exchange_name)
+            if not same_config_snapshot(expected, displaced):
+                raise DeployError(f"{label} publication displaced an unexpected inode")
+        os.fsync(directory)
+        published = reader(directory, target)
+        if published is None or published[0] != replacement:
+            raise DeployError(f"{label} publication is unproven")
+        return FilePublication(
+            directory=directory,
+            target=target,
+            exchange_name=exchange_name,
+            expected=expected,
+            published=published,
+            reader=reader,
+            label=label,
+            retained=expected is not None,
+            created=expected is None,
+        )
+    except Exception as exc:
+        if exchanged:
+            try:
+                renameat2(directory, exchange_name, target, RENAME_EXCHANGE)
+                os.fsync(directory)
+                exchanged = False
+            except Exception as restore_error:
+                raise DeployError(
+                    f"{label} publication race restoration is unproven",
+                    error_code="recovery-failure",
+                ) from restore_error
+        try:
+            staged = reader(directory, exchange_name)
+            if staged is not None and staged[0] == replacement:
+                os.unlink(exchange_name, dir_fd=directory)
+                os.fsync(directory)
+        except FileNotFoundError:
+            pass
+        raise exc
+
+
+def finalize_publication(publication: FilePublication) -> None:
+    current = publication.reader(publication.directory, publication.target)
+    if not same_config_snapshot(publication.published, current):
+        raise DeployError(f"{publication.label} changed before combined commit finalization")
+    if publication.retained:
+        retained = publication.reader(publication.directory, publication.exchange_name)
+        if not same_config_snapshot(publication.expected, retained):
+            raise DeployError(f"{publication.label} retained preimage changed before finalization")
+        os.unlink(publication.exchange_name, dir_fd=publication.directory)
+        os.fsync(publication.directory)
+        publication.retained = False
+
+
+def rollback_publication(publication: FilePublication) -> None:
+    if publication.retained:
+        renameat2(
+            publication.directory,
+            publication.exchange_name,
+            publication.target,
+            RENAME_EXCHANGE,
+        )
+        os.fsync(publication.directory)
+        displaced = publication.reader(publication.directory, publication.exchange_name)
+        restored = publication.reader(publication.directory, publication.target)
+        if not same_config_snapshot(publication.published, displaced) or not same_config_snapshot(
+            publication.expected, restored
+        ):
+            renameat2(
+                publication.directory,
+                publication.exchange_name,
+                publication.target,
+                RENAME_EXCHANGE,
+            )
+            os.fsync(publication.directory)
+            raise DeployError(
+                f"{publication.label} rollback encountered a same-user publication race",
+                error_code="recovery-failure",
+            )
+        os.unlink(publication.exchange_name, dir_fd=publication.directory)
+        os.fsync(publication.directory)
+        publication.retained = False
+        return
+    if not publication.created:
+        current = publication.reader(publication.directory, publication.target)
+        if publication.expected is not None and same_config_snapshot(publication.expected, current):
+            return
+        raise DeployError(f"{publication.label} finalized preimage cannot be rolled back")
+    renameat2(
+        publication.directory,
+        publication.target,
+        publication.exchange_name,
+        RENAME_NOREPLACE,
+    )
+    os.fsync(publication.directory)
+    displaced = publication.reader(publication.directory, publication.exchange_name)
+    if not same_config_snapshot(publication.published, displaced):
+        renameat2(
+            publication.directory,
+            publication.exchange_name,
+            publication.target,
+            RENAME_NOREPLACE,
+        )
+        os.fsync(publication.directory)
+        raise DeployError(
+            f"{publication.label} rollback encountered a same-user publication race",
+            error_code="recovery-failure",
+        )
+    os.unlink(publication.exchange_name, dir_fd=publication.directory)
+    os.fsync(publication.directory)
+    publication.created = False
 
 
 def atomic_config_replace(
@@ -1212,36 +1594,18 @@ def atomic_config_replace(
     expected: tuple[bytes, os.stat_result] | None,
     replacement: bytes,
 ) -> tuple[bytes, os.stat_result]:
-    if not same_config_snapshot(expected, read_config_at(home_fd)):
-        raise DeployError("Codex config changed during role reconciliation")
-    mode = stat.S_IMODE(expected[1].st_mode) if expected is not None else 0o600
-    temporary = f".config.toml.bears-gateway.{secrets.token_hex(16)}"
-    descriptor = -1
-    try:
-        flags = os.O_WRONLY | os.O_CREAT | os.O_EXCL | getattr(os, "O_CLOEXEC", 0) | getattr(os, "O_NOFOLLOW", 0)
-        descriptor = os.open(temporary, flags, mode, dir_fd=home_fd)
-        written = 0
-        while written < len(replacement):
-            advanced = os.write(descriptor, replacement[written:])
-            if advanced <= 0:
-                raise DeployError("temporary Codex config write did not advance")
-            written += advanced
-        os.fsync(descriptor)
-        os.close(descriptor)
-        descriptor = -1
-        os.replace(temporary, "config.toml", src_dir_fd=home_fd, dst_dir_fd=home_fd)
-        os.fsync(home_fd)
-        result = read_config_at(home_fd)
-        if result is None or result[0] != replacement:
-            raise DeployError("atomic Codex config replacement is unproven")
-        return result
-    finally:
-        if descriptor >= 0:
-            os.close(descriptor)
-        try:
-            os.unlink(temporary, dir_fd=home_fd)
-        except FileNotFoundError:
-            pass
+    publication = publish_file_cas(
+        home_fd,
+        "config.toml",
+        f".config.toml.bears-gateway.{secrets.token_hex(16)}",
+        expected,
+        replacement,
+        read_config_name_at,
+        "Codex config",
+        phase="prepared",
+    )
+    finalize_publication(publication)
+    return publication.published
 
 
 def atomic_role_receipt_replace(
@@ -1249,44 +1613,18 @@ def atomic_role_receipt_replace(
     expected: tuple[bytes, os.stat_result] | None,
     replacement: bytes,
 ) -> tuple[bytes, os.stat_result]:
-    if not same_config_snapshot(expected, read_role_receipt_at(directory)):
-        raise DeployError("shared role receipt changed during reconciliation")
-    temporary = f".{PLUGIN}-role-sync.{secrets.token_hex(16)}.tmp"
-    descriptor = -1
-    try:
-        descriptor = os.open(
-            temporary,
-            os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_CLOEXEC | os.O_NOFOLLOW,
-            0o600,
-            dir_fd=directory,
-        )
-        offset = 0
-        while offset < len(replacement):
-            advanced = os.write(descriptor, replacement[offset:])
-            if advanced <= 0:
-                raise DeployError("shared role receipt write did not advance")
-            offset += advanced
-        os.fsync(descriptor)
-        os.close(descriptor)
-        descriptor = -1
-        os.replace(
-            temporary,
-            ROLE_RECEIPT_FILE.name,
-            src_dir_fd=directory,
-            dst_dir_fd=directory,
-        )
-        os.fsync(directory)
-        result = read_role_receipt_at(directory)
-        if result is None or result[0] != replacement:
-            raise DeployError("shared role receipt replacement is unproven")
-        return result
-    finally:
-        if descriptor >= 0:
-            os.close(descriptor)
-        try:
-            os.unlink(temporary, dir_fd=directory)
-        except FileNotFoundError:
-            pass
+    publication = publish_file_cas(
+        directory,
+        ROLE_RECEIPT_FILE.name,
+        f".{PLUGIN}-role-sync.{secrets.token_hex(16)}.tmp",
+        expected,
+        replacement,
+        read_role_receipt_name_at,
+        "shared role receipt",
+        phase="prepared",
+    )
+    finalize_publication(publication)
+    return publication.published
 
 
 def rollback_role_receipt(
@@ -1300,19 +1638,35 @@ def rollback_role_receipt(
     if current is None or current[0] != attempted:
         raise DeployError("shared role receipt changed outside the attempted mutation")
     if before is None:
-        os.unlink(ROLE_RECEIPT_FILE.name, dir_fd=directory)
-        os.fsync(directory)
+        publication = FilePublication(
+            directory=directory,
+            target=ROLE_RECEIPT_FILE.name,
+            exchange_name=f".{PLUGIN}-role-sync.{secrets.token_hex(16)}.rollback",
+            expected=None,
+            published=current,
+            reader=read_role_receipt_name_at,
+            label="shared role receipt",
+            retained=False,
+            created=True,
+        )
+        rollback_publication(publication)
     else:
         atomic_role_receipt_replace(directory, current, before[0])
 
 
 def atomic_config_remove(home_fd: int, expected: tuple[bytes, os.stat_result]) -> None:
-    if not same_config_snapshot(expected, read_config_at(home_fd)):
-        raise DeployError("Codex config changed before role rollback")
-    os.unlink("config.toml", dir_fd=home_fd)
-    os.fsync(home_fd)
-    if read_config_at(home_fd) is not None:
-        raise DeployError("Codex config rollback removal is unproven")
+    publication = FilePublication(
+        directory=home_fd,
+        target="config.toml",
+        exchange_name=f".config.toml.bears-gateway.{secrets.token_hex(16)}.rollback",
+        expected=None,
+        published=expected,
+        reader=read_config_name_at,
+        label="Codex config",
+        retained=False,
+        created=True,
+    )
+    rollback_publication(publication)
 
 
 def rollback_role_config(
@@ -1339,6 +1693,79 @@ def rollback_attempted_config(
     if current is None or current[0] != attempted:
         raise DeployError("Codex config changed outside the attempted role mutation")
     rollback_role_config(home_fd, before, current)
+
+
+def publish_journaled_file(
+    directory: int,
+    target: str,
+    exchange_name: str,
+    preimage: bytes,
+    preimage_present: bool,
+    preimage_metadata: dict[str, Any] | None,
+    replacement: bytes,
+    reader: Any,
+    label: str,
+    *,
+    phase: str,
+) -> FilePublication:
+    current = reader(directory, target)
+    current_bytes = None if current is None else current[0]
+    expected_bytes = preimage if preimage_present else None
+    if current_bytes == expected_bytes:
+        if preimage_present and not matches_snapshot_metadata(current, preimage_metadata):
+            raise DeployError(f"{label} preimage inode disagrees with its journal")
+        if not preimage_present and preimage_metadata is not None:
+            raise DeployError(f"{label} absent preimage retains metadata")
+        return publish_file_cas(
+            directory,
+            target,
+            exchange_name,
+            current if preimage_present else None,
+            replacement,
+            reader,
+            label,
+            phase=phase,
+        )
+    if current_bytes != replacement:
+        raise DeployError(f"{label} is outside the journaled publication states")
+    if not preimage_present:
+        return publish_file_cas(
+            directory,
+            target,
+            exchange_name,
+            None,
+            replacement,
+            reader,
+            label,
+            phase=phase,
+        )
+    retained = reader(directory, exchange_name)
+    if retained is None:
+        if phase != "committed":
+            raise DeployError(f"{label} prepared transaction lost its retained preimage")
+        return FilePublication(
+            directory=directory,
+            target=target,
+            exchange_name=exchange_name,
+            expected=None,
+            published=current,
+            reader=reader,
+            label=label,
+            retained=False,
+            created=False,
+        )
+    if retained[0] != preimage or not matches_snapshot_metadata(retained, preimage_metadata):
+        raise DeployError(f"{label} retained preimage is not the journaled inode")
+    return publish_file_cas(
+        directory,
+        target,
+        exchange_name,
+        retained,
+        replacement,
+        reader,
+        label,
+        phase=phase,
+    )
 
 
 def role_deployment_record(
@@ -1378,7 +1805,7 @@ def reconcile_roles(
     state_directory: int,
     intent: dict[str, Any] | None,
 ) -> dict[str, Any]:
-    if intent is not None and intent.get("requested_sha") != requested:
+    if intent is None or intent.get("requested_sha") != requested:
         raise DeployError("promotion intent does not target the reconciled role revision")
     fingerprint = verify_install(requested, expected_version)
     cache = plugin_cache(expected_version)
@@ -1388,19 +1815,19 @@ def reconcile_roles(
     receipt_directory = -1
     before: tuple[bytes, os.stat_result] | None = None
     receipt_before: tuple[bytes, os.stat_result] | None = None
-    published: tuple[bytes, os.stat_result] | None = None
-    receipt_published: tuple[bytes, os.stat_result] | None = None
-    config_mutation_attempted = False
-    receipt_mutation_attempted = False
+    config_publication: FilePublication | None = None
+    receipt_publication: FilePublication | None = None
     desired = b""
     desired_receipt = b""
+    phase = "prepared"
+    combined_published = False
     try:
         receipt_directory = open_role_receipt_directory(home_fd)
         before = read_config_at(home_fd)
         receipt_before = read_role_receipt_at(receipt_directory)
         original = b"" if before is None else before[0]
         block = role_block(expected_version, catalog)
-        transaction = intent.get("role_transaction") if intent is not None else None
+        transaction = intent.get("role_transaction")
         if transaction is None:
             previous_role_receipt = validate_owned_role_state(original, receipt_before)
             desired = desired_role_config(original, expected_version, catalog)
@@ -1421,7 +1848,19 @@ def reconcile_roles(
                 added_joiner=added_joiner,
             )
             record = role_deployment_record(fingerprint, bundle, catalog, desired_receipt)
+            intent = save_role_intent(
+                state_directory,
+                intent,
+                config_preimage=before,
+                desired_block=block,
+                role_receipt_preimage=receipt_before,
+                role_receipt=desired_receipt,
+                role_record=record,
+            )
+            transaction = intent["role_transaction"]
         else:
+            if transaction.get("operation") != "install":
+                raise DeployError("promotion intent contains a non-install role transaction")
             preimage = decode_journal_bytes(
                 transaction["config_preimage_b64"],
                 CONFIG_MAX_BYTES,
@@ -1460,39 +1899,54 @@ def reconcile_roles(
                 )
             )
             receipt_bytes = None if receipt_before is None else receipt_before[0]
-            if receipt_bytes == desired_receipt:
+            if receipt_bytes == desired_receipt and desired_matches:
                 validate_owned_role_state(desired, receipt_before)
-            elif receipt_bytes == receipt_preimage:
+            elif receipt_bytes == receipt_preimage and preimage_matches:
                 validate_owned_role_state(preimage, receipt_before)
-            else:
+            elif receipt_bytes not in {receipt_preimage, desired_receipt}:
                 raise DeployError("shared role receipt is outside the journaled transaction")
-        if intent is not None and transaction is None:
-            intent = save_role_intent(
-                state_directory,
-                intent,
-                config_preimage=original,
-                config_preimage_present=before is not None,
-                desired_block=block,
-                role_receipt_preimage=None if receipt_before is None else receipt_before[0],
-                role_receipt=desired_receipt,
-                role_record=record,
+        phase = str(transaction["phase"])
+        preimage = decode_journal_bytes(
+            transaction["config_preimage_b64"],
+            CONFIG_MAX_BYTES,
+            "config preimage",
+        )
+        receipt_preimage_value = transaction["role_receipt_preimage_b64"]
+        receipt_preimage = (
+            b""
+            if receipt_preimage_value is None
+            else decode_journal_bytes(
+                receipt_preimage_value,
+                ROLE_RECEIPT_MAX_BYTES,
+                "role receipt preimage",
             )
-        if before is not None and original == desired:
-            published = before
-        else:
-            config_mutation_attempted = True
-            published = atomic_config_replace(home_fd, before, desired)
-        if published is None:
-            raise DeployError("reconciled Codex config is absent")
-        if receipt_before is not None and receipt_before[0] == desired_receipt:
-            receipt_published = receipt_before
-        else:
-            receipt_mutation_attempted = True
-            receipt_published = atomic_role_receipt_replace(
-                receipt_directory,
-                receipt_before,
-                desired_receipt,
-            )
+        )
+        config_publication = publish_journaled_file(
+            home_fd,
+            "config.toml",
+            transaction["config_exchange_name"],
+            preimage,
+            transaction["config_preimage_present"],
+            transaction["config_preimage_metadata"],
+            desired,
+            read_config_name_at,
+            "Codex config",
+            phase=phase,
+        )
+        receipt_publication = publish_journaled_file(
+            receipt_directory,
+            ROLE_RECEIPT_FILE.name,
+            transaction["receipt_exchange_name"],
+            receipt_preimage,
+            receipt_preimage_value is not None,
+            transaction["role_receipt_preimage_metadata"],
+            desired_receipt,
+            read_role_receipt_name_at,
+            "shared role receipt",
+            phase=phase,
+        )
+        published = config_publication.published
+        receipt_published = receipt_publication.published
         verify_role_config(published[0], catalog)
         validate_owned_role_state(published[0], receipt_published)
         if verify_install(requested, expected_version) != fingerprint:
@@ -1507,17 +1961,23 @@ def reconcile_roles(
             raise DeployError("shared live role receipt changed after reconciliation")
         verify_role_config(final[0], catalog)
         validate_owned_role_state(final[0], final_receipt)
+        combined_published = True
+        if phase == "prepared":
+            intent = mark_role_transaction_committed(state_directory, intent)
+            phase = "committed"
+        finalize_publication(receipt_publication)
+        finalize_publication(config_publication)
         return record
     except Exception as exc:
         rollback_failure: Exception | None = None
-        if receipt_mutation_attempted and receipt_directory >= 0:
+        if phase != "committed" and not combined_published and receipt_publication is not None:
             try:
-                rollback_role_receipt(receipt_directory, receipt_before, desired_receipt)
+                rollback_publication(receipt_publication)
             except Exception as failure:
                 rollback_failure = failure
-        if config_mutation_attempted:
+        if phase != "committed" and not combined_published and config_publication is not None:
             try:
-                rollback_attempted_config(home_fd, before, desired)
+                rollback_publication(config_publication)
             except Exception as failure:
                 rollback_failure = rollback_failure or failure
         if rollback_failure is not None:
@@ -1538,6 +1998,8 @@ def rollback_journaled_roles(intent: dict[str, Any]) -> None:
     if transaction is None:
         return
     validate_intent(intent)
+    if transaction.get("operation") != "install":
+        raise DeployError("role-removal transaction must converge forward")
     preimage = decode_journal_bytes(
         transaction["config_preimage_b64"],
         CONFIG_MAX_BYTES,
@@ -1578,9 +2040,32 @@ def rollback_journaled_roles(intent: dict[str, Any]) -> None:
         if current_receipt_bytes not in {receipt_preimage, desired_receipt}:
             raise DeployError("shared role receipt cannot be rolled back from its journal")
         if current_receipt_bytes != receipt_preimage:
-            if receipt_preimage is None:
-                os.unlink(ROLE_RECEIPT_FILE.name, dir_fd=receipt_directory)
-                os.fsync(receipt_directory)
+            retained = read_role_receipt_name_at(
+                receipt_directory, transaction["receipt_exchange_name"]
+            )
+            if (
+                receipt_preimage is not None
+                and retained is not None
+                and retained[0] == receipt_preimage
+                and matches_snapshot_metadata(
+                    retained, transaction["role_receipt_preimage_metadata"]
+                )
+            ):
+                rollback_publication(
+                    FilePublication(
+                        directory=receipt_directory,
+                        target=ROLE_RECEIPT_FILE.name,
+                        exchange_name=transaction["receipt_exchange_name"],
+                        expected=retained,
+                        published=current_receipt,
+                        reader=read_role_receipt_name_at,
+                        label="shared role receipt",
+                        retained=True,
+                        created=False,
+                    )
+                )
+            elif receipt_preimage is None:
+                rollback_role_receipt(receipt_directory, None, desired_receipt)
             else:
                 atomic_role_receipt_replace(
                     receipt_directory,
@@ -1588,7 +2073,27 @@ def rollback_journaled_roles(intent: dict[str, Any]) -> None:
                     receipt_preimage,
                 )
         if current_bytes != expected_preimage:
-            if expected_preimage is None:
+            retained = read_config_name_at(home_fd, transaction["config_exchange_name"])
+            if (
+                expected_preimage is not None
+                and retained is not None
+                and retained[0] == expected_preimage
+                and matches_snapshot_metadata(retained, transaction["config_preimage_metadata"])
+            ):
+                rollback_publication(
+                    FilePublication(
+                        directory=home_fd,
+                        target="config.toml",
+                        exchange_name=transaction["config_exchange_name"],
+                        expected=retained,
+                        published=current,
+                        reader=read_config_name_at,
+                        label="Codex config",
+                        retained=True,
+                        created=False,
+                    )
+                )
+            elif expected_preimage is None:
                 if current is None:
                     raise DeployError("journaled Codex config rollback state is ambiguous")
                 atomic_config_remove(home_fd, current)
@@ -1600,6 +2105,28 @@ def rollback_journaled_roles(intent: dict[str, Any]) -> None:
         restored_receipt_bytes = None if restored_receipt is None else restored_receipt[0]
         if restored_bytes != expected_preimage or restored_receipt_bytes != receipt_preimage:
             raise DeployError("journaled role rollback did not converge")
+        for directory, exchange_name, reader, replacement, label in (
+            (
+                home_fd,
+                transaction["config_exchange_name"],
+                read_config_name_at,
+                desired,
+                "Codex config",
+            ),
+            (
+                receipt_directory,
+                transaction["receipt_exchange_name"],
+                read_role_receipt_name_at,
+                desired_receipt,
+                "shared role receipt",
+            ),
+        ):
+            staged = reader(directory, exchange_name)
+            if staged is not None:
+                if staged[0] != replacement:
+                    raise DeployError(f"{label} rollback exchange file is ambiguous")
+                os.unlink(exchange_name, dir_fd=directory)
+                os.fsync(directory)
         validate_owned_role_state(b"" if restored is None else restored[0], restored_receipt)
     finally:
         if receipt_directory >= 0:
@@ -1608,54 +2135,125 @@ def rollback_journaled_roles(intent: dict[str, Any]) -> None:
         os.close(home_fd)
 
 
-def clear_owned_roles() -> None:
+def clear_owned_roles(state_directory: int, intent: dict[str, Any]) -> dict[str, Any]:
     home_fd, lock_fd = open_role_config_lock()
     receipt_directory = -1
     before: tuple[bytes, os.stat_result] | None = None
     receipt_before: tuple[bytes, os.stat_result] | None = None
-    published: tuple[bytes, os.stat_result] | None = None
-    receipt_published: tuple[bytes, os.stat_result] | None = None
-    config_mutation_attempted = False
-    receipt_mutation_attempted = False
+    config_publication: FilePublication | None = None
+    receipt_publication: FilePublication | None = None
     outside = b""
     desired_receipt = b""
+    phase = "prepared"
+    combined_published = False
     try:
         receipt_directory = open_role_receipt_directory(home_fd)
         before = read_config_at(home_fd)
         receipt_before = read_role_receipt_at(receipt_directory)
         current_config = b"" if before is None else before[0]
-        previous = validate_owned_role_state(current_config, receipt_before)
-        if before is None and previous is None:
-            return
-        outside, span = config_without_owned_roles(current_config)
-        if span is None:
-            return
-        if previous is None:
-            raise DeployError("managed role removal lacks a shared ownership receipt")
-        desired_receipt = build_uninstalled_role_receipt(previous)
-        config_mutation_attempted = True
-        published = atomic_config_replace(home_fd, before, outside)
-        receipt_mutation_attempted = True
-        receipt_published = atomic_role_receipt_replace(
-            receipt_directory,
-            receipt_before,
-            desired_receipt,
+        transaction = intent.get("role_transaction")
+        if transaction is None or transaction.get("operation") == "install":
+            previous = validate_owned_role_state(current_config, receipt_before)
+            if before is None and previous is None:
+                return intent
+            outside, span = config_without_owned_roles(current_config)
+            if span is None:
+                return intent
+            if previous is None:
+                raise DeployError("managed role removal lacks a shared ownership receipt")
+            desired_receipt = build_uninstalled_role_receipt(previous)
+            intent = save_role_removal_intent(
+                state_directory,
+                intent,
+                config_preimage=before,
+                desired_config=outside,
+                role_receipt_preimage=receipt_before,
+                role_receipt=desired_receipt,
+            )
+            transaction = intent["role_transaction"]
+        elif transaction.get("operation") != "remove":
+            raise DeployError("promotion intent contains an unknown role transition")
+        preimage = decode_journal_bytes(
+            transaction["config_preimage_b64"], CONFIG_MAX_BYTES, "config preimage"
         )
-        if "agents" in parse_config(published[0], "Codex config after role removal"):
-            raise DeployError("Codex roles remain after managed role removal")
+        outside = decode_journal_bytes(
+            transaction["desired_config_b64"], CONFIG_MAX_BYTES, "desired config"
+        )
+        desired_receipt = decode_journal_bytes(
+            transaction["role_receipt_b64"], ROLE_RECEIPT_MAX_BYTES, "uninstalled role receipt"
+        )
+        receipt_preimage_value = transaction["role_receipt_preimage_b64"]
+        receipt_preimage = (
+            b""
+            if receipt_preimage_value is None
+            else decode_journal_bytes(
+                receipt_preimage_value,
+                ROLE_RECEIPT_MAX_BYTES,
+                "role receipt preimage",
+            )
+        )
+        phase = transaction["phase"]
+        current_config_bytes = None if before is None else before[0]
+        current_receipt_bytes = None if receipt_before is None else receipt_before[0]
+        expected_config = preimage if transaction["config_preimage_present"] else None
+        expected_receipt = None if receipt_preimage_value is None else receipt_preimage
+        if current_config_bytes not in {expected_config, outside}:
+            raise DeployError("Codex config is outside the journaled removal transition")
+        if current_receipt_bytes not in {expected_receipt, desired_receipt}:
+            raise DeployError("shared role receipt is outside the journaled removal transition")
+        config_publication = publish_journaled_file(
+            home_fd,
+            "config.toml",
+            transaction["config_exchange_name"],
+            preimage,
+            transaction["config_preimage_present"],
+            transaction["config_preimage_metadata"],
+            outside,
+            read_config_name_at,
+            "Codex config removal",
+            phase=phase,
+        )
+        receipt_publication = publish_journaled_file(
+            receipt_directory,
+            ROLE_RECEIPT_FILE.name,
+            transaction["receipt_exchange_name"],
+            receipt_preimage,
+            receipt_preimage_value is not None,
+            transaction["role_receipt_preimage_metadata"],
+            desired_receipt,
+            read_role_receipt_name_at,
+            "shared role receipt removal",
+            phase=phase,
+        )
+        published = config_publication.published
+        receipt_published = receipt_publication.published
+        _, remaining_span = config_without_owned_roles(published[0])
+        if remaining_span is not None:
+            raise DeployError("managed role block remains after journaled removal")
         parsed_receipt = parse_role_receipt(receipt_published)
-        if parsed_receipt is None or parsed_receipt.get("status") != "uninstalled":
+        if (
+            parsed_receipt is None
+            or parsed_receipt.get("schema") != ROLE_RECEIPT_SCHEMA
+            or parsed_receipt.get("status") != "uninstalled"
+        ):
             raise DeployError("shared role receipt did not converge to uninstalled")
+        combined_published = True
+        if phase == "prepared":
+            intent = mark_role_transaction_committed(state_directory, intent)
+            phase = "committed"
+        finalize_publication(receipt_publication)
+        finalize_publication(config_publication)
+        return intent
     except Exception as exc:
         rollback_failure: Exception | None = None
-        if receipt_mutation_attempted and receipt_directory >= 0:
+        if phase != "committed" and not combined_published and receipt_publication is not None:
             try:
-                rollback_role_receipt(receipt_directory, receipt_before, desired_receipt)
+                rollback_publication(receipt_publication)
             except Exception as failure:
                 rollback_failure = failure
-        if config_mutation_attempted:
+        if phase != "committed" and not combined_published and config_publication is not None:
             try:
-                rollback_attempted_config(home_fd, before, outside)
+                rollback_publication(config_publication)
             except Exception as failure:
                 rollback_failure = rollback_failure or failure
         if rollback_failure is not None:
@@ -1864,8 +2462,18 @@ def load_state(state_directory: int) -> dict[str, Any] | None:
     return validate_deploy_receipt(value)
 
 
+def valid_snapshot_metadata(value: Any, *, present: bool) -> bool:
+    if not present:
+        return value is None
+    return (
+        isinstance(value, dict)
+        and set(value) == SNAPSHOT_METADATA_FIELDS
+        and all(isinstance(item, int) and not isinstance(item, bool) and item >= 0 for item in value.values())
+    )
+
+
 def validate_intent(value: Any) -> dict[str, Any]:
-    """Validate one bounded journal entry and its prior convergence state."""
+    """Validate one bounded journal entry and its recoverable publication states."""
     fields = {
         "schema",
         "repository",
@@ -1897,19 +2505,28 @@ def validate_intent(value: Any) -> dict[str, Any]:
             ) from exc
     transaction = value["role_transaction"]
     if transaction is not None:
-        transaction_fields = {
+        common_fields = {
+            "operation",
+            "phase",
             "config_preimage_b64",
             "config_preimage_present",
             "config_preimage_sha256",
+            "config_preimage_metadata",
+            "config_exchange_name",
+            "role_receipt_b64",
+            "role_receipt_preimage_b64",
+            "role_receipt_preimage_metadata",
+            "role_receipt_sha256",
+            "receipt_exchange_name",
+            "role_count",
+        }
+        install_fields = {
             "desired_block_b64",
             "desired_block_sha256",
             "role_generation",
-            "role_receipt_b64",
-            "role_receipt_preimage_b64",
-            "role_receipt_sha256",
-            "role_count",
             "role_record",
         }
+        remove_fields = {"desired_config_b64", "desired_config_sha256"}
         role_record_fields = {
             "payload_fingerprint",
             "role_generation",
@@ -1920,48 +2537,73 @@ def validate_intent(value: Any) -> dict[str, Any]:
             "role_profiles",
         }
         role_record = transaction.get("role_record") if isinstance(transaction, dict) else None
+        operation = transaction.get("operation") if isinstance(transaction, dict) else None
+        expected_fields = common_fields | (install_fields if operation == "install" else remove_fields)
+        preimage_present = transaction.get("config_preimage_present") if isinstance(transaction, dict) else None
+        receipt_preimage_value = (
+            transaction.get("role_receipt_preimage_b64") if isinstance(transaction, dict) else None
+        )
         if (
             not isinstance(transaction, dict)
-            or set(transaction) != transaction_fields
-            or any(
-                not FINGERPRINT_RE.fullmatch(str(transaction.get(field, "")))
-                for field in (
-                    "config_preimage_sha256",
-                    "desired_block_sha256",
-                    "role_generation",
-                    "role_receipt_sha256",
-                )
-            )
+            or operation not in {"install", "remove"}
+            or set(transaction) != expected_fields
+            or transaction.get("phase") not in {"prepared", "committed"}
+            or not FINGERPRINT_RE.fullmatch(str(transaction.get("config_preimage_sha256", "")))
+            or not FINGERPRINT_RE.fullmatch(str(transaction.get("role_receipt_sha256", "")))
             or transaction.get("role_count") != EXPECTED_ROLE_COUNT
-            or not isinstance(role_record, dict)
-            or set(role_record) != role_record_fields
-            or not isinstance(transaction.get("config_preimage_present"), bool)
+            or not isinstance(preimage_present, bool)
             or not isinstance(transaction.get("config_preimage_b64"), str)
-            or not isinstance(transaction.get("desired_block_b64"), str)
             or not isinstance(transaction.get("role_receipt_b64"), str)
+            or not valid_snapshot_metadata(
+                transaction.get("config_preimage_metadata"), present=bool(preimage_present)
+            )
+            or not valid_snapshot_metadata(
+                transaction.get("role_receipt_preimage_metadata"),
+                present=receipt_preimage_value is not None,
+            )
+            or not re.fullmatch(
+                r"\.config\.toml\.bears-gateway\.[0-9a-f]{32}",
+                str(transaction.get("config_exchange_name", "")),
+            )
+            or not re.fullmatch(
+                rf"\.{re.escape(PLUGIN)}-role-sync\.[0-9a-f]{{32}}\.tmp",
+                str(transaction.get("receipt_exchange_name", "")),
+            )
             or (
-                transaction.get("role_receipt_preimage_b64") is not None
-                and not isinstance(transaction.get("role_receipt_preimage_b64"), str)
+                receipt_preimage_value is not None
+                and not isinstance(receipt_preimage_value, str)
             )
         ):
             raise DeployError("promotion role transaction is invalid", error_code="receipt-corruption")
+        if operation == "install" and (
+            not isinstance(transaction.get("desired_block_b64"), str)
+            or not FINGERPRINT_RE.fullmatch(str(transaction.get("desired_block_sha256", "")))
+            or not FINGERPRINT_RE.fullmatch(str(transaction.get("role_generation", "")))
+            or not isinstance(role_record, dict)
+            or set(role_record) != role_record_fields
+        ):
+            raise DeployError("promotion install transaction is invalid", error_code="receipt-corruption")
+        if operation == "remove" and (
+            not isinstance(transaction.get("desired_config_b64"), str)
+            or not FINGERPRINT_RE.fullmatch(str(transaction.get("desired_config_sha256", "")))
+        ):
+            raise DeployError("promotion removal transaction is invalid", error_code="receipt-corruption")
         try:
             config_preimage = decode_journal_bytes(
                 transaction["config_preimage_b64"],
                 CONFIG_MAX_BYTES,
                 "config preimage",
             )
-            desired_block = decode_journal_bytes(
-                transaction["desired_block_b64"],
+            desired_payload = decode_journal_bytes(
+                transaction["desired_block_b64" if operation == "install" else "desired_config_b64"],
                 CONFIG_MAX_BYTES,
-                "desired role block",
+                "desired role block" if operation == "install" else "desired config",
             )
             role_receipt = decode_journal_bytes(
                 transaction["role_receipt_b64"],
                 ROLE_RECEIPT_MAX_BYTES,
                 "desired role receipt",
             )
-            receipt_preimage_value = transaction["role_receipt_preimage_b64"]
             if receipt_preimage_value is not None:
                 decode_journal_bytes(
                     receipt_preimage_value,
@@ -1976,41 +2618,45 @@ def validate_intent(value: Any) -> dict[str, Any]:
         if (
             hashlib.sha256(config_preimage).hexdigest()
             != transaction["config_preimage_sha256"]
-            or hashlib.sha256(desired_block).hexdigest()
-            != transaction["desired_block_sha256"]
+            or hashlib.sha256(desired_payload).hexdigest()
+            != transaction[
+                "desired_block_sha256" if operation == "install" else "desired_config_sha256"
+            ]
             or hashlib.sha256(role_receipt).hexdigest()
             != transaction["role_receipt_sha256"]
+            or (not preimage_present and config_preimage != b"")
         ):
             raise DeployError(
                 "promotion role transaction payload digest is invalid",
                 error_code="receipt-corruption",
             )
-        try:
-            validate_deploy_receipt(
-                {
-                    "schema": DEPLOY_RECEIPT_SCHEMA,
-                    "repository": REPOSITORY,
-                    "marketplace": MARKETPLACE,
-                    "plugin": PLUGIN,
-                    "sha": value["requested_sha"],
-                    "version": "0.0.0+codex.00000000000000",
-                    **role_record,
-                }
-            )
-        except DeployError as exc:
-            raise DeployError(
-                "promotion role transaction record is invalid",
-                error_code="receipt-corruption",
-            ) from exc
-        if (
-            transaction["role_generation"] != role_record["role_generation"]
-            or transaction["role_receipt_sha256"] != role_record["role_receipt_sha256"]
-            or transaction["role_count"] != role_record["role_count"]
-        ):
-            raise DeployError(
-                "promotion role transaction disagrees with its role record",
-                error_code="receipt-corruption",
-            )
+        if operation == "install":
+            try:
+                validate_deploy_receipt(
+                    {
+                        "schema": DEPLOY_RECEIPT_SCHEMA,
+                        "repository": REPOSITORY,
+                        "marketplace": MARKETPLACE,
+                        "plugin": PLUGIN,
+                        "sha": value["requested_sha"],
+                        "version": "0.0.0+codex.00000000000000",
+                        **role_record,
+                    }
+                )
+            except DeployError as exc:
+                raise DeployError(
+                    "promotion role transaction record is invalid",
+                    error_code="receipt-corruption",
+                ) from exc
+            if (
+                transaction["role_generation"] != role_record["role_generation"]
+                or transaction["role_receipt_sha256"] != role_record["role_receipt_sha256"]
+                or transaction["role_count"] != role_record["role_count"]
+            ):
+                raise DeployError(
+                    "promotion role transaction disagrees with its role record",
+                    error_code="receipt-corruption",
+                )
     return value
 
 
@@ -2132,31 +2778,81 @@ def save_role_intent(
     state_directory: int,
     intent: dict[str, Any],
     *,
-    config_preimage: bytes,
-    config_preimage_present: bool,
+    config_preimage: tuple[bytes, os.stat_result] | None,
     desired_block: bytes,
-    role_receipt_preimage: bytes | None,
+    role_receipt_preimage: tuple[bytes, os.stat_result] | None,
     role_receipt: bytes,
     role_record: dict[str, Any],
 ) -> dict[str, Any]:
     value = dict(intent)
+    config_bytes = b"" if config_preimage is None else config_preimage[0]
+    receipt_bytes = None if role_receipt_preimage is None else role_receipt_preimage[0]
     value["role_transaction"] = {
-        "config_preimage_b64": encode_journal_bytes(config_preimage),
-        "config_preimage_present": config_preimage_present,
-        "config_preimage_sha256": hashlib.sha256(config_preimage).hexdigest(),
+        "operation": "install",
+        "phase": "prepared",
+        "config_preimage_b64": encode_journal_bytes(config_bytes),
+        "config_preimage_present": config_preimage is not None,
+        "config_preimage_sha256": hashlib.sha256(config_bytes).hexdigest(),
+        "config_preimage_metadata": snapshot_metadata(config_preimage),
+        "config_exchange_name": f".config.toml.bears-gateway.{secrets.token_hex(16)}",
         "desired_block_b64": encode_journal_bytes(desired_block),
         "desired_block_sha256": hashlib.sha256(desired_block).hexdigest(),
         "role_generation": role_record["role_generation"],
         "role_receipt_b64": encode_journal_bytes(role_receipt),
         "role_receipt_preimage_b64": (
-            None
-            if role_receipt_preimage is None
-            else encode_journal_bytes(role_receipt_preimage)
+            None if receipt_bytes is None else encode_journal_bytes(receipt_bytes)
         ),
+        "role_receipt_preimage_metadata": snapshot_metadata(role_receipt_preimage),
         "role_receipt_sha256": role_record["role_receipt_sha256"],
+        "receipt_exchange_name": f".{PLUGIN}-role-sync.{secrets.token_hex(16)}.tmp",
         "role_count": role_record["role_count"],
         "role_record": role_record,
     }
+    return persist_intent(state_directory, value)
+
+
+def save_role_removal_intent(
+    state_directory: int,
+    intent: dict[str, Any],
+    *,
+    config_preimage: tuple[bytes, os.stat_result] | None,
+    desired_config: bytes,
+    role_receipt_preimage: tuple[bytes, os.stat_result] | None,
+    role_receipt: bytes,
+) -> dict[str, Any]:
+    value = dict(intent)
+    config_bytes = b"" if config_preimage is None else config_preimage[0]
+    receipt_bytes = None if role_receipt_preimage is None else role_receipt_preimage[0]
+    value["role_transaction"] = {
+        "operation": "remove",
+        "phase": "prepared",
+        "config_preimage_b64": encode_journal_bytes(config_bytes),
+        "config_preimage_present": config_preimage is not None,
+        "config_preimage_sha256": hashlib.sha256(config_bytes).hexdigest(),
+        "config_preimage_metadata": snapshot_metadata(config_preimage),
+        "config_exchange_name": f".config.toml.bears-gateway.{secrets.token_hex(16)}",
+        "desired_config_b64": encode_journal_bytes(desired_config),
+        "desired_config_sha256": hashlib.sha256(desired_config).hexdigest(),
+        "role_receipt_b64": encode_journal_bytes(role_receipt),
+        "role_receipt_preimage_b64": (
+            None if receipt_bytes is None else encode_journal_bytes(receipt_bytes)
+        ),
+        "role_receipt_preimage_metadata": snapshot_metadata(role_receipt_preimage),
+        "role_receipt_sha256": hashlib.sha256(role_receipt).hexdigest(),
+        "receipt_exchange_name": f".{PLUGIN}-role-sync.{secrets.token_hex(16)}.tmp",
+        "role_count": EXPECTED_ROLE_COUNT,
+    }
+    return persist_intent(state_directory, value)
+
+
+def mark_role_transaction_committed(
+    state_directory: int,
+    intent: dict[str, Any],
+) -> dict[str, Any]:
+    value = dict(intent)
+    transaction = dict(value["role_transaction"])
+    transaction["phase"] = "committed"
+    value["role_transaction"] = transaction
     return persist_intent(state_directory, value)
 
 
@@ -2301,13 +2997,13 @@ def restore_receipted_install(
     verify_receipted_install(durable)
 
 
-def disable_and_verify(state_directory: int) -> None:
+def disable_and_verify(state_directory: int, intent: dict[str, Any]) -> None:
     try:
         run_json([CODEX, "plugin", "disable", f"{PLUGIN}@{MARKETPLACE}", "--json"])
     except Exception:
         pass
     verify_disabled()
-    clear_owned_roles()
+    clear_owned_roles(state_directory, load_intent(state_directory) or intent)
     clear_state(state_directory)
 
 
@@ -2319,6 +3015,11 @@ def converge_promotion_intent(
     durable_intent = load_intent(state_directory)
     if durable_intent is not None:
         intent = durable_intent
+    transaction = intent.get("role_transaction")
+    if transaction is not None and transaction.get("operation") == "remove":
+        disable_and_verify(state_directory, intent)
+        clear_intent(state_directory)
+        return "disabled"
     requested = str(intent["requested_sha"])
     state: dict[str, Any] | None
     try:
@@ -2364,7 +3065,7 @@ def converge_promotion_intent(
 
     active_intent = load_intent(state_directory) or intent
     rollback_journaled_roles(active_intent)
-    disable_and_verify(state_directory)
+    disable_and_verify(state_directory, active_intent)
     clear_intent(state_directory)
     return "disabled"
 

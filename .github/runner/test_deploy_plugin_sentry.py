@@ -1,14 +1,16 @@
 #!/usr/bin/env python3
-"""Machine-only unit stubs for the fixed deploy gateway."""
+"""Deterministic authored coverage for the fixed deploy gateway."""
 
 from __future__ import annotations
 
 from contextlib import ExitStack
 import importlib.util
+import hashlib
 import json
 import os
 from pathlib import Path
 import sys
+import subprocess
 import tempfile
 import unittest
 from unittest import mock
@@ -117,6 +119,23 @@ class RoleReconciliationCoverage(unittest.TestCase):
     SHA = "a" * 40
     VERSION = "0.1.0+codex.20260711000000"
     FINGERPRINT = "f" * 64
+    EXPECTED_NAMES = (
+        "app-worker",
+        "diagnostic-command-runner",
+        "domain-lane-orchestrator",
+        "explorer",
+        "primary-source-researcher",
+        "role-profile-architect",
+        "runtime-evidence-reader",
+        "security-analysis-critic",
+        "wave-change-critic",
+        "worker",
+        "workflow-orchestrator",
+    )
+
+    def test_literal_independent_canonical_role_names(self) -> None:
+        self.assertEqual(DEPLOY.CANONICAL_ROLE_NAMES, self.EXPECTED_NAMES)
+        self.assertEqual(len(set(self.EXPECTED_NAMES)), 11)
 
     def role_record(self) -> dict[str, object]:
         generation = "1" * 64
@@ -293,16 +312,95 @@ class RoleReconciliationCoverage(unittest.TestCase):
                 DEPLOY.promote(self.SHA, DEPLOY.DeployContext(self.SHA), 7)
         save_state.assert_not_called()
 
-    def test_malformed_or_unowned_config_fails_closed(self) -> None:
+    def test_malformed_or_owned_collision_fails_closed(self) -> None:
         catalog = self.catalog()
         with self.assertRaises(DEPLOY.DeployError):
             DEPLOY.parse_config(b"[broken", "stub config")
         with self.assertRaises(DEPLOY.DeployError):
             DEPLOY.desired_role_config(
-                b'[agents.unowned]\nconfig_file = "/tmp/unowned.toml"\n',
+                b'[agents.worker]\nconfig_file = "/tmp/unowned-worker.toml"\n',
                 self.VERSION,
                 catalog,
             )
+
+    def test_unrelated_global_agents_are_preserved_byte_for_byte(self) -> None:
+        original = (
+            b'[features]\nexample = true\n\n'
+            b'[agents.personal]\nconfig_file = "/opt/personal.toml"\n'
+        )
+        desired = DEPLOY.desired_role_config(original, self.VERSION, self.catalog())
+        outside, span = DEPLOY.config_without_owned_roles(desired)
+        self.assertEqual(outside, original)
+        self.assertIsNotNone(span)
+        parsed = DEPLOY.parse_config(desired, "preserved config")
+        self.assertEqual(parsed["agents"]["personal"], {"config_file": "/opt/personal.toml"})
+        self.assertEqual(set(parsed["agents"]).intersection(self.EXPECTED_NAMES), set(self.EXPECTED_NAMES))
+
+    def test_authentic_predecessor_receipt_migrates_to_v2_eleven(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            profiles = root / "legacy"
+            profiles.mkdir()
+            catalog: dict[str, str] = {}
+            records: list[dict[str, str]] = []
+            for name in DEPLOY.LEGACY_ROLE_NAMES:
+                data = subprocess.run(
+                    ["git", "show", f"22a6017:agents/{name}.toml"],
+                    cwd=MODULE_PATH.parents[2],
+                    check=True,
+                    stdout=subprocess.PIPE,
+                ).stdout
+                path = profiles / f"{name}.toml"
+                path.write_bytes(data)
+                catalog[name] = str(path)
+                digest = hashlib.sha256(data).hexdigest()
+                self.assertEqual(digest, DEPLOY.LEGACY_ROLE_SHA256[name])
+                records.append({"name": name, "config_file": str(path), "sha256": digest})
+            block = DEPLOY.role_block(DEPLOY.LEGACY_ROLE_VERSION, catalog)
+            config = b'[agents.personal]\nconfig_file = "/opt/personal.toml"\n\n' + block
+            receipt_value = {
+                "schema": DEPLOY.LEGACY_ROLE_RECEIPT_SCHEMA,
+                "plugin": DEPLOY.PLUGIN,
+                "version": DEPLOY.LEGACY_ROLE_VERSION,
+                "status": "installed",
+                "changed": True,
+                "role_count": 9,
+                "managed_digest": hashlib.sha256(block).hexdigest(),
+                "managed_joiner_added": False,
+                "managed_profiles": records,
+                "archives": [],
+            }
+            receipt_path = root / "receipt.json"
+            receipt_path.write_text(json.dumps(receipt_value), encoding="utf-8")
+            receipt_path.chmod(0o600)
+            receipt = (receipt_path.read_bytes(), receipt_path.stat())
+            previous = DEPLOY.validate_owned_role_state(config, receipt)
+            self.assertEqual(previous["role_count"], 9)
+            current_catalog = self.catalog()
+            desired = DEPLOY.desired_role_config(config, self.VERSION, current_catalog)
+            DEPLOY.verify_role_config(desired, current_catalog)
+            bundle = {
+                "profiles": {name: {"sha256": "a" * 64} for name in self.EXPECTED_NAMES}
+            }
+            current_block = DEPLOY.role_block(self.VERSION, current_catalog)
+            migrated = json.loads(
+                DEPLOY.build_role_receipt(
+                    self.VERSION,
+                    current_block,
+                    current_catalog,
+                    bundle,
+                    previous,
+                    added_joiner=False,
+                )
+            )
+            self.assertEqual(migrated["schema"], DEPLOY.ROLE_RECEIPT_SCHEMA)
+            self.assertEqual(migrated["role_count"], 11)
+            self.assertEqual([row["name"] for row in migrated["managed_profiles"]], list(self.EXPECTED_NAMES))
+
+            receipt_value["version"] = "0.1.0+codex.20260711144359"
+            receipt_path.write_text(json.dumps(receipt_value), encoding="utf-8")
+            with self.assertRaises(DEPLOY.DeployError):
+                DEPLOY.validate_owned_role_state(config, (receipt_path.read_bytes(), receipt_path.stat()))
 
     def test_missing_or_symlink_role_data_is_rejected(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
@@ -363,6 +461,355 @@ class RoleReconciliationCoverage(unittest.TestCase):
                     os.close(home_fd)
             DEPLOY.verify_role_config(published[0], catalog)
             self.assertEqual(config.stat().st_mode & 0o777, 0o600)
+
+    def test_publication_time_cas_restores_config_and_receipt_races(self) -> None:
+        def race_once(real: object, target_name: str, racer_bytes: bytes):
+            raced = False
+
+            def operation(directory: int, source: str, target: str, flags: int) -> None:
+                nonlocal raced
+                if not raced and target == target_name:
+                    raced = True
+                    racer = f".{target_name}.racer"
+                    descriptor = os.open(
+                        racer,
+                        os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_CLOEXEC,
+                        0o600,
+                        dir_fd=directory,
+                    )
+                    try:
+                        os.write(descriptor, racer_bytes)
+                        os.fsync(descriptor)
+                    finally:
+                        os.close(descriptor)
+                    os.rename(racer, target, src_dir_fd=directory, dst_dir_fd=directory)
+                    os.fsync(directory)
+                real(directory, source, target, flags)
+
+            return operation
+
+        with tempfile.TemporaryDirectory() as temporary:
+            home = Path(temporary)
+            home.chmod(0o700)
+            config = home / "config.toml"
+            config.write_bytes(b"before-config\n")
+            config.chmod(0o600)
+            home_fd = os.open(home, os.O_RDONLY | os.O_DIRECTORY)
+            try:
+                before = DEPLOY.read_config_at(home_fd)
+                with mock.patch.object(
+                    DEPLOY,
+                    "renameat2",
+                    side_effect=race_once(DEPLOY.renameat2, "config.toml", b"racer-config\n"),
+                ):
+                    with self.assertRaises(DEPLOY.DeployError):
+                        DEPLOY.atomic_config_replace(home_fd, before, b"replacement-config\n")
+                self.assertEqual(config.read_bytes(), b"racer-config\n")
+
+                state = home / "state"
+                state.mkdir(mode=0o700)
+                receipt_path = state / DEPLOY.ROLE_RECEIPT_FILE.name
+                receipt_path.write_bytes(b"before-receipt\n")
+                receipt_path.chmod(0o600)
+                state_fd = os.open(state, os.O_RDONLY | os.O_DIRECTORY)
+                try:
+                    receipt_before = DEPLOY.read_role_receipt_at(state_fd)
+                    with mock.patch.object(
+                        DEPLOY,
+                        "renameat2",
+                        side_effect=race_once(
+                            DEPLOY.renameat2,
+                            DEPLOY.ROLE_RECEIPT_FILE.name,
+                            b"racer-receipt\n",
+                        ),
+                    ):
+                        with self.assertRaises(DEPLOY.DeployError):
+                            DEPLOY.atomic_role_receipt_replace(
+                                state_fd, receipt_before, b"replacement-receipt\n"
+                            )
+                    self.assertEqual(receipt_path.read_bytes(), b"racer-receipt\n")
+                finally:
+                    os.close(state_fd)
+            finally:
+                os.close(home_fd)
+
+
+class PinnedBundleCoverage(unittest.TestCase):
+    VERSION = "0.1.0+codex.20260711000000"
+
+    def git(self, repo: Path, *arguments: str) -> str:
+        return subprocess.run(
+            ["git", *arguments],
+            cwd=repo,
+            check=True,
+            stdout=subprocess.PIPE,
+            text=True,
+        ).stdout.strip()
+
+    def repository(self, root: Path, *, payload_sentinel: bool = False) -> tuple[Path, str]:
+        repo = root / "repo"
+        repo.mkdir()
+        self.git(repo, "init", "-q")
+        self.git(repo, "config", "user.name", "Bundle Test")
+        self.git(repo, "config", "user.email", "bundle@example.invalid")
+        manifest = repo / ".codex-plugin/plugin.json"
+        manifest.parent.mkdir()
+        manifest.write_text(
+            json.dumps({"name": DEPLOY.PLUGIN, "version": self.VERSION}) + "\n",
+            encoding="utf-8",
+        )
+        agents = repo / "agents"
+        agents.mkdir()
+        (agents / "README.md").write_text("# Exact role catalog\n", encoding="utf-8")
+        for name in DEPLOY.CANONICAL_ROLE_NAMES:
+            (agents / f"{name}.toml").write_text(
+                "\n".join(
+                    (
+                        f'name = "{name}"',
+                        'description = "Bounded test role."',
+                        'model = "gpt-5.2"',
+                        'model_reasoning_effort = "high"',
+                        'sandbox_mode = "danger-full-access"',
+                        'developer_instructions = "Return a bounded result."',
+                        "",
+                    )
+                ),
+                encoding="utf-8",
+            )
+        if payload_sentinel:
+            installer = repo / "install"
+            installer.write_text("#!/bin/sh\ntouch payload-install-executed\n", encoding="utf-8")
+            installer.chmod(0o755)
+        self.git(repo, "add", ".")
+        self.git(repo, "commit", "-qm", "fixture")
+        return repo, self.git(repo, "rev-parse", "HEAD")
+
+    def recommit(self, repo: Path, message: str) -> str:
+        self.git(repo, "add", "-A")
+        self.git(repo, "commit", "-qm", message)
+        return self.git(repo, "rev-parse", "HEAD")
+
+    def test_malformed_tree_mode_and_oid_fail_closed(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            repo, _ = self.repository(Path(temporary))
+            (repo / "agents/extra.toml").write_text('name = "extra"\n', encoding="utf-8")
+            sha = self.recommit(repo, "extra tree member")
+            with self.assertRaises(DEPLOY.DeployError):
+                DEPLOY.pinned_role_bundle(repo, sha, self.VERSION)
+        with tempfile.TemporaryDirectory() as temporary:
+            repo, _ = self.repository(Path(temporary))
+            (repo / "agents/worker.toml").chmod(0o755)
+            sha = self.recommit(repo, "executable profile")
+            with self.assertRaises(DEPLOY.DeployError):
+                DEPLOY.pinned_role_bundle(repo, sha, self.VERSION)
+        with tempfile.TemporaryDirectory() as temporary:
+            repo = Path(temporary)
+            profile = repo / "agents/worker.toml"
+            profile.parent.mkdir()
+            profile.write_text('name = "worker"\n', encoding="utf-8")
+            with mock.patch.object(
+                DEPLOY,
+                "git_text",
+                side_effect=["100644 blob not-an-object-id", "sha1"],
+            ):
+                with self.assertRaises(DEPLOY.DeployError):
+                    DEPLOY.verified_git_blob_record(repo, "a" * 40, "agents/worker.toml", 1024)
+
+    def test_manifest_and_profile_schema_fail_closed(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            repo, _ = self.repository(Path(temporary))
+            (repo / ".codex-plugin/plugin.json").write_text(
+                json.dumps({"name": "wrong-plugin", "version": self.VERSION}) + "\n",
+                encoding="utf-8",
+            )
+            sha = self.recommit(repo, "wrong manifest")
+            with self.assertRaises(DEPLOY.DeployError):
+                DEPLOY.pinned_role_bundle(repo, sha, self.VERSION)
+        with tempfile.TemporaryDirectory() as temporary:
+            repo, _ = self.repository(Path(temporary))
+            profile = repo / "agents/worker.toml"
+            profile.write_text('name = "worker"\ndescription = "incomplete"\n', encoding="utf-8")
+            sha = self.recommit(repo, "incomplete profile")
+            with self.assertRaises(DEPLOY.DeployError):
+                DEPLOY.pinned_role_bundle(repo, sha, self.VERSION)
+
+    def test_payload_installer_is_data_and_symlink_swap_is_rejected(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            repo, sha = self.repository(Path(temporary), payload_sentinel=True)
+            DEPLOY.pinned_role_bundle(repo, sha, self.VERSION)
+            self.assertFalse((repo / "payload-install-executed").exists())
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            repo, sha = self.repository(root)
+            outside = root / "outside-worker.toml"
+            worker = repo / "agents/worker.toml"
+            outside.write_bytes(worker.read_bytes())
+            worker.unlink()
+            worker.symlink_to(outside)
+            with self.assertRaises(DEPLOY.DeployError):
+                DEPLOY.pinned_role_bundle(repo, sha, self.VERSION)
+
+
+class RemovalRecoveryCoverage(unittest.TestCase):
+    SHA = "a" * 40
+    VERSION = "0.1.0+codex.20260711000000"
+
+    class SimulatedCrash(BaseException):
+        pass
+
+    def environment(self, root: Path) -> tuple[Path, int, dict[str, object], bytes, bytes]:
+        home = root / "codex-home"
+        home.mkdir(mode=0o700)
+        profiles = root / "profiles"
+        profiles.mkdir(mode=0o700)
+        catalog: dict[str, str] = {}
+        records: list[dict[str, str]] = []
+        for name in DEPLOY.CANONICAL_ROLE_NAMES:
+            path = profiles / f"{name}.toml"
+            data = f'name = "{name}"\n'.encode()
+            path.write_bytes(data)
+            path.chmod(0o600)
+            catalog[name] = str(path)
+            records.append(
+                {
+                    "name": name,
+                    "config_file": str(path),
+                    "sha256": hashlib.sha256(data).hexdigest(),
+                }
+            )
+        block = DEPLOY.role_block(self.VERSION, catalog)
+        original = b'[agents.personal]\nconfig_file = "/opt/personal.toml"\n\n' + block
+        config = home / "config.toml"
+        config.write_bytes(original)
+        config.chmod(0o600)
+        receipt_value = {
+            "schema": DEPLOY.ROLE_RECEIPT_SCHEMA,
+            "plugin": DEPLOY.PLUGIN,
+            "version": self.VERSION,
+            "status": "installed",
+            "changed": True,
+            "role_count": 11,
+            "managed_digest": hashlib.sha256(block).hexdigest(),
+            "managed_joiner_added": False,
+            "managed_profiles": records,
+            "archives": [],
+        }
+        receipt = (json.dumps(receipt_value, sort_keys=True) + "\n").encode()
+        receipt_dir = home / "state"
+        receipt_dir.mkdir(mode=0o700)
+        receipt_path = receipt_dir / DEPLOY.ROLE_RECEIPT_FILE.name
+        receipt_path.write_bytes(receipt)
+        receipt_path.chmod(0o600)
+        deploy_state = root / "deploy-state"
+        deploy_state.mkdir(mode=0o700)
+        state_fd = os.open(deploy_state, os.O_RDONLY | os.O_DIRECTORY)
+        intent = DEPLOY.save_intent(state_fd, self.SHA, None)
+        return home, state_fd, intent, original, receipt
+
+    def assert_removed(self, home: Path) -> None:
+        config = (home / "config.toml").read_bytes()
+        outside, span = DEPLOY.config_without_owned_roles(config)
+        self.assertIsNone(span)
+        self.assertIn(b"[agents.personal]", outside)
+        receipt = json.loads((home / "state" / DEPLOY.ROLE_RECEIPT_FILE.name).read_bytes())
+        self.assertEqual(receipt["schema"], DEPLOY.ROLE_RECEIPT_SCHEMA)
+        self.assertEqual(receipt["status"], "uninstalled")
+
+    def test_crash_after_config_publish_recovers_combined_removal(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            home, state_fd, intent, _, _ = self.environment(Path(temporary))
+            calls = 0
+            real_publish = DEPLOY.publish_journaled_file
+
+            def crash_before_receipt(*args: object, **kwargs: object) -> object:
+                nonlocal calls
+                calls += 1
+                if calls == 2:
+                    raise self.SimulatedCrash()
+                return real_publish(*args, **kwargs)
+
+            try:
+                with (
+                    mock.patch.object(DEPLOY, "CODEX_HOME", home),
+                    mock.patch.object(DEPLOY, "publish_journaled_file", side_effect=crash_before_receipt),
+                ):
+                    with self.assertRaises(self.SimulatedCrash):
+                        DEPLOY.clear_owned_roles(state_fd, intent)
+                durable = DEPLOY.load_intent(state_fd)
+                with mock.patch.object(DEPLOY, "CODEX_HOME", home):
+                    DEPLOY.clear_owned_roles(state_fd, durable)
+                self.assert_removed(home)
+            finally:
+                os.close(state_fd)
+
+    def test_crash_after_receipt_publish_recovers_and_finalizes(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            home, state_fd, intent, _, _ = self.environment(Path(temporary))
+            try:
+                with (
+                    mock.patch.object(DEPLOY, "CODEX_HOME", home),
+                    mock.patch.object(
+                        DEPLOY,
+                        "mark_role_transaction_committed",
+                        side_effect=self.SimulatedCrash(),
+                    ),
+                ):
+                    with self.assertRaises(self.SimulatedCrash):
+                        DEPLOY.clear_owned_roles(state_fd, intent)
+                durable = DEPLOY.load_intent(state_fd)
+                with mock.patch.object(DEPLOY, "CODEX_HOME", home):
+                    DEPLOY.clear_owned_roles(state_fd, durable)
+                self.assert_removed(home)
+            finally:
+                os.close(state_fd)
+
+    def test_journaled_removal_partial_failure_rolls_back_both_files(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            home, state_fd, intent, original, receipt = self.environment(Path(temporary))
+            calls = 0
+            real_publish = DEPLOY.publish_journaled_file
+
+            def fail_receipt(*args: object, **kwargs: object) -> object:
+                nonlocal calls
+                calls += 1
+                if calls == 2:
+                    raise DEPLOY.DeployError("injected receipt failure")
+                return real_publish(*args, **kwargs)
+
+            try:
+                with (
+                    mock.patch.object(DEPLOY, "CODEX_HOME", home),
+                    mock.patch.object(DEPLOY, "publish_journaled_file", side_effect=fail_receipt),
+                ):
+                    with self.assertRaises(DEPLOY.DeployError):
+                        DEPLOY.clear_owned_roles(state_fd, intent)
+                self.assertEqual((home / "config.toml").read_bytes(), original)
+                self.assertEqual(
+                    (home / "state" / DEPLOY.ROLE_RECEIPT_FILE.name).read_bytes(), receipt
+                )
+            finally:
+                os.close(state_fd)
+
+    def test_committed_removal_recovers_after_deployment_state_publish(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            home, state_fd, intent, _, _ = self.environment(Path(temporary))
+            try:
+                with mock.patch.object(DEPLOY, "CODEX_HOME", home):
+                    committed = DEPLOY.clear_owned_roles(state_fd, intent)
+                record = RoleReconciliationCoverage().role_record()
+                DEPLOY.save_state(state_fd, self.SHA, self.VERSION, record)
+                self.assertIsNotNone(DEPLOY.load_state(state_fd))
+                with (
+                    mock.patch.object(DEPLOY, "CODEX_HOME", home),
+                    mock.patch.object(DEPLOY, "run_json", return_value={}),
+                    mock.patch.object(DEPLOY, "verify_disabled"),
+                ):
+                    outcome = DEPLOY.converge_promotion_intent(state_fd, committed)
+                self.assertEqual(outcome, "disabled")
+                self.assertIsNone(DEPLOY.load_state(state_fd))
+                self.assertIsNone(DEPLOY.load_intent(state_fd))
+            finally:
+                os.close(state_fd)
 
 
 if __name__ == "__main__":

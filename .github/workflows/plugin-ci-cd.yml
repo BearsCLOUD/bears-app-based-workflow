@@ -11,6 +11,8 @@ jobs:
   ci:
     name: Plugin structure and cachebuster
     runs-on: ubuntu-latest
+    outputs:
+      gateway_sha256: ${{ steps.gateway-source.outputs.sha256 }}
     steps:
       - name: Check out the exact revision
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -79,9 +81,18 @@ jobs:
           trap 'rm -rf "$codex_home"' EXIT
           CODEX_HOME="$codex_home" ./install --dry-run
 
-      - name: Exercise fixed deploy gateway unit stubs locally
+      - name: Exercise deterministic fixed-gateway tests
         shell: bash
         run: python3 .github/runner/test_deploy_plugin_sentry.py
+
+      - name: Record the exact reviewed gateway source digest
+        id: gateway-source
+        shell: bash
+        run: |
+          set -euo pipefail
+          digest="$(sha256sum .github/runner/deploy_plugin.py | awk '{print $1}')"
+          [[ "$digest" =~ ^[0-9a-f]{64}$ ]]
+          printf 'sha256=%s\n' "$digest" >> "$GITHUB_OUTPUT"
 
       - name: Materialize the public automation status
         if: always()
@@ -135,7 +146,33 @@ jobs:
       group: bears-app-based-workflow-cd
       cancel-in-progress: false
     steps:
-      - name: Promote the verified revision through the fixed gateway
+      - name: Check out the exact reviewed revision as non-executable data
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Verify and promote through the fixed root-owned gateway
         shell: bash
         working-directory: /
-        run: sudo -n -u ai1 -- /usr/local/sbin/deploy-bears-app-based-workflow '${{ github.sha }}'
+        env:
+          REVIEWED_GATEWAY_SHA256: ${{ needs.ci.outputs.gateway_sha256 }}
+        run: |
+          set -euo pipefail
+          gateway=/usr/local/sbin/deploy-bears-app-based-workflow
+          reviewed='${{ github.workspace }}/.github/runner/deploy_plugin.py'
+          [[ "$REVIEWED_GATEWAY_SHA256" =~ ^[0-9a-f]{64}$ ]]
+          [[ -f "$gateway" && ! -L "$gateway" ]]
+          [[ "$(stat -c '%u' "$gateway")" == 0 ]]
+          mode=$((8#$(stat -c '%a' "$gateway")))
+          (( (mode & 8#022) == 0 ))
+          for directory in /usr/local /usr/local/sbin; do
+            [[ "$(stat -c '%u' "$directory")" == 0 ]]
+            directory_mode=$((8#$(stat -c '%a' "$directory")))
+            (( (directory_mode & 8#022) == 0 ))
+          done
+          [[ "$(sha256sum "$reviewed" | awk '{print $1}')" == "$REVIEWED_GATEWAY_SHA256" ]]
+          [[ "$(sha256sum "$gateway" | awk '{print $1}')" == "$REVIEWED_GATEWAY_SHA256" ]]
+          cmp -s -- "$reviewed" "$gateway"
+          sudo -n -u ai1 -- "$gateway" '${{ github.sha }}'

@@ -64,9 +64,13 @@ Role TOML files live only in `agents/`. Plugin-root agent auto-discovery is undo
 ./install uninstall [--codex-home PATH] [--dry-run]
 ```
 
-The installer registers the eleven exact profile names, updates only its marked config block, removes stale retired registrations, and archives known legacy profile files. It creates no aliases. Start a new Codex task after a changed install.
+The installer registers the eleven exact profile names, updates only its marked config block, removes stale retired registrations, and archives known legacy profile files. It creates no aliases. Unrelated global `[agents.*]` registrations remain byte-for-byte outside that block; a canonical role name outside the block is an ownership collision and fails closed. Start a new Codex task after a changed install.
 
-Live CD never executes or imports the cached `install` payload. The fixed root-owned gateway parses the exact pinned manifest and role blobs as data, materializes a content-addressed role generation under its durable state directory, and atomically reconciles the shared marked config block and role receipt. Reinstall `/usr/local/sbin/deploy-bears-app-based-workflow` from reviewed exact gateway source with `.github/runner/install-runner.sh` before relying on new gateway enforcement.
+Live CD never executes or imports the cached `install` payload. The fixed root-owned gateway parses the exact pinned manifest and role blobs as data, materializes a content-addressed role generation under its durable state directory, and reconciles the shared marked config block and role receipt with Linux `renameat2` compare-and-swap publication. A durable `PREPARED` to `COMMITTED` journal retains displaced preimages until the combined config/receipt transition commits; both installation and fallback removal recover from partial publication.
+
+Role receipt v2 owns exactly the current eleven-role catalog. Migration accepts only the authenticated v1 predecessor at `0.1.0+codex.20260711144358`: its exact nine names, managed-block digest, profile paths, allowlisted profile hashes, and on-disk bytes must agree. Any other legacy receipt fails closed.
+
+The CD job executes only `/usr/local/sbin/deploy-bears-app-based-workflow` after proving it is a non-symlink, root-owned, non-group/world-writable file whose bytes and SHA-256 digest exactly match the CI-reviewed gateway source. Reinstall that gateway from reviewed exact source with `.github/runner/install-runner.sh` before relying on new enforcement. These same-user checks close cooperative races but cannot exclude a continuously malicious process with the same UID after verification; eliminating that residual risk requires a privileged broker or ownership separation.
 
 
 ## Ownership

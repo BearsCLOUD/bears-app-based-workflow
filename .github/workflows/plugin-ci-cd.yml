@@ -85,6 +85,10 @@ jobs:
         shell: bash
         run: python3 .github/runner/test_deploy_plugin_sentry.py
 
+      - name: Exercise deterministic installer state-import tests
+        shell: bash
+        run: .github/runner/test_install_runner_state.py
+
       - name: Record the exact reviewed gateway source digest
         id: gateway-source
         shell: bash

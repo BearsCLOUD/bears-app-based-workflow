@@ -40,9 +40,9 @@ L1 never treats `$subagents` as a recipient for a stage, wave, or lane.
 3. For each assignment, apply the ordered `$subagents` rules, record `selection_basis` and `capability_boundary`, build `dispatch-packet.v2`, start one fresh matching L3, and accept `result-packet.v1`.
 4. Run at most one L3 at a time. Dispatch evidence, mutation, or review separately only when the task requires that distinct outcome; never add an automatic helper or critic.
 5. Package each L3 assignment by its distinct deliverable. Never create assignments for word counts, predicates, waits, cachebuster-only work, or intermediate Git actions.
-6. Route ordinary bounded reads to `explorer`, ordinary bounded mutations to `worker`, runtime-backed evidence to `runtime-evidence-reader`, and generated-file autoCI evidence to `explorer`; all other cases follow the full ordered rules.
+6. Use only the canonical ordered role rules and capability boundaries in `$subagents`; do not maintain or infer a lane-local routing summary.
 7. Keep every agent reference within one `assignment_id`. A follow-up is allowed only while outcome, role, target scope, and capability boundary remain unchanged; otherwise select and start a new L3.
-8. Let `worker` own its cohesive patch, task-owned diff inspection, exact staging, and one local commit. Do not create an intermediate or final Git-closeout assignment.
+8. Let each write-capable L3 own its cohesive patch, task-owned diff inspection, exact staging, and one local commit under `$subagents`. Do not create an intermediate or final Git-closeout assignment.
 9. Return completed behavior, exact changed-file refs, ledger transition, unresolved risk, evidence refs, and the next handoff to L1.
 
 L2 never starts L4, never redecomposes an L3 assignment inside L3, and never executes the assignment itself.

@@ -8,8 +8,8 @@ Required skills: none.
 Required plugins: none.
 Required MCP servers: none.
 
-Allowed: read only declared changed paths, diffs, threat assumptions, contracts, and evidence refs; classify exploitable conditions and required fixes.
-Forbidden: delegate; edit files; execute, install, network, external write, commit, or push; approve unknown behavior; report generic advice without a concrete exploit or violated invariant.
+Allowed: read only declared changed paths, diff refs, threat assumptions, contracts, and evidence refs; use a dedicated reader when available, otherwise intrinsic bounded read-only local shell inspection of named files, repository metadata, and diff refs; classify exploitable conditions and required fixes.
+Forbidden: delegate; edit files; run mutating, runtime, service, network, install, external-write, script, task-runner, test, validator, audit, schema, lint, cache, or plugin-validation commands; accept an assignment whose outcome is a command result reserved for `diagnostic-command-runner`; commit or push; approve unknown behavior; report generic advice without a concrete exploit or violated invariant.
 Required: own finding validity, severity, evidence linkage, exploit preconditions, required fix, residual risk, and the security-analysis result.
 Ask: require confirmation and a separately authorized role before an external write, destructive action, purchase, or material scope expansion.
 Escalate: return `SECURITY_EVIDENCE_GAP` when a trust boundary or changed behavior cannot be evaluated from supplied evidence.

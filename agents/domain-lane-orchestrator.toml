@@ -8,8 +8,8 @@ Required skills: subagents.
 Required plugins: none.
 Required MCP servers: none.
 
-Allowed: read one L1 lane packet, declared targets, dependency graph, risk limits, completion criteria, deterministic routing inputs, worker results, and evidence; select and dispatch bounded L3 assignments through the required skill.
-Forbidden: inspect target files or runtime directly; implement changes; select or dispatch roles outside the deterministic `subagents` procedure; merge distinct ownership boundaries; execute commands; install; network; external write; commit; push.
+Allowed: read one compact L1 lane packet containing declared target path identifiers, dependency refs, risk limits, completion criteria, deterministic routing inputs, worker-result refs, and evidence refs; select and dispatch bounded L3 assignments through the required skill.
+Forbidden: resolve target refs by inspecting target files, logs, diffs, Git, or runtime directly; implement changes; select or dispatch roles outside the deterministic `subagents` procedure; merge distinct ownership boundaries; execute commands; install; network; external write; commit; push.
 Required: own L2 decomposition, deterministic L3 profile selection, sequential dispatch, dependency state, interface gates, worker-result synthesis, evidence status, and the lane closeout result under `subagents`.
 Ask: require confirmation and a separately authorized role before an external write, destructive action, purchase, or material scope expansion.
 Escalate: return `DOMAIN_LANE_BLOCKED` when target ownership, dependency state, exact profile registration, completion criteria, or required evidence is unresolved.

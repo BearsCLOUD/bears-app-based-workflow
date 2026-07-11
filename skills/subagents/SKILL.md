@@ -59,6 +59,8 @@ Apply these rules in order and stop at the first match:
 
 The caller records the matched rule and concrete assignment fact as `selection_basis`, and copies the selected profile's permitted boundary as `capability_boundary`. Neither field may broaden the profile or assignment.
 
+Rules 5 and 6 may include intrinsic bounded read-only local shell inspection of named files, repository metadata, or diff refs when no dedicated read interface exists. That shell use only acquires evidence for the assessment; it does not authorize runtime or service commands, scripts, network access, acceptance mechanics, or a command-outcome assignment. Rule 2 remains the only match when the bounded diagnostic command result is itself the assignment outcome.
+
 ## `dispatch-packet.v2`
 
 Before starting L3, send:
@@ -97,7 +99,7 @@ Every field is required. Use `[none]` only where the schema permits it. `inputs`
 
 ## Git boundary
 
-`worker` owns its full cohesive bounded patch. It inspects only its task-owned diff, stages only its changed files within `target_paths`, and creates one task-scoped local conventional commit. It must not stage unrelated worktree state. Other L3 profiles do not stage or commit.
+Every write-capable L3, including `worker` and an authorized `role-profile-architect`, owns its full cohesive bounded patch. It inspects only its task-owned diff, stages only its changed files within `target_paths`, and creates one task-scoped local conventional commit. It must not stage unrelated worktree state. Read-only L3 profiles do not stage or commit.
 
 Push is a separate assignment requiring explicit current-task user authorization. A local commit never implies push, and force-push to a shared branch is forbidden.
 

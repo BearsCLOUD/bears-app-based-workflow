@@ -18,11 +18,11 @@ Every inter-stage input and output uses the canonical `app-stage-handoff.v1` def
 
 The normal success chain is `constitution-ready` -> `research-ready` -> `spec-ready` -> `graph-ready` -> `plan-ready` -> `implemented` -> `pass`. Feedback returns through named statuses: `needs-research` to `app-research`, `needs-spec` to `app-specify`, `needs-graph` to `app-functional-graph`, and `needs-plan` to `app-plan`. `app-analyze` may return `ready` only for already valid executable ledger tasks and then hands them to `app-dev`.
 
-`docs/app-functional-graph.v1.json` is the source of truth for specified functionality ids, graph nodes, relationships, and functional coverage. Downstream plans, ledger tasks, implementation packets, and analyses carry its revision and refs; they never redefine graph meaning.
+`<app-root>/docs/app-functional-graph.v1.json` in the consuming app repository is the source of truth for specified functionality ids, graph nodes, relationships, and functional coverage. Downstream plans, ledger tasks, implementation packets, and analyses carry its revision and refs; they never redefine graph meaning.
 
-`worker` owns bounded instruction-policy edits and may apply `instruction-hardening` as the editing method. `role-profile-architect` owns only concrete role-profile create, merge, split, or delete operations directly requested by the current user; `role-profile-maintenance` supplies its comparison and least-privilege method.
+`worker` owns bounded instruction-policy edits and may apply `instruction-hardening` as the editing method. `role-profile-architect` owns only concrete role-profile create, merge, split, or delete operations directly requested by the current user; `role-profile-maintenance` supplies its comparison and least-privilege method. Every write-capable L3 stages only its assigned files and creates its own task-scoped local commit; push requires separate current-task user authorization.
 
-The active catalog contains exactly nine profiles: `worker`, `explorer`, `diagnostic-command-runner`, `primary-source-researcher`, `runtime-evidence-reader`, `security-analysis-critic`, `workflow-orchestrator`, `domain-lane-orchestrator`, and `role-profile-architect`. Removed names are not aliases. Ordinary bounded mutations route to `worker`; ordinary bounded workspace reads route to `explorer`. Runtime-, service-, API-, or MCP-backed evidence routes to `runtime-evidence-reader`, while bounded generated-file evidence routes to `explorer`.
+The active catalog contains exactly nine profiles: `worker`, `explorer`, `diagnostic-command-runner`, `primary-source-researcher`, `runtime-evidence-reader`, `security-analysis-critic`, `workflow-orchestrator`, `domain-lane-orchestrator`, and `role-profile-architect`. Removed names are not aliases. All L3 routing follows the canonical ordered rules in `subagents`; callers do not keep local routing summaries.
 
 ## Plugin skills
 
@@ -30,18 +30,20 @@ The active catalog contains exactly nine profiles: `worker`, `explorer`, `diagno
 - Dispatch procedure: `subagents`.
 - Instruction procedures: `instruction-hardening`, `role-profile-maintenance`.
 
-In `app-dev`, the parent takes fixed `workflow-orchestrator` L1 and starts fixed `domain-lane-orchestrator` L2 lanes; each L2 owns task decomposition. `subagents` deterministically selects one eligible L3 for each concrete assignment, emits `dispatch-packet.v2`, and accepts `result-packet.v1`. Each L3 reference ends with its assignment. Outside app-dev, a solo parent acts as the L2 analogue. There is no `subagents-roles` skill.
+In `app-dev`, the parent takes fixed `workflow-orchestrator` L1 and starts fixed `domain-lane-orchestrator` L2 lanes; each L2 owns task decomposition. `subagents` deterministically selects one eligible L3 for each concrete assignment, emits `dispatch-packet.v2`, and accepts `result-packet.v1`. Each L3 reference ends with its assignment. Outside app-dev, a solo parent acts as the L2 analogue. `subagents` is the only dispatch procedure; callers fail closed if it is unavailable.
 
 ## Core artifacts
 
-- `docs/app-constitution.md`
-- `waves/index.md`
-- `waves/<wave-id>/research.md`
-- `waves/<wave-id>/spec.md`
-- `waves/<wave-id>/plan.md`
-- `waves/<wave-id>/analysis.md`
-- `docs/app-functional-graph.v1.json`
-- `docs/app-task-ledger.v1.json`
+These paths are relative to the consuming app repository root, not this plugin repository:
+
+- `<app-root>/docs/app-constitution.md`
+- `<app-root>/waves/index.md`
+- `<app-root>/waves/<wave-id>/research.md`
+- `<app-root>/waves/<wave-id>/spec.md`
+- `<app-root>/waves/<wave-id>/plan.md`
+- `<app-root>/waves/<wave-id>/analysis.md`
+- `<app-root>/docs/app-functional-graph.v1.json`
+- `<app-root>/docs/app-task-ledger.v1.json`
 
 ## Artifact ownership
 

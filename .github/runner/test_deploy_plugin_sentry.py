@@ -288,6 +288,7 @@ class InstallerStateMigrationCoverage(unittest.TestCase):
             'IMPORT_STAGE = f".{PLUGIN}.legacy-state-import.stage"',
             'IMPORT_TOMBSTONE = f"{PLUGIN}.legacy-state-imported.json"',
             'IMPORT_TOMBSTONE_SCHEMA = "bears-plugin-deploy-state-import.v1"',
+            '"agents/README.md"',
             "os.O_NOFOLLOW",
             'fail("legacy deployment state has an active promotion intent")',
             'fail("new deployment state is non-empty before one-time receipt import")',

@@ -94,6 +94,7 @@ def v2_receipt(state: Path) -> bytes:
     generation = "c" * 64
     source_paths = (
         ".codex-plugin/plugin.json",
+        "agents/README.md",
         *(f"agents/{name}.toml" for name in ROLE_NAMES),
     )
     blobs = {

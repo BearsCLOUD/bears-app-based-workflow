@@ -478,6 +478,7 @@ def validate_destination_receipt(payload: bytes) -> dict[str, object]:
     profiles = receipt.get("role_profiles")
     expected_sources = {
         ".codex-plugin/plugin.json",
+        "agents/README.md",
         *(f"agents/{name}.toml" for name in ROLE_NAMES),
     }
     if (

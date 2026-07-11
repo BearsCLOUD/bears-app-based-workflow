@@ -342,8 +342,11 @@ def payload_fingerprint(repo: Path, sha: str) -> str:
 
 def installed_row() -> dict[str, Any]:
     payload = run_json([CODEX, "plugin", "list", "--available", "--json"])
-    rows = payload.get("available")
-    if rows is None:
+    installed = payload.get("installed")
+    available = payload.get("available")
+    if isinstance(installed, list) and isinstance(available, list):
+        rows = [*installed, *available]
+    else:
         rows = payload.get("plugins")
     if not isinstance(rows, list):
         raise DeployError("Codex plugin state has an unsupported shape")

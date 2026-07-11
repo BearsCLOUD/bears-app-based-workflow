@@ -690,12 +690,19 @@ class PinnedBundleCoverage(unittest.TestCase):
                 encoding="utf-8",
             )
             state_path.chmod(0o600)
-            intent = DEPLOY.save_intent(state_fd, sha, legacy_state)
+            role_generations = state_path.parent / "role-generations"
+            role_generations_patch = mock.patch.object(
+                DEPLOY,
+                "ROLE_GENERATIONS_DIR",
+                role_generations,
+            )
 
             def crash_before_finalize(_: object) -> None:
                 raise self.SimulatedCrash()
 
             try:
+                role_generations_patch.start()
+                intent = DEPLOY.save_intent(state_fd, sha, legacy_state)
                 with (
                     mock.patch.object(DEPLOY, "CODEX_HOME", home),
                     mock.patch.object(DEPLOY, "plugin_cache", return_value=repo),
@@ -717,6 +724,18 @@ class PinnedBundleCoverage(unittest.TestCase):
                 self.assertIsNotNone(durable)
                 transaction = durable["role_transaction"]
                 self.assertEqual(transaction["phase"], "committed")
+                materialized = role_generations / transaction["role_generation"]
+                self.assertEqual(
+                    {path.name for path in materialized.iterdir()},
+                    {f"{name}.toml" for name in DEPLOY.CANONICAL_ROLE_NAMES},
+                )
+                self.assertEqual(
+                    {
+                        Path(row["config_file"]).parent
+                        for row in transaction["role_record"]["role_profiles"]
+                    },
+                    {materialized},
+                )
                 config_exchange = home / transaction["config_exchange_name"]
                 receipt_exchange = (
                     home / "state" / transaction["receipt_exchange_name"]
@@ -748,6 +767,7 @@ class PinnedBundleCoverage(unittest.TestCase):
                 self.assertIsNotNone(recovered_state)
                 self.assertEqual(recovered_state["schema"], DEPLOY.DEPLOY_RECEIPT_SCHEMA)
             finally:
+                role_generations_patch.stop()
                 os.close(state_fd)
 
     def test_payload_installer_is_data_and_symlink_swap_is_rejected(self) -> None:

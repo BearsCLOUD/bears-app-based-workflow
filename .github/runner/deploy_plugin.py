@@ -946,7 +946,7 @@ def config_with_role_block(data: bytes, block: bytes) -> bytes:
     if span is not None:
         desired = data[: span[0]] + block + data[span[1] :]
     else:
-        separator = b"" if not data or data.endswith(b"\n\n") else b"\n" if data.endswith(b"\n") else b"\n\n"
+        separator = b"" if not data or data.endswith((b"\n", b"\r")) else b"\n"
         desired = data + separator + block
     if len(desired) > CONFIG_MAX_BYTES:
         raise DeployError("reconciled Codex config would exceed the bounded size")

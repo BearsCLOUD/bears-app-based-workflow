@@ -162,6 +162,7 @@ jobs:
         working-directory: /
         env:
           REVIEWED_GATEWAY_SHA256: ${{ needs.ci.outputs.gateway_sha256 }}
+          GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
           gateway=/usr/local/sbin/deploy-bears-app-based-workflow
@@ -179,4 +180,4 @@ jobs:
           [[ "$(sha256sum "$reviewed" | awk '{print $1}')" == "$REVIEWED_GATEWAY_SHA256" ]]
           [[ "$(sha256sum "$gateway" | awk '{print $1}')" == "$REVIEWED_GATEWAY_SHA256" ]]
           cmp -s -- "$reviewed" "$gateway"
-          sudo -n -u ai1 -- "$gateway" '${{ github.sha }}'
+          printf '%s\n' "$GH_TOKEN" | sudo -n -u ai1 -- "$gateway" '${{ github.sha }}'

@@ -7,6 +7,7 @@ from collections.abc import Callable
 from contextlib import ExitStack
 import importlib.util
 import hashlib
+import io
 import json
 import os
 from pathlib import Path
@@ -115,6 +116,59 @@ class SentryGatewayCoverage(unittest.TestCase):
                 opener=opener,
             )
         self.assertIsNone(reference)
+
+
+class GitHubCredentialCoverage(unittest.TestCase):
+    TOKEN = "ghs_" + "A" * 36
+
+    def test_job_token_pipe_is_single_line_and_bounded(self) -> None:
+        self.assertEqual(
+            DEPLOY.read_github_token(io.BytesIO((self.TOKEN + "\n").encode())),
+            self.TOKEN,
+        )
+        for invalid in (
+            b"",
+            b"short\n",
+            (self.TOKEN + "\nextra\n").encode(),
+            ("A" * (DEPLOY.GITHUB_TOKEN_MAX_BYTES + 1) + "\n").encode(),
+            (self.TOKEN + " with-space\n").encode(),
+        ):
+            with self.subTest(length=len(invalid)):
+                with self.assertRaisesRegex(DEPLOY.DeployError, "GitHub job credential"):
+                    DEPLOY.read_github_token(io.BytesIO(invalid))
+
+    def test_fetch_uses_url_scoped_header_without_token_in_argv(self) -> None:
+        with mock.patch.object(DEPLOY, "run") as runner:
+            DEPLOY.fetch_main(Path("/safe/repository.git"), self.TOKEN)
+        runner.assert_called_once()
+        argv = runner.call_args.args[0]
+        environment = runner.call_args.kwargs["env"]
+        self.assertNotIn(self.TOKEN, "\0".join(argv))
+        self.assertEqual(environment["GIT_CONFIG_COUNT"], "2")
+        self.assertEqual(environment["GIT_CONFIG_KEY_0"], "credential.helper")
+        self.assertEqual(environment["GIT_CONFIG_VALUE_0"], "")
+        self.assertEqual(
+            environment["GIT_CONFIG_KEY_1"],
+            "http.https://github.com/.extraHeader",
+        )
+        header = environment["GIT_CONFIG_VALUE_1"]
+        self.assertTrue(header.startswith("Authorization: Basic "))
+        encoded = header.removeprefix("Authorization: Basic ")
+        self.assertEqual(
+            DEPLOY.base64.b64decode(encoded).decode(),
+            f"x-access-token:{self.TOKEN}",
+        )
+        self.assertNotIn("GIT_CONFIG_COUNT", DEPLOY.ENV)
+
+    def test_workflow_pipes_ephemeral_job_token_to_gateway(self) -> None:
+        workflow = (
+            MODULE_PATH.parents[1] / "workflows/plugin-ci-cd.yml"
+        ).read_text(encoding="utf-8")
+        self.assertIn("GH_TOKEN: ${{ github.token }}", workflow)
+        self.assertIn(
+            "printf '%s\\n' \"$GH_TOKEN\" | sudo -n -u ai1 -- \"$gateway\"",
+            workflow,
+        )
 
 
 class StateDirectoryCoverage(unittest.TestCase):

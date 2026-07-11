@@ -13,6 +13,7 @@ import ctypes
 import errno
 import fcntl
 import hashlib
+import io
 import json
 import os
 from datetime import datetime, timezone
@@ -137,6 +138,8 @@ ROLE_RECEIPT_MAX_BYTES = 64 * 1024
 RECEIPT_MAX_BYTES = 64 * 1024
 INTENT_MAX_BYTES = 2 * 1024 * 1024
 SUBPROCESS_DIAGNOSTIC_LIMIT = 512
+GITHUB_TOKEN_MAX_BYTES = 1024
+GITHUB_TOKEN_RE = re.compile(rb"[A-Za-z0-9_]+")
 SENTRY_DSN_FILE = Path("/home/ai1/.config/bears-app-based-workflow/credentials/sentry-dsn")
 SENTRY_SERVICE = "bears-app-based-workflow"
 SENTRY_COMPONENT = "deploy-plugin-gateway"
@@ -359,11 +362,22 @@ def command_label(argv: list[str]) -> str:
     return "git" if argv[0] == GIT else "codex"
 
 
-def run(argv: list[str], *, ok: tuple[int, ...] = (0,)) -> subprocess.CompletedProcess[str]:
+def run(
+    argv: list[str],
+    *,
+    ok: tuple[int, ...] = (0,),
+    env: dict[str, str] | None = None,
+) -> subprocess.CompletedProcess[str]:
     if not argv or argv[0] not in {GIT, CODEX}:
         raise DeployError("only the fixed git and codex binaries may be invoked")
     try:
-        result = subprocess.run(argv, env=ENV, text=True, capture_output=True, check=False)
+        result = subprocess.run(
+            argv,
+            env=ENV if env is None else env,
+            text=True,
+            capture_output=True,
+            check=False,
+        )
     except OSError as exc:
         raise DeployError(
             f"{command_label(argv)} invocation failed: {normalized_diagnostic(str(exc))}"
@@ -419,14 +433,63 @@ def is_ancestor(repo: Path, older: str, newer: str) -> bool:
     return result.returncode == 0
 
 
-def prepare_mirror(requested: str) -> str:
+def read_github_token(stream: io.BufferedIOBase) -> str:
+    """Read one bounded ephemeral GitHub job token from the gateway pipe."""
+    raw = stream.read(GITHUB_TOKEN_MAX_BYTES + 1)
+    if (
+        len(raw) > GITHUB_TOKEN_MAX_BYTES
+        or not raw.endswith(b"\n")
+        or raw.count(b"\n") != 1
+    ):
+        raise DeployError("missing or invalid GitHub job credential")
+    token = raw[:-1]
+    if not 20 <= len(token) <= 512 or GITHUB_TOKEN_RE.fullmatch(token) is None:
+        raise DeployError("missing or invalid GitHub job credential")
+    return token.decode("ascii")
+
+
+def fetch_main(repo: Path, github_token: str) -> None:
+    """Fetch fixed GitHub main with a token kept out of argv and diagnostics."""
+    authorization = base64.b64encode(
+        f"x-access-token:{github_token}".encode("ascii")
+    ).decode("ascii")
+    authenticated_env = {
+        **ENV,
+        "GIT_CONFIG_COUNT": "2",
+        "GIT_CONFIG_KEY_0": "credential.helper",
+        "GIT_CONFIG_VALUE_0": "",
+        "GIT_CONFIG_KEY_1": "http.https://github.com/.extraHeader",
+        "GIT_CONFIG_VALUE_1": f"Authorization: Basic {authorization}",
+    }
+    run(
+        [
+            GIT,
+            "-c",
+            "core.hooksPath=/dev/null",
+            "-c",
+            "core.fsmonitor=false",
+            "-c",
+            "protocol.file.allow=never",
+            "-C",
+            str(repo),
+            "fetch",
+            "--force",
+            "--no-tags",
+            "origin",
+            "+refs/heads/main:" + MAIN_REF,
+        ],
+        env=authenticated_env,
+    )
+
+
+def prepare_mirror(requested: str, github_token: str) -> str:
     if MIRROR.is_symlink():
         raise DeployError("mirror path must not be a symlink")
     if not MIRROR.exists():
         run([GIT, "init", "--bare", str(MIRROR)])
         git(MIRROR, "remote", "add", "origin", REPOSITORY)
     exact_remote(MIRROR)
-    git(MIRROR, "fetch", "--force", "--no-tags", "origin", "+refs/heads/main:" + MAIN_REF)
+    fetch_main(MIRROR, github_token)
     main_sha = git_text(MIRROR, "rev-parse", MAIN_REF)
     if not is_ancestor(MIRROR, requested, main_sha):
         raise DeployError("requested SHA is not reachable from the fixed repository main branch")
@@ -3769,9 +3832,14 @@ def fail_after_recovery(
     ) from failure
 
 
-def promote(requested: str, context: DeployContext, state_directory: int) -> str:
+def promote(
+    requested: str,
+    context: DeployContext,
+    state_directory: int,
+    github_token: str | None = None,
+) -> str:
     recover_promotion_intent(state_directory)
-    main_sha = prepare_mirror(requested)
+    main_sha = prepare_mirror(requested, github_token or "")
     requested_manifest = manifest(MIRROR, requested)
     context.version = str(requested_manifest["version"])
     validate_marketplace(MIRROR, requested)
@@ -3859,10 +3927,11 @@ def main() -> int:
     state_directory = -1
     descriptor = -1
     try:
+        github_token = read_github_token(sys.stdin.buffer)
         state_directory = open_state_directory()
         descriptor = open_lock_file(state_directory)
         fcntl.flock(descriptor, fcntl.LOCK_EX)
-        status = promote(sys.argv[1], context, state_directory)
+        status = promote(sys.argv[1], context, state_directory, github_token)
     except (DeployError, OSError) as exc:
         error_code = exc.error_code if isinstance(exc, DeployError) else None
         if error_code is None and context.phase == "mutation":

@@ -79,7 +79,7 @@ jobs:
           trap 'rm -rf "$codex_home"' EXIT
           CODEX_HOME="$codex_home" ./install --dry-run
 
-      - name: Exercise deploy gateway Sentry stubs locally
+      - name: Exercise fixed deploy gateway unit stubs locally
         shell: bash
         run: python3 .github/runner/test_deploy_plugin_sentry.py
 

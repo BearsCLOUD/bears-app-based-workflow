@@ -66,6 +66,8 @@ Role TOML files live only in `agents/`. Plugin-root agent auto-discovery is undo
 
 The installer registers the eleven exact profile names, updates only its marked config block, removes stale retired registrations, and archives known legacy profile files. It creates no aliases. Start a new Codex task after a changed install.
 
+Live CD never executes or imports the cached `install` payload. The fixed root-owned gateway parses the exact pinned manifest and role blobs as data, materializes a content-addressed role generation under its durable state directory, and atomically reconciles the shared marked config block and role receipt. Reinstall `/usr/local/sbin/deploy-bears-app-based-workflow` from reviewed exact gateway source with `.github/runner/install-runner.sh` before relying on new gateway enforcement.
+
 
 ## Ownership
 

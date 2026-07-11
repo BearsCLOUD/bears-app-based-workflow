@@ -5494,6 +5494,15 @@ def apply_plan(plan: dict[str, Any]) -> None:
             if transaction_fd >= 0:
                 os.close(transaction_fd)
             transaction_fd = recovery_fd
+            journal_path, journal_raw, journal_stat = (
+                normalize_interrupted_config_publication(
+                    document,
+                    journal_path,
+                    journal_raw,
+                    journal_stat,
+                    transaction_fd,
+                )
+            )
             if transaction_converged(document, transaction_fd):
                 raise error
             config_error = restore_transaction_preimages(document, transaction_fd)

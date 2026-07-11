@@ -1,150 +1,111 @@
 ---
 name: subagents
-description: Initialize the persistent selector, then select and dispatch bounded L3 helpers, workers, and critics after app-dev L2 or solo-L2 decomposition.
+description: Deterministically choose one installed plugin profile and dispatch one bounded L3 assignment after app-dev L2 or solo-L2 decomposition.
 ---
 
 # Subagents
 
 ## Ownership
 
-This procedure receives only work that the primary already classified `DELEGATED` under the active caller instruction chain and `/srv/bears/contracts/developer_instructions_contract.md`. `DIRECT` work remains with the primary and never enters this procedure. After delegation, the selector chooses L3 execution coverage; it must never decide whether work is `DIRECT` or `DELEGATED`.
+This procedure receives only work already classified `DELEGATED` under the active caller instruction chain and `/srv/bears/contracts/developer_instructions_contract.md`. `DIRECT` work remains with the primary and never enters this procedure.
 
-This instruction procedure is the sole owner of:
+`app-dev` owns fixed L1 and L2 orchestration, lane partitioning, and L2 decomposition. It fixes `workflow-orchestrator` at L1 and `domain-lane-orchestrator` at L2; this procedure never selects, starts, or replaces them. Outside app-dev, a solo parent performs the L2 analogue. This procedure owns only deterministic L3 role choice, `dispatch-packet.v2`, bounded L3 dispatch, and `result-packet.v1` handling. It does not classify or decompose work, select a ledger task, or perform target work.
 
-- one persistent selector for each coherent delegated workstream;
-- role selection for one concrete L3 assignment;
-- selector, helper, worker, and critic lifecycle inside the L3 dispatch boundary;
-- `role-request.v1`, `role-selection.v1`, `dispatch-packet.v1`, and `result-packet.v1`.
+The plugin has exactly these nine profiles:
 
-`app-dev` owns fixed parent-as-L1 orchestration, lane partitioning, and L2 decomposition. Outside app-dev, a solo parent performs the same decomposition as L2. Other `app-*` skills provide stage goals, payloads, outputs, and transitions. This skill never receives or decomposes a task, creates L1 or L2, partitions lanes, chooses ledger tasks, or performs target work. `AGENTS.md` and contracts remain instruction authorities. Role TOML files define only role-specific behavior.
+- `worker`
+- `explorer`
+- `diagnostic-command-runner`
+- `primary-source-researcher`
+- `runtime-evidence-reader`
+- `security-analysis-critic`
+- `workflow-orchestrator`
+- `domain-lane-orchestrator`
+- `role-profile-architect`
 
-## Hard boundary
+`workflow-orchestrator` and `domain-lane-orchestrator` are fixed outside this procedure; the other seven profiles are eligible for L3 dispatch here. `AGENTS.md` and linked contracts remain instruction authorities; profile TOML files define role-specific behavior.
 
-This boundary begins only after the primary has classified the work `DELEGATED` under the active caller instruction chain and contract. For an assignment inside that work, parent, L1, and L2 may speak with the user, plan, manage subagents, and combine compact packets. They must not read or edit files, inspect logs, use a terminal or Git, call scripts, access MCP or runtime state, use the network, or run commands.
+## Dispatcher-only boundary
 
-Every such action for that `DELEGATED` assignment requires an L3 helper, worker, or critic selected through this skill. Missing role registration, selector, subagent capability, or slot returns `DELEGATION_BLOCKED`. Primary execution is never a fallback after `DELEGATED` entry. `DIRECT` work never enters this procedure.
+After `DELEGATED` entry, the parent, L1, and L2 may speak with the user, plan, decompose, start and manage L3, and combine compact packets. They must not read or edit target files, inspect logs, use a terminal or Git, call scripts, access MCP or runtime state, use the network, or run commands. Every target action requires one bounded L3 assignment selected by this procedure. Parent execution is never a fallback.
 
-## Selector lifecycle
+Return `DELEGATION_BLOCKED` if the required installed profile, subagent capability, or slot is unavailable. Do not substitute a nearby profile, create a profile, or propose profile creation.
 
-1. An app-dev L2 receives one `role-selector` agent reference for each coherent workstream in its L1 lane packet. A solo parent acting as L2 creates one selector per coherent workstream.
-2. Reuse that read-only selector for every concrete assignment until workstream closeout. Never create a selector per worker or assignment.
-3. Send every `role-request.v1` to that agent reference; the caller never selects a role itself.
-4. The selector returns exactly one primary role. It may add one helper and one critic.
-5. Reuse the selector and, for follow-ups to the same deliverable, the selected role. Replace that role only for terminal failure, changed competence, or a true scope split.
-6. End the selector only after workstream closeout.
+## Assignment admission
 
-The selector is a fast, low-cost decision helper. It must explain why the role exists and why it fits this request. If no exact profile fits, it returns `ROLE_GAP`; it must not substitute a nearby role.
+Before role choice, require one concrete assignment with:
 
-When `required_role` is set by an owning procedure, the selector verifies that exact profile's registration, boundary, model, and sandbox. It returns a fail-closed status instead of choosing another role.
+- one exact outcome and stable `assignment_id`;
+- exact target scope, allowed actions, forbidden actions, risks, and completion criteria;
+- sanitized authority and input references;
+- one capability boundary; and
+- an explicit read-only or mutation mode.
 
-## `role-request.v1`
+Split mixed read/write outcomes into separate assignment ids and choose each role independently. A mutation assignment may include only the bounded context and diff inspection intrinsic to its already-specified change; discovery, diagnosis, research, runtime evidence, or independent review is a separate read-only assignment. Reject a stage, lane, undecomposed task, hidden prerequisite, or widened follow-up.
 
-The caller sends this packet directly to its persistent selector:
+One packet starts exactly one L3 for exactly one assignment. L3 returns to its caller and must not redecompose the assignment or create L4. L4 requires explicit current-user approval.
 
-```yaml
-schema: role-request.v1
-task_id: <stable owning task id>
-workstream_id: <stable coherent delegated workstream id>
-assignment_id: <stable concrete assignment id>
-caller_level: solo-l2|L2
-goal: <one exact outcome>
-work_kind: <concrete action class>
-target_zone: <repo, runtime target, or bounded surface>
-instruction_refs: [<already-known authority refs>]
-allowed_actions: [<explicit actions>]
-forbidden_actions: [<explicit exclusions>]
-risk: [<security, data, deploy, cross-service, or none>]
-dependencies: [<closed prerequisite ids>]
-expected_output: <one compact result>
-required_role: <exact role when an owning procedure mandates one; otherwise none>
-reuse_role_from: <prior assignment id or none>
-stage_payload: <optional app-stage fields>
-```
+## Deterministic L3 role choice
 
-The caller must decompose its task and supply one concrete assignment. Do not ask the selector to inspect task data, split a lane, choose a ledger task, or infer missing scope. Ask it only to choose L3 execution coverage.
+Apply these rules in order and stop at the first match:
 
-## `role-selection.v1`
+1. Choose `role-profile-architect` only when the current user directly requested a concrete semantic role-profile create, merge, split, or delete operation. Never infer this role from a missing profile or another assignment.
+2. For a read-only assignment whose sole outcome requires one explicitly bounded local diagnostic command, choose `diagnostic-command-runner`. Runtime, service, public-source, test, validation, and mutation work do not match this rule.
+3. For a read-only assignment whose sole outcome is current evidence from public primary sources, choose `primary-source-researcher`.
+4. For a read-only assignment whose sole outcome is bounded sanitized runtime, service-interface, or runtime-backed automation evidence, choose `runtime-evidence-reader`.
+5. For a read-only assessment of a supplied change that crosses a trust, secret, identity, callback, ingress, or promotion boundary, choose `security-analysis-critic`. Any evidence prerequisite or remediation is a separate assignment.
+6. For any other bounded read-only workspace inspection, choose `explorer`.
+7. For any other bounded mutation, choose `worker`.
 
-The selector returns:
+The caller records the matched rule and concrete assignment fact as `selection_basis`, and copies the selected profile's permitted boundary as `capability_boundary`. Neither field may broaden the profile or assignment.
 
-```yaml
-schema: role-selection.v1
-task_id: <same task id>
-workstream_id: <same workstream id>
-assignment_id: <same assignment id>
-status: selected|ROLE_GAP|registration-stale|runtime-reload-required
-primary_role: <one exact installed role or null>
-primary_kind: helper|worker|critic|null
-role_purpose: <why this role was created>
-selection_reason: <why it matches this assignment>
-model: <profile model>
-model_reasoning_effort: <profile effort>
-sandbox_mode: read-only|workspace-write
-exact_goal: <bounded L3 goal>
-target_scope: <exact paths, target ids, or bounded surface>
-helper_role: <optional exact role>
-critic_role: <optional exact role>
-reused_from_assignment: <prior assignment id or none>
-```
-
-`registration-stale` means the profile exists in the plugin but is not registered. `runtime-reload-required` means registration changed after the current task started. Both fail closed.
-
-## L3 dispatch
-
-- A solo parent acts as the L2 analogue and may start the selected L3 directly for one concrete assignment.
-- An app-dev L2 starts the selected L3 for one concrete assignment it decomposed within its L1 lane bounds.
-- The caller starts at most one L3 helper, worker, or critic at a time. Run helper before worker and critic after worker when selected.
-- L3 returns to its caller. It does not create L4 unless the current user explicitly authorizes that depth.
-- L4 is forbidden by default.
-- Return `DELEGATION_BLOCKED` when the assignment lacks an exact goal, target scope, allowed actions, or completion criteria. Do not accept a stage, lane, or undecomposed task as an assignment.
-- Forbid L3 redecomposition, selector ownership inside L3, sibling critics, and parent execution fallback after delegated entry.
-- Do not create assignments for word counts, predicates, waits, cachebuster-only work, or intermediate Git actions. One final Git-closeout assignment is the only Git-assignment exception.
-
-If a selected helper discovers work rather than completing it, the caller defines a new assignment id and sends a new role request to the persistent selector. Do not expand the helper's scope.
-
-## `dispatch-packet.v1`
+## `dispatch-packet.v2`
 
 Before starting L3, send:
 
 ```yaml
-schema: dispatch-packet.v1
+schema: dispatch-packet.v2
 task_id: <stable owning task id>
 workstream_id: <stable coherent delegated workstream id>
 assignment_id: <stable concrete assignment id>
 stage: <skill or workflow stage>
-role: <selected exact role>
-agent_kind: helper|worker|critic
 caller_level: solo-l2|L2
+role: <one exact eligible installed profile>
+selection_basis: <matched ordered rule and concrete fact>
+capability_boundary: <exact selected-profile boundary>
 cwd: <exact working directory or none>
 target_paths: [<bounded paths or target ids>]
 instruction_refs: [<authority files or contracts>]
-inputs: [<sanitized known input refs or none; never raw content>]
-stage_payload: <stage-owned fields>
+inputs: [<sanitized stable refs or none>]
+stage_payload: <stage-owned fields or none>
 allowed_actions: [<explicit actions>]
 forbidden_actions: [<explicit exclusions>]
+risk: [<security, data, deploy, cross-service, or none>]
 completion_criteria: [<observable outcomes>]
 return_schema: result-packet.v1
 automation_evidence_refs: [<existing autoCI refs or none>]
 ```
 
-Every dispatch packet must include `inputs`. Use `[none]` only when the assignment has no upstream input. Each entry must be a sanitized stable reference, such as a path, assignment id, evidence id, or compact fact id. Before starting any L3, return `PACKET_REJECTED` when `inputs` is absent or any packet field contains raw file bodies, logs, command dumps, secrets, credentials, tokens, or production data. Do not copy prohibited content into another field as a substitute for provenance.
+Every field is required. Use `[none]` only where the schema permits it. `inputs` may contain paths, assignment ids, evidence ids, or compact fact ids, never raw file bodies, diffs, logs, command dumps, secrets, credentials, tokens, or production data. Return `PACKET_REJECTED` before dispatch when a field is absent, scope is not bounded, references are not sanitized, the role does not match the ordered rules, or a field exceeds the selected capability boundary.
 
-Use a workspace reader, runtime evidence, diagnostic command, Git, autoCI evidence, or token-budget helper when that bounded action is required. Never hide helper work inside the parent packet.
+## Assignment lifecycle
 
-## Automation boundary
+- An agent reference exists only for its `assignment_id`. The caller may send that agent a follow-up only when the assignment id, outcome, role, target scope, and capability boundary remain unchanged.
+- A new outcome, scope, role, or assignment id requires a fresh deterministic choice and a new L3 start. Keep no cross-assignment agent or role-reuse state.
+- If an L3 discovers additional work, it returns a compact fact and stops. The caller creates a new assignment rather than widening the active one.
+- Do not dispatch hidden helpers, automatic critics, sibling critics, repeated waits, polling loops, or parallel duplicate assessments.
 
-Do not request machine completion execution, cache activity, cachebusters, or ad hoc evidence production from any agent. External autoCI owns those actions after commit. `automation-status-reader` may project generated evidence only after it exists. Its public `automation-status.v1` object contains exactly `schema`, `status`, `commit`, `timestamp`, and `evidence_ref`; `status` is exactly `passed`, `failed`, or `not_run`. Only an authentic receipt for the exact full commit can produce `passed` or `failed`; missing, pending, stale, mismatched, or unauthenticated evidence produces `not_run`. `not_run` is nonblocking unless an explicit branch or task policy makes evidence mandatory. Missing evidence never authorizes agents to develop or activate autoCI.
+## Git boundary
 
-## L3 lifecycle
+`worker` owns its full cohesive bounded patch. It inspects only its task-owned diff, stages only its changed files within `target_paths`, and creates one task-scoped local conventional commit. It must not stage unrelated worktree state. Other L3 profiles do not stage or commit.
 
-1. Start `helper_role` only when the assignment needs a narrow prerequisite.
-2. Convert its compact facts into sanitized known input refs and preserve its `consumed_input_refs` provenance; do not forward raw files or logs.
-3. Start `primary_role` with its declared `primary_kind`; one selected editor owns the full cohesive patch rather than file-by-file assignments.
-4. Start one `critic_role` for the combined diff or acceptance surface. A critic reports findings; it does not silently widen or rewrite worker scope.
-5. If fixes are needed, define a follow-up assignment in the same workstream, set `reuse_role_from`, and reuse the same editor and critic for correction and reassessment unless terminal failure, changed competence, or a true scope split requires replacement.
-6. After critic acceptance, create exactly one distinct final Git-closeout assignment. Keep the same `task_id`, `workstream_id`, and selector; use a new `assignment_id` and set `reuse_role_from` to the accepted patch assignment. This separate permission and deliverable boundary is the sole Git-assignment exception.
-7. Merge compact results and close the workstream only after Git closeout or an exact Git-boundary blocker. The caller closes the owning task after all workstreams finish.
-8. Do not issue repeated waits, polling loops, or parallel duplicate critics from this lifecycle.
+Push is a separate assignment requiring explicit current-task user authorization. A local commit never implies push, and force-push to a shared branch is forbidden.
+
+## autoCI boundary
+
+autoCI is the only component authorized to execute tests, validators, audits, schemas, lints, cache checks, or plugin validation. Agents do not execute, simulate, cachebust, or produce ad hoc acceptance evidence.
+
+Reading existing autoCI evidence is a separate read-only assignment: choose `runtime-evidence-reader` for runtime-, service-, API-, or MCP-backed evidence and `explorer` for generated file evidence. Only authentic evidence for the exact full commit yields `passed` or `failed`; missing, pending, stale, mismatched, or unauthenticated evidence yields `not_run`. `not_run` is nonblocking unless an explicit task or branch policy requires evidence.
 
 ## `result-packet.v1`
 
@@ -155,10 +116,9 @@ schema: result-packet.v1
 task_id: <same task id>
 workstream_id: <same workstream id>
 assignment_id: <same assignment id>
-role: <executed role>
-agent_kind: helper|worker|critic
+role: <executed exact role>
 status: done|partial|blocked
-consumed_input_refs: [<sanitized dispatch input refs actually used or none>]
+consumed_input_refs: [<sanitized dispatch refs actually used or none>]
 facts: [<compact verified facts>]
 files_read: [<exact paths or none>]
 files_changed: [<exact paths or none>]
@@ -169,16 +129,14 @@ risks: [<unresolved concrete risk or none>]
 next_action: <exact next dispatch, user decision, or none>
 ```
 
-Every result must include `consumed_input_refs` and may cite only sanitized references from the dispatch packet. Do not return raw file bodies, logs, command dumps, secrets, credentials, tokens, or production data. Reject and do not merge, forward, or persist a result that omits consumed-input provenance or contains prohibited content.
+Reject a result that omits consumed-input provenance or contains raw file bodies, diffs, logs, command dumps, secrets, credentials, tokens, or production data. Do not merge, forward, or persist rejected content.
 
 ## Failure outcomes
 
-These outcomes apply only to work already classified `DELEGATED`; `DIRECT` work never enters this procedure.
+These outcomes apply only after `DELEGATED` entry:
 
-- `ROLE_GAP`: no installed role has the required boundary, model, and sandbox. Route the role proposal to `role-profile-architect`; do not execute the dependent assignment.
-- `DELEGATION_BLOCKED`: the concrete assignment is incomplete, or the selector, subagent tool, required slot, or selected role cannot start. Report the missing field or capability and stop the dependent work.
-- `PACKET_REJECTED`: a dispatch or result packet lacks required input provenance or contains prohibited raw content. Reject it before L3 start or result consumption, identify only the violated rule, and require a sanitized replacement.
-- `registration-stale`: run the explicit plugin installer through an authorized L3 config helper or operator, then start a new task.
-- `runtime-reload-required`: start a new Codex task before dispatch.
+- `DELEGATION_BLOCKED`: the assignment is incomplete, the required exact profile is not installed or available, or the subagent tool or required slot cannot start. Report the exact missing field or capability and stop dependent work without substitution or profile proposal.
+- `PACKET_REJECTED`: a dispatch or result violates schema, bounded scope, capability, or sanitized-provenance rules. Identify only the violated rule and require a sanitized replacement.
+- `partial` or `blocked` L3 result: preserve its compact facts and unresolved risk, then require a new bounded assignment or user decision; do not widen the active assignment.
 
-Never convert these outcomes into parent execution after `DELEGATED` entry.
+Never convert a failure into parent, L1, or L2 target execution.

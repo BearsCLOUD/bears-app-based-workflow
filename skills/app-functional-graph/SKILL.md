@@ -38,7 +38,7 @@ Status-specific fields and routes:
 - `ready` adds `task_records`, each a complete canonical executable ledger task; it is reserved for `app-analyze` re-entry and targets `app-dev`.
 - `waiting` adds `source_handoff_ref`, `blocked_task_refs`, and `dependency_state_evidence_refs`; target `app-plan`.
 - `no-work` adds `plan_refs`; target `app-analyze`.
-- `implemented` adds `completed_task_refs` and `result_refs`; target `app-analyze`.
+- `implemented` is repo-scoped and adds `repo_ref`, `completed_task_refs`, `failed_task_refs`, `task_result_refs`, `review_result_refs`, `commit_range_refs`, and `remediation_task_refs`; target `app-analyze`. Never merge repositories into one handoff.
 - `pass` adds `analysis_refs`; target `none`.
 - `needs-research` adds `source_handoff_ref`, `question_refs`, `source_refs`, and `research_unknowns`; target `app-research`.
 - `needs-spec` adds `source_handoff_ref` and `question_refs`; its common decision, requirement, gap, artifact, and evidence fields define the unresolved product scope; target `app-specify`.
@@ -68,12 +68,15 @@ Use `<functionality_id>:<node_id>` for every `graph_node_ref`. A ledger graph an
 
 Every executable ledger task includes:
 
-- `task_id`, `wave_id`, `requirement_refs`, `functionality_refs`, and `graph_node_refs`;
+- `task_id`, `repo_ref`, `batch_id`, `wave_id`, `queue_sequence`, `task_kind`, and `source_review_refs`;
+- `requirement_refs`, `functionality_refs`, and `graph_node_refs`;
 - `target_paths`, `allowed_files`, `owner_role`, `lane`, and `depends_on`;
 - `decision_state`, `status`, `definition_of_done`, and `proof_requirement`;
 - `ledger_update_contract`, `artifact_refs`, `automation_evidence_refs`, and `result_refs`.
 
-`artifact_refs` contains constitution, research, specification, and plan refs. `decision_state` is `open|closed`. Task `status` is `planned|blocked_by_decision|blocked_by_dependency|ready|in_progress|done|failed`. `ledger_update_contract` names the status transitions and exact task fields that `app-dev` may update; normally these are `status`, `result_refs`, and `automation_evidence_refs` through `ready -> in_progress -> done|failed`.
+`repo_ref` identifies one repository boundary and resolves to the repo cwd at dispatch. `batch_id` groups one admitted planning batch. `queue_sequence` is the deterministic position inside a repo wave and is unique for `(repo_ref, wave_id)`. `task_kind` is `implementation|remediation`; remediation tasks use new task ids and name their originating review refs in `source_review_refs`. Implementation tasks use `source_review_refs: []` unless review explicitly created them.
+
+`artifact_refs` contains constitution, research, specification, and plan refs. `decision_state` is `open|closed`. Task `status` is `planned|blocked_by_decision|blocked_by_dependency|ready|in_progress|done|failed`. `done` and `failed` are terminal and are never reopened. `ledger_update_contract` names the status transitions and exact task fields that `app-dev` may update; normally these are `status`, `result_refs`, and `automation_evidence_refs` through `ready -> in_progress -> done|failed`.
 
 Return the canonical `app-stage-handoff.v1` with status `graph-ready`, every common field, and the `graph-ready` fields defined above.
 

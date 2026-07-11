@@ -1,0 +1,94 @@
+name: Plugin CI/CD
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  ci:
+    name: Plugin structure and cachebuster
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the exact revision
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Check plugin and marketplace structure
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json
+          import pathlib
+          import re
+          import sys
+
+          def fail(message: str) -> None:
+              print(f"::error title=Invalid plugin structure::{message}")
+              raise SystemExit(1)
+
+          root = pathlib.Path.cwd()
+          manifest = json.loads((root / ".codex-plugin/plugin.json").read_text())
+          marketplace = json.loads((root / ".agents/plugins/marketplace.json").read_text())
+          name = "bears-app-based-workflow"
+          if manifest.get("name") != name:
+              fail("plugin manifest name is not bears-app-based-workflow")
+          if not re.fullmatch(r"\d+\.\d+\.\d+\+codex\.\d{14}", manifest.get("version", "")):
+              fail("plugin version must use the SemVer +codex.YYYYMMDDhhmmss cachebuster")
+          entries = marketplace.get("plugins")
+          if marketplace.get("name") != name or not isinstance(entries, list) or len(entries) != 1:
+              fail("marketplace must contain exactly the fixed plugin entry")
+          entry = entries[0]
+          if entry.get("name") != name or entry.get("source") != {"source": "local", "path": "."}:
+              fail("marketplace plugin identity or local source is not fixed")
+          PY
+
+      - name: Check cachebuster freshness
+        env:
+          BASE_SHA: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || github.event.before }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ ! "${BASE_SHA:-}" =~ ^[0-9a-f]{40}$ ]] || [[ "$BASE_SHA" =~ ^0+$ ]] || ! git cat-file -e "$BASE_SHA^{commit}"; then
+            echo "No comparable base commit; cachebuster format check is sufficient for this ref."
+            exit 0
+          fi
+          mapfile -t changed < <(git diff --name-only "$BASE_SHA" "$GITHUB_SHA" -- \
+            .codex-plugin agents skills scripts hooks assets .app.json .mcp.json AGENTS.md install)
+          if ((${#changed[@]} == 0)); then
+            echo "No deployable plugin files changed."
+            exit 0
+          fi
+          base_version="$(git show "$BASE_SHA:.codex-plugin/plugin.json" | python3 -c 'import json,sys; print(json.load(sys.stdin)["version"])')"
+          head_version="$(python3 -c 'import json; print(json.load(open(".codex-plugin/plugin.json"))["version"])')"
+          if [[ "$base_version" == "$head_version" ]]; then
+            echo "::error title=Stale plugin cachebuster::Deployable plugin files changed but .codex-plugin/plugin.json version did not."
+            exit 1
+          fi
+
+      - name: Dry-run the role installer in an isolated Codex home
+        shell: bash
+        run: |
+          set -euo pipefail
+          codex_home="$(mktemp -d "$RUNNER_TEMP/bears-plugin-codex-home.XXXXXX")"
+          trap 'rm -rf "$codex_home"' EXIT
+          CODEX_HOME="$codex_home" ./install --dry-run
+
+  cd:
+    name: Deploy exact main revision
+    needs: ci
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: [self-hosted, linux, x64, bears-plugin-cd]
+    timeout-minutes: 15
+    concurrency:
+      group: bears-app-based-workflow-cd
+      cancel-in-progress: false
+    steps:
+      - name: Promote the verified revision through the fixed gateway
+        shell: bash
+        run: sudo -n -u ai1 -- /usr/local/sbin/deploy-bears-app-based-workflow '${{ github.sha }}'

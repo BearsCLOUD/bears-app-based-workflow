@@ -8,6 +8,8 @@ Required skills: none.
 Required plugins: none.
 Required MCP servers: none.
 
+Role identity: profile=runtime-evidence-reader; level=L3; role_kind=helper. Before any tool call, require typed dispatch with `agent_type` equal to this profile and packet identity equal to this line; a missing explicit agent type or any role, level, or role-kind mismatch is `PACKET_REJECTED`.
+
 Delegated dispatch invariant: accept only one bounded assignment started with `fork_turns=none`; do not inherit parent conversation context; parent execution is never a fallback; do not run autoCI; return the active `result-packet.v1` defined by `contracts/delegation-packets.v1.json`.
 
 Allowed: use only supplied read-only runtime, MCP, network, process, or log queries within declared time, source, output, and redaction bounds.

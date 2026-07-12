@@ -8,6 +8,8 @@ Required skills: role-profile-maintenance, instruction-hardening.
 Required plugins: none.
 Required MCP servers: none.
 
+Role identity: profile=role-profile-architect; level=L3; role_kind=mutation-worker. Before any tool call, require typed dispatch with `agent_type` equal to this profile and packet identity equal to this line; a missing explicit agent type or any role, level, or role-kind mismatch is `PACKET_REJECTED`.
+
 Delegated dispatch invariant: accept only one bounded assignment started with `fork_turns=none`; do not inherit parent conversation context; parent execution is never a fallback; do not run autoCI; return the active `result-packet.v1` defined by `contracts/delegation-packets.v1.json`.
 
 Allowed: read the current user's concrete role-maintenance request, task examples, target role profiles, exact references, and authority refs; create, edit, or delete requested in-scope version-controlled role files and exact references without confirmation; inspect only the task-owned diff, stage only changed assigned files, and create one task-scoped local conventional commit.

@@ -1,6 +1,6 @@
 ---
 name: subagents
-description: Deterministically choose an installed L3 profile, dispatch bounded work, and preserve the repo-wave app-worker session exception.
+description: Deterministically choose an installed L3 profile, dispatch typed bounded work, and preserve authority-bound worker and critic sessions.
 ---
 
 # Subagents
@@ -9,9 +9,21 @@ description: Deterministically choose an installed L3 profile, dispatch bounded 
 
 This procedure receives only work already classified `DELEGATED` under the active caller instruction chain. `DIRECT` work remains with the primary and never enters this procedure.
 
+Before selection, apply `delegation-entry.v1`. A missing, invalid, stale, or mismatched delegation gate returns `DIRECT_REQUIRED` and leaves the primary in DIRECT mode. If this conversation already contains raw filesystem, log, runtime, network, or tool access overlapping the delegated target, return `FRESH_TASK_REQUIRED` before selection or dispatch. A conversation containing only sanitized compact refs is eligible. The replacement task must enter DELEGATED before target access; this procedure cannot sanitize an already mixed conversation retroactively.
+
 `app-dev` fixes `workflow-orchestrator` at L1 and one persistent `domain-lane-orchestrator` L2 per repo workflow. Outside app-dev, a solo parent performs the L2 analogue. This procedure owns only deterministic L3 role choice, `dispatch-packet.v2`, bounded dispatch, and `result-packet.v1` handling. It does not classify or decompose work, choose a canonical task, manage a repo queue, or perform target work.
 
 The installed `agents/*.toml` files are the active catalog. Profiles that declare orchestration are fixed outside L3 selection; all other profiles are eligible only through the ordered rules below. `AGENTS.md` and linked caller contracts remain instruction authorities; profile TOML files define role-specific behavior.
+
+Each profile declares one `Role identity` line in `developer_instructions`: exact profile name, level, and trusted `role_kind`. Discover this metadata from the same regular non-symlink TOML catalog; never maintain a fixed role list or count. A packet role or role kind that differs from the selected profile identity is `PACKET_REJECTED`.
+
+## Trusted authority and typed dispatch
+
+Before packet construction, resolve one immutable `assignment-authority.v1` through the trusted assignment channel. It must bind the existing `delegation_authority_ref`, `assignment_authority_ref`, `workstream_id`, opaque canonical `repo_ref`, nonempty `trust_boundary`, exact role, agent level, derived role kind, and `security_trigger_ref`. Packet identity must match byte-for-byte. Do not normalize a repo ref, accept an alias, infer authority from the packet, or copy security predicate facts into packet inputs.
+
+Dispatch follows `typed-agent-dispatch.v1`: call the subagent transport with explicit `agent_type=<selected profile>` and `fork_turns=none`. `task_name` is only a task label and never selects or proves a role. If the available transport cannot set an explicit agent type, the exact profile is unavailable, or compatible L3 depth is unavailable, return `DELEGATION_BLOCKED` before spawn and target access. Never substitute `default`, encode the role in `task_name`, or fall back to parent execution.
+
+Only `caller_level: L2|solo-l2` may dispatch L3. In app-dev, L1 creates the typed `domain-lane-orchestrator` L2 and never calls this procedure as an L3 recipient.
 
 ## Dispatcher-only boundary
 
@@ -43,7 +55,7 @@ Apply these rules in order and stop at the first match:
 4. For a read-only assignment whose sole outcome requires one explicitly bounded local diagnostic command, choose `diagnostic-command-runner`. Runtime, service, public-source, test, validation, and mutation work do not match.
 5. For a read-only assignment whose sole outcome is current evidence from public primary sources, choose `primary-source-researcher`.
 6. For a read-only assignment whose sole outcome is bounded sanitized runtime, service-interface, or runtime-backed automation evidence, choose `runtime-evidence-reader`.
-7. Choose `security-analysis-critic` only for a separate read-only security assessment with a deterministic trigger: a trust boundary; secrets, identity, or authorization; callback or ingress; or a promotion/security-sensitive surface. Its methodology and outcome must be distinct from any primary wave review; duplicate critics are forbidden.
+7. Choose `security-analysis-critic` only for a separate read-only security assessment whose trusted assignment authority supplies a named `security_trigger_ref` backed by a satisfied trust-boundary, secrets/identity/authorization, callback/ingress, or promotion-sensitive predicate. Packet-supplied trigger facts, unknown predicates, and unsatisfied predicates are invalid. Its methodology and outcome must be distinct from any primary wave review; duplicate critics are forbidden.
 8. For any other bounded read-only workspace inspection, choose `explorer`.
 9. For any other bounded mutation, choose `worker`.
 
@@ -51,9 +63,9 @@ The caller records the matched rule and concrete fact as `selection_basis`, and 
 
 ## Packet contract
 
-`../../contracts/delegation-packets.v1.json` is the single active definition for `dispatch-packet.v2`, `result-packet.v1`, `app-task-dispatch.v1`, required fields, and delegated context isolation. Every delegated start uses `fork_turns=none`; inherited conversation context and parent execution fallback are forbidden.
+`../../contracts/delegation-packets.v1.json` is the single active definition for `delegation-entry.v1`, `assignment-authority.v1`, `typed-agent-dispatch.v1`, `dispatch-packet.v2`, `result-packet.v1`, and `app-task-dispatch.v1`. Every delegated start uses an explicit agent type and `fork_turns=none`; inherited conversation context and parent execution fallback are forbidden.
 
-Every contract field is required. Use `[none]` only where the stage permits it. `inputs` may contain paths, assignment ids, evidence ids, or compact fact ids, never raw bodies, diffs, logs, command dumps, secrets, credentials, tokens, or production data. Return `PACKET_REJECTED` before dispatch when a field is absent, unbounded, unsanitized, role-mismatched, or outside the capability boundary.
+Every contract field is required. Dispatch and result preserve `delegation_authority_ref`, `assignment_authority_ref`, `workstream_id`, `assignment_id`, `repo_ref`, `trust_boundary`, `security_trigger_ref`, role, agent level, role kind, and role-specific session identity. Use `[none]` only where the stage permits it. `inputs` may contain paths, assignment ids, evidence ids, or compact fact ids, never raw authority facts, bodies, diffs, logs, command dumps, secrets, credentials, tokens, or production data. Return `PACKET_REJECTED` before dispatch when a field is absent, unbounded, unsanitized, authority-mismatched, role-mismatched, or outside the capability boundary.
 
 ### App task stage payload
 
@@ -61,10 +73,12 @@ Rule 2 additionally requires the contract's `app-task-dispatch.v1` object inside
 
 ## Assignment lifecycle
 
-- Normally, a new assignment id, outcome, scope, or role requires a fresh L3. Follow-up is allowed only inside the same assignment with unchanged outcome, role, target scope, and capability boundary.
-- The sole cross-assignment reuse exception is `role: app-worker` with unchanged `repo_ref`, `wave_id`, and `wave_session_id` and a valid `session_action: continue`. Every other L3 assignment uses a fresh agent.
-- An app-worker receives exactly one task at a time. Its caller accepts that task result before continuing the session; a different repo, wave, session, or role cannot reuse it.
-- If an L3 finds additional work, it returns a compact fact and stops. The caller creates a new assignment rather than widening the active one.
+- Persistent mutation workers and critics use stable role-specific session ids. Their immutable identity is the authority refs, repo, workstream, role, role kind, trust boundary, security trigger, and session id.
+- Dispatch permits `session_action: start|continue`; a paired result permits `continue|close`. `continue` uses `followup_task` on the exact open session with a new assignment id. Reject duplicate starts, identity drift, dispatch `close`, result `start`, stale results, and reuse after close.
+- A fix returns to the original mutation-worker session. Rereview returns to the original primary-critic session. At most one assignment is active per session.
+- Helpers are nonpersistent: dispatch `start`, result `close`, both session ids `none`, and no reuse. Tombstone the closed assignment id.
+- An app-worker receives exactly one task at a time. Its caller accepts that task result before continuing; a different repo, workstream, role, or authority cannot reuse it. Logical wave ids remain governed by `app-task-dispatch.v1` inside the stable outer worker session.
+- If an L3 finds additional work, it returns a compact fact and stops. The caller creates a new bounded assignment without widening authority.
 - Do not dispatch hidden helpers, automatic or duplicate critics, repeated waits, or polling loops.
 
 ## Git and failure boundary
@@ -96,7 +110,9 @@ task_id: <same canonical task id>
 repo_ref: <same repo ref>
 wave_id: <same wave id>
 wave_session_id: <same session id>
+worker_session_id: <same outer worker session id>
 queue_sequence: <same queue position>
+wave_result_action: continue|close
 status: done|failed
 commit_ref: <retained commit ref or null after full cleanup>
 changed_targets: [<exact changed targets or empty after full cleanup>]
@@ -109,6 +125,8 @@ Reject a result with missing provenance, an invalid app-task fact, multiple app-
 
 ## Failure outcomes
 
+- `DIRECT_REQUIRED`: delegation authority is absent or invalid; remain DIRECT and do not initialize selection.
+- `FRESH_TASK_REQUIRED`: overlapping raw DIRECT target access already occurred in this conversation; restart the delegated work in a clean task.
 - `DELEGATION_BLOCKED`: the assignment is incomplete, a non-app delegated assignment has no available L3 slot, or the required exact profile, capability, or dispatch mechanism is unavailable. Report the missing fact and stop dependent work without substitution.
 - `PACKET_REJECTED`: a dispatch or result violates schema, bounded scope, capability, session, immutable-review, or sanitized-provenance rules. Require a sanitized replacement.
 - Generic `partial` or `blocked`: preserve compact facts and unresolved risk, then require a new bounded assignment or user decision. For app tasks, the nested fact still records canonical `done|failed` and cleanup state.

@@ -8,6 +8,8 @@ Required skills: app-dev, subagents.
 Required plugins: none.
 Required MCP servers: none.
 
+Role identity: profile=workflow-orchestrator; level=L1; role_kind=orchestrator. Before any tool call, require typed dispatch with `agent_type` equal to this profile and packet identity equal to this line; a missing explicit agent type or any role, level, or role-kind mismatch is `PACKET_REJECTED`.
+
 Delegated dispatch invariant: accept only one bounded assignment started with `fork_turns=none`; do not inherit parent conversation context; parent execution is never a fallback; do not run autoCI; return the active `result-packet.v1` defined by `contracts/delegation-packets.v1.json`.
 
 Allowed: read supplied compact app-stage payloads, repo refs, dependency and capacity state, repo-L2 results, and evidence receipts; create and signal only fixed repo-scoped L2 lanes through the required skills.

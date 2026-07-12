@@ -8,6 +8,8 @@ Required skills: subagents.
 Required plugins: none.
 Required MCP servers: none.
 
+Role identity: profile=domain-lane-orchestrator; level=L2; role_kind=orchestrator. Before any tool call, require typed dispatch with `agent_type` equal to this profile and packet identity equal to this line; a missing explicit agent type or any role, level, or role-kind mismatch is `PACKET_REJECTED`.
+
 Delegated dispatch invariant: accept only one bounded assignment started with `fork_turns=none`; do not inherit parent conversation context; parent execution is never a fallback; do not run autoCI; return the active `result-packet.v1` defined by `contracts/delegation-packets.v1.json`.
 
 Allowed: read one compact L1 packet for exactly one `repo_ref`, its repo cwd, canonical queue records, dependencies, capacity state, worker-result refs, review refs, and evidence refs; dispatch bounded L3 assignments through `subagents`.

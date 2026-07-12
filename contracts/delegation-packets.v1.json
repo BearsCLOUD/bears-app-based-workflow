@@ -1,23 +1,67 @@
 {
   "schema": "plugin-delegation-contract.v1",
   "active_schemas": {
+    "entry": "delegation-entry.v1",
+    "authority": "assignment-authority.v1",
+    "transport": "typed-agent-dispatch.v1",
     "dispatch": "dispatch-packet.v2",
     "result": "result-packet.v1",
     "app_task": "app-task-dispatch.v1"
   },
-  "dispatch_context": {
+  "delegation_entry": {
+    "context_states": [
+      "clean",
+      "compact-only",
+      "overlapping-raw-direct-access"
+    ],
+    "outcomes": {
+      "missing_or_invalid_delegation_gate": "DIRECT_REQUIRED",
+      "overlapping_raw_direct_access": "FRESH_TASK_REQUIRED",
+      "typed_transport_or_profile_unavailable": "DELEGATION_BLOCKED",
+      "invalid_packet_or_identity": "PACKET_REJECTED"
+    }
+  },
+  "assignment_authority_required_fields": [
+    "schema",
+    "assignment_authority_ref",
+    "delegation_authority_ref",
+    "workstream_id",
+    "repo_ref",
+    "trust_boundary",
+    "authorized_role",
+    "authorized_agent_level",
+    "authorized_role_kind",
+    "security_trigger_ref"
+  ],
+  "typed_dispatch": {
+    "required_agent_type": "<exact dispatch role>",
+    "task_name_authoritative": false,
     "fork_turns": "none",
     "conversation_inheritance": false,
-    "parent_execution_fallback": false
+    "parent_execution_fallback": false,
+    "allowed_l3_callers": [
+      "L2",
+      "solo-l2"
+    ]
   },
   "dispatch_required_fields": [
     "schema",
+    "delegation_authority_ref",
+    "assignment_authority_ref",
     "task_id",
     "workstream_id",
     "assignment_id",
+    "repo_ref",
+    "trust_boundary",
+    "security_trigger_ref",
     "stage",
     "caller_level",
     "role",
+    "agent_level",
+    "role_kind",
+    "session_action",
+    "worker_session_id",
+    "critic_session_id",
     "selection_basis",
     "capability_boundary",
     "cwd",
@@ -34,12 +78,24 @@
   ],
   "result_required_fields": [
     "schema",
+    "delegation_authority_ref",
+    "assignment_authority_ref",
     "task_id",
     "workstream_id",
     "assignment_id",
+    "repo_ref",
+    "trust_boundary",
+    "security_trigger_ref",
     "role",
+    "agent_level",
+    "role_kind",
+    "session_action",
+    "session_state",
+    "worker_session_id",
+    "critic_session_id",
     "status",
     "consumed_input_refs",
+    "consumed_authority_refs",
     "facts",
     "files_read",
     "files_changed",
@@ -49,6 +105,25 @@
     "risks",
     "next_action"
   ],
+  "persistent_lifecycle": {
+    "dispatch_actions": [
+      "start",
+      "continue"
+    ],
+    "result_actions": [
+      "continue",
+      "close"
+    ],
+    "continue_transport": "followup_task",
+    "closed_session_reuse": false
+  },
+  "helper_lifecycle": {
+    "dispatch_action": "start",
+    "result_action": "close",
+    "worker_session_id": "none",
+    "critic_session_id": "none",
+    "reusable": false
+  },
   "app_task_required_fields": [
     "schema",
     "task_record",
@@ -58,9 +133,20 @@
     "wave_id",
     "wave_session_id",
     "queue_sequence",
-    "session_action",
+    "wave_dispatch_action",
     "previous_task_result_ref"
   ],
+  "role_metadata": {
+    "source": "agents/*.toml developer_instructions Role identity line",
+    "allowed_role_kinds": [
+      "orchestrator",
+      "mutation-worker",
+      "primary-critic",
+      "security-critic",
+      "helper"
+    ],
+    "fixed_role_count": false
+  },
   "result_statuses": [
     "done",
     "partial",

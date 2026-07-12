@@ -11,6 +11,8 @@ For work already classified `DELEGATED`, `app-dev` fixes the parent as `workflow
 
 L1 and L2 use compact packets only. They do not access files, logs, terminal, Git, scripts, MCP, runtime, or network state, and they never perform L3 work.
 
+Apply the plugin-local `delegation-entry.v1` before entering app-dev. Missing or invalid delegation authority returns `DIRECT_REQUIRED`; prior overlapping raw DIRECT target access in the same conversation returns `FRESH_TASK_REQUIRED`. The replacement task must start clean with compact refs only.
+
 ## Required input
 
 Accept canonical `app-stage-handoff.v1` status `plan-ready` from `app-plan` or `ready` from `app-analyze`. It carries every common field defined by `app-functional-graph` and complete canonical `task_records`. Each task includes:
@@ -25,13 +27,13 @@ Reject mixed-repo records, duplicate queue positions, incomplete tasks, or tasks
 ## Fixed L1 orchestration
 
 1. Group canonical tasks by `repo_ref`; preserve deterministic `queue_sequence` within each wave and never mix repositories in one L2.
-2. Create one persistent `domain-lane-orchestrator` L2 for each independent repo workflow. A repo-L2 may enter `capacity-wait` before a worker slot is available; it resumes only on a slot-available signal and never polls repeatedly.
+2. Create one persistent `domain-lane-orchestrator` L2 for each independent repo workflow through `typed-agent-dispatch.v1` with `agent_type=domain-lane-orchestrator` and `fork_turns=none`. If explicit agent type or compatible depth is unavailable, return `DELEGATION_BLOCKED`; `task_name`, `default`, or parent execution is not a substitute. A repo-L2 may enter `capacity-wait` before a worker slot is available; it resumes only on a slot-available signal and never polls repeatedly.
 3. Give each L2 only its repo records, repo cwd/ref, dependency refs, target bounds, completion criteria, and compact capacity state.
 4. Gate a cross-repo dependency only in the dependent repo-L2. Independent repo-L2s continue; never create one global serial queue.
 5. Prevent concurrent mutation where dependency or target overlap exists. Mutation workers have capacity priority; reviewers use remaining capacity.
 6. Forward each repo-scoped implemented handoff independently to `app-analyze`. Never aggregate task, review, commit, or remediation refs across repositories.
 
-L1 never treats `$subagents` as a recipient and never replaces a missing L2 or L3 with parent execution.
+L1 never treats `$subagents` as a recipient, never directly dispatches L3, and never replaces a missing L2 or L3 with parent execution. Only the typed repo-L2 uses `caller_level: L2`; a gated parent outside app-dev uses `caller_level: solo-l2`.
 
 ## Repo-L2 task execution
 
@@ -45,26 +47,29 @@ L1 never treats `$subagents` as a recipient and never replaces a missing L2 or L
 
 ## App task packet and result
 
-An app-worker dispatch nests the complete `app-task-dispatch.v1` object defined by `../../contracts/delegation-packets.v1.json` inside `dispatch-packet.v2.stage_payload`. The same plugin-local contract defines the generic `result-packet.v1` envelope and delegated `fork_turns=none` context isolation.
+The plugin-local contract defines `delegation-entry.v1`, trusted `assignment-authority.v1`, typed transport `typed-agent-dispatch.v1`, generic `dispatch-packet.v2` and `result-packet.v1`, and nested `app-task-dispatch.v1`. An app-worker dispatch carries the complete app-task object inside `dispatch-packet.v2.stage_payload` and uses explicit `agent_type=app-worker` with `fork_turns=none`.
 
-The corresponding `result-packet.v1` contains exactly one `app-task-change.v1` fact with `assignment_id`, `task_id`, `repo_ref`, `wave_id`, `wave_session_id`, `queue_sequence`, `status: done|failed`, `commit_ref` where a coherent change was retained, exact `changed_targets`, `cleanup_state: clean|coherent_partial_commit`, `partial_state_ref`, and `source_review_refs`. A failed result identifies its coherent partial-state ref or confirms the diff was removed. One task has one result and never more than one commit.
+The outer dispatch and result preserve exact `delegation_authority_ref`, `assignment_authority_ref`, opaque authority-resolved `repo_ref`, `workstream_id`, `role_kind: mutation-worker`, `trust_boundary`, `security_trigger_ref: none`, and stable `worker_session_id`; `critic_session_id` is `none`. The dispatch uses `session_action: start|continue`, the result uses `continue|close`, and every continuation goes through `followup_task` with a new assignment id. Reject aliases, identity drift, duplicate starts, stale results, dispatch `close`, result `start`, and closed-session reuse.
+
+The corresponding `result-packet.v1` contains exactly one `app-task-change.v1` fact with `assignment_id`, `task_id`, `repo_ref`, `wave_id`, `wave_session_id`, `worker_session_id`, `queue_sequence`, `wave_result_action: continue|close`, `status: done|failed`, `commit_ref` where a coherent change was retained, exact `changed_targets`, `cleanup_state: clean|coherent_partial_commit`, `partial_state_ref`, and `source_review_refs`. A failed result identifies its coherent partial-state ref or confirms the diff was removed. One task has one result and never more than one commit.
 
 ## Immutable repo-wave review
 
-1. After a repo wave closes, start one fresh `wave-change-critic` for that repo only. Review the immutable pinned `base_commit..wave_head`, never live `HEAD` or a worktree, and supply failed task refs as known gaps.
-2. Never create an aggregate cross-repo critic. A `security-analysis-critic` is optional only when a deterministic trigger exists: a trust boundary; secrets, identity, or authorization; callback or ingress; or a promotion/security-sensitive surface. It must use a distinct security methodology; duplicate critics are forbidden.
+1. After a repo wave closes, start one separate `wave-change-critic` session for that repo with the same assignment authority, opaque repo ref, `role_kind: primary-critic`, trust boundary, and stable `critic_session_id`. Review the immutable pinned `base_commit..wave_head`, never live `HEAD` or a worktree, and supply failed task refs as known gaps.
+2. Never create an aggregate cross-repo critic. A `security-analysis-critic` is optional only when trusted assignment authority supplies a named `security_trigger_ref` backed by a satisfied supported predicate. Packet-supplied, unknown, or unsatisfied trigger facts are rejected. It must use a distinct security methodology; duplicate critics are forbidden.
 3. Reviewers are read-only: they cannot fix, mutate, commit, or run autoCI. Primary and justified specialist review results remain separate refs.
-4. Immutable review of a prior wave may overlap the next independent, non-overlapping wave. A dependency or target overlap waits. Mutation workers retain capacity priority and reviewers use only remaining capacity.
+4. Fixes return by `followup_task` to the original worker session; rereview returns to the original primary-critic session. A closed session cannot be reopened.
+5. Immutable review of a prior wave may overlap the next independent, non-overlapping wave. A dependency or target overlap waits. Mutation workers retain capacity priority and reviewers use only remaining capacity.
 
 ## Repo remediation queue
 
 After review, the repo-L2 merges failed task refs, the primary review ref, and any justified specialist review ref into remediation inputs. It snapshots the current repo queue and creates `remediation-anchor.v1` immediately after that snapshot's tail. Independent tasks already in the snapshot run before the anchor; tasks admitted later are placed after the anchor.
 
-At the anchor, start a fresh separate `app-plan` assignment. It creates a new remediation wave with new canonical task ids, `task_kind: remediation`, and source review refs; original tasks remain terminal `done|failed`. Insert the new remediation tasks at the anchor before later-admitted tasks. Remediation follows the normal app-worker session, immutable repo-wave review, and repo remediation rules.
+At the anchor, start a separate nonpersistent `app-plan` helper assignment: dispatch `start`, paired result `close`, no worker or critic session id, and no reuse. It creates a new remediation wave with new canonical task ids, `task_kind: remediation`, and source review refs; original tasks remain terminal `done|failed`. Insert the new remediation tasks at the anchor before later-admitted tasks. Remediation returns to the original authority-bound app-worker and critic sessions and follows the normal immutable repo-wave review rules.
 
 ## Stage rules and handoff
 
 - Do not invent work outside the ledger, overlap mutable targets, or start tasks with missing graph refs, open decisions, or open dependencies.
 - Return product decisions to `app-specify` and planning gaps to `app-plan`. Never write functional graph meaning, graph anchors, wave plans, or analysis artifacts.
-- Each repo-L2 returns one canonical repo-scoped `app-stage-handoff.v1` directly as its outer contract, with every common field. Status `implemented` adds `repo_ref`, `completed_task_refs`, `failed_task_refs`, `task_result_refs`, `review_result_refs`, `commit_range_refs`, and `remediation_task_refs`, and targets `app-analyze`. Never wrap or nest this handoff in `domain-lane-closeout.v1`; do not emit a generic cross-repo merge.
+- Each repo-L2 returns one canonical repo-scoped `app-stage-handoff.v1` directly as its outer contract, preserving authority refs, exact repo ref, trust boundary, and named security trigger refs without predicate facts. Status `implemented` adds `completed_task_refs`, `failed_task_refs`, `task_result_refs`, `review_result_refs`, `commit_range_refs`, and `remediation_task_refs`, and targets `app-analyze`. Never wrap or nest this handoff in `domain-lane-closeout.v1`; do not emit a generic cross-repo merge.
 - `needs-plan` adds `source_handoff_ref`, `ledger_coverage_refs`, and `implementation_state_by_requirement`; `needs-spec` adds `source_handoff_ref` and `question_refs`; `blocked` adds `blocker_refs` and `operator_action_refs`. Use `blocked` only for access, credentials, unavailable sources, or explicit operator stops.

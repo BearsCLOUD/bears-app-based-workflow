@@ -1,6 +1,6 @@
 {
   "name": "bears-app-based-workflow",
-  "version": "0.1.0+codex.20260712011940",
+  "version": "0.1.0+codex.20260712040624",
   "description": "Bears app workflow plugin for waves, functional graphs, task ledgers, repo-scoped queues, one-task worker sessions, immutable review, and remediation.",
   "author": {
     "name": "BearsCLOUD",

@@ -80,7 +80,7 @@ Live CD never executes or imports the cached `install` payload. The fixed root-o
 
 Role receipt v2 owns the exact dynamically discovered catalog and its ordered content digest. The one-shot registration migration accepts only the byte-exact live v1 receipt and managed block at `0.1.0+codex.20260711074119`. It authenticates the historical nine registered paths but never reads, moves, changes, archives, or deletes the referenced legacy TOML files. It replaces only the registration block and receipt, preserves prior archive metadata, and durably publishes a no-clobber tombstone before the v2 deployment receipt; drift, rollback, replay, or a conflicting tombstone fails closed.
 
-No active repository workflow invokes `/usr/local/sbin/deploy-bears-app-based-workflow`. The retained gateway and runner material are recovery-compatible infrastructure only; reactivation requires separate operator authorization, restored acceptance gating, and reviewed exact source.
+On every push to `main`, `plugin-marketplace-cd.yml` invokes `/usr/local/sbin/deploy-bears-app-based-workflow` through the fixed runner-to-`ai1` sudo boundary. The gateway fetches the exact pushed revision, upgrades the fixed Git marketplace, reinstalls the plugin, reconciles roles, and advances the durable receipt only after exact SHA/version verification. CD does not declare acceptance.
 
 
 ## Ownership
@@ -90,6 +90,6 @@ No active repository workflow invokes `/usr/local/sbin/deploy-bears-app-based-wo
 - Plugin-local contract: portable delegation packet definitions installed with the runtime payload.
 - Plugin role TOML: result ownership, decisions, permissions, acceptance, and result fields.
 - Plugin skills: repeatable methods, active contract references, and reusable procedures.
-- Repository automation: autoCI and autoCD are disconnected; this plugin repository has no active GitHub Actions workflow.
+- Repository automation: autoCI remains disconnected; CD updates the installed plugin from the fixed marketplace on every `main` push.
 
 Target repository: `BearsCLOUD/bears-app-based-workflow`.

@@ -4,7 +4,7 @@ These files belong to the repository-owned CI/CD boundary and are not plugin age
 
 ## Module map
 
-- `deploy_plugin.py` is an inactive state-mutating gateway retained for recovery compatibility. Its only entry point is `main`, but no repository workflow invokes it. Runtime risks are partial marketplace mutation, receipt corruption, and unavailable telemetry if a separately authorized operator reactivates it.
+- `deploy_plugin.py` is the state-mutating marketplace CD gateway invoked on every `main` push. Its `main` entry point fetches the exact pushed revision, upgrades the fixed marketplace, reinstalls the plugin, reconciles roles, verifies exact SHA/version state, and advances the durable receipt. Runtime risks are partial marketplace mutation, receipt corruption, and unavailable telemetry.
 - `test_deploy_plugin_sentry.py` provides local, stub-only event and transport coverage inside autoCI. It never opens a live Sentry connection and never creates a synthetic live event.
 - `materialize_sentry_dsn.py` is a root-only atomic writer. It accepts one DSN only on inherited file descriptor 3, writes the fixed target, emits no value, and starts no child process.
 - `install-sentry-materializer.sh` installs only that writer as immutable root-owned code. It does not create an identity, obtain a DSN, or execute the writer.
@@ -32,6 +32,8 @@ The operator-owned bootstrap must supply the Infisical identity credential from 
 
 Installing the materializer and performing the first materialization are separate operator-authorized actions. This repository performs neither action automatically and defines no manual fallback for CI/CD or telemetry delivery.
 
-## Inactive automation projection
+## CD and acceptance boundary
 
-The repository has no active autoCI or autoCD workflow and emits no automation-status artifact. Existing historical evidence remains immutable but never applies to a newer commit. Until a separately authorized automation owner supplies exact-commit external evidence, acceptance projects as `not_run`.
+`plugin-marketplace-cd.yml` runs no repository checkout or agent-controlled installer. It passes the exact pushed SHA and ephemeral GitHub job credential to the fixed root-owned gateway through the runner's existing command-restricted sudo rule. The gateway owns marketplace refresh, plugin installation, durable recovery, and sanitized deployment output.
+
+No autoCI workflow is active and CD emits no acceptance status. Existing historical evidence remains immutable but never applies to a newer commit; acceptance projects as `not_run` until exact external evidence is supplied.

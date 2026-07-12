@@ -8,7 +8,8 @@ The format follows Keep a Changelog conventions.
 
 ### Changed
 
-- Disconnected repository autoCI and autoCD by removing the GitHub Actions workflow and requirements binding; acceptance now remains `not_run` unless exact external evidence is supplied.
+- Disconnected autoCI and removed its requirements binding; acceptance remains `not_run` unless exact external evidence is supplied.
+- Restored CD independently of autoCI: every `main` push now updates the installed plugin through the fixed Git marketplace and durable deployment gateway without claiming acceptance.
 - Added machine-readable workflow, handoff, functional-map, traceability-index, process-index, and context-index contracts.
 - Added `app-context-index` as the source-digest entry gate and sole writer of rebuildable traceability and process indexes.
 - Reframed `app-functional-graph` as the semantic-map owner while keeping documents, code, tests, ledger records, and evidence authoritative.

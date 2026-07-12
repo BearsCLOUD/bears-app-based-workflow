@@ -1,0 +1,31 @@
+name: Plugin Marketplace CD
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  update-marketplace:
+    name: Update installed plugin from marketplace
+    runs-on: [self-hosted, linux, x64, bears-plugin-cd]
+    timeout-minutes: 15
+    concurrency:
+      group: bears-app-based-workflow-cd
+      cancel-in-progress: false
+    steps:
+      - name: Promote exact pushed revision through the fixed gateway
+        shell: bash
+        working-directory: /
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gateway=/usr/local/sbin/deploy-bears-app-based-workflow
+          [[ -f "$gateway" && ! -L "$gateway" ]]
+          [[ "$(stat -c '%U:%G' "$gateway")" == root:root ]]
+          mode=$((8#$(stat -c '%a' "$gateway")))
+          (( (mode & 8#022) == 0 ))
+          printf '%s\n' "$GH_TOKEN" | sudo -n -u ai1 -- "$gateway" '${{ github.sha }}'

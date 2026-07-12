@@ -1,23 +1,28 @@
 {
   "schema": "app-traceability-index.v2",
   "app_id": "bears-app-based-workflow",
-  "revision": 4,
-  "source_snapshot_digest": "sha256:adf4dd0cb6394e7c8ed3997fc1c15c032c1453c7b50ea44b85f4cd0e4110ac27",
+  "revision": 5,
+  "source_snapshot_digest": "sha256:77ad7d37b3827644cefbd055a0f1434a7bdde104653c6224dd44c9ca18fbf72d",
   "generated_from": [
     {
       "path": ".codex-plugin/plugin.json",
       "anchor": "",
-      "digest": "sha256:391235823d2c81300b2806dfbc2bbb7661dcacd99974df370d798262afa8d0aa"
+      "digest": "sha256:596317df1486172fde9e5d3aff20345a9314e4f4a3ded6b7b778140d5af0fbd2"
     },
     {
       "path": ".github/runner/README.md",
       "anchor": "",
-      "digest": "sha256:0aa370e434d2dcc68b2f3b2176cf5eaf894a5e343495061fe0c2118f5e6f8d07"
+      "digest": "sha256:99e4ff6a010cf941a7a83b87bd92393bc356f7328c23d4ac19ef5c52ccb99680"
     },
     {
       "path": ".github/runner/test_app_solo_route.py",
       "anchor": "",
       "digest": "sha256:c085c790987ea313572f6addac4a46de7a4947813fbcdaab677c03405b42f25e"
+    },
+    {
+      "path": ".github/workflows/plugin-marketplace-cd.yml",
+      "anchor": "",
+      "digest": "sha256:ff3d0aa2acf6b4a55460b82c8396f386d2459420327219becbacece7a3203102"
     },
     {
       "path": ".mcp.json",
@@ -27,12 +32,12 @@
     {
       "path": "CHANGELOG.md",
       "anchor": "",
-      "digest": "sha256:9bb2cd7f8f2b3a6423a3d7226426db74e4ed81169bf2cf056f90533ae4038a40"
+      "digest": "sha256:03e10d6d277e67ec6a2c6b17a8912ec6681063a60dcdcca3f0e662ada12c4ec1"
     },
     {
       "path": "README.md",
       "anchor": "",
-      "digest": "sha256:f4ff72ee83b9b69e27ee987ced800b8d62e490f9a22a4494a76a72d2cb98ba14"
+      "digest": "sha256:f3c4fe75e147e1991a4c877f1534b774539d7a5de1b8fe28b3e58c6832a1eab2"
     },
     {
       "path": "agents/app-worker.toml",
@@ -87,7 +92,7 @@
     {
       "path": "scripts/README.md",
       "anchor": "",
-      "digest": "sha256:e1623b67b1c98e9a2507ee806ff1531bb4555d50a83bb559e8edf266e09ddb0e"
+      "digest": "sha256:548803d83601e6d013349c08521104c200fe45633e7d8a07a9638aa341f283ee"
     },
     {
       "path": "scripts/app_graph_engine.py",
@@ -454,7 +459,7 @@
       "source": {
         "path": ".codex-plugin/plugin.json",
         "anchor": "mcpServers",
-        "digest": "sha256:391235823d2c81300b2806dfbc2bbb7661dcacd99974df370d798262afa8d0aa"
+        "digest": "sha256:596317df1486172fde9e5d3aff20345a9314e4f4a3ded6b7b778140d5af0fbd2"
       }
     },
     {

@@ -4,11 +4,30 @@ These files belong to the repository-owned CI/CD boundary and are not plugin age
 
 ## Module map
 
-- `deploy_plugin.py` is the state-mutating marketplace CD gateway invoked on every `main` push. Its `main` entry point fetches the exact pushed revision, upgrades the fixed marketplace, reinstalls the plugin, reconciles roles, verifies exact SHA/version state, and advances the durable receipt. Runtime risks are partial marketplace mutation, receipt corruption, and unavailable telemetry.
+- `deploy_plugin.py` is the stable executable facade. It selects the repository-local package for authored autoCI coverage or the fixed root-owned `/usr/local/lib/bears-plugin-deploy` package in production, preserves the legacy import surface, and delegates to `bears_deploy.cli.main`.
+- `bears_deploy/constants.py` owns fixed identities, paths, schemas, and size limits.
+- `bears_deploy/models.py` owns shared errors and transaction context models.
+- `bears_deploy/telemetry.py` owns sanitized Sentry event construction and best-effort delivery through `report_sentry`.
+- `bears_deploy/process.py` owns bounded subprocess, Git, and GitHub credential operations.
+- `bears_deploy/marketplace.py` owns manifest, marketplace, cache, and pinned Git-blob verification.
+- `bears_deploy/role_profiles.py` owns exact role bundle materialization and desired config rendering.
+- `bears_deploy/role_io.py` owns locked config and receipt reads, snapshots, validation, and receipt construction.
+- `bears_deploy/publication.py` owns compare-and-swap publication, rollback, and journaled file replacement.
+- `bears_deploy/journal.py` owns bounded binary encoding for durable journal fields.
+- `bears_deploy/state_io.py` owns the private state directory, migration tombstone, and deploy receipt reads.
+- `bears_deploy/intent_schema.py` owns strict promotion-intent schema and binding validation.
+- `bears_deploy/intent_io.py` owns durable promotion-intent and role-transaction writes.
+- `bears_deploy/receipts.py` owns deployment receipt writes and receipted installation verification.
+- `bears_deploy/role_deploy.py` owns role installation and v1 registration migration transactions.
+- `bears_deploy/role_recovery.py` owns role rollback and managed-registration removal.
+- `bears_deploy/promotion.py` owns exact-SHA convergence, recovery, and promotion orchestration.
+- `bears_deploy/cli.py` owns the `main` identity, argument, credential, and state-lock boundary.
 - `test_deploy_plugin_sentry.py` provides local, stub-only event and transport coverage inside autoCI. It never opens a live Sentry connection and never creates a synthetic live event.
 - `materialize_sentry_dsn.py` is a root-only atomic writer. It accepts one DSN only on inherited file descriptor 3, writes the fixed target, emits no value, and starts no child process.
 - `install-sentry-materializer.sh` installs only that writer as immutable root-owned code. It does not create an identity, obtain a DSN, or execute the writer.
-- `install-runner.sh` owns the isolated GitHub runner and the sole runner-to-deploy sudo boundary. The runner has no materializer sudo grant and cannot traverse `/home/ai1`.
+- `install-runner.sh` owns the isolated GitHub runner, root-owned gateway package installation, and the sole runner-to-deploy sudo boundary. The runner has no materializer sudo grant and cannot traverse `/home/ai1`.
+
+All gateway modules share the same runtime risks: partial marketplace mutation, receipt corruption, unsafe filesystem state, and unavailable telemetry. The authored coverage remains in `test_deploy_plugin_sentry.py` and `test_install_runner_state.py`, but no autoCI pipeline is active; acceptance for this refactor is `not_run` until exact external evidence is supplied.
 
 ## Durable promotion recovery
 

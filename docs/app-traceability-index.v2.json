@@ -1,28 +1,118 @@
 {
   "schema": "app-traceability-index.v2",
   "app_id": "bears-app-based-workflow",
-  "revision": 9,
-  "source_snapshot_digest": "sha256:33fc64fe96035bc7de2b039fb40c3fdb81ad66ba30a359f626182e18a4d7e752",
+  "revision": 10,
+  "source_snapshot_digest": "sha256:c32cce90b1c801ea5b5fdad911d1186c58d8cda3041fd8c55afb74406bfd20ce",
   "generated_from": [
     {
       "path": ".codex-plugin/plugin.json",
       "anchor": "",
-      "digest": "sha256:c3f248d97bf9429ee13134063fe3a9d466a550522f7cd07b6ca2d49929956c6f"
+      "digest": "sha256:6e9ac571ceed591733ca65d4432342d8a09da0ff57f0792c2981931fe5031039"
     },
     {
       "path": ".github/runner/README.md",
       "anchor": "",
-      "digest": "sha256:db06e7e1506099bbe0e44dbc7cdebc96df18bdee63b040527522698e22359f23"
+      "digest": "sha256:b566a526bbc53e16e48a356d9dc5045a4e55f71d39338e06e2f1465705232d4c"
+    },
+    {
+      "path": ".github/runner/bears_deploy/__init__.py",
+      "anchor": "",
+      "digest": "sha256:6fcd063a6d5725d6e0968873787f36ca5d65e5a2f17f111755ba4d8b326a2d40"
+    },
+    {
+      "path": ".github/runner/bears_deploy/cli.py",
+      "anchor": "",
+      "digest": "sha256:8b7773ed5d81c157d2ee16b9abf05929cd5c7f0a990c647174cb6f207e8be590"
+    },
+    {
+      "path": ".github/runner/bears_deploy/constants.py",
+      "anchor": "",
+      "digest": "sha256:be43dfaaf0d9ef7255a569e55ecb9cfa3ca79046cb9d85327f7622c0c330362a"
+    },
+    {
+      "path": ".github/runner/bears_deploy/intent_io.py",
+      "anchor": "",
+      "digest": "sha256:fb85817c4a5e920d0e710b545afadc501ee47bea4441b4cddcb7e2cbe5e2c617"
+    },
+    {
+      "path": ".github/runner/bears_deploy/intent_schema.py",
+      "anchor": "",
+      "digest": "sha256:74d7391139de5b20d52a00a65175c3cea9ae3e8b57b8fe915208c5e9e99bdd5a"
+    },
+    {
+      "path": ".github/runner/bears_deploy/journal.py",
+      "anchor": "",
+      "digest": "sha256:bd9f0e527e480af605141266001094c632830abc94ec8d46f497f9b6c0121c82"
+    },
+    {
+      "path": ".github/runner/bears_deploy/marketplace.py",
+      "anchor": "",
+      "digest": "sha256:0a82b8e512b7a40f7ca767ce607627549c06e096b3f9212ecd7cac6042b23650"
+    },
+    {
+      "path": ".github/runner/bears_deploy/models.py",
+      "anchor": "",
+      "digest": "sha256:352323da239b5b54006181287ee16d5a0fe4e6f992553676d679557ffb82d068"
+    },
+    {
+      "path": ".github/runner/bears_deploy/process.py",
+      "anchor": "",
+      "digest": "sha256:b998f6888e686778e66a7aabdb68479915bcea4a07a6744a7f5de6b1edcefb27"
+    },
+    {
+      "path": ".github/runner/bears_deploy/promotion.py",
+      "anchor": "",
+      "digest": "sha256:fb2544d4be1cda65ff33e53bde66140f21934b18f27b2f7c5b6eb400d2fdfe2e"
+    },
+    {
+      "path": ".github/runner/bears_deploy/publication.py",
+      "anchor": "",
+      "digest": "sha256:54c512599da02ccc06ffc87af3f1069791066eaf5f8307d6569b64db161647cf"
+    },
+    {
+      "path": ".github/runner/bears_deploy/receipts.py",
+      "anchor": "",
+      "digest": "sha256:73241455c6b97c650860ed52e78eccb366a9bb63a00a010c48fc50d6b29411e7"
+    },
+    {
+      "path": ".github/runner/bears_deploy/role_deploy.py",
+      "anchor": "",
+      "digest": "sha256:ca90826f365c10aa6e933a1e032e28dad53255528a57dd867c4f15428c71902e"
+    },
+    {
+      "path": ".github/runner/bears_deploy/role_io.py",
+      "anchor": "",
+      "digest": "sha256:423879f0ac1fb13fa140d25d156f72a1db4f2f6d8c894868a71cf7b8582826ee"
+    },
+    {
+      "path": ".github/runner/bears_deploy/role_profiles.py",
+      "anchor": "",
+      "digest": "sha256:77fdbd743092bdb2557dd3e9034858a3f8c9bfe4879521fa88764b523e85af21"
+    },
+    {
+      "path": ".github/runner/bears_deploy/role_recovery.py",
+      "anchor": "",
+      "digest": "sha256:42d0bbfbe3a4c75e6f4aaa617181c01ed5684f2d59fb33581dcf986a310dd2e6"
+    },
+    {
+      "path": ".github/runner/bears_deploy/state_io.py",
+      "anchor": "",
+      "digest": "sha256:caa39db6292f6a0615f8a87e4786077b1be10ddb690a99418a45ea203fe196b0"
+    },
+    {
+      "path": ".github/runner/bears_deploy/telemetry.py",
+      "anchor": "",
+      "digest": "sha256:b855570306f67eb26bf1deef8472c559a5ce3d748abcb54e0e4da3c2cfc64c2e"
     },
     {
       "path": ".github/runner/deploy_plugin.py",
       "anchor": "",
-      "digest": "sha256:ab33564e1732b0ae9ffb7cf1b67a04b7bb3fbccf123ff5f24ca37461fa532d44"
+      "digest": "sha256:a3ae2aa599c0c6117f6f631cc93d5cc24b0d9c49a52ef225a6572700da4fd098"
     },
     {
       "path": ".github/runner/install-runner.sh",
       "anchor": "",
-      "digest": "sha256:b568160f02a5eb05438cfedccf011c363aa8b7529e1238f3c2ad285e001904a6"
+      "digest": "sha256:2c1c87bf62acb89f4843b4537d33427a4e8d6d5f8c467ce05e8cbf8ed59a0e0e"
     },
     {
       "path": ".github/runner/test_app_solo_route.py",
@@ -42,12 +132,12 @@
     {
       "path": "CHANGELOG.md",
       "anchor": "",
-      "digest": "sha256:50004e72076b81e3735f9b7bbfefa3f77fe8b59dddd777e59d233b0df5f04cf8"
+      "digest": "sha256:69ff869d2d11adad3b84de6b2b06b448322464cb0aaa53dabbf572414c72de60"
     },
     {
       "path": "README.md",
       "anchor": "",
-      "digest": "sha256:9a48db47600943d5959939e97e60ca05d3e296af25c8bdacddfab98580147057"
+      "digest": "sha256:bf3866a543ee738a7fb3d760f5cf5661ae6f1e3103afe8eb2775eaa6859b6c0e"
     },
     {
       "path": "agents/app-worker.toml",
@@ -469,7 +559,7 @@
       "source": {
         "path": ".codex-plugin/plugin.json",
         "anchor": "mcpServers",
-        "digest": "sha256:c3f248d97bf9429ee13134063fe3a9d466a550522f7cd07b6ca2d49929956c6f"
+        "digest": "sha256:6e9ac571ceed591733ca65d4432342d8a09da0ff57f0792c2981931fe5031039"
       }
     },
     {

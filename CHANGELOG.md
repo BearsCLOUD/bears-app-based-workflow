@@ -8,6 +8,7 @@ The format follows Keep a Changelog conventions.
 
 ### Changed
 
+- Refactored the 4,049-line deployment gateway into a stable launcher and cohesive root-owned modules without changing the external SHA-only CD command.
 - Disconnected autoCI and removed its requirements binding; acceptance remains `not_run` unless exact external evidence is supplied.
 - Restored CD independently of autoCI: every `main` push now updates the installed plugin through the fixed Git marketplace and durable deployment gateway without claiming acceptance.
 - Adopted user-facing plain SemVer: patch for ordinary pushes, minor for substantial refactors, and major only by explicit user request; CD enforces monotonic versions after one-way legacy migration.

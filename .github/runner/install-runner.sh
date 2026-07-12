@@ -13,6 +13,7 @@ readonly REPOSITORY_URL="https://github.com/${REPOSITORY}"
 readonly ARCHIVE="/var/cache/bears-plugin-runner/actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz"
 readonly ARCHIVE_URL="https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz"
 readonly DEPLOY_COMMAND="/usr/local/sbin/deploy-bears-app-based-workflow"
+readonly DEPLOY_PACKAGE_ROOT="/usr/local/lib/bears-plugin-deploy"
 readonly DEPLOY_STATE_ROOT="/var/lib/bears-plugin-deploy"
 readonly DEPLOY_STATE_DIR="$DEPLOY_STATE_ROOT/ai1"
 readonly LEGACY_DEPLOY_STATE_DIR="/srv/bears/codex/ai1/.local/state/bears-plugin-deploy"
@@ -24,6 +25,7 @@ _install_runner_die() { printf 'install-runner: %s\n' "$*" >&2; exit 1; }
 
 _install_runner_cleanup() {
   /usr/bin/rm -rf -- "${_install_runner_stage:-}"
+  /usr/bin/rm -rf -- "${_install_runner_gateway_tmp:-}"
   /usr/bin/rm -f -- "${_install_runner_archive_tmp:-}" "${_install_runner_sudoers_tmp:-}" "${_install_runner_unit_tmp:-}"
 }
 
@@ -799,8 +801,29 @@ set -euo pipefail
 umask 027
 _install_runner_stage=""
 _install_runner_archive_tmp=""
+_install_runner_gateway_tmp=""
 _install_runner_sudoers_tmp=""
 _install_runner_unit_tmp=""
+local -a gateway_modules=(
+  __init__.py
+  cli.py
+  constants.py
+  intent_io.py
+  intent_schema.py
+  journal.py
+  marketplace.py
+  models.py
+  process.py
+  promotion.py
+  publication.py
+  receipts.py
+  role_deploy.py
+  role_io.py
+  role_profiles.py
+  role_recovery.py
+  state_io.py
+  telemetry.py
+)
 trap _install_runner_cleanup EXIT
 
 [[ $EUID -eq 0 ]] || _install_runner_die "run as ai1 with sudo"
@@ -808,6 +831,12 @@ trap _install_runner_cleanup EXIT
 script_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)"
 [[ -f "$script_dir/deploy_plugin.py" && ! -L "$script_dir/deploy_plugin.py" ]] || \
   _install_runner_die "deploy_plugin.py must be a regular file beside the installer"
+[[ -d "$script_dir/bears_deploy" && ! -L "$script_dir/bears_deploy" ]] || \
+  _install_runner_die "bears_deploy must be a regular directory beside the installer"
+for module in "${gateway_modules[@]}"; do
+  [[ -f "$script_dir/bears_deploy/$module" && ! -L "$script_dir/bears_deploy/$module" ]] || \
+    _install_runner_die "gateway module is missing or unsafe: $module"
+done
 
 if ! /usr/bin/getent group "$RUNNER_GROUP" >/dev/null; then
   /usr/sbin/groupadd --system "$RUNNER_GROUP"
@@ -923,7 +952,24 @@ printf '%s\n' "$RUNNER_VERSION" >"$RUNNER_DIR/.bears-version"
 /usr/bin/chmod 0644 "$RUNNER_DIR/.bears-version"
 /usr/bin/install -d -o root -g "$RUNNER_GROUP" -m 0750 "$RUNNER_HOME"
 
-# Install and validate the immutable gateway and its sole sudo authorization.
+# Install and validate the root-owned gateway package and sole sudo authorization.
+_install_runner_gateway_tmp="$(/usr/bin/mktemp -d "${DEPLOY_PACKAGE_ROOT}.XXXXXX")"
+/usr/bin/chown root:root "$_install_runner_gateway_tmp"
+/usr/bin/chmod 0755 "$_install_runner_gateway_tmp"
+/usr/bin/install -d -o root -g root -m 0755 "$_install_runner_gateway_tmp/bears_deploy"
+for module in "${gateway_modules[@]}"; do
+  /usr/bin/install -o root -g root -m 0644 \
+    "$script_dir/bears_deploy/$module" "$_install_runner_gateway_tmp/bears_deploy/$module"
+done
+/usr/bin/rm -rf -- "$DEPLOY_PACKAGE_ROOT"
+/usr/bin/mv -- "$_install_runner_gateway_tmp" "$DEPLOY_PACKAGE_ROOT"
+_install_runner_gateway_tmp=""
+[[ "$(/usr/bin/stat -c '%U:%G:%a' "$DEPLOY_PACKAGE_ROOT")" == root:root:755 ]] || \
+  _install_runner_die "deployment package root is not immutable"
+for module in "${gateway_modules[@]}"; do
+  [[ "$(/usr/bin/stat -c '%U:%G:%a' "$DEPLOY_PACKAGE_ROOT/bears_deploy/$module")" == root:root:644 ]] || \
+    _install_runner_die "deployment package module is not immutable: $module"
+done
 /usr/bin/install -o root -g root -m 0755 "$script_dir/deploy_plugin.py" "$DEPLOY_COMMAND"
 [[ "$(/usr/bin/stat -c '%U:%G:%a' "$DEPLOY_COMMAND")" == root:root:755 ]] || \
   _install_runner_die "deployment gateway ownership is not immutable"

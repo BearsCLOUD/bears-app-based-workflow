@@ -8,6 +8,7 @@ The format follows Keep a Changelog conventions.
 
 ### Changed
 
+- Disconnected repository autoCI and autoCD by removing the GitHub Actions workflow and requirements binding; acceptance now remains `not_run` unless exact external evidence is supplied.
 - Added machine-readable workflow, handoff, functional-map, traceability-index, process-index, and context-index contracts.
 - Added `app-context-index` as the source-digest entry gate and sole writer of rebuildable traceability and process indexes.
 - Reframed `app-functional-graph` as the semantic-map owner while keeping documents, code, tests, ledger records, and evidence authoritative.
@@ -20,8 +21,6 @@ The format follows Keep a Changelog conventions.
 - Required explicit typed agent dispatch, exact authority-bound packet identity, and stable worker/critic lifecycle reuse.
 - Added dynamically declared profile level and role-kind identity without reintroducing a fixed catalog.
 - Replaced fixed role counts with exact-commit dynamic discovery shared by the installer and production materializer.
-- Consolidated plugin acceptance behind one requirements-driven reusable autoCI evaluator and one workflow invocation.
-- Removed the unavailable private reusable-workflow hop while retaining the same immutable autoCI evaluator and evidence contract in the caller workflow.
 - Moved active delegation packet definitions into one portable plugin-local contract.
 - Reduced the active role catalog and placed deterministic role routing solely with the caller and `subagents` procedure.
 - Made write assignments own their task-scoped local commits.

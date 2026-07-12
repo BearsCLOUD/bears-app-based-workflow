@@ -284,7 +284,6 @@
       ],
       "allowed_files": [
         ".codex-plugin/plugin.json",
-        ".github/autoci/ci-requirements.v1.json",
         ".github/runner/test_app_solo_route.py",
         "README.md",
         "CHANGELOG.md"

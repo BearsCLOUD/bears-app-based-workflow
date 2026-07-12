@@ -80,7 +80,7 @@ Live CD never executes or imports the cached `install` payload. The fixed root-o
 
 Role receipt v2 owns the exact dynamically discovered catalog and its ordered content digest. The one-shot registration migration accepts only the byte-exact live v1 receipt and managed block at `0.1.0+codex.20260711074119`. It authenticates the historical nine registered paths but never reads, moves, changes, archives, or deletes the referenced legacy TOML files. It replaces only the registration block and receipt, preserves prior archive metadata, and durably publishes a no-clobber tombstone before the v2 deployment receipt; drift, rollback, replay, or a conflicting tombstone fails closed.
 
-The CD job executes only `/usr/local/sbin/deploy-bears-app-based-workflow` after proving it is a non-symlink, root-owned, non-group/world-writable file whose bytes and SHA-256 digest exactly match the CI-reviewed gateway source. Reinstall that gateway from reviewed exact source with `.github/runner/install-runner.sh` before relying on new enforcement. These same-user checks close cooperative races but cannot exclude a continuously malicious process with the same UID after verification; eliminating that residual risk requires a privileged broker or ownership separation.
+No active repository workflow invokes `/usr/local/sbin/deploy-bears-app-based-workflow`. The retained gateway and runner material are recovery-compatible infrastructure only; reactivation requires separate operator authorization, restored acceptance gating, and reviewed exact source.
 
 
 ## Ownership
@@ -90,6 +90,6 @@ The CD job executes only `/usr/local/sbin/deploy-bears-app-based-workflow` after
 - Plugin-local contract: portable delegation packet definitions installed with the runtime payload.
 - Plugin role TOML: result ownership, decisions, permissions, acceptance, and result fields.
 - Plugin skills: repeatable methods, active contract references, and reusable procedures.
-- Reusable autoCI: one requirements-driven evaluator from the immutable `bears-codex-workspace` stack; the repository owns only `.github/autoci/ci-requirements.v1.json`.
+- Repository automation: autoCI and autoCD are disconnected; this plugin repository has no active GitHub Actions workflow.
 
 Target repository: `BearsCLOUD/bears-app-based-workflow`.

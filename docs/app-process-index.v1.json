@@ -1,10 +1,10 @@
 {
   "schema": "app-process-index.v1",
   "app_id": "bears-app-based-workflow",
-  "revision": 3,
+  "revision": 4,
   "workflow_definition_ref": "contracts/app-workflow-definition.v1.json",
   "workflow_definition_digest": "sha256:a87f509f2520c09974930e67e2facf71478ab70a73de204a9c9bef46afe9f246",
-  "source_snapshot_digest": "sha256:2016d6577f4eb71c409bbe299d3a24277edb73cb3a3a6b8d39392bcda8e15129",
+  "source_snapshot_digest": "sha256:adf4dd0cb6394e7c8ed3997fc1c15c032c1453c7b50ea44b85f4cd0e4110ac27",
   "runs": [
     {
       "ref": "RUN-GRAPH-WORKFLOW-V2",

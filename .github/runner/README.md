@@ -4,7 +4,7 @@ These files belong to the repository-owned CI/CD boundary and are not plugin age
 
 ## Module map
 
-- `deploy_plugin.py` is the state-mutating autoCD gateway. Its only entry point is `main`. It owns fixed Git/Codex subprocesses, deployment state, the durable promotion-intent journal, sanitized best-effort Sentry delivery, and the unchanged public deployment receipt. The file remains cohesive above 400 lines because recovery and Sentry reporting must stay inside the state-mutating gateway rather than a second executable or import boundary. Runtime risks are partial marketplace mutation, receipt corruption, and unavailable telemetry. The owning automation jobs are `ci` and `cd` in `plugin-ci-cd.yml`.
+- `deploy_plugin.py` is an inactive state-mutating gateway retained for recovery compatibility. Its only entry point is `main`, but no repository workflow invokes it. Runtime risks are partial marketplace mutation, receipt corruption, and unavailable telemetry if a separately authorized operator reactivates it.
 - `test_deploy_plugin_sentry.py` provides local, stub-only event and transport coverage inside autoCI. It never opens a live Sentry connection and never creates a synthetic live event.
 - `materialize_sentry_dsn.py` is a root-only atomic writer. It accepts one DSN only on inherited file descriptor 3, writes the fixed target, emits no value, and starts no child process.
 - `install-sentry-materializer.sh` installs only that writer as immutable root-owned code. It does not create an identity, obtain a DSN, or execute the writer.
@@ -32,6 +32,6 @@ The operator-owned bootstrap must supply the Infisical identity credential from 
 
 Installing the materializer and performing the first materialization are separate operator-authorized actions. This repository performs neither action automatically and defines no manual fallback for CI/CD or telemetry delivery.
 
-## Public automation projection
+## Inactive automation projection
 
-The `ci` job checks out one immutable autoCI stack and invokes its single pinned evaluator, then publishes `autoci-test-result.v1` plus `automation-status.v1`. This caller-local wrapper avoids a cross-repository reusable-workflow permission dependency without copying evaluator logic. The status projection includes the exact commit, timestamp, evaluator duration, timeout reason, gateway SHA-256, and immutable evidence reference. `status` is `passed` or `failed` for an emitted run. A bounded GitHub or service-interface query routes to `runtime-evidence-reader`; inspection of an already generated artifact file routes to `explorer`. Either route projects absent, stale, pending, mismatched, or unauthenticated evidence as `not_run`.
+The repository has no active autoCI or autoCD workflow and emits no automation-status artifact. Existing historical evidence remains immutable but never applies to a newer commit. Until a separately authorized automation owner supplies exact-commit external evidence, acceptance projects as `not_run`.

@@ -1,33 +1,23 @@
 {
   "schema": "app-traceability-index.v2",
   "app_id": "bears-app-based-workflow",
-  "revision": 3,
-  "source_snapshot_digest": "sha256:2016d6577f4eb71c409bbe299d3a24277edb73cb3a3a6b8d39392bcda8e15129",
+  "revision": 4,
+  "source_snapshot_digest": "sha256:adf4dd0cb6394e7c8ed3997fc1c15c032c1453c7b50ea44b85f4cd0e4110ac27",
   "generated_from": [
     {
       "path": ".codex-plugin/plugin.json",
       "anchor": "",
-      "digest": "sha256:4aa7a8f748972c5b7cf87464aa2a7a05372dbc88e9ba31a1179a5fbcc613ea0b"
-    },
-    {
-      "path": ".github/autoci/ci-requirements.v1.json",
-      "anchor": "",
-      "digest": "sha256:21eaba84a6212e9ea9e4797fe65f2110d72f5c62f3ca69f3fcbf35724240df93"
+      "digest": "sha256:391235823d2c81300b2806dfbc2bbb7661dcacd99974df370d798262afa8d0aa"
     },
     {
       "path": ".github/runner/README.md",
       "anchor": "",
-      "digest": "sha256:bf2e72155cc75b246055929492aab3dbcdce4f3841d6922c385118ad548ee657"
+      "digest": "sha256:0aa370e434d2dcc68b2f3b2176cf5eaf894a5e343495061fe0c2118f5e6f8d07"
     },
     {
       "path": ".github/runner/test_app_solo_route.py",
       "anchor": "",
       "digest": "sha256:c085c790987ea313572f6addac4a46de7a4947813fbcdaab677c03405b42f25e"
-    },
-    {
-      "path": ".github/workflows/plugin-ci-cd.yml",
-      "anchor": "",
-      "digest": "sha256:e89cbeab22839aca81c3b4e353f3f18878bfb37c351ec78d65dcfa87084af387"
     },
     {
       "path": ".mcp.json",
@@ -37,12 +27,12 @@
     {
       "path": "CHANGELOG.md",
       "anchor": "",
-      "digest": "sha256:4aa211a11633e12d5da60349bbabcde1309674faf13fd5c488026785254a4a14"
+      "digest": "sha256:9bb2cd7f8f2b3a6423a3d7226426db74e4ed81169bf2cf056f90533ae4038a40"
     },
     {
       "path": "README.md",
       "anchor": "",
-      "digest": "sha256:e74ab1ccca6efa5604a1c4196eba2a5e52d6dfc2fa0543ef984f8484e097848a"
+      "digest": "sha256:f4ff72ee83b9b69e27ee987ced800b8d62e490f9a22a4494a76a72d2cb98ba14"
     },
     {
       "path": "agents/app-worker.toml",
@@ -92,12 +82,12 @@
     {
       "path": "docs/app-task-ledger.v1.json",
       "anchor": "",
-      "digest": "sha256:d28c4f5424f197ab75799a5f988eabc62320a1bb4065421d347bc5f72ee27eaa"
+      "digest": "sha256:201af90b431662f3a287eb94285edcc5d6fa263bb4c187c073238ab177c36924"
     },
     {
       "path": "scripts/README.md",
       "anchor": "",
-      "digest": "sha256:514e67a9af2cc2b2eab097a21d681329031e63998875eefda7a439c947dae35b"
+      "digest": "sha256:e1623b67b1c98e9a2507ee806ff1531bb4555d50a83bb559e8edf266e09ddb0e"
     },
     {
       "path": "scripts/app_graph_engine.py",
@@ -464,7 +454,7 @@
       "source": {
         "path": ".codex-plugin/plugin.json",
         "anchor": "mcpServers",
-        "digest": "sha256:4aa7a8f748972c5b7cf87464aa2a7a05372dbc88e9ba31a1179a5fbcc613ea0b"
+        "digest": "sha256:391235823d2c81300b2806dfbc2bbb7661dcacd99974df370d798262afa8d0aa"
       }
     },
     {

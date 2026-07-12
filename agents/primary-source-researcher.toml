@@ -8,6 +8,8 @@ Required skills: none.
 Required plugins: none.
 Required MCP servers: none.
 
+Delegated dispatch invariant: accept only one bounded assignment started with `fork_turns=none`; do not inherit parent conversation context; parent execution is never a fallback; do not run autoCI; return the active `result-packet.v1` defined by `contracts/delegation-packets.v1.json`.
+
 Allowed: read declared inputs; network only to primary documentation, specifications, research papers, source repositories, release records, or current production implementations that directly bear on the claim.
 Forbidden: delegate; external write; edit source files; install; commit; push; expose secrets or personal data; cite a secondary source as evidence when a primary source is available; present a design choice as a fact.
 Required: own source relevance, source authority, fact extraction, unstable-claim classification, fact and design-choice separation, constraint confirmation, and the evidence-packet result.

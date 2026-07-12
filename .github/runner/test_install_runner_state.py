@@ -24,18 +24,8 @@ RECEIPT_NAME = f"{PLUGIN}.json"
 LOCK_NAME = f"{PLUGIN}.lock"
 STAGE_NAME = f".{PLUGIN}.legacy-state-import.stage"
 TOMBSTONE_NAME = f"{PLUGIN}.legacy-state-imported.json"
-ROLE_NAMES = (
-    "app-worker",
-    "diagnostic-command-runner",
-    "domain-lane-orchestrator",
-    "explorer",
-    "primary-source-researcher",
-    "role-profile-architect",
-    "runtime-evidence-reader",
-    "security-analysis-critic",
-    "wave-change-critic",
-    "worker",
-    "workflow-orchestrator",
+ROLE_NAMES = tuple(
+    sorted(path.stem for path in RUNNER_DIR.parents[1].joinpath("agents").glob("*.toml"))
 )
 
 

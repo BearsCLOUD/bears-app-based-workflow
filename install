@@ -25,7 +25,6 @@ PLUGIN_ID = "bears-app-based-workflow"
 STATE_SCHEMA = "bears-role-install-receipt.v1"
 BEGIN_MARKER = b"# >>> bears-app-based-workflow agent roles (managed by ./install)"
 END_MARKER = b"# <<< bears-app-based-workflow agent roles (managed by ./install)"
-ROLE_COUNT = 11
 LEGACY_TRANSACTION_SCHEMA = "bears-role-install-transaction.v1"
 PROVENANCE_TRANSACTION_SCHEMA = "bears-role-install-transaction.v2"
 TRANSACTION_SCHEMA = "bears-role-install-transaction.v3"
@@ -276,7 +275,7 @@ def plugin_metadata(plugin_root: Path) -> tuple[str, list[tuple[str, Path]]]:
         paths = sorted(agents_dir.glob("*.toml"))
     except OSError:
         raise InstallError("profile-catalog-unreadable") from None
-    if len(paths) != ROLE_COUNT:
+    if not 1 <= len(paths) <= 64:
         raise InstallError("profile-count-invalid")
 
     profiles: list[tuple[str, Path]] = []
@@ -299,14 +298,16 @@ def plugin_metadata(plugin_root: Path) -> tuple[str, list[tuple[str, Path]]]:
             raise
         except (OSError, tomllib.TOMLDecodeError):
             raise InstallError("profile-toml-invalid") from None
-        if not required.issubset(data):
-            raise InstallError("profile-fields-missing")
+        if set(data) != required:
+            raise InstallError("profile-fields-invalid")
+        if any(not isinstance(data[field], str) or not data[field] for field in required):
+            raise InstallError("profile-fields-invalid")
         name = data.get("name")
         if not isinstance(name, str) or name != path.stem or name in seen:
             raise InstallError("profile-name-invalid")
         seen.add(name)
         profiles.append((name, path.resolve()))
-    return version, profiles
+    return version, sorted(profiles, key=lambda item: item[0])
 
 
 def build_block(version: str, profiles: list[tuple[str, Path]]) -> bytes:
@@ -1203,6 +1204,7 @@ def state_document(
     added_joiner: bool,
     archives: list[dict[str, Any]],
     managed_profiles: list[dict[str, str]],
+    role_count: int,
 ) -> dict[str, Any]:
     return {
         "schema": STATE_SCHEMA,
@@ -1210,7 +1212,7 @@ def state_document(
         "version": version,
         "status": "installed" if installed else "uninstalled",
         "changed": True,
-        "role_count": ROLE_COUNT,
+        "role_count": role_count,
         "managed_digest": digest,
         "managed_joiner_added": added_joiner,
         "managed_profiles": managed_profiles,
@@ -2253,6 +2255,7 @@ def plan_operation(
             added_joiner=added_joiner,
             archives=archives,
             managed_profiles=current_profiles,
+            role_count=len(profiles),
         )
     else:
         candidates = []
@@ -2270,6 +2273,7 @@ def plan_operation(
                     added_joiner=False,
                     archives=existing_archives,
                     managed_profiles=[],
+                    role_count=len(profiles),
                 )
         else:
             remove_start = managed[0]
@@ -2285,6 +2289,7 @@ def plan_operation(
                 added_joiner=False,
                 archives=existing_archives,
                 managed_profiles=[],
+                role_count=len(profiles),
             )
 
     desired_state_raw = None if desired_state is None else encode_state(desired_state)
@@ -5540,6 +5545,7 @@ def emit(
     changed: bool,
     digest: str,
     archived: int,
+    role_count: int,
     code: str | None = None,
 ) -> None:
     receipt: dict[str, Any] = {
@@ -5548,7 +5554,7 @@ def emit(
         "operation": operation,
         "status": status,
         "changed": changed,
-        "role_count": ROLE_COUNT,
+        "role_count": role_count,
         "archived_count": archived,
         "digest": digest,
     }
@@ -5590,8 +5596,10 @@ def main() -> int:
     plugin_root = Path(__file__).resolve().parent
     version = "unknown"
     digest = ""
+    role_count = 0
     try:
         version, profiles = plugin_metadata(plugin_root)
+        role_count = len(profiles)
         block = build_block(version, profiles)
         digest = digest_bytes(block)
         home_arg = args.codex_home
@@ -5616,6 +5624,7 @@ def main() -> int:
                     changed=plan["changed"],
                     digest=plan["digest"],
                     archived=len(plan["candidates"]),
+                    role_count=role_count,
                 )
                 return 0
             _BOUND_CODEX_HOME_FD = home_fd
@@ -5638,6 +5647,7 @@ def main() -> int:
                 changed=plan["changed"],
                 digest=plan["digest"],
                 archived=len(plan["candidates"]),
+                role_count=role_count,
             )
             os.close(home_fd)
             _BOUND_CODEX_HOME_FD = -1
@@ -5656,6 +5666,7 @@ def main() -> int:
                 changed=False,
                 digest=digest,
                 archived=0,
+                role_count=role_count,
             )
             return 0
         if home_fd is None:
@@ -5703,6 +5714,7 @@ def main() -> int:
             changed=plan["changed"],
             digest=plan["digest"],
             archived=len(plan["candidates"]),
+            role_count=role_count,
         )
         return 0
     except InstallError as error:
@@ -5713,6 +5725,7 @@ def main() -> int:
             changed=False,
             digest=digest,
             archived=0,
+            role_count=role_count,
             code=error.code,
         )
         return 1

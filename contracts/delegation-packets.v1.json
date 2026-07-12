@@ -1,0 +1,70 @@
+{
+  "schema": "plugin-delegation-contract.v1",
+  "active_schemas": {
+    "dispatch": "dispatch-packet.v2",
+    "result": "result-packet.v1",
+    "app_task": "app-task-dispatch.v1"
+  },
+  "dispatch_context": {
+    "fork_turns": "none",
+    "conversation_inheritance": false,
+    "parent_execution_fallback": false
+  },
+  "dispatch_required_fields": [
+    "schema",
+    "task_id",
+    "workstream_id",
+    "assignment_id",
+    "stage",
+    "caller_level",
+    "role",
+    "selection_basis",
+    "capability_boundary",
+    "cwd",
+    "target_paths",
+    "instruction_refs",
+    "inputs",
+    "stage_payload",
+    "allowed_actions",
+    "forbidden_actions",
+    "risk",
+    "completion_criteria",
+    "return_schema",
+    "automation_evidence_refs"
+  ],
+  "result_required_fields": [
+    "schema",
+    "task_id",
+    "workstream_id",
+    "assignment_id",
+    "role",
+    "status",
+    "consumed_input_refs",
+    "facts",
+    "files_read",
+    "files_changed",
+    "commands_run",
+    "git_state",
+    "automation_evidence",
+    "risks",
+    "next_action"
+  ],
+  "app_task_required_fields": [
+    "schema",
+    "task_record",
+    "repo_ref",
+    "repo_cwd",
+    "batch_id",
+    "wave_id",
+    "wave_session_id",
+    "queue_sequence",
+    "session_action",
+    "previous_task_result_ref"
+  ],
+  "result_statuses": [
+    "done",
+    "partial",
+    "blocked"
+  ],
+  "sanitized_reference_only": true
+}

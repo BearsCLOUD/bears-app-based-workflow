@@ -56,20 +56,6 @@ PROMOTION_INTENT_SCHEMA = "bears-plugin-promotion-intent.v3"
 LEGACY_ROLE_RECEIPT_SCHEMA = "bears-role-install-receipt.v1"
 ROLE_RECEIPT_SCHEMA = "bears-role-install-receipt.v2"
 ROLE_MIGRATION_TOMBSTONE_SCHEMA = "bears-role-registration-migration.v1"
-EXPECTED_ROLE_COUNT = 11
-CANONICAL_ROLE_NAMES = (
-    "app-worker",
-    "diagnostic-command-runner",
-    "domain-lane-orchestrator",
-    "explorer",
-    "primary-source-researcher",
-    "role-profile-architect",
-    "runtime-evidence-reader",
-    "security-analysis-critic",
-    "wave-change-critic",
-    "worker",
-    "workflow-orchestrator",
-)
 LEGACY_ROLE_VERSION = "0.1.0+codex.20260711074119"
 LEGACY_ROLE_NAMES = (
     "diagnostic-command-runner",
@@ -126,9 +112,6 @@ LEGACY_ARCHIVE_FILES = (
 PROFILE_FIELDS = frozenset(
     {"name", "description", "model", "model_reasoning_effort", "sandbox_mode", "developer_instructions"}
 )
-AGENTS_TREE_PATHS = frozenset(
-    {"agents/README.md", *(f"agents/{name}.toml" for name in CANONICAL_ROLE_NAMES)}
-)
 BEGIN_ROLE_MARKER = b"# >>> bears-app-based-workflow agent roles (managed by ./install)"
 END_ROLE_MARKER = b"# <<< bears-app-based-workflow agent roles (managed by ./install)"
 CONFIG_LOCK_NAME = ".config.toml.coordination.lock"
@@ -157,13 +140,13 @@ ACTIONABLE_ERROR_CODES = frozenset(
 PAYLOAD_PATHS = (
     ".codex-plugin",
     "agents",
+    "contracts",
     "skills",
     "scripts",
     "hooks",
     "assets",
     ".app.json",
     ".mcp.json",
-    "AGENTS.md",
     "install",
 )
 ENV = {
@@ -769,7 +752,19 @@ def pinned_role_bundle(cache: Path, requested: str, expected_version: str) -> di
         if len(fields) != 3 or fields[0] != "100644" or fields[1] != "blob":
             raise DeployError("cached agents tree contains a non-regular blob")
         tree_paths.add(relative)
-    if tree_paths != AGENTS_TREE_PATHS or len(tree) != len(AGENTS_TREE_PATHS):
+    profile_relatives = sorted(
+        relative
+        for relative in tree_paths
+        if relative.startswith("agents/")
+        and relative.count("/") == 1
+        and relative.endswith(".toml")
+    )
+    expected_tree_paths = {"agents/README.md", *profile_relatives}
+    if (
+        tree_paths != expected_tree_paths
+        or len(tree) != len(expected_tree_paths)
+        or not 1 <= len(profile_relatives) <= 64
+    ):
         raise DeployError("cached agents tree is not the exact canonical file set")
 
     manifest_record = verified_git_blob_record(
@@ -801,7 +796,7 @@ def pinned_role_bundle(cache: Path, requested: str, expected_version: str) -> di
         not stat.S_ISDIR(agents_stat.st_mode)
         or agents.is_symlink()
         or agents_real.parent != cache_real
-        or set(entries) != {Path(path).name for path in AGENTS_TREE_PATHS}
+        or set(entries) != {Path(path).name for path in expected_tree_paths}
     ):
         raise DeployError("cached role catalog is not the exact canonical filesystem tree")
 
@@ -815,9 +810,9 @@ def pinned_role_bundle(cache: Path, requested: str, expected_version: str) -> di
         ),
     }
     profiles: dict[str, dict[str, Any]] = {}
-    for name in CANONICAL_ROLE_NAMES:
-        path = entries[f"{name}.toml"]
-        relative = f"agents/{path.name}"
+    for relative in profile_relatives:
+        path = entries[Path(relative).name]
+        name = path.stem
         record = verified_git_blob_record(cache, requested, relative, PROFILE_MAX_BYTES)
         try:
             profile = tomllib.loads(record["data"].decode("utf-8"))
@@ -837,13 +832,14 @@ def pinned_role_bundle(cache: Path, requested: str, expected_version: str) -> di
         profiles[name] = record
     generation = hashlib.sha256(
         json.dumps(
-            {name: profiles[name]["sha256"] for name in CANONICAL_ROLE_NAMES},
+            {name: profiles[name]["sha256"] for name in sorted(profiles)},
             sort_keys=True,
             separators=(",", ":"),
         ).encode("utf-8")
     ).hexdigest()
     return {
         "generation": generation,
+        "role_names": tuple(sorted(profiles)),
         "profiles": profiles,
         "source_blobs": source_blobs,
     }
@@ -898,10 +894,11 @@ def verify_role_generation(directory: int, bundle: dict[str, Any]) -> None:
         names = set(os.listdir(directory))
     except OSError as exc:
         raise DeployError("materialized role generation is unreadable") from exc
-    expected = {f"{name}.toml" for name in CANONICAL_ROLE_NAMES}
+    role_names = tuple(bundle["role_names"])
+    expected = {f"{name}.toml" for name in role_names}
     if names != expected:
         raise DeployError("materialized role generation has an unexpected file set")
-    for name in CANONICAL_ROLE_NAMES:
+    for name in role_names:
         data = read_generation_profile(directory, name)
         if not secrets.compare_digest(hashlib.sha256(data).hexdigest(), bundle["profiles"][name]["sha256"]):
             raise DeployError("materialized role generation content is inconsistent")
@@ -939,7 +936,7 @@ def materialize_role_generation(state_directory: int, bundle: dict[str, Any]) ->
             )
             validate_generation_directory(staging)
             try:
-                for name in CANONICAL_ROLE_NAMES:
+                for name in bundle["role_names"]:
                     profile_fd = os.open(
                         f"{name}.toml",
                         os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_CLOEXEC | os.O_NOFOLLOW,
@@ -972,7 +969,7 @@ def materialize_role_generation(state_directory: int, bundle: dict[str, Any]) ->
         verify_role_generation(generation_fd, bundle)
         return {
             name: str(ROLE_GENERATIONS_DIR / generation / f"{name}.toml")
-            for name in CANONICAL_ROLE_NAMES
+            for name in bundle["role_names"]
         }
     finally:
         if generation_fd >= 0:
@@ -1165,14 +1162,16 @@ def config_without_owned_roles(data: bytes) -> tuple[bytes, tuple[int, int] | No
     )
     if not isinstance(outside_agents, dict):
         raise DeployError("global agent registrations have an unsupported shape")
-    collisions = set(outside_agents).intersection(CANONICAL_ROLE_NAMES)
-    if collisions:
-        names = ", ".join(sorted(collisions))
-        raise DeployError(f"owned role registration collides outside the managed block: {names}")
     return outside, span
 
 
 def desired_role_config(data: bytes, version: str, catalog: dict[str, str]) -> bytes:
+    outside, _ = config_without_owned_roles(data)
+    outside_agents = parse_config(outside, "Codex config outside the managed role block").get("agents", {})
+    collisions = set(outside_agents).intersection(catalog)
+    if collisions:
+        names = ", ".join(sorted(collisions))
+        raise DeployError(f"owned role registration collides outside the managed block: {names}")
     block = role_block(version, catalog)
     desired = config_with_role_block(data, block)
     verify_role_config(desired, catalog)
@@ -1196,10 +1195,11 @@ def verify_role_config(data: bytes, catalog: dict[str, str]) -> None:
     if span is None:
         raise DeployError("Codex config is missing the managed role block")
     agents = parse_config(data[span[0] : span[1]], "managed role block").get("agents")
-    if not isinstance(agents, dict) or set(agents) != set(CANONICAL_ROLE_NAMES):
+    role_names = tuple(sorted(catalog))
+    if not 1 <= len(role_names) <= 64:
+        raise DeployError("role catalog size is outside 1..64")
+    if not isinstance(agents, dict) or set(agents) != set(role_names):
         raise DeployError("managed role block does not contain the exact canonical role set")
-    if set(catalog) != set(CANONICAL_ROLE_NAMES) or len(catalog) != EXPECTED_ROLE_COUNT:
-        raise DeployError("role catalog is not the exact canonical role set")
     configured_paths: list[str] = []
     for name, expected_path in catalog.items():
         row = agents.get(name)
@@ -1209,7 +1209,7 @@ def verify_role_config(data: bytes, catalog: dict[str, str]) -> None:
         if not isinstance(configured, str) or configured != expected_path or not Path(configured).is_absolute():
             raise DeployError(f"Codex role {name} does not target the exact cached profile")
         configured_paths.append(configured)
-    if len(set(configured_paths)) != EXPECTED_ROLE_COUNT:
+    if len(set(configured_paths)) != len(role_names):
         raise DeployError("Codex role registrations contain path aliases")
 
 
@@ -1384,12 +1384,17 @@ def parse_role_receipt(snapshot: tuple[bytes, os.stat_result] | None) -> dict[st
         or not isinstance(value.get("archives"), list)
     ):
         raise DeployError("shared role receipt identity is invalid")
-    if role_count != EXPECTED_ROLE_COUNT or profiles is None:
+    if profiles is None or not isinstance(role_count, int) or isinstance(role_count, bool):
         raise DeployError("shared role receipt role catalog is invalid")
     if status == "installed":
-        if not isinstance(digest, str) or not FINGERPRINT_RE.fullmatch(digest):
+        if (
+            not 1 <= role_count <= 64
+            or len(profiles) != role_count
+            or not isinstance(digest, str)
+            or not FINGERPRINT_RE.fullmatch(digest)
+        ):
             raise DeployError("installed shared role receipt digest is invalid")
-    elif digest is not None or profiles:
+    elif not 0 <= role_count <= 64 or digest is not None or profiles:
         raise DeployError("uninstalled shared role receipt retains managed ownership")
     return value
 
@@ -1415,12 +1420,18 @@ def validate_owned_role_state(
     block = config[span[0] : span[1]]
     digest = hashlib.sha256(block).hexdigest()
     records = value.get("managed_profiles")
-    expected_names = CANONICAL_ROLE_NAMES
+    expected_names = tuple(
+        record.get("name")
+        for record in records
+        if isinstance(record, dict) and isinstance(record.get("name"), str)
+    ) if isinstance(records, list) else ()
     if (
         not secrets.compare_digest(str(value.get("managed_digest")), digest)
         or not isinstance(value.get("role_count"), int)
         or isinstance(value.get("role_count"), bool)
         or value["role_count"] != len(expected_names)
+        or not 1 <= len(expected_names) <= 64
+        or expected_names != tuple(sorted(set(expected_names)))
     ):
         raise DeployError("managed role block disagrees with its shared receipt")
     block_agents = parse_config(block, "managed role block").get("agents")
@@ -1472,7 +1483,7 @@ def build_role_receipt(
         "version": version,
         "status": "installed",
         "changed": True,
-        "role_count": EXPECTED_ROLE_COUNT,
+        "role_count": len(catalog),
         "managed_digest": hashlib.sha256(block).hexdigest(),
         "managed_joiner_added": added_joiner,
         "managed_profiles": [
@@ -1481,7 +1492,7 @@ def build_role_receipt(
                 "config_file": catalog[name],
                 "sha256": bundle["profiles"][name]["sha256"],
             }
-            for name in CANONICAL_ROLE_NAMES
+            for name in sorted(catalog)
         ],
         "archives": [] if previous is None else previous["archives"],
     }
@@ -1495,7 +1506,7 @@ def build_uninstalled_role_receipt(previous: dict[str, Any]) -> bytes:
         "version": previous["version"],
         "status": "uninstalled",
         "changed": True,
-        "role_count": EXPECTED_ROLE_COUNT,
+        "role_count": 0,
         "managed_digest": None,
         "managed_joiner_added": False,
         "managed_profiles": [],
@@ -1992,7 +2003,7 @@ def role_deployment_record(
     return {
         "payload_fingerprint": fingerprint,
         "role_generation": bundle["generation"],
-        "role_count": EXPECTED_ROLE_COUNT,
+        "role_count": len(bundle["role_names"]),
         "role_catalog_sha256": bundle["generation"],
         "role_receipt_sha256": hashlib.sha256(role_receipt).hexdigest(),
         "role_source_blobs": {
@@ -2009,7 +2020,7 @@ def role_deployment_record(
                 "git_oid": bundle["profiles"][name]["git_oid"],
                 "sha256": bundle["profiles"][name]["sha256"],
             }
-            for name in CANONICAL_ROLE_NAMES
+            for name in bundle["role_names"]
         ],
     }
 
@@ -2929,17 +2940,30 @@ def validate_deploy_receipt(value: Any) -> dict[str, Any]:
     generation = value.get("role_generation")
     blobs = value.get("role_source_blobs")
     profiles = value.get("role_profiles")
-    expected_sources = {".codex-plugin/plugin.json", *AGENTS_TREE_PATHS}
+    role_count = value.get("role_count")
+    profile_names = tuple(
+        record.get("name")
+        for record in profiles
+        if isinstance(record, dict) and isinstance(record.get("name"), str)
+    ) if isinstance(profiles, list) else ()
+    expected_sources = {
+        ".codex-plugin/plugin.json",
+        "agents/README.md",
+        *(f"agents/{name}.toml" for name in profile_names),
+    }
     if (
         not isinstance(generation, str)
         or not FINGERPRINT_RE.fullmatch(generation)
-        or value.get("role_count") != EXPECTED_ROLE_COUNT
+        or not isinstance(role_count, int)
+        or isinstance(role_count, bool)
+        or not 1 <= role_count <= 64
         or value.get("role_catalog_sha256") != generation
         or not FINGERPRINT_RE.fullmatch(str(value.get("role_receipt_sha256", "")))
         or not isinstance(blobs, dict)
         or set(blobs) != expected_sources
         or not isinstance(profiles, list)
-        or len(profiles) != EXPECTED_ROLE_COUNT
+        or len(profiles) != role_count
+        or profile_names != tuple(sorted(set(profile_names)))
     ):
         raise DeployError("deployment role receipt identity is invalid", error_code="receipt-corruption")
     for relative, record in blobs.items():
@@ -2950,7 +2974,7 @@ def validate_deploy_receipt(value: Any) -> dict[str, Any]:
             or not FINGERPRINT_RE.fullmatch(str(record.get("sha256", "")))
         ):
             raise DeployError("deployment role blob record is invalid", error_code="receipt-corruption")
-    for name, record in zip(CANONICAL_ROLE_NAMES, profiles, strict=True):
+    for name, record in zip(profile_names, profiles, strict=True):
         expected_path = str(ROLE_GENERATIONS_DIR / generation / f"{name}.toml")
         source = blobs[f"agents/{name}.toml"]
         if (
@@ -3104,7 +3128,9 @@ def validate_intent(value: Any) -> dict[str, Any]:
             or transaction.get("phase") not in {"prepared", "committed"}
             or not FINGERPRINT_RE.fullmatch(str(transaction.get("config_preimage_sha256", "")))
             or not FINGERPRINT_RE.fullmatch(str(transaction.get("role_receipt_sha256", "")))
-            or transaction.get("role_count") != EXPECTED_ROLE_COUNT
+            or not isinstance(transaction.get("role_count"), int)
+            or isinstance(transaction.get("role_count"), bool)
+            or not 0 <= transaction["role_count"] <= 64
             or not isinstance(preimage_present, bool)
             or not isinstance(transaction.get("config_preimage_b64"), str)
             or not isinstance(transaction.get("role_receipt_b64"), str)
@@ -3138,7 +3164,8 @@ def validate_intent(value: Any) -> dict[str, Any]:
         ):
             raise DeployError("promotion install transaction is invalid", error_code="receipt-corruption")
         if operation == "remove" and (
-            not isinstance(transaction.get("desired_config_b64"), str)
+            transaction["role_count"] != 0
+            or not isinstance(transaction.get("desired_config_b64"), str)
             or not FINGERPRINT_RE.fullmatch(str(transaction.get("desired_config_sha256", "")))
         ):
             raise DeployError("promotion removal transaction is invalid", error_code="receipt-corruption")
@@ -3528,7 +3555,7 @@ def save_role_removal_intent(
         "role_receipt_preimage_metadata": snapshot_metadata(role_receipt_preimage),
         "role_receipt_sha256": hashlib.sha256(role_receipt).hexdigest(),
         "receipt_exchange_name": f".{PLUGIN}-role-sync.{secrets.token_hex(16)}.tmp",
-        "role_count": EXPECTED_ROLE_COUNT,
+        "role_count": 0,
     }
     return persist_intent(state_directory, value)
 

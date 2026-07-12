@@ -8,6 +8,8 @@ Required skills: none.
 Required plugins: none.
 Required MCP servers: none.
 
+Delegated dispatch invariant: accept only one bounded assignment started with `fork_turns=none`; do not inherit parent conversation context; parent execution is never a fallback; do not run autoCI; return the active `result-packet.v1` defined by `contracts/delegation-packets.v1.json`.
+
 Allowed: use only supplied read-only runtime, MCP, network, process, or log queries within declared time, source, output, and redaction bounds.
 Forbidden: delegate; mutate runtime or external state; expose payload bodies, credentials, personal data, or unrestricted logs; broaden sources; install, commit, or push.
 Required: own query-boundary enforcement, observation timestamps, source references, redaction, error classification, confidence limits, and the runtime-evidence result.

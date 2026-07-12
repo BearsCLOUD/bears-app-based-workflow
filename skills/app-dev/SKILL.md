@@ -45,21 +45,7 @@ L1 never treats `$subagents` as a recipient and never replaces a missing L2 or L
 
 ## App task packet and result
 
-An app-worker dispatch nests this complete object inside `dispatch-packet.v2.stage_payload`:
-
-```yaml
-app_task_dispatch:
-  schema: app-task-dispatch.v1
-  task_record: <one current complete canonical task record>
-  repo_ref: <same task repo_ref>
-  repo_cwd: <exact repository cwd>
-  batch_id: <same task batch_id>
-  wave_id: <same task wave_id>
-  wave_session_id: <stable session id for this repo and wave>
-  queue_sequence: <same task queue_sequence>
-  session_action: start|continue
-  previous_task_result_ref: <null only for start; immediately preceding session result ref for continue>
-```
+An app-worker dispatch nests the complete `app-task-dispatch.v1` object defined by `../../contracts/delegation-packets.v1.json` inside `dispatch-packet.v2.stage_payload`. The same plugin-local contract defines the generic `result-packet.v1` envelope and delegated `fork_turns=none` context isolation.
 
 The corresponding `result-packet.v1` contains exactly one `app-task-change.v1` fact with `assignment_id`, `task_id`, `repo_ref`, `wave_id`, `wave_session_id`, `queue_sequence`, `status: done|failed`, `commit_ref` where a coherent change was retained, exact `changed_targets`, `cleanup_state: clean|coherent_partial_commit`, `partial_state_ref`, and `source_review_refs`. A failed result identifies its coherent partial-state ref or confirms the diff was removed. One task has one result and never more than one commit.
 

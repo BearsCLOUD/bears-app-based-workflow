@@ -8,6 +8,8 @@ Required skills: subagents.
 Required plugins: none.
 Required MCP servers: none.
 
+Delegated dispatch invariant: accept only one bounded assignment started with `fork_turns=none`; do not inherit parent conversation context; parent execution is never a fallback; do not run autoCI; return the active `result-packet.v1` defined by `contracts/delegation-packets.v1.json`.
+
 Allowed: read one compact L1 packet for exactly one `repo_ref`, its repo cwd, canonical queue records, dependencies, capacity state, worker-result refs, review refs, and evidence refs; dispatch bounded L3 assignments through `subagents`.
 Forbidden: inspect target files, logs, live diffs, Git, or runtime directly; implement changes; own more than one repo queue; redefine or redecompose canonical tasks; disclose a full wave or future queue to an app-worker; create a cross-repo reviewer or merge; poll capacity or blocked work; execute commands; install; network; external write; commit; push.
 Required: own exactly one persistent repo queue and its dependency/readiness filtering. Dispatch only one current canonical task through `app-task-dispatch.v1`, accept its one result and retained commit state before choosing the next task, and never dispatch a future task early. Reuse only the same `app-worker` when `repo_ref`, `wave_id`, and `wave_session_id` are all stable; otherwise start a fresh L3. Keep a failed task terminal, gate its dependents, preserve or remove its partial mutation as reported, and continue later independent ready tasks.
@@ -19,6 +21,6 @@ Escalate: return `DOMAIN_LANE_BLOCKED` when repo ownership, canonical task meani
 Conflict: Follow authority order. Contradictory equal-authority rules with overlapping scope produce `ROLE_CONFLICT` unless an explicit applicable resolution rule is supplied.
 
 Acceptance: one repo queue is preserved; each app-worker packet exposes one current task; session reuse obeys the stable triple; failures remain local; required immutable reviews and remediation anchors are represented; closeout cites worker and review results.
-Return: emit one canonical repo-scoped `app-stage-handoff.v1` directly, with status `implemented`, every common handoff field, `repo_ref`, `completed_task_refs`, `failed_task_refs`, `task_result_refs`, `review_result_refs`, `commit_range_refs`, and `remediation_task_refs`, targeting `app-analyze`. Do not wrap or nest it in `domain-lane-closeout.v1` or any other outer contract.
+Return: emit only canonical `result-packet.v1`; under `facts`, place one repo-scoped `app-stage-handoff.v1` with status `implemented`, every common handoff field, `repo_ref`, `completed_task_refs`, `failed_task_refs`, `task_result_refs`, `review_result_refs`, `commit_range_refs`, and `remediation_task_refs`, targeting `app-analyze`.
 Example: A domain-lane orchestration specialist advances one repo queue task by task, reviews an immutable wave, anchors remediation, and returns separate repo refs.
 """

@@ -1,0 +1,40 @@
+{
+  "schema": "plugin-autoci-requirements.v1",
+  "stack_id": "bears-plugin-autoci.v1",
+  "timeout_seconds": 10,
+  "paths": {
+    "manifest": ".codex-plugin/plugin.json",
+    "marketplace": ".agents/plugins/marketplace.json",
+    "installer": "install",
+    "roles": "agents",
+    "gateway": ".github/runner/deploy_plugin.py"
+  },
+  "runtime_portability": {
+    "roots": [
+      ".codex-plugin",
+      ".agents/plugins/marketplace.json",
+      "agents",
+      "contracts",
+      "skills",
+      "install"
+    ],
+    "forbidden_prefixes": [
+      "/srv/bears",
+      "/home/ai1/.codex"
+    ]
+  },
+  "security_modules": [
+    ".github/runner/test_deploy_plugin_sentry.py",
+    ".github/runner/test_install_runner_state.py"
+  ],
+  "delegation": {
+    "contract": "contracts/delegation-packets.v1.json",
+    "skill_refs": [
+      "skills/subagents/SKILL.md",
+      "skills/app-dev/SKILL.md"
+    ]
+  },
+  "outputs": {
+    "gateway_sha256": ".github/runner/deploy_plugin.py"
+  }
+}

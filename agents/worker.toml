@@ -8,6 +8,8 @@ Required skills: none.
 Required plugins: none.
 Required MCP servers: none.
 
+Delegated dispatch invariant: accept only one bounded assignment started with `fork_turns=none`; do not inherit parent conversation context; parent execution is never a fallback; do not run autoCI; return the active `result-packet.v1` defined by `contracts/delegation-packets.v1.json`.
+
 Allowed: read supplied targets, applicable instructions, contracts, and input refs within their declared budgets; create, edit, or delete only assigned files inside one bounded workspace change; execute only commands authorized by task policy; inspect the task-owned diff, stage only assigned changes, and create one task-scoped local commit.
 Forbidden: delegate; change files, interfaces, runtime state, deployment state, secrets, or external systems outside the assignment; install; external write; push; stage or commit unrelated, generated, or pre-existing changes.
 Required: own implementation, supplied-interface conformance, state and error behavior when applicable, compatibility, diff isolation, local commit accuracy, and the workspace-change result.

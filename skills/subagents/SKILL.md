@@ -7,25 +7,11 @@ description: Deterministically choose an installed L3 profile, dispatch bounded 
 
 ## Ownership
 
-This procedure receives only work already classified `DELEGATED` under the active caller instruction chain and `/srv/bears/contracts/developer_instructions_contract.md`. `DIRECT` work remains with the primary and never enters this procedure.
+This procedure receives only work already classified `DELEGATED` under the active caller instruction chain. `DIRECT` work remains with the primary and never enters this procedure.
 
 `app-dev` fixes `workflow-orchestrator` at L1 and one persistent `domain-lane-orchestrator` L2 per repo workflow. Outside app-dev, a solo parent performs the L2 analogue. This procedure owns only deterministic L3 role choice, `dispatch-packet.v2`, bounded dispatch, and `result-packet.v1` handling. It does not classify or decompose work, choose a canonical task, manage a repo queue, or perform target work.
 
-The plugin has exactly these eleven profiles:
-
-- `worker`
-- `app-worker`
-- `explorer`
-- `diagnostic-command-runner`
-- `primary-source-researcher`
-- `runtime-evidence-reader`
-- `wave-change-critic`
-- `security-analysis-critic`
-- `workflow-orchestrator`
-- `domain-lane-orchestrator`
-- `role-profile-architect`
-
-The two orchestrators are fixed outside this procedure; the other nine profiles are eligible for L3 dispatch. `AGENTS.md` and linked contracts remain instruction authorities; profile TOML files define role-specific behavior.
+The installed `agents/*.toml` files are the active catalog. Profiles that declare orchestration are fixed outside L3 selection; all other profiles are eligible only through the ordered rules below. `AGENTS.md` and linked caller contracts remain instruction authorities; profile TOML files define role-specific behavior.
 
 ## Dispatcher-only boundary
 
@@ -63,54 +49,15 @@ Apply these rules in order and stop at the first match:
 
 The caller records the matched rule and concrete fact as `selection_basis`, and copies the selected profile boundary as `capability_boundary`. Neither field may broaden the profile or assignment. Rules 3, 7, and 8 may use intrinsic bounded read-only shell inspection of named files, repository metadata, or pinned diff refs only to acquire assessment evidence; they do not authorize runtime commands, scripts, network, acceptance mechanics, mutation, or a command-outcome assignment.
 
-## `dispatch-packet.v2`
+## Packet contract
 
-Before dispatch, send every required field:
+`../../contracts/delegation-packets.v1.json` is the single active definition for `dispatch-packet.v2`, `result-packet.v1`, `app-task-dispatch.v1`, required fields, and delegated context isolation. Every delegated start uses `fork_turns=none`; inherited conversation context and parent execution fallback are forbidden.
 
-```yaml
-schema: dispatch-packet.v2
-task_id: <stable owning task id>
-workstream_id: <stable coherent delegated workstream id>
-assignment_id: <new concrete assignment id>
-stage: <skill or workflow stage>
-caller_level: solo-l2|L2
-role: <one exact eligible installed profile>
-selection_basis: <matched ordered rule and concrete fact>
-capability_boundary: <exact selected-profile boundary>
-cwd: <exact working directory or none>
-target_paths: [<bounded paths or target ids>]
-instruction_refs: [<authority files or contracts>]
-inputs: [<sanitized stable refs or none>]
-stage_payload: <stage-owned fields or none>
-allowed_actions: [<explicit actions>]
-forbidden_actions: [<explicit exclusions>]
-risk: [<security, data, deploy, cross-service, or none>]
-completion_criteria: [<observable outcomes>]
-return_schema: result-packet.v1
-automation_evidence_refs: [<existing autoCI refs or none>]
-```
-
-Every field is required. Use `[none]` only where permitted. `inputs` may contain paths, assignment ids, evidence ids, or compact fact ids, never raw bodies, diffs, logs, command dumps, secrets, credentials, tokens, or production data. Return `PACKET_REJECTED` before dispatch when a field is absent, unbounded, unsanitized, role-mismatched, or outside the capability boundary.
+Every contract field is required. Use `[none]` only where the stage permits it. `inputs` may contain paths, assignment ids, evidence ids, or compact fact ids, never raw bodies, diffs, logs, command dumps, secrets, credentials, tokens, or production data. Return `PACKET_REJECTED` before dispatch when a field is absent, unbounded, unsanitized, role-mismatched, or outside the capability boundary.
 
 ### App task stage payload
 
-Rule 2 additionally requires this nested object inside `stage_payload`:
-
-```yaml
-app_task_dispatch:
-  schema: app-task-dispatch.v1
-  task_record: <one current complete canonical task record>
-  repo_ref: <task repo ref>
-  repo_cwd: <exact repo cwd>
-  batch_id: <task batch id>
-  wave_id: <task wave id>
-  wave_session_id: <stable repo-wave session id>
-  queue_sequence: <task queue position>
-  session_action: start|continue
-  previous_task_result_ref: <null only for start; prior result ref for continue>
-```
-
-The caller exposes only the current complete task. Full wave, future task, and queue disclosure is `PACKET_REJECTED`. `start` creates the single app-worker session for `(repo_ref, wave_id)`; `continue` must preserve `repo_ref`, `wave_id`, and `wave_session_id` while using a new task and `assignment_id`.
+Rule 2 additionally requires the contract's `app-task-dispatch.v1` object inside `stage_payload`. The caller exposes only the current complete task. Full wave, future task, and queue disclosure is `PACKET_REJECTED`. `start` creates the single app-worker session for `(repo_ref, wave_id)`; `continue` must preserve `repo_ref`, `wave_id`, and `wave_session_id` while using a new task and `assignment_id`.
 
 ## Assignment lifecycle
 
@@ -138,25 +85,7 @@ Reading existing autoCI evidence is a separate read-only assignment: choose `run
 
 ## `result-packet.v1`
 
-Every L3 returns:
-
-```yaml
-schema: result-packet.v1
-task_id: <same task id>
-workstream_id: <same workstream id>
-assignment_id: <same assignment id>
-role: <executed exact role>
-status: done|partial|blocked
-consumed_input_refs: [<sanitized dispatch refs actually used or none>]
-facts: [<compact verified facts>]
-files_read: [<exact paths or none>]
-files_changed: [<exact paths or none>]
-commands_run: [<sanitized command names or none>]
-git_state: <commit/status fact or not-applicable>
-automation_evidence: [<existing evidence refs or none>]
-risks: [<unresolved concrete risk or none>]
-next_action: <exact next dispatch, user decision, or none>
-```
+Every L3 returns the exact result envelope and statuses defined by the plugin-local packet contract.
 
 An app-worker result has exactly one fact:
 

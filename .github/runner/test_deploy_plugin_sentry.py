@@ -26,6 +26,12 @@ DEPLOY = importlib.util.module_from_spec(SPEC)
 sys.modules[SPEC.name] = DEPLOY
 SPEC.loader.exec_module(DEPLOY)
 
+ROLE_NAMES = tuple(
+    sorted(path.stem for path in MODULE_PATH.parents[2].joinpath("agents").glob("*.toml"))
+)
+ROLE_COUNT = len(ROLE_NAMES)
+AGENT_TREE_PATHS = {"agents/README.md", *(f"agents/{name}.toml" for name in ROLE_NAMES)}
+
 
 class StubResponse:
     """Minimal context-managed response used without network access."""
@@ -492,34 +498,23 @@ class RoleReconciliationCoverage(unittest.TestCase):
     SHA = "a" * 40
     VERSION = "0.1.0+codex.20260711000000"
     FINGERPRINT = "f" * 64
-    EXPECTED_NAMES = (
-        "app-worker",
-        "diagnostic-command-runner",
-        "domain-lane-orchestrator",
-        "explorer",
-        "primary-source-researcher",
-        "role-profile-architect",
-        "runtime-evidence-reader",
-        "security-analysis-critic",
-        "wave-change-critic",
-        "worker",
-        "workflow-orchestrator",
-    )
+    EXPECTED_NAMES = ROLE_NAMES
 
-    def test_literal_independent_canonical_role_names(self) -> None:
-        self.assertEqual(DEPLOY.CANONICAL_ROLE_NAMES, self.EXPECTED_NAMES)
-        self.assertEqual(len(set(self.EXPECTED_NAMES)), 11)
+    def test_role_names_are_discovered_from_profiles(self) -> None:
+        self.assertEqual(self.EXPECTED_NAMES, tuple(sorted(set(self.EXPECTED_NAMES))))
+        self.assertGreaterEqual(ROLE_COUNT, 1)
+        self.assertLessEqual(ROLE_COUNT, 64)
 
     def role_record(self) -> dict[str, object]:
         generation = "1" * 64
         blobs = {
             relative: {"git_oid": "2" * 40, "sha256": "3" * 64}
-            for relative in {".codex-plugin/plugin.json", *DEPLOY.AGENTS_TREE_PATHS}
+            for relative in {".codex-plugin/plugin.json", *AGENT_TREE_PATHS}
         }
         return {
             "payload_fingerprint": self.FINGERPRINT,
             "role_generation": generation,
-            "role_count": DEPLOY.EXPECTED_ROLE_COUNT,
+            "role_count": ROLE_COUNT,
             "role_catalog_sha256": generation,
             "role_receipt_sha256": "4" * 64,
             "role_source_blobs": blobs,
@@ -532,7 +527,7 @@ class RoleReconciliationCoverage(unittest.TestCase):
                     "git_oid": blobs[f"agents/{name}.toml"]["git_oid"],
                     "sha256": blobs[f"agents/{name}.toml"]["sha256"],
                 }
-                for name in DEPLOY.CANONICAL_ROLE_NAMES
+                for name in ROLE_NAMES
             ],
         }
 
@@ -558,10 +553,10 @@ class RoleReconciliationCoverage(unittest.TestCase):
             "payload_fingerprint": self.FINGERPRINT,
         }
 
-    def catalog(self, count: int = DEPLOY.EXPECTED_ROLE_COUNT) -> dict[str, str]:
+    def catalog(self, count: int = ROLE_COUNT) -> dict[str, str]:
         return {
             name: f"/exact/durable/roles/{name}.toml"
-            for name in DEPLOY.CANONICAL_ROLE_NAMES[:count]
+            for name in ROLE_NAMES[:count]
         }
 
     def promotion_patches(self, *, states: list[object]) -> list[object]:
@@ -765,7 +760,7 @@ class RoleReconciliationCoverage(unittest.TestCase):
             )
         )
         self.assertEqual(migrated["schema"], DEPLOY.ROLE_RECEIPT_SCHEMA)
-        self.assertEqual(migrated["role_count"], 11)
+        self.assertEqual(migrated["role_count"], ROLE_COUNT)
         self.assertEqual(
             [row["name"] for row in migrated["managed_profiles"]],
             list(self.EXPECTED_NAMES),
@@ -848,8 +843,8 @@ class RoleReconciliationCoverage(unittest.TestCase):
             with self.assertRaises(DEPLOY.DeployError):
                 DEPLOY.read_regular_bytes(link, "stub role", 1024)
 
-    def test_wrong_role_count_or_config_path_is_rejected(self) -> None:
-        short_catalog = self.catalog(DEPLOY.EXPECTED_ROLE_COUNT - 1)
+    def test_out_of_range_role_count_or_config_path_is_rejected(self) -> None:
+        short_catalog: dict[str, str] = {}
         with self.assertRaises(DEPLOY.DeployError):
             DEPLOY.verify_role_config(DEPLOY.role_block(self.VERSION, short_catalog), short_catalog)
         catalog = self.catalog()
@@ -1022,7 +1017,7 @@ class PinnedBundleCoverage(unittest.TestCase):
         agents = repo / "agents"
         agents.mkdir()
         (agents / "README.md").write_text("# Exact role catalog\n", encoding="utf-8")
-        for name in DEPLOY.CANONICAL_ROLE_NAMES:
+        for name in ROLE_NAMES:
             (agents / f"{name}.toml").write_text(
                 "\n".join(
                     (
@@ -1161,7 +1156,7 @@ class PinnedBundleCoverage(unittest.TestCase):
                 materialized = role_generations / transaction["role_generation"]
                 self.assertEqual(
                     {path.name for path in materialized.iterdir()},
-                    {f"{name}.toml" for name in DEPLOY.CANONICAL_ROLE_NAMES},
+                    {f"{name}.toml" for name in ROLE_NAMES},
                 )
                 self.assertEqual(
                     {
@@ -1289,7 +1284,7 @@ class RemovalRecoveryCoverage(unittest.TestCase):
         profiles.mkdir(mode=0o700)
         catalog: dict[str, str] = {}
         records: list[dict[str, str]] = []
-        for name in DEPLOY.CANONICAL_ROLE_NAMES:
+        for name in ROLE_NAMES:
             path = profiles / f"{name}.toml"
             data = f'name = "{name}"\n'.encode()
             path.write_bytes(data)
@@ -1313,7 +1308,7 @@ class RemovalRecoveryCoverage(unittest.TestCase):
             "version": self.VERSION,
             "status": "installed",
             "changed": True,
-            "role_count": 11,
+            "role_count": ROLE_COUNT,
             "managed_digest": hashlib.sha256(block).hexdigest(),
             "managed_joiner_added": False,
             "managed_profiles": records,

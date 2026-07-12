@@ -1,20 +1,10 @@
 # Plugin Agent Profiles
 
-This directory is the only source for the plugin's eleven active custom-agent TOML files:
+This directory is the only source for the plugin's active custom-agent TOML files. The installer and production gateway discover every regular non-symlink `*.toml`, require 1..64 valid profiles, and sort them by name.
 
-- `worker.toml` — bounded workspace writes and a task-scoped local commit.
-- `app-worker.toml` — one canonical app task at a time, reusable only within the same repo-wave session.
-- `explorer.toml` — bounded read-only workspace inspection.
-- `diagnostic-command-runner.toml` — one explicitly bounded read-only command.
-- `primary-source-researcher.toml` — current primary-source evidence.
-- `runtime-evidence-reader.toml` — bounded sanitized runtime observations.
-- `wave-change-critic.toml` — one repository's immutable wave review and actionable remediation findings.
-- `security-analysis-critic.toml` — trust-boundary findings on supplied changes.
-- `workflow-orchestrator.toml` — fixed L1 app-development orchestration.
-- `domain-lane-orchestrator.toml` — fixed L2 lane orchestration.
-- `role-profile-architect.toml` — user-requested semantic role-taxonomy maintenance; each write assignment owns its task-scoped local commit.
+Each profile owns one bounded behavior and its result fact. The profile body, rather than this README, is the source for its trigger, permissions, acceptance criteria, and result fields.
 
-The explicit `./install` entrypoint registers exactly these eleven profiles through `config_file` entries in `$CODEX_HOME/config.toml`. Removed names are not registered and have no compatibility aliases. Run the installer after profile changes and start a new task so Codex loads the current registrations.
+The explicit `./install` entrypoint registers the discovered profiles through `config_file` entries in `$CODEX_HOME/config.toml`. Removed names are not registered and have no compatibility aliases; prior receipt ownership is required before a managed registration can be retired. Run the installer after profile changes and start a new task so Codex loads the current registrations.
 
 `app-dev` keeps one persistent repo-L2 queue per repository. Each repo-wave session uses one `app-worker`, receives one current canonical task at a time, and closes with a fresh repo-local immutable review. Review findings enter the same repository as new remediation tasks rather than reopening terminal tasks.
 

@@ -8,6 +8,8 @@ Required skills: none.
 Required plugins: none.
 Required MCP servers: none.
 
+Delegated dispatch invariant: accept only one bounded assignment started with `fork_turns=none`; do not inherit parent conversation context; parent execution is never a fallback; do not run autoCI; return the active `result-packet.v1` defined by `contracts/delegation-packets.v1.json`.
+
 Allowed: read only declared changed paths, diff refs, threat assumptions, contracts, and evidence refs; use a dedicated reader when available, otherwise intrinsic bounded read-only local shell inspection of named files, repository metadata, and diff refs; classify exploitable conditions and required fixes.
 Forbidden: delegate; edit files; run mutating, runtime, service, network, install, external-write, script, task-runner, test, validator, audit, schema, lint, cache, or plugin-validation commands; accept an assignment whose outcome is a command result reserved for `diagnostic-command-runner`; commit or push; approve unknown behavior; report generic advice without a concrete exploit or violated invariant.
 Required: own finding validity, severity, evidence linkage, exploit preconditions, required fix, residual risk, and the security-analysis result.

@@ -10,11 +10,48 @@ permissions:
 jobs:
   ci:
     name: Requirements-driven autoCI
-    uses: BearsCLOUD/bears-codex-workspace/.github/workflows/plugin-autoci.yml@f2eb467d2754474c11816646cd2e0b61419c5474
-    with:
-      requirements_path: .github/autoci/ci-requirements.v1.json
-    permissions:
-      contents: read
+    runs-on: ubuntu-latest
+    timeout-minutes: 1
+    outputs:
+      status: ${{ steps.evaluate.outputs.status }}
+      duration_seconds: ${{ steps.evaluate.outputs.duration_seconds }}
+      timeout_reason: ${{ steps.evaluate.outputs.timeout_reason }}
+      gateway_sha256: ${{ steps.evaluate.outputs.gateway_sha256 }}
+    steps:
+      - name: Check out caller revision
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Check out immutable autoCI stack
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          repository: BearsCLOUD/bears-codex-workspace
+          ref: 62daa1ad09fb7306c95cd49c4e1f2a5d8969c54b
+          path: .autoci-stack
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Run the single autoCI evaluator
+        id: evaluate
+        shell: bash
+        run: >-
+          timeout --signal=TERM --kill-after=1s 10s
+          python3 .autoci-stack/.github/autoci/evaluate_plugin.py
+          --root "$GITHUB_WORKSPACE"
+          --requirements "$GITHUB_WORKSPACE/.github/autoci/ci-requirements.v1.json"
+          --output-dir "$RUNNER_TEMP/plugin-autoci"
+
+      - name: Publish immutable autoCI evidence
+        if: always()
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: plugin-autoci-${{ github.sha }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/plugin-autoci
+          if-no-files-found: error
+          retention-days: 90
+          compression-level: 0
 
   cd:
     name: Deploy exact main revision

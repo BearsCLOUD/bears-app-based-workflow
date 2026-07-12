@@ -1,7 +1,7 @@
 {
   "name": "bears-app-based-workflow",
-  "version": "0.1.0+codex.20260712040624",
-  "description": "Bears app workflow plugin for waves, functional graphs, task ledgers, repo-scoped queues, one-task worker sessions, immutable review, and remediation.",
+  "version": "0.1.0+codex.20260712042510",
+  "description": "Bears app workflow plugin for sequential DIRECT routing, waves, functional graphs, task ledgers, repo-scoped queues, immutable review, and remediation.",
   "author": {
     "name": "BearsCLOUD",
     "url": "https://github.com/BearsCLOUD"
@@ -15,18 +15,20 @@
     "waves",
     "functional-graph",
     "task-ledger",
+    "direct-routing",
     "instruction-hardening",
     "subagents"
   ],
   "skills": "./skills/",
   "interface": {
     "displayName": "Bears App-Based Workflow",
-    "shortDescription": "Repo-scoped app waves with bounded L3 roles.",
-    "longDescription": "Bears App-Based Workflow provides app constitutions, research waves, functional specifications, graph-linked plans, persistent repo queues, one-task app-worker dispatch, immutable repo-wave review, remediation planning, instruction policy editing, role profile architecture, primary-source evidence research, and convergence analysis.",
+    "shortDescription": "DIRECT routing and bounded repo app waves.",
+    "longDescription": "Bears App-Based Workflow provides sequential DIRECT stage routing, app constitutions, research waves, functional specifications, graph-linked plans, persistent repo queues, one-task app-worker dispatch, immutable repo-wave review, remediation planning, instruction policy editing, role profile architecture, primary-source evidence research, and convergence analysis.",
     "developerName": "BearsCLOUD",
     "category": "Development",
     "capabilities": [
       "Spec Kit-style app workflow",
+      "Sequential DIRECT stage routing",
       "Wave research and synchronization",
       "Detailed app specification",
       "Functional graph planning",
@@ -42,6 +44,7 @@
     "websiteURL": "https://github.com/BearsCLOUD/bears-app-based-workflow",
     "defaultPrompt": [
       "Research app feature waves.",
+      "Resume app workflow stages with one DIRECT primary.",
       "Harden approved instructions.",
       "Create a primary-source evidence packet.",
       "Execute repo-scoped ledger queues with bounded workers and immutable review."

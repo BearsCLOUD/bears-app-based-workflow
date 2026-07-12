@@ -46,9 +46,11 @@ Status-specific fields and routes:
 - `needs-plan` adds `source_handoff_ref`, `ledger_coverage_refs`, and `implementation_state_by_requirement`; target `app-plan`.
 - `blocked` adds `blocker_refs` and `operator_action_refs`; target `none`.
 
-## L3 output
+## Stage output ownership
 
-The selected L3 creates or updates:
+In `DIRECT`, the primary creates the stage artifacts and canonical handoff. In `DELEGATED`, the assigned L3 creates them.
+
+The stage creates or updates:
 
 - `docs/app-functional-graph.v1.json`;
 - graph anchors in `docs/app-task-ledger.v1.json`.

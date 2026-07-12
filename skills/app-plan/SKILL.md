@@ -17,9 +17,11 @@ For work already classified `DELEGATED`, act as the solo L2 analogue: decompose 
 - `waiting` resume from `app-plan` additionally carries `source_handoff_ref`, `blocked_task_refs`, and `dependency_state_evidence_refs`; `app-plan` owns dependency-state reevaluation and the resume decision.
 - A repo L2 may invoke planning at `remediation-anchor.v1` with `repo_ref`, exact repo cwd, the immutable anchor snapshot, failed task refs, one primary review ref, and only deterministically justified specialist review refs. Those failed-task and review refs are the complete remediation source; unrelated findings or later queue admissions are outside that planning assignment.
 
-## L3 output
+## Stage output ownership
 
-The selected L3 writes `waves/<wave-id>/plan.md` and creates or updates only executable `tasks` in `docs/app-task-ledger.v1.json`. It never writes `docs/app-functional-graph.v1.json` or ledger `graph_anchors`.
+In `DIRECT`, the primary creates the stage artifacts and canonical handoff. In `DELEGATED`, the assigned L3 creates them.
+
+The stage writes `waves/<wave-id>/plan.md` and creates or updates only executable `tasks` in `docs/app-task-ledger.v1.json`. It never writes `docs/app-functional-graph.v1.json` or ledger `graph_anchors`.
 
 For each specified requirement it records graph revision and coverage plus `built`, `partial`, `missing`, or `drifted` implementation state. It creates or updates canonical executable ledger tasks for `partial`, `missing`, or `drifted` behavior. Each task carries every field defined by `app-functional-graph`, including the complete artifact refs and `ledger_update_contract` required by `app-dev`.
 

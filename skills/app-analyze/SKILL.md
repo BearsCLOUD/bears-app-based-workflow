@@ -16,9 +16,11 @@ For work already classified `DELEGATED`, act as the solo L2 analogue: decompose 
 - `no-work` from `app-plan` additionally carries `plan_refs`.
 - A direct diagnostic request is not an inter-stage handoff; it must still identify the target app and waves plus constitution, research, specification, graph, ledger, plan, implemented-state, and existing autoCI evidence refs.
 
-## L3 output
+## Stage output ownership
 
-The selected L3 writes `waves/<wave-id>/analysis.md` with the repo and wave inputs assessed; requirement, graph, and ledger coverage; completed and failed tasks; task results; immutable review results and commit ranges; remediation state; implemented-state comparison; `built|partial|missing|drifted` classification by requirement; every detected violation gathered in one pass; unavailable automation evidence listed separately; and an exact handoff. The graph and ledger are read-only in this stage.
+In `DIRECT`, the primary creates the analysis artifact and canonical handoff. In `DELEGATED`, the assigned L3 creates them.
+
+The stage writes `waves/<wave-id>/analysis.md` with the repo and wave inputs assessed; requirement, graph, and ledger coverage; completed and failed tasks; task results; immutable review results and commit ranges; remediation state; implemented-state comparison; `built|partial|missing|drifted` classification by requirement; every detected violation gathered in one pass; unavailable automation evidence listed separately; and an exact handoff. The graph and ledger are read-only in this stage.
 
 It sets one status:
 

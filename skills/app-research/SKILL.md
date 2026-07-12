@@ -19,9 +19,11 @@ For work already classified `DELEGATED`, act as the solo L2 analogue: decompose 
 - Known source refs, product notes, tickets, and user answers.
 - Exact unknowns the research must close.
 
-## L3 output
+## Stage output ownership
 
-The selected L3 returns `wave-research.packet` and writes:
+In `DIRECT`, the primary creates the stage artifacts and canonical handoff. In `DELEGATED`, the assigned L3 creates them and returns `wave-research.packet`.
+
+The stage writes:
 
 - `waves/index.md` with active waves and status;
 - `waves/<wave-id>/research.md` for each touched wave.

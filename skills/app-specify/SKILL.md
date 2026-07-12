@@ -11,12 +11,14 @@ For work already classified `DELEGATED`, act as the solo L2 analogue: decompose 
 
 ## Clarification loop
 
+In `DIRECT`, the primary reads the stage refs, asks the user concrete questions grouped by blocking decision, writes the specification, and creates the canonical handoff. In `DELEGATED`:
+
 1. Create one bounded read-only assignment for the delegated research and evidence refs, apply the canonical ordered role rules in `$subagents`, and return only unresolved product decisions.
 2. Parent asks the user concrete questions grouped by blocking decision.
 3. Create a fresh bounded mutation assignment carrying sanitized answer refs, deterministically select `worker`, and dispatch the specification update.
 4. Repeat only while acceptance criteria, data ownership, or required behavior remain undecided.
 
-Parent may ask questions but does not inspect source data. No agent reference crosses an assignment boundary.
+In `DELEGATED`, the parent may ask questions but does not inspect source data. No agent reference crosses an assignment boundary. When `$app-solo-route` invokes this stage, follow its narrower user decision gate.
 
 ## Stage payload
 
@@ -27,9 +29,11 @@ Parent may ask questions but does not inspect source data. No agent reference cr
 - Known source and integration refs.
 - Exact open questions.
 
-## L3 output
+## Stage output ownership
 
-The selected `worker` writes `<app-root>/waves/<wave-id>/spec.md` in the consuming app repository with actors and permissions, user goals, main and alternate flows, data inputs and ownership, error and empty states, integrations, acceptance criteria, functional graph hints, closed decisions, and open questions, then owns its task-scoped local commit.
+In `DIRECT`, the primary creates the stage artifact and canonical handoff. In `DELEGATED`, the assigned `worker` creates them and owns its task-scoped local commit.
+
+The stage writes `<app-root>/waves/<wave-id>/spec.md` in the consuming app repository with actors and permissions, user goals, main and alternate flows, data inputs and ownership, error and empty states, integrations, acceptance criteria, functional graph hints, closed decisions, and open questions.
 
 When decisions are complete, return canonical `app-stage-handoff.v1` status `spec-ready` with every common field plus `constitution_ref`, `research_refs`, `specification_refs`, `required_behavior_refs`, `dependency_coverage_refs`, `state_coverage_refs`, `api_coverage_refs`, `data_coverage_refs`, `integration_coverage_refs`, and `error_coverage_refs`; target `app-functional-graph`.
 

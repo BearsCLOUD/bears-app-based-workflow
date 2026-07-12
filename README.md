@@ -2,6 +2,8 @@
 
 `bears-app-based-workflow` is a Codex plugin for app constitutions, research waves, functional specifications, graph-linked plans, repo-scoped implementation queues, immutable review, remediation, and convergence analysis.
 
+`app-solo-route` keeps a `DIRECT` workstream with one primary and sequentially resumes `app-research`, `app-specify`, `app-functional-graph`, `app-plan`, and `app-analyze`. It stops at the external `app-constitution` or `app-dev` boundary, terminal `pass|blocked`, unchanged waiting state, or a required architecture decision; it never initializes delegated routing.
+
 ## Workflow
 
 For work already classified `DELEGATED`, every `app-*` skill uses `subagents` before file, log, terminal, Git, MCP, runtime, or network access. A solo parent decomposes its stage work; app-dev instead uses fixed L1 orchestration and persistent repo-L2 queues without decomposing canonical tasks. Each caller follows the skill for every concrete L3 assignment. `DIRECT` work stays with the primary and never enters `subagents`.
@@ -27,6 +29,7 @@ The active catalog is discovered from the regular, non-symlink `agents/*.toml` f
 ## Plugin skills
 
 - Stage procedures: `app-constitution`, `app-research`, `app-specify`, `app-functional-graph`, `app-plan`, `app-analyze`, `app-dev`.
+- DIRECT routing procedure: `app-solo-route`.
 - Dispatch procedure: `subagents`.
 - Instruction procedures: `instruction-hardening`, `role-profile-maintenance`.
 

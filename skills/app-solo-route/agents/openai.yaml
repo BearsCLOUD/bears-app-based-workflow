@@ -1,0 +1,4 @@
+interface:
+  display_name: "App Solo Route"
+  short_description: "Route app stages with one DIRECT primary"
+  default_prompt: "Use $app-solo-route to resume and sequentially execute the earliest incomplete DIRECT app workflow stage."

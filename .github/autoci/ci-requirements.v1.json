@@ -24,6 +24,7 @@
     ]
   },
   "security_modules": [
+    ".github/runner/test_app_solo_route.py",
     ".github/runner/test_deploy_plugin_sentry.py",
     ".github/runner/test_install_runner_state.py"
   ],

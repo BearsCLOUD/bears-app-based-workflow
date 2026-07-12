@@ -1,13 +1,13 @@
 {
   "schema": "app-traceability-index.v2",
   "app_id": "bears-app-based-workflow",
-  "revision": 8,
-  "source_snapshot_digest": "sha256:3db871dad23df9ea07cc99d51c85384bc726fd0dcc3a135fb4c61fcbb1c04f3a",
+  "revision": 9,
+  "source_snapshot_digest": "sha256:33fc64fe96035bc7de2b039fb40c3fdb81ad66ba30a359f626182e18a4d7e752",
   "generated_from": [
     {
       "path": ".codex-plugin/plugin.json",
       "anchor": "",
-      "digest": "sha256:c06a0e4895b132515019bb84bcfe225fbbff1d6c7e1caedb957595183bc19390"
+      "digest": "sha256:c3f248d97bf9429ee13134063fe3a9d466a550522f7cd07b6ca2d49929956c6f"
     },
     {
       "path": ".github/runner/README.md",
@@ -469,7 +469,7 @@
       "source": {
         "path": ".codex-plugin/plugin.json",
         "anchor": "mcpServers",
-        "digest": "sha256:c06a0e4895b132515019bb84bcfe225fbbff1d6c7e1caedb957595183bc19390"
+        "digest": "sha256:c3f248d97bf9429ee13134063fe3a9d466a550522f7cd07b6ca2d49929956c6f"
       }
     },
     {

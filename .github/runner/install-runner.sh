@@ -438,7 +438,8 @@ def validate_receipt_identity(value: object, label: str) -> dict[str, object]:
         or not re.fullmatch(r"[0-9a-f]{40}", value["sha"])
         or not isinstance(value.get("version"), str)
         or not re.fullmatch(
-            r"\d+\.\d+\.\d+\+codex\.\d{14}", value["version"]
+            r"(?:(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)|\d+\.\d+\.\d+\+codex\.\d{14})",
+            value["version"],
         )
         or not isinstance(value.get("payload_fingerprint"), str)
         or not re.fullmatch(r"[0-9a-f]{64}", value["payload_fingerprint"])

@@ -10,6 +10,7 @@ The format follows Keep a Changelog conventions.
 
 - Disconnected autoCI and removed its requirements binding; acceptance remains `not_run` unless exact external evidence is supplied.
 - Restored CD independently of autoCI: every `main` push now updates the installed plugin through the fixed Git marketplace and durable deployment gateway without claiming acceptance.
+- Adopted user-facing plain SemVer: patch for ordinary pushes, minor for substantial refactors, and major only by explicit user request; CD enforces monotonic versions after one-way legacy migration.
 - Added machine-readable workflow, handoff, functional-map, traceability-index, process-index, and context-index contracts.
 - Added `app-context-index` as the source-digest entry gate and sole writer of rebuildable traceability and process indexes.
 - Reframed `app-functional-graph` as the semantic-map owner while keeping documents, code, tests, ledger records, and evidence authoritative.

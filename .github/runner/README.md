@@ -36,4 +36,6 @@ Installing the materializer and performing the first materialization are separat
 
 `plugin-marketplace-cd.yml` runs no repository checkout or agent-controlled installer. It passes the exact pushed SHA and ephemeral GitHub job credential to the fixed root-owned gateway through the runner's existing command-restricted sudo rule. The gateway owns marketplace refresh, plugin installation, durable recovery, and sanitized deployment output.
 
+The gateway accepts timestamp-suffixed versions only while migrating an existing receipt. Once a plain SemVer receipt exists, each later pushed revision must strictly increase that version and cannot return to the legacy format.
+
 No autoCI workflow is active and CD emits no acceptance status. Existing historical evidence remains immutable but never applies to a newer commit; acceptance projects as `not_run` until exact external evidence is supplied.

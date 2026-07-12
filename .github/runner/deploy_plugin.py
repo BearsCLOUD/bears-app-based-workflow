@@ -49,7 +49,9 @@ GIT = "/usr/bin/git"
 CODEX = "/usr/local/bin/codex"
 SHA_RE = re.compile(r"[0-9a-f]{40}")
 FINGERPRINT_RE = re.compile(r"[0-9a-f]{64}")
-VERSION_RE = re.compile(r"\d+\.\d+\.\d+\+codex\.\d{14}")
+SEMVER_RE = re.compile(r"(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)")
+LEGACY_VERSION_RE = re.compile(r"\d+\.\d+\.\d+\+codex\.\d{14}")
+VERSION_RE = re.compile(rf"(?:{SEMVER_RE.pattern}|{LEGACY_VERSION_RE.pattern})")
 LEGACY_DEPLOY_RECEIPT_SCHEMA = "bears-plugin-deploy-state.v1"
 DEPLOY_RECEIPT_SCHEMA = "bears-plugin-deploy-state.v2"
 PROMOTION_INTENT_SCHEMA = "bears-plugin-promotion-intent.v3"
@@ -500,8 +502,16 @@ def manifest(repo: Path, sha: str) -> dict[str, Any]:
         or value.get("repository") != REPOSITORY.removesuffix(".git")
         or not VERSION_RE.fullmatch(str(value.get("version", "")))
     ):
-        raise DeployError("plugin manifest identity, repository, or cachebuster is invalid")
+        raise DeployError("plugin manifest identity, repository, or version is invalid")
     return value
+
+
+def semver_tuple(value: str) -> tuple[int, int, int]:
+    """Return one strict plain SemVer tuple admitted for current deployments."""
+    if not SEMVER_RE.fullmatch(value):
+        raise DeployError("plugin version is not plain SemVer")
+    major, minor, patch = value.split(".")
+    return int(major), int(minor), int(patch)
 
 
 def validate_marketplace(repo: Path, sha: str) -> None:
@@ -3890,9 +3900,16 @@ def promote(
     previous: dict[str, Any] | None = None
     if state is not None:
         current = str(state["sha"])
+        current_version = str(state["version"])
+        requested_version = str(requested_manifest["version"])
         if not is_ancestor(MIRROR, current, main_sha):
             raise DeployError("receipted SHA is not on fixed main", error_code="receipt-corruption")
         verify_receipted_install(state)
+        if requested != current and SEMVER_RE.fullmatch(current_version):
+            if not SEMVER_RE.fullmatch(requested_version):
+                raise DeployError("plain SemVer deployments cannot return to legacy timestamp versions")
+            if semver_tuple(requested_version) <= semver_tuple(current_version):
+                raise DeployError("every new deployment must increase the plain SemVer version")
         early_status: str | None = None
         if requested == current:
             early_status = "already-deployed"

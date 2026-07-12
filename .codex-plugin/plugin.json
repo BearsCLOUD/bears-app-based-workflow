@@ -1,6 +1,6 @@
 {
   "name": "bears-app-based-workflow",
-  "version": "0.1.0+codex.20260712210411",
+  "version": "0.1.1",
   "description": "Bears app workflow plugin for sequential DIRECT routing, typed traceability and process graphs, graph queries, repo-scoped queues, immutable review, and remediation.",
   "author": {
     "name": "BearsCLOUD",

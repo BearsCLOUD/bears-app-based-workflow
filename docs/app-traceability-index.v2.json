@@ -1,13 +1,13 @@
 {
   "schema": "app-traceability-index.v2",
   "app_id": "bears-app-based-workflow",
-  "revision": 1,
-  "source_snapshot_digest": "sha256:cc57f517b18bcaa8419fb8943bbd7af233e60d592fd66e18a450dd5e5cd34aa1",
+  "revision": 2,
+  "source_snapshot_digest": "sha256:9c785f933df58eb78eb1f469364e6a9f3c897e0dd564f2dbdccd16963231e4e0",
   "generated_from": [
     {
       "path": ".codex-plugin/plugin.json",
       "anchor": "",
-      "digest": "sha256:047a7609043b52d7b3285d4fe8812af48f51395b26509199fde76bfd92bce691"
+      "digest": "sha256:4aa7a8f748972c5b7cf87464aa2a7a05372dbc88e9ba31a1179a5fbcc613ea0b"
     },
     {
       "path": ".github/autoci/ci-requirements.v1.json",
@@ -27,7 +27,7 @@
     {
       "path": "CHANGELOG.md",
       "anchor": "",
-      "digest": "sha256:71f77817fdb399ee9ef7664b45c089870d0e9745ac4f7f93e6b43ddf8e3b139e"
+      "digest": "sha256:8b8f20393923513128cc4678d35d54a0073be93778eae69ead7684069a846281"
     },
     {
       "path": "README.md",
@@ -87,17 +87,17 @@
     {
       "path": "scripts/README.md",
       "anchor": "",
-      "digest": "sha256:e4b93d94bf8005f4816694d9b8ad8de51406aa42541963869756ad6e591ba9bd"
+      "digest": "sha256:514e67a9af2cc2b2eab097a21d681329031e63998875eefda7a439c947dae35b"
     },
     {
       "path": "scripts/app_graph_engine.py",
       "anchor": "",
-      "digest": "sha256:081b9adc053239ea90e5b9af1bfa0d3111359782fc14f86c4bb94c8961313890"
+      "digest": "sha256:9248838bd8519d189f50c92ff4c7e82194f4190f59d4c69441a0438a403e25a4"
     },
     {
       "path": "scripts/app_graph_mcp.py",
       "anchor": "",
-      "digest": "sha256:3708658687473ebf1ef32add327e86a93b3c7929445b91c68f68986166b9e3b4"
+      "digest": "sha256:5015b467c94625adacc4e846a2fdc523681b60994509669ba1b023505ede88f6"
     },
     {
       "path": "skills/app-analyze/SKILL.md",
@@ -112,7 +112,7 @@
     {
       "path": "skills/app-context-index/SKILL.md",
       "anchor": "",
-      "digest": "sha256:bd7d66c28467f2d44bf1887a65374f758812f45faa5bea63f57834d8c9f8f9da"
+      "digest": "sha256:bf73e2576ac5f13957e695ebbd5cfebeac3288420b2d849c98172c408aa26595"
     },
     {
       "path": "skills/app-dev/SKILL.md",
@@ -147,7 +147,7 @@
     {
       "path": "waves/graph-workflow-v2/analysis.md",
       "anchor": "",
-      "digest": "sha256:566e1d709bb90adc5c21c8f55e781e65b9abcb745937dce8320e8dd4a4916495"
+      "digest": "sha256:e170d34c82f50a719ad54a025a35f04bd442fbf8c3abf57e6ff31645eaf48293"
     },
     {
       "path": "waves/graph-workflow-v2/plan.md",
@@ -314,7 +314,7 @@
       "source": {
         "path": "skills/app-context-index/SKILL.md",
         "anchor": "",
-        "digest": "sha256:bd7d66c28467f2d44bf1887a65374f758812f45faa5bea63f57834d8c9f8f9da"
+        "digest": "sha256:bf73e2576ac5f13957e695ebbd5cfebeac3288420b2d849c98172c408aa26595"
       }
     },
     {
@@ -324,7 +324,7 @@
       "source": {
         "path": "scripts/app_graph_engine.py",
         "anchor": "",
-        "digest": "sha256:081b9adc053239ea90e5b9af1bfa0d3111359782fc14f86c4bb94c8961313890"
+        "digest": "sha256:9248838bd8519d189f50c92ff4c7e82194f4190f59d4c69441a0438a403e25a4"
       }
     },
     {
@@ -334,7 +334,7 @@
       "source": {
         "path": "scripts/app_graph_mcp.py",
         "anchor": "",
-        "digest": "sha256:3708658687473ebf1ef32add327e86a93b3c7929445b91c68f68986166b9e3b4"
+        "digest": "sha256:5015b467c94625adacc4e846a2fdc523681b60994509669ba1b023505ede88f6"
       }
     },
     {
@@ -424,7 +424,7 @@
       "source": {
         "path": "skills/app-context-index/SKILL.md",
         "anchor": "#refresh-procedure",
-        "digest": "sha256:bd7d66c28467f2d44bf1887a65374f758812f45faa5bea63f57834d8c9f8f9da"
+        "digest": "sha256:bf73e2576ac5f13957e695ebbd5cfebeac3288420b2d849c98172c408aa26595"
       }
     },
     {
@@ -434,7 +434,7 @@
       "source": {
         "path": "scripts/app_graph_engine.py",
         "anchor": "GraphStore",
-        "digest": "sha256:081b9adc053239ea90e5b9af1bfa0d3111359782fc14f86c4bb94c8961313890"
+        "digest": "sha256:9248838bd8519d189f50c92ff4c7e82194f4190f59d4c69441a0438a403e25a4"
       }
     },
     {
@@ -444,7 +444,7 @@
       "source": {
         "path": "scripts/app_graph_mcp.py",
         "anchor": "main",
-        "digest": "sha256:3708658687473ebf1ef32add327e86a93b3c7929445b91c68f68986166b9e3b4"
+        "digest": "sha256:5015b467c94625adacc4e846a2fdc523681b60994509669ba1b023505ede88f6"
       }
     },
     {
@@ -454,7 +454,7 @@
       "source": {
         "path": ".codex-plugin/plugin.json",
         "anchor": "mcpServers",
-        "digest": "sha256:047a7609043b52d7b3285d4fe8812af48f51395b26509199fde76bfd92bce691"
+        "digest": "sha256:4aa7a8f748972c5b7cf87464aa2a7a05372dbc88e9ba31a1179a5fbcc613ea0b"
       }
     },
     {
@@ -474,7 +474,7 @@
       "source": {
         "path": "waves/graph-workflow-v2/analysis.md",
         "anchor": "#self-application-result",
-        "digest": "sha256:566e1d709bb90adc5c21c8f55e781e65b9abcb745937dce8320e8dd4a4916495"
+        "digest": "sha256:e170d34c82f50a719ad54a025a35f04bd442fbf8c3abf57e6ff31645eaf48293"
       }
     }
   ],

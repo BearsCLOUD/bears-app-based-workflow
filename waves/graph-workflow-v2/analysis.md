@@ -11,6 +11,7 @@ The plugin now has constitution, research, specification, semantic map, plan, le
 - Separated semantic mapping, traceability indexing, and process indexing.
 - Added explicit source-digest drift behavior and v1 alias/replacement migration rules.
 - Added plugin packaging metadata for the graph MCP and runtime modules.
+- Made every MCP query re-hash indexed sources, honor impact transitivity, detect every forbidden-cycle relation, and include structural/open-finding blockers in task planning.
 
 ## Convergence
 

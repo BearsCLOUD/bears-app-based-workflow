@@ -24,12 +24,14 @@ The owned consuming-app artifacts are `docs/app-traceability-index.v2.json` and 
 
 ## Refresh procedure
 
-1. Collect the bounded authoritative artifact inventory and calculate one deterministic `source_snapshot_digest` over sorted `(relative path, content digest)` pairs.
+1. Collect the bounded authoritative artifact inventory. Encode the sorted `(relative path, sha256 content digest)` pairs as compact UTF-8 JSON with no insignificant whitespace, then SHA-256 that byte sequence into `source_snapshot_digest`.
 2. If both tracked indexes carry the same digest and no explicit `needs-index` exists, return `current` without modifying either file.
 3. If only `docs/app-functional-graph.v1.json` exists, normalize it once into v2 entities and typed relations. Preserve every legacy ref through `aliases` or `replacements`; report an unmappable record instead of guessing it. After all current ledger anchors use v2 refs, remove the active v1 file rather than maintaining two live indexes.
 4. Rebuild trace entities and edges from exact source refs. Use the edge registry in the workflow definition; undeclared edge kinds are `semantic-map-gap` findings.
 5. Append process events for the actual run, handoff, wave, task, review, remediation, and commit refs. Do not synthesize events for work that did not occur.
 6. Write both indexes with the same source digest and monotonically increasing revision, then return one `app-context-index-result.v1`.
+
+Every MCP load re-hashes all `generated_from` files and recomputes the canonical snapshot digest. A missing, linked, escaping, oversized, unreadable, or changed source fails closed before any query result is returned; `expected_digest` is only an additional caller pin.
 
 ## Findings and routing
 

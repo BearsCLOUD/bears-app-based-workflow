@@ -17,7 +17,7 @@ PROTOCOL_VERSION = "2025-06-18"
 
 COMMON_PROPERTIES = {
     "app_root": {"type": "string", "description": "Absolute consuming app root."},
-    "expected_digest": {"type": "string", "description": "Optional required source snapshot digest."},
+    "expected_digest": {"type": "string", "description": "Optional caller-pinned digest; indexed source digests are always rechecked."},
     "limit": {"type": "integer", "minimum": 1, "maximum": 500, "default": 100},
     "cursor": {"type": "integer", "minimum": 0, "default": 0},
     "max_depth": {"type": "integer", "minimum": 1, "maximum": 32, "default": 32},
@@ -41,8 +41,8 @@ TOOLS = [
     {"name": "graph_snapshot", "description": "Return index identity, digest, revision, and bounded counts.", "inputSchema": _schema(), "annotations": {"readOnlyHint": True, "destructiveHint": False, "openWorldHint": False}},
     {"name": "graph_dependencies", "description": "Return transitive prerequisites or dependents with exact paths.", "inputSchema": _schema(refs=True, direction=True), "annotations": {"readOnlyHint": True, "destructiveHint": False, "openWorldHint": False}},
     {"name": "graph_impact", "description": "Return declared impact propagation paths from changed refs.", "inputSchema": _schema(refs=True), "annotations": {"readOnlyHint": True, "destructiveHint": False, "openWorldHint": False}},
-    {"name": "graph_diagnostics", "description": "Return cycles, unreachable refs, trace gaps, and declared conflicts.", "inputSchema": _schema(), "annotations": {"readOnlyHint": True, "destructiveHint": False, "openWorldHint": False}},
-    {"name": "graph_plan", "description": "Return deterministic topological task layers and cycle blockers.", "inputSchema": _schema(), "annotations": {"readOnlyHint": True, "destructiveHint": False, "openWorldHint": False}},
+    {"name": "graph_diagnostics", "description": "Return forbidden cycles, unreachable refs, trace gaps, and declared conflicts.", "inputSchema": _schema(), "annotations": {"readOnlyHint": True, "destructiveHint": False, "openWorldHint": False}},
+    {"name": "graph_plan", "description": "Return deterministic topological task layers plus cycle, trace, registry, and open-finding blockers.", "inputSchema": _schema(), "annotations": {"readOnlyHint": True, "destructiveHint": False, "openWorldHint": False}},
     {"name": "graph_trace", "description": "Return trace paths from source refs to targets or evidence sinks.", "inputSchema": _schema(refs=True, targets=True), "annotations": {"readOnlyHint": True, "destructiveHint": False, "openWorldHint": False}},
     {"name": "workflow_state", "description": "Return process-run events and unresolved workflow findings.", "inputSchema": _schema(), "annotations": {"readOnlyHint": True, "destructiveHint": False, "openWorldHint": False}},
 ]

@@ -1,33 +1,16 @@
-"""Validate the declarative DIRECT route contract for app-solo-route."""
+"""Validate app-solo-route against the single workflow definition."""
 
 from __future__ import annotations
 
 import json
 from pathlib import Path
-import re
 import unittest
 
 
 ROOT = Path(__file__).resolve().parents[2]
 SKILL = ROOT / "skills/app-solo-route/SKILL.md"
-
-EXPECTED_ROUTES = {
-    "constitution-ready": "app-research",
-    "needs-research": "app-research",
-    "research-ready": "app-specify",
-    "needs-spec": "app-specify",
-    "spec-ready": "app-functional-graph",
-    "needs-graph": "app-functional-graph",
-    "graph-ready": "app-plan",
-    "waiting": "app-plan",
-    "needs-plan": "app-plan",
-    "no-work": "app-analyze",
-    "implemented": "app-analyze",
-    "plan-ready": "app-dev",
-    "ready": "app-dev",
-    "pass": "none",
-    "blocked": "none",
-}
+WORKFLOW = ROOT / "contracts/app-workflow-definition.v1.json"
+HANDOFF = ROOT / "contracts/app-stage-handoff.v2.schema.json"
 
 
 class AppSoloRouteContractTests(unittest.TestCase):
@@ -36,19 +19,19 @@ class AppSoloRouteContractTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         cls.text = SKILL.read_text(encoding="utf-8")
-        match = re.search(
-            r"<!-- route-map:start -->\s*```json\s*(\{.*?\})\s*```\s*<!-- route-map:end -->",
-            cls.text,
-            flags=re.DOTALL,
-        )
-        if match is None:
-            raise AssertionError("app-solo-route route map is missing")
-        cls.routes = json.loads(match.group(1))
+        cls.workflow = json.loads(WORKFLOW.read_text(encoding="utf-8"))
+        cls.handoff = json.loads(HANDOFF.read_text(encoding="utf-8"))
+        cls.routes = cls.workflow["routes"]
 
     def test_resume_and_all_forward_and_feedback_routes(self) -> None:
-        self.assertEqual(self.routes, EXPECTED_ROUTES)
+        statuses = set(self.handoff["properties"]["status"]["enum"])
+        stages = {record["name"] for record in self.workflow["stages"]}
+        self.assertEqual(set(self.routes), statuses)
+        self.assertFalse(set(self.routes.values()) - stages - {"none"})
         self.assertIn("route only by its validated `target_stage`", self.text)
         self.assertIn("select the earliest incomplete stage", self.text)
+        self.assertIn("contracts/app-workflow-definition.v1.json", self.text)
+        self.assertNotIn("<!-- route-map:start -->", self.text)
 
     def test_stops_before_external_development(self) -> None:
         self.assertEqual(self.routes["plan-ready"], "app-dev")

@@ -8,6 +8,11 @@ The format follows Keep a Changelog conventions.
 
 ### Changed
 
+- Added machine-readable workflow, handoff, functional-map, traceability-index, process-index, and context-index contracts.
+- Added `app-context-index` as the source-digest entry gate and sole writer of rebuildable traceability and process indexes.
+- Reframed `app-functional-graph` as the semantic-map owner while keeping documents, code, tests, ledger records, and evidence authoritative.
+- Added the bundled read-only `app-graph` MCP for bounded dependency, impact, diagnostic, ordering, trace, and workflow queries.
+- Routed app stages through one workflow definition and canonical `app-stage-handoff.v2` instead of duplicated prose route tables.
 - Added `app-solo-route` for sequential DIRECT stage resumption through the pre-development workflow, with canonical route validation and loop prevention.
 - Made DIRECT primary and DELEGATED L3 stage-output ownership explicit across research, specification, functional graph, planning, and analysis.
 - Made delegated entry fail closed on mixed DIRECT context and require a fresh task before overlapping target dispatch.

@@ -17,7 +17,7 @@ For work already classified `DELEGATED`, act as the solo L2 analogue: decompose 
 - Existing constitution or wave refs, when known.
 - Product constraints and unresolved decisions.
 
-Direct user entry is not an inter-stage handoff. Any stage-generated resume input and this stage's output use the canonical `app-stage-handoff.v1` defined by `app-functional-graph`.
+Direct user entry is not an inter-stage handoff. Run `$app-context-index` at entry, then use canonical `app-stage-handoff.v2` from `contracts/app-stage-handoff.v2.schema.json` and the routes in `contracts/app-workflow-definition.v1.json`.
 
 ## L3 output
 
@@ -31,7 +31,7 @@ The selected L3 writes `docs/app-constitution.md` with:
 - evidence required before wave closeout;
 - open decisions that block specification or planning.
 
-If a wave already owns detail, link it instead of copying it. Return canonical `app-stage-handoff.v1` status `constitution-ready` with every common field plus `app_repo_or_path`, `constitution_ref`, `constraint_refs`, `research_unknowns`, and `wave_creation_basis`. Put known waves in `wave_ids`, use `[]` until a wave exists, place open decisions in `decision_refs`, place evidence gaps in `gap_refs`, and target `app-research`.
+If a wave already owns detail, link it instead of copying it. Refresh `$app-context-index`, then return canonical `app-stage-handoff.v2` status `constitution-ready` with the current source digest and index refs plus `app_repo_or_path`, `constitution_ref`, `constraint_refs`, `research_unknowns`, and `wave_creation_basis`. Put known waves in `wave_ids`, use `[]` until a wave exists, place open decisions in `decision_refs`, place evidence gaps in `gap_refs`, and target `app-research`.
 
 ## Stage rules
 

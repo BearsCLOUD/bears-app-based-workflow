@@ -1,7 +1,7 @@
 {
   "name": "bears-app-based-workflow",
-  "version": "0.1.0+codex.20260712042510",
-  "description": "Bears app workflow plugin for sequential DIRECT routing, waves, functional graphs, task ledgers, repo-scoped queues, immutable review, and remediation.",
+  "version": "0.1.0+codex.20260712201839",
+  "description": "Bears app workflow plugin for sequential DIRECT routing, typed traceability and process graphs, graph queries, repo-scoped queues, immutable review, and remediation.",
   "author": {
     "name": "BearsCLOUD",
     "url": "https://github.com/BearsCLOUD"
@@ -14,16 +14,20 @@
     "spec-kit",
     "waves",
     "functional-graph",
+    "traceability",
+    "impact-analysis",
+    "mcp",
     "task-ledger",
     "direct-routing",
     "instruction-hardening",
     "subagents"
   ],
   "skills": "./skills/",
+  "mcpServers": "./.mcp.json",
   "interface": {
     "displayName": "Bears App-Based Workflow",
     "shortDescription": "DIRECT routing and bounded repo app waves.",
-    "longDescription": "Bears App-Based Workflow provides sequential DIRECT stage routing, app constitutions, research waves, functional specifications, graph-linked plans, persistent repo queues, one-task app-worker dispatch, immutable repo-wave review, remediation planning, instruction policy editing, role profile architecture, primary-source evidence research, and convergence analysis.",
+    "longDescription": "Bears App-Based Workflow provides sequential DIRECT stage routing, app constitutions, research waves, functional specifications, typed traceability and process indexes, read-only dependency and impact graph queries, graph-linked plans, persistent repo queues, immutable repo-wave review, remediation planning, and convergence analysis.",
     "developerName": "BearsCLOUD",
     "category": "Development",
     "capabilities": [
@@ -32,6 +36,8 @@
       "Wave research and synchronization",
       "Detailed app specification",
       "Functional graph planning",
+      "Traceability and process indexing",
+      "Read-only dependency and impact queries",
       "Graph-linked task ledger",
       "Implementation analysis",
       "Persistent repo-scoped L1/L2 queues",
@@ -45,6 +51,7 @@
     "defaultPrompt": [
       "Research app feature waves.",
       "Resume app workflow stages with one DIRECT primary.",
+      "Trace app dependencies and change impact through the read-only graph index.",
       "Harden approved instructions.",
       "Create a primary-source evidence packet.",
       "Execute repo-scoped ledger queues with bounded workers and immutable review."

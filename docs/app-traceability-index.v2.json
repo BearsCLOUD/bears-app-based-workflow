@@ -1,0 +1,805 @@
+{
+  "schema": "app-traceability-index.v2",
+  "app_id": "bears-app-based-workflow",
+  "revision": 1,
+  "source_snapshot_digest": "sha256:cc57f517b18bcaa8419fb8943bbd7af233e60d592fd66e18a450dd5e5cd34aa1",
+  "generated_from": [
+    {
+      "path": ".codex-plugin/plugin.json",
+      "anchor": "",
+      "digest": "sha256:047a7609043b52d7b3285d4fe8812af48f51395b26509199fde76bfd92bce691"
+    },
+    {
+      "path": ".github/autoci/ci-requirements.v1.json",
+      "anchor": "",
+      "digest": "sha256:21eaba84a6212e9ea9e4797fe65f2110d72f5c62f3ca69f3fcbf35724240df93"
+    },
+    {
+      "path": ".github/runner/test_app_solo_route.py",
+      "anchor": "",
+      "digest": "sha256:c085c790987ea313572f6addac4a46de7a4947813fbcdaab677c03405b42f25e"
+    },
+    {
+      "path": ".mcp.json",
+      "anchor": "",
+      "digest": "sha256:9c1cc06c46b550198f25717054c810bded902f1721685cb4fa5e9dd09ec84524"
+    },
+    {
+      "path": "CHANGELOG.md",
+      "anchor": "",
+      "digest": "sha256:71f77817fdb399ee9ef7664b45c089870d0e9745ac4f7f93e6b43ddf8e3b139e"
+    },
+    {
+      "path": "README.md",
+      "anchor": "",
+      "digest": "sha256:e74ab1ccca6efa5604a1c4196eba2a5e52d6dfc2fa0543ef984f8484e097848a"
+    },
+    {
+      "path": "agents/app-worker.toml",
+      "anchor": "",
+      "digest": "sha256:5ebc84194ed6d9f877702459c503b9b010886a9cd4c55bcaa25db4e7772bcf7e"
+    },
+    {
+      "path": "contracts/app-context-index-result.v1.schema.json",
+      "anchor": "",
+      "digest": "sha256:2f44177e91592f00e121acd682c80cccdf832575c0bf1a6b052fa55d27a2a405"
+    },
+    {
+      "path": "contracts/app-functional-map.v2.schema.json",
+      "anchor": "",
+      "digest": "sha256:6dea9f2adc01b52f63773c99463e7e3d295cf6c79ccec5a8bf23744dc683ed56"
+    },
+    {
+      "path": "contracts/app-process-index.v1.schema.json",
+      "anchor": "",
+      "digest": "sha256:c5ae5d48eabb61c7491e20c312d0edf6fbe6b025c060d0a952c6b01ecc2ebdb6"
+    },
+    {
+      "path": "contracts/app-stage-handoff.v2.schema.json",
+      "anchor": "",
+      "digest": "sha256:47b35e7302dacc978434d6fb79b0f4e8f7fb381e54d5d211cb63c19a111d2381"
+    },
+    {
+      "path": "contracts/app-traceability-index.v2.schema.json",
+      "anchor": "",
+      "digest": "sha256:5f711134e28974d96e3e8d43959616a3cdd76ef0a048219cd62eda5d3fe74165"
+    },
+    {
+      "path": "contracts/app-workflow-definition.v1.json",
+      "anchor": "",
+      "digest": "sha256:a87f509f2520c09974930e67e2facf71478ab70a73de204a9c9bef46afe9f246"
+    },
+    {
+      "path": "docs/app-constitution.md",
+      "anchor": "",
+      "digest": "sha256:ad87ee221c2f211fd53e52ecab75b94d801051f30a0db0ad9e2ccc1c8709bea8"
+    },
+    {
+      "path": "docs/app-functional-map.v2.json",
+      "anchor": "",
+      "digest": "sha256:232bbbc5500e1b22c8053f54d59ee18b0083106230a233f47243b1c02a2c9d11"
+    },
+    {
+      "path": "docs/app-task-ledger.v1.json",
+      "anchor": "",
+      "digest": "sha256:d28c4f5424f197ab75799a5f988eabc62320a1bb4065421d347bc5f72ee27eaa"
+    },
+    {
+      "path": "scripts/README.md",
+      "anchor": "",
+      "digest": "sha256:e4b93d94bf8005f4816694d9b8ad8de51406aa42541963869756ad6e591ba9bd"
+    },
+    {
+      "path": "scripts/app_graph_engine.py",
+      "anchor": "",
+      "digest": "sha256:081b9adc053239ea90e5b9af1bfa0d3111359782fc14f86c4bb94c8961313890"
+    },
+    {
+      "path": "scripts/app_graph_mcp.py",
+      "anchor": "",
+      "digest": "sha256:3708658687473ebf1ef32add327e86a93b3c7929445b91c68f68986166b9e3b4"
+    },
+    {
+      "path": "skills/app-analyze/SKILL.md",
+      "anchor": "",
+      "digest": "sha256:0aaeb043f5a2c1adb1f571b3fab96b57262cd335145a900a74bac19bc5c359c9"
+    },
+    {
+      "path": "skills/app-constitution/SKILL.md",
+      "anchor": "",
+      "digest": "sha256:b7d16a5ee4d783d72c15d149cfb01674943190ed33170e921b37483b145f1971"
+    },
+    {
+      "path": "skills/app-context-index/SKILL.md",
+      "anchor": "",
+      "digest": "sha256:bd7d66c28467f2d44bf1887a65374f758812f45faa5bea63f57834d8c9f8f9da"
+    },
+    {
+      "path": "skills/app-dev/SKILL.md",
+      "anchor": "",
+      "digest": "sha256:c01e8c606d0fe30c783790a4054e9aa19ee28b0a9c1791868aa71c99d30145e3"
+    },
+    {
+      "path": "skills/app-functional-graph/SKILL.md",
+      "anchor": "",
+      "digest": "sha256:932a2c3b0e6e210fb240971009079c3f346ae32d9e351f2e7d33cedbaebfa440"
+    },
+    {
+      "path": "skills/app-plan/SKILL.md",
+      "anchor": "",
+      "digest": "sha256:770aed8f2dcc733aca19bbeee1d89e378ed7ef530744844fff06ff8276e7bf9f"
+    },
+    {
+      "path": "skills/app-research/SKILL.md",
+      "anchor": "",
+      "digest": "sha256:07f922db596d7cc057fd6f719adcccf32ef19021adaa10326dbec88be724fc64"
+    },
+    {
+      "path": "skills/app-solo-route/SKILL.md",
+      "anchor": "",
+      "digest": "sha256:90117c484b8436ee9f05f13e0f9824e29aadbaf17e2340f7de26bbcef6b97a76"
+    },
+    {
+      "path": "skills/app-specify/SKILL.md",
+      "anchor": "",
+      "digest": "sha256:b8c3cc8cae26937cfadf40b1bfc2617c2d7d84feb651b3b56fc430efef70d2b1"
+    },
+    {
+      "path": "waves/graph-workflow-v2/analysis.md",
+      "anchor": "",
+      "digest": "sha256:566e1d709bb90adc5c21c8f55e781e65b9abcb745937dce8320e8dd4a4916495"
+    },
+    {
+      "path": "waves/graph-workflow-v2/plan.md",
+      "anchor": "",
+      "digest": "sha256:d43f8aba3b88351f4759aec58c8f61115d30fa35e0f8fbdf856932baa049e24e"
+    },
+    {
+      "path": "waves/graph-workflow-v2/research.md",
+      "anchor": "",
+      "digest": "sha256:86dc40c2237aa25b214342141f119ad1cabb634540ffebda550ff59e540674f6"
+    },
+    {
+      "path": "waves/graph-workflow-v2/spec.md",
+      "anchor": "",
+      "digest": "sha256:07185277fe17e87d9aebf9d9c82e36513f12acb1b4367d82d9e3c071aa5d0deb"
+    },
+    {
+      "path": "waves/index.md",
+      "anchor": "",
+      "digest": "sha256:9871e8438c6e01ddeebf9f9b38bd38e7e5abbc865d829f03fe9be5ac200738bb"
+    }
+  ],
+  "roots": [
+    "SPEC-GRAPH-WORKFLOW-V2"
+  ],
+  "evidence_sinks": [
+    "EVIDENCE-ARTIFACT-001"
+  ],
+  "entities": [
+    {
+      "ref": "SPEC-GRAPH-WORKFLOW-V2",
+      "kind": "spec",
+      "scope": "graph-workflow-v2",
+      "source": {
+        "path": "waves/graph-workflow-v2/spec.md",
+        "anchor": "",
+        "digest": "sha256:07185277fe17e87d9aebf9d9c82e36513f12acb1b4367d82d9e3c071aa5d0deb"
+      }
+    },
+    {
+      "ref": "DEC-TRUTH-001",
+      "kind": "decision",
+      "scope": "graph-workflow-v2",
+      "source": {
+        "path": "waves/graph-workflow-v2/spec.md",
+        "anchor": "#decisions",
+        "digest": "sha256:07185277fe17e87d9aebf9d9c82e36513f12acb1b4367d82d9e3c071aa5d0deb"
+      }
+    },
+    {
+      "ref": "DEC-LAYERS-001",
+      "kind": "decision",
+      "scope": "graph-workflow-v2",
+      "source": {
+        "path": "waves/graph-workflow-v2/spec.md",
+        "anchor": "#decisions",
+        "digest": "sha256:07185277fe17e87d9aebf9d9c82e36513f12acb1b4367d82d9e3c071aa5d0deb"
+      }
+    },
+    {
+      "ref": "DEC-MIGRATION-001",
+      "kind": "decision",
+      "scope": "graph-workflow-v2",
+      "source": {
+        "path": "waves/graph-workflow-v2/spec.md",
+        "anchor": "#decisions",
+        "digest": "sha256:07185277fe17e87d9aebf9d9c82e36513f12acb1b4367d82d9e3c071aa5d0deb"
+      }
+    },
+    {
+      "ref": "DEC-CODE-001",
+      "kind": "decision",
+      "scope": "graph-workflow-v2",
+      "source": {
+        "path": "waves/graph-workflow-v2/spec.md",
+        "anchor": "#decisions",
+        "digest": "sha256:07185277fe17e87d9aebf9d9c82e36513f12acb1b4367d82d9e3c071aa5d0deb"
+      }
+    },
+    {
+      "ref": "DEC-MCP-001",
+      "kind": "decision",
+      "scope": "graph-workflow-v2",
+      "source": {
+        "path": "waves/graph-workflow-v2/spec.md",
+        "anchor": "#decisions",
+        "digest": "sha256:07185277fe17e87d9aebf9d9c82e36513f12acb1b4367d82d9e3c071aa5d0deb"
+      }
+    },
+    {
+      "ref": "REQ-WORKFLOW-001",
+      "kind": "requirement",
+      "scope": "graph-workflow-v2",
+      "source": {
+        "path": "waves/graph-workflow-v2/spec.md",
+        "anchor": "#requirements",
+        "digest": "sha256:07185277fe17e87d9aebf9d9c82e36513f12acb1b4367d82d9e3c071aa5d0deb"
+      }
+    },
+    {
+      "ref": "REQ-INDEX-001",
+      "kind": "requirement",
+      "scope": "graph-workflow-v2",
+      "source": {
+        "path": "waves/graph-workflow-v2/spec.md",
+        "anchor": "#requirements",
+        "digest": "sha256:07185277fe17e87d9aebf9d9c82e36513f12acb1b4367d82d9e3c071aa5d0deb"
+      }
+    },
+    {
+      "ref": "REQ-PROCESS-001",
+      "kind": "requirement",
+      "scope": "graph-workflow-v2",
+      "source": {
+        "path": "waves/graph-workflow-v2/spec.md",
+        "anchor": "#requirements",
+        "digest": "sha256:07185277fe17e87d9aebf9d9c82e36513f12acb1b4367d82d9e3c071aa5d0deb"
+      }
+    },
+    {
+      "ref": "REQ-GRAPH-001",
+      "kind": "requirement",
+      "scope": "graph-workflow-v2",
+      "source": {
+        "path": "waves/graph-workflow-v2/spec.md",
+        "anchor": "#requirements",
+        "digest": "sha256:07185277fe17e87d9aebf9d9c82e36513f12acb1b4367d82d9e3c071aa5d0deb"
+      }
+    },
+    {
+      "ref": "REQ-MCP-001",
+      "kind": "requirement",
+      "scope": "graph-workflow-v2",
+      "source": {
+        "path": "waves/graph-workflow-v2/spec.md",
+        "anchor": "#requirements",
+        "digest": "sha256:07185277fe17e87d9aebf9d9c82e36513f12acb1b4367d82d9e3c071aa5d0deb"
+      }
+    },
+    {
+      "ref": "REQ-CYCLE-001",
+      "kind": "requirement",
+      "scope": "graph-workflow-v2",
+      "source": {
+        "path": "waves/graph-workflow-v2/spec.md",
+        "anchor": "#requirements",
+        "digest": "sha256:07185277fe17e87d9aebf9d9c82e36513f12acb1b4367d82d9e3c071aa5d0deb"
+      }
+    },
+    {
+      "ref": "FUNC-WORKFLOW-001",
+      "kind": "functionality",
+      "scope": "bears-app-based-workflow",
+      "source": {
+        "path": "contracts/app-workflow-definition.v1.json",
+        "anchor": "",
+        "digest": "sha256:a87f509f2520c09974930e67e2facf71478ab70a73de204a9c9bef46afe9f246"
+      }
+    },
+    {
+      "ref": "FUNC-INDEX-001",
+      "kind": "functionality",
+      "scope": "bears-app-based-workflow",
+      "source": {
+        "path": "skills/app-context-index/SKILL.md",
+        "anchor": "",
+        "digest": "sha256:bd7d66c28467f2d44bf1887a65374f758812f45faa5bea63f57834d8c9f8f9da"
+      }
+    },
+    {
+      "ref": "FUNC-QUERY-001",
+      "kind": "functionality",
+      "scope": "bears-app-based-workflow",
+      "source": {
+        "path": "scripts/app_graph_engine.py",
+        "anchor": "",
+        "digest": "sha256:081b9adc053239ea90e5b9af1bfa0d3111359782fc14f86c4bb94c8961313890"
+      }
+    },
+    {
+      "ref": "FUNC-MCP-001",
+      "kind": "functionality",
+      "scope": "bears-app-based-workflow",
+      "source": {
+        "path": "scripts/app_graph_mcp.py",
+        "anchor": "",
+        "digest": "sha256:3708658687473ebf1ef32add327e86a93b3c7929445b91c68f68986166b9e3b4"
+      }
+    },
+    {
+      "ref": "TASK-CONTRACT-001",
+      "kind": "task",
+      "scope": "graph-workflow-v2",
+      "source": {
+        "path": "waves/graph-workflow-v2/plan.md",
+        "anchor": "#tasks",
+        "digest": "sha256:d43f8aba3b88351f4759aec58c8f61115d30fa35e0f8fbdf856932baa049e24e"
+      }
+    },
+    {
+      "ref": "TASK-INDEX-001",
+      "kind": "task",
+      "scope": "graph-workflow-v2",
+      "source": {
+        "path": "waves/graph-workflow-v2/plan.md",
+        "anchor": "#tasks",
+        "digest": "sha256:d43f8aba3b88351f4759aec58c8f61115d30fa35e0f8fbdf856932baa049e24e"
+      }
+    },
+    {
+      "ref": "TASK-CYCLE-001",
+      "kind": "task",
+      "scope": "graph-workflow-v2",
+      "source": {
+        "path": "waves/graph-workflow-v2/plan.md",
+        "anchor": "#tasks",
+        "digest": "sha256:d43f8aba3b88351f4759aec58c8f61115d30fa35e0f8fbdf856932baa049e24e"
+      }
+    },
+    {
+      "ref": "TASK-MCP-001",
+      "kind": "task",
+      "scope": "graph-workflow-v2",
+      "source": {
+        "path": "waves/graph-workflow-v2/plan.md",
+        "anchor": "#tasks",
+        "digest": "sha256:d43f8aba3b88351f4759aec58c8f61115d30fa35e0f8fbdf856932baa049e24e"
+      }
+    },
+    {
+      "ref": "TASK-PACKAGE-001",
+      "kind": "task",
+      "scope": "graph-workflow-v2",
+      "source": {
+        "path": "waves/graph-workflow-v2/plan.md",
+        "anchor": "#tasks",
+        "digest": "sha256:d43f8aba3b88351f4759aec58c8f61115d30fa35e0f8fbdf856932baa049e24e"
+      }
+    },
+    {
+      "ref": "TASK-AUDIT-001",
+      "kind": "task",
+      "scope": "graph-workflow-v2",
+      "source": {
+        "path": "waves/graph-workflow-v2/plan.md",
+        "anchor": "#tasks",
+        "digest": "sha256:d43f8aba3b88351f4759aec58c8f61115d30fa35e0f8fbdf856932baa049e24e"
+      }
+    },
+    {
+      "ref": "CODE-WORKFLOW-001",
+      "kind": "code",
+      "scope": "bears-app-based-workflow",
+      "source": {
+        "path": "contracts/app-workflow-definition.v1.json",
+        "anchor": "",
+        "digest": "sha256:a87f509f2520c09974930e67e2facf71478ab70a73de204a9c9bef46afe9f246"
+      }
+    },
+    {
+      "ref": "CODE-HANDOFF-001",
+      "kind": "code",
+      "scope": "bears-app-based-workflow",
+      "source": {
+        "path": "contracts/app-stage-handoff.v2.schema.json",
+        "anchor": "",
+        "digest": "sha256:47b35e7302dacc978434d6fb79b0f4e8f7fb381e54d5d211cb63c19a111d2381"
+      }
+    },
+    {
+      "ref": "CODE-INDEX-SKILL-001",
+      "kind": "code",
+      "scope": "bears-app-based-workflow",
+      "source": {
+        "path": "skills/app-context-index/SKILL.md",
+        "anchor": "#refresh-procedure",
+        "digest": "sha256:bd7d66c28467f2d44bf1887a65374f758812f45faa5bea63f57834d8c9f8f9da"
+      }
+    },
+    {
+      "ref": "CODE-ENGINE-001",
+      "kind": "code",
+      "scope": "bears-app-based-workflow",
+      "source": {
+        "path": "scripts/app_graph_engine.py",
+        "anchor": "GraphStore",
+        "digest": "sha256:081b9adc053239ea90e5b9af1bfa0d3111359782fc14f86c4bb94c8961313890"
+      }
+    },
+    {
+      "ref": "CODE-MCP-001",
+      "kind": "code",
+      "scope": "bears-app-based-workflow",
+      "source": {
+        "path": "scripts/app_graph_mcp.py",
+        "anchor": "main",
+        "digest": "sha256:3708658687473ebf1ef32add327e86a93b3c7929445b91c68f68986166b9e3b4"
+      }
+    },
+    {
+      "ref": "CODE-PACKAGE-001",
+      "kind": "code",
+      "scope": "bears-app-based-workflow",
+      "source": {
+        "path": ".codex-plugin/plugin.json",
+        "anchor": "mcpServers",
+        "digest": "sha256:047a7609043b52d7b3285d4fe8812af48f51395b26509199fde76bfd92bce691"
+      }
+    },
+    {
+      "ref": "TEST-ROUTE-EXISTING",
+      "kind": "test",
+      "scope": "bears-app-based-workflow",
+      "source": {
+        "path": ".github/runner/test_app_solo_route.py",
+        "anchor": "",
+        "digest": "sha256:c085c790987ea313572f6addac4a46de7a4947813fbcdaab677c03405b42f25e"
+      }
+    },
+    {
+      "ref": "EVIDENCE-ARTIFACT-001",
+      "kind": "evidence",
+      "scope": "graph-workflow-v2",
+      "source": {
+        "path": "waves/graph-workflow-v2/analysis.md",
+        "anchor": "#self-application-result",
+        "digest": "sha256:566e1d709bb90adc5c21c8f55e781e65b9abcb745937dce8320e8dd4a4916495"
+      }
+    }
+  ],
+  "edges": [
+    {
+      "ref": "TRACE-DEC-001",
+      "kind": "defines",
+      "from_ref": "SPEC-GRAPH-WORKFLOW-V2",
+      "to_ref": "DEC-TRUTH-001",
+      "source_refs": [
+        "waves/graph-workflow-v2/spec.md"
+      ],
+      "condition_refs": [],
+      "active": true
+    },
+    {
+      "ref": "TRACE-DEC-002",
+      "kind": "defines",
+      "from_ref": "SPEC-GRAPH-WORKFLOW-V2",
+      "to_ref": "DEC-LAYERS-001",
+      "source_refs": [
+        "waves/graph-workflow-v2/spec.md"
+      ],
+      "condition_refs": [],
+      "active": true
+    },
+    {
+      "ref": "TRACE-DEC-003",
+      "kind": "defines",
+      "from_ref": "SPEC-GRAPH-WORKFLOW-V2",
+      "to_ref": "DEC-MIGRATION-001",
+      "source_refs": [
+        "waves/graph-workflow-v2/spec.md"
+      ],
+      "condition_refs": [],
+      "active": true
+    },
+    {
+      "ref": "TRACE-DEC-004",
+      "kind": "defines",
+      "from_ref": "SPEC-GRAPH-WORKFLOW-V2",
+      "to_ref": "DEC-CODE-001",
+      "source_refs": [
+        "waves/graph-workflow-v2/spec.md"
+      ],
+      "condition_refs": [],
+      "active": true
+    },
+    {
+      "ref": "TRACE-DEC-005",
+      "kind": "defines",
+      "from_ref": "SPEC-GRAPH-WORKFLOW-V2",
+      "to_ref": "DEC-MCP-001",
+      "source_refs": [
+        "waves/graph-workflow-v2/spec.md"
+      ],
+      "condition_refs": [],
+      "active": true
+    },
+    {
+      "ref": "TRACE-REQ-001",
+      "kind": "defines",
+      "from_ref": "DEC-LAYERS-001",
+      "to_ref": "REQ-WORKFLOW-001",
+      "source_refs": [
+        "waves/graph-workflow-v2/spec.md"
+      ],
+      "condition_refs": [],
+      "active": true
+    },
+    {
+      "ref": "TRACE-TASK-001",
+      "kind": "decomposes_to",
+      "from_ref": "REQ-WORKFLOW-001",
+      "to_ref": "TASK-CONTRACT-001",
+      "source_refs": [
+        "waves/graph-workflow-v2/spec.md"
+      ],
+      "condition_refs": [],
+      "active": true
+    },
+    {
+      "ref": "TRACE-REQ-002",
+      "kind": "defines",
+      "from_ref": "DEC-TRUTH-001",
+      "to_ref": "REQ-INDEX-001",
+      "source_refs": [
+        "waves/graph-workflow-v2/spec.md"
+      ],
+      "condition_refs": [],
+      "active": true
+    },
+    {
+      "ref": "TRACE-TASK-002",
+      "kind": "decomposes_to",
+      "from_ref": "REQ-INDEX-001",
+      "to_ref": "TASK-INDEX-001",
+      "source_refs": [
+        "waves/graph-workflow-v2/spec.md"
+      ],
+      "condition_refs": [],
+      "active": true
+    },
+    {
+      "ref": "TRACE-REQ-003",
+      "kind": "defines",
+      "from_ref": "DEC-LAYERS-001",
+      "to_ref": "REQ-PROCESS-001",
+      "source_refs": [
+        "waves/graph-workflow-v2/spec.md"
+      ],
+      "condition_refs": [],
+      "active": true
+    },
+    {
+      "ref": "TRACE-TASK-003",
+      "kind": "decomposes_to",
+      "from_ref": "REQ-PROCESS-001",
+      "to_ref": "TASK-INDEX-001",
+      "source_refs": [
+        "waves/graph-workflow-v2/spec.md"
+      ],
+      "condition_refs": [],
+      "active": true
+    },
+    {
+      "ref": "TRACE-REQ-004",
+      "kind": "defines",
+      "from_ref": "DEC-LAYERS-001",
+      "to_ref": "REQ-GRAPH-001",
+      "source_refs": [
+        "waves/graph-workflow-v2/spec.md"
+      ],
+      "condition_refs": [],
+      "active": true
+    },
+    {
+      "ref": "TRACE-TASK-004",
+      "kind": "decomposes_to",
+      "from_ref": "REQ-GRAPH-001",
+      "to_ref": "TASK-MCP-001",
+      "source_refs": [
+        "waves/graph-workflow-v2/spec.md"
+      ],
+      "condition_refs": [],
+      "active": true
+    },
+    {
+      "ref": "TRACE-REQ-005",
+      "kind": "defines",
+      "from_ref": "DEC-MCP-001",
+      "to_ref": "REQ-MCP-001",
+      "source_refs": [
+        "waves/graph-workflow-v2/spec.md"
+      ],
+      "condition_refs": [],
+      "active": true
+    },
+    {
+      "ref": "TRACE-TASK-005",
+      "kind": "decomposes_to",
+      "from_ref": "REQ-MCP-001",
+      "to_ref": "TASK-MCP-001",
+      "source_refs": [
+        "waves/graph-workflow-v2/spec.md"
+      ],
+      "condition_refs": [],
+      "active": true
+    },
+    {
+      "ref": "TRACE-REQ-006",
+      "kind": "defines",
+      "from_ref": "DEC-TRUTH-001",
+      "to_ref": "REQ-CYCLE-001",
+      "source_refs": [
+        "waves/graph-workflow-v2/spec.md"
+      ],
+      "condition_refs": [],
+      "active": true
+    },
+    {
+      "ref": "TRACE-TASK-006",
+      "kind": "decomposes_to",
+      "from_ref": "REQ-CYCLE-001",
+      "to_ref": "TASK-CYCLE-001",
+      "source_refs": [
+        "waves/graph-workflow-v2/spec.md"
+      ],
+      "condition_refs": [],
+      "active": true
+    },
+    {
+      "ref": "TRACE-CODE-001",
+      "kind": "implemented_by",
+      "from_ref": "TASK-CONTRACT-001",
+      "to_ref": "CODE-HANDOFF-001",
+      "source_refs": [
+        "waves/graph-workflow-v2/spec.md"
+      ],
+      "condition_refs": [],
+      "active": true
+    },
+    {
+      "ref": "TRACE-CODE-002",
+      "kind": "implemented_by",
+      "from_ref": "TASK-INDEX-001",
+      "to_ref": "CODE-INDEX-SKILL-001",
+      "source_refs": [
+        "waves/graph-workflow-v2/spec.md"
+      ],
+      "condition_refs": [],
+      "active": true
+    },
+    {
+      "ref": "TRACE-CODE-003",
+      "kind": "implemented_by",
+      "from_ref": "TASK-CYCLE-001",
+      "to_ref": "CODE-WORKFLOW-001",
+      "source_refs": [
+        "waves/graph-workflow-v2/spec.md"
+      ],
+      "condition_refs": [],
+      "active": true
+    },
+    {
+      "ref": "TRACE-CODE-004",
+      "kind": "implemented_by",
+      "from_ref": "TASK-MCP-001",
+      "to_ref": "CODE-MCP-001",
+      "source_refs": [
+        "waves/graph-workflow-v2/spec.md"
+      ],
+      "condition_refs": [],
+      "active": true
+    },
+    {
+      "ref": "TRACE-CODE-005",
+      "kind": "implemented_by",
+      "from_ref": "TASK-PACKAGE-001",
+      "to_ref": "CODE-PACKAGE-001",
+      "source_refs": [
+        "waves/graph-workflow-v2/spec.md"
+      ],
+      "condition_refs": [],
+      "active": true
+    },
+    {
+      "ref": "TRACE-CODE-006",
+      "kind": "implemented_by",
+      "from_ref": "TASK-AUDIT-001",
+      "to_ref": "CODE-INDEX-SKILL-001",
+      "source_refs": [
+        "waves/graph-workflow-v2/spec.md"
+      ],
+      "condition_refs": [],
+      "active": true
+    },
+    {
+      "ref": "TRACE-TEST-023",
+      "kind": "verified_by",
+      "from_ref": "CODE-HANDOFF-001",
+      "to_ref": "TEST-ROUTE-EXISTING",
+      "source_refs": [
+        "waves/graph-workflow-v2/spec.md"
+      ],
+      "condition_refs": [],
+      "active": true
+    },
+    {
+      "ref": "TRACE-TEST-024",
+      "kind": "verified_by",
+      "from_ref": "CODE-WORKFLOW-001",
+      "to_ref": "TEST-ROUTE-EXISTING",
+      "source_refs": [
+        "waves/graph-workflow-v2/spec.md"
+      ],
+      "condition_refs": [],
+      "active": true
+    },
+    {
+      "ref": "TRACE-EVIDENCE-001",
+      "kind": "evidenced_by",
+      "from_ref": "TEST-ROUTE-EXISTING",
+      "to_ref": "EVIDENCE-ARTIFACT-001",
+      "source_refs": [
+        "waves/graph-workflow-v2/spec.md"
+      ],
+      "condition_refs": [],
+      "active": true
+    },
+    {
+      "ref": "TRACE-EVIDENCE-002",
+      "kind": "evidenced_by",
+      "from_ref": "CODE-INDEX-SKILL-001",
+      "to_ref": "EVIDENCE-ARTIFACT-001",
+      "source_refs": [
+        "waves/graph-workflow-v2/spec.md"
+      ],
+      "condition_refs": [],
+      "active": true
+    },
+    {
+      "ref": "TRACE-EVIDENCE-003",
+      "kind": "evidenced_by",
+      "from_ref": "CODE-MCP-001",
+      "to_ref": "EVIDENCE-ARTIFACT-001",
+      "source_refs": [
+        "waves/graph-workflow-v2/spec.md"
+      ],
+      "condition_refs": [],
+      "active": true
+    },
+    {
+      "ref": "TRACE-EVIDENCE-004",
+      "kind": "evidenced_by",
+      "from_ref": "CODE-PACKAGE-001",
+      "to_ref": "EVIDENCE-ARTIFACT-001",
+      "source_refs": [
+        "waves/graph-workflow-v2/spec.md"
+      ],
+      "condition_refs": [],
+      "active": true
+    }
+  ],
+  "aliases": [],
+  "replacements": [],
+  "findings": []
+}

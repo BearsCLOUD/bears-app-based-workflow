@@ -16,6 +16,8 @@
       "agents",
       "contracts",
       "skills",
+      "scripts",
+      ".mcp.json",
       "install"
     ],
     "forbidden_prefixes": [

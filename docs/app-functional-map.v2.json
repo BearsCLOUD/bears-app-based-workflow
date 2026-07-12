@@ -1,0 +1,40 @@
+{
+  "schema": "app-functional-map.v2",
+  "app_id": "bears-app-based-workflow",
+  "revision": 1,
+  "source_refs": [
+    "docs/app-constitution.md",
+    "waves/graph-workflow-v2/research.md",
+    "waves/graph-workflow-v2/spec.md"
+  ],
+  "entities": [
+    {"ref": "REQ-WORKFLOW-001", "kind": "requirement", "title": "Single workflow definition", "source_refs": ["waves/graph-workflow-v2/spec.md#requirements"]},
+    {"ref": "REQ-INDEX-001", "kind": "requirement", "title": "Digest-gated traceability index", "source_refs": ["waves/graph-workflow-v2/spec.md#requirements"]},
+    {"ref": "REQ-PROCESS-001", "kind": "requirement", "title": "Actual development process index", "source_refs": ["waves/graph-workflow-v2/spec.md#requirements"]},
+    {"ref": "REQ-GRAPH-001", "kind": "requirement", "title": "Deterministic graph queries", "source_refs": ["waves/graph-workflow-v2/spec.md#requirements"]},
+    {"ref": "REQ-MCP-001", "kind": "requirement", "title": "Read-only MCP query surface", "source_refs": ["waves/graph-workflow-v2/spec.md#requirements"]},
+    {"ref": "REQ-CYCLE-001", "kind": "requirement", "title": "Context-indexed app cycle", "source_refs": ["waves/graph-workflow-v2/spec.md#requirements"]},
+    {"ref": "FUNC-WORKFLOW-001", "kind": "functionality", "title": "Machine-defined app workflow", "source_refs": ["contracts/app-workflow-definition.v1.json"]},
+    {"ref": "FUNC-INDEX-001", "kind": "functionality", "title": "Traceability and process indexing", "source_refs": ["skills/app-context-index/SKILL.md"]},
+    {"ref": "FUNC-QUERY-001", "kind": "functionality", "title": "Bounded graph query engine", "source_refs": ["scripts/app_graph_engine.py"]},
+    {"ref": "FUNC-MCP-001", "kind": "integration", "title": "Bundled app-graph MCP", "source_refs": ["scripts/app_graph_mcp.py", ".mcp.json"]}
+  ],
+  "relations": [
+    {"ref": "REL-001", "kind": "defines", "from_ref": "REQ-WORKFLOW-001", "to_ref": "FUNC-WORKFLOW-001", "condition_refs": [], "source_refs": ["waves/graph-workflow-v2/spec.md"]},
+    {"ref": "REL-002", "kind": "defines", "from_ref": "REQ-INDEX-001", "to_ref": "FUNC-INDEX-001", "condition_refs": [], "source_refs": ["waves/graph-workflow-v2/spec.md"]},
+    {"ref": "REL-003", "kind": "defines", "from_ref": "REQ-PROCESS-001", "to_ref": "FUNC-INDEX-001", "condition_refs": [], "source_refs": ["waves/graph-workflow-v2/spec.md"]},
+    {"ref": "REL-004", "kind": "defines", "from_ref": "REQ-GRAPH-001", "to_ref": "FUNC-QUERY-001", "condition_refs": [], "source_refs": ["waves/graph-workflow-v2/spec.md"]},
+    {"ref": "REL-005", "kind": "defines", "from_ref": "REQ-MCP-001", "to_ref": "FUNC-MCP-001", "condition_refs": [], "source_refs": ["waves/graph-workflow-v2/spec.md"]},
+    {"ref": "REL-006", "kind": "depends_on", "from_ref": "FUNC-MCP-001", "to_ref": "FUNC-QUERY-001", "condition_refs": [], "source_refs": ["scripts/app_graph_mcp.py"]},
+    {"ref": "REL-007", "kind": "defines", "from_ref": "REQ-CYCLE-001", "to_ref": "FUNC-INDEX-001", "condition_refs": [], "source_refs": ["skills/app-solo-route/SKILL.md"]}
+  ],
+  "coverage": [
+    {"ref": "COV-001", "requirement_ref": "REQ-WORKFLOW-001", "dimension": "behavior", "entity_refs": ["FUNC-WORKFLOW-001"], "status": "mapped", "evidence_refs": ["contracts/app-workflow-definition.v1.json"]},
+    {"ref": "COV-002", "requirement_ref": "REQ-INDEX-001", "dimension": "data", "entity_refs": ["FUNC-INDEX-001"], "status": "mapped", "evidence_refs": ["contracts/app-traceability-index.v2.schema.json"]},
+    {"ref": "COV-003", "requirement_ref": "REQ-PROCESS-001", "dimension": "state", "entity_refs": ["FUNC-INDEX-001"], "status": "mapped", "evidence_refs": ["contracts/app-process-index.v1.schema.json"]},
+    {"ref": "COV-004", "requirement_ref": "REQ-GRAPH-001", "dimension": "dependency", "entity_refs": ["FUNC-QUERY-001"], "status": "mapped", "evidence_refs": ["scripts/app_graph_engine.py"]},
+    {"ref": "COV-005", "requirement_ref": "REQ-MCP-001", "dimension": "integration", "entity_refs": ["FUNC-MCP-001"], "status": "mapped", "evidence_refs": [".mcp.json"]},
+    {"ref": "COV-006", "requirement_ref": "REQ-CYCLE-001", "dimension": "behavior", "entity_refs": ["FUNC-INDEX-001"], "status": "mapped", "evidence_refs": ["skills/app-context-index/SKILL.md"]}
+  ],
+  "replacements": []
+}

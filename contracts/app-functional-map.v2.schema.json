@@ -1,0 +1,78 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://bears.cloud/contracts/app-functional-map.v2.schema.json",
+  "title": "App functional map v2",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "app_id", "revision", "source_refs", "entities", "relations", "coverage", "replacements"],
+  "properties": {
+    "schema": {"const": "app-functional-map.v2"},
+    "app_id": {"type": "string", "minLength": 1},
+    "revision": {"type": "integer", "minimum": 1},
+    "source_refs": {"$ref": "#/$defs/refs"},
+    "entities": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["ref", "kind", "title", "source_refs"],
+        "properties": {
+          "ref": {"type": "string", "minLength": 1},
+          "kind": {"enum": ["requirement", "functionality", "behavior", "state", "api", "data", "integration", "error"]},
+          "title": {"type": "string", "minLength": 1},
+          "source_refs": {"$ref": "#/$defs/refs"}
+        }
+      }
+    },
+    "relations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["ref", "kind", "from_ref", "to_ref", "condition_refs", "source_refs"],
+        "properties": {
+          "ref": {"type": "string", "minLength": 1},
+          "kind": {"type": "string", "minLength": 1},
+          "from_ref": {"type": "string", "minLength": 1},
+          "to_ref": {"type": "string", "minLength": 1},
+          "condition_refs": {"$ref": "#/$defs/refs"},
+          "source_refs": {"$ref": "#/$defs/refs"}
+        }
+      }
+    },
+    "coverage": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["ref", "requirement_ref", "dimension", "entity_refs", "status", "evidence_refs"],
+        "properties": {
+          "ref": {"type": "string", "minLength": 1},
+          "requirement_ref": {"type": "string", "minLength": 1},
+          "dimension": {"enum": ["behavior", "dependency", "state", "api", "data", "integration", "error"]},
+          "entity_refs": {"$ref": "#/$defs/refs"},
+          "status": {"enum": ["mapped", "decision-gap", "evidence-gap"]},
+          "evidence_refs": {"$ref": "#/$defs/refs"}
+        }
+      }
+    },
+    "replacements": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["old_ref", "new_refs", "reason", "effective_revision", "source_refs"],
+        "properties": {
+          "old_ref": {"type": "string", "minLength": 1},
+          "new_refs": {"$ref": "#/$defs/refs"},
+          "reason": {"type": "string", "minLength": 1},
+          "effective_revision": {"type": "integer", "minimum": 1},
+          "source_refs": {"$ref": "#/$defs/refs"}
+        }
+      }
+    }
+  },
+  "$defs": {
+    "refs": {"type": "array", "items": {"type": "string", "minLength": 1}, "uniqueItems": true}
+  }
+}

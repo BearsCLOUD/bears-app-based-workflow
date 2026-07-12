@@ -1,0 +1,382 @@
+{
+  "schema": "app-task-ledger.v1",
+  "app_id": "bears-app-based-workflow",
+  "revision": 2,
+  "graph_anchors": [],
+  "tasks": [
+    {
+      "task_id": "TASK-CONTRACT-001",
+      "repo_ref": "BearsCLOUD/bears-app-based-workflow",
+      "batch_id": "BATCH-GRAPH-WORKFLOW-V2",
+      "wave_id": "graph-workflow-v2",
+      "queue_sequence": 1,
+      "task_kind": "implementation",
+      "source_review_refs": [],
+      "requirement_refs": [
+        "REQ-WORKFLOW-001"
+      ],
+      "functionality_refs": [
+        "FUNC-WORKFLOW-001"
+      ],
+      "graph_entity_refs": [
+        "REQ-WORKFLOW-001",
+        "FUNC-WORKFLOW-001"
+      ],
+      "target_paths": [
+        "contracts/"
+      ],
+      "allowed_files": [
+        "contracts/app-workflow-definition.v1.json",
+        "contracts/app-stage-handoff.v2.schema.json",
+        "contracts/app-context-index-result.v1.schema.json",
+        "contracts/app-functional-map.v2.schema.json",
+        "contracts/app-traceability-index.v2.schema.json",
+        "contracts/app-process-index.v1.schema.json"
+      ],
+      "owner_role": "DIRECT-primary",
+      "lane": "plugin-architecture",
+      "depends_on": [],
+      "decision_state": "closed",
+      "status": "done",
+      "definition_of_done": "TASK-CONTRACT-001 artifacts are coherent with the v2 workflow and index contracts.",
+      "proof_requirement": "Exact task-scoped diff plus external autoCI evidence before pass.",
+      "ledger_update_contract": {
+        "allowed_transitions": [
+          "ready->in_progress",
+          "in_progress->done",
+          "in_progress->failed"
+        ],
+        "mutable_fields": [
+          "status",
+          "result_refs",
+          "automation_evidence_refs"
+        ]
+      },
+      "artifact_refs": [
+        "docs/app-constitution.md",
+        "waves/graph-workflow-v2/research.md",
+        "waves/graph-workflow-v2/spec.md",
+        "docs/app-functional-map.v2.json",
+        "waves/graph-workflow-v2/plan.md"
+      ],
+      "automation_evidence_refs": [],
+      "result_refs": [
+        "result:TASK-CONTRACT-001"
+      ]
+    },
+    {
+      "task_id": "TASK-INDEX-001",
+      "repo_ref": "BearsCLOUD/bears-app-based-workflow",
+      "batch_id": "BATCH-GRAPH-WORKFLOW-V2",
+      "wave_id": "graph-workflow-v2",
+      "queue_sequence": 2,
+      "task_kind": "implementation",
+      "source_review_refs": [],
+      "requirement_refs": [
+        "REQ-INDEX-001",
+        "REQ-PROCESS-001"
+      ],
+      "functionality_refs": [
+        "FUNC-INDEX-001"
+      ],
+      "graph_entity_refs": [
+        "REQ-INDEX-001",
+        "REQ-PROCESS-001",
+        "FUNC-INDEX-001"
+      ],
+      "target_paths": [
+        "skills/app-context-index/",
+        "docs/"
+      ],
+      "allowed_files": [
+        "skills/app-context-index/SKILL.md",
+        "docs/app-traceability-index.v2.json",
+        "docs/app-process-index.v1.json"
+      ],
+      "owner_role": "DIRECT-primary",
+      "lane": "plugin-architecture",
+      "depends_on": [
+        "TASK-CONTRACT-001"
+      ],
+      "decision_state": "closed",
+      "status": "done",
+      "definition_of_done": "TASK-INDEX-001 artifacts are coherent with the v2 workflow and index contracts.",
+      "proof_requirement": "Exact task-scoped diff plus external autoCI evidence before pass.",
+      "ledger_update_contract": {
+        "allowed_transitions": [
+          "ready->in_progress",
+          "in_progress->done",
+          "in_progress->failed"
+        ],
+        "mutable_fields": [
+          "status",
+          "result_refs",
+          "automation_evidence_refs"
+        ]
+      },
+      "artifact_refs": [
+        "docs/app-constitution.md",
+        "waves/graph-workflow-v2/research.md",
+        "waves/graph-workflow-v2/spec.md",
+        "docs/app-functional-map.v2.json",
+        "waves/graph-workflow-v2/plan.md"
+      ],
+      "automation_evidence_refs": [],
+      "result_refs": [
+        "result:TASK-INDEX-001"
+      ]
+    },
+    {
+      "task_id": "TASK-CYCLE-001",
+      "repo_ref": "BearsCLOUD/bears-app-based-workflow",
+      "batch_id": "BATCH-GRAPH-WORKFLOW-V2",
+      "wave_id": "graph-workflow-v2",
+      "queue_sequence": 3,
+      "task_kind": "implementation",
+      "source_review_refs": [],
+      "requirement_refs": [
+        "REQ-CYCLE-001"
+      ],
+      "functionality_refs": [
+        "FUNC-WORKFLOW-001",
+        "FUNC-INDEX-001"
+      ],
+      "graph_entity_refs": [
+        "REQ-CYCLE-001",
+        "FUNC-WORKFLOW-001",
+        "FUNC-INDEX-001"
+      ],
+      "target_paths": [
+        "skills/app-"
+      ],
+      "allowed_files": [
+        "skills/app-constitution/SKILL.md",
+        "skills/app-research/SKILL.md",
+        "skills/app-specify/SKILL.md",
+        "skills/app-functional-graph/SKILL.md",
+        "skills/app-plan/SKILL.md",
+        "skills/app-dev/SKILL.md",
+        "skills/app-analyze/SKILL.md",
+        "skills/app-solo-route/SKILL.md"
+      ],
+      "owner_role": "DIRECT-primary",
+      "lane": "plugin-architecture",
+      "depends_on": [
+        "TASK-CONTRACT-001",
+        "TASK-INDEX-001"
+      ],
+      "decision_state": "closed",
+      "status": "done",
+      "definition_of_done": "TASK-CYCLE-001 artifacts are coherent with the v2 workflow and index contracts.",
+      "proof_requirement": "Exact task-scoped diff plus external autoCI evidence before pass.",
+      "ledger_update_contract": {
+        "allowed_transitions": [
+          "ready->in_progress",
+          "in_progress->done",
+          "in_progress->failed"
+        ],
+        "mutable_fields": [
+          "status",
+          "result_refs",
+          "automation_evidence_refs"
+        ]
+      },
+      "artifact_refs": [
+        "docs/app-constitution.md",
+        "waves/graph-workflow-v2/research.md",
+        "waves/graph-workflow-v2/spec.md",
+        "docs/app-functional-map.v2.json",
+        "waves/graph-workflow-v2/plan.md"
+      ],
+      "automation_evidence_refs": [],
+      "result_refs": [
+        "result:TASK-CYCLE-001"
+      ]
+    },
+    {
+      "task_id": "TASK-MCP-001",
+      "repo_ref": "BearsCLOUD/bears-app-based-workflow",
+      "batch_id": "BATCH-GRAPH-WORKFLOW-V2",
+      "wave_id": "graph-workflow-v2",
+      "queue_sequence": 4,
+      "task_kind": "implementation",
+      "source_review_refs": [],
+      "requirement_refs": [
+        "REQ-GRAPH-001",
+        "REQ-MCP-001"
+      ],
+      "functionality_refs": [
+        "FUNC-QUERY-001",
+        "FUNC-MCP-001"
+      ],
+      "graph_entity_refs": [
+        "REQ-GRAPH-001",
+        "REQ-MCP-001",
+        "FUNC-QUERY-001",
+        "FUNC-MCP-001"
+      ],
+      "target_paths": [
+        "scripts/",
+        ".mcp.json"
+      ],
+      "allowed_files": [
+        "scripts/app_graph_engine.py",
+        "scripts/app_graph_mcp.py",
+        "scripts/README.md",
+        ".mcp.json"
+      ],
+      "owner_role": "DIRECT-primary",
+      "lane": "plugin-architecture",
+      "depends_on": [
+        "TASK-CONTRACT-001"
+      ],
+      "decision_state": "closed",
+      "status": "done",
+      "definition_of_done": "TASK-MCP-001 artifacts are coherent with the v2 workflow and index contracts.",
+      "proof_requirement": "Exact task-scoped diff plus external autoCI evidence before pass.",
+      "ledger_update_contract": {
+        "allowed_transitions": [
+          "ready->in_progress",
+          "in_progress->done",
+          "in_progress->failed"
+        ],
+        "mutable_fields": [
+          "status",
+          "result_refs",
+          "automation_evidence_refs"
+        ]
+      },
+      "artifact_refs": [
+        "docs/app-constitution.md",
+        "waves/graph-workflow-v2/research.md",
+        "waves/graph-workflow-v2/spec.md",
+        "docs/app-functional-map.v2.json",
+        "waves/graph-workflow-v2/plan.md"
+      ],
+      "automation_evidence_refs": [],
+      "result_refs": [
+        "result:TASK-MCP-001"
+      ]
+    },
+    {
+      "task_id": "TASK-PACKAGE-001",
+      "repo_ref": "BearsCLOUD/bears-app-based-workflow",
+      "batch_id": "BATCH-GRAPH-WORKFLOW-V2",
+      "wave_id": "graph-workflow-v2",
+      "queue_sequence": 5,
+      "task_kind": "implementation",
+      "source_review_refs": [],
+      "requirement_refs": [
+        "REQ-MCP-001"
+      ],
+      "functionality_refs": [
+        "FUNC-MCP-001"
+      ],
+      "graph_entity_refs": [
+        "REQ-MCP-001",
+        "FUNC-MCP-001"
+      ],
+      "target_paths": [
+        ".codex-plugin/",
+        ".github/",
+        "README.md",
+        "CHANGELOG.md"
+      ],
+      "allowed_files": [
+        ".codex-plugin/plugin.json",
+        ".github/autoci/ci-requirements.v1.json",
+        ".github/runner/test_app_solo_route.py",
+        "README.md",
+        "CHANGELOG.md"
+      ],
+      "owner_role": "DIRECT-primary",
+      "lane": "plugin-architecture",
+      "depends_on": [
+        "TASK-CYCLE-001",
+        "TASK-MCP-001"
+      ],
+      "decision_state": "closed",
+      "status": "done",
+      "definition_of_done": "TASK-PACKAGE-001 artifacts are coherent with the v2 workflow and index contracts.",
+      "proof_requirement": "Exact task-scoped diff plus external autoCI evidence before pass.",
+      "ledger_update_contract": {
+        "allowed_transitions": [
+          "ready->in_progress",
+          "in_progress->done",
+          "in_progress->failed"
+        ],
+        "mutable_fields": [
+          "status",
+          "result_refs",
+          "automation_evidence_refs"
+        ]
+      },
+      "artifact_refs": [
+        "docs/app-constitution.md",
+        "waves/graph-workflow-v2/research.md",
+        "waves/graph-workflow-v2/spec.md",
+        "docs/app-functional-map.v2.json",
+        "waves/graph-workflow-v2/plan.md"
+      ],
+      "automation_evidence_refs": [],
+      "result_refs": [
+        "result:TASK-PACKAGE-001"
+      ]
+    },
+    {
+      "task_id": "TASK-AUDIT-001",
+      "repo_ref": "BearsCLOUD/bears-app-based-workflow",
+      "batch_id": "BATCH-GRAPH-WORKFLOW-V2",
+      "wave_id": "graph-workflow-v2",
+      "queue_sequence": 6,
+      "task_kind": "implementation",
+      "source_review_refs": [],
+      "requirement_refs": [
+        "REQ-CYCLE-001"
+      ],
+      "functionality_refs": [
+        "FUNC-INDEX-001"
+      ],
+      "graph_entity_refs": [
+        "REQ-CYCLE-001",
+        "FUNC-INDEX-001"
+      ],
+      "target_paths": [
+        "waves/graph-workflow-v2/analysis.md"
+      ],
+      "allowed_files": [
+        "waves/graph-workflow-v2/analysis.md"
+      ],
+      "owner_role": "DIRECT-primary",
+      "lane": "plugin-architecture",
+      "depends_on": [
+        "TASK-PACKAGE-001"
+      ],
+      "decision_state": "closed",
+      "status": "ready",
+      "definition_of_done": "TASK-AUDIT-001 artifacts are coherent with the v2 workflow and index contracts.",
+      "proof_requirement": "Exact task-scoped diff plus external autoCI evidence before pass.",
+      "ledger_update_contract": {
+        "allowed_transitions": [
+          "ready->in_progress",
+          "in_progress->done",
+          "in_progress->failed"
+        ],
+        "mutable_fields": [
+          "status",
+          "result_refs",
+          "automation_evidence_refs"
+        ]
+      },
+      "artifact_refs": [
+        "docs/app-constitution.md",
+        "waves/graph-workflow-v2/research.md",
+        "waves/graph-workflow-v2/spec.md",
+        "docs/app-functional-map.v2.json",
+        "waves/graph-workflow-v2/plan.md"
+      ],
+      "automation_evidence_refs": [],
+      "result_refs": []
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 # Bears App-Based Workflow
 
-`bears-app-based-workflow` is a Codex plugin for app constitutions, research waves, functional specifications, graph-linked plans, repo-scoped implementation queues, immutable review, remediation, and convergence analysis.
+`bears-app-based-workflow` is a Codex plugin for app constitutions, research waves, functional specifications, typed traceability and process indexes, graph-linked plans, repo-scoped implementation queues, immutable review, remediation, and convergence analysis.
 
 `app-solo-route` keeps a `DIRECT` workstream with one primary and sequentially resumes `app-research`, `app-specify`, `app-functional-graph`, `app-plan`, and `app-analyze`. It stops at the external `app-constitution` or `app-dev` boundary, terminal `pass|blocked`, unchanged waiting state, or a required architecture decision; it never initializes delegated routing.
 
@@ -11,16 +11,19 @@ For work already classified `DELEGATED`, every `app-*` skill uses `subagents` be
 1. `app-constitution` records the app baseline.
 2. `app-research` creates and synchronizes research waves.
 3. `app-specify` closes product decisions with the user.
-4. `app-functional-graph` maps decision-complete requirements to the canonical functional graph.
-5. `app-plan` creates graph-linked ledger tasks for unbuilt behavior.
-6. `app-dev` runs dependency-ready work through persistent repo-L2 queues, one-task app-worker dispatch, immutable repo review, and remediation.
-7. `app-analyze` determines convergence and routes gaps back to the owning stage.
+4. `app-functional-graph` maps decision-complete requirements into the semantic functional map.
+5. `app-context-index` rebuilds the derived traceability and process indexes at run/wave entry and source drift.
+6. `app-plan` creates graph-linked ledger tasks for unbuilt behavior.
+7. `app-dev` runs dependency-ready work through persistent repo-L2 queues, one-task app-worker dispatch, immutable repo review, and remediation.
+8. `app-analyze` determines convergence and routes gaps back to the owning stage.
 
-Every inter-stage input and output uses the canonical `app-stage-handoff.v1` defined once in `app-functional-graph`. Its common fields are never omitted, unavailable early values use the schema's explicit empty semantics, and every status carries its canonical branch fields.
+Every inter-stage input and output uses `contracts/app-stage-handoff.v2.schema.json`. `contracts/app-workflow-definition.v1.json` is the single route, ownership, entry-gate, app-dev process, and edge-semantics definition; skills do not keep local route tables.
 
 The normal success chain is `constitution-ready` -> `research-ready` -> `spec-ready` -> `graph-ready` -> `plan-ready` -> `implemented` -> `pass`. Feedback returns through named statuses: `needs-research` to `app-research`, `needs-spec` to `app-specify`, `needs-graph` to `app-functional-graph`, and `needs-plan` to `app-plan`. `app-analyze` may return `ready` only for already valid executable ledger tasks and then hands them to `app-dev`.
 
-`<app-root>/docs/app-functional-graph.v1.json` in the consuming app repository is the source of truth for specified functionality ids, graph nodes, relationships, and functional coverage. Downstream plans, ledger tasks, implementation packets, and analyses carry its revision and refs; they never redefine graph meaning.
+Documents, code, tests, ledger records, results, reviews, commits, and existing evidence remain authoritative. `<app-root>/docs/app-functional-map.v2.json` records the specification-derived semantic mapping. `app-context-index` alone owns the rebuildable `<app-root>/docs/app-traceability-index.v2.json` and `<app-root>/docs/app-process-index.v1.json`; a mismatched source digest makes both unusable for routing, planning, or convergence.
+
+The bundled read-only `app-graph` MCP exposes dependency closure, impact paths, cycle/reachability diagnostics, topological task layers, end-to-end trace paths, and process state. It reads only allowlisted tracked JSON under an explicit app root, performs no writes or network access, and never declares acceptance.
 
 `worker` remains the generic bounded mutation profile and may apply `instruction-hardening` for instruction-policy edits. `app-worker` owns one canonical app task at a time and may be reused only inside the same repo-wave session. `wave-change-critic` owns one repo's immutable wave review; remediation is represented by new canonical tasks. `role-profile-architect` owns only concrete role-profile create, merge, split, or delete operations directly requested by the current user; `role-profile-maintenance` supplies its comparison and least-privilege method. Every write-capable L3 stages only its assigned files and creates its own task-scoped local commit; push requires separate current-task user authorization.
 
@@ -29,6 +32,7 @@ The active catalog is discovered from the regular, non-symlink `agents/*.toml` f
 ## Plugin skills
 
 - Stage procedures: `app-constitution`, `app-research`, `app-specify`, `app-functional-graph`, `app-plan`, `app-analyze`, `app-dev`.
+- Cross-cutting index procedure: `app-context-index`.
 - DIRECT routing procedure: `app-solo-route`.
 - Dispatch procedure: `subagents`.
 - Instruction procedures: `instruction-hardening`, `role-profile-maintenance`.
@@ -45,7 +49,9 @@ These paths are relative to the consuming app repository root, not this plugin r
 - `<app-root>/waves/<wave-id>/spec.md`
 - `<app-root>/waves/<wave-id>/plan.md`
 - `<app-root>/waves/<wave-id>/analysis.md`
-- `<app-root>/docs/app-functional-graph.v1.json`
+- `<app-root>/docs/app-functional-map.v2.json`
+- `<app-root>/docs/app-traceability-index.v2.json`
+- `<app-root>/docs/app-process-index.v1.json`
 - `<app-root>/docs/app-task-ledger.v1.json`
 
 ## Artifact ownership
@@ -53,10 +59,11 @@ These paths are relative to the consuming app repository root, not this plugin r
 - `app-constitution` writes only the app constitution.
 - `app-research` writes the wave registry and research files.
 - `app-specify` writes wave specifications.
-- `app-functional-graph` is the sole semantic writer of the functional graph and writes only graph anchors in the ledger.
-- `app-plan` writes implementation or remediation wave plans and the planning fields of executable ledger tasks; it never writes the graph or graph anchors.
+- `app-functional-graph` is the sole semantic writer of the functional map.
+- `app-context-index` is the sole writer of the two derived indexes and cannot change source meaning or acceptance.
+- `app-plan` writes implementation or remediation wave plans and the planning fields of executable ledger tasks; it never writes the functional map or indexes.
 - `app-dev` writes implementation targets and only the ledger execution fields authorized by each task's `ledger_update_contract`.
-- `app-analyze` writes wave analysis and treats the graph and ledger as read-only inputs.
+- `app-analyze` writes wave analysis and treats the functional map, indexes, and ledger as read-only inputs.
 
 ## Role installation
 

@@ -13,6 +13,7 @@ These files belong to the repository-owned CI/CD boundary and are not plugin age
 - `bears_deploy/role_profiles.py` owns exact role bundle materialization and desired config rendering.
 - `bears_deploy/role_io.py` owns locked config and receipt reads, snapshots, validation, and receipt construction.
 - `bears_deploy/publication.py` owns compare-and-swap publication, rollback, and journaled file replacement.
+- `bears_deploy/standalone_roles.py` owns receipt-bounded standalone custom-agent publication under `$CODEX_HOME/agents`.
 - `bears_deploy/journal.py` owns bounded binary encoding for durable journal fields.
 - `bears_deploy/state_io.py` owns the private state directory, migration tombstone, and deploy receipt reads.
 - `bears_deploy/intent_schema.py` owns strict promotion-intent schema and binding validation.
@@ -31,7 +32,7 @@ All gateway modules share the same runtime risks: partial marketplace mutation, 
 
 ## Durable promotion recovery
 
-The gateway atomically persists and syncs a promotion-intent journal before activation, then clears it only after the requested revision, the previous receipted revision, or the disabled state is verified. A later invocation recovers an interrupted promotion before ordinary receipt handling by converging to those outcomes in that order.
+The gateway atomically persists and syncs a promotion-intent journal before activation, then clears it only after the requested revision, the previous receipted revision, or the disabled state is verified. Role reconciliation also publishes one private standalone TOML file per receipted role under `$CODEX_HOME/agents`; retries converge partial per-file publication, updates remove only stale receipt-owned names, and removal preserves unrelated files. A later invocation recovers an interrupted promotion before ordinary receipt handling by converging to those outcomes in that order.
 
 The operator-visible risk is an interrupted or partially mutated marketplace. Recovery fails closed: if convergence cannot be proven, promotion stops with a recovery failure rather than advancing the receipt or enabling an unverified plugin, and operator repair is required before another promotion can safely proceed.
 

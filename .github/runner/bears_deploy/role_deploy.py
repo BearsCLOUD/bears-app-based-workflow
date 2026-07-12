@@ -56,6 +56,7 @@ from .state_io import (
     parse_migration_tombstone,
     publish_migration_tombstone,
 )
+from .standalone_roles import reconcile_standalone_roles
 
 
 def role_deployment_record(
@@ -394,6 +395,7 @@ def reconcile_roles(
             intent = mark_role_transaction_committed(state_directory, intent)
             transaction = intent["role_transaction"]
             phase = "committed"
+        reconcile_standalone_roles(home_fd, bundle, receipt_preimage)
         if operation == "migrate-v1-registration":
             publish_migration_tombstone(state_directory, transaction)
             expected_tombstone = parse_migration_tombstone(

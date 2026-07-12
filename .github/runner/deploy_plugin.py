@@ -29,6 +29,7 @@ _MODULE_NAMES = (
     "role_profiles",
     "role_io",
     "publication",
+    "standalone_roles",
     "journal",
     "state_io",
     "intent_schema",

@@ -1189,6 +1189,15 @@ class PinnedBundleCoverage(unittest.TestCase):
 
                 self.assertEqual((home / "config.toml").read_bytes(), desired_config)
                 self.assertEqual(receipt_path.read_bytes(), desired_receipt)
+                self.assertEqual(
+                    {path.name for path in (home / "agents").iterdir()},
+                    {f"{name}.toml" for name in ROLE_NAMES},
+                )
+                for name in ROLE_NAMES:
+                    self.assertEqual(
+                        (home / "agents" / f"{name}.toml").read_bytes(),
+                        (repo / "agents" / f"{name}.toml").read_bytes(),
+                    )
                 self.assertFalse(config_exchange.exists())
                 self.assertFalse(receipt_exchange.exists())
                 self.assertIsNone(DEPLOY.load_intent(state_fd))
@@ -1256,6 +1265,17 @@ class PinnedBundleCoverage(unittest.TestCase):
                 self.assertTrue(
                     (home / "state" / DEPLOY.ROLE_RECEIPT_FILE.name).is_file()
                 )
+                self.assertEqual(
+                    {path.name for path in (home / "agents").iterdir()},
+                    {f"{name}.toml" for name in ROLE_NAMES},
+                )
+                for name in ROLE_NAMES:
+                    standalone = home / "agents" / f"{name}.toml"
+                    self.assertEqual(
+                        standalone.read_bytes(),
+                        (repo / "agents" / f"{name}.toml").read_bytes(),
+                    )
+                    self.assertEqual(stat.S_IMODE(standalone.stat().st_mode), 0o600)
             finally:
                 os.close(state_fd)
         with tempfile.TemporaryDirectory() as temporary:
@@ -1320,6 +1340,15 @@ class RemovalRecoveryCoverage(unittest.TestCase):
         receipt_path = receipt_dir / DEPLOY.ROLE_RECEIPT_FILE.name
         receipt_path.write_bytes(receipt)
         receipt_path.chmod(0o600)
+        agents = home / "agents"
+        agents.mkdir(mode=0o700)
+        for record in records:
+            standalone = agents / f'{record["name"]}.toml'
+            standalone.write_bytes(Path(record["config_file"]).read_bytes())
+            standalone.chmod(0o600)
+        unrelated = agents / "personal.toml"
+        unrelated.write_bytes(b'name = "personal"\n')
+        unrelated.chmod(0o600)
         deploy_state = root / "deploy-state"
         deploy_state.mkdir(mode=0o700)
         state_fd = os.open(deploy_state, os.O_RDONLY | os.O_DIRECTORY)
@@ -1334,6 +1363,10 @@ class RemovalRecoveryCoverage(unittest.TestCase):
         receipt = json.loads((home / "state" / DEPLOY.ROLE_RECEIPT_FILE.name).read_bytes())
         self.assertEqual(receipt["schema"], DEPLOY.ROLE_RECEIPT_SCHEMA)
         self.assertEqual(receipt["status"], "uninstalled")
+        self.assertEqual(
+            {path.name for path in (home / "agents").iterdir()},
+            {"personal.toml"},
+        )
 
     def test_crash_after_config_publish_recovers_combined_removal(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:

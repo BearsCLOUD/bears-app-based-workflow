@@ -37,6 +37,7 @@ from .role_io import (
     validate_owned_role_state,
 )
 from .role_profiles import config_with_role_block, config_without_owned_roles
+from .standalone_roles import clear_standalone_roles
 
 
 def rollback_journaled_roles(intent: dict[str, Any]) -> None:
@@ -287,6 +288,10 @@ def clear_owned_roles(state_directory: int, intent: dict[str, Any]) -> dict[str,
         if phase == "prepared":
             intent = mark_role_transaction_committed(state_directory, intent)
             phase = "committed"
+        clear_standalone_roles(
+            home_fd,
+            None if receipt_preimage_value is None else receipt_preimage,
+        )
         finalize_publication(receipt_publication)
         finalize_publication(config_publication)
         return intent

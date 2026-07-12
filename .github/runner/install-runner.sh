@@ -821,6 +821,7 @@ local -a gateway_modules=(
   role_io.py
   role_profiles.py
   role_recovery.py
+  standalone_roles.py
   state_io.py
   telemetry.py
 )

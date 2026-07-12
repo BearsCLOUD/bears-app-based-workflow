@@ -151,6 +151,18 @@ PAYLOAD_PATHS = (
     ".mcp.json",
     "install",
 )
+LEGACY_PAYLOAD_PATHS = (
+    ".codex-plugin",
+    "agents",
+    "skills",
+    "scripts",
+    "hooks",
+    "assets",
+    ".app.json",
+    ".mcp.json",
+    "AGENTS.md",
+    "install",
+)
 ENV = {
     "HOME": "/home/ai1",
     "CODEX_HOME": str(CODEX_HOME),
@@ -590,6 +602,12 @@ def marketplace_row(
 
 def payload_fingerprint(repo: Path, sha: str) -> str:
     listing = git(repo, "ls-tree", "-r", "--full-tree", sha, "--", *PAYLOAD_PATHS).stdout
+    return hashlib.sha256(listing.encode()).hexdigest()
+
+
+def legacy_payload_fingerprint(repo: Path, sha: str) -> str:
+    """Reproduce the pre-contracts receipt fingerprint during one-way migration."""
+    listing = git(repo, "ls-tree", "-r", "--full-tree", sha, "--", *LEGACY_PAYLOAD_PATHS).stdout
     return hashlib.sha256(listing.encode()).hexdigest()
 
 
@@ -3655,7 +3673,12 @@ def clear_state(state_directory: int) -> None:
 
 def verify_receipted_install(state: dict[str, Any]) -> None:
     fingerprint = verify_install(str(state["sha"]), str(state["version"]))
-    if fingerprint != state["payload_fingerprint"]:
+    receipted_fingerprint = str(state["payload_fingerprint"])
+    legacy_match = (
+        LEGACY_VERSION_RE.fullmatch(str(state["version"])) is not None
+        and receipted_fingerprint == legacy_payload_fingerprint(MIRROR, str(state["sha"]))
+    )
+    if fingerprint != receipted_fingerprint and not legacy_match:
         raise DeployError("active plugin disagrees with its deployment receipt", error_code="receipt-corruption")
 
 

@@ -40,4 +40,4 @@ The exact pinned plugin payload contains `assets/codex-home-graph-instructions.m
 
 ## Version
 
-Graph Workflow v3 role/runtime hardening is released as `0.3.2`. A `1.0.0` release requires an explicit user request.
+Graph Workflow v3 role/runtime hardening was introduced in `0.3.2`; the current plugin release is `0.3.3`. A `1.0.0` release requires an explicit user request.

@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.3
+
+- Restored Codex-compatible boolean web-search controls in generated agent role files.
+
 ## 0.3.2
 
 - Made strict JSON role definitions and the capability catalog authoritative; TOML is now a deterministic safe-subset projection.

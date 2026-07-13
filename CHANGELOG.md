@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.4.2
+
+- Allowed every authoritative `main` promotion to rebuild and atomically activate the exact-revision root-owned deployment gateway before plugin promotion.
+- Kept fetched exact-revision gateway code out of the root execution path: the operator-installed privileged promoter reads bounded Git blobs, installs only hash-locked allowlisted wheels, runs the gateway as `ai1`, and restores the prior gateway on failure or interrupted activation.
+- Kept plugin CI absent and `automation_status=not_run`.
+
 ## 0.4.1
 
 - Rendered role-local MCP policy under the installed plugin namespace so Codex inherits the plugin transport instead of rejecting transport-less standalone server tables.

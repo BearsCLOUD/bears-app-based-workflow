@@ -41,6 +41,10 @@ Findings route to `needs-research`, `needs-spec`, `needs-graph`, `needs-plan`, o
 
 The exact pinned plugin payload contains `assets/codex-home-graph-instructions.md`. Promotion reconciles its marked block into `$CODEX_HOME/AGENTS.md` after marketplace and role publication but before the durable deployment receipt. Unmanaged bytes are preserved. Duplicate or malformed markers, symlinks, non-regular files, or receipted block drift fail closed. The promotion intent retains original and desired bytes for recovery; disable removes only the receipted block and its owned separator.
 
+## CD gateway updates
+
+After the one-time privileged promoter bootstrap, each authoritative `main` promotion first rebuilds the exact-revision deployment gateway and its hash-locked dependencies through the fixed root-owned promoter. Repository gateway code is installed as immutable data and executes only as non-root `ai1`; it is never executed as root. Failed or interrupted activation restores the prior gateway. Only changes to the privileged promoter or its narrow sudo authorization require a new operator bootstrap.
+
 ## Version
 
-Graph Workflow v4 is released as `0.4.1`. A `1.0.0` release requires an explicit user request.
+Graph Workflow v4 is released as `0.4.2`. A `1.0.0` release requires an explicit user request.

@@ -16,16 +16,16 @@ jobs:
       group: bears-app-based-workflow-cd
       cancel-in-progress: false
     steps:
-      - name: Promote exact pushed revision through the fixed gateway
+      - name: Update gateway and promote the exact pushed revision
         shell: bash
         working-directory: /
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          gateway=/usr/local/sbin/deploy-bears-app-based-workflow
-          [[ -f "$gateway" && ! -L "$gateway" ]]
-          [[ "$(stat -c '%U:%G' "$gateway")" == root:root ]]
-          mode=$((8#$(stat -c '%a' "$gateway")))
+          promoter=/usr/local/sbin/promote-bears-app-based-workflow
+          [[ -f "$promoter" && ! -L "$promoter" ]]
+          [[ "$(stat -c '%U:%G' "$promoter")" == root:root ]]
+          mode=$((8#$(stat -c '%a' "$promoter")))
           (( (mode & 8#022) == 0 ))
-          printf '%s\n' "$GH_TOKEN" | sudo -n -u ai1 -- "$gateway" '${{ github.sha }}'
+          printf '%s\n' "$GH_TOKEN" | sudo -n -- "$promoter" '${{ github.sha }}'

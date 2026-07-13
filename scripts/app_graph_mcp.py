@@ -9,7 +9,7 @@ from typing import Any
 from app_graph_engine import GraphError, MAX_REQUEST_BYTES, MAX_RESPONSE_BYTES, execute_tool
 
 SUPPORTED_PROTOCOLS = ("2025-11-25", "2025-06-18")
-SERVER_VERSION = "0.4.1"
+SERVER_VERSION = "0.4.2"
 
 STR = {"type": "string", "minLength": 1}
 CURSOR = {"type": "string", "description": "Opaque snapshot/query-bound continuation token."}

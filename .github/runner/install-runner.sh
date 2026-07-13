@@ -13,6 +13,8 @@ readonly REPOSITORY_URL="https://github.com/${REPOSITORY}"
 readonly ARCHIVE="/var/cache/bears-plugin-runner/actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz"
 readonly ARCHIVE_URL="https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz"
 readonly DEPLOY_COMMAND="/usr/local/sbin/deploy-bears-app-based-workflow"
+readonly PROMOTE_COMMAND="/usr/local/sbin/promote-bears-app-based-workflow"
+readonly PROMOTE_STATE_ROOT="/var/lib/bears-plugin-gateway-update"
 readonly DEPLOY_PACKAGE_ROOT="/usr/local/lib/bears-plugin-deploy"
 readonly DEPLOY_STATE_ROOT="/var/lib/bears-plugin-deploy"
 readonly DEPLOY_STATE_DIR="$DEPLOY_STATE_ROOT/ai1"
@@ -877,6 +879,8 @@ trap _install_runner_cleanup EXIT
 script_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)"
 [[ -f "$script_dir/deploy_plugin.py" && ! -L "$script_dir/deploy_plugin.py" ]] || \
   _install_runner_die "deploy_plugin.py must be a regular file beside the installer"
+[[ -f "$script_dir/promote_gateway.py" && ! -L "$script_dir/promote_gateway.py" ]] || \
+  _install_runner_die "promote_gateway.py must be a regular file beside the installer"
 [[ -d "$script_dir/bears_deploy" && ! -L "$script_dir/bears_deploy" ]] || \
   _install_runner_die "bears_deploy must be a regular directory beside the installer"
 [[ -f "$script_dir/sentry-requirements.lock" && ! -L "$script_dir/sentry-requirements.lock" ]] || \
@@ -1004,8 +1008,9 @@ printf '%s\n' "$RUNNER_VERSION" >"$RUNNER_DIR/.bears-version"
 _install_runner_gateway_tmp="$(/usr/bin/mktemp -d "${DEPLOY_PACKAGE_ROOT}.XXXXXX")"
 /usr/bin/chown root:root "$_install_runner_gateway_tmp"
 /usr/bin/chmod 0755 "$_install_runner_gateway_tmp"
-# Install only hash-locked wheels into the disposable gateway tree. The final
-# root-owned tree is swapped atomically and is never self-updated by main.
+# Install only hash-locked wheels into the disposable gateway tree. Subsequent
+# main promotions rebuild and transactionally swap this tree through the fixed
+# privileged promoter; the gateway itself still executes only as non-root ai1.
 /usr/bin/python3 -m pip install --disable-pip-version-check --no-deps \
   --require-hashes --only-binary=:all: --target "$_install_runner_gateway_tmp" \
   --requirement "$script_dir/sentry-requirements.lock"
@@ -1028,8 +1033,12 @@ done
 /usr/bin/install -o root -g root -m 0755 "$script_dir/deploy_plugin.py" "$DEPLOY_COMMAND"
 [[ "$(/usr/bin/stat -c '%U:%G:%a' "$DEPLOY_COMMAND")" == root:root:755 ]] || \
   _install_runner_die "deployment gateway ownership is not immutable"
+/usr/bin/install -o root -g root -m 0755 "$script_dir/promote_gateway.py" "$PROMOTE_COMMAND"
+[[ "$(/usr/bin/stat -c '%U:%G:%a' "$PROMOTE_COMMAND")" == root:root:755 ]] || \
+  _install_runner_die "gateway promoter ownership is not immutable"
+/usr/bin/install -d -o root -g root -m 0700 "$PROMOTE_STATE_ROOT"
 _install_runner_sudoers_tmp="$(/usr/bin/mktemp /etc/sudoers.d/bears-plugin-runner-deploy.XXXXXX)"
-printf '%s ALL=(ai1) NOPASSWD: %s ^[0-9a-f]{40}$\n' "$RUNNER_USER" "$DEPLOY_COMMAND" >"$_install_runner_sudoers_tmp"
+printf '%s ALL=(root) NOPASSWD: %s ^[0-9a-f]{40}$\n' "$RUNNER_USER" "$PROMOTE_COMMAND" >"$_install_runner_sudoers_tmp"
 /usr/bin/chmod 0440 "$_install_runner_sudoers_tmp"
 /usr/sbin/visudo -cf "$_install_runner_sudoers_tmp" >/dev/null
 /usr/bin/install -o root -g root -m 0440 "$_install_runner_sudoers_tmp" "$SUDOERS_FILE"
@@ -1079,7 +1088,7 @@ TimeoutStopSec=5min
 PrivateTmp=true
 ProtectSystem=strict
 ProtectHome=read-only
-ReadWritePaths=$RUNNER_DIR/_work $RUNNER_DIR/_diag $RUNNER_DIR/.credentials $RUNNER_DIR/.credentials_rsaparams /srv/bears/codex/ai1 $DEPLOY_STATE_DIR
+ReadWritePaths=$RUNNER_DIR/_work $RUNNER_DIR/_diag $RUNNER_DIR/.credentials $RUNNER_DIR/.credentials_rsaparams /srv/bears/codex/ai1 $DEPLOY_STATE_DIR $PROMOTE_STATE_ROOT /usr/local/lib /usr/local/sbin
 UMask=0077
 
 [Install]

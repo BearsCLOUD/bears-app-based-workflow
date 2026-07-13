@@ -5,6 +5,7 @@ These files belong to the repository-owned CI/CD boundary and are not plugin age
 ## Module map
 
 - `deploy_plugin.py` is the stable executable facade. It selects the repository-local package for authored autoCI coverage or the fixed root-owned `/usr/local/lib/bears-plugin-deploy` package in production, preserves the legacy import surface, and delegates to `bears_deploy.cli.main`.
+- `promote_gateway.py` is the fixed privileged bridge. For one exact SHA reachable from the authoritative `main`, it rebuilds the hash-locked gateway from Git blobs, atomically activates it, runs promotion as non-root `ai1`, and restores the prior gateway on failure or interrupted activation.
 - `bears_deploy/constants.py` owns fixed identities, paths, schemas, and size limits.
 - `bears_deploy/models.py` owns shared errors and transaction context models.
 - `bears_deploy/graph_instructions.py` owns fail-closed transactional reconciliation of the receipted graph-behavior block in `$CODEX_HOME/AGENTS.md`.
@@ -26,9 +27,10 @@ These files belong to the repository-owned CI/CD boundary and are not plugin age
 - `bears_deploy/cli.py` owns the `main` identity, argument, credential, and state-lock boundary.
 - `sentry-requirements.lock` pins the official `sentry-sdk`, `urllib3`, and `certifi` wheels with SHA-256 hashes. The installer places them inside the atomically replaced root-owned gateway tree.
 - `test_deploy_plugin_sentry.py` authors stub-only SDK, stack, release, production environment, trace, sanitization, single-send, and telemetry-failure scenarios. It never opens a live Sentry connection or creates a synthetic live event.
+- `test_promote_gateway.py` authors requirement allowlist plus interrupted activation/commit recovery scenarios for the privileged bridge.
 - `materialize_sentry_dsn.py` is a root-only atomic writer. It accepts one DSN only on inherited file descriptor 3, writes the fixed target, emits no value, and starts no child process.
 - `install-sentry-materializer.sh` installs only that writer as immutable root-owned code. It does not create an identity, obtain a DSN, or execute the writer.
-- `install-runner.sh` owns the isolated GitHub runner, root-owned gateway package installation, and the sole runner-to-deploy sudo boundary. The runner has no materializer sudo grant and cannot traverse `/home/ai1`.
+- `install-runner.sh` owns the isolated GitHub runner, the initial root-owned gateway/promoter installation, and the sole SHA-bounded runner-to-root sudo authorization. The runner has no general root shell, no materializer sudo grant, and cannot traverse `/home/ai1`.
 
 All gateway modules share the same runtime risks: partial marketplace mutation, receipt corruption, unsafe filesystem state, and unavailable telemetry. No plugin CI pipeline is active; `automation_status=not_run` is mandatory until exact external evidence is supplied.
 
@@ -56,7 +58,9 @@ Installing the materializer and performing the first materialization are separat
 
 ## CD and acceptance boundary
 
-`plugin-marketplace-cd.yml` runs no repository checkout or agent-controlled installer. It passes the exact pushed SHA and ephemeral GitHub job credential to the fixed root-owned gateway through the runner's existing command-restricted sudo rule. The gateway owns marketplace refresh, plugin installation, durable recovery, and sanitized deployment output.
+`plugin-marketplace-cd.yml` runs no repository checkout or general-purpose installer. It passes the exact pushed SHA and ephemeral GitHub job credential to the fixed root-owned promoter through the runner's command-restricted sudo rule. The promoter accepts only revisions reachable from the authoritative `main`, reads gateway sources as bounded Git blobs, installs only the three hash-locked allowlisted Python distributions, and never executes the fetched gateway code as root. It runs the newly activated gateway as non-root `ai1`; gateway or activation failure restores the previous root-owned gateway before CD fails.
+
+Gateway source and its hash-locked dependency versions therefore update automatically with each successful `main` promotion. The privileged promoter itself remains a small operator-installed trust anchor: changing that root-executed bridge or its sudo authorization requires one explicit bootstrap, while ordinary gateway edits do not.
 
 The gateway accepts timestamp-suffixed versions and their historical payload-fingerprint scope only while migrating an existing receipt. Once a plain SemVer receipt exists, each later pushed revision must strictly increase that version and cannot return to the legacy format or fingerprint scope.
 

@@ -138,13 +138,13 @@ class GitHubCredentialCoverage(unittest.TestCase):
         )
         self.assertNotIn("GIT_CONFIG_COUNT", DEPLOY.ENV)
 
-    def test_workflow_pipes_ephemeral_job_token_to_gateway(self) -> None:
+    def test_workflow_pipes_ephemeral_job_token_to_fixed_promoter(self) -> None:
         workflow = (
             MODULE_PATH.parents[1] / "workflows/plugin-marketplace-cd.yml"
         ).read_text(encoding="utf-8")
         self.assertIn("GH_TOKEN: ${{ github.token }}", workflow)
         self.assertIn(
-            "printf '%s\\n' \"$GH_TOKEN\" | sudo -n -u ai1 -- \"$gateway\"",
+            "printf '%s\\n' \"$GH_TOKEN\" | sudo -n -- \"$promoter\"",
             workflow,
         )
 
@@ -262,6 +262,7 @@ class InstallerStateMigrationCoverage(unittest.TestCase):
         for required in (
             'DEPLOY_STATE_ROOT="/var/lib/bears-plugin-deploy"',
             'DEPLOY_STATE_DIR="$DEPLOY_STATE_ROOT/ai1"',
+            'PROMOTE_COMMAND="/usr/local/sbin/promote-bears-app-based-workflow"',
             'LEGACY_DEPLOY_STATE_DIR="/srv/bears/codex/ai1/.local/state/bears-plugin-deploy"',
             'IMPORT_STAGE = f".{PLUGIN}.legacy-state-import.stage"',
             'IMPORT_TOMBSTONE = f"{PLUGIN}.legacy-state-imported.json"',
@@ -272,6 +273,7 @@ class InstallerStateMigrationCoverage(unittest.TestCase):
             'fail("new deployment state is non-empty before one-time receipt import")',
             "RENAME_NOREPLACE",
             "$DEPLOY_STATE_DIR",
+            'ALL=(root) NOPASSWD: %s ^[0-9a-f]{40}$',
         ):
             self.assertIn(required, source)
         self.assertIn('(\"bears\", \"/srv/bears\", 0, AI1_GID, 0o775)', source)

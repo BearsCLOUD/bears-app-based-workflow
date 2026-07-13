@@ -53,6 +53,7 @@ from .state_io import (
     load_state,
     parse_migration_tombstone,
 )
+from .telemetry import normalized_diagnostic
 
 
 def reconcile_receipted_roles(
@@ -286,6 +287,7 @@ def fail_after_recovery(
         message = "promotion failed after activation; previous receipted revision was restored"
     else:
         message = "promotion failed after activation; plugin was disabled"
+    message = f"{message}; cause: {normalized_diagnostic(str(failure))}"
     raise DeployError(
         message,
         error_code="recovery-activated",

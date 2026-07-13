@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.4
+
+- Preserved the normalized activation failure cause after successful CD rollback.
+
 ## 0.3.3
 
 - Restored Codex-compatible boolean web-search controls in generated agent role files.

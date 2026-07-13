@@ -13,6 +13,7 @@ from .constants import (
     FINGERPRINT_RE,
     MARKETPLACE,
     PLUGIN,
+    PRIOR_DEPLOY_RECEIPT_SCHEMA,
     PROMOTION_INTENT_SCHEMA,
     RECEIPT_MAX_BYTES,
     REPOSITORY,
@@ -290,20 +291,29 @@ def validate_intent(value: Any) -> dict[str, Any]:
             )
         if operation in {"install", "migrate-v1-registration"}:
             try:
-                validate_deploy_receipt(
-                    {
-                        "schema": DEPLOY_RECEIPT_SCHEMA,
+                source_blobs = role_record.get("role_source_blobs", {})
+                has_definitions = isinstance(source_blobs, dict) and any(
+                    path.startswith("role-definitions/") for path in source_blobs
+                )
+                receipt_schema = (
+                    DEPLOY_RECEIPT_SCHEMA if has_definitions else PRIOR_DEPLOY_RECEIPT_SCHEMA
+                )
+                candidate = {
+                        "schema": receipt_schema,
                         "repository": REPOSITORY,
                         "marketplace": MARKETPLACE,
                         "plugin": PLUGIN,
                         "sha": value["requested_sha"],
                         "version": "0.0.0+codex.00000000000000",
                         **role_record,
-                        "graph_template_sha256": "0" * 64,
-                        "graph_block_sha256": "0" * 64,
-                        "graph_separator_added": False,
                     }
-                )
+                if receipt_schema == DEPLOY_RECEIPT_SCHEMA:
+                    candidate.update(
+                        graph_template_sha256="0" * 64,
+                        graph_block_sha256="0" * 64,
+                        graph_separator_added=False,
+                    )
+                validate_deploy_receipt(candidate)
             except DeployError as exc:
                 raise DeployError(
                     "promotion role transaction record is invalid",

@@ -1123,6 +1123,24 @@ class PinnedBundleCoverage(unittest.TestCase):
             sha = self.recommit(repo, "wrong manifest")
             with self.assertRaises(DEPLOY.DeployError):
                 DEPLOY.pinned_role_bundle(repo, sha, self.VERSION)
+
+    def test_exact_predecessor_bundle_remains_recoverable(self) -> None:
+        predecessor = "489b28907466326e7c91adedbc1072c7cc32a4dc"
+        source = MODULE_PATH.parents[2]
+        with tempfile.TemporaryDirectory() as temporary:
+            repo = Path(temporary) / "predecessor"
+            subprocess.run(
+                ["git", "clone", "-q", "--no-checkout", str(source), str(repo)],
+                check=True,
+            )
+            self.git(repo, "checkout", "-q", predecessor)
+            self.git(repo, "remote", "set-url", "origin", DEPLOY.REPOSITORY)
+            bundle = DEPLOY.pinned_role_bundle(repo, predecessor, "0.3.0")
+            self.assertEqual(len(bundle["role_names"]), 11)
+            self.assertNotIn(
+                "role-definitions/capability-catalog.v1.json",
+                bundle["source_blobs"],
+            )
         with tempfile.TemporaryDirectory() as temporary:
             repo, _ = self.repository(Path(temporary))
             profile = repo / "agents/worker.toml"

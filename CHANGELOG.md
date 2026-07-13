@@ -7,6 +7,7 @@
 - Replaced `runtime-evidence-reader` with the source-specific `graph-evidence-reader` without an alias.
 - Hardened graph file access, artifact trace chains, run-bound audits, MCP schemas/lifecycle/wire budgets, and CD recovery.
 - Advanced the deploy receipt and promotion journal to v4/v5 while retaining v1-v3 receipt validation.
+- Kept the exact `0.3.0` JSON-less role bundle recoverable without permitting new releases to bypass authoritative role definitions.
 
 ## 0.3.0
 

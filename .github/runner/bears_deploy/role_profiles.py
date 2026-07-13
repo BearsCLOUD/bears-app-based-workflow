@@ -27,7 +27,9 @@ from .constants import (
     LEGACY_ROLE_RECEIPT_SHA256,
     LEGACY_ROLE_VERSION,
     PLUGIN,
+    PROFILE_FIELDS,
     PROFILE_MAX_BYTES,
+    LEGACY_VERSION_RE,
     ROLE_GENERATIONS_DIR,
 )
 from .marketplace import verified_git_blob_record
@@ -94,7 +96,13 @@ def pinned_role_bundle(cache: Path, requested: str, expected_version: str) -> di
         "role-definitions/capability-catalog.v1.json",
         *(f"role-definitions/{Path(relative).stem}.json" for relative in profile_relatives),
     }
-    if definition_paths != expected_definition_paths or len(definition_tree) != len(expected_definition_paths):
+    legacy_jsonless = not definition_paths and (
+        expected_version == "0.3.0" or LEGACY_VERSION_RE.fullmatch(expected_version) is not None
+    )
+    if not legacy_jsonless and (
+        definition_paths != expected_definition_paths
+        or len(definition_tree) != len(expected_definition_paths)
+    ):
         raise DeployError("cached role definition tree is not the exact canonical file set")
 
     manifest_record = verified_git_blob_record(
@@ -144,28 +152,47 @@ def pinned_role_bundle(cache: Path, requested: str, expected_version: str) -> di
         for relative in sorted(definition_paths)
     }
     source_blobs.update(definition_records)
-    try:
-        catalog_value = validate_catalog(
-            json.loads(definition_records["role-definitions/capability-catalog.v1.json"]["data"])
-        )
-    except (UnicodeError, json.JSONDecodeError, RoleDefinitionError) as exc:
-        raise DeployError("cached role capability catalog is malformed") from exc
+    catalog_value: dict[str, Any] | None = None
+    if not legacy_jsonless:
+        try:
+            catalog_value = validate_catalog(
+                json.loads(definition_records["role-definitions/capability-catalog.v1.json"]["data"])
+            )
+        except (UnicodeError, json.JSONDecodeError, RoleDefinitionError) as exc:
+            raise DeployError("cached role capability catalog is malformed") from exc
     profiles: dict[str, dict[str, Any]] = {}
     for relative in profile_relatives:
         path = entries[Path(relative).name]
         name = path.stem
         record = verified_git_blob_record(cache, requested, relative, PROFILE_MAX_BYTES)
-        definition_record = definition_records[f"role-definitions/{name}.json"]
         try:
-            definition = validate_definition(
-                json.loads(definition_record["data"]), catalog_value, expected_name=name
-            )
-            expected_profile = render_profile(definition, catalog_value, expected_version)
             profile = tomllib.loads(record["data"].decode("utf-8"))
+            if legacy_jsonless:
+                if (
+                    not isinstance(profile, dict)
+                    or set(profile) != PROFILE_FIELDS
+                    or profile.get("name") != name
+                    or any(
+                        not isinstance(profile[field], str) or not profile[field]
+                        for field in PROFILE_FIELDS
+                    )
+                ):
+                    raise DeployError(f"cached legacy role profile {name} violates its fixed schema")
+            else:
+                assert catalog_value is not None
+                definition_record = definition_records[f"role-definitions/{name}.json"]
+                definition = validate_definition(
+                    json.loads(definition_record["data"]), catalog_value, expected_name=name
+                )
+                expected_profile = render_profile(definition, catalog_value, expected_version)
+                if record["data"] != expected_profile:
+                    raise DeployError(
+                        f"cached role profile {name} drifted from its authoritative JSON definition"
+                    )
         except (UnicodeError, json.JSONDecodeError, tomllib.TOMLDecodeError, RoleDefinitionError) as exc:
             raise DeployError(f"cached role profile {name} is malformed") from exc
-        if profile.get("name") != name or record["data"] != expected_profile:
-            raise DeployError(f"cached role profile {name} drifted from its authoritative JSON definition")
+        if profile.get("name") != name:
+            raise DeployError(f"cached role profile {name} has inconsistent identity")
         resolved = path.resolve(strict=True)
         if resolved.parent != agents_real:
             raise DeployError(f"cached role profile {name} escapes the exact cache")

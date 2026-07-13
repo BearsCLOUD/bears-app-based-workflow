@@ -1,8 +1,8 @@
 # Plugin Agent Profiles
 
-This directory is the only source for the plugin's active custom-agent TOML files. The installer and production gateway discover every regular non-symlink `*.toml`, require 1..64 valid profiles, and sort them by name.
+`role-definitions/*.json` is the authoritative source for every active role. The fixed root-gateway renderer validates the capability catalog and produces this directory's TOML files from a closed safe subset; hand-authored TOML and raw configuration fragments are forbidden.
 
-Each profile owns one bounded behavior and its result fact. The profile body, rather than this README, is the source for its trigger, permissions, acceptance criteria, and result fields.
+Each JSON definition owns one bounded behavior, capability requirements, and its result fact. The generated profile is an exact projection, not an independent source.
 
 Every profile declares `Role identity: profile=<name>; level=<L1|L2|L3>; role_kind=<kind>` inside `developer_instructions`. Dispatch is valid only when the transport supplies the same explicit `agent_type`, the packet role and role kind match, and the child starts with `fork_turns=none`. `task_name` is non-authoritative. Missing typed transport fails closed: it stops instead of falling back to an untyped or parent execution path.
 
@@ -13,7 +13,7 @@ The explicit `./install` entrypoint registers the discovered profiles through `c
 - Do not copy these profiles into the global agent directory.
 - Deterministic role choice and dispatch live in `skills/subagents/SKILL.md`.
 - A role name is derived from one deliverable; removed names have no aliases.
-- Profile identity and role kind are discovered from each active TOML; there is no fixed current role count or duplicated role registry.
+- Profile identity, role kind, and capabilities are validated from authoritative JSON; the current role count is derived from that exact catalog.
 - Agent TOML files use only the Codex custom-agent schema and supported `config.toml` keys; plugin role metadata belongs in `developer_instructions` or plugin-owned documentation, not in unsupported top-level fields.
 - Role TOML files own triggers, specialist identity, required dependencies, permissions, decisions, acceptance criteria, result fields, and one declarative example.
 - Skills own repeatable methods, acceptance lists, templates, scripts, references, and packet schemas.

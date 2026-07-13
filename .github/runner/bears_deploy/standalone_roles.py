@@ -168,6 +168,26 @@ def _remove_exact_profile(directory: int, name: str, expected_digest: str) -> No
     rollback_publication(publication)
 
 
+def _remove_admitted_staging_files(
+    directory: int,
+    name: str,
+    admitted_digests: set[str],
+) -> None:
+    """Remove crash-retained CAS preimages while holding the role config lock."""
+    prefix = f".{PLUGIN}.{name}."
+    for filename in os.listdir(directory):
+        if not filename.startswith(prefix) or not filename.endswith(".staging"):
+            continue
+        snapshot = read_standalone_profile_at(directory, filename)
+        if snapshot is None:
+            continue
+        digest = hashlib.sha256(snapshot[0]).hexdigest()
+        if digest not in admitted_digests:
+            raise DeployError(f"standalone role staging file {name} has ambiguous content")
+        os.unlink(filename, dir_fd=directory)
+        os.fsync(directory)
+
+
 def reconcile_standalone_roles(
     home_fd: int,
     bundle: dict[str, Any],
@@ -186,12 +206,13 @@ def reconcile_standalone_roles(
         for name in desired_names:
             filename = _profile_filename(name)
             replacement = bundle["profiles"][name]["data"]
+            admitted = {desired[name]}
+            if name in previous:
+                admitted.add(previous[name])
+            _remove_admitted_staging_files(directory, name, admitted)
             current = read_standalone_profile_at(directory, filename)
             if current is not None:
                 current_digest = hashlib.sha256(current[0]).hexdigest()
-                admitted = {desired[name]}
-                if name in previous:
-                    admitted.add(previous[name])
                 if current_digest not in admitted:
                     raise DeployError(f"standalone role profile {name} collides with unowned content")
             publication = publish_file_cas(

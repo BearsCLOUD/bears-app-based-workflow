@@ -1,7 +1,7 @@
 {
   "schema": "app-task-ledger.v2",
   "app_id": "bears-app-based-workflow",
-  "revision": 4,
+  "revision": 6,
   "tasks": [
     {
       "repo_ref": "BearsCLOUD/bears-app-based-workflow",
@@ -20,7 +20,9 @@
       "requirement_refs": [
         "REQ-INDEX-001"
       ],
-      "functionality_refs": [],
+      "functionality_refs": [
+        "FUNC-COMPILER-001"
+      ],
       "graph_entity_refs": [
         "REQ-INDEX-001"
       ],
@@ -98,7 +100,9 @@
       "requirement_refs": [
         "REQ-PROCESS-001"
       ],
-      "functionality_refs": [],
+      "functionality_refs": [
+        "FUNC-JOURNAL-001"
+      ],
       "graph_entity_refs": [
         "REQ-PROCESS-001"
       ],
@@ -146,7 +150,9 @@
       "requirement_refs": [
         "REQ-CYCLE-001"
       ],
-      "functionality_refs": [],
+      "functionality_refs": [
+        "FUNC-AUDIT-001"
+      ],
       "graph_entity_refs": [
         "REQ-CYCLE-001"
       ],
@@ -197,7 +203,10 @@
         "REQ-WORKFLOW-001",
         "REQ-OWNERSHIP-001"
       ],
-      "functionality_refs": [],
+      "functionality_refs": [
+        "FUNC-WORKFLOW-001",
+        "FUNC-OWNERSHIP-001"
+      ],
       "graph_entity_refs": [
         "REQ-WORKFLOW-001",
         "REQ-OWNERSHIP-001"
@@ -248,7 +257,10 @@
         "REQ-GRAPH-001",
         "REQ-MCP-001"
       ],
-      "functionality_refs": [],
+      "functionality_refs": [
+        "FUNC-QUERY-001",
+        "FUNC-MCP-001"
+      ],
       "graph_entity_refs": [
         "REQ-GRAPH-001",
         "REQ-MCP-001"
@@ -297,7 +309,9 @@
       "requirement_refs": [
         "REQ-CD-001"
       ],
-      "functionality_refs": [],
+      "functionality_refs": [
+        "FUNC-CD-001"
+      ],
       "graph_entity_refs": [
         "REQ-CD-001"
       ],
@@ -307,7 +321,11 @@
       ],
       "allowed_files": [
         "assets/codex-home-graph-instructions.md",
-        ".github/runner/bears_deploy/graph_instructions.py"
+        ".github/runner/bears_deploy/graph_instructions.py",
+        ".github/runner/bears_deploy/role_renderer.py",
+        ".github/runner/bears_deploy/standalone_roles.py",
+        "contracts/app-role-capability-catalog.v1.schema.json",
+        "contracts/app-role-profile-definition.v1.schema.json"
       ],
       "depends_on": [
         "TASK-MCP-003"
@@ -316,10 +334,15 @@
       "proof_requirement": "Semantic/process audits only; product acceptance remains owned by autoCI.",
       "code_refs": [
         "CODE:assets/codex-home-graph-instructions.md",
-        "CODE:.github/runner/bears_deploy/graph_instructions.py"
+        "CODE:.github/runner/bears_deploy/graph_instructions.py",
+        "CODE:.github/runner/bears_deploy/role_renderer.py",
+        "CODE:.github/runner/bears_deploy/standalone_roles.py",
+        "CODE:contracts/app-role-capability-catalog.v1.schema.json",
+        "CODE:contracts/app-role-profile-definition.v1.schema.json"
       ],
       "test_refs": [
-        "TEST:TASK-CD-003"
+        "TEST:TASK-CD-003",
+        "TEST:TASK-ROLE-CONFIG-003"
       ],
       "evidence_refs": [
         "EVIDENCE:TASK-CD-003"
@@ -345,7 +368,9 @@
       "requirement_refs": [
         "REQ-CYCLE-001"
       ],
-      "functionality_refs": [],
+      "functionality_refs": [
+        "FUNC-AUDIT-001"
+      ],
       "graph_entity_refs": [
         "REQ-CYCLE-001"
       ],
@@ -392,7 +417,9 @@
       "requirement_refs": [
         "REQ-CYCLE-001"
       ],
-      "functionality_refs": [],
+      "functionality_refs": [
+        "FUNC-AUDIT-001"
+      ],
       "graph_entity_refs": [
         "REQ-CYCLE-001"
       ],

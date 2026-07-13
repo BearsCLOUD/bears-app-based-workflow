@@ -25,8 +25,11 @@ class AppGraphRuntimeTests(unittest.TestCase):
             manifest["sources"]["workflow"],
             manifest["sources"]["functional_map"],
             manifest["sources"]["task_ledger"],
+            manifest["sources"]["artifact_catalog"],
             *manifest["tracked_paths"],
         ]
+        catalog = json.loads((ROOT / manifest["sources"]["artifact_catalog"]).read_text())
+        fixed.extend(item["path"] for item in catalog["artifacts"])
         events = (ROOT / manifest["sources"]["event_root"]).rglob("*.json")
         for relative in sorted(set(fixed) | {path.relative_to(ROOT).as_posix() for path in events}):
             target = self.root / relative
@@ -110,7 +113,11 @@ class AppGraphRuntimeTests(unittest.TestCase):
         value["stage"] = "app-specify"
         event.write_text(json.dumps(value), encoding="utf-8")
         rebuilt = self.call("graph_compile", maintainer=True, expected_build_ref=self.compile["build_ref"])
-        result = self.call("process_audit", expected_build_ref=rebuilt["build_ref"])
+        result = self.call(
+            "process_audit",
+            expected_build_ref=rebuilt["build_ref"],
+            run_ref="RUN-GRAPH-WORKFLOW-V2",
+        )
         self.assertEqual(result["route"], "needs-graph")
         self.assertIn("illegal-transition", {finding["kind"] for finding in result["findings"]})
 

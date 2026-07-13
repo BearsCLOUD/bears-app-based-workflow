@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.3.2
+
+- Made strict JSON role definitions and the capability catalog authoritative; TOML is now a deterministic safe-subset projection.
+- Added exact per-role native tool, plugin skill, MCP server/tool, sandbox, web, app, and network boundaries.
+- Replaced `runtime-evidence-reader` with the source-specific `graph-evidence-reader` without an alias.
+- Hardened graph file access, artifact trace chains, run-bound audits, MCP schemas/lifecycle/wire budgets, and CD recovery.
+- Advanced the deploy receipt and promotion journal to v4/v5 while retaining v1-v3 receipt validation.
+
 ## 0.3.0
 
 - Replaced the unreachable terminal status with `audited`, explicitly separate from product acceptance.

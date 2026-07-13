@@ -41,36 +41,85 @@
     "sources": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["workflow", "functional_map", "task_ledger", "event_root"],
+      "required": [
+        "workflow",
+        "functional_map",
+        "task_ledger",
+        "artifact_catalog",
+        "event_root"
+      ],
       "properties": {
-        "workflow": {"const": "contracts/app-workflow-definition.v2.json"},
-        "functional_map": {"const": "docs/app-functional-map.v2.json"},
-        "task_ledger": {"const": "docs/app-task-ledger.v2.json"},
-        "event_root": {"const": "docs/app-process-events/v1"}
+        "workflow": {
+          "const": "contracts/app-workflow-definition.v2.json"
+        },
+        "functional_map": {
+          "const": "docs/app-functional-map.v2.json"
+        },
+        "task_ledger": {
+          "const": "docs/app-task-ledger.v2.json"
+        },
+        "event_root": {
+          "const": "docs/app-process-events/v1"
+        },
+        "artifact_catalog": {
+          "const": "docs/app-artifact-catalog.v1.json"
+        }
       }
     },
     "generated": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["trace_index", "process_index", "build_receipt", "context_result"],
+      "required": [
+        "trace_index",
+        "process_index",
+        "build_receipt",
+        "context_result"
+      ],
       "properties": {
-        "trace_index": {"const": "docs/app-traceability-index.v3.json"},
-        "process_index": {"const": "docs/app-process-index.v2.json"},
-        "build_receipt": {"const": "docs/app-index-build.v1.json"},
-        "context_result": {"const": "docs/app-context-index-result.v1.json"}
+        "trace_index": {
+          "const": "docs/app-traceability-index.v3.json"
+        },
+        "process_index": {
+          "const": "docs/app-process-index.v2.json"
+        },
+        "build_receipt": {
+          "const": "docs/app-index-build.v1.json"
+        },
+        "context_result": {
+          "const": "docs/app-context-index-result.v1.json"
+        }
       }
     },
     "limits": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["sources", "source_bytes", "entities", "edges", "events", "process_links"],
+      "required": [
+        "sources",
+        "source_bytes",
+        "entities",
+        "edges",
+        "events",
+        "process_links"
+      ],
       "properties": {
-        "sources": {"const": 2048},
-        "source_bytes": {"const": 67108864},
-        "entities": {"const": 25000},
-        "edges": {"const": 100000},
-        "events": {"const": 20000},
-        "process_links": {"const": 50000}
+        "sources": {
+          "const": 2048
+        },
+        "source_bytes": {
+          "const": 67108864
+        },
+        "entities": {
+          "const": 25000
+        },
+        "edges": {
+          "const": 100000
+        },
+        "events": {
+          "const": 20000
+        },
+        "process_links": {
+          "const": 50000
+        }
       }
     },
     "tracked_paths": {

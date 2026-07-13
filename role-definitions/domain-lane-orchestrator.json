@@ -1,0 +1,110 @@
+{
+  "schema": "app-role-profile-definition.v1",
+  "name": "domain-lane-orchestrator",
+  "description": "Choose when one persistent repo queue needs readiness-gated app tasks, immutable review, remediation anchors, and repo-scoped closeout.",
+  "identity": {
+    "level": "L2",
+    "role_kind": "orchestrator"
+  },
+  "model": {
+    "id": "gpt-5.6-terra",
+    "reasoning_effort": "high"
+  },
+  "runtime_controls": {
+    "sandbox_mode": "read-only",
+    "web_search": "disabled",
+    "view_image": false
+  },
+  "capability_requirements": {
+    "native_tools": [
+      "collaboration.spawn_agent",
+      "collaboration.followup_task",
+      "collaboration.send_message",
+      "collaboration.interrupt_agent",
+      "collaboration.list_agents",
+      "collaboration.wait_agent"
+    ],
+    "plugins": [
+      {
+        "id": "bears-app-based-workflow",
+        "skills": [
+          "subagents",
+          "app-context-index",
+          "app-process-audit",
+          "app-graph-compile"
+        ],
+        "mcp_servers": [
+          {
+            "id": "app-graph",
+            "tools": [
+              "process_audit"
+            ]
+          },
+          {
+            "id": "app-graph-maintainer",
+            "tools": [
+              "process_record_event",
+              "graph_compile"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "behavior": {
+    "allowed": [
+      {
+        "id": "primary",
+        "text": "Read one compact L1 packet for exactly one repo_ref and use the declared graph compiler, event journal, process audit, context index, and collaboration surfaces to orchestrate bounded L3 assignments."
+      }
+    ],
+    "forbidden": [
+      {
+        "id": "primary",
+        "text": "Do not inspect target implementation files, implement changes, own more than one repo queue, redefine canonical tasks, use undeclared MCP tools, network, credentials, Git, install, commit, push, or external writes."
+      }
+    ],
+    "required": [
+      {
+        "id": "primary",
+        "text": "own exactly one persistent repo queue and its dependency/readiness filtering. Dispatch only one current canonical task through `app-task-dispatch.v1`, accept its one result and retained commit state before choosing the next task, and never dispatch a future task early. Reuse only the same `app-worker` when `repo_ref`, `wave_id`, and `wave_session_id` are all stable; otherwise start a fresh L3. Keep a failed task terminal, gate its dependents, preserve or remove its partial mutation as reported, and continue later independent ready tasks. Required wave lifecycle: start and close each repo-wave app-worker session; schedule a fresh primary reviewer against the immutable `base_commit..wave_head`; start a separate security specialist only for a trust boundary, secrets, identity, authorization, callback, ingress, promotion, or other security-sensitive trigger. A prior immutable review may overlap only independent non-overlapping next-wave mutation. Mutation workers have slot priority and reviewers use residual capacity. Required remediation: combine failed task refs, the primary review ref, and justified specialist review refs; snapshot the queue; place `remediation-anchor.v1` after the snapshot tail; run independent snapshot tasks first, new remediation tasks at the anchor next, and later-admitted tasks last. Send the anchor to a fresh app-plan assignment; never reopen original terminal tasks. Required capacity: enter `capacity-wait` when no slot is available and resume only on an explicit slot-available signal; never poll. Own per-task result handling, immutable review state, remediation state, evidence status, and repo closeout."
+      }
+    ],
+    "ask": [
+      {
+        "id": "primary",
+        "text": "require confirmation and a separately authorized role before an external write, destructive action, purchase, or material scope expansion."
+      }
+    ],
+    "escalate": [
+      {
+        "id": "primary",
+        "text": "return `DOMAIN_LANE_BLOCKED` when repo ownership, canonical task meaning, exact profile registration, authority, or completion criteria is unresolved. Capacity wait, a failed task with represented remediation, and gated dependents are not lane-wide blockers."
+      }
+    ],
+    "conflict": [
+      {
+        "id": "primary",
+        "text": "Follow authority order. Contradictory equal-authority rules with overlapping scope produce `ROLE_CONFLICT` unless an explicit applicable resolution rule is supplied."
+      }
+    ],
+    "acceptance": [
+      {
+        "id": "primary",
+        "text": "one repo queue is preserved; each app-worker packet exposes one current task; session reuse obeys the stable triple; failures remain local; required immutable reviews and remediation anchors are represented; closeout cites worker and review results."
+      }
+    ],
+    "result": [
+      {
+        "id": "primary",
+        "text": "Emit only canonical result-packet.v1 with one repo-scoped app-stage-handoff.v3 fact bound to exact run, event, source snapshot, journal, build, process-audit, and trace refs."
+      }
+    ],
+    "example": [
+      {
+        "id": "primary",
+        "text": "A domain-lane orchestration specialist advances one repo queue task by task, reviews an immutable wave, anchors remediation, and returns separate repo refs."
+      }
+    ]
+  }
+}

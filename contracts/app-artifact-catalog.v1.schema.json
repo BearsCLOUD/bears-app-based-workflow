@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://bears.cloud/contracts/app-artifact-catalog.v1.schema.json",
+  "title": "app-artifact-catalog.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "app_id", "revision", "artifacts"],
+  "properties": {
+    "schema": {"const": "app-artifact-catalog.v1"},
+    "app_id": {"type": "string", "minLength": 1},
+    "revision": {"type": "integer", "minimum": 1},
+    "artifacts": {
+      "type": "array", "maxItems": 25000,
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["ref", "kind", "path"],
+        "properties": {
+          "ref": {"type": "string", "minLength": 1},
+          "kind": {"enum": ["code", "test", "evidence"]},
+          "path": {"type": "string", "minLength": 1}
+        }
+      }
+    }
+  }
+}

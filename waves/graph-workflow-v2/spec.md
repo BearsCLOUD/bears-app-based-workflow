@@ -5,7 +5,7 @@ Run: `RUN-GRAPH-WORKFLOW-V2`
 
 ## v3 cutover
 
-Continue the existing run and preserve the seven v2 process refs as immutable `legacy-import` events. Replace active handoff/index/ledger generations rather than running two generations in parallel. Release as `0.3.0`.
+Continue the existing run and preserve the seven v2 process refs as immutable `legacy-import` events. Replace active handoff/index/ledger generations rather than running two generations in parallel. The original v3 cutover was `0.3.0`; the reviewed role/runtime hardening cutover is `0.3.2`.
 
 ## v3 requirements
 

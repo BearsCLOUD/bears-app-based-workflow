@@ -11,11 +11,16 @@ from typing import Any
 
 from .constants import CODEX_HOME, GRAPH_INSTRUCTIONS_TEMPLATE, GRAPH_MAX_BYTES, MARKETPLACE_ROOT
 from .intent_io import load_intent, save_graph_intent
-from .models import DeployError
+from .models import DeployError, FilePublication
+from .publication import finalize_publication, publish_file_cas, rollback_publication
 
 BEGIN = b"<!-- >>> bears-app-based-workflow graph behavior (managed by CD) -->"
 END = b"<!-- <<< bears-app-based-workflow graph behavior (managed by CD) -->"
-TARGET = CODEX_HOME / "AGENTS.md"
+
+
+def _target() -> Path:
+    """Resolve the target at call time so tests and recovery cannot retain another home."""
+    return CODEX_HOME / "AGENTS.md"
 
 
 def _digest(value: bytes) -> str:
@@ -43,6 +48,34 @@ def _read_regular(path: Path, *, missing: bool = False) -> bytes | None:
         if len(data) > GRAPH_MAX_BYTES:
             raise DeployError(f"{path.name} is oversized", error_code="receipt-corruption")
         return bytes(data)
+    finally:
+        os.close(descriptor)
+
+
+def _read_regular_at(directory: int, name: str) -> tuple[bytes, os.stat_result] | None:
+    try:
+        descriptor = os.open(
+            name,
+            os.O_RDONLY | os.O_CLOEXEC | os.O_NOFOLLOW | os.O_NONBLOCK,
+            dir_fd=directory,
+        )
+    except FileNotFoundError:
+        return None
+    except OSError as exc:
+        raise DeployError("AGENTS.md is missing or unsafe", error_code="receipt-corruption") from exc
+    try:
+        info = os.fstat(descriptor)
+        if not stat.S_ISREG(info.st_mode) or info.st_nlink != 1 or info.st_size > GRAPH_MAX_BYTES:
+            raise DeployError("AGENTS.md is not a bounded regular file", error_code="receipt-corruption")
+        data = bytearray()
+        while len(data) <= GRAPH_MAX_BYTES:
+            chunk = os.read(descriptor, min(8192, GRAPH_MAX_BYTES + 1 - len(data)))
+            if not chunk:
+                break
+            data.extend(chunk)
+        if len(data) > GRAPH_MAX_BYTES:
+            raise DeployError("AGENTS.md is oversized", error_code="receipt-corruption")
+        return bytes(data), info
     finally:
         os.close(descriptor)
 
@@ -91,45 +124,80 @@ def _desired(current: bytes, template: bytes, previous: dict[str, Any] | None) -
     return current + joiner + template, separator
 
 
-def _publish(payload: bytes) -> None:
+def _publish(payload: bytes, *, expected: bytes | None = None, expected_present: bool | None = None) -> None:
     CODEX_HOME.mkdir(parents=True, exist_ok=True)
     if CODEX_HOME.is_symlink() or not CODEX_HOME.is_dir():
         raise DeployError("CODEX_HOME is unsafe")
-    current = _read_regular(TARGET, missing=True)
-    temporary = CODEX_HOME / f".AGENTS.md.{secrets.token_hex(16)}.tmp"
-    descriptor = os.open(temporary, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_CLOEXEC | os.O_NOFOLLOW, 0o600)
+    directory = os.open(CODEX_HOME, os.O_RDONLY | os.O_DIRECTORY | os.O_CLOEXEC | os.O_NOFOLLOW)
     try:
-        offset = 0
-        while offset < len(payload):
-            written = os.write(descriptor, payload[offset:])
-            if written <= 0: raise DeployError("AGENTS.md publication did not advance")
-            offset += written
-        os.fsync(descriptor)
+        current = _read_regular_at(directory, "AGENTS.md")
+        if expected_present is not None and (
+            (current is not None) != expected_present
+            or (b"" if current is None else current[0]) != (expected or b"")
+        ):
+            raise DeployError("AGENTS.md changed before publication", error_code="receipt-corruption")
+        publication = publish_file_cas(
+            directory,
+            "AGENTS.md",
+            f".AGENTS.md.{secrets.token_hex(16)}.exchange",
+            current,
+            payload,
+            _read_regular_at,
+            "AGENTS.md",
+            phase="prepared",
+        )
+        finalize_publication(publication)
     finally:
-        os.close(descriptor)
+        os.close(directory)
+
+
+def _remove_expected(expected: bytes) -> None:
+    directory = os.open(CODEX_HOME, os.O_RDONLY | os.O_DIRECTORY | os.O_CLOEXEC | os.O_NOFOLLOW)
     try:
-        if current is not None:
-            target_stat = TARGET.lstat()
-            if not stat.S_ISREG(target_stat.st_mode) or target_stat.st_nlink != 1:
-                raise DeployError("AGENTS.md changed to an unsafe file", error_code="receipt-corruption")
-            os.chmod(temporary, stat.S_IMODE(target_stat.st_mode))
-        os.replace(temporary, TARGET)
-    finally:
-        temporary.unlink(missing_ok=True)
-    directory = os.open(CODEX_HOME, os.O_RDONLY | os.O_DIRECTORY | os.O_CLOEXEC)
-    try:
-        os.fsync(directory)
+        current = _read_regular_at(directory, "AGENTS.md")
+        if current is None or current[0] != expected:
+            raise DeployError("AGENTS.md changed before removal", error_code="receipt-corruption")
+        rollback_publication(
+            FilePublication(
+                directory=directory,
+                target="AGENTS.md",
+                exchange_name=f".AGENTS.md.{secrets.token_hex(16)}.remove",
+                expected=None,
+                published=current,
+                reader=_read_regular_at,
+                label="AGENTS.md",
+                retained=False,
+                created=True,
+            )
+        )
     finally:
         os.close(directory)
 
 
 def reconcile_graph_instructions(state_directory: int, previous: dict[str, Any] | None) -> dict[str, Any]:
-    template = _template(); observed = _read_regular(TARGET, missing=True); current = observed or b""
-    desired, separator = _desired(current, template, previous)
     intent = load_intent(state_directory)
     if intent is None: raise DeployError("promotion intent disappeared before graph reconciliation")
-    save_graph_intent(state_directory, intent, original=current, original_present=observed is not None, desired=desired)
-    _publish(desired)
+    template = _template(); observed = _read_regular(_target(), missing=True); current = observed or b""
+    transaction = intent.get("graph_transaction")
+    if isinstance(transaction, dict):
+        import base64
+        original = base64.b64decode(transaction["original_b64"], validate=True)
+        journaled_desired = base64.b64decode(transaction["desired_b64"], validate=True)
+        if current == journaled_desired:
+            desired = journaled_desired
+            original_present = bool(transaction["original_present"])
+            separator = bool(previous.get("graph_separator_added", False)) if previous else bool(original_present and original)
+        elif current == original:
+            desired, separator = _desired(current, template, previous)
+            if desired != journaled_desired:
+                raise DeployError("graph instruction desired state changed during recovery", error_code="receipt-corruption")
+            _publish(desired, expected=current, expected_present=bool(transaction["original_present"]))
+        else:
+            raise DeployError("AGENTS.md is outside the journaled graph transaction", error_code="receipt-corruption")
+    else:
+        desired, separator = _desired(current, template, previous)
+        save_graph_intent(state_directory, intent, original=current, original_present=observed is not None, desired=desired)
+        _publish(desired, expected=current, expected_present=observed is not None)
     bounds = _block_bounds(desired)
     assert bounds is not None
     block = desired[bounds[0]:bounds[1]]
@@ -142,24 +210,19 @@ def restore_graph_preimage(intent: dict[str, Any]) -> None:
     import base64
     original = base64.b64decode(transaction["original_b64"], validate=True)
     desired = base64.b64decode(transaction["desired_b64"], validate=True)
-    current = _read_regular(TARGET, missing=True) or b""
+    current = _read_regular(_target(), missing=True) or b""
     if current == original: return
     if current != desired:
         raise DeployError("AGENTS.md changed during interrupted promotion", error_code="receipt-corruption")
     if transaction["original_present"]:
-        _publish(original)
+        _publish(original, expected=current, expected_present=True)
     else:
-        TARGET.unlink()
-        directory = os.open(CODEX_HOME, os.O_RDONLY | os.O_DIRECTORY | os.O_CLOEXEC)
-        try:
-            os.fsync(directory)
-        finally:
-            os.close(directory)
+        _remove_expected(current)
 
 
 def remove_graph_instructions(state: dict[str, Any] | None) -> None:
     if state is None or not state.get("graph_block_sha256"): return
-    current = _read_regular(TARGET, missing=True)
+    current = _read_regular(_target(), missing=True)
     if current is None: raise DeployError("receipted AGENTS.md is missing", error_code="receipt-corruption")
     bounds = _block_bounds(current)
     if bounds is None: raise DeployError("receipted graph block is missing", error_code="receipt-corruption")
@@ -171,4 +234,4 @@ def remove_graph_instructions(state: dict[str, Any] | None) -> None:
         if not before.endswith(b"\n"):
             raise DeployError("managed graph instruction separator drifted from receipt", error_code="receipt-corruption")
         before = before[:-1]
-    _publish(before + after)
+    _publish(before + after, expected=current, expected_present=True)

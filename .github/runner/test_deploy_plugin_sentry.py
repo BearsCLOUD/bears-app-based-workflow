@@ -31,6 +31,10 @@ ROLE_NAMES = tuple(
 )
 ROLE_COUNT = len(ROLE_NAMES)
 AGENT_TREE_PATHS = {"agents/README.md", *(f"agents/{name}.toml" for name in ROLE_NAMES)}
+ROLE_DEFINITION_PATHS = {
+    "role-definitions/capability-catalog.v1.json",
+    *(f"role-definitions/{name}.json" for name in ROLE_NAMES),
+}
 
 
 class StubResponse:
@@ -168,7 +172,7 @@ class GitHubCredentialCoverage(unittest.TestCase):
 
     def test_workflow_pipes_ephemeral_job_token_to_gateway(self) -> None:
         workflow = (
-            MODULE_PATH.parents[1] / "workflows/plugin-ci-cd.yml"
+            MODULE_PATH.parents[1] / "workflows/plugin-marketplace-cd.yml"
         ).read_text(encoding="utf-8")
         self.assertIn("GH_TOKEN: ${{ github.token }}", workflow)
         self.assertIn(
@@ -509,7 +513,7 @@ class RoleReconciliationCoverage(unittest.TestCase):
         generation = "1" * 64
         blobs = {
             relative: {"git_oid": "2" * 40, "sha256": "3" * 64}
-            for relative in {".codex-plugin/plugin.json", *AGENT_TREE_PATHS}
+            for relative in {".codex-plugin/plugin.json", *AGENT_TREE_PATHS, *ROLE_DEFINITION_PATHS}
         }
         return {
             "payload_fingerprint": self.FINGERPRINT,
@@ -1031,20 +1035,22 @@ class PinnedBundleCoverage(unittest.TestCase):
         agents = repo / "agents"
         agents.mkdir()
         (agents / "README.md").write_text("# Exact role catalog\n", encoding="utf-8")
+        definitions = repo / "role-definitions"
+        definitions.mkdir()
+        source_definitions = MODULE_PATH.parents[2] / "role-definitions"
+        for source in source_definitions.glob("*.json"):
+            (definitions / source.name).write_bytes(source.read_bytes())
+        catalog = DEPLOY.validate_catalog(
+            json.loads((definitions / "capability-catalog.v1.json").read_text())
+        )
         for name in ROLE_NAMES:
-            (agents / f"{name}.toml").write_text(
-                "\n".join(
-                    (
-                        f'name = "{name}"',
-                        'description = "Bounded test role."',
-                        'model = "gpt-5.2"',
-                        'model_reasoning_effort = "high"',
-                        'sandbox_mode = "danger-full-access"',
-                        'developer_instructions = "Return a bounded result."',
-                        "",
-                    )
-                ),
-                encoding="utf-8",
+            definition = DEPLOY.validate_definition(
+                json.loads((definitions / f"{name}.json").read_text()),
+                catalog,
+                expected_name=name,
+            )
+            (agents / f"{name}.toml").write_bytes(
+                DEPLOY.render_profile(definition, catalog, self.VERSION)
             )
         graph_template = repo / DEPLOY.GRAPH_INSTRUCTIONS_TEMPLATE
         graph_template.parent.mkdir(parents=True, exist_ok=True)
@@ -1153,6 +1159,7 @@ class PinnedBundleCoverage(unittest.TestCase):
                 intent = DEPLOY.save_intent(state_fd, sha, legacy_state)
                 with (
                     mock.patch.object(DEPLOY, "CODEX_HOME", home),
+                    mock.patch.object(DEPLOY, "MIRROR", repo),
                     mock.patch.object(DEPLOY, "plugin_cache", return_value=repo),
                     mock.patch.object(
                         DEPLOY,
@@ -1196,6 +1203,7 @@ class PinnedBundleCoverage(unittest.TestCase):
 
                 with (
                     mock.patch.object(DEPLOY, "CODEX_HOME", home),
+                    mock.patch.object(DEPLOY, "MIRROR", repo),
                     mock.patch.object(DEPLOY, "plugin_cache", return_value=repo),
                     mock.patch.object(
                         DEPLOY,
@@ -1210,7 +1218,7 @@ class PinnedBundleCoverage(unittest.TestCase):
                 self.assertEqual(receipt_path.read_bytes(), desired_receipt)
                 self.assertEqual(
                     {path.name for path in (home / "agents").iterdir()},
-                    {f"{name}.toml" for name in ROLE_NAMES},
+                    {"personal.toml", *(f"{name}.toml" for name in ROLE_NAMES)},
                 )
                 for name in ROLE_NAMES:
                     self.assertEqual(
@@ -1451,6 +1459,7 @@ class RemovalRecoveryCoverage(unittest.TestCase):
                     mock.patch.object(DEPLOY, "CODEX_HOME", home),
                     mock.patch.object(DEPLOY, "run_json", return_value={}),
                     mock.patch.object(DEPLOY, "verify_disabled"),
+                    mock.patch.object(DEPLOY, "remove_graph_instructions"),
                 ):
                     DEPLOY.recover_promotion_intent(state_fd)
                     DEPLOY.recover_promotion_intent(state_fd)
@@ -1515,6 +1524,7 @@ class RemovalRecoveryCoverage(unittest.TestCase):
                     mock.patch.object(DEPLOY, "CODEX_HOME", home),
                     mock.patch.object(DEPLOY, "run_json", return_value={}),
                     mock.patch.object(DEPLOY, "verify_disabled"),
+                    mock.patch.object(DEPLOY, "remove_graph_instructions"),
                 ):
                     outcome = DEPLOY.converge_promotion_intent(state_fd, committed)
                 self.assertEqual(outcome, "disabled")
@@ -1559,6 +1569,7 @@ class RegistrationMigrationRecoveryCoverage(unittest.TestCase):
         deploy_state: Path,
     ) -> None:
         stack.enter_context(mock.patch.object(DEPLOY, "CODEX_HOME", home))
+        stack.enter_context(mock.patch.object(DEPLOY, "MIRROR", repo))
         stack.enter_context(mock.patch.object(DEPLOY, "plugin_cache", return_value=repo))
         stack.enter_context(
             mock.patch.object(
@@ -1932,7 +1943,6 @@ class GraphInstructionReconciliationCoverage(unittest.TestCase):
     def patches(self, home: Path, marketplace: Path) -> tuple[object, ...]:
         return (
             mock.patch.object(DEPLOY, "CODEX_HOME", home),
-            mock.patch.object(DEPLOY, "TARGET", home / "AGENTS.md"),
             mock.patch.object(DEPLOY, "MARKETPLACE_ROOT", marketplace),
         )
 

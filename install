@@ -270,6 +270,20 @@ def plugin_metadata(plugin_root: Path) -> tuple[str, list[tuple[str, Path]]]:
     if not isinstance(version, str) or not version:
         raise InstallError("plugin-version-invalid")
 
+    runner_root = plugin_root / ".github" / "runner"
+    sys.path.insert(0, str(runner_root))
+    try:
+        from bears_deploy.role_renderer import RoleDefinitionError, render_directory
+
+        render_directory(plugin_root, version, check=True)
+    except (ImportError, RoleDefinitionError):
+        raise InstallError("profile-definition-drift") from None
+    finally:
+        try:
+            sys.path.remove(str(runner_root))
+        except ValueError:
+            pass
+
     agents_dir = plugin_root / "agents"
     try:
         paths = sorted(agents_dir.glob("*.toml"))
@@ -298,7 +312,7 @@ def plugin_metadata(plugin_root: Path) -> tuple[str, list[tuple[str, Path]]]:
             raise
         except (OSError, tomllib.TOMLDecodeError):
             raise InstallError("profile-toml-invalid") from None
-        if set(data) != required:
+        if not required.issubset(data):
             raise InstallError("profile-fields-invalid")
         if any(not isinstance(data[field], str) or not data[field] for field in required):
             raise InstallError("profile-fields-invalid")

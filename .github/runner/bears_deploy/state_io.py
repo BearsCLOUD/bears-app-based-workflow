@@ -14,6 +14,7 @@ from typing import Any
 
 from .constants import (
     DEPLOY_RECEIPT_SCHEMA,
+    GRAPH_DEPLOY_RECEIPT_SCHEMA,
     FINGERPRINT_RE,
     LEGACY_DEPLOY_RECEIPT_SCHEMA,
     PRIOR_DEPLOY_RECEIPT_SCHEMA,
@@ -306,7 +307,7 @@ def validate_deploy_receipt(value: Any) -> dict[str, Any]:
     }
     if (
         not isinstance(value, dict)
-        or value.get("schema") not in {LEGACY_DEPLOY_RECEIPT_SCHEMA, PRIOR_DEPLOY_RECEIPT_SCHEMA, DEPLOY_RECEIPT_SCHEMA}
+        or value.get("schema") not in {LEGACY_DEPLOY_RECEIPT_SCHEMA, PRIOR_DEPLOY_RECEIPT_SCHEMA, GRAPH_DEPLOY_RECEIPT_SCHEMA, DEPLOY_RECEIPT_SCHEMA}
         or value.get("repository") != REPOSITORY
         or value.get("marketplace") != MARKETPLACE
         or value.get("plugin") != PLUGIN
@@ -331,10 +332,10 @@ def validate_deploy_receipt(value: Any) -> dict[str, Any]:
         "role_profiles",
     }
     graph_fields = {"graph_template_sha256", "graph_block_sha256", "graph_separator_added"}
-    expected_fields = base_fields | role_fields | (graph_fields if value["schema"] == DEPLOY_RECEIPT_SCHEMA else set())
+    expected_fields = base_fields | role_fields | (graph_fields if value["schema"] in {GRAPH_DEPLOY_RECEIPT_SCHEMA, DEPLOY_RECEIPT_SCHEMA} else set())
     if set(value) != expected_fields:
         raise DeployError("deployment receipt shape is invalid", error_code="receipt-corruption")
-    if value["schema"] == DEPLOY_RECEIPT_SCHEMA and (
+    if value["schema"] in {GRAPH_DEPLOY_RECEIPT_SCHEMA, DEPLOY_RECEIPT_SCHEMA} and (
         not FINGERPRINT_RE.fullmatch(str(value.get("graph_template_sha256", "")))
         or not FINGERPRINT_RE.fullmatch(str(value.get("graph_block_sha256", "")))
         or not isinstance(value.get("graph_separator_added"), bool)
@@ -354,6 +355,13 @@ def validate_deploy_receipt(value: Any) -> dict[str, Any]:
         "agents/README.md",
         *(f"agents/{name}.toml" for name in profile_names),
     }
+    if value["schema"] == DEPLOY_RECEIPT_SCHEMA:
+        expected_sources.update(
+            {
+                "role-definitions/capability-catalog.v1.json",
+                *(f"role-definitions/{name}.json" for name in profile_names),
+            }
+        )
     if (
         not isinstance(generation, str)
         or not FINGERPRINT_RE.fullmatch(generation)

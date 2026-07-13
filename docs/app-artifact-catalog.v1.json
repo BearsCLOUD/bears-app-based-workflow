@@ -1,0 +1,172 @@
+{
+  "schema": "app-artifact-catalog.v1",
+  "app_id": "bears-app-based-workflow",
+  "revision": 2,
+  "artifacts": [
+    {
+      "ref": "CODE:scripts/app_graph_engine.py",
+      "kind": "code",
+      "path": "scripts/app_graph_engine.py"
+    },
+    {
+      "ref": "CODE:contracts/app-index-build.v1.schema.json",
+      "kind": "code",
+      "path": "contracts/app-index-build.v1.schema.json"
+    },
+    {
+      "ref": "TEST:TASK-COMPILER-003",
+      "kind": "test",
+      "path": ".github/runner/test_app_graph_runtime.py"
+    },
+    {
+      "ref": "EVIDENCE:TASK-COMPILER-003",
+      "kind": "evidence",
+      "path": "docs/app-audit-results/trace-convergence.v1.json"
+    },
+    {
+      "ref": "CODE:contracts/app-process-event.v1.schema.json",
+      "kind": "code",
+      "path": "contracts/app-process-event.v1.schema.json"
+    },
+    {
+      "ref": "TEST:TASK-JOURNAL-003",
+      "kind": "test",
+      "path": ".github/runner/test_app_graph_runtime.py"
+    },
+    {
+      "ref": "EVIDENCE:TASK-JOURNAL-003",
+      "kind": "evidence",
+      "path": "docs/app-audit-results/trace-convergence.v1.json"
+    },
+    {
+      "ref": "CODE:contracts/app-process-audit-result.v1.schema.json",
+      "kind": "code",
+      "path": "contracts/app-process-audit-result.v1.schema.json"
+    },
+    {
+      "ref": "CODE:contracts/app-trace-audit-result.v1.schema.json",
+      "kind": "code",
+      "path": "contracts/app-trace-audit-result.v1.schema.json"
+    },
+    {
+      "ref": "TEST:TASK-VERIFIER-003",
+      "kind": "test",
+      "path": ".github/runner/test_app_graph_runtime.py"
+    },
+    {
+      "ref": "EVIDENCE:TASK-VERIFIER-003",
+      "kind": "evidence",
+      "path": "docs/app-audit-results/trace-convergence.v1.json"
+    },
+    {
+      "ref": "CODE:skills/app-graph-compile/SKILL.md",
+      "kind": "code",
+      "path": "skills/app-graph-compile/SKILL.md"
+    },
+    {
+      "ref": "CODE:skills/app-process-audit/SKILL.md",
+      "kind": "code",
+      "path": "skills/app-process-audit/SKILL.md"
+    },
+    {
+      "ref": "CODE:skills/app-trace-audit/SKILL.md",
+      "kind": "code",
+      "path": "skills/app-trace-audit/SKILL.md"
+    },
+    {
+      "ref": "TEST:TASK-SKILLS-003",
+      "kind": "test",
+      "path": ".github/runner/test_app_solo_route.py"
+    },
+    {
+      "ref": "EVIDENCE:TASK-SKILLS-003",
+      "kind": "evidence",
+      "path": "docs/app-audit-results/trace-convergence.v1.json"
+    },
+    {
+      "ref": "CODE:scripts/app_graph_mcp.py",
+      "kind": "code",
+      "path": "scripts/app_graph_mcp.py"
+    },
+    {
+      "ref": "CODE:.mcp.json",
+      "kind": "code",
+      "path": ".mcp.json"
+    },
+    {
+      "ref": "TEST:TASK-MCP-003",
+      "kind": "test",
+      "path": ".github/runner/test_app_graph_runtime.py"
+    },
+    {
+      "ref": "EVIDENCE:TASK-MCP-003",
+      "kind": "evidence",
+      "path": "docs/app-audit-results/trace-convergence.v1.json"
+    },
+    {
+      "ref": "CODE:assets/codex-home-graph-instructions.md",
+      "kind": "code",
+      "path": "assets/codex-home-graph-instructions.md"
+    },
+    {
+      "ref": "CODE:.github/runner/bears_deploy/graph_instructions.py",
+      "kind": "code",
+      "path": ".github/runner/bears_deploy/graph_instructions.py"
+    },
+    {
+      "ref": "TEST:TASK-CD-003",
+      "kind": "test",
+      "path": ".github/runner/test_deploy_plugin_sentry.py"
+    },
+    {
+      "ref": "EVIDENCE:TASK-CD-003",
+      "kind": "evidence",
+      "path": "docs/app-audit-results/trace-convergence.v1.json"
+    },
+    {
+      "ref": "CODE:docs/app-audit-results/process-terminal.v1.json",
+      "kind": "code",
+      "path": "docs/app-audit-results/process-terminal.v1.json"
+    },
+    {
+      "ref": "CODE:docs/app-audit-results/trace-convergence.v1.json",
+      "kind": "code",
+      "path": "docs/app-audit-results/trace-convergence.v1.json"
+    },
+    {
+      "ref": "TEST:TASK-SELF-AUDIT-003",
+      "kind": "test",
+      "path": ".github/runner/test_app_graph_runtime.py"
+    },
+    {
+      "ref": "EVIDENCE:TASK-SELF-AUDIT-003",
+      "kind": "evidence",
+      "path": "docs/app-audit-results/trace-convergence.v1.json"
+    },
+    {
+      "ref": "CODE:.github/runner/bears_deploy/role_renderer.py",
+      "kind": "code",
+      "path": ".github/runner/bears_deploy/role_renderer.py"
+    },
+    {
+      "ref": "CODE:contracts/app-role-capability-catalog.v1.schema.json",
+      "kind": "code",
+      "path": "contracts/app-role-capability-catalog.v1.schema.json"
+    },
+    {
+      "ref": "CODE:contracts/app-role-profile-definition.v1.schema.json",
+      "kind": "code",
+      "path": "contracts/app-role-profile-definition.v1.schema.json"
+    },
+    {
+      "ref": "CODE:.github/runner/bears_deploy/standalone_roles.py",
+      "kind": "code",
+      "path": ".github/runner/bears_deploy/standalone_roles.py"
+    },
+    {
+      "ref": "TEST:TASK-ROLE-CONFIG-003",
+      "kind": "test",
+      "path": ".github/runner/test_role_profile_renderer.py"
+    }
+  ]
+}

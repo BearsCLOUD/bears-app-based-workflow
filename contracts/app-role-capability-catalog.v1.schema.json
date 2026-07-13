@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://bears.cloud/contracts/app-role-capability-catalog.v1.schema.json",
+  "title": "app-role-capability-catalog.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "plugin_id", "models", "reasoning_efforts", "native_tools", "skills", "mcp_servers"],
+  "properties": {
+    "schema": {"const": "app-role-capability-catalog.v1"},
+    "plugin_id": {"const": "bears-app-based-workflow"},
+    "models": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string"}},
+    "reasoning_efforts": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string"}},
+    "native_tools": {"type": "array", "uniqueItems": true, "items": {"type": "string"}},
+    "skills": {"type": "array", "uniqueItems": true, "items": {"type": "string"}},
+    "mcp_servers": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["app-graph", "app-graph-maintainer"],
+      "properties": {
+        "app-graph": {"$ref": "#/$defs/server"},
+        "app-graph-maintainer": {"$ref": "#/$defs/server"}
+      }
+    }
+  },
+  "$defs": {
+    "server": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["classification", "tools"],
+      "properties": {
+        "classification": {"enum": ["read-only", "maintainer"]},
+        "tools": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string"}}
+      }
+    }
+  }
+}

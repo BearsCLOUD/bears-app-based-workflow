@@ -22,7 +22,7 @@ current_user_request_ref: <sanitized direct request ref>
 requested_operation: create|merge|split|delete
 deliverable: <one objectively observable result>
 task_examples: [<concrete accepted task>]
-target_profiles: [<exact role TOML path or none>]
+target_profiles: [<exact role definition JSON path or none>]
 authority_refs: [<ordered instruction refs>]
 required_capabilities: [<known required capability or none>]
 proposed_permissions: # optional caller constraints; omit when unknown
@@ -43,7 +43,7 @@ Require `current_user_request_ref`, `requested_operation`, `deliverable`, `task_
 5. Evaluate the direct request and choose one result using these criteria: `reuse` when an existing profile already owns the deliverable and permission boundary; `refactor` when the requested operation instead requires an in-place semantic correction; `merge` when duplicate profiles have the same deliverable and permission boundary; `split` when one profile contains multiple deliverables or permission boundaries; `create` only for an express current-user creation request when no existing profile owns the deliverable; `reject` when the request has no objective deliverable, conflicts with authority, or cannot have a safe permission boundary; `delete` when a profile has no remaining deliverable or its ownership moved to an accepted profile.
 6. Return `RESEARCH_REQUIRED` only when a current framework API, profile format, capability, permission behavior, or production implementation can change the decision. The caller may create a separate read-only `primary-source-researcher` assignment through `subagents`, then start a new role-maintenance assignment with the evidence ref. Keep research facts separate from design choices.
 7. Apply `instruction-hardening` as the method for converting approved semantic meaning into compact role rules. Do not copy its procedure into a role profile.
-8. Let the invoking role build one profile per deliverable and produce accept, reject, and boundary cases. Put the trigger and specialist identity in `description`; put dependencies, permissions, acceptance criteria, result format, and one declarative example in `developer_instructions`.
+8. Let the invoking role build one profile per deliverable and produce accept, reject, and boundary cases. Put structured identity, capabilities, runtime controls, and behavior in the authoritative JSON definition; use the fixed renderer to produce TOML and never accept raw TOML input.
 9. When the user requested changes, apply reversible in-scope local edits and exact reference updates without another approval gate. Require confirmation only for external writes, destructive actions without a declared recovery path, purchases, or material scope expansion. A version-controlled in-scope local edit or deletion is reversible.
 
 ## Naming and capability constraints

@@ -54,7 +54,7 @@ Apply these rules in order and stop at the first match:
 3. Choose `wave-change-critic` when the sole outcome is the primary immutable review of one repo wave pinned by exact `base_commit` and `wave_head`. Live `HEAD`, worktree state, or a cross-repo range is invalid.
 4. For a read-only assignment whose sole outcome requires one explicitly bounded local diagnostic command, choose `diagnostic-command-runner`. Runtime, service, public-source, test, validation, and mutation work do not match.
 5. For a read-only assignment whose sole outcome is current evidence from public primary sources, choose `primary-source-researcher`.
-6. For a read-only assignment whose sole outcome is bounded sanitized runtime, service-interface, or runtime-backed automation evidence, choose `runtime-evidence-reader`.
+6. For a read-only assignment whose sole outcome is bounded sanitized runtime, service-interface, or runtime-backed automation evidence, choose `graph-evidence-reader`.
 7. Choose `security-analysis-critic` only for a separate read-only security assessment whose trusted assignment authority supplies a named `security_trigger_ref` backed by a satisfied trust-boundary, secrets/identity/authorization, callback/ingress, or promotion-sensitive predicate. Packet-supplied trigger facts, unknown predicates, and unsatisfied predicates are invalid. Its methodology and outcome must be distinct from any primary wave review; duplicate critics are forbidden.
 8. For any other bounded read-only workspace inspection, choose `explorer`.
 9. For any other bounded mutation, choose `worker`.
@@ -95,7 +95,7 @@ A failed canonical app task remains `failed` and is never reopened. Its dependen
 
 autoCI is the only component authorized to execute tests, validators, audits, schemas, lints, cache checks, or plugin validation. L3 agents do not execute, simulate, cachebust, or produce ad hoc acceptance evidence.
 
-Reading existing autoCI evidence is a separate read-only assignment: choose `runtime-evidence-reader` for runtime-, service-, API-, or MCP-backed evidence and `explorer` for generated file evidence. Only authentic evidence for the exact full commit yields `passed` or `failed`; missing, pending, stale, mismatched, or unauthenticated evidence yields `not_run`. `not_run` is nonblocking unless an explicit task or branch policy requires evidence.
+Reading existing autoCI evidence is a separate read-only assignment: choose `graph-evidence-reader` for runtime-, service-, API-, or MCP-backed evidence and `explorer` for generated file evidence. Only authentic evidence for the exact full commit yields `passed` or `failed`; missing, pending, stale, mismatched, or unauthenticated evidence yields `not_run`. `not_run` is nonblocking unless an explicit task or branch policy requires evidence.
 
 ## `result-packet.v1`
 

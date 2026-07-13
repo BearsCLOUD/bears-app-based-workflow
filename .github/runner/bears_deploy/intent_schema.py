@@ -8,8 +8,8 @@ from typing import Any
 
 from .constants import (
     CONFIG_MAX_BYTES,
+    DEPLOY_RECEIPT_SCHEMA,
     GRAPH_MAX_BYTES,
-    PRIOR_DEPLOY_RECEIPT_SCHEMA,
     FINGERPRINT_RE,
     MARKETPLACE,
     PLUGIN,
@@ -292,13 +292,16 @@ def validate_intent(value: Any) -> dict[str, Any]:
             try:
                 validate_deploy_receipt(
                     {
-                        "schema": PRIOR_DEPLOY_RECEIPT_SCHEMA,
+                        "schema": DEPLOY_RECEIPT_SCHEMA,
                         "repository": REPOSITORY,
                         "marketplace": MARKETPLACE,
                         "plugin": PLUGIN,
                         "sha": value["requested_sha"],
                         "version": "0.0.0+codex.00000000000000",
                         **role_record,
+                        "graph_template_sha256": "0" * 64,
+                        "graph_block_sha256": "0" * 64,
+                        "graph_separator_added": False,
                     }
                 )
             except DeployError as exc:

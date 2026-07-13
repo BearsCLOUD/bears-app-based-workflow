@@ -27,13 +27,13 @@ from .constants import (
     LEGACY_ROLE_RECEIPT_SHA256,
     LEGACY_ROLE_VERSION,
     PLUGIN,
-    PROFILE_FIELDS,
     PROFILE_MAX_BYTES,
     ROLE_GENERATIONS_DIR,
 )
 from .marketplace import verified_git_blob_record
 from .models import DeployError
 from .process import git
+from .role_renderer import RoleDefinitionError, render_profile, validate_catalog, validate_definition
 
 
 def pinned_role_bundle(cache: Path, requested: str, expected_version: str) -> dict[str, Any]:
@@ -70,6 +70,32 @@ def pinned_role_bundle(cache: Path, requested: str, expected_version: str) -> di
         or not 1 <= len(profile_relatives) <= 64
     ):
         raise DeployError("cached agents tree is not the exact canonical file set")
+
+    definition_tree = git(
+        cache,
+        "ls-tree",
+        "-r",
+        "--format=%(objectmode) %(objecttype) %(objectname)\t%(path)",
+        requested,
+        "--",
+        "role-definitions",
+    ).stdout.splitlines()
+    definition_paths: set[str] = set()
+    for row in definition_tree:
+        try:
+            metadata, relative = row.split("\t", 1)
+        except ValueError as exc:
+            raise DeployError("cached role definition tree is malformed") from exc
+        fields = metadata.split()
+        if len(fields) != 3 or fields[0] != "100644" or fields[1] != "blob":
+            raise DeployError("cached role definition tree contains a non-regular blob")
+        definition_paths.add(relative)
+    expected_definition_paths = {
+        "role-definitions/capability-catalog.v1.json",
+        *(f"role-definitions/{Path(relative).stem}.json" for relative in profile_relatives),
+    }
+    if definition_paths != expected_definition_paths or len(definition_tree) != len(expected_definition_paths):
+        raise DeployError("cached role definition tree is not the exact canonical file set")
 
     manifest_record = verified_git_blob_record(
         cache,
@@ -113,22 +139,33 @@ def pinned_role_bundle(cache: Path, requested: str, expected_version: str) -> di
             PROFILE_MAX_BYTES,
         ),
     }
+    definition_records = {
+        relative: verified_git_blob_record(cache, requested, relative, PROFILE_MAX_BYTES)
+        for relative in sorted(definition_paths)
+    }
+    source_blobs.update(definition_records)
+    try:
+        catalog_value = validate_catalog(
+            json.loads(definition_records["role-definitions/capability-catalog.v1.json"]["data"])
+        )
+    except (UnicodeError, json.JSONDecodeError, RoleDefinitionError) as exc:
+        raise DeployError("cached role capability catalog is malformed") from exc
     profiles: dict[str, dict[str, Any]] = {}
     for relative in profile_relatives:
         path = entries[Path(relative).name]
         name = path.stem
         record = verified_git_blob_record(cache, requested, relative, PROFILE_MAX_BYTES)
+        definition_record = definition_records[f"role-definitions/{name}.json"]
         try:
+            definition = validate_definition(
+                json.loads(definition_record["data"]), catalog_value, expected_name=name
+            )
+            expected_profile = render_profile(definition, catalog_value, expected_version)
             profile = tomllib.loads(record["data"].decode("utf-8"))
-        except (UnicodeError, tomllib.TOMLDecodeError) as exc:
+        except (UnicodeError, json.JSONDecodeError, tomllib.TOMLDecodeError, RoleDefinitionError) as exc:
             raise DeployError(f"cached role profile {name} is malformed") from exc
-        if (
-            not isinstance(profile, dict)
-            or set(profile) != PROFILE_FIELDS
-            or profile.get("name") != name
-            or any(not isinstance(profile[field], str) or not profile[field] for field in PROFILE_FIELDS)
-        ):
-            raise DeployError(f"cached role profile {name} violates the fixed profile schema")
+        if profile.get("name") != name or record["data"] != expected_profile:
+            raise DeployError(f"cached role profile {name} drifted from its authoritative JSON definition")
         resolved = path.resolve(strict=True)
         if resolved.parent != agents_real:
             raise DeployError(f"cached role profile {name} escapes the exact cache")

@@ -1,10 +1,11 @@
 {
   "schema": "app-role-profile-definition.v1",
   "name": "primary-source-researcher",
-  "description": "Choose when a current or uncertain claim can change a technical decision; a primary-source research specialist owns one evidence packet.",
+  "description": "Choose when a current or uncertain claim can change a technical decision; this helper owns one primary-source evidence packet.",
   "identity": {
     "level": "L3",
-    "role_kind": "specialist"
+    "role_kind": "helper",
+    "specialization": "primary-source evidence"
   },
   "model": {
     "id": "gpt-5.6-sol",
@@ -60,7 +61,7 @@
         "text": "Follow authority order. Contradictory equal-authority rules with overlapping scope produce `ROLE_CONFLICT` unless an explicit applicable resolution rule is supplied."
       }
     ],
-    "acceptance": [
+    "completion": [
       {
         "id": "primary",
         "text": "every fact cites a direct primary source; source date or version is recorded for unstable claims; facts, inferences, and design choices are separate; unresolved questions remain explicit; no external state changes."

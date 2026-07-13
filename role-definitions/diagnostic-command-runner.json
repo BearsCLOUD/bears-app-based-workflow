@@ -1,10 +1,11 @@
 {
   "schema": "app-role-profile-definition.v1",
   "name": "diagnostic-command-runner",
-  "description": "Choose when one diagnosis requires an explicitly bounded read-only command; a diagnostic command specialist owns one sanitized command-evidence packet.",
+  "description": "Choose when one diagnosis requires an explicitly bounded read-only command; this helper owns one sanitized command-evidence packet.",
   "identity": {
     "level": "L3",
-    "role_kind": "specialist"
+    "role_kind": "helper",
+    "specialization": "bounded read-only command evidence"
   },
   "model": {
     "id": "gpt-5.6-luna",
@@ -32,7 +33,7 @@
     "forbidden": [
       {
         "id": "primary",
-        "text": "delegate; mutate state; invoke project scripts, task runners, completion suites, wrappers, or nested commands outside the approved class; follow secret references; install, unrestricted network, external write, commit, or push."
+        "text": "delegate; mutate state; invoke project scripts, task runners, wrappers, or nested commands outside the approved class; follow secret references; install, unrestricted network, external write, commit, or push."
       }
     ],
     "required": [
@@ -59,7 +60,7 @@
         "text": "Follow authority order. Contradictory equal-authority rules with overlapping scope produce `ROLE_CONFLICT` unless an explicit applicable resolution rule is supplied."
       }
     ],
-    "acceptance": [
+    "completion": [
       {
         "id": "primary",
         "text": "the executed command matches the supplied boundary; output is sanitized and bounded; exit status and truncation are explicit; no state changed."

@@ -17,8 +17,30 @@ PLUGIN_ID = "bears-app-based-workflow"
 PLUGIN_CONFIG_ID = f"{PLUGIN_ID}@{PLUGIN_ID}"
 DEFINITION_SCHEMA = "app-role-profile-definition.v1"
 CATALOG_SCHEMA = "app-role-capability-catalog.v1"
-SECTIONS = ("allowed", "forbidden", "required", "ask", "escalate", "conflict", "acceptance", "result", "example")
+SECTIONS = ("allowed", "forbidden", "required", "ask", "escalate", "conflict", "completion", "result", "example")
 NAME_RE = re.compile(r"[a-z][a-z0-9-]{0,63}")
+ROLE_KINDS = {
+    "app-worker": "mutation-worker",
+    "diagnostic-command-runner": "helper",
+    "domain-lane-orchestrator": "orchestrator",
+    "explorer": "helper",
+    "graph-evidence-reader": "helper",
+    "primary-source-researcher": "helper",
+    "role-profile-architect": "mutation-worker",
+    "wave-change-critic": "primary-critic",
+    "worker": "mutation-worker",
+    "workflow-orchestrator": "orchestrator",
+}
+GRAPH_READ_TOOLS = frozenset({
+    "dependency_slice", "impact_analysis", "graph_trace", "graph_diagnostics",
+    "topological_plan", "workflow_state",
+})
+GRAPH_MAINTAINER_TOOLS = frozenset({"graph_compile", "process_record_event"})
+DOMAIN_LANE_SKILLS = frozenset({
+    "app-constitution", "app-research", "app-specify", "app-functional-graph",
+    "app-context-index", "app-plan", "app-dev", "app-analyze",
+    "app-graph-compile", "subagents",
+})
 SAFE_TOP_LEVEL = {
     "name", "description", "model", "model_reasoning_effort", "sandbox_mode",
     "developer_instructions", "allow_login_shell", "tools", "apps", "plugins",
@@ -27,7 +49,7 @@ SAFE_TOP_LEVEL = {
 
 
 class RoleDefinitionError(ValueError):
-    """A bounded validation failure safe to expose to CI and the gateway."""
+    """A bounded validation failure safe to expose to the caller and gateway."""
 
 
 def canonical(value: Any) -> bytes:
@@ -68,14 +90,19 @@ def validate_catalog(value: dict[str, Any]) -> dict[str, Any]:
     servers = value.get("mcp_servers")
     if not isinstance(servers, dict) or set(servers) != {"app-graph", "app-graph-maintainer"}:
         raise RoleDefinitionError("catalog MCP server set is not exact")
+    expected_servers = {
+        "app-graph": ("read-only", GRAPH_READ_TOOLS),
+        "app-graph-maintainer": ("maintainer", GRAPH_MAINTAINER_TOOLS),
+    }
     for server, item in servers.items():
         if not isinstance(item, dict):
             raise RoleDefinitionError(f"catalog MCP server is invalid: {server}")
         _exact(item, {"classification", "tools"}, f"catalog MCP server {server}")
-        if item["classification"] not in {"read-only", "maintainer"}:
+        expected_classification, expected_tools = expected_servers[server]
+        if item["classification"] != expected_classification:
             raise RoleDefinitionError(f"catalog MCP classification is invalid: {server}")
         tools = item["tools"]
-        if not isinstance(tools, list) or not tools or any(not isinstance(tool, str) or not tool for tool in tools) or len(tools) != len(set(tools)):
+        if not isinstance(tools, list) or set(tools) != expected_tools or len(tools) != len(expected_tools):
             raise RoleDefinitionError(f"catalog MCP tools are invalid: {server}")
     return value
 
@@ -91,8 +118,17 @@ def validate_definition(value: dict[str, Any], catalog: dict[str, Any], *, expec
     identity = value.get("identity")
     if not isinstance(identity, dict):
         raise RoleDefinitionError(f"role identity is invalid: {name}")
-    _exact(identity, {"level", "role_kind"}, f"role identity {name}")
-    if identity["level"] not in {"L1", "L2", "L3"} or identity["role_kind"] not in {"orchestrator", "mutation-worker", "specialist"}:
+    _exact(identity, {"level", "role_kind", "specialization"}, f"role identity {name}")
+    specialization = identity["specialization"]
+    if (
+        identity["level"] not in {"L1", "L2", "L3"}
+        or name not in ROLE_KINDS
+        or identity["role_kind"] != ROLE_KINDS[name]
+        or not isinstance(specialization, str)
+        or not 1 <= len(specialization) <= 256
+        or "\n" in specialization
+        or "\r" in specialization
+    ):
         raise RoleDefinitionError(f"role identity values are invalid: {name}")
     model = value.get("model")
     if not isinstance(model, dict):
@@ -106,6 +142,9 @@ def validate_definition(value: dict[str, Any], catalog: dict[str, Any], *, expec
     _exact(runtime, {"sandbox_mode", "web_search", "view_image"}, f"role runtime controls {name}")
     if runtime["sandbox_mode"] not in {"read-only", "workspace-write"} or runtime["web_search"] not in {"disabled", "live"} or not isinstance(runtime["view_image"], bool):
         raise RoleDefinitionError(f"unsafe role runtime controls: {name}")
+    expected_sandbox = "workspace-write" if identity["role_kind"] == "mutation-worker" else "read-only"
+    if runtime["sandbox_mode"] != expected_sandbox:
+        raise RoleDefinitionError(f"role kind and sandbox lifecycle differ: {name}")
     requirements = value.get("capability_requirements")
     if not isinstance(requirements, dict):
         raise RoleDefinitionError(f"role capabilities are invalid: {name}")
@@ -139,8 +178,34 @@ def validate_definition(value: dict[str, Any], catalog: dict[str, Any], *, expec
             normalized_servers.append({"id": server_id, "tools": tools})
         normalized_plugins.append({"id": PLUGIN_ID, "skills": skills, "mcp_servers": sorted(normalized_servers, key=lambda item: item["id"])})
     requirements["plugins"] = normalized_plugins
+    requested_servers = {
+        server["id"]: set(server["tools"])
+        for plugin in normalized_plugins
+        for server in plugin["mcp_servers"]
+    }
     if identity["level"] == "L3" and any(server["id"] == "app-graph-maintainer" for plugin in normalized_plugins for server in plugin["mcp_servers"]):
         raise RoleDefinitionError(f"L3 roles cannot require the graph maintainer: {name}")
+    if "app-graph-maintainer" in requested_servers and name != "domain-lane-orchestrator":
+        raise RoleDefinitionError(f"graph maintainer authority is not assigned to this role: {name}")
+    if name == "domain-lane-orchestrator" and requested_servers != {
+        "app-graph": set(GRAPH_READ_TOOLS),
+        "app-graph-maintainer": set(GRAPH_MAINTAINER_TOOLS),
+    }:
+        raise RoleDefinitionError("domain lane graph capabilities are incomplete")
+    if name == "domain-lane-orchestrator" and (
+        len(normalized_plugins) != 1
+        or set(normalized_plugins[0]["skills"]) != DOMAIN_LANE_SKILLS
+    ):
+        raise RoleDefinitionError("domain lane stage skills are incomplete")
+    if name == "graph-evidence-reader" and (
+        requirements["native_tools"]
+        or requested_servers != {"app-graph": set(GRAPH_READ_TOOLS)}
+        or any(plugin["skills"] for plugin in normalized_plugins)
+    ):
+        raise RoleDefinitionError("graph evidence reader capabilities are not exact")
+    collaboration_tools = {tool for tool in requirements["native_tools"] if tool.startswith("collaboration.")}
+    if collaboration_tools and identity["role_kind"] != "orchestrator":
+        raise RoleDefinitionError(f"non-orchestrator cannot delegate: {name}")
     if runtime["web_search"] == "live" and not {"web.search_query", "web.open"}.issubset(requirements["native_tools"]):
         raise RoleDefinitionError(f"live web search lacks explicit native requirements: {name}")
     behavior = value.get("behavior")
@@ -183,7 +248,7 @@ def developer_instructions(definition: dict[str, Any]) -> str:
         "Required plugins: " + (", ".join(plugin_ids) if plugin_ids else "none") + ".",
         "Required MCP servers: " + (", ".join(mcps) if mcps else "none") + ".",
         "",
-        f"Role identity: profile={name}; level={identity['level']}; role_kind={identity['role_kind']}. Before any target action, require a dispatch packet whose role, agent level, and role kind match this line and whose instruction refs include this exact installed profile; a packet or profile mismatch is `PACKET_REJECTED`. If the transport supplies `agent_type`, it must equal this profile; missing `agent_type` alone is not rejection.",
+        f"Role identity: profile={name}; level={identity['level']}; role_kind={identity['role_kind']}; specialization={identity['specialization']}. Specialization is descriptive and grants no authority or capability. Before any target action, require a dispatch packet whose role, agent level, and role kind match this line and whose instruction refs include this exact installed profile; a packet or profile mismatch is `PACKET_REJECTED`. If the transport supplies `agent_type`, it must equal this profile; missing `agent_type` alone is not rejection.",
         "Capability boundary: native tool and plugin requirements are declarative where Codex has no per-agent allowlist; sandbox, packet-bound profile identity, and these instructions remain authoritative. Omitted parent capabilities are not permission to use them.",
     ]
     for section in SECTIONS:

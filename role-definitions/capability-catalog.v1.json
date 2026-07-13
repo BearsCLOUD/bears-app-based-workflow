@@ -1,8 +1,17 @@
 {
   "schema": "app-role-capability-catalog.v1",
   "plugin_id": "bears-app-based-workflow",
-  "models": ["gpt-5.6-luna", "gpt-5.6-sol", "gpt-5.6-terra"],
-  "reasoning_efforts": ["high", "low", "max", "medium"],
+  "models": [
+    "gpt-5.6-luna",
+    "gpt-5.6-sol",
+    "gpt-5.6-terra"
+  ],
+  "reasoning_efforts": [
+    "high",
+    "low",
+    "max",
+    "medium"
+  ],
   "native_tools": [
     "apply_patch",
     "collaboration.followup_task",
@@ -25,11 +34,9 @@
     "app-functional-graph",
     "app-graph-compile",
     "app-plan",
-    "app-process-audit",
     "app-research",
     "app-solo-route",
     "app-specify",
-    "app-trace-audit",
     "instruction-hardening",
     "role-profile-maintenance",
     "subagents"
@@ -37,11 +44,21 @@
   "mcp_servers": {
     "app-graph": {
       "classification": "read-only",
-      "tools": ["dependency_slice", "graph_diagnostics", "graph_trace", "impact_analysis", "process_audit", "topological_plan", "trace_audit", "workflow_state"]
+      "tools": [
+        "dependency_slice",
+        "graph_diagnostics",
+        "graph_trace",
+        "impact_analysis",
+        "topological_plan",
+        "workflow_state"
+      ]
     },
     "app-graph-maintainer": {
       "classification": "maintainer",
-      "tools": ["graph_compile", "process_record_event"]
+      "tools": [
+        "graph_compile",
+        "process_record_event"
+      ]
     }
   }
 }

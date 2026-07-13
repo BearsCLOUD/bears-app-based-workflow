@@ -12,10 +12,11 @@
     "identity": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["level", "role_kind"],
+      "required": ["level", "role_kind", "specialization"],
       "properties": {
         "level": {"enum": ["L1", "L2", "L3"]},
-        "role_kind": {"enum": ["orchestrator", "mutation-worker", "specialist"]}
+        "role_kind": {"enum": ["helper", "mutation-worker", "primary-critic", "orchestrator"]},
+        "specialization": {"type": "string", "minLength": 1, "maxLength": 256, "pattern": "^[^\\r\\n]+$"}
       }
     },
     "model": {
@@ -74,7 +75,7 @@
     "behavior": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["allowed", "forbidden", "required", "ask", "escalate", "conflict", "acceptance", "result", "example"],
+      "required": ["allowed", "forbidden", "required", "ask", "escalate", "conflict", "completion", "result", "example"],
       "properties": {
         "allowed": {"$ref": "#/$defs/rules"},
         "forbidden": {"$ref": "#/$defs/rules"},
@@ -82,7 +83,7 @@
         "ask": {"$ref": "#/$defs/rules"},
         "escalate": {"$ref": "#/$defs/rules"},
         "conflict": {"$ref": "#/$defs/rules"},
-        "acceptance": {"$ref": "#/$defs/rules"},
+        "completion": {"$ref": "#/$defs/rules"},
         "result": {"$ref": "#/$defs/rules"},
         "example": {"$ref": "#/$defs/rules"}
       }

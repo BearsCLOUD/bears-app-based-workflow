@@ -17,8 +17,40 @@
       "additionalProperties": false,
       "required": ["app-graph", "app-graph-maintainer"],
       "properties": {
-        "app-graph": {"$ref": "#/$defs/server"},
-        "app-graph-maintainer": {"$ref": "#/$defs/server"}
+        "app-graph": {
+          "allOf": [
+            {"$ref": "#/$defs/server"},
+            {
+              "properties": {
+                "classification": {"const": "read-only"},
+                "tools": {
+                  "type": "array",
+                  "minItems": 6,
+                  "maxItems": 6,
+                  "uniqueItems": true,
+                  "items": {"enum": ["dependency_slice", "impact_analysis", "graph_trace", "graph_diagnostics", "topological_plan", "workflow_state"]}
+                }
+              }
+            }
+          ]
+        },
+        "app-graph-maintainer": {
+          "allOf": [
+            {"$ref": "#/$defs/server"},
+            {
+              "properties": {
+                "classification": {"const": "maintainer"},
+                "tools": {
+                  "type": "array",
+                  "minItems": 2,
+                  "maxItems": 2,
+                  "uniqueItems": true,
+                  "items": {"enum": ["graph_compile", "process_record_event"]}
+                }
+              }
+            }
+          ]
+        }
       }
     }
   },

@@ -7,6 +7,8 @@ This document defines how to measure the effectiveness of
 It is an analytical and operational reference, not an instruction authority,
 workflow source, acceptance receipt, or replacement for machine-readable
 contracts. It is intentionally not linked from `AGENTS.md`.
+The source manifest hash-tracks this file as a non-semantic documentation
+artifact; that tracking does not make it a workflow or functional-map source.
 
 The methodology evaluates whether the plugin produces deterministic,
 traceable, correctly routed, bounded, and efficiently converging app work. It
@@ -64,7 +66,7 @@ inferred from graph consistency alone.
 ## Current repository baseline
 
 The following snapshot was inspected on 2026-07-13 at Git commit
-`50f14f64cd046013ff103fd77226442f35db30cf`.
+`468d503278c007ae3381f6777973ba8a2b9efc2c`.
 
 | Parameter | Observed value |
 | --- | ---: |

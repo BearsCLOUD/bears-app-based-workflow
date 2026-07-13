@@ -97,6 +97,7 @@
     "contracts/app-traceability-index.v3.schema.json",
     "docs/app-artifact-catalog.v1.json",
     "docs/app-functional-map.v3.json",
+    "docs/plugin-effectiveness-metrics-and-agent-audit-methodology.md",
     "install",
     "role-definitions/app-worker.json",
     "role-definitions/capability-catalog.v1.json",

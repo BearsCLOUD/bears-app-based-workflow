@@ -398,7 +398,7 @@ If delegation is authorized, use current installed profiles only:
 | Sanitized runtime, MCP, service, or exact CI evidence | `graph-evidence-reader` |
 | One explicitly bounded local diagnostic command | `diagnostic-command-runner` |
 | Pinned `base_commit..wave_head` change review | `wave-change-critic` |
-| Separate security assessment with a named satisfied trigger | `security-analysis-critic` |
+| Security-sensitive acceptance surfaces inside a pinned change review | `wave-change-critic` |
 | Tests, validators, schemas, lints, cache checks, plugin validation, and executable audits | CI only |
 
 Every delegated assignment requires an exact immutable authority, explicit

@@ -30,8 +30,7 @@
     "trust_boundary",
     "authorized_role",
     "authorized_agent_level",
-    "authorized_role_kind",
-    "security_trigger_ref"
+    "authorized_role_kind"
   ],
   "typed_dispatch": {
     "required_profile_binding": {
@@ -65,7 +64,6 @@
     "assignment_id",
     "repo_ref",
     "trust_boundary",
-    "security_trigger_ref",
     "stage",
     "caller_level",
     "role",
@@ -97,7 +95,6 @@
     "assignment_id",
     "repo_ref",
     "trust_boundary",
-    "security_trigger_ref",
     "role",
     "agent_level",
     "role_kind",
@@ -154,7 +151,6 @@
       "orchestrator",
       "mutation-worker",
       "primary-critic",
-      "security-critic",
       "helper"
     ],
     "fixed_role_count": false

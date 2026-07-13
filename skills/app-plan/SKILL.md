@@ -15,7 +15,7 @@ For work already classified `DELEGATED`, act as the solo L2 analogue: decompose 
 - `graph-ready` from `app-functional-graph` additionally carries `functional_map_ref`, `functionality_refs`, `graph_entity_refs`, `coverage_refs`, and `replacement_refs`.
 - `needs-plan` from `app-dev` or `app-analyze` additionally carries `source_handoff_ref`, `ledger_coverage_refs`, and `implementation_state_by_requirement`.
 - `waiting` resume from `app-plan` additionally carries `source_handoff_ref`, `blocked_task_refs`, and `dependency_state_evidence_refs`; `app-plan` owns dependency-state reevaluation and the resume decision.
-- A repo L2 may invoke planning at `remediation-anchor.v1` with `repo_ref`, exact repo cwd, the immutable anchor snapshot, failed task refs, one primary review ref, and only deterministically justified specialist review refs. Those failed-task and review refs are the complete remediation source; unrelated findings or later queue admissions are outside that planning assignment.
+- A repo L2 may invoke planning at `remediation-anchor.v1` with `repo_ref`, exact repo cwd, the immutable anchor snapshot, failed task refs, and one primary review ref. Those failed-task and review refs are the complete remediation source; unrelated findings or later queue admissions are outside that planning assignment.
 
 ## Stage output ownership
 
@@ -27,7 +27,7 @@ For each specified requirement it records functional-map revision, source digest
 
 Partition ordinary work by `repo_ref` before assigning `batch_id` or `wave_id`. One batch and one wave contain tasks from exactly one repository. Preserve deterministic `queue_sequence` within each repo wave, and supply the exact repo cwd plus each task's `target_paths` and `allowed_files`; never return a mixed-repo task group.
 
-At `remediation-anchor.v1`, create a new repo-scoped remediation wave, a new batch, and new task ids. Every created task has `task_kind: remediation` and `source_review_refs` containing the primary review ref plus any justified specialist review refs. Trace the failed task refs as remediation sources, but never reopen, renumber, overwrite, or otherwise mutate the original terminal `done|failed` tasks. Preserve this queue order: independent tasks in the anchor snapshot first, the new remediation wave next, and tasks admitted after the anchor last.
+At `remediation-anchor.v1`, create a new repo-scoped remediation wave, a new batch, and new task ids. Every created task has `task_kind: remediation` and `source_review_refs` containing the primary review ref. Trace the failed task refs as remediation sources, but never reopen, renumber, overwrite, or otherwise mutate the original terminal `done|failed` tasks. Preserve this queue order: independent tasks in the anchor snapshot first, the new remediation wave next, and tasks admitted after the anchor last.
 
 Refresh `$app-context-index` after changing the ledger. Return one canonical `app-stage-handoff.v3` with current digest/index fields and the fields for its status:
 

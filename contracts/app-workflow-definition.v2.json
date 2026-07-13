@@ -2,10 +2,10 @@
   "schema": "app-workflow-definition.v2",
   "handoff_schema": "contracts/app-stage-handoff.v3.schema.json",
   "manifest_schema": "contracts/app-graph-source-manifest.v1.schema.json",
-  "event_schema": "contracts/app-process-event.v1.schema.json",
+  "event_schema": "contracts/app-process-event.v2.schema.json",
   "task_ledger_schema": "contracts/app-task-ledger.v2.schema.json",
   "traceability_index_schema": "contracts/app-traceability-index.v3.schema.json",
-  "process_index_schema": "contracts/app-process-index.v2.schema.json",
+  "process_index_schema": "contracts/app-process-index.v3.schema.json",
   "index_build_schema": "contracts/app-index-build.v1.schema.json",
   "audit_result_schemas": [
     "contracts/app-graph-compile-result.v1.schema.json",
@@ -198,5 +198,11 @@
       "passed",
       "failed"
     ]
-  }
+  },
+  "functional_map_schema": "contracts/app-functional-map.v3.schema.json",
+  "legacy_read_schemas": [
+    "contracts/app-functional-map.v2.schema.json",
+    "contracts/app-process-event.v1.schema.json",
+    "contracts/app-process-index.v2.schema.json"
+  ]
 }

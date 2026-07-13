@@ -4,15 +4,47 @@
   "title": "App context index result v1",
   "type": "object",
   "additionalProperties": false,
-  "required": ["schema", "status", "build_ref", "source_snapshot_digest", "journal_digest", "traceability_index_ref", "process_index_ref", "build_receipt_ref"],
+  "required": [
+    "schema",
+    "status",
+    "build_ref",
+    "source_snapshot_digest",
+    "journal_digest",
+    "traceability_index_ref",
+    "process_index_ref",
+    "build_receipt_ref"
+  ],
   "properties": {
-    "schema": {"const": "app-context-index-result.v1"},
-    "status": {"enum": ["built", "current"]},
-    "build_ref": {"type": "string", "minLength": 1},
-    "source_snapshot_digest": {"type": "string", "pattern": "^sha256:[a-f0-9]{64}$"},
-    "journal_digest": {"type": "string", "pattern": "^sha256:[a-f0-9]{64}$"},
-    "traceability_index_ref": {"const": "docs/app-traceability-index.v3.json"},
-    "process_index_ref": {"const": "docs/app-process-index.v2.json"},
-    "build_receipt_ref": {"const": "docs/app-index-build.v1.json"}
+    "schema": {
+      "const": "app-context-index-result.v1"
+    },
+    "status": {
+      "enum": [
+        "built",
+        "current"
+      ]
+    },
+    "build_ref": {
+      "type": "string",
+      "minLength": 1
+    },
+    "source_snapshot_digest": {
+      "type": "string",
+      "pattern": "^sha256:[a-f0-9]{64}$"
+    },
+    "journal_digest": {
+      "type": "string",
+      "pattern": "^sha256:[a-f0-9]{64}$"
+    },
+    "traceability_index_ref": {
+      "const": "docs/app-traceability-index.v3.json"
+    },
+    "process_index_ref": {
+      "const": "docs/app-process-index.v3.json"
+    },
+    "build_receipt_ref": {
+      "type": "string",
+      "pattern": "^docs/app-index-builds/v1/BUILD-[A-F0-9]+\\.json$"
+    }
   }
 }

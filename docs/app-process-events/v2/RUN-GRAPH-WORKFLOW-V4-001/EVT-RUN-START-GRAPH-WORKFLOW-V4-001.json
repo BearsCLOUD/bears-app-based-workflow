@@ -1,0 +1,21 @@
+{
+  "schema": "app-process-event.v2",
+  "run_ref": "RUN-GRAPH-WORKFLOW-V4-001",
+  "event_ref": "EVT-RUN-START-GRAPH-WORKFLOW-V4-001",
+  "event_kind": "run-start",
+  "stage": "app-dev",
+  "status": "in-progress",
+  "actor": "DIRECT-primary",
+  "repo_ref": "BearsCLOUD/bears-app-based-workflow",
+  "wave_ref": "graph-workflow-v4",
+  "task_refs": [
+    "TASK-GRAPH-PROCESS-004",
+    "TASK-SENTRY-GATEWAY-004",
+    "TASK-RELEASE-004"
+  ],
+  "causal_refs": [],
+  "trace_refs": [],
+  "artifact_refs": [],
+  "origin": "native",
+  "automation_status": "not_run"
+}

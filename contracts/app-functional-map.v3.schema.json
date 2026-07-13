@@ -1,0 +1,530 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://bears.cloud/contracts/app-functional-map.v3.schema.json",
+  "title": "app-functional-map.v3",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "app_id",
+    "revision",
+    "source_refs",
+    "entities",
+    "relations",
+    "coverage",
+    "replacements",
+    "requirement_dimensions"
+  ],
+  "properties": {
+    "schema": {
+      "const": "app-functional-map.v3"
+    },
+    "app_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "revision": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "source_refs": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true
+    },
+    "entities": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "relations": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "coverage": {
+      "type": "object"
+    },
+    "replacements": {
+      "type": "array"
+    },
+    "requirement_dimensions": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "behavior",
+          "dependency",
+          "state",
+          "api",
+          "data",
+          "integration",
+          "error"
+        ],
+        "properties": {
+          "behavior": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "status",
+              "refs"
+            ],
+            "properties": {
+              "status": {
+                "enum": [
+                  "applicable",
+                  "not-applicable"
+                ]
+              },
+              "refs": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "uniqueItems": true
+              },
+              "rationale": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "allOf": [
+              {
+                "if": {
+                  "properties": {
+                    "status": {
+                      "const": "not-applicable"
+                    }
+                  }
+                },
+                "then": {
+                  "required": [
+                    "rationale"
+                  ],
+                  "properties": {
+                    "refs": {
+                      "maxItems": 0
+                    }
+                  }
+                }
+              },
+              {
+                "if": {
+                  "properties": {
+                    "status": {
+                      "const": "applicable"
+                    }
+                  }
+                },
+                "then": {
+                  "properties": {
+                    "refs": {
+                      "minItems": 1
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "dependency": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "status",
+              "refs"
+            ],
+            "properties": {
+              "status": {
+                "enum": [
+                  "applicable",
+                  "not-applicable"
+                ]
+              },
+              "refs": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "uniqueItems": true
+              },
+              "rationale": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "allOf": [
+              {
+                "if": {
+                  "properties": {
+                    "status": {
+                      "const": "not-applicable"
+                    }
+                  }
+                },
+                "then": {
+                  "required": [
+                    "rationale"
+                  ],
+                  "properties": {
+                    "refs": {
+                      "maxItems": 0
+                    }
+                  }
+                }
+              },
+              {
+                "if": {
+                  "properties": {
+                    "status": {
+                      "const": "applicable"
+                    }
+                  }
+                },
+                "then": {
+                  "properties": {
+                    "refs": {
+                      "minItems": 1
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "state": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "status",
+              "refs"
+            ],
+            "properties": {
+              "status": {
+                "enum": [
+                  "applicable",
+                  "not-applicable"
+                ]
+              },
+              "refs": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "uniqueItems": true
+              },
+              "rationale": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "allOf": [
+              {
+                "if": {
+                  "properties": {
+                    "status": {
+                      "const": "not-applicable"
+                    }
+                  }
+                },
+                "then": {
+                  "required": [
+                    "rationale"
+                  ],
+                  "properties": {
+                    "refs": {
+                      "maxItems": 0
+                    }
+                  }
+                }
+              },
+              {
+                "if": {
+                  "properties": {
+                    "status": {
+                      "const": "applicable"
+                    }
+                  }
+                },
+                "then": {
+                  "properties": {
+                    "refs": {
+                      "minItems": 1
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "api": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "status",
+              "refs"
+            ],
+            "properties": {
+              "status": {
+                "enum": [
+                  "applicable",
+                  "not-applicable"
+                ]
+              },
+              "refs": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "uniqueItems": true
+              },
+              "rationale": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "allOf": [
+              {
+                "if": {
+                  "properties": {
+                    "status": {
+                      "const": "not-applicable"
+                    }
+                  }
+                },
+                "then": {
+                  "required": [
+                    "rationale"
+                  ],
+                  "properties": {
+                    "refs": {
+                      "maxItems": 0
+                    }
+                  }
+                }
+              },
+              {
+                "if": {
+                  "properties": {
+                    "status": {
+                      "const": "applicable"
+                    }
+                  }
+                },
+                "then": {
+                  "properties": {
+                    "refs": {
+                      "minItems": 1
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "data": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "status",
+              "refs"
+            ],
+            "properties": {
+              "status": {
+                "enum": [
+                  "applicable",
+                  "not-applicable"
+                ]
+              },
+              "refs": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "uniqueItems": true
+              },
+              "rationale": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "allOf": [
+              {
+                "if": {
+                  "properties": {
+                    "status": {
+                      "const": "not-applicable"
+                    }
+                  }
+                },
+                "then": {
+                  "required": [
+                    "rationale"
+                  ],
+                  "properties": {
+                    "refs": {
+                      "maxItems": 0
+                    }
+                  }
+                }
+              },
+              {
+                "if": {
+                  "properties": {
+                    "status": {
+                      "const": "applicable"
+                    }
+                  }
+                },
+                "then": {
+                  "properties": {
+                    "refs": {
+                      "minItems": 1
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "integration": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "status",
+              "refs"
+            ],
+            "properties": {
+              "status": {
+                "enum": [
+                  "applicable",
+                  "not-applicable"
+                ]
+              },
+              "refs": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "uniqueItems": true
+              },
+              "rationale": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "allOf": [
+              {
+                "if": {
+                  "properties": {
+                    "status": {
+                      "const": "not-applicable"
+                    }
+                  }
+                },
+                "then": {
+                  "required": [
+                    "rationale"
+                  ],
+                  "properties": {
+                    "refs": {
+                      "maxItems": 0
+                    }
+                  }
+                }
+              },
+              {
+                "if": {
+                  "properties": {
+                    "status": {
+                      "const": "applicable"
+                    }
+                  }
+                },
+                "then": {
+                  "properties": {
+                    "refs": {
+                      "minItems": 1
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "error": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "status",
+              "refs"
+            ],
+            "properties": {
+              "status": {
+                "enum": [
+                  "applicable",
+                  "not-applicable"
+                ]
+              },
+              "refs": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "uniqueItems": true
+              },
+              "rationale": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "allOf": [
+              {
+                "if": {
+                  "properties": {
+                    "status": {
+                      "const": "not-applicable"
+                    }
+                  }
+                },
+                "then": {
+                  "required": [
+                    "rationale"
+                  ],
+                  "properties": {
+                    "refs": {
+                      "maxItems": 0
+                    }
+                  }
+                }
+              },
+              {
+                "if": {
+                  "properties": {
+                    "status": {
+                      "const": "applicable"
+                    }
+                  }
+                },
+                "then": {
+                  "properties": {
+                    "refs": {
+                      "minItems": 1
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      }
+    }
+  }
+}

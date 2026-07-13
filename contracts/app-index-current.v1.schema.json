@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://bears.cloud/contracts/app-index-current.v1.schema.json",
+  "title": "app-index-current.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "build_ref",
+    "receipt_ref"
+  ],
+  "properties": {
+    "schema": {
+      "const": "app-index-current.v1"
+    },
+    "build_ref": {
+      "type": "string",
+      "minLength": 1
+    },
+    "receipt_ref": {
+      "type": "string",
+      "pattern": "^docs/app-index-builds/v1/BUILD-[A-F0-9]+\\.json$"
+    }
+  }
+}

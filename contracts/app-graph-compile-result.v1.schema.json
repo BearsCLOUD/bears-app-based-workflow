@@ -41,10 +41,11 @@
       "const": "docs/app-traceability-index.v3.json"
     },
     "process_index_ref": {
-      "const": "docs/app-process-index.v2.json"
+      "const": "docs/app-process-index.v3.json"
     },
     "build_receipt_ref": {
-      "const": "docs/app-index-build.v1.json"
+      "type": "string",
+      "pattern": "^docs/app-index-builds/v1/BUILD-[A-F0-9]+\\.json$"
     },
     "no_op": {
       "type": "boolean"

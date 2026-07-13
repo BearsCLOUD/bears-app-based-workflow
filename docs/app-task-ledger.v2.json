@@ -1,7 +1,7 @@
 {
   "schema": "app-task-ledger.v2",
   "app_id": "bears-app-based-workflow",
-  "revision": 6,
+  "revision": 4,
   "tasks": [
     {
       "repo_ref": "BearsCLOUD/bears-app-based-workflow",
@@ -435,6 +435,108 @@
       "test_refs": [],
       "evidence_refs": [],
       "result_refs": []
+    },
+    {
+      "repo_ref": "BearsCLOUD/bears-app-based-workflow",
+      "batch_id": "BATCH-GRAPH-WORKFLOW-V4",
+      "wave_id": "graph-workflow-v4",
+      "owner_role": "DIRECT-primary",
+      "decision_state": "closed",
+      "status": "done",
+      "automation_status": "not_run",
+      "source_review_refs": [],
+      "automation_evidence_refs": [],
+      "task_kind": "implementation",
+      "requirement_refs": [],
+      "functionality_refs": [],
+      "graph_entity_refs": [],
+      "proof_requirement": "CI is intentionally absent; automation_status remains not_run.",
+      "test_refs": [],
+      "evidence_refs": [],
+      "result_refs": [],
+      "task_id": "TASK-GRAPH-PROCESS-004",
+      "queue_sequence": 20,
+      "depends_on": [],
+      "target_paths": [
+        "contracts",
+        "scripts",
+        "docs"
+      ],
+      "allowed_files": [
+        "contracts",
+        "scripts",
+        "docs"
+      ],
+      "definition_of_done": "Implement v3 functional/process contracts, modular runtime, exact lifecycle and immutable receipts.",
+      "code_refs": []
+    },
+    {
+      "repo_ref": "BearsCLOUD/bears-app-based-workflow",
+      "batch_id": "BATCH-GRAPH-WORKFLOW-V4",
+      "wave_id": "graph-workflow-v4",
+      "owner_role": "DIRECT-primary",
+      "decision_state": "closed",
+      "status": "done",
+      "automation_status": "not_run",
+      "source_review_refs": [],
+      "automation_evidence_refs": [],
+      "task_kind": "implementation",
+      "requirement_refs": [],
+      "functionality_refs": [],
+      "graph_entity_refs": [],
+      "proof_requirement": "CI is intentionally absent; automation_status remains not_run.",
+      "test_refs": [],
+      "evidence_refs": [],
+      "result_refs": [],
+      "task_id": "TASK-SENTRY-GATEWAY-004",
+      "queue_sequence": 21,
+      "depends_on": [
+        "TASK-GRAPH-PROCESS-004"
+      ],
+      "target_paths": [
+        ".github/runner"
+      ],
+      "allowed_files": [
+        ".github/runner"
+      ],
+      "definition_of_done": "Replace manual telemetry transport with the pinned official Sentry SDK gateway.",
+      "code_refs": []
+    },
+    {
+      "repo_ref": "BearsCLOUD/bears-app-based-workflow",
+      "batch_id": "BATCH-GRAPH-WORKFLOW-V4",
+      "wave_id": "graph-workflow-v4",
+      "owner_role": "DIRECT-primary",
+      "decision_state": "closed",
+      "status": "done",
+      "automation_status": "not_run",
+      "source_review_refs": [],
+      "automation_evidence_refs": [],
+      "task_kind": "implementation",
+      "requirement_refs": [],
+      "functionality_refs": [],
+      "graph_entity_refs": [],
+      "proof_requirement": "CI is intentionally absent; automation_status remains not_run.",
+      "test_refs": [],
+      "evidence_refs": [],
+      "result_refs": [],
+      "task_id": "TASK-RELEASE-004",
+      "queue_sequence": 22,
+      "depends_on": [
+        "TASK-SENTRY-GATEWAY-004"
+      ],
+      "target_paths": [
+        "README.md",
+        "CHANGELOG.md",
+        ".codex-plugin/plugin.json"
+      ],
+      "allowed_files": [
+        "README.md",
+        "CHANGELOG.md",
+        ".codex-plugin/plugin.json"
+      ],
+      "definition_of_done": "Release compatible plugin version 0.4.0 with CI explicitly not run.",
+      "code_refs": []
     }
   ]
 }

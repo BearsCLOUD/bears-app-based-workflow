@@ -9,7 +9,7 @@ from typing import Any
 from app_graph_engine import GraphError, MAX_REQUEST_BYTES, MAX_RESPONSE_BYTES, execute_tool
 
 SUPPORTED_PROTOCOLS = ("2025-11-25", "2025-06-18")
-SERVER_VERSION = "0.3.5"
+SERVER_VERSION = "0.4.0"
 
 STR = {"type": "string", "minLength": 1}
 CURSOR = {"type": "string", "description": "Opaque snapshot/query-bound continuation token."}
@@ -22,13 +22,17 @@ BOUNDS = {
 }
 EVENT_SCHEMA = {
     "type": "object", "additionalProperties": False,
-    "required": ["schema", "run_ref", "event_ref", "event_kind", "stage", "status", "actor", "causal_refs", "trace_refs", "artifact_refs", "origin", "automation_status"],
+    "required": ["schema", "run_ref", "event_ref", "event_kind", "stage", "status", "actor", "causal_refs", "trace_refs", "artifact_refs", "task_refs", "origin", "automation_status", "repo_ref", "wave_ref"],
     "properties": {
-        "schema": {"const": "app-process-event.v1"},
-        **{name: STR for name in ("run_ref", "event_ref", "event_kind", "stage", "status", "actor")},
-        **{name: {"type": "array", "items": STR, "uniqueItems": True} for name in ("causal_refs", "trace_refs", "artifact_refs")},
-        "origin": {"enum": ["native", "legacy-import"]},
-        "automation_status": {"enum": ["unavailable", "not_run", "passed", "failed"]},
+        "schema": {"const": "app-process-event.v2"},
+        **{name: STR for name in ("run_ref", "event_ref", "event_kind", "stage", "status", "actor", "repo_ref", "wave_ref")},
+        **{name: {"type": "array", "items": STR, "uniqueItems": True} for name in ("causal_refs", "trace_refs", "artifact_refs", "task_refs")},
+        "origin": {"const": "native"},
+        "automation_status": {"enum": ["not_run", "passed", "failed"]},
+        "task_ref": STR, "terminal_result": {"enum": ["done", "failed", "blocked"]},
+        "reviewed_task_refs": {"type": "array", "items": STR, "uniqueItems": True},
+        "finding_refs": {"type": "array", "items": STR, "uniqueItems": True},
+        "commit_range": STR, "remediates_run_ref": STR, "audit_receipt_ref": STR,
         "build_ref": STR, "source_snapshot_digest": STR, "journal_digest": STR,
         "process_audit_refs": {"type": "array", "items": STR, "uniqueItems": True},
         "trace_audit_refs": {"type": "array", "items": STR, "uniqueItems": True},

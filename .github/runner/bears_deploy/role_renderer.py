@@ -211,7 +211,7 @@ def render_profile(definition: dict[str, Any], catalog: dict[str, Any], version:
     ]
     # 0.3.1 is the exact compatibility release accepted by the predecessor gateway.
     if version != "0.3.1":
-        lines.extend(["allow_login_shell = false", "", "[tools]", f"web_search = {_quoted(runtime['web_search'])}", f"view_image = {'true' if runtime['view_image'] else 'false'}", "", "[apps._default]", "enabled = false"])
+        lines.extend(["allow_login_shell = false", "", "[tools]", f"web_search = {'true' if runtime['web_search'] == 'live' else 'false'}", f"view_image = {'true' if runtime['view_image'] else 'false'}", "", "[apps._default]", "enabled = false"])
         if runtime["sandbox_mode"] == "workspace-write":
             lines.extend(["", "[sandbox_workspace_write]", "network_access = false"])
         requested_servers = {server["id"]: set(server["tools"]) for plugin in definition["capability_requirements"]["plugins"] for server in plugin["mcp_servers"]}

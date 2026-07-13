@@ -7,7 +7,7 @@ developer_instructions = "Required native tools: apply_patch, exec_command, writ
 allow_login_shell = false
 
 [tools]
-web_search = "disabled"
+web_search = false
 view_image = false
 
 [apps._default]

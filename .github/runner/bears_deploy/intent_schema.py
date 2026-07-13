@@ -8,7 +8,8 @@ from typing import Any
 
 from .constants import (
     CONFIG_MAX_BYTES,
-    DEPLOY_RECEIPT_SCHEMA,
+    GRAPH_MAX_BYTES,
+    PRIOR_DEPLOY_RECEIPT_SCHEMA,
     FINGERPRINT_RE,
     MARKETPLACE,
     PLUGIN,
@@ -51,6 +52,7 @@ def validate_intent(value: Any) -> dict[str, Any]:
         "requested_sha",
         "previous_receipt",
         "role_transaction",
+        "graph_transaction",
     }
     if (
         not isinstance(value, dict)
@@ -72,6 +74,27 @@ def validate_intent(value: Any) -> dict[str, Any]:
                 "promotion intent prior convergence state is invalid",
                 error_code="receipt-corruption",
             ) from exc
+    graph_transaction = value["graph_transaction"]
+    if graph_transaction is not None:
+        if (
+            not isinstance(graph_transaction, dict)
+            or set(graph_transaction) != {"original_b64", "original_present", "original_sha256", "desired_b64", "desired_sha256"}
+            or not isinstance(graph_transaction.get("original_present"), bool)
+            or not FINGERPRINT_RE.fullmatch(str(graph_transaction.get("original_sha256", "")))
+            or not FINGERPRINT_RE.fullmatch(str(graph_transaction.get("desired_sha256", "")))
+        ):
+            raise DeployError("promotion graph transaction is invalid", error_code="receipt-corruption")
+        try:
+            original = decode_journal_bytes(graph_transaction["original_b64"], GRAPH_MAX_BYTES, "AGENTS.md preimage")
+            desired = decode_journal_bytes(graph_transaction["desired_b64"], GRAPH_MAX_BYTES, "AGENTS.md desired state")
+        except DeployError as exc:
+            raise DeployError("promotion graph transaction payload is invalid", error_code="receipt-corruption") from exc
+        if (
+            hashlib.sha256(original).hexdigest() != graph_transaction["original_sha256"]
+            or hashlib.sha256(desired).hexdigest() != graph_transaction["desired_sha256"]
+            or (not graph_transaction["original_present"] and original != b"")
+        ):
+            raise DeployError("promotion graph transaction digest is invalid", error_code="receipt-corruption")
     transaction = value["role_transaction"]
     if transaction is not None:
         common_fields = {
@@ -269,7 +292,7 @@ def validate_intent(value: Any) -> dict[str, Any]:
             try:
                 validate_deploy_receipt(
                     {
-                        "schema": DEPLOY_RECEIPT_SCHEMA,
+                        "schema": PRIOR_DEPLOY_RECEIPT_SCHEMA,
                         "repository": REPOSITORY,
                         "marketplace": MARKETPLACE,
                         "plugin": PLUGIN,

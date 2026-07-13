@@ -30,6 +30,11 @@ from .marketplace import (
     verify_disabled,
 )
 from .models import DeployContext, DeployError, begin_activation_mutation
+from .graph_instructions import (
+    reconcile_graph_instructions,
+    remove_graph_instructions,
+    restore_graph_preimage,
+)
 from .process import (
     exact_remote,
     git,
@@ -100,7 +105,8 @@ def restore_receipted_install(
     run_json([CODEX, "plugin", "add", f"{PLUGIN}@{MARKETPLACE}", "--json"])
     verify_receipted_install(state)
     role_record = reconcile_receipted_roles(state_directory, state, restore_intent)
-    save_state(state_directory, sha, version, role_record)
+    graph_record = reconcile_graph_instructions(state_directory, state)
+    save_state(state_directory, sha, version, role_record, graph_record)
     durable = load_state(state_directory)
     if (
         durable is None
@@ -108,18 +114,22 @@ def restore_receipted_install(
         or durable.get("sha") != sha
         or durable.get("version") != version
         or any(durable.get(field) != value for field, value in role_record.items())
+        or any(durable.get(field) != value for field, value in graph_record.items())
     ):
         raise DeployError("recovered deployment receipt is not durably role-complete")
     verify_receipted_install(durable)
 
 
 def disable_and_verify(state_directory: int, intent: dict[str, Any]) -> None:
+    state = load_state(state_directory)
     try:
         run_json([CODEX, "plugin", "disable", f"{PLUGIN}@{MARKETPLACE}", "--json"])
     except Exception:
         pass
     verify_disabled()
     clear_owned_roles(state_directory, load_intent(state_directory) or intent)
+    restore_graph_preimage(load_intent(state_directory) or intent)
+    remove_graph_instructions(state)
     clear_state(state_directory)
 
 
@@ -149,7 +159,8 @@ def converge_registration_migration(
         raise DeployError("registration migration desired receipt is invalid")
     requested = str(intent["requested_sha"])
     role_record = reconcile_roles(requested, version, state_directory, intent)
-    save_state(state_directory, requested, version, role_record)
+    graph_record = reconcile_graph_instructions(state_directory, load_state(state_directory))
+    save_state(state_directory, requested, version, role_record, graph_record)
     durable = load_state(state_directory)
     if (
         durable is None
@@ -157,6 +168,7 @@ def converge_registration_migration(
         or durable.get("sha") != requested
         or durable.get("version") != version
         or any(durable.get(field) != value for field, value in role_record.items())
+        or any(durable.get(field) != value for field, value in graph_record.items())
     ):
         raise DeployError("registration migration deployment receipt is not durable")
     expected_tombstone = parse_migration_tombstone(
@@ -200,17 +212,20 @@ def converge_promotion_intent(
         try:
             verify_receipted_install(state)
             role_record = reconcile_receipted_roles(state_directory, state, intent)
+            graph_record = reconcile_graph_instructions(state_directory, state)
             save_state(
                 state_directory,
                 str(state["sha"]),
                 str(state["version"]),
                 role_record,
+                graph_record,
             )
             durable = load_state(state_directory)
             if (
                 durable is None
                 or durable.get("schema") != DEPLOY_RECEIPT_SCHEMA
                 or any(durable.get(field) != value for field, value in role_record.items())
+                or any(durable.get(field) != value for field, value in graph_record.items())
             ):
                 raise DeployError("recovered requested receipt is not durably role-complete")
             verify_receipted_install(durable)
@@ -224,6 +239,7 @@ def converge_promotion_intent(
     if previous is not None:
         try:
             rollback_journaled_roles(load_intent(state_directory) or intent)
+            restore_graph_preimage(load_intent(state_directory) or intent)
             restore_receipted_install(state_directory, previous)
         except Exception:
             pass
@@ -314,11 +330,13 @@ def promote(
                     state,
                     repair_intent,
                 )
+                graph_record = reconcile_graph_instructions(state_directory, state)
                 save_state(
                     state_directory,
                     current,
                     str(state["version"]),
                     role_record,
+                    graph_record,
                 )
                 repaired = load_state(state_directory)
                 if repaired is None or repaired.get("schema") != DEPLOY_RECEIPT_SCHEMA:
@@ -357,13 +375,15 @@ def promote(
         context.phase = "post-mutation"
         version = str(requested_manifest["version"])
         role_record = reconcile_roles(requested, version, state_directory, intent)
-        save_state(state_directory, requested, version, role_record)
+        graph_record = reconcile_graph_instructions(state_directory, state)
+        save_state(state_directory, requested, version, role_record, graph_record)
         durable_state = load_state(state_directory)
         if (
             durable_state is None
             or durable_state["sha"] != requested
             or durable_state["version"] != version
             or any(durable_state.get(field) != value for field, value in role_record.items())
+            or any(durable_state.get(field) != value for field, value in graph_record.items())
         ):
             raise DeployError("durable deployment receipt disagrees with the verified promotion")
         verify_receipted_install(durable_state)

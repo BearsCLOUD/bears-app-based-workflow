@@ -1,0 +1,18 @@
+{
+  "schema": "app-process-event.v1",
+  "run_ref": "RUN-GRAPH-WORKFLOW-V2",
+  "event_ref": "EVT-TASK-RESULT-V3-001",
+  "event_kind": "task-result",
+  "stage": "app-dev",
+  "status": "in_progress",
+  "actor": "DIRECT-primary",
+  "causal_refs": [
+    "EVT-PLAN-V3-001"
+  ],
+  "trace_refs": [
+    "SPEC-GRAPH-WORKFLOW-V3"
+  ],
+  "artifact_refs": [],
+  "origin": "native",
+  "automation_status": "not_run"
+}

@@ -1,7 +1,7 @@
 {
   "name": "bears-app-based-workflow",
-  "version": "0.2.1",
-  "description": "Bears app workflow plugin for sequential DIRECT routing, typed traceability and process graphs, graph queries, repo-scoped queues, immutable review, and remediation.",
+  "version": "0.3.0",
+  "description": "Bears app workflow plugin with deterministic graph compilation, immutable process journal, semantic audits, repo-scoped execution, and audited convergence.",
   "author": {
     "name": "BearsCLOUD",
     "url": "https://github.com/BearsCLOUD"
@@ -27,25 +27,18 @@
   "interface": {
     "displayName": "Bears App-Based Workflow",
     "shortDescription": "DIRECT routing and bounded repo app waves.",
-    "longDescription": "Bears App-Based Workflow provides sequential DIRECT stage routing, app constitutions, research waves, functional specifications, typed traceability and process indexes, read-only dependency and impact graph queries, graph-linked plans, persistent repo queues, immutable repo-wave review, remediation planning, and convergence analysis.",
+    "longDescription": "Bears App-Based Workflow provides structured app stages, deterministic trace/process compilation, immutable process events, bounded dependency and impact queries, semantic/process audits, graph-linked task planning, repo-scoped implementation, and remediation convergence.",
     "developerName": "BearsCLOUD",
     "category": "Development",
     "capabilities": [
-      "Spec Kit-style app workflow",
-      "Sequential DIRECT stage routing",
-      "Wave research and synchronization",
-      "Detailed app specification",
-      "Functional graph planning",
-      "Traceability and process indexing",
-      "Read-only dependency and impact queries",
+      "Structured app workflow",
+      "Deterministic graph compiler",
+      "Immutable process journal",
+      "Read-only semantic and process audits",
+      "Opaque snapshot-bound pagination",
       "Graph-linked task ledger",
-      "Implementation analysis",
-      "Persistent repo-scoped L1/L2 queues",
-      "One-task app-worker session dispatch",
-      "Immutable repo-wave review and remediation",
-      "Instruction policy editing",
-      "Role profile architecture",
-      "Primary-source evidence research"
+      "Repo-scoped implementation and remediation",
+      "CD-managed Codex graph instructions"
     ],
     "websiteURL": "https://github.com/BearsCLOUD/bears-app-based-workflow",
     "defaultPrompt": [

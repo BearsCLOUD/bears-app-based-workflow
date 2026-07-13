@@ -540,6 +540,9 @@ class RoleReconciliationCoverage(unittest.TestCase):
             "sha": self.SHA,
             "version": self.VERSION,
             **self.role_record(),
+            "graph_template_sha256": "7" * 64,
+            "graph_block_sha256": "8" * 64,
+            "graph_separator_added": False,
         }
 
     def legacy_state(self) -> dict[str, object]:
@@ -577,6 +580,15 @@ class RoleReconciliationCoverage(unittest.TestCase):
             mock.patch.object(DEPLOY, "exact_remote"),
             mock.patch.object(DEPLOY, "git_text", return_value=self.SHA),
             mock.patch.object(DEPLOY, "verify_receipted_install"),
+            mock.patch.object(
+                DEPLOY,
+                "reconcile_graph_instructions",
+                return_value={
+                    "graph_template_sha256": "7" * 64,
+                    "graph_block_sha256": "8" * 64,
+                    "graph_separator_added": False,
+                },
+            ),
             mock.patch.object(DEPLOY, "clear_intent"),
         ]
 
@@ -630,6 +642,7 @@ class RoleReconciliationCoverage(unittest.TestCase):
                 return_value=self.role_record(),
             ) as reconcile,
             mock.patch.object(DEPLOY, "save_state"),
+            mock.patch.object(DEPLOY, "reconcile_graph_instructions", return_value={}),
             mock.patch.object(DEPLOY, "clear_intent"),
         ):
             status = DEPLOY.promote(
@@ -661,6 +674,7 @@ class RoleReconciliationCoverage(unittest.TestCase):
                 return_value=self.role_record(),
             ) as reconcile,
             mock.patch.object(DEPLOY, "save_state"),
+            mock.patch.object(DEPLOY, "reconcile_graph_instructions", return_value={}),
             mock.patch.object(DEPLOY, "clear_intent"),
         ):
             status = DEPLOY.promote(
@@ -1032,6 +1046,11 @@ class PinnedBundleCoverage(unittest.TestCase):
                 ),
                 encoding="utf-8",
             )
+        graph_template = repo / DEPLOY.GRAPH_INSTRUCTIONS_TEMPLATE
+        graph_template.parent.mkdir(parents=True, exist_ok=True)
+        graph_template.write_bytes(
+            DEPLOY.BEGIN + b"\nTest graph instructions.\n" + DEPLOY.END + b"\n"
+        )
         if payload_marker is not None:
             self.assertTrue(payload_marker.is_absolute())
             installer = repo / "install"
@@ -1480,7 +1499,17 @@ class RemovalRecoveryCoverage(unittest.TestCase):
                 with mock.patch.object(DEPLOY, "CODEX_HOME", home):
                     committed = DEPLOY.clear_owned_roles(state_fd, intent)
                 record = RoleReconciliationCoverage().role_record()
-                DEPLOY.save_state(state_fd, self.SHA, self.VERSION, record)
+                DEPLOY.save_state(
+                    state_fd,
+                    self.SHA,
+                    self.VERSION,
+                    record,
+                    {
+                        "graph_template_sha256": "7" * 64,
+                        "graph_block_sha256": "8" * 64,
+                        "graph_separator_added": False,
+                    },
+                )
                 self.assertIsNotNone(DEPLOY.load_state(state_fd))
                 with (
                     mock.patch.object(DEPLOY, "CODEX_HOME", home),
@@ -1754,6 +1783,7 @@ class UnsafeDeploymentStateFileCoverage(unittest.TestCase):
             "requested_sha": "a" * 40,
             "previous_receipt": None,
             "role_transaction": None,
+            "graph_transaction": None,
         }
         DEPLOY.validate_intent(value)
         return (json.dumps(value, sort_keys=True) + "\n").encode("utf-8")
@@ -1880,6 +1910,94 @@ class UnsafeDeploymentStateFileCoverage(unittest.TestCase):
             ),
             payload=tombstone,
         )
+
+
+class GraphInstructionReconciliationCoverage(unittest.TestCase):
+    """Cover owned-block creation, update, drift refusal, recovery, and removal."""
+
+    SHA = "a" * 40
+
+    def environment(self, root: Path) -> tuple[Path, Path, int]:
+        home = root / "codex-home"
+        marketplace = root / "marketplace"
+        state = root / "state"
+        home.mkdir(mode=0o700)
+        (marketplace / "assets").mkdir(parents=True)
+        state.mkdir(mode=0o700)
+        (marketplace / DEPLOY.GRAPH_INSTRUCTIONS_TEMPLATE).write_bytes(
+            DEPLOY.BEGIN + b"\nGraph instructions v1.\n" + DEPLOY.END + b"\n"
+        )
+        return home, marketplace, os.open(state, os.O_RDONLY | os.O_DIRECTORY)
+
+    def patches(self, home: Path, marketplace: Path) -> tuple[object, ...]:
+        return (
+            mock.patch.object(DEPLOY, "CODEX_HOME", home),
+            mock.patch.object(DEPLOY, "TARGET", home / "AGENTS.md"),
+            mock.patch.object(DEPLOY, "MARKETPLACE_ROOT", marketplace),
+        )
+
+    def test_create_update_and_remove_preserve_unmanaged_bytes(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            home, marketplace, state_fd = self.environment(Path(temporary))
+            original = b"Personal instructions.\n"
+            (home / "AGENTS.md").write_bytes(original)
+            original_mode = stat.S_IMODE((home / "AGENTS.md").stat().st_mode)
+            try:
+                with ExitStack() as stack:
+                    for patcher in self.patches(home, marketplace):
+                        stack.enter_context(patcher)
+                    DEPLOY.save_intent(state_fd, self.SHA, None)
+                    first = DEPLOY.reconcile_graph_instructions(state_fd, None)
+                    installed = (home / "AGENTS.md").read_bytes()
+                    self.assertTrue(installed.startswith(original))
+                    self.assertEqual(stat.S_IMODE((home / "AGENTS.md").stat().st_mode), original_mode)
+                    (marketplace / DEPLOY.GRAPH_INSTRUCTIONS_TEMPLATE).write_bytes(
+                        DEPLOY.BEGIN + b"\nGraph instructions v2.\n" + DEPLOY.END + b"\n"
+                    )
+                    DEPLOY.save_intent(state_fd, self.SHA, None)
+                    second = DEPLOY.reconcile_graph_instructions(state_fd, first)
+                    updated = (home / "AGENTS.md").read_bytes()
+                    self.assertTrue(updated.startswith(original))
+                    self.assertIn(b"Graph instructions v2.", updated)
+                    DEPLOY.remove_graph_instructions(second)
+                    self.assertEqual((home / "AGENTS.md").read_bytes(), original)
+            finally:
+                os.close(state_fd)
+
+    def test_missing_target_is_created_safely_and_recovery_removes_it(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            home, marketplace, state_fd = self.environment(Path(temporary))
+            try:
+                with ExitStack() as stack:
+                    for patcher in self.patches(home, marketplace):
+                        stack.enter_context(patcher)
+                    DEPLOY.save_intent(state_fd, self.SHA, None)
+                    DEPLOY.reconcile_graph_instructions(state_fd, None)
+                    self.assertEqual(stat.S_IMODE((home / "AGENTS.md").stat().st_mode), 0o600)
+                    DEPLOY.restore_graph_preimage(DEPLOY.load_intent(state_fd))
+                    self.assertFalse((home / "AGENTS.md").exists())
+            finally:
+                os.close(state_fd)
+
+    def test_receipted_drift_and_duplicate_markers_fail_closed(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            home, marketplace, state_fd = self.environment(Path(temporary))
+            try:
+                with ExitStack() as stack:
+                    for patcher in self.patches(home, marketplace):
+                        stack.enter_context(patcher)
+                    DEPLOY.save_intent(state_fd, self.SHA, None)
+                    receipt = DEPLOY.reconcile_graph_instructions(state_fd, None)
+                    target = home / "AGENTS.md"
+                    target.write_bytes(target.read_bytes().replace(b"v1", b"drift"))
+                    DEPLOY.save_intent(state_fd, self.SHA, None)
+                    with self.assertRaises(DEPLOY.DeployError):
+                        DEPLOY.reconcile_graph_instructions(state_fd, receipt)
+                    target.write_bytes(DEPLOY.BEGIN + b"\n" + DEPLOY.END + b"\n" + DEPLOY.BEGIN + b"\n" + DEPLOY.END + b"\n")
+                    with self.assertRaises(DEPLOY.DeployError):
+                        DEPLOY.reconcile_graph_instructions(state_fd, None)
+            finally:
+                os.close(state_fd)
 
 
 if __name__ == "__main__":

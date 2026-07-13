@@ -1,18 +1,7 @@
-# Graph Workflow v2 Analysis
+# Graph Workflow v3 self-analysis
 
-## Self-application result
+Run `RUN-GRAPH-WORKFLOW-V2` continues through imported legacy events, v3 implementation, an initial convergence finding, canonical remediation, and terminal audit.
 
-The plugin now has constitution, research, specification, semantic map, plan, ledger, traceability index, process index, implementation targets, and this analysis artifact. Stage routes and edge behavior have one machine definition. The functional-map skill no longer owns the handoff contract or derived indexes. The MCP surface is explicitly read-only and bounded.
+The active structured artifacts are workflow definition v2, handoff v3, source manifest v1, process event v1, task ledger v2, trace index v3, process index v2, and build receipt v1. Legacy active indexes and route semantics were removed.
 
-## Remediation applied
-
-- Removed the embedded route-map copy from `app-solo-route` and redirected the existing route contract check to the workflow definition.
-- Replaced prose-only handoff ownership with `app-stage-handoff.v2.schema.json`.
-- Separated semantic mapping, traceability indexing, and process indexing.
-- Added explicit source-digest drift behavior and v1 alias/replacement migration rules.
-- Added plugin packaging metadata for the graph MCP and runtime modules.
-- Made every MCP query re-hash indexed sources, honor impact transitivity, detect every forbidden-cycle relation, and include structural/open-finding blockers in task planning.
-
-## Convergence
-
-No unresolved semantic or process finding is declared in the generated indexes. Acceptance remains `not_run` until autoCI emits exact evidence for the final task-scoped commit. This analysis does not execute tests, validators, audits, schemas, lints, cache checks, or plugin validation and does not claim `pass`.
+The semantic audit profiles verify exact ref/digest chains without executing tests. The terminal process audit verifies the causal DAG, stage ownership, terminal candidate, and open remediation state. The final recorded status is `audited`, meaning semantic/process consistency only. `automation_status` is `not_run`; autoCI acceptance was not executed by this workflow.

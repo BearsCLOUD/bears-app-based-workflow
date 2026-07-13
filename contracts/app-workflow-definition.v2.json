@@ -1,0 +1,202 @@
+{
+  "schema": "app-workflow-definition.v2",
+  "handoff_schema": "contracts/app-stage-handoff.v3.schema.json",
+  "manifest_schema": "contracts/app-graph-source-manifest.v1.schema.json",
+  "event_schema": "contracts/app-process-event.v1.schema.json",
+  "task_ledger_schema": "contracts/app-task-ledger.v2.schema.json",
+  "traceability_index_schema": "contracts/app-traceability-index.v3.schema.json",
+  "process_index_schema": "contracts/app-process-index.v2.schema.json",
+  "index_build_schema": "contracts/app-index-build.v1.schema.json",
+  "audit_result_schemas": [
+    "contracts/app-graph-compile-result.v1.schema.json",
+    "contracts/app-process-audit-result.v1.schema.json",
+    "contracts/app-trace-audit-result.v1.schema.json"
+  ],
+  "entry_gate": {
+    "skill": "app-context-index",
+    "compiler_skill": "app-graph-compile",
+    "run_at": [
+      "run-start",
+      "wave-start",
+      "source-drift",
+      "needs-index"
+    ],
+    "unchanged_action": "reuse-current-build"
+  },
+  "stages": [
+    "app-constitution",
+    "app-research",
+    "app-specify",
+    "app-functional-graph",
+    "app-plan",
+    "app-dev",
+    "app-analyze"
+  ],
+  "stage_owners": {
+    "app-constitution": [
+      "DIRECT-primary",
+      "repo-L2"
+    ],
+    "app-research": [
+      "DIRECT-primary",
+      "repo-L2"
+    ],
+    "app-specify": [
+      "DIRECT-primary",
+      "repo-L2"
+    ],
+    "app-functional-graph": [
+      "DIRECT-primary",
+      "repo-L2"
+    ],
+    "app-plan": [
+      "DIRECT-primary",
+      "repo-L2"
+    ],
+    "app-dev": [
+      "DIRECT-primary",
+      "repo-L2"
+    ],
+    "app-analyze": [
+      "DIRECT-primary",
+      "repo-L2"
+    ]
+  },
+  "routes": {
+    "constitution-ready": "app-research",
+    "needs-research": "app-research",
+    "research-ready": "app-specify",
+    "needs-spec": "app-specify",
+    "spec-ready": "app-functional-graph",
+    "needs-graph": "app-functional-graph",
+    "graph-ready": "app-plan",
+    "waiting": "app-plan",
+    "needs-plan": "app-plan",
+    "plan-ready": "app-dev",
+    "ready": "app-dev",
+    "implemented": "app-analyze",
+    "no-work": "app-analyze",
+    "audited": "none",
+    "blocked": "none"
+  },
+  "finding_routes": {
+    "missing-source": "needs-research",
+    "product-conflict": "needs-spec",
+    "decision-conflict": "needs-spec",
+    "semantic-gap": "needs-graph",
+    "reference-gap": "needs-graph",
+    "cycle-gap": "needs-graph",
+    "task-gap": "needs-plan",
+    "implementation-gap": "needs-plan",
+    "evidence-gap": "needs-plan",
+    "review-gap": "needs-plan",
+    "remediation-gap": "needs-plan",
+    "credential-stop": "blocked",
+    "access-stop": "blocked",
+    "operator-stop": "blocked"
+  },
+  "audited_gate": {
+    "exact_snapshot": true,
+    "process_audit_complete": true,
+    "convergence_audit_complete": true,
+    "routable_findings": 0,
+    "open_remediation_tasks": 0,
+    "meaning": "semantic-and-process-consistency-only"
+  },
+  "app_dev_process": {
+    "journal_writer": "repo-L2-or-DIRECT-primary",
+    "l3_journal_write": false,
+    "states": [
+      "ready",
+      "in_progress",
+      "done",
+      "failed",
+      "superseded"
+    ],
+    "required_event_kinds": [
+      "delegation",
+      "task-result",
+      "review",
+      "remediation",
+      "repo-handoff"
+    ]
+  },
+  "graph": {
+    "required_trace": [
+      "spec",
+      "decision",
+      "requirement",
+      "functionality-or-behavior",
+      "task",
+      "code",
+      "test",
+      "evidence"
+    ],
+    "edge_types": {
+      "depends_on": {
+        "family": "dependency",
+        "transitive": true,
+        "impact": true,
+        "cycle": "forbidden"
+      },
+      "constrains": {
+        "family": "dependency",
+        "transitive": true,
+        "impact": true,
+        "cycle": "forbidden"
+      },
+      "defines": {
+        "family": "trace",
+        "transitive": false,
+        "impact": true,
+        "cycle": "forbidden"
+      },
+      "decomposes_to": {
+        "family": "trace",
+        "transitive": true,
+        "impact": true,
+        "cycle": "forbidden"
+      },
+      "implemented_by": {
+        "family": "trace",
+        "transitive": true,
+        "impact": true,
+        "cycle": "forbidden"
+      },
+      "verified_by": {
+        "family": "trace",
+        "transitive": true,
+        "impact": true,
+        "cycle": "forbidden"
+      },
+      "evidenced_by": {
+        "family": "trace",
+        "transitive": true,
+        "impact": true,
+        "cycle": "forbidden"
+      },
+      "replaces": {
+        "family": "replacement",
+        "transitive": true,
+        "impact": true,
+        "cycle": "forbidden"
+      },
+      "remediates": {
+        "family": "process",
+        "transitive": false,
+        "impact": true,
+        "cycle": "controlled"
+      }
+    }
+  },
+  "acceptance": {
+    "owner": "autoCI",
+    "semantic_audits_are_acceptance": false,
+    "automation_status": [
+      "unavailable",
+      "not_run",
+      "passed",
+      "failed"
+    ]
+  }
+}

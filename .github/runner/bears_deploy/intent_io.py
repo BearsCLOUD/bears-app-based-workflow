@@ -117,8 +117,29 @@ def save_intent(
             "requested_sha": requested,
             "previous_receipt": dict(previous) if previous is not None else None,
             "role_transaction": None,
+            "graph_transaction": None,
         },
     )
+
+
+def save_graph_intent(
+    state_directory: int,
+    intent: dict[str, Any],
+    *,
+    original: bytes,
+    original_present: bool,
+    desired: bytes,
+) -> dict[str, Any]:
+    """Persist exact AGENTS.md preimage and desired bytes before publication."""
+    value = dict(intent)
+    value["graph_transaction"] = {
+        "original_b64": encode_journal_bytes(original),
+        "original_present": original_present,
+        "original_sha256": hashlib.sha256(original).hexdigest(),
+        "desired_b64": encode_journal_bytes(desired),
+        "desired_sha256": hashlib.sha256(desired).hexdigest(),
+    }
+    return persist_intent(state_directory, value)
 
 
 def save_role_intent(

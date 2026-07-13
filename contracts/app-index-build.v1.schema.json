@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://bears.cloud/contracts/app-index-build.v1.schema.json",
+  "title": "app-index-build.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "build_ref",
+    "source_snapshot_digest",
+    "journal_digest",
+    "trace_index_digest",
+    "process_index_digest",
+    "source_count",
+    "entity_count",
+    "edge_count",
+    "event_count"
+  ],
+  "properties": {
+    "schema": {
+      "const": "app-index-build.v1"
+    },
+    "build_ref": {
+      "type": "string",
+      "minLength": 1
+    },
+    "source_snapshot_digest": {
+      "type": "string",
+      "minLength": 1
+    },
+    "journal_digest": {
+      "type": "string",
+      "minLength": 1
+    },
+    "trace_index_digest": {
+      "type": "string",
+      "minLength": 1
+    },
+    "process_index_digest": {
+      "type": "string",
+      "minLength": 1
+    },
+    "source_count": {
+      "type": "integer"
+    },
+    "entity_count": {
+      "type": "integer"
+    },
+    "edge_count": {
+      "type": "integer"
+    },
+    "event_count": {
+      "type": "integer"
+    }
+  }
+}

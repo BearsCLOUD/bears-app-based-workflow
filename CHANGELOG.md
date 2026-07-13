@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.3.0
+
+- Replaced the unreachable terminal status with `audited`, explicitly separate from product acceptance.
+- Added deterministic structured-source compilation, immutable process events, build receipts, CAS publication, and opaque snapshot-bound cursors.
+- Added read-only process and semantic/planning/convergence trace audits plus lower-level compiler/audit skills.
+- Split read-only `app-graph` from the opted-in two-tool `app-graph-maintainer`.
+- Added lifecycle-correct MCP 2025-11-25/2025-06-18 handling and bounded iterative graph operations.
+- Added transactional CD ownership of one marked graph-behavior block in `$CODEX_HOME/AGENTS.md`.
+- Continued `RUN-GRAPH-WORKFLOW-V2`, imported its seven legacy events, remediated findings, and cut over to v3/v2 active artifacts.
+
 All notable changes to this plugin are documented in this file.
 
 The format follows Keep a Changelog conventions.

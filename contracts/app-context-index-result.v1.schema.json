@@ -4,24 +4,15 @@
   "title": "App context index result v1",
   "type": "object",
   "additionalProperties": false,
-  "required": [
-    "schema",
-    "app_id",
-    "status",
-    "source_snapshot_digest",
-    "traceability_index_ref",
-    "process_index_ref",
-    "finding_refs",
-    "target_status"
-  ],
+  "required": ["schema", "status", "build_ref", "source_snapshot_digest", "journal_digest", "traceability_index_ref", "process_index_ref", "build_receipt_ref"],
   "properties": {
     "schema": {"const": "app-context-index-result.v1"},
-    "app_id": {"type": "string", "minLength": 1},
-    "status": {"enum": ["current", "updated", "conflict", "incomplete"]},
+    "status": {"enum": ["built", "current"]},
+    "build_ref": {"type": "string", "minLength": 1},
     "source_snapshot_digest": {"type": "string", "pattern": "^sha256:[a-f0-9]{64}$"},
-    "traceability_index_ref": {"type": "string", "minLength": 1},
-    "process_index_ref": {"type": "string", "minLength": 1},
-    "finding_refs": {"type": "array", "items": {"type": "string", "minLength": 1}, "uniqueItems": true},
-    "target_status": {"enum": ["none", "needs-research", "needs-spec", "needs-graph", "needs-plan", "blocked"]}
+    "journal_digest": {"type": "string", "pattern": "^sha256:[a-f0-9]{64}$"},
+    "traceability_index_ref": {"const": "docs/app-traceability-index.v3.json"},
+    "process_index_ref": {"const": "docs/app-process-index.v2.json"},
+    "build_receipt_ref": {"const": "docs/app-index-build.v1.json"}
   }
 }

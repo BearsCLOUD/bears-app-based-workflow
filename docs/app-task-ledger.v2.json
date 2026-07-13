@@ -1,0 +1,413 @@
+{
+  "schema": "app-task-ledger.v2",
+  "app_id": "bears-app-based-workflow",
+  "revision": 4,
+  "tasks": [
+    {
+      "repo_ref": "BearsCLOUD/bears-app-based-workflow",
+      "batch_id": "BATCH-GRAPH-WORKFLOW-V3",
+      "wave_id": "graph-workflow-v2",
+      "owner_role": "DIRECT-primary",
+      "lane": "plugin-architecture",
+      "decision_state": "closed",
+      "status": "done",
+      "automation_status": "not_run",
+      "source_review_refs": [],
+      "automation_evidence_refs": [],
+      "task_id": "TASK-COMPILER-003",
+      "queue_sequence": 1,
+      "task_kind": "implementation",
+      "requirement_refs": [
+        "REQ-INDEX-001"
+      ],
+      "functionality_refs": [],
+      "graph_entity_refs": [
+        "REQ-INDEX-001"
+      ],
+      "target_paths": [
+        "contracts",
+        "scripts"
+      ],
+      "allowed_files": [
+        "scripts/app_graph_engine.py",
+        "contracts/app-index-build.v1.schema.json"
+      ],
+      "depends_on": [],
+      "definition_of_done": "Structured artifacts and implementation agree with the Graph Workflow v3 contracts.",
+      "proof_requirement": "Semantic/process audits only; product acceptance remains owned by autoCI.",
+      "code_refs": [
+        "CODE:scripts/app_graph_engine.py",
+        "CODE:contracts/app-index-build.v1.schema.json"
+      ],
+      "test_refs": [
+        "TEST:TASK-COMPILER-003"
+      ],
+      "evidence_refs": [
+        "EVIDENCE:TASK-COMPILER-003"
+      ],
+      "result_refs": [
+        "result:TASK-COMPILER-003"
+      ]
+    },
+    {
+      "repo_ref": "BearsCLOUD/bears-app-based-workflow",
+      "batch_id": "BATCH-GRAPH-WORKFLOW-V3",
+      "wave_id": "graph-workflow-v2",
+      "owner_role": "DIRECT-primary",
+      "lane": "observability",
+      "decision_state": "planned",
+      "status": "ready",
+      "automation_status": "not_run",
+      "source_review_refs": [],
+      "automation_evidence_refs": [],
+      "task_id": "TASK-SENTRY-BASELINE-004",
+      "queue_sequence": 8,
+      "task_kind": "observability",
+      "requirement_refs": [],
+      "functionality_refs": [],
+      "graph_entity_refs": [],
+      "target_paths": [
+        ".github/runner/bears_deploy"
+      ],
+      "allowed_files": [
+        ".github/runner/bears_deploy/cli.py",
+        ".github/runner/bears_deploy/telemetry.py"
+      ],
+      "depends_on": [],
+      "definition_of_done": "Use an official supported Sentry path and verify one controlled autoCD gateway event with readable stack, trace, release, and environment data.",
+      "proof_requirement": "Sanitized live Sentry evidence from the running autoCD gateway.",
+      "code_refs": [],
+      "test_refs": [],
+      "evidence_refs": [],
+      "result_refs": []
+    },
+    {
+      "repo_ref": "BearsCLOUD/bears-app-based-workflow",
+      "batch_id": "BATCH-GRAPH-WORKFLOW-V3",
+      "wave_id": "graph-workflow-v2",
+      "owner_role": "DIRECT-primary",
+      "lane": "plugin-architecture",
+      "decision_state": "closed",
+      "status": "done",
+      "automation_status": "not_run",
+      "source_review_refs": [],
+      "automation_evidence_refs": [],
+      "task_id": "TASK-JOURNAL-003",
+      "queue_sequence": 2,
+      "task_kind": "implementation",
+      "requirement_refs": [
+        "REQ-PROCESS-001"
+      ],
+      "functionality_refs": [],
+      "graph_entity_refs": [
+        "REQ-PROCESS-001"
+      ],
+      "target_paths": [
+        "contracts",
+        "scripts"
+      ],
+      "allowed_files": [
+        "scripts/app_graph_engine.py",
+        "contracts/app-process-event.v1.schema.json"
+      ],
+      "depends_on": [
+        "TASK-COMPILER-003"
+      ],
+      "definition_of_done": "Structured artifacts and implementation agree with the Graph Workflow v3 contracts.",
+      "proof_requirement": "Semantic/process audits only; product acceptance remains owned by autoCI.",
+      "code_refs": [
+        "CODE:scripts/app_graph_engine.py",
+        "CODE:contracts/app-process-event.v1.schema.json"
+      ],
+      "test_refs": [
+        "TEST:TASK-JOURNAL-003"
+      ],
+      "evidence_refs": [
+        "EVIDENCE:TASK-JOURNAL-003"
+      ],
+      "result_refs": [
+        "result:TASK-JOURNAL-003"
+      ]
+    },
+    {
+      "repo_ref": "BearsCLOUD/bears-app-based-workflow",
+      "batch_id": "BATCH-GRAPH-WORKFLOW-V3",
+      "wave_id": "graph-workflow-v2",
+      "owner_role": "DIRECT-primary",
+      "lane": "plugin-architecture",
+      "decision_state": "closed",
+      "status": "done",
+      "automation_status": "not_run",
+      "source_review_refs": [],
+      "automation_evidence_refs": [],
+      "task_id": "TASK-VERIFIER-003",
+      "queue_sequence": 3,
+      "task_kind": "implementation",
+      "requirement_refs": [
+        "REQ-CYCLE-001"
+      ],
+      "functionality_refs": [],
+      "graph_entity_refs": [
+        "REQ-CYCLE-001"
+      ],
+      "target_paths": [
+        "contracts",
+        "scripts"
+      ],
+      "allowed_files": [
+        "scripts/app_graph_engine.py",
+        "contracts/app-process-audit-result.v1.schema.json",
+        "contracts/app-trace-audit-result.v1.schema.json"
+      ],
+      "depends_on": [
+        "TASK-JOURNAL-003"
+      ],
+      "definition_of_done": "Structured artifacts and implementation agree with the Graph Workflow v3 contracts.",
+      "proof_requirement": "Semantic/process audits only; product acceptance remains owned by autoCI.",
+      "code_refs": [
+        "CODE:scripts/app_graph_engine.py",
+        "CODE:contracts/app-process-audit-result.v1.schema.json",
+        "CODE:contracts/app-trace-audit-result.v1.schema.json"
+      ],
+      "test_refs": [
+        "TEST:TASK-VERIFIER-003"
+      ],
+      "evidence_refs": [
+        "EVIDENCE:TASK-VERIFIER-003"
+      ],
+      "result_refs": [
+        "result:TASK-VERIFIER-003"
+      ]
+    },
+    {
+      "repo_ref": "BearsCLOUD/bears-app-based-workflow",
+      "batch_id": "BATCH-GRAPH-WORKFLOW-V3",
+      "wave_id": "graph-workflow-v2",
+      "owner_role": "DIRECT-primary",
+      "lane": "plugin-architecture",
+      "decision_state": "closed",
+      "status": "done",
+      "automation_status": "not_run",
+      "source_review_refs": [],
+      "automation_evidence_refs": [],
+      "task_id": "TASK-SKILLS-003",
+      "queue_sequence": 4,
+      "task_kind": "implementation",
+      "requirement_refs": [
+        "REQ-WORKFLOW-001",
+        "REQ-OWNERSHIP-001"
+      ],
+      "functionality_refs": [],
+      "graph_entity_refs": [
+        "REQ-WORKFLOW-001",
+        "REQ-OWNERSHIP-001"
+      ],
+      "target_paths": [
+        "skills"
+      ],
+      "allowed_files": [
+        "skills/app-graph-compile/SKILL.md",
+        "skills/app-process-audit/SKILL.md",
+        "skills/app-trace-audit/SKILL.md"
+      ],
+      "depends_on": [
+        "TASK-VERIFIER-003"
+      ],
+      "definition_of_done": "Structured artifacts and implementation agree with the Graph Workflow v3 contracts.",
+      "proof_requirement": "Semantic/process audits only; product acceptance remains owned by autoCI.",
+      "code_refs": [
+        "CODE:skills/app-graph-compile/SKILL.md",
+        "CODE:skills/app-process-audit/SKILL.md",
+        "CODE:skills/app-trace-audit/SKILL.md"
+      ],
+      "test_refs": [
+        "TEST:TASK-SKILLS-003"
+      ],
+      "evidence_refs": [
+        "EVIDENCE:TASK-SKILLS-003"
+      ],
+      "result_refs": [
+        "result:TASK-SKILLS-003"
+      ]
+    },
+    {
+      "repo_ref": "BearsCLOUD/bears-app-based-workflow",
+      "batch_id": "BATCH-GRAPH-WORKFLOW-V3",
+      "wave_id": "graph-workflow-v2",
+      "owner_role": "DIRECT-primary",
+      "lane": "plugin-architecture",
+      "decision_state": "closed",
+      "status": "done",
+      "automation_status": "not_run",
+      "source_review_refs": [],
+      "automation_evidence_refs": [],
+      "task_id": "TASK-MCP-003",
+      "queue_sequence": 5,
+      "task_kind": "implementation",
+      "requirement_refs": [
+        "REQ-GRAPH-001",
+        "REQ-MCP-001"
+      ],
+      "functionality_refs": [],
+      "graph_entity_refs": [
+        "REQ-GRAPH-001",
+        "REQ-MCP-001"
+      ],
+      "target_paths": [
+        ".mcp.json",
+        "scripts"
+      ],
+      "allowed_files": [
+        "scripts/app_graph_mcp.py",
+        ".mcp.json"
+      ],
+      "depends_on": [
+        "TASK-SKILLS-003"
+      ],
+      "definition_of_done": "Structured artifacts and implementation agree with the Graph Workflow v3 contracts.",
+      "proof_requirement": "Semantic/process audits only; product acceptance remains owned by autoCI.",
+      "code_refs": [
+        "CODE:scripts/app_graph_mcp.py",
+        "CODE:.mcp.json"
+      ],
+      "test_refs": [
+        "TEST:TASK-MCP-003"
+      ],
+      "evidence_refs": [
+        "EVIDENCE:TASK-MCP-003"
+      ],
+      "result_refs": [
+        "result:TASK-MCP-003"
+      ]
+    },
+    {
+      "repo_ref": "BearsCLOUD/bears-app-based-workflow",
+      "batch_id": "BATCH-GRAPH-WORKFLOW-V3",
+      "wave_id": "graph-workflow-v2",
+      "owner_role": "DIRECT-primary",
+      "lane": "plugin-architecture",
+      "decision_state": "closed",
+      "status": "done",
+      "automation_status": "not_run",
+      "source_review_refs": [],
+      "automation_evidence_refs": [],
+      "task_id": "TASK-CD-003",
+      "queue_sequence": 6,
+      "task_kind": "implementation",
+      "requirement_refs": [
+        "REQ-CD-001"
+      ],
+      "functionality_refs": [],
+      "graph_entity_refs": [
+        "REQ-CD-001"
+      ],
+      "target_paths": [
+        ".github",
+        "assets"
+      ],
+      "allowed_files": [
+        "assets/codex-home-graph-instructions.md",
+        ".github/runner/bears_deploy/graph_instructions.py"
+      ],
+      "depends_on": [
+        "TASK-MCP-003"
+      ],
+      "definition_of_done": "Structured artifacts and implementation agree with the Graph Workflow v3 contracts.",
+      "proof_requirement": "Semantic/process audits only; product acceptance remains owned by autoCI.",
+      "code_refs": [
+        "CODE:assets/codex-home-graph-instructions.md",
+        "CODE:.github/runner/bears_deploy/graph_instructions.py"
+      ],
+      "test_refs": [
+        "TEST:TASK-CD-003"
+      ],
+      "evidence_refs": [
+        "EVIDENCE:TASK-CD-003"
+      ],
+      "result_refs": [
+        "result:TASK-CD-003"
+      ]
+    },
+    {
+      "repo_ref": "BearsCLOUD/bears-app-based-workflow",
+      "batch_id": "BATCH-GRAPH-WORKFLOW-V3",
+      "wave_id": "graph-workflow-v2",
+      "owner_role": "DIRECT-primary",
+      "lane": "plugin-architecture",
+      "decision_state": "closed",
+      "status": "done",
+      "automation_status": "not_run",
+      "source_review_refs": [],
+      "automation_evidence_refs": [],
+      "task_id": "TASK-SELF-AUDIT-003",
+      "queue_sequence": 7,
+      "task_kind": "audit",
+      "requirement_refs": [
+        "REQ-CYCLE-001"
+      ],
+      "functionality_refs": [],
+      "graph_entity_refs": [
+        "REQ-CYCLE-001"
+      ],
+      "target_paths": [
+        "docs"
+      ],
+      "allowed_files": [
+        "docs/app-audit-results/process-terminal.v1.json",
+        "docs/app-audit-results/trace-convergence.v1.json"
+      ],
+      "depends_on": [
+        "TASK-CD-003"
+      ],
+      "definition_of_done": "Structured artifacts and implementation agree with the Graph Workflow v3 contracts.",
+      "proof_requirement": "Semantic/process audits only; product acceptance remains owned by autoCI.",
+      "code_refs": [
+        "CODE:docs/app-audit-results/process-terminal.v1.json",
+        "CODE:docs/app-audit-results/trace-convergence.v1.json"
+      ],
+      "test_refs": [
+        "TEST:TASK-SELF-AUDIT-003"
+      ],
+      "evidence_refs": [
+        "EVIDENCE:TASK-SELF-AUDIT-003"
+      ],
+      "result_refs": [
+        "result:TASK-SELF-AUDIT-003"
+      ]
+    },
+    {
+      "repo_ref": "BearsCLOUD/bears-app-based-workflow",
+      "batch_id": "BATCH-GRAPH-WORKFLOW-V3",
+      "wave_id": "graph-workflow-v2",
+      "owner_role": "DIRECT-primary",
+      "lane": "plugin-architecture",
+      "decision_state": "closed",
+      "status": "superseded",
+      "automation_status": "not_run",
+      "source_review_refs": [],
+      "automation_evidence_refs": [],
+      "task_id": "TASK-AUDIT-001",
+      "queue_sequence": 0,
+      "task_kind": "audit",
+      "requirement_refs": [
+        "REQ-CYCLE-001"
+      ],
+      "functionality_refs": [],
+      "graph_entity_refs": [
+        "REQ-CYCLE-001"
+      ],
+      "target_paths": [],
+      "allowed_files": [],
+      "depends_on": [],
+      "replacement_task_refs": [
+        "TASK-SELF-AUDIT-003"
+      ],
+      "definition_of_done": "Superseded by v3 semantic/process audit task.",
+      "proof_requirement": "Not applicable.",
+      "code_refs": [],
+      "test_refs": [],
+      "evidence_refs": [],
+      "result_refs": []
+    }
+  ]
+}

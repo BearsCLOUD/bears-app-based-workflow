@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://bears.cloud/contracts/app-process-index.v2.schema.json",
+  "title": "app-process-index.v2",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "app_id",
+    "build_ref",
+    "workflow_definition_ref",
+    "workflow_definition_digest",
+    "source_snapshot_digest",
+    "journal_digest",
+    "runs",
+    "events",
+    "links",
+    "findings"
+  ],
+  "properties": {
+    "schema": {
+      "const": "app-process-index.v2"
+    },
+    "app_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "build_ref": {
+      "type": "string",
+      "minLength": 1
+    },
+    "workflow_definition_ref": {
+      "type": "string",
+      "minLength": 1
+    },
+    "workflow_definition_digest": {
+      "type": "string",
+      "minLength": 1
+    },
+    "source_snapshot_digest": {
+      "type": "string",
+      "minLength": 1
+    },
+    "journal_digest": {
+      "type": "string",
+      "minLength": 1
+    },
+    "runs": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true
+    },
+    "events": {
+      "type": "array",
+      "maxItems": 20000
+    },
+    "links": {
+      "type": "array",
+      "maxItems": 50000
+    },
+    "findings": {
+      "type": "array"
+    }
+  }
+}

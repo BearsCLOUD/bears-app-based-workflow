@@ -1,0 +1,11 @@
+{
+  "schema": "app-trace-audit-result.v1",
+  "profile": "convergence",
+  "complete": true,
+  "truncated": false,
+  "build_ref": "BUILD-099792972356617B5512B9B0",
+  "source_snapshot_digest": "sha256:4723ca6623d10d11bd2ea46caa8ce91f8d19cc0cc3e9232eb8bca16562e7e647",
+  "findings": [],
+  "route": "none",
+  "next_cursor": null
+}

@@ -1,0 +1,15 @@
+{
+  "schema": "app-process-event.v1",
+  "run_ref": "RUN-GRAPH-WORKFLOW-V2",
+  "event_ref": "EVT-CONSTITUTION-001",
+  "event_kind": "stage-handoff",
+  "stage": "app-constitution",
+  "status": "constitution-ready",
+  "actor": "DIRECT-primary",
+  "causal_refs": [],
+  "trace_refs": [],
+  "artifact_refs": [],
+  "origin": "legacy-import",
+  "automation_status": "not_run",
+  "legacy_import_digest": "sha256:3263661be0491dcffa68830672c5034dda10e13ac5d00845d24b2f6f89576561"
+}

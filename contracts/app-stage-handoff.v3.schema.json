@@ -1,0 +1,117 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://bears.cloud/contracts/app-stage-handoff.v3.schema.json",
+  "title": "app-stage-handoff.v3",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "schema",
+    "handoff_ref",
+    "run_ref",
+    "event_ref",
+    "status",
+    "target_stage",
+    "causal_refs",
+    "trace_links",
+    "build_ref",
+    "source_snapshot_digest",
+    "journal_digest",
+    "process_audit_refs",
+    "trace_audit_refs",
+    "automation_status"
+  ],
+  "properties": {
+    "schema": {
+      "const": "app-stage-handoff.v3"
+    },
+    "handoff_ref": {
+      "type": "string",
+      "minLength": 1
+    },
+    "run_ref": {
+      "type": "string",
+      "minLength": 1
+    },
+    "event_ref": {
+      "type": "string",
+      "minLength": 1
+    },
+    "status": {
+      "enum": [
+        "constitution-ready",
+        "needs-research",
+        "research-ready",
+        "needs-spec",
+        "spec-ready",
+        "needs-graph",
+        "graph-ready",
+        "waiting",
+        "needs-plan",
+        "plan-ready",
+        "ready",
+        "implemented",
+        "no-work",
+        "audited",
+        "blocked"
+      ]
+    },
+    "target_stage": {
+      "enum": [
+        "app-analyze",
+        "app-dev",
+        "app-functional-graph",
+        "app-plan",
+        "app-research",
+        "app-specify",
+        "none"
+      ]
+    },
+    "causal_refs": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true
+    },
+    "trace_links": {
+      "type": "array"
+    },
+    "build_ref": {
+      "type": "string",
+      "minLength": 1
+    },
+    "source_snapshot_digest": {
+      "type": "string",
+      "minLength": 1
+    },
+    "journal_digest": {
+      "type": "string",
+      "minLength": 1
+    },
+    "process_audit_refs": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true
+    },
+    "trace_audit_refs": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true
+    },
+    "automation_status": {
+      "enum": [
+        "unavailable",
+        "not_run",
+        "passed",
+        "failed"
+      ]
+    }
+  }
+}

@@ -11,7 +11,7 @@ For work already classified `DELEGATED`, act as the solo L2 analogue: decompose 
 
 ## Stage payload
 
-- Every stage-generated input uses canonical `app-stage-handoff.v2` from `contracts/app-stage-handoff.v2.schema.json` and carries a current `$app-context-index` result.
+- Every stage-generated input uses canonical `app-stage-handoff.v3` from `contracts/app-stage-handoff.v3.schema.json` and carries a current `$app-context-index` result.
 - `constitution-ready` from `app-constitution` additionally carries `app_repo_or_path`, `constitution_ref`, `constraint_refs`, `research_unknowns`, and `wave_creation_basis`.
 - `needs-research` from `app-specify` additionally carries `source_handoff_ref`, `question_refs`, `source_refs`, and `research_unknowns`; its common `scope_delta`, artifact, decision, requirement, gap, and evidence fields carry the current affected context.
 - User intent, feature area, constraint refs, and open-decision refs.
@@ -28,7 +28,7 @@ The stage writes:
 - `waves/index.md` with active waves and status;
 - `waves/<wave-id>/research.md` for each touched wave.
 
-Each research file contains `Wave ID`, `Scope`, `Known behavior`, `Unknowns`, `Sources`, `Decisions`, `Follow-up questions`, `Sync notes`, and `Next skill`. Refresh `$app-context-index`, then return canonical `app-stage-handoff.v2` status `research-ready` with current digest/index fields plus `constitution_ref`, `research_refs`, `question_refs`, and `source_refs`; target `app-specify`.
+Each research file contains `Wave ID`, `Scope`, `Known behavior`, `Unknowns`, `Sources`, `Decisions`, `Follow-up questions`, `Sync notes`, and `Next skill`. Refresh `$app-context-index`, then return canonical `app-stage-handoff.v3` status `research-ready` with current digest/index fields plus `constitution_ref`, `research_refs`, `question_refs`, and `source_refs`; target `app-specify`.
 
 ## Stage rules
 

@@ -15,7 +15,7 @@ Apply the plugin-local `delegation-entry.v1` before entering app-dev. Missing or
 
 ## Required input
 
-Accept canonical `app-stage-handoff.v2` status `plan-ready` from `app-plan` or `ready` from `app-analyze`. It carries a current immutable traceability/process snapshot, source digest, functional-map revision, and complete canonical `task_records`. Each task includes:
+Accept canonical `app-stage-handoff.v3` status `plan-ready` from `app-plan` or `ready` from `app-analyze`. It carries a current immutable traceability/process snapshot, source digest, functional-map revision, and complete canonical `task_records`. Each task includes:
 
 - `task_id`, `repo_ref`, `batch_id`, `wave_id`, `queue_sequence`, `task_kind`, and `source_review_refs`;
 - requirement, functionality, graph-node, artifact, and automation-evidence refs;
@@ -71,5 +71,9 @@ At the anchor, start a separate nonpersistent `app-plan` helper assignment: disp
 
 - Do not invent work outside the ledger, overlap mutable targets, or start tasks with missing graph refs, open decisions, or open dependencies.
 - Return product decisions to `app-specify` and planning gaps to `app-plan`. Never write functional graph meaning, graph anchors, wave plans, or analysis artifacts.
-- After task results change authoritative state, refresh `$app-context-index`. Each repo-L2 returns one canonical repo-scoped `app-stage-handoff.v2` directly as its outer contract, preserving authority refs, exact repo ref, trust boundary, source digest, index refs, and named security trigger refs without predicate facts. Status `implemented` adds `completed_task_refs`, `failed_task_refs`, `task_result_refs`, `review_result_refs`, `commit_range_refs`, and `remediation_task_refs`, and targets `app-analyze`. Never wrap or nest this handoff in `domain-lane-closeout.v1`; do not emit a generic cross-repo merge.
+- After task results change authoritative state, refresh `$app-context-index`. Each repo-L2 returns one canonical repo-scoped `app-stage-handoff.v3` directly as its outer contract, preserving authority refs, exact repo ref, trust boundary, source digest, index refs, and named security trigger refs without predicate facts. Status `implemented` adds `completed_task_refs`, `failed_task_refs`, `task_result_refs`, `review_result_refs`, `commit_range_refs`, and `remediation_task_refs`, and targets `app-analyze`. Never wrap or nest this handoff in `domain-lane-closeout.v1`; do not emit a generic cross-repo merge.
 - `needs-plan` adds `source_handoff_ref`, `ledger_coverage_refs`, and `implementation_state_by_requirement`; `needs-spec` adds `source_handoff_ref` and `question_refs`; `blocked` adds `blocker_refs` and `operator_action_refs`. Use `blocked` only for access, credentials, unavailable sources, or explicit operator stops.
+
+## v3 journal ownership
+
+Only the `DIRECT` primary or repo-L2 records delegation, task-result, immutable-review, remediation, rereview, and repo-handoff events. L3 workers never modify the journal. Before repo handoff, repo-L2 validates the candidate transition, runs the process audit, records only events that actually occurred, compiles with CAS, and emits `app-stage-handoff.v3` bound to the new build.

@@ -1,0 +1,86 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://bears.cloud/contracts/app-graph-source-manifest.v1.schema.json",
+  "title": "app-graph-source-manifest.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "maintainer_enabled",
+    "roots",
+    "excludes",
+    "sources",
+    "generated",
+    "limits",
+    "tracked_paths"
+  ],
+  "properties": {
+    "schema": {
+      "const": "app-graph-source-manifest.v1"
+    },
+    "maintainer_enabled": {
+      "type": "boolean"
+    },
+    "roots": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true
+    },
+    "excludes": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true
+    },
+    "sources": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["workflow", "functional_map", "task_ledger", "event_root"],
+      "properties": {
+        "workflow": {"const": "contracts/app-workflow-definition.v2.json"},
+        "functional_map": {"const": "docs/app-functional-map.v2.json"},
+        "task_ledger": {"const": "docs/app-task-ledger.v2.json"},
+        "event_root": {"const": "docs/app-process-events/v1"}
+      }
+    },
+    "generated": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["trace_index", "process_index", "build_receipt", "context_result"],
+      "properties": {
+        "trace_index": {"const": "docs/app-traceability-index.v3.json"},
+        "process_index": {"const": "docs/app-process-index.v2.json"},
+        "build_receipt": {"const": "docs/app-index-build.v1.json"},
+        "context_result": {"const": "docs/app-context-index-result.v1.json"}
+      }
+    },
+    "limits": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["sources", "source_bytes", "entities", "edges", "events", "process_links"],
+      "properties": {
+        "sources": {"const": 2048},
+        "source_bytes": {"const": 67108864},
+        "entities": {"const": 25000},
+        "edges": {"const": 100000},
+        "events": {"const": 20000},
+        "process_links": {"const": 50000}
+      }
+    },
+    "tracked_paths": {
+      "type": "array",
+      "maxItems": 2048,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true
+    }
+  }
+}

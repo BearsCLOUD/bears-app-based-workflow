@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://bears.cloud/contracts/app-task-ledger.v2.schema.json",
+  "title": "app-task-ledger.v2",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "app_id",
+    "revision",
+    "tasks"
+  ],
+  "properties": {
+    "schema": {
+      "const": "app-task-ledger.v2"
+    },
+    "app_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "revision": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "tasks": {
+      "type": "array",
+      "maxItems": 25000,
+      "items": {
+        "type": "object",
+        "required": [
+          "task_id",
+          "status",
+          "requirement_refs",
+          "code_refs",
+          "test_refs",
+          "evidence_refs",
+          "automation_status"
+        ]
+      }
+    }
+  }
+}

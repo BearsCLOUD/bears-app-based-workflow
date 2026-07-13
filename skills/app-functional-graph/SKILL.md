@@ -11,7 +11,7 @@ For work already classified `DELEGATED`, act as the solo L2 analogue: decompose 
 
 ## Stage payload
 
-Accept canonical `app-stage-handoff.v2` status `spec-ready` or `needs-graph`. The envelope is defined only by `contracts/app-stage-handoff.v2.schema.json`; routes and graph semantics come only from `contracts/app-workflow-definition.v1.json`. Require a current `app-context-index-result.v1` and matching source digest before semantic mapping.
+Accept canonical `app-stage-handoff.v3` status `spec-ready` or `needs-graph`. The envelope is defined only by `contracts/app-stage-handoff.v3.schema.json`; routes and graph semantics come only from `contracts/app-workflow-definition.v2.json`. Require a current `app-context-index-result.v1` and matching source digest before semantic mapping.
 
 ## Stage output ownership
 
@@ -45,3 +45,7 @@ This skill is the sole semantic writer of `docs/app-functional-map.v2.json`. `$a
 - Never delete a ref used by a ledger task; record its replacement and add a new ref.
 - Add a typed graph entity before planning work for an unmapped requirement.
 - Return undecided requirements as canonical `needs-spec` with exact source, decision, requirement, and question refs; never infer a conceptual resolution.
+
+## v3 boundary audit
+
+Run `$app-trace-audit` with profile `semantic` after updating the functional map. Route every finding before handoff. Validate the transition, record the actual stage event through the maintainer, compile with CAS, and emit only `app-stage-handoff.v3` bound to the resulting build and journal digests.

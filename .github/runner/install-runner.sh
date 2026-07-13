@@ -808,6 +808,7 @@ local -a gateway_modules=(
   __init__.py
   cli.py
   constants.py
+  graph_instructions.py
   intent_io.py
   intent_schema.py
   journal.py

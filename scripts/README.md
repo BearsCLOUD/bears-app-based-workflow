@@ -1,8 +1,12 @@
 # App graph runtime modules
 
-- `app_graph_engine.py` loads only tracked graph/process JSON under a supplied app root, rechecks every indexed source digest, and implements bounded read-only queries.
-- `app_graph_mcp.py` exposes those queries through stdio MCP. It has no write, network, credential, acceptance, or validation surface.
+- `app_graph_engine.py` owns safe source loading, deterministic compilation, immutable event recording, build verification, opaque cursors, iterative traversal, and read-only process/trace audits.
+- `app_graph_mcp.py` exposes either the read-only `app-graph` surface or the two-tool `app-graph-maintainer` surface through lifecycle-correct stdio MCP.
 
-Runtime risks are path escape, oversized artifacts, response amplification, and stale or incompatible snapshots. The modules fail closed through stable error codes, source re-hashing, trace/process/workflow digest agreement, and bounded files, depth, item count, and response size. Impact traversal honors each edge type's transitive flag; diagnostics inspect every forbidden-cycle edge type; planning reports structural and open-finding blockers. Product acceptance remains outside this runtime surface.
+`app_graph_engine.py` intentionally exceeds the usual 400-line module target because compiler publication, journal integrity, cursor binding, and read-time digest verification share one fail-closed invariant set; splitting those checks would create multiple security-critical implementations of the same graph boundary. Its public entry point remains the single `execute_tool` dispatcher.
 
-`app_graph_engine.py` remains slightly above 400 lines so loading, legacy normalization, edge-registry checks, traversal direction, cycle detection, and query bounds share one invariant surface. Repository CD only updates the installed marketplace plugin and never declares acceptance. There is no active autoCI workflow; these modules add no agent-executable test or acceptance command, and acceptance remains `not_run` unless authentic external autoCI evidence is supplied.
+Bounded decomposition plan for the next runtime change: extract safe source/manifest loading into `app_graph_sources.py`, compiler and journal mutation into `app_graph_maintainer.py`, and read queries/audits into `app_graph_queries.py`; keep canonical serialization, digests, errors, and limits in the engine facade so each extracted module still uses one invariant implementation. This release does not mix that structural refactor with the v3 cutover.
+
+The compiler reads structured semantics only from the workflow definition, functional map, task ledger, and event journal. Tracked code/test/evidence files contribute digests but never inferred meaning. Duplicate or dangling refs, unknown edges, corrupt events, path escape, symlinks, stale CAS, and resource limits fail closed before the build receipt is published.
+
+Limits are 64 KiB request, 16 KiB response, 50 default/200 maximum page size, 8 default/32 maximum traversal depth, 2,048 sources/64 MiB aggregate input, 25,000 entities, 100,000 edges, 20,000 events, and 50,000 process links. Semantic audits never execute tests and never produce product acceptance.

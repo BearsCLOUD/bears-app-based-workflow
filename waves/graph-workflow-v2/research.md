@@ -1,20 +1,12 @@
-# Graph Workflow v2 Research
-
-## Observed state
-
-- The functional graph contract was prose-only and also owned the inter-stage handoff definition.
-- Route semantics were duplicated in `app-solo-route`, README prose, and an executable route check.
-- Graph nodes and edges had no typed registry for transitivity, impact direction, cycle policy, reachability, or ordering.
-- Product semantics and actual app-dev process events were mixed or absent, so run behavior could not be reconstructed deterministically.
-- Plugin packaging already admitted `scripts` and `.mcp.json`, but no graph runtime was bundled.
-
-## Decision
-
-Use a normative workflow contract plus two derived indexes. Add `app-context-index` as a cross-cutting digest gate rather than a new sequential stage. Bundle an MCP server that performs read-only queries over tracked indexes and never writes or accepts results.
+# Graph Workflow v3 research
 
 ## Sources
 
-- `docs/app-constitution.md`
-- existing `skills/app-*/SKILL.md`
-- `.codex-plugin/plugin.json`
-- `.github/runner/deploy_plugin.py`
+- MCP lifecycle and stdio transport contracts for initialization, notifications, and JSON-RPC errors.
+- MCP pagination contract for opaque cursors.
+- Existing v2 workflow artifacts and seven process events.
+- Existing promotion transaction, role publication, and durable receipt implementation.
+
+## Findings
+
+A persistent immutable journal is required to audit actual workflow history. Derived indexes need a versioned opt-in source manifest and a build receipt so queries and cursors bind to one snapshot. Semantic audits can verify refs, digests, causality, ownership, and trace completeness without executing tests or assuming product acceptance. Managed global instructions must participate in the existing promotion recovery transaction.

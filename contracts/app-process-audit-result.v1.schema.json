@@ -1,0 +1,71 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://bears.cloud/contracts/app-process-audit-result.v1.schema.json",
+  "title": "app-process-audit-result.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "profile",
+    "complete",
+    "build_ref",
+    "journal_digest",
+    "candidate_final_event_refs",
+    "open_remediation_task_refs",
+    "findings",
+    "route",
+    "truncated",
+    "next_cursor"
+  ],
+  "properties": {
+    "schema": {
+      "const": "app-process-audit-result.v1"
+    },
+    "profile": {
+      "enum": [
+        "handoff",
+        "terminal"
+      ]
+    },
+    "complete": {
+      "type": "boolean"
+    },
+    "build_ref": {
+      "type": "string",
+      "minLength": 1
+    },
+    "journal_digest": {
+      "type": "string",
+      "minLength": 1
+    },
+    "candidate_final_event_refs": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true
+    },
+    "open_remediation_task_refs": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true
+    },
+    "findings": {
+      "type": "array"
+    },
+    "route": {
+      "type": "string",
+      "minLength": 1
+    },
+    "truncated": {
+      "type": "boolean"
+    },
+    "next_cursor": {
+      "type": ["string", "null"]
+    }
+  }
+}

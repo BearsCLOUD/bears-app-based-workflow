@@ -26,6 +26,7 @@ def save_state(
     sha: str,
     version: str,
     role_record: dict[str, Any],
+    graph_record: dict[str, Any],
 ) -> None:
     value = {
         "schema": DEPLOY_RECEIPT_SCHEMA,
@@ -35,6 +36,7 @@ def save_state(
         "sha": sha,
         "version": version,
         **role_record,
+        **graph_record,
     }
     validate_deploy_receipt(value)
     payload = (json.dumps(value, sort_keys=True) + "\n").encode("utf-8")

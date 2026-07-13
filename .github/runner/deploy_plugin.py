@@ -23,6 +23,7 @@ _LOCAL_PACKAGE_ROOT = Path(__file__).resolve().parent
 _MODULE_NAMES = (
     "constants",
     "models",
+    "graph_instructions",
     "telemetry",
     "process",
     "marketplace",

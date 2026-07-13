@@ -1,0 +1,17 @@
+{
+  "schema": "app-process-event.v1",
+  "run_ref": "RUN-GRAPH-WORKFLOW-V2",
+  "event_ref": "EVT-DEV-001",
+  "event_kind": "stage-handoff",
+  "stage": "app-dev",
+  "status": "implemented",
+  "actor": "DIRECT-primary",
+  "causal_refs": [
+    "EVT-PLAN-001"
+  ],
+  "trace_refs": [],
+  "artifact_refs": [],
+  "origin": "legacy-import",
+  "automation_status": "not_run",
+  "legacy_import_digest": "sha256:c42e382f56681cdbf7aa5b5b0fa80eae0cf829cc4bc3f0d2cbd88968bb388d19"
+}

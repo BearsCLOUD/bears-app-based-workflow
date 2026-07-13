@@ -1,40 +1,456 @@
 {
   "schema": "app-functional-map.v2",
   "app_id": "bears-app-based-workflow",
-  "revision": 1,
+  "revision": 3,
   "source_refs": [
-    "docs/app-constitution.md",
-    "waves/graph-workflow-v2/research.md",
-    "waves/graph-workflow-v2/spec.md"
+    "waves/graph-workflow-v2/spec.md",
+    "waves/graph-workflow-v2/plan.md"
   ],
   "entities": [
-    {"ref": "REQ-WORKFLOW-001", "kind": "requirement", "title": "Single workflow definition", "source_refs": ["waves/graph-workflow-v2/spec.md#requirements"]},
-    {"ref": "REQ-INDEX-001", "kind": "requirement", "title": "Digest-gated traceability index", "source_refs": ["waves/graph-workflow-v2/spec.md#requirements"]},
-    {"ref": "REQ-PROCESS-001", "kind": "requirement", "title": "Actual development process index", "source_refs": ["waves/graph-workflow-v2/spec.md#requirements"]},
-    {"ref": "REQ-GRAPH-001", "kind": "requirement", "title": "Deterministic graph queries", "source_refs": ["waves/graph-workflow-v2/spec.md#requirements"]},
-    {"ref": "REQ-MCP-001", "kind": "requirement", "title": "Read-only MCP query surface", "source_refs": ["waves/graph-workflow-v2/spec.md#requirements"]},
-    {"ref": "REQ-CYCLE-001", "kind": "requirement", "title": "Context-indexed app cycle", "source_refs": ["waves/graph-workflow-v2/spec.md#requirements"]},
-    {"ref": "FUNC-WORKFLOW-001", "kind": "functionality", "title": "Machine-defined app workflow", "source_refs": ["contracts/app-workflow-definition.v1.json"]},
-    {"ref": "FUNC-INDEX-001", "kind": "functionality", "title": "Traceability and process indexing", "source_refs": ["skills/app-context-index/SKILL.md"]},
-    {"ref": "FUNC-QUERY-001", "kind": "functionality", "title": "Bounded graph query engine", "source_refs": ["scripts/app_graph_engine.py"]},
-    {"ref": "FUNC-MCP-001", "kind": "integration", "title": "Bundled app-graph MCP", "source_refs": ["scripts/app_graph_mcp.py", ".mcp.json"]}
+    {
+      "ref": "SPEC-GRAPH-WORKFLOW-V3",
+      "kind": "spec",
+      "title": "Graph Workflow v3",
+      "source_refs": [
+        "waves/graph-workflow-v2/spec.md"
+      ]
+    },
+    {
+      "ref": "DEC-GRAPH-V3",
+      "kind": "decision",
+      "title": "Structured compiler, immutable journal, and audited terminal status",
+      "source_refs": [
+        "waves/graph-workflow-v2/spec.md#v3-cutover"
+      ]
+    },
+    {
+      "ref": "REQ-WORKFLOW-001",
+      "kind": "requirement",
+      "title": "Workflow transitions and audited terminal state",
+      "source_refs": [
+        "waves/graph-workflow-v2/spec.md#v3-requirements"
+      ]
+    },
+    {
+      "ref": "FUNC-WORKFLOW-001",
+      "kind": "functionality",
+      "title": "Workflow transitions and audited terminal state",
+      "source_refs": [
+        "waves/graph-workflow-v2/spec.md#v3-requirements"
+      ]
+    },
+    {
+      "ref": "REQ-INDEX-001",
+      "kind": "requirement",
+      "title": "Deterministic structured-source compiler",
+      "source_refs": [
+        "waves/graph-workflow-v2/spec.md#v3-requirements"
+      ]
+    },
+    {
+      "ref": "FUNC-COMPILER-001",
+      "kind": "functionality",
+      "title": "Deterministic structured-source compiler",
+      "source_refs": [
+        "waves/graph-workflow-v2/spec.md#v3-requirements"
+      ]
+    },
+    {
+      "ref": "REQ-PROCESS-001",
+      "kind": "requirement",
+      "title": "Immutable idempotent process journal",
+      "source_refs": [
+        "waves/graph-workflow-v2/spec.md#v3-requirements"
+      ]
+    },
+    {
+      "ref": "FUNC-JOURNAL-001",
+      "kind": "functionality",
+      "title": "Immutable idempotent process journal",
+      "source_refs": [
+        "waves/graph-workflow-v2/spec.md#v3-requirements"
+      ]
+    },
+    {
+      "ref": "REQ-GRAPH-001",
+      "kind": "requirement",
+      "title": "Bounded graph queries and opaque pagination",
+      "source_refs": [
+        "waves/graph-workflow-v2/spec.md#v3-requirements"
+      ]
+    },
+    {
+      "ref": "FUNC-QUERY-001",
+      "kind": "functionality",
+      "title": "Bounded graph queries and opaque pagination",
+      "source_refs": [
+        "waves/graph-workflow-v2/spec.md#v3-requirements"
+      ]
+    },
+    {
+      "ref": "REQ-MCP-001",
+      "kind": "requirement",
+      "title": "Lifecycle-correct read and maintainer MCP servers",
+      "source_refs": [
+        "waves/graph-workflow-v2/spec.md#v3-requirements"
+      ]
+    },
+    {
+      "ref": "FUNC-MCP-001",
+      "kind": "functionality",
+      "title": "Lifecycle-correct read and maintainer MCP servers",
+      "source_refs": [
+        "waves/graph-workflow-v2/spec.md#v3-requirements"
+      ]
+    },
+    {
+      "ref": "REQ-CYCLE-001",
+      "kind": "requirement",
+      "title": "Audited semantic and process convergence",
+      "source_refs": [
+        "waves/graph-workflow-v2/spec.md#v3-requirements"
+      ]
+    },
+    {
+      "ref": "FUNC-AUDIT-001",
+      "kind": "functionality",
+      "title": "Audited semantic and process convergence",
+      "source_refs": [
+        "waves/graph-workflow-v2/spec.md#v3-requirements"
+      ]
+    },
+    {
+      "ref": "REQ-CD-001",
+      "kind": "requirement",
+      "title": "Transactional managed Codex home instructions",
+      "source_refs": [
+        "waves/graph-workflow-v2/spec.md#v3-requirements"
+      ]
+    },
+    {
+      "ref": "FUNC-CD-001",
+      "kind": "functionality",
+      "title": "Transactional managed Codex home instructions",
+      "source_refs": [
+        "waves/graph-workflow-v2/spec.md#v3-requirements"
+      ]
+    },
+    {
+      "ref": "REQ-OWNERSHIP-001",
+      "kind": "requirement",
+      "title": "DIRECT, repo-L2, and L3 journal ownership",
+      "source_refs": [
+        "waves/graph-workflow-v2/spec.md#v3-requirements"
+      ]
+    },
+    {
+      "ref": "FUNC-OWNERSHIP-001",
+      "kind": "functionality",
+      "title": "DIRECT, repo-L2, and L3 journal ownership",
+      "source_refs": [
+        "waves/graph-workflow-v2/spec.md#v3-requirements"
+      ]
+    }
   ],
   "relations": [
-    {"ref": "REL-001", "kind": "defines", "from_ref": "REQ-WORKFLOW-001", "to_ref": "FUNC-WORKFLOW-001", "condition_refs": [], "source_refs": ["waves/graph-workflow-v2/spec.md"]},
-    {"ref": "REL-002", "kind": "defines", "from_ref": "REQ-INDEX-001", "to_ref": "FUNC-INDEX-001", "condition_refs": [], "source_refs": ["waves/graph-workflow-v2/spec.md"]},
-    {"ref": "REL-003", "kind": "defines", "from_ref": "REQ-PROCESS-001", "to_ref": "FUNC-INDEX-001", "condition_refs": [], "source_refs": ["waves/graph-workflow-v2/spec.md"]},
-    {"ref": "REL-004", "kind": "defines", "from_ref": "REQ-GRAPH-001", "to_ref": "FUNC-QUERY-001", "condition_refs": [], "source_refs": ["waves/graph-workflow-v2/spec.md"]},
-    {"ref": "REL-005", "kind": "defines", "from_ref": "REQ-MCP-001", "to_ref": "FUNC-MCP-001", "condition_refs": [], "source_refs": ["waves/graph-workflow-v2/spec.md"]},
-    {"ref": "REL-006", "kind": "depends_on", "from_ref": "FUNC-MCP-001", "to_ref": "FUNC-QUERY-001", "condition_refs": [], "source_refs": ["scripts/app_graph_mcp.py"]},
-    {"ref": "REL-007", "kind": "defines", "from_ref": "REQ-CYCLE-001", "to_ref": "FUNC-INDEX-001", "condition_refs": [], "source_refs": ["skills/app-solo-route/SKILL.md"]}
+    {
+      "ref": "REL-SPEC-DEC-V3",
+      "kind": "defines",
+      "from_ref": "SPEC-GRAPH-WORKFLOW-V3",
+      "to_ref": "DEC-GRAPH-V3",
+      "condition_refs": [],
+      "source_refs": [
+        "waves/graph-workflow-v2/spec.md"
+      ]
+    },
+    {
+      "ref": "REL-DEC-REQ-001",
+      "kind": "defines",
+      "from_ref": "DEC-GRAPH-V3",
+      "to_ref": "REQ-WORKFLOW-001",
+      "condition_refs": [],
+      "source_refs": [
+        "waves/graph-workflow-v2/spec.md"
+      ]
+    },
+    {
+      "ref": "REL-REQ-FUNC-001",
+      "kind": "defines",
+      "from_ref": "REQ-WORKFLOW-001",
+      "to_ref": "FUNC-WORKFLOW-001",
+      "condition_refs": [],
+      "source_refs": [
+        "waves/graph-workflow-v2/spec.md"
+      ]
+    },
+    {
+      "ref": "REL-DEC-REQ-002",
+      "kind": "defines",
+      "from_ref": "DEC-GRAPH-V3",
+      "to_ref": "REQ-INDEX-001",
+      "condition_refs": [],
+      "source_refs": [
+        "waves/graph-workflow-v2/spec.md"
+      ]
+    },
+    {
+      "ref": "REL-REQ-FUNC-002",
+      "kind": "defines",
+      "from_ref": "REQ-INDEX-001",
+      "to_ref": "FUNC-COMPILER-001",
+      "condition_refs": [],
+      "source_refs": [
+        "waves/graph-workflow-v2/spec.md"
+      ]
+    },
+    {
+      "ref": "REL-DEC-REQ-003",
+      "kind": "defines",
+      "from_ref": "DEC-GRAPH-V3",
+      "to_ref": "REQ-PROCESS-001",
+      "condition_refs": [],
+      "source_refs": [
+        "waves/graph-workflow-v2/spec.md"
+      ]
+    },
+    {
+      "ref": "REL-REQ-FUNC-003",
+      "kind": "defines",
+      "from_ref": "REQ-PROCESS-001",
+      "to_ref": "FUNC-JOURNAL-001",
+      "condition_refs": [],
+      "source_refs": [
+        "waves/graph-workflow-v2/spec.md"
+      ]
+    },
+    {
+      "ref": "REL-DEC-REQ-004",
+      "kind": "defines",
+      "from_ref": "DEC-GRAPH-V3",
+      "to_ref": "REQ-GRAPH-001",
+      "condition_refs": [],
+      "source_refs": [
+        "waves/graph-workflow-v2/spec.md"
+      ]
+    },
+    {
+      "ref": "REL-REQ-FUNC-004",
+      "kind": "defines",
+      "from_ref": "REQ-GRAPH-001",
+      "to_ref": "FUNC-QUERY-001",
+      "condition_refs": [],
+      "source_refs": [
+        "waves/graph-workflow-v2/spec.md"
+      ]
+    },
+    {
+      "ref": "REL-DEC-REQ-005",
+      "kind": "defines",
+      "from_ref": "DEC-GRAPH-V3",
+      "to_ref": "REQ-MCP-001",
+      "condition_refs": [],
+      "source_refs": [
+        "waves/graph-workflow-v2/spec.md"
+      ]
+    },
+    {
+      "ref": "REL-REQ-FUNC-005",
+      "kind": "defines",
+      "from_ref": "REQ-MCP-001",
+      "to_ref": "FUNC-MCP-001",
+      "condition_refs": [],
+      "source_refs": [
+        "waves/graph-workflow-v2/spec.md"
+      ]
+    },
+    {
+      "ref": "REL-DEC-REQ-006",
+      "kind": "defines",
+      "from_ref": "DEC-GRAPH-V3",
+      "to_ref": "REQ-CYCLE-001",
+      "condition_refs": [],
+      "source_refs": [
+        "waves/graph-workflow-v2/spec.md"
+      ]
+    },
+    {
+      "ref": "REL-REQ-FUNC-006",
+      "kind": "defines",
+      "from_ref": "REQ-CYCLE-001",
+      "to_ref": "FUNC-AUDIT-001",
+      "condition_refs": [],
+      "source_refs": [
+        "waves/graph-workflow-v2/spec.md"
+      ]
+    },
+    {
+      "ref": "REL-DEC-REQ-007",
+      "kind": "defines",
+      "from_ref": "DEC-GRAPH-V3",
+      "to_ref": "REQ-CD-001",
+      "condition_refs": [],
+      "source_refs": [
+        "waves/graph-workflow-v2/spec.md"
+      ]
+    },
+    {
+      "ref": "REL-REQ-FUNC-007",
+      "kind": "defines",
+      "from_ref": "REQ-CD-001",
+      "to_ref": "FUNC-CD-001",
+      "condition_refs": [],
+      "source_refs": [
+        "waves/graph-workflow-v2/spec.md"
+      ]
+    },
+    {
+      "ref": "REL-DEC-REQ-008",
+      "kind": "defines",
+      "from_ref": "DEC-GRAPH-V3",
+      "to_ref": "REQ-OWNERSHIP-001",
+      "condition_refs": [],
+      "source_refs": [
+        "waves/graph-workflow-v2/spec.md"
+      ]
+    },
+    {
+      "ref": "REL-REQ-FUNC-008",
+      "kind": "defines",
+      "from_ref": "REQ-OWNERSHIP-001",
+      "to_ref": "FUNC-OWNERSHIP-001",
+      "condition_refs": [],
+      "source_refs": [
+        "waves/graph-workflow-v2/spec.md"
+      ]
+    },
+    {
+      "ref": "REL-MCP-COMPILER",
+      "kind": "depends_on",
+      "from_ref": "FUNC-MCP-001",
+      "to_ref": "FUNC-COMPILER-001",
+      "condition_refs": [],
+      "source_refs": [
+        "docs/app-functional-map.v2.json"
+      ]
+    },
+    {
+      "ref": "REL-AUDIT-COMPILER",
+      "kind": "depends_on",
+      "from_ref": "FUNC-AUDIT-001",
+      "to_ref": "FUNC-COMPILER-001",
+      "condition_refs": [],
+      "source_refs": [
+        "docs/app-functional-map.v2.json"
+      ]
+    },
+    {
+      "ref": "REL-CD-OWNERSHIP",
+      "kind": "depends_on",
+      "from_ref": "FUNC-CD-001",
+      "to_ref": "FUNC-OWNERSHIP-001",
+      "condition_refs": [],
+      "source_refs": [
+        "docs/app-functional-map.v2.json"
+      ]
+    }
   ],
   "coverage": [
-    {"ref": "COV-001", "requirement_ref": "REQ-WORKFLOW-001", "dimension": "behavior", "entity_refs": ["FUNC-WORKFLOW-001"], "status": "mapped", "evidence_refs": ["contracts/app-workflow-definition.v1.json"]},
-    {"ref": "COV-002", "requirement_ref": "REQ-INDEX-001", "dimension": "data", "entity_refs": ["FUNC-INDEX-001"], "status": "mapped", "evidence_refs": ["contracts/app-traceability-index.v2.schema.json"]},
-    {"ref": "COV-003", "requirement_ref": "REQ-PROCESS-001", "dimension": "state", "entity_refs": ["FUNC-INDEX-001"], "status": "mapped", "evidence_refs": ["contracts/app-process-index.v1.schema.json"]},
-    {"ref": "COV-004", "requirement_ref": "REQ-GRAPH-001", "dimension": "dependency", "entity_refs": ["FUNC-QUERY-001"], "status": "mapped", "evidence_refs": ["scripts/app_graph_engine.py"]},
-    {"ref": "COV-005", "requirement_ref": "REQ-MCP-001", "dimension": "integration", "entity_refs": ["FUNC-MCP-001"], "status": "mapped", "evidence_refs": [".mcp.json"]},
-    {"ref": "COV-006", "requirement_ref": "REQ-CYCLE-001", "dimension": "behavior", "entity_refs": ["FUNC-INDEX-001"], "status": "mapped", "evidence_refs": ["skills/app-context-index/SKILL.md"]}
+    {
+      "ref": "COV-V3-001",
+      "requirement_ref": "REQ-WORKFLOW-001",
+      "dimension": "behavior",
+      "entity_refs": [
+        "FUNC-WORKFLOW-001"
+      ],
+      "status": "mapped",
+      "evidence_refs": [
+        "docs/app-task-ledger.v2.json"
+      ]
+    },
+    {
+      "ref": "COV-V3-002",
+      "requirement_ref": "REQ-INDEX-001",
+      "dimension": "behavior",
+      "entity_refs": [
+        "FUNC-COMPILER-001"
+      ],
+      "status": "mapped",
+      "evidence_refs": [
+        "docs/app-task-ledger.v2.json"
+      ]
+    },
+    {
+      "ref": "COV-V3-003",
+      "requirement_ref": "REQ-PROCESS-001",
+      "dimension": "behavior",
+      "entity_refs": [
+        "FUNC-JOURNAL-001"
+      ],
+      "status": "mapped",
+      "evidence_refs": [
+        "docs/app-task-ledger.v2.json"
+      ]
+    },
+    {
+      "ref": "COV-V3-004",
+      "requirement_ref": "REQ-GRAPH-001",
+      "dimension": "behavior",
+      "entity_refs": [
+        "FUNC-QUERY-001"
+      ],
+      "status": "mapped",
+      "evidence_refs": [
+        "docs/app-task-ledger.v2.json"
+      ]
+    },
+    {
+      "ref": "COV-V3-005",
+      "requirement_ref": "REQ-MCP-001",
+      "dimension": "behavior",
+      "entity_refs": [
+        "FUNC-MCP-001"
+      ],
+      "status": "mapped",
+      "evidence_refs": [
+        "docs/app-task-ledger.v2.json"
+      ]
+    },
+    {
+      "ref": "COV-V3-006",
+      "requirement_ref": "REQ-CYCLE-001",
+      "dimension": "behavior",
+      "entity_refs": [
+        "FUNC-AUDIT-001"
+      ],
+      "status": "mapped",
+      "evidence_refs": [
+        "docs/app-task-ledger.v2.json"
+      ]
+    },
+    {
+      "ref": "COV-V3-007",
+      "requirement_ref": "REQ-CD-001",
+      "dimension": "behavior",
+      "entity_refs": [
+        "FUNC-CD-001"
+      ],
+      "status": "mapped",
+      "evidence_refs": [
+        "docs/app-task-ledger.v2.json"
+      ]
+    },
+    {
+      "ref": "COV-V3-008",
+      "requirement_ref": "REQ-OWNERSHIP-001",
+      "dimension": "behavior",
+      "entity_refs": [
+        "FUNC-OWNERSHIP-001"
+      ],
+      "status": "mapped",
+      "evidence_refs": [
+        "docs/app-task-ledger.v2.json"
+      ]
+    }
   ],
   "replacements": []
 }

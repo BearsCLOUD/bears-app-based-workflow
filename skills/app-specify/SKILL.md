@@ -22,7 +22,7 @@ In `DELEGATED`, the parent may ask questions but does not inspect source data. N
 
 ## Stage payload
 
-- Every stage-generated input uses canonical `app-stage-handoff.v2` from `contracts/app-stage-handoff.v2.schema.json` and carries a current `$app-context-index` result.
+- Every stage-generated input uses canonical `app-stage-handoff.v3` from `contracts/app-stage-handoff.v3.schema.json` and carries a current `$app-context-index` result.
 - `research-ready` from `app-research` additionally carries `constitution_ref`, `research_refs`, `question_refs`, and `source_refs`.
 - `needs-spec` from `app-functional-graph`, `app-plan`, `app-dev`, or `app-analyze` additionally carries `source_handoff_ref` and `question_refs`; its common decision, requirement, gap, artifact, and evidence fields define the exact unresolved context.
 - User answers and confirmed decisions.
@@ -35,7 +35,7 @@ In `DIRECT`, the primary creates the stage artifact and canonical handoff. In `D
 
 The stage writes `<app-root>/waves/<wave-id>/spec.md` in the consuming app repository with actors and permissions, user goals, main and alternate flows, data inputs and ownership, error and empty states, integrations, acceptance criteria, functional graph hints, closed decisions, and open questions.
 
-Represent accepted decisions and requirements as stable first-class refs. When decisions are complete, refresh `$app-context-index`, then return canonical `app-stage-handoff.v2` status `spec-ready` with the current digest/index fields plus `constitution_ref`, `research_refs`, `specification_refs`, `required_behavior_refs`, `dependency_coverage_refs`, `state_coverage_refs`, `api_coverage_refs`, `data_coverage_refs`, `integration_coverage_refs`, and `error_coverage_refs`; target `app-functional-graph`.
+Represent accepted decisions and requirements as stable first-class refs. When decisions are complete, refresh `$app-context-index`, then return canonical `app-stage-handoff.v3` status `spec-ready` with the current digest/index fields plus `constitution_ref`, `research_refs`, `specification_refs`, `required_behavior_refs`, `dependency_coverage_refs`, `state_coverage_refs`, `api_coverage_refs`, `data_coverage_refs`, `integration_coverage_refs`, and `error_coverage_refs`; target `app-functional-graph`.
 
 ## Exit rules
 

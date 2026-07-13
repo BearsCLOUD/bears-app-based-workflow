@@ -7,6 +7,7 @@ These files belong to the repository-owned CI/CD boundary and are not plugin age
 - `deploy_plugin.py` is the stable executable facade. It selects the repository-local package for authored autoCI coverage or the fixed root-owned `/usr/local/lib/bears-plugin-deploy` package in production, preserves the legacy import surface, and delegates to `bears_deploy.cli.main`.
 - `bears_deploy/constants.py` owns fixed identities, paths, schemas, and size limits.
 - `bears_deploy/models.py` owns shared errors and transaction context models.
+- `bears_deploy/graph_instructions.py` owns fail-closed transactional reconciliation of the receipted graph-behavior block in `$CODEX_HOME/AGENTS.md`.
 - `bears_deploy/telemetry.py` owns sanitized Sentry event construction and best-effort delivery through `report_sentry`.
 - `bears_deploy/process.py` owns bounded subprocess, Git, and GitHub credential operations.
 - `bears_deploy/marketplace.py` owns manifest, marketplace, cache, and pinned Git-blob verification.

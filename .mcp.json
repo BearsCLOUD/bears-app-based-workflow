@@ -3,6 +3,10 @@
     "app-graph": {
       "command": "python3",
       "args": ["./scripts/app_graph_mcp.py"]
+    },
+    "app-graph-maintainer": {
+      "command": "python3",
+      "args": ["./scripts/app_graph_mcp.py", "--maintainer"]
     }
   }
 }

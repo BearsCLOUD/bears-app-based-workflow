@@ -1,0 +1,88 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://bears.cloud/contracts/app-process-event.v1.schema.json",
+  "title": "app-process-event.v1",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "schema",
+    "run_ref",
+    "event_ref",
+    "event_kind",
+    "stage",
+    "status",
+    "actor",
+    "causal_refs",
+    "trace_refs",
+    "artifact_refs",
+    "origin",
+    "automation_status"
+  ],
+  "properties": {
+    "schema": {
+      "const": "app-process-event.v1"
+    },
+    "run_ref": {
+      "type": "string",
+      "minLength": 1
+    },
+    "event_ref": {
+      "type": "string",
+      "minLength": 1
+    },
+    "event_kind": {
+      "type": "string",
+      "minLength": 1
+    },
+    "stage": {
+      "type": "string",
+      "minLength": 1
+    },
+    "status": {
+      "type": "string",
+      "minLength": 1
+    },
+    "actor": {
+      "type": "string",
+      "minLength": 1
+    },
+    "causal_refs": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true
+    },
+    "trace_refs": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true
+    },
+    "artifact_refs": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true
+    },
+    "origin": {
+      "enum": [
+        "native",
+        "legacy-import"
+      ]
+    },
+    "automation_status": {
+      "enum": [
+        "unavailable",
+        "not_run",
+        "passed",
+        "failed"
+      ]
+    }
+  }
+}

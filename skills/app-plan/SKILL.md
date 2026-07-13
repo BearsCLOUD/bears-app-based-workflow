@@ -11,7 +11,7 @@ For work already classified `DELEGATED`, act as the solo L2 analogue: decompose 
 
 ## Stage payload
 
-- Every stage-generated input uses canonical `app-stage-handoff.v2` and carries current traceability/process index refs, revision, source digest, and context-index result.
+- Every stage-generated input uses canonical `app-stage-handoff.v3` and carries current traceability/process index refs, revision, source digest, and context-index result.
 - `graph-ready` from `app-functional-graph` additionally carries `functional_map_ref`, `functionality_refs`, `graph_entity_refs`, `coverage_refs`, and `replacement_refs`.
 - `needs-plan` from `app-dev` or `app-analyze` additionally carries `source_handoff_ref`, `ledger_coverage_refs`, and `implementation_state_by_requirement`.
 - `waiting` resume from `app-plan` additionally carries `source_handoff_ref`, `blocked_task_refs`, and `dependency_state_evidence_refs`; `app-plan` owns dependency-state reevaluation and the resume decision.
@@ -21,7 +21,7 @@ For work already classified `DELEGATED`, act as the solo L2 analogue: decompose 
 
 In `DIRECT`, the primary creates the stage artifacts and canonical handoff. In `DELEGATED`, the assigned L3 creates them.
 
-The stage writes `waves/<wave-id>/plan.md` and creates or updates only executable `tasks` in `docs/app-task-ledger.v1.json`. It never writes `docs/app-functional-map.v2.json` or either derived index.
+The stage writes `waves/<wave-id>/plan.md` and creates or updates only executable `tasks` in `docs/app-task-ledger.v2.json`. It never writes `docs/app-functional-map.v2.json` or either derived index.
 
 For each specified requirement it records functional-map revision, source digest, index revision, coverage, and `built`, `partial`, `missing`, or `drifted` implementation state. Use the read-only `app-graph` tools for declared impact, dependencies, and topological task layers. Create or update canonical executable ledger tasks for `partial`, `missing`, or `drifted` behavior. Each task carries complete trace refs and the `ledger_update_contract` required by `app-dev`.
 
@@ -29,7 +29,7 @@ Partition ordinary work by `repo_ref` before assigning `batch_id` or `wave_id`. 
 
 At `remediation-anchor.v1`, create a new repo-scoped remediation wave, a new batch, and new task ids. Every created task has `task_kind: remediation` and `source_review_refs` containing the primary review ref plus any justified specialist review refs. Trace the failed task refs as remediation sources, but never reopen, renumber, overwrite, or otherwise mutate the original terminal `done|failed` tasks. Preserve this queue order: independent tasks in the anchor snapshot first, the new remediation wave next, and tasks admitted after the anchor last.
 
-Refresh `$app-context-index` after changing the ledger. Return one canonical `app-stage-handoff.v2` with current digest/index fields and the fields for its status:
+Refresh `$app-context-index` after changing the ledger. Return one canonical `app-stage-handoff.v3` with current digest/index fields and the fields for its status:
 
 - `plan-ready`: at least one canonical task has closed decisions, closed dependencies, valid current graph refs, and ledger status `ready`; emit one repo-scoped handoff per `repo_ref`, add only same-repo complete `task_records`, supply their repo cwd and exact targets for `app-task-dispatch.v1`, and target `app-dev`;
 - `waiting`: tasks exist but none is ready; add `source_handoff_ref`, `blocked_task_refs`, and `dependency_state_evidence_refs`, populate common dependency refs, and target `app-plan`;
@@ -50,4 +50,8 @@ This stage may create and update task planning fields and set only `planned`, `b
 - Mark work `ready` only when its decisions are closed and every dependency is `done` or otherwise proven closed.
 - Return `needs-graph` instead of repairing an unmapped or drifted graph.
 - Route ready ledger work to `app-dev` as separate repo-scoped handoffs; never create a generic cross-repo merge.
-- Use `instruction-hardening` only as a separate delegated pass.
+- Use `instruction-hardening` only as a separate delegated operation.
+
+## v3 boundary audit
+
+Run `$app-trace-audit` with profile `planning` after updating `app-task-ledger.v2`. Route every finding before handoff. Validate the transition, record the actual planning event, compile with CAS, and bind the handoff to the resulting build and journal digests.

@@ -8,7 +8,7 @@ These files belong to the repository-owned CI/CD boundary and are not plugin age
 - `bears_deploy/constants.py` owns fixed identities, paths, schemas, and size limits.
 - `bears_deploy/models.py` owns shared errors and transaction context models.
 - `bears_deploy/graph_instructions.py` owns fail-closed transactional reconciliation of the receipted graph-behavior block in `$CODEX_HOME/AGENTS.md`.
-- `bears_deploy/telemetry.py` owns sanitized Sentry event construction and best-effort delivery through `report_sentry`.
+- `bears_deploy/telemetry.py` owns sanitized official-SDK Sentry delivery through `report_sentry`. It retains real tracebacks while stripping locals, request/user data, and PII, and never changes the CD result.
 - `bears_deploy/process.py` owns bounded subprocess, Git, and GitHub credential operations.
 - `bears_deploy/marketplace.py` owns manifest, marketplace, cache, and pinned Git-blob verification.
 - `bears_deploy/role_profiles.py` owns exact role bundle materialization and desired config rendering.
@@ -24,12 +24,13 @@ These files belong to the repository-owned CI/CD boundary and are not plugin age
 - `bears_deploy/role_recovery.py` owns role rollback and managed-registration removal.
 - `bears_deploy/promotion.py` owns exact-SHA convergence, recovery, and promotion orchestration.
 - `bears_deploy/cli.py` owns the `main` identity, argument, credential, and state-lock boundary.
-- `test_deploy_plugin_sentry.py` provides local, stub-only event and transport coverage inside autoCI. It never opens a live Sentry connection and never creates a synthetic live event.
+- `sentry-requirements.lock` pins the official `sentry-sdk`, `urllib3`, and `certifi` wheels with SHA-256 hashes. The installer places them inside the atomically replaced root-owned gateway tree.
+- `test_deploy_plugin_sentry.py` authors stub-only SDK, stack, release, production environment, trace, sanitization, single-send, and telemetry-failure scenarios. It never opens a live Sentry connection or creates a synthetic live event.
 - `materialize_sentry_dsn.py` is a root-only atomic writer. It accepts one DSN only on inherited file descriptor 3, writes the fixed target, emits no value, and starts no child process.
 - `install-sentry-materializer.sh` installs only that writer as immutable root-owned code. It does not create an identity, obtain a DSN, or execute the writer.
 - `install-runner.sh` owns the isolated GitHub runner, root-owned gateway package installation, and the sole runner-to-deploy sudo boundary. The runner has no materializer sudo grant and cannot traverse `/home/ai1`.
 
-All gateway modules share the same runtime risks: partial marketplace mutation, receipt corruption, unsafe filesystem state, and unavailable telemetry. The authored coverage remains in `test_deploy_plugin_sentry.py` and `test_install_runner_state.py`, but no autoCI pipeline is active; acceptance for this refactor is `not_run` until exact external evidence is supplied.
+All gateway modules share the same runtime risks: partial marketplace mutation, receipt corruption, unsafe filesystem state, and unavailable telemetry. No plugin CI pipeline is active; `automation_status=not_run` is mandatory until exact external evidence is supplied.
 
 ## Durable promotion recovery
 
@@ -39,7 +40,7 @@ The operator-visible risk is an interrupted or partially mutated marketplace. Re
 
 ## Sentry failure boundary
 
-The gateway reads `/home/ai1/.config/bears-app-based-workflow/credentials/sentry-dsn` only in memory and only after an actionable failure. The file must be a non-linked regular file owned by `ai1` with mode `0600`. The DSN is never copied into a child environment, argument, log, event, or receipt.
+The gateway reads `/home/ai1/.config/bears-app-based-workflow/credentials/sentry-dsn` only in memory and only after an actionable failure. The file must be a non-linked regular file owned by `ai1` with mode `0600`. Infisical is used only when that materialized secret is absent or explicitly rotated. Live trace evidence waits for a real autoCD after operator bootstrap; the stack path remains `needs-evidence` until the first real actionable failure.
 
 Eligible event codes are limited to unhandled exception, receipt corruption, mutation failure after start, post-mutation failure, recovery activation, and recovery failure. Normal success, no-op, dry-run, invalid input, expected policy or authorization refusal, and a missing or unusable DSN produce no event. Delivery failure is swallowed and cannot change deployment status.
 

@@ -37,95 +37,63 @@ ROLE_DEFINITION_PATHS = {
 }
 
 
-class StubResponse:
-    """Minimal context-managed response used without network access."""
+class StubScope:
+    """Capture safe tags and contexts without loading a Sentry transport."""
 
-    def __enter__(self) -> "StubResponse":
-        return self
+    def __init__(self) -> None:
+        self.tags: dict[str, str] = {}
+        self.contexts: dict[str, object] = {}
 
-    def __exit__(self, *_: object) -> None:
-        return None
+    def set_tag(self, key: str, value: str) -> None:
+        self.tags[key] = value
 
-    def read(self, _: int) -> bytes:
-        return b""
+    def set_context(self, key: str, value: object) -> None:
+        self.contexts[key] = value
 
 
 class SentryGatewayCoverage(unittest.TestCase):
     def context(self) -> object:
         context = DEPLOY.DeployContext("a" * 40)
-        context.version = "0.1.0+codex.20260711000000"
+        context.version = "0.4.0"
         return context
 
-    def test_event_is_normalized_and_grouped(self) -> None:
-        with mock.patch.dict(
-            DEPLOY.os.environ,
-            {"GITHUB_RUN_ID": "123", "GITHUB_RUN_ATTEMPT": "4"},
-            clear=False,
-        ):
-            event = DEPLOY.sentry_event("post-mutation-failure", self.context())
-        self.assertEqual(
-            event["fingerprint"],
-            [DEPLOY.SENTRY_SERVICE, DEPLOY.SENTRY_COMPONENT, "post-mutation-failure"],
-        )
-        self.assertEqual(
-            set(event["tags"]),
-            {
-                "error_code",
-                "service",
-                "component",
-                "operation",
-                "repository",
-                "plugin",
-                "git_sha",
-                "plugin_version",
-                "workflow_run",
-                "receipt_schema",
-            },
-        )
-        self.assertEqual(event["tags"]["workflow_run"], "123:4")
-        encoded = json.dumps(event)
-        for prohibited in ("stdout", "stderr", "request_body", "https://", "locals"):
-            self.assertNotIn(prohibited, encoded)
+    def test_official_sdk_stack_release_environment_and_trace_are_authored(self) -> None:
+        scope = StubScope()
+        with mock.patch.object(DEPLOY, "read_sentry_dsn", return_value="https://public@example.invalid/42"), \
+             mock.patch.object(DEPLOY, "gateway_digest", return_value="sha256:" + "b" * 64), \
+             mock.patch.object(DEPLOY.sentry_sdk, "init") as initialize, \
+             mock.patch.object(DEPLOY.sentry_sdk, "start_transaction", return_value=mock.MagicMock(__enter__=lambda self: self, __exit__=lambda *args: None)), \
+             mock.patch.object(DEPLOY.sentry_sdk, "push_scope", return_value=mock.MagicMock(__enter__=lambda _: scope, __exit__=lambda *args: None)), \
+             mock.patch.object(DEPLOY.sentry_sdk, "capture_exception", return_value="c" * 32) as capture, \
+             mock.patch.object(DEPLOY.sentry_sdk, "flush"):
+            failure = RuntimeError("secret source value")
+            reference = DEPLOY.report_sentry("post-mutation-failure", self.context(), failure)
+        self.assertEqual(reference, "sentry-event:" + "c" * 32)
+        capture.assert_called_once_with(failure)
+        options = initialize.call_args.kwargs
+        self.assertEqual(options["environment"], "production")
+        self.assertEqual(options["traces_sample_rate"], 1.0)
+        self.assertIn("@0.4.0+" + "a" * 40, options["release"])
+        self.assertFalse(options["send_default_pii"])
+        self.assertFalse(options["include_local_variables"])
+        self.assertEqual(options["integrations"], [])
+        self.assertEqual(scope.tags["target_sha"], "a" * 40)
+        self.assertEqual(scope.tags["gateway_digest"], "sha256:" + "b" * 64)
 
-    def test_transport_uses_stub_and_returns_event_reference(self) -> None:
-        captured: dict[str, object] = {}
+    def test_scrubber_preserves_frames_but_removes_values_and_pii(self) -> None:
+        scrubber = DEPLOY.report_sentry.__globals__["_scrub_event"]
+        event = {"request":{"data":"secret"},"user":{"id":"secret"},"breadcrumbs":{"values":[]},"exception":{"values":[{"value":"secret","stacktrace":{"frames":[{"filename":"gateway.py","vars":{"token":"secret"}}]}}]},"contexts":{"runtime":{"name":"python"},"trace":{"trace_id":"1"},"deployment":{"error_code":"x"}}}
+        cleaned = scrubber(event, {}, "post-mutation-failure")
+        encoded = json.dumps(cleaned)
+        self.assertIn("gateway.py", encoded)
+        self.assertNotIn("secret", encoded)
+        self.assertNotIn("runtime", encoded)
 
-        def opener(outbound: object, *, timeout: int) -> StubResponse:
-            captured["outbound"] = outbound
-            captured["timeout"] = timeout
-            return StubResponse()
-
-        with mock.patch.object(
-            DEPLOY,
-            "read_sentry_dsn",
-            return_value="https://public@example.invalid/42",
-        ):
-            reference = DEPLOY.report_sentry(
-                "mutation-failure-after-start",
-                self.context(),
-                opener=opener,
-            )
-        self.assertRegex(reference or "", r"^sentry-event:[0-9a-f]{32}$")
-        self.assertEqual(captured["timeout"], DEPLOY.SENTRY_TIMEOUT_SECONDS)
-        outbound = captured["outbound"]
-        self.assertEqual(outbound.full_url, "https://example.invalid/api/42/envelope/")
-        self.assertIn("sentry_key=public", outbound.headers["X-sentry-auth"])
-
-    def test_transport_failure_does_not_escape(self) -> None:
-        def opener(*_: object, **__: object) -> StubResponse:
-            raise OSError("stub transport failure")
-
-        with mock.patch.object(
-            DEPLOY,
-            "read_sentry_dsn",
-            return_value="https://public@example.invalid/42",
-        ):
-            reference = DEPLOY.report_sentry(
-                "post-mutation-failure",
-                self.context(),
-                opener=opener,
-            )
-        self.assertIsNone(reference)
+    def test_no_exception_or_sdk_failure_never_changes_cd_result(self) -> None:
+        with mock.patch.object(DEPLOY, "read_sentry_dsn", return_value="https://public@example.invalid/42"), \
+             mock.patch.object(DEPLOY, "gateway_digest", side_effect=OSError("stub telemetry failure")):
+            self.assertIsNone(DEPLOY.report_sentry("post-mutation-failure", self.context(), RuntimeError("real")))
+        self.assertIsNone(DEPLOY.report_sentry("post-mutation-failure", self.context()))
 
 
 class GitHubCredentialCoverage(unittest.TestCase):

@@ -879,6 +879,8 @@ script_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)"
   _install_runner_die "deploy_plugin.py must be a regular file beside the installer"
 [[ -d "$script_dir/bears_deploy" && ! -L "$script_dir/bears_deploy" ]] || \
   _install_runner_die "bears_deploy must be a regular directory beside the installer"
+[[ -f "$script_dir/sentry-requirements.lock" && ! -L "$script_dir/sentry-requirements.lock" ]] || \
+  _install_runner_die "sentry-requirements.lock must be a regular file beside the installer"
 for module in "${gateway_modules[@]}"; do
   [[ -f "$script_dir/bears_deploy/$module" && ! -L "$script_dir/bears_deploy/$module" ]] || \
     _install_runner_die "gateway module is missing or unsafe: $module"
@@ -1002,6 +1004,11 @@ printf '%s\n' "$RUNNER_VERSION" >"$RUNNER_DIR/.bears-version"
 _install_runner_gateway_tmp="$(/usr/bin/mktemp -d "${DEPLOY_PACKAGE_ROOT}.XXXXXX")"
 /usr/bin/chown root:root "$_install_runner_gateway_tmp"
 /usr/bin/chmod 0755 "$_install_runner_gateway_tmp"
+# Install only hash-locked wheels into the disposable gateway tree. The final
+# root-owned tree is swapped atomically and is never self-updated by main.
+/usr/bin/python3 -m pip install --disable-pip-version-check --no-deps \
+  --require-hashes --only-binary=:all: --target "$_install_runner_gateway_tmp" \
+  --requirement "$script_dir/sentry-requirements.lock"
 /usr/bin/install -d -o root -g root -m 0755 "$_install_runner_gateway_tmp/bears_deploy"
 for module in "${gateway_modules[@]}"; do
   /usr/bin/install -o root -g root -m 0644 \
@@ -1010,6 +1017,8 @@ done
 /usr/bin/rm -rf -- "$DEPLOY_PACKAGE_ROOT"
 /usr/bin/mv -- "$_install_runner_gateway_tmp" "$DEPLOY_PACKAGE_ROOT"
 _install_runner_gateway_tmp=""
+/usr/bin/chown -R root:root "$DEPLOY_PACKAGE_ROOT"
+/usr/bin/chmod -R go-w "$DEPLOY_PACKAGE_ROOT"
 [[ "$(/usr/bin/stat -c '%U:%G:%a' "$DEPLOY_PACKAGE_ROOT")" == root:root:755 ]] || \
   _install_runner_die "deployment package root is not immutable"
 for module in "${gateway_modules[@]}"; do

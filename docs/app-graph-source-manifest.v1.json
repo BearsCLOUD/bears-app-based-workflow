@@ -50,6 +50,7 @@
     ".github/runner/bears_deploy/state_io.py",
     ".github/runner/deploy_plugin.py",
     ".github/runner/install-runner.sh",
+    ".github/runner/sentry-requirements.lock",
     ".github/runner/test_app_graph_mcp.py",
     ".github/runner/test_app_graph_runtime.py",
     ".github/runner/test_app_solo_route.py",

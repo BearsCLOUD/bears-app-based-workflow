@@ -39,11 +39,11 @@ def main() -> int:
         elif error_code is None and context.phase == "post-mutation":
             error_code = "post-mutation-failure"
         if error_code in ACTIONABLE_ERROR_CODES:
-            report_sentry(error_code, context)
+            report_sentry(error_code, context, exc)
         print(f"deploy-plugin: {exc}", file=sys.stderr)
         return 1
-    except Exception:
-        report_sentry("unhandled-exception", context)
+    except Exception as exc:
+        report_sentry("unhandled-exception", context, exc)
         print("deploy-plugin: unhandled gateway failure", file=sys.stderr)
         return 1
     finally:

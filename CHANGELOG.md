@@ -75,7 +75,7 @@ The format follows Keep a Changelog conventions.
 - Added `app-solo-route` for sequential DIRECT stage resumption through the pre-development workflow, with canonical route validation and loop prevention.
 - Made DIRECT primary and DELEGATED L3 stage-output ownership explicit across research, specification, functional graph, planning, and analysis.
 - Made delegated entry fail closed on mixed DIRECT context and require a fresh task before overlapping target dispatch.
-- Required explicit typed agent dispatch, exact authority-bound packet identity, and stable worker/critic lifecycle reuse.
+- Bound delegated dispatch to exact authority and installed-profile packet identity, using a runtime role selector when exposed without requiring a nonexistent transport field, and preserved stable worker/critic lifecycle reuse.
 - Added dynamically declared profile level and role-kind identity without reintroducing a fixed catalog.
 - Replaced fixed role counts with exact-commit dynamic discovery shared by the installer and production materializer.
 - Moved active delegation packet definitions into one portable plugin-local contract.

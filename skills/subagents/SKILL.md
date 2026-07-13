@@ -17,11 +17,11 @@ The installed `agents/*.toml` files are the active catalog. Profiles that declar
 
 Each profile declares one `Role identity` line in `developer_instructions`: exact profile name, level, and trusted `role_kind`. Discover this metadata from the same regular non-symlink TOML catalog; never maintain a fixed role list or count. A packet role or role kind that differs from the selected profile identity is `PACKET_REJECTED`.
 
-## Trusted authority and typed dispatch
+## Trusted authority and profile-bound dispatch
 
 Before packet construction, resolve one immutable `assignment-authority.v1` through the trusted assignment channel. It must bind the existing `delegation_authority_ref`, `assignment_authority_ref`, `workstream_id`, opaque canonical `repo_ref`, nonempty `trust_boundary`, exact role, agent level, derived role kind, and `security_trigger_ref`. Packet identity must match byte-for-byte. Do not normalize a repo ref, accept an alias, infer authority from the packet, or copy security predicate facts into packet inputs.
 
-Dispatch follows `typed-agent-dispatch.v1`: call the subagent transport with explicit `agent_type=<selected profile>` and `fork_turns=none`. `task_name` is only a task label and never selects or proves a role. If the available transport cannot set an explicit agent type, the exact profile is unavailable, or compatible L3 depth is unavailable, return `DELEGATION_BLOCKED` before spawn and target access. Never substitute `default`, encode the role in `task_name`, or fall back to parent execution.
+Dispatch follows `typed-agent-dispatch.v1`: call the subagent transport with `fork_turns=none` and a `dispatch-packet.v2` whose `role`, `agent_level`, and `role_kind` match the selected installed profile and whose `instruction_refs` include that profile's exact installed `config_file`. `task_name` is only a task label and never selects or proves a role. When the transport exposes `agent_type` or another documented role selector, set it to the selected profile; absence of such a field is not itself a blocker. Before target access, the child resolves only the referenced regular non-symlink profile, verifies its `Role identity` line against the packet, and adopts its `developer_instructions`. If the profile reference is unavailable or mismatched, the child returns `PACKET_REJECTED`; if the exact profile, packet-bound bootstrap, or compatible L3 depth is unavailable, return `DELEGATION_BLOCKED`. Never substitute `default` or fall back to parent execution.
 
 Only `caller_level: L2|solo-l2` may dispatch L3. In app-dev, L1 creates the typed `domain-lane-orchestrator` L2 and never calls this procedure as an L3 recipient.
 
@@ -63,7 +63,7 @@ The caller records the matched rule and concrete fact as `selection_basis`, and 
 
 ## Packet contract
 
-`../../contracts/delegation-packets.v1.json` is the single active definition for `delegation-entry.v1`, `assignment-authority.v1`, `typed-agent-dispatch.v1`, `dispatch-packet.v2`, `result-packet.v1`, and `app-task-dispatch.v1`. Every delegated start uses an explicit agent type and `fork_turns=none`; inherited conversation context and parent execution fallback are forbidden.
+`../../contracts/delegation-packets.v1.json` is the single active definition for `delegation-entry.v1`, `assignment-authority.v1`, `typed-agent-dispatch.v1`, `dispatch-packet.v2`, `result-packet.v1`, and `app-task-dispatch.v1`. Every delegated start binds the exact installed profile through packet identity plus its `config_file` instruction ref and uses `fork_turns=none`; a runtime role selector is additional enforcement when available, not a required transport field. Inherited conversation context and parent execution fallback are forbidden.
 
 Every contract field is required. Dispatch and result preserve `delegation_authority_ref`, `assignment_authority_ref`, `workstream_id`, `assignment_id`, `repo_ref`, `trust_boundary`, `security_trigger_ref`, role, agent level, role kind, and role-specific session identity. Use `[none]` only where the stage permits it. `inputs` may contain paths, assignment ids, evidence ids, or compact fact ids, never raw authority facts, bodies, diffs, logs, command dumps, secrets, credentials, tokens, or production data. Return `PACKET_REJECTED` before dispatch when a field is absent, unbounded, unsanitized, authority-mismatched, role-mismatched, or outside the capability boundary.
 

@@ -27,7 +27,7 @@ Reject mixed-repo records, duplicate queue positions, incomplete tasks, or tasks
 ## Fixed L1 orchestration
 
 1. Group canonical tasks by `repo_ref`; preserve deterministic `queue_sequence` within each wave and never mix repositories in one L2.
-2. Create one persistent `domain-lane-orchestrator` L2 for each independent repo workflow through `typed-agent-dispatch.v1` with `agent_type=domain-lane-orchestrator` and `fork_turns=none`. If explicit agent type or compatible depth is unavailable, return `DELEGATION_BLOCKED`; `task_name`, `default`, or parent execution is not a substitute. A repo-L2 may enter `capacity-wait` before a worker slot is available; it resumes only on a slot-available signal and never polls repeatedly.
+2. Create one persistent `domain-lane-orchestrator` L2 for each independent repo workflow through `typed-agent-dispatch.v1` with `fork_turns=none`; bind `role=domain-lane-orchestrator`, its exact identity tuple, and its installed `config_file` in the packet. When the transport exposes `agent_type` or another documented role selector, set it to `domain-lane-orchestrator`; absence of such a field is not itself a blocker. If the exact profile binding or compatible depth is unavailable, return `DELEGATION_BLOCKED`; `task_name`, `default`, or parent execution is not a substitute. A repo-L2 may enter `capacity-wait` before a worker slot is available; it resumes only on a slot-available signal and never polls repeatedly.
 3. Give each L2 only its repo records, repo cwd/ref, dependency refs, target bounds, completion criteria, and compact capacity state.
 4. Gate a cross-repo dependency only in the dependent repo-L2. Independent repo-L2s continue; never create one global serial queue.
 5. Prevent concurrent mutation where dependency or target overlap exists. Mutation workers have capacity priority; reviewers use remaining capacity.
@@ -47,7 +47,7 @@ L1 never treats `$subagents` as a recipient, never directly dispatches L3, and n
 
 ## App task packet and result
 
-The plugin-local contract defines `delegation-entry.v1`, trusted `assignment-authority.v1`, typed transport `typed-agent-dispatch.v1`, generic `dispatch-packet.v2` and `result-packet.v1`, and nested `app-task-dispatch.v1`. An app-worker dispatch carries the complete app-task object inside `dispatch-packet.v2.stage_payload` and uses explicit `agent_type=app-worker` with `fork_turns=none`.
+The plugin-local contract defines `delegation-entry.v1`, trusted `assignment-authority.v1`, profile-bound transport `typed-agent-dispatch.v1`, generic `dispatch-packet.v2` and `result-packet.v1`, and nested `app-task-dispatch.v1`. An app-worker dispatch carries the complete app-task object inside `dispatch-packet.v2.stage_payload`, binds the installed `app-worker` profile through packet identity and its `config_file` instruction ref, and uses `fork_turns=none`. Set `agent_type=app-worker` only when the transport exposes that selector.
 
 The outer dispatch and result preserve exact `delegation_authority_ref`, `assignment_authority_ref`, opaque authority-resolved `repo_ref`, `workstream_id`, `role_kind: mutation-worker`, `trust_boundary`, `security_trigger_ref: none`, and stable `worker_session_id`; `critic_session_id` is `none`. The dispatch uses `session_action: start|continue`, the result uses `continue|close`, and every continuation goes through `followup_task` with a new assignment id. Reject aliases, identity drift, duplicate starts, stale results, dispatch `close`, result `start`, and closed-session reuse.
 

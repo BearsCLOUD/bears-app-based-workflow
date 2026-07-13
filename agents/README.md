@@ -4,7 +4,7 @@
 
 Each JSON definition owns one bounded behavior, capability requirements, and its result fact. The generated profile is an exact projection, not an independent source.
 
-Every profile declares `Role identity: profile=<name>; level=<L1|L2|L3>; role_kind=<kind>` inside `developer_instructions`. Dispatch is valid only when the transport supplies the same explicit `agent_type`, the packet role and role kind match, and the child starts with `fork_turns=none`. `task_name` is non-authoritative. Missing typed transport fails closed: it stops instead of falling back to an untyped or parent execution path.
+Every profile declares `Role identity: profile=<name>; level=<L1|L2|L3>; role_kind=<kind>` inside `developer_instructions`. Dispatch is valid when the packet identity matches, its instruction refs include the exact installed profile `config_file`, and the child starts with `fork_turns=none`. If the transport exposes `agent_type` or another documented role selector, it must also match; the selector's absence alone is not rejection. `task_name` is non-authoritative. Missing or mismatched profile binding fails closed instead of falling back to `default` or parent execution.
 
 MCP capability policy is rendered under the installed plugin namespace. The plugin owns each server transport; role files only enable or disable its servers and tools, avoiding invalid standalone transport-less MCP definitions.
 

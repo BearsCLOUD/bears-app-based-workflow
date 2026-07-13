@@ -17,7 +17,7 @@
     "outcomes": {
       "missing_or_invalid_delegation_gate": "DIRECT_REQUIRED",
       "overlapping_raw_direct_access": "FRESH_TASK_REQUIRED",
-      "typed_transport_or_profile_unavailable": "DELEGATION_BLOCKED",
+      "profile_binding_or_profile_unavailable": "DELEGATION_BLOCKED",
       "invalid_packet_or_identity": "PACKET_REJECTED"
     }
   },
@@ -34,7 +34,19 @@
     "security_trigger_ref"
   ],
   "typed_dispatch": {
-    "required_agent_type": "<exact dispatch role>",
+    "required_profile_binding": {
+      "packet_role": "<exact dispatch role>",
+      "packet_identity_fields": [
+        "role",
+        "agent_level",
+        "role_kind"
+      ],
+      "profile_instruction_ref": "<installed config_file for exact dispatch role>"
+    },
+    "transport_agent_type": {
+      "required": false,
+      "when_available": "<exact dispatch role>"
+    },
     "task_name_authoritative": false,
     "fork_turns": "none",
     "conversation_inheritance": false,

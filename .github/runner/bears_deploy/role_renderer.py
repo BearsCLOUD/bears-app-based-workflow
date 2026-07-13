@@ -183,8 +183,8 @@ def developer_instructions(definition: dict[str, Any]) -> str:
         "Required plugins: " + (", ".join(plugin_ids) if plugin_ids else "none") + ".",
         "Required MCP servers: " + (", ".join(mcps) if mcps else "none") + ".",
         "",
-        f"Role identity: profile={name}; level={identity['level']}; role_kind={identity['role_kind']}. Before any tool call, require typed dispatch with `agent_type` equal to this profile and packet identity equal to this line; a missing explicit agent type or any identity mismatch is `PACKET_REJECTED`.",
-        "Capability boundary: native tool and plugin requirements are declarative where Codex has no per-agent allowlist; sandbox, typed dispatch, and these instructions remain authoritative. Omitted parent capabilities are not permission to use them.",
+        f"Role identity: profile={name}; level={identity['level']}; role_kind={identity['role_kind']}. Before any target action, require a dispatch packet whose role, agent level, and role kind match this line and whose instruction refs include this exact installed profile; a packet or profile mismatch is `PACKET_REJECTED`. If the transport supplies `agent_type`, it must equal this profile; missing `agent_type` alone is not rejection.",
+        "Capability boundary: native tool and plugin requirements are declarative where Codex has no per-agent allowlist; sandbox, packet-bound profile identity, and these instructions remain authoritative. Omitted parent capabilities are not permission to use them.",
     ]
     for section in SECTIONS:
         title = section.capitalize()

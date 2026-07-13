@@ -50,6 +50,9 @@ class RoleProfileRendererTests(unittest.TestCase):
             self.assertNotIn("mcp_servers", parsed)
             self.assertNotIn("config", parsed)
             self.assertNotIn("raw_toml", parsed)
+            instructions = parsed["developer_instructions"]
+            self.assertIn("missing `agent_type` alone is not rejection", instructions)
+            self.assertNotIn("require typed dispatch with `agent_type`", instructions)
 
     def test_exact_role_capability_matrix(self) -> None:
         def capabilities(name: str):

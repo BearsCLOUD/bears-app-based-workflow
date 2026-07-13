@@ -90,8 +90,8 @@ def build_indexes(root: RepoRoot, source_manifest: dict[str, Any]) -> tuple[dict
                 if ref not in edges: add_edge({"ref": ref, "kind": "evidenced_by", "from_ref": test, "to_ref": evidence}, config["task_ledger"])
     for edge in edges.values():
         if edge["from_ref"] not in entities or edge["to_ref"] not in entities: raise GraphError("DANGLING_REF", "edge endpoint is missing", edge_ref=edge["ref"])
-    dependency = [x for x in edges.values() if x["kind"] == "depends_on" and entities[x["from_ref"]].get("active") and entities[x["to_ref"]].get("active")]
     indegree = {ref: 0 for ref, x in entities.items() if x["kind"] == "task" and x.get("active")}; outgoing: dict[str, list[str]] = defaultdict(list)
+    dependency = [x for x in edges.values() if x["kind"] == "depends_on" and x["from_ref"] in indegree and x["to_ref"] in indegree]
     for edge in dependency: indegree[edge["from_ref"]] += 1; outgoing[edge["to_ref"]].append(edge["from_ref"])
     queue = deque(sorted(x for x, degree in indegree.items() if not degree)); visited = 0
     while queue:
@@ -100,12 +100,27 @@ def build_indexes(root: RepoRoot, source_manifest: dict[str, Any]) -> tuple[dict
             indegree[target] -= 1
             if not indegree[target]: queue.append(target)
     if visited != len(indegree): raise GraphError("GRAPH_CYCLE", "active ledger dependency cycle")
-    events = []
+    events = []; event_refs: dict[str, str] = {}
     for path in event_paths(root, config["event_roots"]):
         event = values[path]; schema = event.get("schema")
         if schema not in {"app-process-event.v1", "app-process-event.v2"}: raise GraphError("JOURNAL_CORRUPT", "unsupported event schema", path=path)
         if schema == "app-process-event.v2" and not path.startswith(config["event_roots"][-1] + "/"): raise GraphError("JOURNAL_CORRUPT", "v2 event is outside v2 journal", path=path)
-        events.append(event)
+        ref, run_ref = event.get("event_ref"), event.get("run_ref")
+        if not isinstance(ref,str) or not isinstance(run_ref,str) or ref in event_refs or Path(path).stem != ref: raise GraphError("JOURNAL_CORRUPT", "event identity is missing or duplicated", path=path)
+        event_refs[ref]=run_ref; events.append(event)
+    indegree={ref:0 for ref in event_refs}; outgoing: dict[str,list[str]]=defaultdict(list)
+    for event in events:
+        for cause in event.get("causal_refs",[]):
+            if cause not in event_refs: raise GraphError("DANGLING_REF", "event cause is missing", event_ref=event["event_ref"], cause_ref=cause)
+            if event_refs[cause] != event["run_ref"]: raise GraphError("JOURNAL_CORRUPT", "cross-run causes are forbidden", event_ref=event["event_ref"])
+            indegree[event["event_ref"]]+=1; outgoing[cause].append(event["event_ref"])
+    queue=deque(sorted(ref for ref,degree in indegree.items() if not degree)); visited=0
+    while queue:
+        ref=queue.popleft(); visited+=1
+        for target in outgoing[ref]:
+            indegree[target]-=1
+            if not indegree[target]: queue.append(target)
+    if visited != len(event_refs): raise GraphError("GRAPH_CYCLE", "process event journal contains a causal cycle")
     links = [{"ref": f"CAUSE:{cause}:{event['event_ref']}", "kind": "causes", "from_ref": cause, "to_ref": event["event_ref"]} for event in events for cause in event.get("causal_refs", [])]
     trace_body = {"schema": "app-traceability-index.v3", "app_id": fmap.get("app_id"), "source_snapshot_digest": snapshot, "generated_from": locators, "roots": sorted(x for x, e in entities.items() if e["kind"] == "spec"), "evidence_sinks": sorted(x for x, e in entities.items() if e["kind"] == "evidence"), "entities": sorted(entities.values(), key=lambda x:x["ref"]), "edges": sorted(edges.values(), key=lambda x:x["ref"]), "replacements": fmap.get("replacements", []), "findings": []}
     process_body = {"schema": "app-process-index.v3", "app_id": fmap.get("app_id"), "workflow_definition_ref": config["workflow"], "workflow_definition_digest": source_digest[config["workflow"]], "source_snapshot_digest": snapshot, "runs": sorted({x["run_ref"] for x in events}), "events": sorted(events, key=lambda x:x["event_ref"]), "links": sorted(links, key=lambda x:x["ref"]), "findings": []}
@@ -122,7 +137,9 @@ def graph_compile(arguments: dict[str, Any]) -> dict[str, Any]:
         source_manifest = manifest(root, require_maintainer=True); lock = open_directory(root, ("docs",)); fcntl.flock(lock, fcntl.LOCK_EX)
         try:
             pointer_raw = read_regular(root, CURRENT_BUILD_PATH, max_bytes=262144, missing=True); pointer = {} if pointer_raw is None else __import__("json").loads(pointer_raw)
-            expected, current = arguments.get("expected_build_ref"), pointer.get("build_ref")
+            legacy_raw = read_regular(root, "docs/app-index-build.v1.json", max_bytes=262144, missing=True)
+            legacy = {} if legacy_raw is None else __import__("json").loads(legacy_raw)
+            expected, current = arguments.get("expected_build_ref"), pointer.get("build_ref", legacy.get("build_ref"))
             if expected is not None and expected != current: raise GraphError("CAS_MISMATCH", "expected build does not match current build", expected=expected, actual=current)
             trace, process, build, context = build_indexes(root, source_manifest)
             _, stable, snapshot = source_snapshot(root, source_manifest["sources"])

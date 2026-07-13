@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.4.0
+
+- Added the seven-dimension `app-functional-map.v3` and native `app-process-event.v2` exact repo-wave lifecycle while retaining v2/v1 read compatibility.
+- Split the graph engine into compiler, store, query, audit, and process modules; fixed ledger dependency direction, superseded planning, whole-branch trace audit, and bidirectional impact traversal.
+- Added immutable build receipts with a separate current pointer plus inode/metadata hash and build/argument query caches that fail closed on drift.
+- Replaced manual Sentry envelopes with the hash-locked official Python SDK, sanitized real traceback capture, and root-owned gateway installation.
+- Kept plugin CI absent and `automation_status=not_run`; live Sentry stack evidence remains `needs-evidence` pending an operator-bootstrapped real autoCD failure.
+
 ## 0.3.5
 
 - Kept the runner installer's one-time receipt migration compatible with current v3/v4 deployment receipts.

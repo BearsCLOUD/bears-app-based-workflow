@@ -17,7 +17,7 @@ Accept canonical `app-stage-handoff.v3` status `spec-ready` or `needs-graph`. Th
 
 In `DIRECT`, the primary creates the stage artifacts and canonical handoff. In `DELEGATED`, the assigned L3 creates them.
 
-The stage creates or updates only `docs/app-functional-map.v2.json` according to `contracts/app-functional-map.v2.schema.json`. It maps stable requirement, functionality, behavior, state, API, data, integration, and error refs; typed relations; seven-dimension coverage; and replacements. Relation kinds must exist in the workflow edge registry. `depends_on` is directed from dependent to prerequisite.
+The stage creates or updates only `docs/app-functional-map.v3.json` according to `contracts/app-functional-map.v3.schema.json`. It maps stable requirement, functionality, behavior, state, API, data, integration, and error refs; typed relations; exact seven-dimension coverage; and replacements. `not-applicable` requires a rationale and empty refs. Relation kinds must exist in the workflow edge registry. `depends_on` is directed from dependent to prerequisite.
 
 After mapping, invoke `$app-context-index` to rebuild the traceability and process indexes. Return `graph-ready` only with a current digest, `functional_map_ref`, `functionality_refs`, `graph_entity_refs`, `coverage_refs`, and `replacement_refs`.
 
@@ -37,7 +37,7 @@ Every executable ledger task still includes:
 
 ## Mutation boundary
 
-This skill is the sole semantic writer of `docs/app-functional-map.v2.json`. `$app-context-index` alone owns the two derived indexes. This skill must not create or mutate executable ledger tasks; `app-plan` owns planning fields, `app-dev` owns authorized execution fields, and `app-analyze` reads semantic and index state.
+This skill is the sole semantic writer of `docs/app-functional-map.v3.json`. Historical v2 maps are read-only. `$app-context-index` alone owns the two derived indexes. This skill must not create or mutate executable ledger tasks; `app-plan` owns planning fields, `app-dev` owns authorized execution fields, and `app-analyze` reads semantic and index state.
 
 ## Stage rules
 

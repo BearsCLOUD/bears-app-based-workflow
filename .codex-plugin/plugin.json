@@ -1,6 +1,6 @@
 {
   "name": "bears-app-based-workflow",
-  "version": "0.3.5",
+  "version": "0.4.0",
   "description": "Bears app workflow plugin with deterministic graph compilation, immutable process journal, semantic audits, repo-scoped execution, and audited convergence.",
   "author": {
     "name": "BearsCLOUD",

@@ -21,7 +21,7 @@ For work already classified `DELEGATED`, act as the solo L2 analogue: decompose 
 
 In `DIRECT`, the primary creates the stage artifacts and canonical handoff. In `DELEGATED`, the assigned L3 creates them.
 
-The stage writes `waves/<wave-id>/plan.md` and creates or updates only executable `tasks` in `docs/app-task-ledger.v2.json`. It never writes `docs/app-functional-map.v2.json` or either derived index.
+The stage writes `waves/<wave-id>/plan.md` and creates or updates only executable `tasks` in `docs/app-task-ledger.v2.json`. It never writes `docs/app-functional-map.v3.json` or either derived index.
 
 For each specified requirement it records functional-map revision, source digest, index revision, coverage, and `built`, `partial`, `missing`, or `drifted` implementation state. Use the read-only `app-graph` tools for declared impact, dependencies, and topological task layers. Create or update canonical executable ledger tasks for `partial`, `missing`, or `drifted` behavior. Each task carries complete trace refs and the `ledger_update_contract` required by `app-dev`.
 

@@ -1,12 +1,14 @@
 <!-- >>> bears-app-based-workflow graph behavior (managed by CD) -->
-## Bears app graph behavior
+# Bears app graph behavior
 
-- At the start of app workflow work, verify the opted-in source manifest, current build receipt, source snapshot digest, journal digest, and graph state.
-- Use graph dependencies, impact results, and the topological task plan; do not infer dependency order from prose.
-- On structured-source or journal drift, invoke `app-graph-compile` with the current build as its compare-and-swap expectation.
-- Record only stage, task, review, and remediation events that actually occurred. Before every handoff run the process audit; at functional-graph, plan, and analyze boundaries also run the semantic, planning, or convergence trace audit.
-- Route findings through canonical `needs-*` statuses. `audited` is the only successful terminal status and means semantic/process consistency, not product acceptance; autoCI remains the acceptance owner.
-- Respect ownership: the DIRECT primary or repo-L2 may append journal events; an L3 worker never writes the journal.
-- Use `app-graph-maintainer` only when `maintainer_enabled=true` in the exact repository manifest.
-- Treat cursors as opaque. Continue pagination until no cursor remains, and never treat a truncated result as complete.
+- At app workflow start, verify the opted-in source manifest, current build receipt, source snapshot digest, journal digest, and graph state.
+- Assign every DIRECT stage to the DIRECT primary and every DELEGATED stage to one persistent repo-L2.
+- Dispatch L3 work only through $subagents and keep each assignment bounded to its declared result.
+- Use graph dependencies, impact results, and the topological plan for work order.
+- On structured-source or journal drift, invoke app-graph-compile with the current build as its compare-and-swap expectation.
+- Record only events that occurred, and let only the DIRECT primary or persistent repo-L2 append them.
+- At app-analyze, compare the exact documentation, graph, ledger, implementation refs, and process records for logical correspondence.
+- Route every finding through the workflow registry and emit audited only for complete semantic and process consistency.
+- Use app-graph-maintainer only when maintainer_enabled=true in the exact repository manifest.
+- Treat cursors as opaque and continue pagination until no cursor remains.
 <!-- <<< bears-app-based-workflow graph behavior (managed by CD) -->

@@ -1,50 +1,88 @@
 # Bears App-Based Workflow
 
-A Codex plugin for structured app workflow stages, deterministic trace/process indexes, immutable process events, bounded graph queries, semantic audits, and repo-scoped implementation orchestration.
+Bears App-Based Workflow is a Codex plugin for deterministic documentation-to-implementation routing, graph-bound planning, persistent repository orchestration, and semantic correspondence analysis.
 
-## Graph Workflow v4
+## Workflow refactor v5
 
-`contracts/app-workflow-definition.v2.json` is the single route, ownership, audit, and edge registry. Every inter-stage transfer uses `app-stage-handoff.v3`. New semantic records use `app-functional-map.v3`; every active requirement has exactly seven dimensions. New process records use `app-process-event.v2`; v2 runs bind one exact repository, wave, and task set. Historical map v2 and event v1 files remain read-only.
+The workflow is defined by contracts/app-workflow-definition.v3.json and uses app-stage-handoff.v4 records. Structured semantics use app-functional-map.v4, work queues use app-task-ledger.v3, process records use app-process-event.v3, and app-analyze results use app-semantic-analysis-result.v1.
 
-`app-context-index` is a facade over the deterministic `app-graph-compile` operation. An opted-in repository declares exact structured sources and tracked paths in `docs/app-graph-source-manifest.v1.json`. The compiler reads semantics only from the functional map, task ledger, workflow definition, and immutable journal. It publishes:
+app-context-index reconciles an opted-in repository from its source manifest. app-graph-compile publishes immutable build receipts, rebuildable traceability and process indexes, and one current-build pointer. Every stage works from the exact build, source snapshot digest, and journal digest carried by its handoff.
 
-- `docs/app-traceability-index.v3.json`;
-- `docs/app-process-index.v3.json`;
-- immutable `docs/app-index-builds/v1/<build-ref>.json` receipts;
-- `docs/app-index-current.v1.json`, the separate current-build pointer;
-- `docs/app-context-index-result.v1.json`.
+## Ownership
 
-Process v2 events are immutable files at `docs/app-process-events/v2/<run-ref>/<event-ref>.json`. Re-recording identical content is a no-op; a different payload at the same key is an error. Remediation always uses a new run linked to the reviewed run; original tasks are not reopened.
+| Mode | Stage owner | Journal writer | L3 use |
+| --- | --- | --- | --- |
+| DIRECT | The DIRECT primary owns every app-* stage. | DIRECT primary | Not used for stage ownership. |
+| DELEGATED | One persistent repo-L2 owns every app-* stage. | Persistent repo-L2 | The repo-L2 dispatches assignment-bounded work only through $subagents. |
 
-This plugin has no CI pipeline. Authored scenarios are not acceptance evidence, `automation_status=not_run` remains explicit, and `audited` cannot be emitted when required evidence was not run.
+An L3 worker returns only its bounded result. It does not own a stage, choose the next workflow route, or append process records.
 
-## MCP servers
+## Stage sequence
 
-`.mcp.json` registers:
+| Stage | Required outcome |
+| --- | --- |
+| app-constitution | Establish durable purpose, principles, and authority boundaries. |
+| app-research | Resolve sources, facts, constraints, and open questions. |
+| app-specify | Close product decisions and state decision-complete requirements. |
+| app-functional-graph | Map requirements, seven dimensions, relations, and source refs. |
+| app-plan | Produce dependency-ordered, repository-bounded ledger work. |
+| app-dev | Orchestrate ready ledger work, immutable review, and remediation. |
+| app-analyze | Compare documentation, graph, ledger, implementation refs, and process records for logical correspondence. |
 
-- `app-graph`: read-only dependency, impact, trace, topological-plan, workflow-state, process-audit, and trace-audit tools;
-- `app-graph-maintainer`: only `graph_compile` and `process_record_event`.
+app-analyze is semantic agent analysis of documentation correspondence. It produces structured findings and a canonical route; it does not evaluate runtime product behavior or grant product outcome authority.
 
-Both servers implement the MCP `2025-11-25` and `2025-06-18` initialize/initialized lifecycle. Pagination uses opaque snapshot-bound cursors. The maintainer requires `maintainer_enabled=true` and has no arbitrary path, shell, network, Git, credential, source, or ledger mutation surface.
+## Seven dimensions
 
-## Stage boundaries
+Every active requirement maps each dimension or records a sourced not-applicable rationale.
 
-- `app-functional-graph` runs the semantic trace profile.
-- `app-plan` runs the planning trace profile.
-- `app-analyze` runs convergence trace and terminal process profiles.
-- Before every handoff, the owner validates the transition, records the event that actually occurred, and compiles the resulting build.
-- Only a DIRECT primary or repo-L2 writes journal events; L3 workers do not.
+| Dimension | Meaning |
+| --- | --- |
+| behavior | Observable actor or system response and its governing rule. |
+| dependency | Prerequisites, ordering, constraints, and affected capabilities. |
+| state | Modes, transitions, invariants, and persistence boundaries. |
+| api | Callable interfaces, protocols, inputs, outputs, and compatibility rules. |
+| data | Entities, fields, ownership, lifecycle, and protection requirements. |
+| integration | Boundaries and message flow between internal or external systems. |
+| error | Failure conditions, recovery behavior, and user-visible consequences. |
 
-Findings route to `needs-research`, `needs-spec`, `needs-graph`, `needs-plan`, or `blocked` according to the workflow definition.
+## Deterministic routes
 
-## CD-managed global instructions
+The workflow definition is the only route registry.
 
-The exact pinned plugin payload contains `assets/codex-home-graph-instructions.md`. Promotion reconciles its marked block into `$CODEX_HOME/AGENTS.md` after marketplace and role publication but before the durable deployment receipt. Unmanaged bytes are preserved. Duplicate or malformed markers, symlinks, non-regular files, or receipted block drift fail closed. The promotion intent retains original and desired bytes for recovery; disable removes only the receipted block and its owned separator.
+| Status | Next stage |
+| --- | --- |
+| constitution-ready, needs-research | app-research |
+| research-ready, needs-spec | app-specify |
+| spec-ready, needs-graph | app-functional-graph |
+| graph-ready, waiting, needs-plan | app-plan |
+| plan-ready, ready | app-dev |
+| implemented, no-work | app-analyze |
+| audited, blocked | none |
 
-## CD gateway updates
+Findings route as follows:
 
-After the one-time privileged promoter bootstrap, each authoritative `main` promotion first rebuilds the exact-revision deployment gateway and its hash-locked dependencies through the fixed root-owned promoter. Repository gateway code is installed as immutable data and executes only as non-root `ai1`; it is never executed as root. Failed or interrupted activation restores the prior gateway. Only changes to the privileged promoter or its narrow sudo authorization require a new operator bootstrap.
+| Finding class | Route |
+| --- | --- |
+| Missing source | needs-research |
+| Product or decision conflict | needs-spec |
+| Semantic, reference, or cycle gap | needs-graph |
+| Task, implementation, evidence, review, or remediation gap | needs-plan |
+| Credential, access, or explicit operator stop | blocked |
+
+audited is the only successful terminal workflow status. It means that the exact documentation and process snapshot is logically consistent: semantic analysis is complete, contradictions and unmapped decisions or requirements are absent, and no routable finding or open remediation remains.
+
+## Graph surfaces
+
+The read-only app-graph MCP provides bounded dependency, impact, trace, ordering, workflow-state, and diagnostic queries. The app-graph-maintainer MCP exposes only graph_compile and process_record_event, and only when maintainer_enabled=true in the exact repository manifest.
+
+Graph dependencies and the topological plan determine work order. Pagination cursors are opaque and snapshot-bound; a decision query continues until no cursor remains.
+
+## Managed deployment
+
+assets/codex-home-graph-instructions.md is the exact managed instruction block promoted into $CODEX_HOME/AGENTS.md. Promotion preserves unmanaged bytes, records the desired revision, and fails closed on unsafe filesystem state or receipt drift.
+
+The repository-owned deployment gateway activates one authoritative main revision at a time, runs repository gateway code as non-root ai1, and restores the prior gateway when activation cannot converge.
 
 ## Version
 
-Graph Workflow v4 is released as `0.4.2`. A `1.0.0` release requires an explicit user request.
+Workflow refactor v5 documents the next contract surface. The currently published plugin version remains 0.4.2 until a separately authorized release updates it.

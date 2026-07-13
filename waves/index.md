@@ -1,5 +1,5 @@
 # App Waves
 
-| Wave | Status | Research | Specification | Plan | Analysis |
+| Wave | Artifact state | Research | Specification | Plan | Analysis |
 | --- | --- | --- | --- | --- | --- |
-| `graph-workflow-v2` | implemented | `waves/graph-workflow-v2/research.md` | `waves/graph-workflow-v2/spec.md` | `waves/graph-workflow-v2/plan.md` | `waves/graph-workflow-v2/analysis.md` |
+| workflow-refactor-v5 | current | waves/workflow-refactor-v5/research.md | waves/workflow-refactor-v5/spec.md | waves/workflow-refactor-v5/plan.md | waves/workflow-refactor-v5/analysis.md |

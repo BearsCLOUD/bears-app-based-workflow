@@ -1,10 +1,15 @@
 # Bears App-Based Workflow Router
 
-Short router for this plugin repository. Shared execution, delegation, and completion rules stay in `/srv/bears/contracts/developer_instructions_contract.md` and the injected root instruction chain.
+Shared execution, delegation, and completion rules stay in /srv/bears/contracts/developer_instructions_contract.md and the injected root instruction chain.
 
-- This repo owns plugin procedures in `skills/`, unique role behavior in `agents/`, plugin metadata, and the explicit `./install` entrypoint.
-- The active caller instruction chain classifies each coherent workstream as `DIRECT` or `DELEGATED` before this plugin is invoked. `DIRECT` work remains with the primary and never enters `skills/subagents`.
-- For `DELEGATED` work, `app-dev` owns fixed L1-to-L2 orchestration and L2 decomposition. `skills/subagents` owns deterministic L3 selection and assignment-bounded dispatch.
-- Other `app-*` skills own only stage goals, payloads, outputs, and transitions.
-- Keep plugin instructions and documentation in English. Do not move workspace rules or shared invariants into this repo.
-- Do not add agent-executable completion mechanics, manual evidence commands, or parent execution fallback. Explicitly authorized machine automation belongs only in `.github/`.
+- Keep plugin procedures in skills/, unique role behavior in agents/, plugin metadata, and the explicit ./install entrypoint.
+- Classify each coherent workstream as DIRECT or DELEGATED before invoking this plugin.
+- Keep every DIRECT app-* stage with the DIRECT primary.
+- Keep every DELEGATED app-* stage with one persistent repo-L2.
+- Dispatch L3 assignments only through $subagents, and keep L3 work bounded to the assigned result.
+- Let only the DIRECT primary or persistent repo-L2 choose routes and append process records.
+- Make app-analyze compare documentation and linked records for logical correspondence.
+- Emit audited only when semantic and process consistency is complete on the exact snapshot.
+- Keep plugin instructions and documentation in English.
+- Keep workspace rules and shared invariants outside this repository.
+- Keep agent-executable completion mechanics and parent execution fallback out of plugin documentation.

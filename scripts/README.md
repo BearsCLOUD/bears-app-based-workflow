@@ -1,15 +1,23 @@
-# App graph runtime modules
+# App Graph Runtime Modules
 
-- `app_graph_engine.py` is the compatibility facade and preserves public imports and tool names.
-- `app_graph_store.py` owns safe source loading, digests, cursors, and drift-aware caches.
-- `app_graph_compiler.py` owns deterministic CAS publication and immutable build receipts.
-- `app_graph_process.py` owns native v2 immutable event recording and exact repo-wave lifecycle checks.
-- `app_graph_query.py` owns bounded dependency, bidirectional impact, trace, ordering, and workflow-state queries.
-- `app_graph_audit.py` owns whole-branch trace and exact-run process audits.
-- `app_graph_mcp.py` exposes either the read-only `app-graph` surface or the two-tool `app-graph-maintainer` surface through lifecycle-correct stdio MCP.
+## Module ownership
 
-All modules consume the single store invariant set. The facade exposes the unchanged `execute_tool` dispatcher; callers do not import implementation modules.
+- app_graph_engine.py preserves public imports and dispatches supported tool calls.
+- app_graph_store.py owns bounded source loading, digests, snapshot cursors, and drift-aware caches.
+- app_graph_compiler.py owns deterministic compare-and-swap publication and immutable build receipts.
+- app_graph_process.py owns native immutable event recording and exact repository-wave lifecycle rules.
+- app_graph_query.py owns bounded dependency, bidirectional impact, trace, ordering, workflow-state, and diagnostic queries.
+- app_graph_mcp.py exposes the read-only app-graph surface or the two-operation app-graph-maintainer surface through lifecycle-correct stdio MCP.
+- role_profile_renderer.py renders deterministic role profiles from authoritative JSON definitions.
 
-The compiler reads structured semantics only from the workflow definition, functional map, task ledger, and event journal. Tracked code/test/evidence files contribute digests but never inferred meaning. Duplicate or dangling refs, unknown edges, corrupt events, path escape, symlinks, stale CAS, and resource limits fail closed before the build receipt is published.
+## Runtime boundary
 
-Limits are 64 KiB request, 16 KiB response, 50 default/200 maximum page size, 8 default/32 maximum traversal depth, 2,048 sources/64 MiB aggregate input, 25,000 entities, 100,000 edges, 20,000 events, and 50,000 process links. Semantic audits never execute tests and never produce product acceptance.
+The compiler reads structured meaning only from the workflow definition, functional map, task ledger, and native process journal. Tracked implementation and evidence artifacts contribute digests but never inferred semantics.
+
+Duplicate refs, dangling refs, unknown edges, corrupt events, path escape, symlinks, stale compare-and-swap expectations, and resource-limit violations fail closed before publication.
+
+The runtime supplies exact graph and process context. app-analyze remains agent-authored semantic analysis of documentation correspondence and is not a runtime product evaluator.
+
+## Bounds
+
+Requests are limited to 64 KiB and responses to 16 KiB. Page size is 50 by default and 200 at most. Traversal depth is 8 by default and 32 at most. Input is limited to 2,048 sources and 64 MiB, with at most 25,000 entities, 100,000 edges, 20,000 events, and 50,000 process links.

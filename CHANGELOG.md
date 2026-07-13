@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.5
+
+- Kept the runner installer's one-time receipt migration compatible with current v3/v4 deployment receipts.
+
 ## 0.3.4
 
 - Preserved the normalized activation failure cause after successful CD rollback.

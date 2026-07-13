@@ -107,7 +107,9 @@ IMPORT_STAGE = f".{PLUGIN}.legacy-state-import.stage"
 IMPORT_TOMBSTONE = f"{PLUGIN}.legacy-state-imported.json"
 IMPORT_TOMBSTONE_SCHEMA = "bears-plugin-deploy-state-import.v1"
 LEGACY_RECEIPT_SCHEMA = "bears-plugin-deploy-state.v1"
-DEPLOY_RECEIPT_SCHEMA = "bears-plugin-deploy-state.v2"
+PRIOR_RECEIPT_SCHEMA = "bears-plugin-deploy-state.v2"
+GRAPH_RECEIPT_SCHEMA = "bears-plugin-deploy-state.v3"
+DEPLOY_RECEIPT_SCHEMA = "bears-plugin-deploy-state.v4"
 REPOSITORY = "https://github.com/BearsCLOUD/bears-app-based-workflow.git"
 LEGACY_RECEIPT_PATH = f"{LEGACY_STATE_DIR}/{RECEIPT}"
 MAXIMUM = 64 * 1024
@@ -129,6 +131,11 @@ ROLE_RECEIPT_FIELDS = {
     "role_receipt_sha256",
     "role_source_blobs",
     "role_profiles",
+}
+GRAPH_RECEIPT_FIELDS = {
+    "graph_template_sha256",
+    "graph_block_sha256",
+    "graph_separator_added",
 }
 ROLE_NAMES = (
     "app-worker",
@@ -473,30 +480,66 @@ def validate_destination_receipt(payload: bytes) -> dict[str, object]:
         if set(receipt) != RECEIPT_FIELDS:
             fail("new v1 deployment receipt shape is invalid")
         return receipt
-    if schema != DEPLOY_RECEIPT_SCHEMA or set(receipt) != RECEIPT_FIELDS | ROLE_RECEIPT_FIELDS:
+    if schema not in {PRIOR_RECEIPT_SCHEMA, GRAPH_RECEIPT_SCHEMA, DEPLOY_RECEIPT_SCHEMA}:
         fail("new deployment receipt schema or shape is invalid")
+
+    expected_fields = RECEIPT_FIELDS | ROLE_RECEIPT_FIELDS
+    if schema in {GRAPH_RECEIPT_SCHEMA, DEPLOY_RECEIPT_SCHEMA}:
+        expected_fields |= GRAPH_RECEIPT_FIELDS
+    if set(receipt) != expected_fields:
+        fail("new deployment receipt schema or shape is invalid")
+    if schema in {GRAPH_RECEIPT_SCHEMA, DEPLOY_RECEIPT_SCHEMA} and (
+        not isinstance(receipt.get("graph_template_sha256"), str)
+        or not re.fullmatch(r"[0-9a-f]{64}", receipt["graph_template_sha256"])
+        or not isinstance(receipt.get("graph_block_sha256"), str)
+        or not re.fullmatch(r"[0-9a-f]{64}", receipt["graph_block_sha256"])
+        or not isinstance(receipt.get("graph_separator_added"), bool)
+    ):
+        fail("new deployment receipt graph identity is invalid")
 
     generation = receipt.get("role_generation")
     blobs = receipt.get("role_source_blobs")
     profiles = receipt.get("role_profiles")
+    profile_names = tuple(
+        record.get("name")
+        for record in profiles
+        if isinstance(record, dict) and isinstance(record.get("name"), str)
+    ) if isinstance(profiles, list) else ()
     expected_sources = {
         ".codex-plugin/plugin.json",
         "agents/README.md",
-        *(f"agents/{name}.toml" for name in ROLE_NAMES),
+        *(f"agents/{name}.toml" for name in profile_names),
     }
+    legacy_jsonless = receipt.get("version") == "0.3.0" or bool(
+        isinstance(receipt.get("version"), str)
+        and re.fullmatch(r"\d+\.\d+\.\d+\+codex\.\d{14}", receipt["version"])
+    )
+    has_definition_sources = isinstance(blobs, dict) and any(
+        path.startswith("role-definitions/") for path in blobs
+    )
+    if schema == DEPLOY_RECEIPT_SCHEMA and (has_definition_sources or not legacy_jsonless):
+        expected_sources.update(
+            {
+                "role-definitions/capability-catalog.v1.json",
+                *(f"role-definitions/{name}.json" for name in profile_names),
+            }
+        )
     if (
         not isinstance(generation, str)
         or not re.fullmatch(r"[0-9a-f]{64}", generation)
-        or receipt.get("role_count") != len(ROLE_NAMES)
+        or not isinstance(receipt.get("role_count"), int)
+        or isinstance(receipt.get("role_count"), bool)
+        or not 1 <= receipt["role_count"] <= 64
         or receipt.get("role_catalog_sha256") != generation
         or not isinstance(receipt.get("role_receipt_sha256"), str)
         or not re.fullmatch(r"[0-9a-f]{64}", receipt["role_receipt_sha256"])
         or not isinstance(blobs, dict)
         or set(blobs) != expected_sources
         or not isinstance(profiles, list)
-        or len(profiles) != len(ROLE_NAMES)
+        or len(profiles) != receipt["role_count"]
+        or profile_names != tuple(sorted(set(profile_names)))
     ):
-        fail("new v2 deployment receipt role identity is invalid")
+        fail("new deployment receipt role identity is invalid")
     for relative, record in blobs.items():
         if (
             not isinstance(record, dict)
@@ -507,7 +550,7 @@ def validate_destination_receipt(payload: bytes) -> dict[str, object]:
             or not re.fullmatch(r"[0-9a-f]{64}", record["sha256"])
         ):
             fail(f"new v2 deployment receipt role blob is invalid: {relative}")
-    for name, record in zip(ROLE_NAMES, profiles, strict=True):
+    for name, record in zip(profile_names, profiles, strict=True):
         source_record = blobs[f"agents/{name}.toml"]
         expected_path = f"{STATE_DIR}/role-generations/{generation}/{name}.toml"
         if (

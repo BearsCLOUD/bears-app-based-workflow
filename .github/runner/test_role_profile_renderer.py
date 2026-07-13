@@ -45,7 +45,9 @@ class RoleProfileRendererTests(unittest.TestCase):
             self.assertFalse(parsed["apps"]["_default"]["enabled"])
             if parsed["sandbox_mode"] == "workspace-write":
                 self.assertFalse(parsed["sandbox_workspace_write"]["network_access"])
-            self.assertEqual({"app-graph", "app-graph-maintainer"}, set(parsed["mcp_servers"]))
+            plugin = parsed["plugins"]["bears-app-based-workflow@bears-app-based-workflow"]
+            self.assertEqual({"app-graph", "app-graph-maintainer"}, set(plugin["mcp_servers"]))
+            self.assertNotIn("mcp_servers", parsed)
             self.assertNotIn("config", parsed)
             self.assertNotIn("raw_toml", parsed)
 

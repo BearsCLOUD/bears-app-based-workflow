@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.4.1
+
+- Rendered role-local MCP policy under the installed plugin namespace so Codex inherits the plugin transport instead of rejecting transport-less standalone server tables.
+- Accepted standard MCP request metadata on `tools/list` while continuing to reject unsupported pagination cursors.
+- Kept plugin CI absent and `automation_status=not_run`.
+
 ## 0.4.0
 
 - Added the seven-dimension `app-functional-map.v3` and native `app-process-event.v2` exact repo-wave lifecycle while retaining v2/v1 read compatibility.

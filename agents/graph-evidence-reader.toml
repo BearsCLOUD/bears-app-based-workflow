@@ -13,15 +13,13 @@ view_image = false
 [apps._default]
 enabled = false
 
-[mcp_servers."app-graph"]
+[plugins."bears-app-based-workflow@bears-app-based-workflow".mcp_servers."app-graph"]
 enabled = true
-required = true
 enabled_tools = ["dependency_slice", "graph_diagnostics", "graph_trace", "impact_analysis", "process_audit", "topological_plan", "trace_audit", "workflow_state"]
 disabled_tools = []
 
-[mcp_servers."app-graph-maintainer"]
+[plugins."bears-app-based-workflow@bears-app-based-workflow".mcp_servers."app-graph-maintainer"]
 enabled = false
-required = false
 enabled_tools = []
 disabled_tools = ["graph_compile", "process_record_event"]
 

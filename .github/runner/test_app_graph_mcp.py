@@ -50,5 +50,13 @@ class AppGraphMcpTests(unittest.TestCase):
         replies = self.initialized({"jsonrpc":"2.0","id":2,"method":"tools/list","params":{}})
         self.assertTrue(all(len(json.dumps(item, separators=(",", ":")).encode()) <= 16 * 1024 for item in replies))
 
+    def test_tools_list_accepts_request_metadata_but_not_a_cursor(self) -> None:
+        replies = self.initialized(
+            {"jsonrpc":"2.0","id":2,"method":"tools/list","params":{"_meta":{"progressToken":"startup"}}},
+            {"jsonrpc":"2.0","id":3,"method":"tools/list","params":{"cursor":"unexpected"}},
+        )
+        self.assertIn("tools", replies[1]["result"])
+        self.assertEqual(-32602, replies[2]["error"]["code"])
+
 
 if __name__ == "__main__": unittest.main()

@@ -9,7 +9,7 @@ from typing import Any
 from app_graph_engine import GraphError, MAX_REQUEST_BYTES, MAX_RESPONSE_BYTES, execute_tool
 
 SUPPORTED_PROTOCOLS = ("2025-11-25", "2025-06-18")
-SERVER_VERSION = "0.4.0"
+SERVER_VERSION = "0.4.1"
 
 STR = {"type": "string", "minLength": 1}
 CURSOR = {"type": "string", "description": "Opaque snapshot/query-bound continuation token."}
@@ -117,6 +117,17 @@ def _tool_result(payload: dict[str, Any], *, error: bool = False) -> dict[str, A
     return result
 
 
+def _list_params_valid(params: Any) -> bool:
+    """Accept MCP request metadata while rejecting unsupported pagination."""
+    if params is None:
+        return True
+    if not isinstance(params, dict) or set(params) - {"cursor", "_meta"}:
+        return False
+    if params.get("cursor") is not None:
+        return False
+    return "_meta" not in params or isinstance(params["_meta"], dict)
+
+
 def _emit(response: dict[str, Any]) -> None:
     raw = json.dumps(response, ensure_ascii=False, separators=(",", ":")).encode()
     if len(raw) > MAX_RESPONSE_BYTES:
@@ -153,7 +164,7 @@ def main() -> int:
         if not initialized: _emit(_rpc_error(identifier, -32002, "server is not initialized")); continue
         if method == "ping": result: Any = {}
         elif method == "tools/list":
-            if request.get("params", {}) not in ({}, None): _emit(_rpc_error(identifier, -32602, "tools/list params must be empty")); continue
+            if not _list_params_valid(request.get("params")): _emit(_rpc_error(identifier, -32602, "invalid tools/list params")); continue
             result = {"tools": _tools(maintainer)}
         elif method == "tools/call":
             params = request.get("params")

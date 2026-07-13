@@ -6,6 +6,8 @@ Each JSON definition owns one bounded behavior, capability requirements, and its
 
 Every profile declares `Role identity: profile=<name>; level=<L1|L2|L3>; role_kind=<kind>` inside `developer_instructions`. Dispatch is valid only when the transport supplies the same explicit `agent_type`, the packet role and role kind match, and the child starts with `fork_turns=none`. `task_name` is non-authoritative. Missing typed transport fails closed: it stops instead of falling back to an untyped or parent execution path.
 
+MCP capability policy is rendered under the installed plugin namespace. The plugin owns each server transport; role files only enable or disable its servers and tools, avoiding invalid standalone transport-less MCP definitions.
+
 The explicit `./install` entrypoint registers the discovered profiles through `config_file` entries in `$CODEX_HOME/config.toml`. Removed names are not registered and have no compatibility aliases; prior receipt ownership is required before a managed registration can be retired. Run the installer after profile changes and start a new task so Codex loads the current registrations.
 
 `app-dev` keeps one persistent repo-L2 queue per repository. Each repo-wave session uses one `app-worker`, receives one current canonical task at a time, and closes with a fresh repo-local immutable review. Review findings enter the same repository as new remediation tasks rather than reopening terminal tasks.

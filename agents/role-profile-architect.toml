@@ -16,15 +16,13 @@ enabled = false
 [sandbox_workspace_write]
 network_access = false
 
-[mcp_servers."app-graph"]
+[plugins."bears-app-based-workflow@bears-app-based-workflow".mcp_servers."app-graph"]
 enabled = false
-required = false
 enabled_tools = []
 disabled_tools = ["dependency_slice", "graph_diagnostics", "graph_trace", "impact_analysis", "process_audit", "topological_plan", "trace_audit", "workflow_state"]
 
-[mcp_servers."app-graph-maintainer"]
+[plugins."bears-app-based-workflow@bears-app-based-workflow".mcp_servers."app-graph-maintainer"]
 enabled = false
-required = false
 enabled_tools = []
 disabled_tools = ["graph_compile", "process_record_event"]
 

@@ -14,13 +14,14 @@ from typing import Any
 
 
 PLUGIN_ID = "bears-app-based-workflow"
+PLUGIN_CONFIG_ID = f"{PLUGIN_ID}@{PLUGIN_ID}"
 DEFINITION_SCHEMA = "app-role-profile-definition.v1"
 CATALOG_SCHEMA = "app-role-capability-catalog.v1"
 SECTIONS = ("allowed", "forbidden", "required", "ask", "escalate", "conflict", "acceptance", "result", "example")
 NAME_RE = re.compile(r"[a-z][a-z0-9-]{0,63}")
 SAFE_TOP_LEVEL = {
     "name", "description", "model", "model_reasoning_effort", "sandbox_mode",
-    "developer_instructions", "allow_login_shell", "tools", "apps", "mcp_servers",
+    "developer_instructions", "allow_login_shell", "tools", "apps", "plugins",
     "skills", "sandbox_workspace_write",
 }
 
@@ -218,7 +219,7 @@ def render_profile(definition: dict[str, Any], catalog: dict[str, Any], version:
         for server_id in sorted(catalog["mcp_servers"]):
             enabled = requested_servers.get(server_id, set())
             all_tools = set(catalog["mcp_servers"][server_id]["tools"])
-            lines.extend(["", f"[mcp_servers.{_quoted(server_id)}]", f"enabled = {'true' if enabled else 'false'}", f"required = {'true' if enabled else 'false'}", "enabled_tools = [" + ", ".join(_quoted(tool) for tool in sorted(enabled)) + "]", "disabled_tools = [" + ", ".join(_quoted(tool) for tool in sorted(all_tools - enabled)) + "]"])
+            lines.extend(["", f"[plugins.{_quoted(PLUGIN_CONFIG_ID)}.mcp_servers.{_quoted(server_id)}]", f"enabled = {'true' if enabled else 'false'}", "enabled_tools = [" + ", ".join(_quoted(tool) for tool in sorted(enabled)) + "]", "disabled_tools = [" + ", ".join(_quoted(tool) for tool in sorted(all_tools - enabled)) + "]"])
         enabled_skills = {skill for plugin in definition["capability_requirements"]["plugins"] for skill in plugin["skills"]}
         for skill in sorted(catalog["skills"]):
             lines.extend(["", "[[skills.config]]", f"path = {_quoted('../skills/' + skill + '/SKILL.md')}", f"enabled = {'true' if skill in enabled_skills else 'false'}"])

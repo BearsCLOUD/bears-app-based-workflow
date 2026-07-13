@@ -1,51 +1,48 @@
 ---
 name: app-functional-graph
-description: Maintain decision-complete app semantic mappings and typed dependency relations. Use when requirements need functionality, behavior, state, API, data, integration, or error mapping before context indexing and planning.
+description: Maintain decision-complete app semantics and typed dependency relations before planning.
 ---
 
 # App Functional Graph
 
-## Delegation first
+## Ownership
 
-For work already classified `DELEGATED`, act as the solo L2 analogue: decompose the stage payload below, then follow `$subagents` for each concrete L3 assignment before any data access. `DIRECT` work never enters `$subagents`.
+- Keep the `DIRECT` primary as the stage owner for target access, graph changes, protocol decisions, journal events, and the outgoing handoff.
+- Keep one persistent repo-L2 with role `domain-lane-orchestrator` as the stage owner for `DELEGATED` work.
+- Require the repo-L2 to invoke every L3 assignment through `$subagents` and consume only its bounded result packet.
+- Never let an L3 write the journal, select a transition, or emit the stage handoff.
 
-## Stage payload
+## Input
 
-Accept canonical `app-stage-handoff.v3` status `spec-ready` or `needs-graph`. The envelope is defined only by `contracts/app-stage-handoff.v3.schema.json`; routes and graph semantics come only from `contracts/app-workflow-definition.v2.json`. Require a current `app-context-index-result.v1` and matching source digest before semantic mapping.
+- Accept only `app-stage-handoff.v4` status `spec-ready` or `needs-graph` for the same repo boundary.
+- Require a current `$app-context-index` result whose build and source snapshot match the handoff.
+- Resolve graph kinds, edge direction, routes, and transitions only from `contracts/app-functional-map.v4.schema.json` and `contracts/app-workflow-definition.v3.json`.
+- Follow every opaque cursor until no cursor remains before treating a graph result as complete.
 
-## Stage output ownership
+## Semantic mapping
 
-In `DIRECT`, the primary creates the stage artifacts and canonical handoff. In `DELEGATED`, the assigned L3 creates them.
+Create or update only `docs/app-functional-map.v4.json` as `app-functional-map.v4`.
 
-The stage creates or updates only `docs/app-functional-map.v3.json` according to `contracts/app-functional-map.v3.schema.json`. It maps stable requirement, functionality, behavior, state, API, data, integration, and error refs; typed relations; exact seven-dimension coverage; and replacements. `not-applicable` requires a rationale and empty refs. Relation kinds must exist in the workflow edge registry. `depends_on` is directed from dependent to prerequisite.
+Map every source decision to its requirements and map every active requirement to typed functionality or behavior.
 
-After mapping, invoke `$app-context-index` to rebuild the traceability and process indexes. Return `graph-ready` only with a current digest, `functional_map_ref`, `functionality_refs`, `graph_entity_refs`, `coverage_refs`, and `replacement_refs`.
+Map each requirement across behavior, dependency, state, API, data, integration, and error dimensions.
 
-## Canonical executable ledger task
+Use kind-compatible entity refs for each dimension and use `not-applicable` only with empty refs and an explicit rationale.
 
-Every executable ledger task still includes:
+Record typed relations with stable refs and direct `depends_on` from the dependent entity to its prerequisite.
 
-- `task_id`, `repo_ref`, `batch_id`, `wave_id`, `queue_sequence`, `task_kind`, and `source_review_refs`;
-- `requirement_refs`, `functionality_refs`, and `graph_entity_refs`;
-- `target_paths`, `allowed_files`, `owner_role`, `lane`, and `depends_on`;
-- `decision_state`, `status`, `definition_of_done`, and `proof_requirement`;
-- `ledger_update_contract`, `artifact_refs`, `automation_evidence_refs`, and `result_refs`.
+Reject unknown edge kinds, dangling refs, duplicate refs, forbidden cycles, reversed dependency direction, and missing source provenance.
 
-`repo_ref` identifies one repository boundary and resolves to the repo cwd at dispatch. `batch_id` groups one admitted planning batch. `queue_sequence` is the deterministic position inside a repo wave and is unique for `(repo_ref, wave_id)`. `task_kind` is `implementation|remediation`; remediation tasks use new task ids and name their originating review refs in `source_review_refs`. Implementation tasks use `source_review_refs: []` unless review explicitly created them.
+Record replacements instead of deleting any ref used by a task or process record.
 
-`artifact_refs` contains constitution, research, specification, functional map, index, and plan refs. `decision_state` is `open|closed`. Task `status` is `planned|blocked_by_decision|blocked_by_dependency|ready|in_progress|done|failed`. `done` and `failed` are terminal and are never reopened. `ledger_update_contract` names the status transitions and exact task fields that `app-dev` may update; normally these are `status`, `result_refs`, and `automation_evidence_refs` through `ready -> in_progress -> done|failed`.
+Never create or mutate ledger tasks in this stage.
 
-## Mutation boundary
+## Completion
 
-This skill is the sole semantic writer of `docs/app-functional-map.v3.json`. Historical v2 maps are read-only. `$app-context-index` alone owns the two derived indexes. This skill must not create or mutate executable ledger tasks; `app-plan` owns planning fields, `app-dev` owns authorized execution fields, and `app-analyze` reads semantic and index state.
-
-## Stage rules
-
-- Never create a task in this stage.
-- Never delete a ref used by a ledger task; record its replacement and add a new ref.
-- Add a typed graph entity before planning work for an unmapped requirement.
-- Return undecided requirements as canonical `needs-spec` with exact source, decision, requirement, and question refs; never infer a conceptual resolution.
-
-## v3 boundary audit
-
-Run `$app-trace-audit` with profile `semantic` after updating the functional map. Route every finding before handoff. Validate the transition, record the actual stage event through the maintainer, compile with CAS, and emit only `app-stage-handoff.v3` bound to the resulting build and journal digests.
+1. Require the `DIRECT` primary to perform the bounded reads and writes itself.
+2. Require the repo-L2 in `DELEGATED` mode to decompose each bounded read or write and dispatch each L3 through `$subagents`.
+3. Return `needs-spec` for an unresolved decision or requirement meaning without inferring its resolution.
+4. Reconcile the changed functional map through `$app-context-index` and reject any structural finding before handoff.
+5. Select `graph-ready` only with complete seven-dimension coverage and current functional-map, entity, coverage, and replacement refs.
+6. Validate the candidate `app-stage-handoff.v4`, record only the actual native v3 stage event, and reconcile the resulting journal.
+7. Emit the build-bound handoff with target `app-plan` from workflow v3.

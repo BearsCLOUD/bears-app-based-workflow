@@ -1,4 +1,4 @@
 interface:
   display_name: "App Functional Graph"
-  short_description: "Define graph and repo task contracts"
-  default_prompt: "Use $app-functional-graph to map wave requirements, maintain graph anchors, and define the canonical repo-scoped task contract."
+  short_description: "Map typed app semantics"
+  default_prompt: "Use $app-functional-graph to map source decisions, requirements, seven typed dimensions, dependencies, replacements, and coverage in functional-map v4."

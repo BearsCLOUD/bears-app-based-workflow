@@ -1,4 +1,4 @@
 interface:
   display_name: "App Research"
-  short_description: "Create and sync app waves"
-  default_prompt: "Use $app-research to create or update research waves for an app feature."
+  short_description: "Create and synchronize research waves"
+  default_prompt: "Use $app-research under the current stage owner to bind app intent, sources, decisions, questions, and wave scope before specification."

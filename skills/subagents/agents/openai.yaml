@@ -1,4 +1,4 @@
 interface:
   display_name: "Subagents"
-  short_description: "Dispatch one bounded L3 assignment"
-  default_prompt: "Use $subagents to dispatch one bounded L3 assignment, reuse app-worker only for one current canonical task at a time, and start a fresh immutable reviewer."
+  short_description: "Dispatch one delegation-v2 L3 assignment"
+  default_prompt: "Use $subagents to select one installed L3 profile, dispatch one bounded packet v3, preserve its session identity, and keep journal ownership with the caller."

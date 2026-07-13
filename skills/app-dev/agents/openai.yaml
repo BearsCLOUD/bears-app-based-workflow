@@ -1,4 +1,4 @@
 interface:
   display_name: "App Dev"
-  short_description: "Orchestrate persistent repo-L2 queues"
-  default_prompt: "Use $app-dev to run repo-scoped queues, one-task app-worker dispatch in reusable repo-wave sessions, immutable review, and remediation."
+  short_description: "Run worker, critic, and remediation waves"
+  default_prompt: "Use $app-dev to execute one repo-scoped ledger queue through bounded worker changes, immutable critic review, remediation tasks, and a workflow-v3 handoff."

@@ -1,40 +1,45 @@
 ---
 name: app-research
-description: Create, update, synchronize, and refine Bears app research waves. Use when Codex must turn app intent, sources, existing docs, or unknowns into wave research packets before specification or planning.
+description: Create and synchronize app research waves from intent, sources, and explicit unknowns.
 ---
 
 # App Research
 
-## Delegation first
+## Ownership
 
-For work already classified `DELEGATED`, act as the solo L2 analogue: decompose the stage payload below, then follow `$subagents` for each concrete L3 assignment before any data access. `DIRECT` work never enters `$subagents`.
+- Keep the `DIRECT` primary as the stage owner for target access, artifact changes, protocol decisions, journal events, and the outgoing handoff.
+- Keep one persistent repo-L2 with role `domain-lane-orchestrator` as the stage owner for `DELEGATED` work.
+- Require the repo-L2 to invoke every L3 assignment through `$subagents` and consume only its bounded result packet.
+- Never let an L3 write the journal, select a transition, or emit the stage handoff.
 
-## Stage payload
+## Input
 
-- Every stage-generated input uses canonical `app-stage-handoff.v3` from `contracts/app-stage-handoff.v3.schema.json` and carries a current `$app-context-index` result.
-- `constitution-ready` from `app-constitution` additionally carries `app_repo_or_path`, `constitution_ref`, `constraint_refs`, `research_unknowns`, and `wave_creation_basis`.
-- `needs-research` from `app-specify` additionally carries `source_handoff_ref`, `question_refs`, `source_refs`, and `research_unknowns`; its common `scope_delta`, artifact, decision, requirement, gap, and evidence fields carry the current affected context.
-- User intent, feature area, constraint refs, and open-decision refs.
-- Known wave ids or the exact wave-creation basis.
-- Known source refs, product notes, tickets, and user answers.
-- Exact unknowns the research must close.
+- Accept only `app-stage-handoff.v4` status `constitution-ready` or `needs-research` for the same repo boundary.
+- Require a current `$app-context-index` result whose build and source snapshot match the handoff.
+- Read routes only from `contracts/app-workflow-definition.v3.json`.
+- Carry the constitution, source, constraint, question, decision, requirement, finding, and evidence refs without copying their bodies into the handoff.
+- Follow every opaque cursor until no cursor remains before treating a paged source set as complete.
 
-## Stage output ownership
+## Artifacts
 
-In `DIRECT`, the primary creates the stage artifacts and canonical handoff. In `DELEGATED`, the assigned L3 creates them and returns `wave-research.packet`.
+Update `waves/index.md` with active wave refs and update `waves/<wave-id>/research.md` for each affected wave.
 
-The stage writes:
+Record the wave scope, known behavior, unknowns, sources, decisions, follow-up questions, synchronization notes, and next stage.
 
-- `waves/index.md` with active waves and status;
-- `waves/<wave-id>/research.md` for each touched wave.
+Create a wave only for a distinct user value, dependency set, or repo lane.
 
-Each research file contains `Wave ID`, `Scope`, `Known behavior`, `Unknowns`, `Sources`, `Decisions`, `Follow-up questions`, `Sync notes`, and `Next skill`. Refresh `$app-context-index`, then return canonical `app-stage-handoff.v3` status `research-ready` with current digest/index fields plus `constitution_ref`, `research_refs`, `question_refs`, and `source_refs`; target `app-specify`.
+Update an existing wave when new evidence changes its scope, decisions, unknowns, or sources.
 
-## Stage rules
+Propagate one shared decision to every affected wave through stable refs.
 
-- Create a wave only for a distinct user value, dependency set, or implementation lane.
-- Update an existing wave when evidence changes its scope, decisions, unknowns, or sources.
-- Propagate a shared decision to every affected wave note.
-- Keep unanswered product choices under `Follow-up questions`.
-- Route every researched wave to `app-specify`; that stage either closes or asks the remaining product decisions.
-- Record graph or task observations as specification hints. Do not bypass `app-specify` or send research directly to `app-plan`.
+Keep unresolved product choices as explicit questions and keep graph or task observations as downstream hints.
+
+## Completion
+
+1. Require the `DIRECT` primary to perform the bounded reads and writes itself.
+2. Require the repo-L2 in `DELEGATED` mode to decompose each bounded read or write and dispatch each L3 through `$subagents`.
+3. Reconcile changed sources through `$app-context-index` before selecting a transition.
+4. Select `research-ready` with target `app-specify` from workflow v3.
+5. Put constitution, research, question, and source refs in `stage_payload`.
+6. Validate the candidate `app-stage-handoff.v4`, record only the actual native v3 stage event, and reconcile the resulting journal.
+7. Emit the build-bound handoff without bypassing `app-specify`.

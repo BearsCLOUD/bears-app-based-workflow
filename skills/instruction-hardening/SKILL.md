@@ -1,51 +1,53 @@
 ---
 name: instruction-hardening
-description: Apply a repeatable method for converting approved instruction meaning into compact, scoped policy rules while preserving authority, distinct actions, and unresolved conflicts.
+description: Convert approved meaning into compact scoped policy while preserving authority and unresolved conflicts.
 ---
 
 # Instruction Hardening
 
 ## Boundary
 
-This skill supplies a repeatable editing method. The invoking role owns the final wording, policy decisions, permissions, acceptance criteria, and result format. This skill does not choose authority, invent meaning, or resolve a conflict that the input leaves unresolved.
+Use this skill only as an editing method.
 
-## Security-critical terms
+Keep final wording, policy choices, permissions, completion conditions, and result ownership with the invoking role.
 
-Define a term only when ambiguity changes permissions or safety:
+Never invent authority, approved meaning, or a conflict resolution that the input does not supply.
 
-- `execute`: start code or a command directly or through a script, task runner, wrapper, container, plugin, MCP tool, remote command, module entrypoint, or side-effecting import;
-- `external write`: create, edit, or delete state outside the declared local workspace;
-- `destructive action`: remove or overwrite state when the declared recovery path is absent or materially incomplete;
-- `material scope expansion`: add targets, permissions, systems, or deliverables beyond the approved request.
+## Security Terms
 
-Do not impose a closed action dictionary. Preserve distinct meanings such as `use`, `inspect`, and `execute`. Normalize two terms only when they select the same behavior in the declared scope.
+Define a term only when its ambiguity changes a permission or safety decision.
 
-## Inputs
+- Define `execute` as starting code or a command through any direct or wrapped entrypoint.
+- Define `external write` as creating, changing, or deleting state outside the declared local workspace.
+- Define `destructive action` as removing or overwriting state without a declared recovery path.
+- Define `material scope expansion` as adding targets, permissions, systems, or deliverables beyond the approved request.
 
-- Approved meaning and audience.
-- Authority refs in priority order.
-- Exact target and object scope.
-- Required triggers, inputs, actions, permissions, constraints, acceptance criteria, outputs, and escalation targets.
-- Optional explicit conflict-resolution rules with their authority and scope.
+Preserve behaviorally distinct verbs and normalize two terms only when they select the same action in the same scope.
+
+## Input
+
+Require approved meaning, audience, ordered authority refs, exact object scope, triggers, actions, permissions, constraints, completion conditions, outputs, and escalation targets.
+
+Keep an unresolved equal-authority conflict unresolved unless the input supplies an applicable conflict rule.
 
 ## Method
 
-1. **Policy** — Convert prose into rules. Retain only triggers, inputs, actions, constraints, permissions, acceptance criteria, outputs, and conflict outcomes.
-2. **Dict** — Normalize only true synonyms in the declared scope. Preserve behaviorally distinct verbs.
-3. **Scope** — Bind each rule to exact repositories, paths, globs, shell access, machine automation, network access, Git actions, or external systems.
-4. **Objects** — Replace informal objects with exact paths, globs, object classes, scripts, task runners, automation targets, tools, plugins, or MCP servers. Represent a recursive file class as `**/*.ext`.
-5. **Actions** — State the real operation without mapping it to an unrelated canonical verb.
-6. **Mode** — Label each rule `Allowed`, `Forbidden`, `Required`, `Ask`, or `Escalate` when the role's result format uses those modes.
-7. **Conflict** — Apply authority order. For contradictory rules with equal authority and overlapping scope, retain `INSTRUCTION_CONFLICT` unless an explicit applicable resolution rule was supplied.
-8. **Bypass scan** — Identify direct and transitive paths to each security-critical forbidden action.
-9. **Close bypasses** — Cover wrappers, module entrypoints, side-effecting imports, scripts, task runners, containers, remote commands, plugins, MCP tools, and nested commands.
-10. **Dedup** — Combine rules only when action, object, scope, condition, authority, and outcome match.
-11. **Compress** — Remove narration, repeated qualifiers, and words that change no decision.
-12. **Red-team** — Evaluate direct, wrapper, one-off, approval-bypass, and verification-bypass cases.
-13. **Drift** — Remove `carefully`, `appropriate`, `if needed`, `handle`, `work with`, and any term without a fixed effect.
-14. **Token** — Reduce tokens only after authority, permissions, bypass closure, and cases are stable.
-15. **Regression** — Repeat Policy, Dict, Bypass, Compress, Red-team, and Drift until every case retains its decision.
+1. Convert prose into rules that can change one agent decision.
+2. Bind every rule to an exact trigger, action, object, scope, condition, authority, and outcome.
+3. Normalize only true synonyms within that bound scope.
+4. Replace informal objects with exact paths, object classes, entrypoints, tools, plugins, or external systems.
+5. State the real operation without mapping it to an unrelated canonical verb.
+6. Label a rule `Allowed`, `Forbidden`, `Required`, `Ask`, or `Escalate` when the result format uses modes.
+7. Apply authority order and preserve `INSTRUCTION_CONFLICT` for an unresolved equal-authority conflict.
+8. Identify direct and transitive paths to every forbidden security-critical action.
+9. Close wrapper, module, import, task-runner, container, remote-command, plugin, tool, and nested-command bypasses.
+10. Combine rules only when trigger, action, object, scope, condition, authority, and outcome match.
+11. Remove narration, repeated qualifiers, and words that change no decision.
+12. Evaluate direct, wrapper, one-off, approval-bypass, and enforcement-bypass cases.
+13. Remove undefined qualifiers such as `carefully`, `appropriate`, `if needed`, `handle`, and `work with`.
+14. Reduce tokens only after authority, permissions, bypass closure, and boundary cases are stable.
+15. Repeat normalization, bypass closure, compression, and boundary review until every case preserves its decision.
 
 ## Handoff
 
-Give the invoking role the normalized draft, closed-bypass notes, removed duplicates, preserved authority facts, and unresolved conflicts. The role applies its own acceptance criteria and emits its own result contract.
+Return the normalized draft, closed-bypass notes, removed duplicates, preserved authority facts, and unresolved conflicts to the invoking role.

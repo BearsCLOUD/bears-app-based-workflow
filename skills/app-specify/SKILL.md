@@ -1,45 +1,46 @@
 ---
 name: app-specify
-description: Interact with the user to clarify Bears app waves and expand them into detailed functional documentation. Use when a wave has open product decisions, unclear flows, actors, data, errors, or acceptance criteria.
+description: Clarify app waves with the user and produce decision-complete functional documentation.
 ---
 
 # App Specify
 
-## Delegation first
+## Ownership
 
-For work already classified `DELEGATED`, act as the solo L2 analogue: decompose the stage payload below, then apply deterministic `$subagents` selection and `dispatch-packet.v2` for each concrete L3 assignment before any data access. Each assignment starts one matching L3 and returns `result-packet.v1`. `DIRECT` work never enters `$subagents`.
+- Keep the `DIRECT` primary as the stage owner for user questions, target access, artifact changes, protocol decisions, journal events, and the outgoing handoff.
+- Keep one persistent repo-L2 with role `domain-lane-orchestrator` as the stage owner for `DELEGATED` work.
+- Require the repo-L2 to invoke every L3 assignment through `$subagents` and consume only its bounded result packet.
+- Permit the repo-L2 to ask the user bounded questions without inspecting target content itself.
+- Never let an L3 write the journal, select a transition, or emit the stage handoff.
 
-## Clarification loop
+## Input
 
-In `DIRECT`, the primary reads the stage refs, asks the user concrete questions grouped by blocking decision, writes the specification, and creates the canonical handoff. In `DELEGATED`:
+- Accept only `app-stage-handoff.v4` status `research-ready` or `needs-spec` for the same repo boundary.
+- Require a current `$app-context-index` result whose build and source snapshot match the handoff.
+- Read routes only from `contracts/app-workflow-definition.v3.json`.
+- Require stable refs for every supplied source, decision, requirement, question, finding, and evidence item.
 
-1. Create one bounded read-only assignment for the delegated research and evidence refs, apply the canonical ordered role rules in `$subagents`, and return only unresolved product decisions.
-2. Parent asks the user concrete questions grouped by blocking decision.
-3. Create a fresh bounded mutation assignment carrying sanitized answer refs, deterministically select `worker`, and dispatch the specification update.
-4. Repeat only while acceptance criteria, data ownership, or required behavior remain undecided.
+## Clarification
 
-In `DELEGATED`, the parent may ask questions but does not inspect source data. No agent reference crosses an assignment boundary. When `$app-solo-route` invokes this stage, follow its narrower user decision gate.
+1. Read the bounded source and research refs in `DIRECT` mode or dispatch one read-only L3 through `$subagents` in `DELEGATED` mode.
+2. Ask the user questions grouped by one blocking decision at a time.
+3. Record each confirmed answer as a stable decision ref.
+4. Update the specification in `DIRECT` mode or dispatch one bounded writer L3 through `$subagents` in `DELEGATED` mode.
+5. Repeat only while required behavior, data ownership, actor authority, or outcome conditions remain undecided.
 
-## Stage payload
+## Artifact
 
-- Every stage-generated input uses canonical `app-stage-handoff.v3` from `contracts/app-stage-handoff.v3.schema.json` and carries a current `$app-context-index` result.
-- `research-ready` from `app-research` additionally carries `constitution_ref`, `research_refs`, `question_refs`, and `source_refs`.
-- `needs-spec` from `app-functional-graph`, `app-plan`, `app-dev`, or `app-analyze` additionally carries `source_handoff_ref` and `question_refs`; its common decision, requirement, gap, artifact, and evidence fields define the exact unresolved context.
-- User answers and confirmed decisions.
-- Known source and integration refs.
-- Exact open questions.
+Create or update `waves/<wave-id>/spec.md` with actors, permissions, user goals, main flows, alternate flows, data inputs, ownership, states, interfaces, integrations, error behavior, observable outcome conditions, closed decisions, requirements, and open questions.
 
-## Stage output ownership
+Represent each confirmed decision and requirement with a stable first-class ref.
 
-In `DIRECT`, the primary creates the stage artifact and canonical handoff. In `DELEGATED`, the assigned `worker` creates them and owns its task-scoped local commit.
+Do not create implementation tasks in this stage.
 
-The stage writes `<app-root>/waves/<wave-id>/spec.md` in the consuming app repository with actors and permissions, user goals, main and alternate flows, data inputs and ownership, error and empty states, integrations, acceptance criteria, functional graph hints, closed decisions, and open questions.
+## Completion
 
-Represent accepted decisions and requirements as stable first-class refs. When decisions are complete, refresh `$app-context-index`, then return canonical `app-stage-handoff.v3` status `spec-ready` with the current digest/index fields plus `constitution_ref`, `research_refs`, `specification_refs`, `required_behavior_refs`, `dependency_coverage_refs`, `state_coverage_refs`, `api_coverage_refs`, `data_coverage_refs`, `integration_coverage_refs`, and `error_coverage_refs`; target `app-functional-graph`.
-
-## Exit rules
-
-- Stay in `app-specify` while acceptance criteria or data ownership is missing.
-- Route only decision-complete behavior to `app-functional-graph`.
-- If wave scope changes, return canonical `needs-research` with every common field plus `source_handoff_ref`, `question_refs`, `source_refs`, and `research_unknowns`; populate the exact `scope_delta` and target `app-research`. Do not edit research artifacts in this stage.
-- Do not create implementation tasks.
+1. Return `needs-research` when scope or source coverage changed and include exact question, source, and scope-delta refs.
+2. Return `spec-ready` only when required behavior, data ownership, actor authority, and outcome conditions are decision-complete.
+3. Put constitution, research, specification, behavior, and seven-dimension hint refs in `stage_payload`.
+4. Reconcile changed sources through `$app-context-index` before selecting the transition.
+5. Validate the candidate `app-stage-handoff.v4`, record only the actual native v3 stage event, and reconcile the resulting journal.
+6. Emit the build-bound handoff with the target resolved from workflow v3.

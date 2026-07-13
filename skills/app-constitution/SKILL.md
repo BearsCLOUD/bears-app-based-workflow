@@ -1,41 +1,40 @@
 ---
 name: app-constitution
-description: Create or update the first-stage app constitution for Bears app workflow work. Use when Codex needs a Spec Kit-style baseline before app research, specification, graph planning, analysis, or implementation.
+description: Create or update the app-local constitution that starts a Bears app workflow run.
 ---
 
 # App Constitution
 
-## Delegation first
+## Ownership
 
-For work already classified `DELEGATED`, act as the solo L2 analogue: decompose the stage payload below, then follow `$subagents` for each concrete L3 assignment before any data access. `DIRECT` work never enters `$subagents`.
+- Keep the `DIRECT` primary as the stage owner for target access, artifact changes, protocol decisions, journal events, and the outgoing handoff.
+- Keep one persistent repo-L2 with role `domain-lane-orchestrator` as the stage owner for `DELEGATED` work.
+- Require the repo-L2 to invoke every L3 assignment through `$subagents` and consume only its bounded result packet.
+- Never let an L3 write the journal, select a transition, or emit the stage handoff.
 
-## Stage payload
+## Input
 
-- App id and app repo or path supplied by the user or a workspace-reader result.
-- Product owner or decision source.
-- Known actors and runtime surfaces.
-- Existing constitution or wave refs, when known.
-- Product constraints and unresolved decisions.
+- Accept direct user entry with an app id, one repo boundary, a decision source, known actors, runtime surfaces, constraints, and unresolved decisions.
+- Accept an existing constitution ref only when it belongs to the same app and repo boundary.
+- Invoke `$app-context-index` at entry and bind all subsequent work to its current build and source snapshot.
+- Resolve inter-stage schemas and routes only from `contracts/app-stage-handoff.v4.schema.json` and `contracts/app-workflow-definition.v3.json`.
 
-Direct user entry is not an inter-stage handoff. Run `$app-context-index` at entry, then use canonical `app-stage-handoff.v3` from `contracts/app-stage-handoff.v3.schema.json` and the routes in `contracts/app-workflow-definition.v2.json`.
+## Artifact
 
-## L3 output
+Create or update `docs/app-constitution.md` with the app boundary, decision owner, actors, runtime surfaces, constraints, data ownership, secret boundaries, required evidence, and open decisions.
 
-The selected L3 writes `docs/app-constitution.md` with:
+Link wave-owned detail instead of copying it into the constitution.
 
-- target app repo or path;
-- product owner or decision source;
-- in-scope users, actors, and runtime surfaces;
-- non-negotiable rules and constraints;
-- data ownership and secret boundaries;
-- evidence required before wave closeout;
-- open decisions that block specification or planning.
+Keep workspace-wide policy outside the app constitution.
 
-If a wave already owns detail, link it instead of copying it. Refresh `$app-context-index`, then return canonical `app-stage-handoff.v3` status `constitution-ready` with the current source digest and index refs plus `app_repo_or_path`, `constitution_ref`, `constraint_refs`, `research_unknowns`, and `wave_creation_basis`. Put known waves in `wave_ids`, use `[]` until a wave exists, place open decisions in `decision_refs`, place evidence gaps in `gap_refs`, and target `app-research`.
+Do not create implementation tasks in this stage.
 
-## Stage rules
+## Completion
 
-- Keep the constitution app-local; do not write workspace rules.
-- Record confirmed decisions. Put unresolved items under `Open decisions`.
-- Do not create implementation tasks.
-- Route the constitution to `app-research`, which creates or selects a wave and preserves product-decision and evidence gaps. Do not call `app-specify` before a wave id and research ref exist.
+1. Require the `DIRECT` primary to perform the bounded reads and writes itself.
+2. Require the repo-L2 in `DELEGATED` mode to decompose each bounded read or write and dispatch each L3 through `$subagents`.
+3. Reconcile changed sources through `$app-context-index` before selecting a transition.
+4. Select `constitution-ready` with target `app-research` from workflow v3.
+5. Put the constitution ref, constraint refs, research unknowns, wave creation basis, and known wave refs in `stage_payload`.
+6. Validate the candidate `app-stage-handoff.v4`, record only the actual native v3 stage event, and reconcile the resulting journal.
+7. Emit the build-bound handoff with exact artifact, decision, requirement, finding, and evidence refs.

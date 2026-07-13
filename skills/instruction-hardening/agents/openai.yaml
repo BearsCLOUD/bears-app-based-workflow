@@ -1,4 +1,4 @@
 interface:
   display_name: "Instruction Hardening"
-  short_description: "Apply the policy editing method"
-  default_prompt: "Use $instruction-hardening as a method to normalize approved meaning without taking ownership from the invoking role."
+  short_description: "Normalize approved policy meaning"
+  default_prompt: "Use $instruction-hardening to compress approved meaning into scoped rules while preserving authority, permissions, bypass closure, and unresolved conflicts."

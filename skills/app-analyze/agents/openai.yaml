@@ -1,4 +1,4 @@
 interface:
   display_name: "App Analyze"
-  short_description: "Analyze repo waves and remediation"
-  default_prompt: "Use $app-analyze to assess one repo's implementation, immutable reviews, remediation, and exact autoCI evidence against wave artifacts."
+  short_description: "Check documentation and graph logic"
+  default_prompt: "Use $app-analyze to perform exact-snapshot semantic agent analysis, emit app-semantic-analysis-result.v1, and route every contradiction or gap through workflow v3."

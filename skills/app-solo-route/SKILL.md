@@ -1,12 +1,26 @@
 ---
 name: app-solo-route
-description: Sequentially route one DIRECT primary through app workflow stages to audited, blocked, or an external development boundary.
+description: Route one DIRECT primary through app workflow v3 to audited, waiting, or blocked.
 ---
 
 # App Solo Route
 
-Run only for a `DIRECT` workstream. Start with `$app-context-index`. Validate every `app-stage-handoff.v3` against the v3 schema and resolve its status and target only from `app-workflow-definition.v2`; never keep a local route table.
+## Boundary
 
-Resume the earliest incomplete stage in order: constitution, research, specification, functional graph, plan, development boundary, analyze. The same primary performs internal stages. Stop at `app-constitution`, `app-dev`, `blocked`, an unchanged waiting/handoff fingerprint, or a genuinely unresolved architecture decision.
+Run only for a `DIRECT` workstream and keep the same primary as the owner of every stage.
 
-Before each handoff, run the process audit, validate the transition, record only the actual event, and compile with CAS. At graph, plan, and analyze boundaries also run the semantic, planning, or convergence trace profile respectively. `audited` is the only successful terminal status and means semantic/process consistency, never product acceptance. L3 workers never write the journal.
+Never enter `$subagents` or create an L2 or L3 from this route.
+
+Resolve schemas, statuses, targets, and transitions only from `contracts/app-stage-handoff.v4.schema.json` and `contracts/app-workflow-definition.v3.json`.
+
+## Procedure
+
+1. Invoke `$app-context-index` and bind the run to its current build and source snapshot.
+2. Resume the earliest incomplete stage in workflow order: constitution, research, specification, functional graph, plan, development, and semantic analysis.
+3. Require each stage to return one schema-conformant build-bound `app-stage-handoff.v4`.
+4. Reject a stale build, invalid status-target pair, missing causal ref, missing stage payload, or incomplete paged result.
+5. Stop on `waiting` when its handoff fingerprint is unchanged, on `blocked`, or on a product decision that requires user input.
+6. Continue corrective `needs-*` routes only to the target declared by workflow v3.
+7. Stop successfully only on `audited` with a complete `app-semantic-analysis-result.v1` and every audited-gate count at zero.
+
+Require the primary stage owner to record only native v3 events that occurred and to reconcile the journal before every outgoing handoff.

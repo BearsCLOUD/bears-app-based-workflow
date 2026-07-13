@@ -1,57 +1,54 @@
 ---
 name: app-plan
-description: Create repo-scoped graph-linked implementation and remediation waves. Use when specified behavior or immutable review findings need canonical ledger tasks and an app-dev handoff.
+description: Create repo-scoped graph-linked implementation and remediation tasks in topological order.
 ---
 
 # App Plan
 
-## Delegation first
+## Ownership
 
-For work already classified `DELEGATED`, act as the solo L2 analogue: decompose the stage payload below, then follow `$subagents` for each concrete L3 assignment before any data access. `DIRECT` work never enters `$subagents`.
+- Keep the `DIRECT` primary as the stage owner for target access, ledger changes, protocol decisions, journal events, and the outgoing handoff.
+- Keep one persistent repo-L2 with role `domain-lane-orchestrator` as the stage owner for `DELEGATED` work.
+- Require the repo-L2 to invoke every L3 assignment through `$subagents` and consume only its bounded result packet.
+- Never let an L3 write the journal, select a transition, or emit the stage handoff.
 
-## Stage payload
+## Input
 
-- Every stage-generated input uses canonical `app-stage-handoff.v3` and carries current traceability/process index refs, revision, source digest, and context-index result.
-- `graph-ready` from `app-functional-graph` additionally carries `functional_map_ref`, `functionality_refs`, `graph_entity_refs`, `coverage_refs`, and `replacement_refs`.
-- `needs-plan` from `app-dev` or `app-analyze` additionally carries `source_handoff_ref`, `ledger_coverage_refs`, and `implementation_state_by_requirement`.
-- `waiting` resume from `app-plan` additionally carries `source_handoff_ref`, `blocked_task_refs`, and `dependency_state_evidence_refs`; `app-plan` owns dependency-state reevaluation and the resume decision.
-- A repo L2 may invoke planning at `remediation-anchor.v1` with `repo_ref`, exact repo cwd, the immutable anchor snapshot, failed task refs, and one primary review ref. Those failed-task and review refs are the complete remediation source; unrelated findings or later queue admissions are outside that planning assignment.
+- Accept only `app-stage-handoff.v4` status `graph-ready`, `waiting`, or `needs-plan` for the same repo boundary.
+- Require a current `$app-context-index` result whose build and source snapshot match the handoff.
+- Resolve task fields and transitions only from `contracts/app-task-ledger.v3.schema.json` and `contracts/app-workflow-definition.v3.json`.
+- Use declared graph dependencies, impact results, and topological layers instead of inferring order from prose.
+- Follow every opaque cursor until no cursor remains before treating graph or ledger coverage as complete.
 
-## Stage output ownership
+## Planning
 
-In `DIRECT`, the primary creates the stage artifacts and canonical handoff. In `DELEGATED`, the assigned L3 creates them.
+Create or update `waves/<wave-id>/plan.md` and executable tasks in `docs/app-task-ledger.v3.json`.
 
-The stage writes `waves/<wave-id>/plan.md` and creates or updates only executable `tasks` in `docs/app-task-ledger.v2.json`. It never writes `docs/app-functional-map.v3.json` or either derived index.
+Keep each task inside one `repo_ref` and include every field required by `app-task-ledger.v3`.
 
-For each specified requirement it records functional-map revision, source digest, index revision, coverage, and `built`, `partial`, `missing`, or `drifted` implementation state. Use the read-only `app-graph` tools for declared impact, dependencies, and topological task layers. Create or update canonical executable ledger tasks for `partial`, `missing`, or `drifted` behavior. Each task carries complete trace refs and the `ledger_update_contract` required by `app-dev`.
+Create tasks only for decision-complete requirements with current functionality, graph entity, target, source snapshot, and dependency refs.
 
-Partition ordinary work by `repo_ref` before assigning `batch_id` or `wave_id`. One batch and one wave contain tasks from exactly one repository. Preserve deterministic `queue_sequence` within each repo wave, and supply the exact repo cwd plus each task's `target_paths` and `allowed_files`; never return a mixed-repo task group.
+Set `owner_role` to `DIRECT-primary` in `DIRECT` mode and `repo-L2` in `DELEGATED` mode.
 
-At `remediation-anchor.v1`, create a new repo-scoped remediation wave, a new batch, and new task ids. Every created task has `task_kind: remediation` and `source_review_refs` containing the primary review ref. Trace the failed task refs as remediation sources, but never reopen, renumber, overwrite, or otherwise mutate the original terminal `done|failed` tasks. Preserve this queue order: independent tasks in the anchor snapshot first, the new remediation wave next, and tasks admitted after the anchor last.
+Use only `waiting` or `ready` for newly planned ordinary work.
 
-Refresh `$app-context-index` after changing the ledger. Return one canonical `app-stage-handoff.v3` with current digest/index fields and the fields for its status:
+Set `ready` only when every prerequisite is closed and every target boundary is exact.
 
-- `plan-ready`: at least one canonical task has closed decisions, closed dependencies, valid current graph refs, and ledger status `ready`; emit one repo-scoped handoff per `repo_ref`, add only same-repo complete `task_records`, supply their repo cwd and exact targets for `app-task-dispatch.v1`, and target `app-dev`;
-- `waiting`: tasks exist but none is ready; add `source_handoff_ref`, `blocked_task_refs`, and `dependency_state_evidence_refs`, populate common dependency refs, and target `app-plan`;
-- `no-work`: all specified behavior is built and no executable task remains; add `plan_refs` and target `app-analyze`;
-- `needs-graph`: behavior is unmapped, graph refs are stale, or graph meaning drifted; add `source_handoff_ref`, `functional_map_ref`, and `affected_graph_refs`, populate requirement, gap, evidence, artifact, and implemented-state fields, and target `app-functional-graph`;
-- `needs-spec`: a product decision or required behavior is incomplete; add `source_handoff_ref` and `question_refs`, populate common decision, requirement, gap, artifact, and evidence fields, and target `app-specify`.
+Create a new task with `task_kind: remediation` for each routable review or result gap and link it through graph and evidence refs.
 
-## Mutation boundary
+Never reopen, renumber, or overwrite a terminal task.
 
-This stage may create and update task planning fields and set only `planned`, `blocked_by_decision`, `blocked_by_dependency`, or `ready`. It must not overwrite `in_progress`, `done`, or `failed` execution state. Remediation always uses new tasks rather than changing a terminal task. This stage never changes graph meaning, graph revision, or graph anchors.
+Never change functional-map meaning in this stage.
 
-## Stage rules
+## Completion
 
-- Create no task for an unresolved product decision.
-- Create no task without current `functionality_refs`, `graph_entity_refs`, and source digest.
-- Keep each task, batch, wave, and `plan-ready` handoff inside one repo boundary and one exact target set.
-- Mark decision-dependent work `blocked_by_decision` and route it to `app-specify`.
-- Mark work `ready` only when its decisions are closed and every dependency is `done` or otherwise proven closed.
-- Return `needs-graph` instead of repairing an unmapped or drifted graph.
-- Route ready ledger work to `app-dev` as separate repo-scoped handoffs; never create a generic cross-repo merge.
-- Use `instruction-hardening` only as a separate delegated operation.
-
-## v3 boundary audit
-
-Run `$app-trace-audit` with profile `planning` after updating `app-task-ledger.v2`. Route every finding before handoff. Validate the transition, record the actual planning event, compile with CAS, and bind the handoff to the resulting build and journal digests.
+1. Require the `DIRECT` primary to perform the bounded reads and writes itself.
+2. Require the repo-L2 in `DELEGATED` mode to decompose each bounded read or write and dispatch each L3 through `$subagents`.
+3. Return `needs-spec` for unresolved product meaning and return `needs-graph` for missing or drifted semantic mapping.
+4. Return `waiting` when tasks exist but none is dependency-ready.
+5. Return `no-work` when all mapped requirements have implementation and evidence refs with no executable task remaining.
+6. Return one repo-scoped `plan-ready` handoff when at least one canonical task is `ready`.
+7. Put exact task records, repo cwd, batch ref, wave ref, dependency refs, target paths, and allowed files in `stage_payload`.
+8. Reconcile the changed ledger through `$app-context-index` and reject any structural finding before handoff.
+9. Validate the candidate `app-stage-handoff.v4`, record only the actual native v3 stage event, and reconcile the resulting journal.
+10. Emit the build-bound handoff with the target resolved from workflow v3.

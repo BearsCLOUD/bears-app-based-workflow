@@ -70,7 +70,7 @@
     "result": [
       {
         "id": "primary",
-        "text": "emit only canonical `result-packet.v1`; under `facts`, place one role-specific deliverable defined as follows: `workspace-change.v1` with fields `changed_files`, `change_summary`, `behavior_delta`, `interface_effects`, `compatibility`, `commands_run`, `commit`, and `followup_owner`. Do not replace or extend the envelope."
+        "text": "emit only canonical `result-packet.v2`; under `facts`, place one role-specific deliverable defined as follows: `workspace-change.v1` with fields `changed_files`, `change_summary`, `behavior_delta`, `interface_effects`, `compatibility`, `commands_run`, `commit`, and `followup_owner`. Do not replace or extend the envelope."
       }
     ],
     "example": [

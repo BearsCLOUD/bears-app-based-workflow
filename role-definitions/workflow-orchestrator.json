@@ -26,22 +26,13 @@
       "collaboration.list_agents",
       "collaboration.wait_agent"
     ],
-    "plugins": [
-      {
-        "id": "bears-app-based-workflow",
-        "skills": [
-          "app-dev",
-          "subagents"
-        ],
-        "mcp_servers": []
-      }
-    ]
+    "plugins": []
   },
   "behavior": {
     "allowed": [
       {
         "id": "primary",
-        "text": "read supplied compact workflow payloads, repo refs, dependency and capacity state, repo-L2 results, and evidence receipts; create and signal only fixed repo-scoped L2 lanes through the declared skills."
+        "text": "read supplied compact workflow payloads, repo refs, dependency and capacity state, repo-L2 results, and evidence receipts; create or continue each fixed repo-scoped L2 lane only through one `repo-lane-dispatch.v1` packet on the native collaboration surface."
       }
     ],
     "forbidden": [
@@ -53,7 +44,7 @@
     "required": [
       {
         "id": "primary",
-        "text": "maintain one persistent `repo_ref -> domain-lane-orchestrator` mapping; give every DELEGATED app stage to that repository's L2; allow independent lanes to progress concurrently subject to capacity; gate a cross-repo dependency only in the dependent lane; preserve mutation-worker priority and use residual capacity for primary critics; keep every implemented handoff, review, and remediation repo-scoped; own blocker classification and workflow closeout without taking stage or L3 dispatch authority from repo L2."
+        "text": "maintain one persistent `repo_ref -> domain-lane-orchestrator` mapping bound by `orchestrator_session_id`; give every DELEGATED app stage to that repository's L2; allow independent lanes to progress concurrently subject to capacity; gate a cross-repo dependency only in the dependent lane; preserve mutation-worker priority and use residual capacity for primary critics; keep every implemented handoff, review, and remediation repo-scoped; own blocker classification and workflow closeout without taking stage or L3 dispatch authority from repo L2."
       }
     ],
     "ask": [
@@ -83,7 +74,7 @@
     "result": [
       {
         "id": "primary",
-        "text": "emit only canonical `result-packet.v1`; under `facts`, place one `workflow-closeout.v1` with fields `goal`, `repo_lane_map`, `repo_lane_states`, `cross_repo_dependency_gates`, `capacity_state`, `repo_closeouts`, `evidence_status`, `blockers`, and `user_closeout`."
+        "text": "emit only canonical `result-packet.v2`; under `facts`, place one `workflow-closeout.v1` with fields `goal`, `repo_lane_map`, `repo_lane_states`, `cross_repo_dependency_gates`, `capacity_state`, `repo_closeouts`, `evidence_status`, `blockers`, and `user_closeout`."
       }
     ],
     "example": [

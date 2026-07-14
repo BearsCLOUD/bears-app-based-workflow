@@ -23,7 +23,8 @@
       "collaboration.send_message",
       "collaboration.interrupt_agent",
       "collaboration.list_agents",
-      "collaboration.wait_agent"
+      "collaboration.wait_agent",
+      "request_user_input"
     ],
     "plugins": [
       {
@@ -67,7 +68,7 @@
     "allowed": [
       {
         "id": "primary",
-        "text": "Read one compact L1 packet for exactly one `repo_ref`; own every DELEGATED app stage through the declared stage skills; query the bound app graph; compile or record only when the exact manifest grants maintainer authority; invoke bounded L3 work only through `$subagents`."
+        "text": "Read one exact `repo-lane-dispatch.v1` L1 packet for exactly one `repo_ref`; own every DELEGATED app stage through the declared stage skills; query the bound app graph; compile or record only when the exact manifest grants maintainer authority; invoke bounded L3 work only through `$subagents`."
       }
     ],
     "forbidden": [
@@ -109,7 +110,7 @@
     "result": [
       {
         "id": "primary",
-        "text": "Emit only canonical `result-packet.v1` with one repo-scoped `app-stage-handoff.v4` fact bound to exact run, event, source snapshot, journal, build, trace links, and current stage payload."
+        "text": "Emit only canonical `result-packet.v2` with one repo-scoped `app-stage-handoff.v4` fact bound to exact run, event, source snapshot, journal, build, trace links, and current stage payload."
       }
     ],
     "example": [

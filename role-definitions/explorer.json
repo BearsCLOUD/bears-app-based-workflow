@@ -69,7 +69,7 @@
     "result": [
       {
         "id": "primary",
-        "text": "emit only canonical `result-packet.v1`; under `facts`, place one role-specific deliverable defined as follows: `workspace-exploration.v1` with fields `facts`, `inferences`, `file_refs`, `instruction_refs`, `read_count`, `budget_remaining`, and `unresolved_questions`. Do not replace or extend the envelope."
+        "text": "emit only canonical `result-packet.v2`; under `facts`, place one role-specific deliverable defined as follows: `workspace-exploration.v1` with fields `facts`, `inferences`, `file_refs`, `instruction_refs`, `read_count`, `budget_remaining`, and `unresolved_questions`. Do not replace or extend the envelope."
       }
     ],
     "example": [

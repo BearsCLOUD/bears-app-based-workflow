@@ -69,7 +69,7 @@
     "result": [
       {
         "id": "primary",
-        "text": "emit only canonical `result-packet.v1` with `role=wave-change-critic`; under `facts`, place exactly one `wave-change-review.v1` fact with fields `review_id`, `methodology_id`, `wave_id`, `repo_id`, `decision`, `commit_range`, `findings`, `failed_task_gaps`, `required_remediation`, `evidence_gaps`, and `residual_risk`. Do not replace or extend the envelope or add another fact."
+        "text": "emit only canonical `result-packet.v2` with `role=wave-change-critic`; under `facts`, place exactly one `wave-change-review.v1` fact with fields `review_id`, `methodology_id`, `wave_id`, `repo_id`, `decision`, `commit_range`, `findings`, `failed_task_gaps`, `required_remediation`, `evidence_gaps`, and `residual_risk`. Do not replace or extend the envelope or add another fact."
       }
     ],
     "example": [

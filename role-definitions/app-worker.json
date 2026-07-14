@@ -70,7 +70,7 @@
     "result": [
       {
         "id": "primary",
-        "text": "emit only canonical `result-packet.v1` with `role=app-worker`; under `facts`, place exactly one `app-task-change.v1` fact with fields `assignment_id`, `task_id`, `repo_ref`, `wave_id`, `wave_session_id`, `worker_session_id`, `queue_sequence`, `wave_result_action`, `status`, `commit_ref`, `changed_targets`, optional `changed_anchor_refs`, `evidence_refs`, `cleanup_state`, `partial_state_ref`, and `source_review_refs`. Do not replace or extend the envelope, use field aliases, or add another fact."
+        "text": "emit only canonical `result-packet.v2` with `role=app-worker`; under `facts`, place exactly one `app-task-change.v1` fact with fields `assignment_id`, `task_id`, `repo_ref`, `wave_id`, `wave_session_id`, `worker_session_id`, `queue_sequence`, `wave_result_action`, `status`, `commit_ref`, `changed_targets`, optional `changed_anchor_refs`, `evidence_refs`, `cleanup_state`, `partial_state_ref`, and `source_review_refs`. Do not replace or extend the envelope, use field aliases, or add another fact."
       }
     ],
     "example": [

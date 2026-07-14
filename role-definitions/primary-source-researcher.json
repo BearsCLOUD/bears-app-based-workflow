@@ -70,7 +70,7 @@
     "result": [
       {
         "id": "primary",
-        "text": "emit only canonical `result-packet.v1`; under `facts`, place one role-specific deliverable defined as follows: `primary-source-evidence.v1` with fields `facts`, `evidence_refs`, `unstable_claims`, `confirmed_constraints`, `design_choices`, and `unresolved_questions`. Do not replace or extend the envelope."
+        "text": "emit only canonical `result-packet.v2`; under `facts`, place one role-specific deliverable defined as follows: `primary-source-evidence.v1` with fields `facts`, `evidence_refs`, `unstable_claims`, `confirmed_constraints`, `design_choices`, and `unresolved_questions`. Do not replace or extend the envelope."
       }
     ],
     "example": [

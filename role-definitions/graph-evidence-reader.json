@@ -84,7 +84,7 @@
     "result": [
       {
         "id": "packet",
-        "text": "Emit canonical `result-packet.v1` with one `graph-evidence.v1` fact containing queries, build ref, source digest, items, cursors consumed, findings, and completeness."
+        "text": "Emit canonical `result-packet.v2` with one `graph-evidence.v1` fact containing queries, build ref, source digest, items, cursors consumed, findings, and completeness."
       }
     ],
     "example": [

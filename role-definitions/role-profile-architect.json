@@ -79,7 +79,7 @@
     "result": [
       {
         "id": "primary",
-        "text": "emit only canonical `result-packet.v1`; under `facts`, place one role-specific deliverable defined as follows: `role-profile-result.v1` with fields `task_id`, `decision`, `profiles_changed`, `profiles_removed`, `references_changed`, `skill_refs`, `plugin_refs`, `permissions`, `evidence_refs`, `accept_cases`, `reject_cases`, `boundary_cases`, `confirmation_required`, and `reload_required`. Do not replace or extend the envelope."
+        "text": "emit only canonical `result-packet.v2`; under `facts`, place one role-specific deliverable defined as follows: `role-profile-result.v1` with fields `task_id`, `decision`, `profiles_changed`, `profiles_removed`, `references_changed`, `skill_refs`, `plugin_refs`, `permissions`, `evidence_refs`, `accept_cases`, `reject_cases`, `boundary_cases`, `confirmation_required`, and `reload_required`. Do not replace or extend the envelope."
       }
     ],
     "example": [

@@ -69,7 +69,7 @@
     "result": [
       {
         "id": "primary",
-        "text": "emit only canonical `result-packet.v1`; under `facts`, place one role-specific deliverable defined as follows: `diagnostic-command-evidence.v1` with fields `command`, `directory_scope`, `exit_status`, `sanitized_output`, `truncated`, `redactions`, and `next_owner`. Do not replace or extend the envelope."
+        "text": "emit only canonical `result-packet.v2`; under `facts`, place one role-specific deliverable defined as follows: `diagnostic-command-evidence.v1` with fields `command`, `directory_scope`, `exit_status`, `sanitized_output`, `truncated`, `redactions`, and `next_owner`. Do not replace or extend the envelope."
       }
     ],
     "example": [

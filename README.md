@@ -4,7 +4,7 @@ Bears App-Based Workflow is a Codex plugin for deterministic documentation-to-im
 
 ## Workflow refactor v5
 
-The workflow is defined by contracts/app-workflow-definition.v3.json and uses app-stage-handoff.v4 records. Structured semantics use app-functional-map.v4, work queues use app-task-ledger.v3, process records use app-process-event.v3, and app-analyze results use app-semantic-analysis-result.v1.
+The workflow is defined by contracts/app-workflow-definition.v3.json and exchanges typed transient app-stage-handoff.v4 packets. Structured semantics use app-functional-map.v4, work queues use app-task-ledger.v3, durable process records use app-process-event.v3, and app-analyze results use app-semantic-analysis-result.v1.
 
 app-context-index reconciles an opted-in repository from its source manifest. app-graph-compile publishes immutable build receipts, rebuildable traceability and process indexes, and one current-build pointer. Every stage works from the exact build, source snapshot digest, and journal digest carried by its handoff.
 
@@ -85,4 +85,4 @@ The repository-owned deployment gateway activates one authoritative main revisio
 
 ## Version
 
-Workflow refactor v5 documents the next contract surface. The currently published plugin version remains 0.4.2 until a separately authorized release updates it.
+Workflow refactor v5 is represented by plugin source version 0.4.3. Publication remains a separately authorized action.

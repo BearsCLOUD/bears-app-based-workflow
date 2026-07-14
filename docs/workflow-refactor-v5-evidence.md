@@ -66,13 +66,12 @@ The structured app-analyze result must reconcile these sources on one exact buil
 
 ## EVIDENCE-DELIVERY
 
-| Source or commit | Represented meaning |
+| Source | Represented meaning |
 | --- | --- |
 | `.codex-plugin/plugin.json`; `.agents/plugins/marketplace.json`; `install` | Plugin identity, discovery metadata, and explicit installation entrypoint |
 | `.github/runner/README.md`; `.github/workflows/plugin-marketplace-cd.yml` | Machine-owned publication boundary and operator guide |
 | `CHANGELOG.md`; `waves/index.md` | Release history and wave navigation |
-| `8b817cab02280b173f09039cfdd58006768a71ea` | Earlier documentation semantics slice |
-| `b94dcdf899653e965413a0cc8c3b1830fd7641e3` | Earlier role authority and capability slice |
-| `9bcc11d4ac4d80dde30d4eeb7d7c193cad28f781` | Earlier stage ownership and semantic-analysis slice |
+| `docs/app-artifact-catalog.v2.json`; `docs/app-task-ledger.v3.json` | Exact refactor artifact coverage and bounded task ownership |
+| `docs/app-functional-map.v4.json`; `docs/app-graph-source-manifest.v1.json` | Semantic dependency model and opted-in source boundary |
 
 Bind this packet through an exact source ref in the final structured analysis input set. Keep delivery metadata and transient protocol traffic non-authoritative unless an opted-in structured source or native process record represents them.

@@ -12,7 +12,7 @@
 
 ## Runtime boundary
 
-The compiler reads structured meaning only from the workflow definition, functional map, task ledger, and native process journal. Tracked implementation and evidence artifacts contribute digests but never inferred semantics.
+The compiler reads structured meaning only from the workflow definition, functional map, task ledger, artifact catalog, and native process journal. Tracked implementation and evidence artifacts contribute digests but never inferred semantics.
 
 Duplicate refs, dangling refs, unknown edges, corrupt events, path escape, symlinks, stale compare-and-swap expectations, and resource-limit violations fail closed before publication.
 

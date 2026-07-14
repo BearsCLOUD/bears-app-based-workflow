@@ -1,1 +1,0 @@
-{"actor":"DIRECT-primary","artifact_refs":["scripts/app_graph_engine.py"],"automation_status":"not_run","causal_refs":["EVT-PROCESS-AUDIT-V3-002"],"event_kind":"remediation","event_ref":"EVT-REMEDIATION-TASK-V3-003","origin":"native","run_ref":"RUN-GRAPH-WORKFLOW-V2","schema":"app-process-event.v1","stage":"app-dev","status":"in_progress","trace_refs":["SPEC-GRAPH-WORKFLOW-V3"]}

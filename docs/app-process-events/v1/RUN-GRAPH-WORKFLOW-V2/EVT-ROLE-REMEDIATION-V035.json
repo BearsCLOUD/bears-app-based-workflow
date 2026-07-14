@@ -1,1 +1,0 @@
-{"actor":"DIRECT-primary","artifact_refs":[],"automation_status":"not_run","causal_refs":["EVT-ROLE-REVIEW-V035"],"event_kind":"remediation","event_ref":"EVT-ROLE-REMEDIATION-V035","origin":"native","run_ref":"RUN-GRAPH-WORKFLOW-V2","schema":"app-process-event.v1","stage":"app-plan","status":"plan-ready","trace_refs":["SPEC-GRAPH-WORKFLOW-V3"]}

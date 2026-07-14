@@ -1,1 +1,0 @@
-{"actor":"DIRECT-primary","artifact_refs":[],"automation_status":"not_run","causal_refs":["EVT-PROCESS-AUDIT-V034-FINAL"],"event_kind":"review","event_ref":"EVT-ROLE-REVIEW-V035","origin":"native","run_ref":"RUN-GRAPH-WORKFLOW-V2","schema":"app-process-event.v1","stage":"app-analyze","status":"needs-plan","trace_refs":["SPEC-GRAPH-WORKFLOW-V3"]}

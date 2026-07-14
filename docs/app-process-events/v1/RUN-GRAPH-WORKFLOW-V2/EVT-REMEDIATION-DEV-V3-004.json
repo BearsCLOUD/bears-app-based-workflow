@@ -1,1 +1,0 @@
-{"actor":"DIRECT-primary","artifact_refs":["scripts/README.md"],"automation_status":"not_run","causal_refs":["EVT-REMEDIATION-REVIEW-V3-004"],"event_kind":"stage-handoff","event_ref":"EVT-REMEDIATION-DEV-V3-004","origin":"native","run_ref":"RUN-GRAPH-WORKFLOW-V2","schema":"app-process-event.v1","stage":"app-dev","status":"implemented","trace_refs":["SPEC-GRAPH-WORKFLOW-V3"]}

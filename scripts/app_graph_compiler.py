@@ -74,6 +74,18 @@ def _refs(value: Any, *, field: str, allow_empty: bool = True) -> list[str]:
     return value
 
 
+def _git_refs(value: Any, *, field: str, allow_empty: bool = True) -> list[str]:
+    refs = _refs(value, field=field, allow_empty=allow_empty)
+    if any(len(ref) != 40 or any(character not in "0123456789abcdef" for character in ref) for ref in refs):
+        raise GraphError("SCHEMA_UNSUPPORTED", f"{field} must contain full lowercase Git refs")
+    return refs
+
+
+def _ref_set_binding(refs: list[str]) -> dict[str, Any]:
+    ordered = sorted(set(refs))
+    return {"count": len(ordered), "refs_digest": digest_bytes(canonical(ordered))}
+
+
 def _validate_dimensions(fmap: dict[str, Any], entities: dict[str, dict[str, Any]]) -> None:
     active_requirements = {
         ref for ref, item in entities.items()
@@ -288,6 +300,7 @@ def build_indexes(root: RepoRoot, source_manifest: dict[str, Any]) -> tuple[dict
         evidence_refs = _refs(task.get("evidence_refs"), field="task.evidence_refs")
         target_paths = _refs(task.get("target_paths"), field="task.target_paths", allow_empty=not active)
         allowed_files = _refs(task.get("allowed_files"), field="task.allowed_files", allow_empty=not active)
+        _git_refs(task.get("retirement_commit_refs"), field="task.retirement_commit_refs")
         if any(functional_items.get(ref, {}).get("kind") != "requirement" for ref in requirement_refs):
             raise GraphError("DANGLING_REF", "task requirement ref is invalid", task_ref=task_ref)
         if any(functional_items.get(ref, {}).get("kind") != "functionality" for ref in functionality_refs):
@@ -474,13 +487,71 @@ def _enforce_audited_publish(
     ):
         raise GraphError("AUDITED_GATE", "audited analysis is not bound to an unchanged source snapshot")
     previous_entities = previous_trace.get("entities", [])
+    previous_edges = previous_trace.get("edges", [])
+    previous_process_events = previous_process.get("events", [])
+    functional_map, _ = read_json(root, SOURCE_PATHS["functional_map"])
+    expected_ref_sets = {
+        "source_refs": sorted(previous_locators),
+        "decision_refs": sorted(item["ref"] for item in previous_entities if item.get("kind") == "decision"),
+        "requirement_refs": sorted(item["ref"] for item in previous_entities if item.get("kind") == "requirement"),
+        "functionality_refs": sorted(item["ref"] for item in previous_entities if item.get("kind") == "functionality"),
+        "dimension_refs": sorted(item["ref"] for item in previous_entities if item.get("kind") in DIMENSIONS),
+        "dimension_mapping_refs": sorted(item["ref"] for item in functional_map.get("coverage", [])),
+        "relation_refs": sorted(item["ref"] for item in functional_map.get("relations", [])),
+        "graph_edge_refs": sorted(item["ref"] for item in previous_edges),
+        "functional_map_refs": [SOURCE_PATHS["functional_map"]],
+        "ledger_refs": [SOURCE_PATHS["task_ledger"]],
+        "artifact_refs": sorted(
+            item["ref"] for item in previous_entities
+            if item.get("kind") in ARTIFACT_KINDS - {"evidence"}
+        ),
+        "evidence_refs": sorted(item["ref"] for item in previous_entities if item.get("kind") == "evidence"),
+        "task_refs": sorted(item["ref"] for item in previous_entities if item.get("kind") == "task"),
+        "task_result_refs": sorted(
+            item["event_ref"] for item in previous_process_events if item.get("event_kind") == "task-result"
+        ),
+        "review_refs": sorted(
+            item["event_ref"] for item in previous_process_events if item.get("event_kind") == "review"
+        ),
+        "remediation_refs": sorted(
+            item["event_ref"] for item in previous_process_events if item.get("event_kind") == "remediation"
+        ),
+        "process_record_refs": sorted(item["event_ref"] for item in previous_process_events),
+        "incoming_handoff_refs": list(analysis_event["causal_refs"]),
+    }
+    expected_inputs = {
+        category: _ref_set_binding(refs)
+        for category, refs in expected_ref_sets.items()
+    }
+    if result["input_refs"] != expected_inputs:
+        raise GraphError(
+            "AUDITED_GATE",
+            "audited analysis inputs disagree with its predecessor build",
+            expected_inputs=expected_inputs,
+        )
+    coverage_to_input = {
+        "sources": "source_refs",
+        "decisions": "decision_refs",
+        "requirements": "requirement_refs",
+        "functionalities": "functionality_refs",
+        "dimensions": "dimension_refs",
+        "dimension_mappings": "dimension_mapping_refs",
+        "relations": "relation_refs",
+        "graph_edges": "graph_edge_refs",
+        "functional_map": "functional_map_refs",
+        "ledger": "ledger_refs",
+        "artifacts": "artifact_refs",
+        "evidence": "evidence_refs",
+        "tasks": "task_refs",
+        "task_results": "task_result_refs",
+        "reviews": "review_refs",
+        "remediations": "remediation_refs",
+        "process_records": "process_record_refs",
+        "incoming_handoff": "incoming_handoff_refs",
+    }
     expected_coverage = {
-        "sources": previous_build["source_count"],
-        "decisions": sum(item.get("kind") == "decision" for item in previous_entities),
-        "requirements": sum(item.get("kind") == "requirement" for item in previous_entities),
-        "dimensions": sum(item.get("kind") in DIMENSIONS for item in previous_entities),
-        "tasks": sum(item.get("kind") == "task" for item in previous_entities),
-        "process_records": previous_build["event_count"],
+        count_field: expected_inputs[input_field]["count"]
+        for count_field, input_field in coverage_to_input.items()
     }
     if result["coverage"] != expected_coverage:
         raise GraphError(

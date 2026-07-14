@@ -14,6 +14,10 @@ SERVER_VERSION = "0.4.3"
 
 STR = {"type": "string", "minLength": 1}
 REFS = {"type": "array", "items": STR, "uniqueItems": True}
+NON_EMPTY_REFS = {**REFS, "minItems": 1}
+GIT_REF = {"type": "string", "pattern": r"^[0-9a-f]{40}$"}
+GIT_REFS = {"type": "array", "minItems": 1, "items": GIT_REF, "uniqueItems": True}
+COMMIT_RANGE = {"type": "string", "pattern": r"^[0-9a-f]{40}\.\.[0-9a-f]{40}$"}
 STAGES = [
     "app-constitution", "app-research", "app-specify", "app-functional-graph",
     "app-plan", "app-dev", "app-analyze",
@@ -30,6 +34,28 @@ FINDING_KINDS = [
     "evidence-gap", "review-gap", "remediation-gap", "credential-stop",
     "access-stop", "operator-stop",
 ]
+ANALYSIS_INPUT_FIELDS = (
+    "source_refs", "decision_refs", "requirement_refs", "functionality_refs",
+    "dimension_refs", "dimension_mapping_refs", "relation_refs", "graph_edge_refs",
+    "functional_map_refs", "ledger_refs", "artifact_refs", "evidence_refs", "task_refs",
+    "task_result_refs", "review_refs", "remediation_refs", "process_record_refs",
+    "incoming_handoff_refs",
+)
+COVERAGE_FIELDS = (
+    "sources", "decisions", "requirements", "functionalities", "dimensions",
+    "dimension_mappings", "relations", "graph_edges", "functional_map", "ledger",
+    "artifacts", "evidence", "tasks", "task_results", "reviews", "remediations",
+    "process_records", "incoming_handoff",
+)
+REF_SET_BINDING = {
+    "type": "object",
+    "additionalProperties": False,
+    "required": ["count", "refs_digest"],
+    "properties": {
+        "count": {"type": "integer", "minimum": 0},
+        "refs_digest": {"type": "string", "pattern": r"^sha256:[a-f0-9]{64}$"},
+    },
+}
 CURSOR = {"type": "string", "description": "Opaque snapshot/query-bound continuation token."}
 BOUNDS = {
     "app_root": STR,
@@ -76,14 +102,19 @@ ANALYSIS_RESULT_SCHEMA = {
         "model_ref": STR,
         "checklist_ref": STR,
         "basis_build_ref": {"type": "string", "pattern": r"^BUILD-[A-F0-9]{24}$"},
-        "input_refs": {**REFS, "minItems": 1},
+        "input_refs": {
+            "type": "object",
+            "additionalProperties": False,
+            "required": list(ANALYSIS_INPUT_FIELDS),
+            "properties": {name: REF_SET_BINDING for name in ANALYSIS_INPUT_FIELDS},
+        },
         "coverage": {
             "type": "object",
             "additionalProperties": False,
-            "required": ["sources", "decisions", "requirements", "dimensions", "tasks", "process_records"],
+            "required": list(COVERAGE_FIELDS),
             "properties": {
                 name: {"type": "integer", "minimum": 0}
-                for name in ("sources", "decisions", "requirements", "dimensions", "tasks", "process_records")
+                for name in COVERAGE_FIELDS
             },
         },
         "findings": {
@@ -111,10 +142,10 @@ ANALYSIS_RESULT_SCHEMA = {
 }
 EVENT_SCHEMA = {
     "type": "object", "additionalProperties": False,
-    "required": ["schema", "run_ref", "event_ref", "event_kind", "stage", "status", "actor", "causal_refs", "trace_refs", "artifact_refs", "task_refs", "origin", "repo_ref", "wave_ref"],
+    "required": ["schema", "run_ref", "event_ref", "event_kind", "stage", "status", "actor", "owner_session_ref", "causal_refs", "trace_refs", "artifact_refs", "task_refs", "origin", "repo_ref", "wave_ref"],
     "properties": {
         "schema": {"const": "app-process-event.v3"},
-        **{name: STR for name in ("run_ref", "event_ref", "repo_ref", "wave_ref")},
+        **{name: STR for name in ("run_ref", "event_ref", "owner_session_ref", "repo_ref", "wave_ref")},
         "stage": {"enum": STAGES},
         "status": {"enum": STATUSES},
         "actor": {"enum": ["DIRECT-primary", "repo-L2"]},
@@ -122,9 +153,11 @@ EVENT_SCHEMA = {
         **{name: REFS for name in ("causal_refs", "trace_refs", "artifact_refs", "task_refs")},
         "origin": {"const": "native"},
         "task_ref": STR, "terminal_result": {"enum": ["done", "failed", "blocked"]},
+        "commit_refs": GIT_REFS,
+        "changed_paths": NON_EMPTY_REFS,
         "reviewed_task_refs": REFS,
         "finding_refs": REFS,
-        "commit_range": STR, "remediates_run_ref": STR, "analysis_ref": STR,
+        "commit_range": COMMIT_RANGE, "remediates_run_ref": STR, "analysis_ref": STR,
         "analysis_result": ANALYSIS_RESULT_SCHEMA,
         "delegation_record": DELEGATION_RECORD_SCHEMA,
     },
@@ -180,6 +213,7 @@ def _validate(schema: dict[str, Any], value: Any, path: str = "arguments") -> No
     elif kind == "array":
         if not isinstance(value, list): raise ValueError(f"{path} must be an array")
         if len(value) < schema.get("minItems", 0): raise ValueError(f"{path} contains too few items")
+        if "maxItems" in schema and len(value) > schema["maxItems"]: raise ValueError(f"{path} contains too many items")
         if schema.get("uniqueItems") and len({json.dumps(item, sort_keys=True) for item in value}) != len(value): raise ValueError(f"{path} must contain unique items")
         for index, item in enumerate(value): _validate(schema["items"], item, f"{path}[{index}]")
     elif kind == "string":

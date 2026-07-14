@@ -16,18 +16,64 @@
     "model_ref": {"type": "string", "minLength": 1},
     "checklist_ref": {"type": "string", "minLength": 1},
     "basis_build_ref": {"type": "string", "pattern": "^BUILD-[A-F0-9]{24}$"},
-    "input_refs": {"$ref": "#/$defs/non_empty_refs"},
+    "input_refs": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_refs", "decision_refs", "requirement_refs", "functionality_refs", "dimension_refs",
+        "dimension_mapping_refs", "relation_refs", "graph_edge_refs", "functional_map_refs",
+        "ledger_refs", "artifact_refs", "evidence_refs", "task_refs", "task_result_refs",
+        "review_refs", "remediation_refs", "process_record_refs", "incoming_handoff_refs"
+      ],
+      "properties": {
+        "source_refs": {"$ref": "#/$defs/ref_set_binding"},
+        "decision_refs": {"$ref": "#/$defs/ref_set_binding"},
+        "requirement_refs": {"$ref": "#/$defs/ref_set_binding"},
+        "functionality_refs": {"$ref": "#/$defs/ref_set_binding"},
+        "dimension_refs": {"$ref": "#/$defs/ref_set_binding"},
+        "dimension_mapping_refs": {"$ref": "#/$defs/ref_set_binding"},
+        "relation_refs": {"$ref": "#/$defs/ref_set_binding"},
+        "graph_edge_refs": {"$ref": "#/$defs/ref_set_binding"},
+        "functional_map_refs": {"$ref": "#/$defs/ref_set_binding"},
+        "ledger_refs": {"$ref": "#/$defs/ref_set_binding"},
+        "artifact_refs": {"$ref": "#/$defs/ref_set_binding"},
+        "evidence_refs": {"$ref": "#/$defs/ref_set_binding"},
+        "task_refs": {"$ref": "#/$defs/ref_set_binding"},
+        "task_result_refs": {"$ref": "#/$defs/ref_set_binding"},
+        "review_refs": {"$ref": "#/$defs/ref_set_binding"},
+        "remediation_refs": {"$ref": "#/$defs/ref_set_binding"},
+        "process_record_refs": {"$ref": "#/$defs/ref_set_binding"},
+        "incoming_handoff_refs": {"$ref": "#/$defs/ref_set_binding"}
+      }
+    },
     "coverage": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["sources", "decisions", "requirements", "dimensions", "tasks", "process_records"],
+      "required": [
+        "sources", "decisions", "requirements", "functionalities", "dimensions",
+        "dimension_mappings", "relations", "graph_edges", "functional_map", "ledger", "artifacts",
+        "evidence", "tasks", "task_results", "reviews", "remediations", "process_records",
+        "incoming_handoff"
+      ],
       "properties": {
         "sources": {"type": "integer", "minimum": 0},
         "decisions": {"type": "integer", "minimum": 0},
         "requirements": {"type": "integer", "minimum": 0},
+        "functionalities": {"type": "integer", "minimum": 0},
         "dimensions": {"type": "integer", "minimum": 0},
+        "dimension_mappings": {"type": "integer", "minimum": 0},
+        "relations": {"type": "integer", "minimum": 0},
+        "graph_edges": {"type": "integer", "minimum": 0},
+        "functional_map": {"type": "integer", "minimum": 0},
+        "ledger": {"type": "integer", "minimum": 0},
+        "artifacts": {"type": "integer", "minimum": 0},
+        "evidence": {"type": "integer", "minimum": 0},
         "tasks": {"type": "integer", "minimum": 0},
-        "process_records": {"type": "integer", "minimum": 0}
+        "task_results": {"type": "integer", "minimum": 0},
+        "reviews": {"type": "integer", "minimum": 0},
+        "remediations": {"type": "integer", "minimum": 0},
+        "process_records": {"type": "integer", "minimum": 0},
+        "incoming_handoff": {"type": "integer", "minimum": 0}
       }
     },
     "findings": {
@@ -68,17 +114,44 @@
     "complete": {"type": "boolean"},
     "route": {"enum": ["none", "needs-research", "needs-spec", "needs-graph", "needs-plan", "blocked"]}
   },
-  "$defs": {
-    "non_empty_refs": {
-      "type": "array",
-      "minItems": 1,
-      "items": {"type": "string", "minLength": 1},
-      "uniqueItems": true
+  "oneOf": [
+    {
+      "properties": {
+        "route": {"const": "none"},
+        "complete": {"const": true},
+        "findings": {"maxItems": 0},
+        "unmapped_decision_refs": {"maxItems": 0},
+        "unmapped_requirement_refs": {"maxItems": 0},
+        "open_remediation_refs": {"maxItems": 0}
+      }
     },
+    {
+      "properties": {
+        "route": {"enum": ["needs-research", "needs-spec", "needs-graph", "needs-plan", "blocked"]},
+        "complete": {"const": false}
+      },
+      "anyOf": [
+        {"properties": {"findings": {"minItems": 1}}},
+        {"properties": {"unmapped_decision_refs": {"minItems": 1}}},
+        {"properties": {"unmapped_requirement_refs": {"minItems": 1}}},
+        {"properties": {"open_remediation_refs": {"minItems": 1}}}
+      ]
+    }
+  ],
+  "$defs": {
     "refs": {
       "type": "array",
       "items": {"type": "string", "minLength": 1},
       "uniqueItems": true
+    },
+    "ref_set_binding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["count", "refs_digest"],
+      "properties": {
+        "count": {"type": "integer", "minimum": 0},
+        "refs_digest": {"type": "string", "pattern": "^sha256:[a-f0-9]{64}$"}
+      }
     }
   }
 }

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import fcntl
 import os
+import re
 import secrets
 from typing import Any
 
@@ -63,22 +64,27 @@ ROUTES = {
     "audited": "none",
     "blocked": "none",
 }
+ANALYSIS_ROUTE_REDUCTION = {
+    "blocked_dominance": True,
+    "corrective_priority": ["needs-research", "needs-spec", "needs-graph", "needs-plan"],
+    "clean_route": "none",
+}
 REQUIRED_STRINGS = (
     "run_ref", "event_ref", "event_kind", "stage", "status", "actor",
-    "repo_ref", "wave_ref", "origin",
+    "owner_session_ref", "repo_ref", "wave_ref", "origin",
 )
 REQUIRED_ARRAYS = ("causal_refs", "trace_refs", "artifact_refs", "task_refs")
 OPTIONAL_FIELDS = {
     "task_ref", "terminal_result", "reviewed_task_refs", "finding_refs",
     "commit_range", "remediates_run_ref", "analysis_ref", "analysis_result",
-    "delegation_record",
+    "delegation_record", "commit_refs", "changed_paths",
 }
 OPTIONAL_BY_KIND = {
     "run-start": {"remediates_run_ref"},
     "stage": set(),
     "delegation": {"delegation_record"},
-    "task-result": {"task_ref", "terminal_result"},
-    "review": {"reviewed_task_refs", "commit_range"},
+    "task-result": {"task_ref", "terminal_result", "commit_refs", "changed_paths"},
+    "review": {"reviewed_task_refs", "commit_range", "finding_refs"},
     "remediation": {"finding_refs"},
     "repo-handoff": set(),
     "analysis": {"analysis_ref", "analysis_result"},
@@ -92,10 +98,28 @@ ANALYSIS_FIELDS = {
 ANALYSIS_STRING_FIELDS = {
     "analysis_ref", "profile_ref", "model_ref", "checklist_ref", "basis_build_ref",
 }
-COVERAGE_FIELDS = {
-    "sources", "decisions", "requirements", "dimensions", "tasks",
-    "process_records",
+COVERAGE_TO_INPUT = {
+    "sources": "source_refs",
+    "decisions": "decision_refs",
+    "requirements": "requirement_refs",
+    "functionalities": "functionality_refs",
+    "dimensions": "dimension_refs",
+    "dimension_mappings": "dimension_mapping_refs",
+    "relations": "relation_refs",
+    "graph_edges": "graph_edge_refs",
+    "functional_map": "functional_map_refs",
+    "ledger": "ledger_refs",
+    "artifacts": "artifact_refs",
+    "evidence": "evidence_refs",
+    "tasks": "task_refs",
+    "task_results": "task_result_refs",
+    "reviews": "review_refs",
+    "remediations": "remediation_refs",
+    "process_records": "process_record_refs",
+    "incoming_handoff": "incoming_handoff_refs",
 }
+COVERAGE_FIELDS = set(COVERAGE_TO_INPUT)
+ANALYSIS_INPUT_FIELDS = set(COVERAGE_TO_INPUT.values())
 FINDING_FIELDS = {
     "finding_ref", "kind", "subject_refs", "conflict_refs", "route", "summary",
 }
@@ -105,6 +129,8 @@ DELEGATION_FIELDS = {
     "role_kind", "agent_level", "orchestrator_session_id",
 }
 DELEGATION_OPTIONAL_FIELDS = {"app_task_schema"}
+GIT_REF = re.compile(r"^[0-9a-f]{40}$")
+COMMIT_RANGE = re.compile(r"^[0-9a-f]{40}\.\.[0-9a-f]{40}$")
 
 
 def _valid_refs(value: Any, *, allow_empty: bool = True) -> bool:
@@ -120,6 +146,18 @@ def _nonempty_string(value: Any) -> bool:
     return isinstance(value, str) and bool(value)
 
 
+def _valid_git_refs(value: Any, *, allow_empty: bool = True) -> bool:
+    return (
+        _valid_refs(value, allow_empty=allow_empty)
+        and all(GIT_REF.fullmatch(item) is not None for item in value)
+    )
+
+
+def _ref_set_binding(refs: list[str]) -> dict[str, Any]:
+    ordered = sorted(set(refs))
+    return {"count": len(ordered), "refs_digest": digest_bytes(canonical(ordered))}
+
+
 def _route_registry(workflow: dict[str, Any] | None) -> dict[str, str]:
     if workflow is None:
         return FINDING_ROUTES
@@ -129,6 +167,15 @@ def _route_registry(workflow: dict[str, Any] | None) -> dict[str, str]:
     return routes
 
 
+def _route_reduction(workflow: dict[str, Any] | None) -> dict[str, Any]:
+    if workflow is None:
+        return ANALYSIS_ROUTE_REDUCTION
+    reduction = workflow.get("analysis_route_reduction")
+    if reduction != ANALYSIS_ROUTE_REDUCTION:
+        raise GraphError("SCHEMA_UNSUPPORTED", "workflow analysis route reduction is invalid")
+    return reduction
+
+
 def _validate_workflow(workflow: Any) -> dict[str, str]:
     if (
         not isinstance(workflow, dict)
@@ -136,6 +183,7 @@ def _validate_workflow(workflow: Any) -> dict[str, str]:
         or workflow.get("stages") != list(STAGES)
         or workflow.get("routes") != ROUTES
         or workflow.get("finding_routes") != FINDING_ROUTES
+        or workflow.get("analysis_route_reduction") != ANALYSIS_ROUTE_REDUCTION
     ):
         raise GraphError("SCHEMA_UNSUPPORTED", "workflow stage or route registry is invalid")
     return ROUTES
@@ -162,9 +210,15 @@ def _validate_delegation(event: dict[str, Any]) -> None:
         raise GraphError("DELEGATION_INVALID", "app task packet identity disagrees with the selected role")
     if record["task_id"] not in event["task_refs"]:
         raise GraphError("RUN_SCOPE_INVALID", "delegated task is outside the event task set")
+    if record["orchestrator_session_id"] != event["owner_session_ref"]:
+        raise GraphError("OWNERSHIP_INVALID", "delegation session differs from the run owner session")
 
 
-def _validate_analysis(event: dict[str, Any], routes: dict[str, str]) -> None:
+def _validate_analysis(
+    event: dict[str, Any],
+    routes: dict[str, str],
+    reduction: dict[str, Any],
+) -> None:
     result = event.get("analysis_result")
     if (
         not _nonempty_string(event.get("analysis_ref"))
@@ -176,11 +230,27 @@ def _validate_analysis(event: dict[str, Any], routes: dict[str, str]) -> None:
         or not valid_build_ref(result.get("basis_build_ref"))
     ):
         raise GraphError("ANALYSIS_INCOMPLETE", "analysis needs one complete typed result")
-    for field in (
-        "input_refs", "unmapped_decision_refs", "unmapped_requirement_refs",
-        "open_remediation_refs",
-    ):
-        if not _valid_refs(result.get(field), allow_empty=field != "input_refs"):
+    input_refs = result.get("input_refs")
+    if not isinstance(input_refs, dict) or set(input_refs) != ANALYSIS_INPUT_FIELDS:
+        raise GraphError("ANALYSIS_INCOMPLETE", "analysis input categories are incomplete")
+    for field in ANALYSIS_INPUT_FIELDS:
+        binding = input_refs.get(field)
+        if (
+            not isinstance(binding, dict)
+            or set(binding) != {"count", "refs_digest"}
+            or isinstance(binding.get("count"), bool)
+            or not isinstance(binding.get("count"), int)
+            or binding["count"] < 0
+            or not valid_digest(binding.get("refs_digest"))
+        ):
+            raise GraphError("ANALYSIS_INCOMPLETE", f"analysis input category {field} is invalid")
+    if input_refs["source_refs"]["count"] < 1 or input_refs["process_record_refs"]["count"] < 1:
+        raise GraphError("ANALYSIS_INCOMPLETE", "analysis source and process bindings cannot be empty")
+    for field in ("functional_map_refs", "ledger_refs", "incoming_handoff_refs"):
+        if input_refs[field]["count"] != 1:
+            raise GraphError("ANALYSIS_INCOMPLETE", f"analysis input category {field} must bind one ref")
+    for field in ("unmapped_decision_refs", "unmapped_requirement_refs", "open_remediation_refs"):
+        if not _valid_refs(result.get(field)):
             raise GraphError("ANALYSIS_INCOMPLETE", f"analysis {field} is invalid")
     coverage = result.get("coverage")
     if not isinstance(coverage, dict) or set(coverage) != COVERAGE_FIELDS:
@@ -192,6 +262,12 @@ def _validate_analysis(event: dict[str, Any], routes: dict[str, str]) -> None:
         for field in COVERAGE_FIELDS
     ):
         raise GraphError("ANALYSIS_INCOMPLETE", "analysis coverage counts are invalid")
+    expected_coverage = {
+        count_field: input_refs[input_field]["count"]
+        for count_field, input_field in COVERAGE_TO_INPUT.items()
+    }
+    if coverage != expected_coverage:
+        raise GraphError("ANALYSIS_INCOMPLETE", "analysis coverage differs from its categorized inputs")
     findings = result.get("findings")
     if not isinstance(findings, list):
         raise GraphError("ANALYSIS_INCOMPLETE", "analysis findings are invalid")
@@ -227,15 +303,24 @@ def _validate_analysis(event: dict[str, Any], routes: dict[str, str]) -> None:
         possible_routes.add("needs-graph")
     if result["open_remediation_refs"]:
         possible_routes.add("needs-plan")
-    route_priority = ("needs-research", "needs-spec", "needs-graph", "needs-plan")
-    if "blocked" in possible_routes:
+    route_priority = reduction["corrective_priority"]
+    if reduction["blocked_dominance"] and "blocked" in possible_routes:
         expected_route = "blocked"
     else:
-        expected_route = next((candidate for candidate in route_priority if candidate in possible_routes), "none")
+        expected_route = next(
+            (candidate for candidate in route_priority if candidate in possible_routes),
+            reduction["clean_route"],
+        )
     if route != expected_route:
         raise GraphError("ANALYSIS_INCOMPLETE", "analysis route disagrees with its findings")
-    if route != "none" and result["complete"] is not False:
-        raise GraphError("ANALYSIS_INCOMPLETE", "routed analysis must remain incomplete")
+    if (route == "none") != (
+        result["complete"] is True
+        and not findings
+        and not result["unmapped_decision_refs"]
+        and not result["unmapped_requirement_refs"]
+        and not result["open_remediation_refs"]
+    ):
+        raise GraphError("ANALYSIS_INCOMPLETE", "analysis clean route and completeness disagree")
     expected_status = "audited" if route == "none" else route
     if event["status"] != expected_status:
         raise GraphError("ANALYSIS_INCOMPLETE", "analysis event status disagrees with its route")
@@ -262,11 +347,17 @@ def _validate_event(event: Any, workflow: dict[str, Any] | None = None) -> dict[
         raise GraphError("PATH_ESCAPE", "event and run refs must be safe")
     if any(not _valid_refs(event.get(field)) for field in REQUIRED_ARRAYS):
         raise GraphError("JOURNAL_CORRUPT", "event reference arrays are invalid")
-    for field in ("reviewed_task_refs", "finding_refs"):
+    for field in ("reviewed_task_refs", "finding_refs", "changed_paths"):
         if field in event and not _valid_refs(event[field]):
             raise GraphError("JOURNAL_CORRUPT", f"{field} is invalid")
     if event["origin"] != "native" or event["actor"] not in ACTORS:
         raise GraphError("OWNERSHIP_INVALID", "only a primary or repo-L2 may record native events")
+    if (
+        event["actor"] == "DIRECT-primary" and event["owner_session_ref"] != "none"
+    ) or (
+        event["actor"] == "repo-L2" and event["owner_session_ref"] == "none"
+    ):
+        raise GraphError("OWNERSHIP_INVALID", "owner mode and owner session disagree")
     if event["event_kind"] not in EVENT_KINDS:
         raise GraphError("JOURNAL_CORRUPT", "event kind is invalid")
     irrelevant = (OPTIONAL_FIELDS & set(event)) - OPTIONAL_BY_KIND[event["event_kind"]]
@@ -280,6 +371,10 @@ def _validate_event(event: Any, workflow: dict[str, Any] | None = None) -> dict[
         raise GraphError("RUN_SCOPE_INVALID", "app-dev lifecycle event has the wrong stage")
     if event["event_kind"] == "analysis" and event["stage"] != "app-analyze":
         raise GraphError("ANALYSIS_INCOMPLETE", "analysis event has the wrong stage")
+    if event["status"] == "implemented" and event["event_kind"] != "repo-handoff":
+        raise GraphError("RUN_TRANSITION_INVALID", "implemented belongs only to the repo handoff")
+    if event["event_kind"] == "repo-handoff" and event["status"] != "implemented":
+        raise GraphError("RUN_TRANSITION_INVALID", "repo handoff must carry implemented")
     if event["event_kind"] == "run-start":
         remediation_ref = event.get("remediates_run_ref")
         if (
@@ -297,10 +392,19 @@ def _validate_event(event: Any, workflow: dict[str, Any] | None = None) -> dict[
             or event.get("task_ref") not in event["task_refs"]
             or event.get("terminal_result") not in {"done", "failed", "blocked"}
             or event["status"] != event["terminal_result"]
+            or not _valid_git_refs(event.get("commit_refs"), allow_empty=False)
+            or not _valid_refs(event.get("changed_paths"), allow_empty=False)
         ):
-            raise GraphError("RUN_SCOPE_INVALID", "task-result needs one scoped terminal result")
+            raise GraphError("RUN_SCOPE_INVALID", "task-result needs scoped terminal and change provenance")
     if event["event_kind"] == "review":
-        if not _nonempty_string(event.get("commit_range")) or not _valid_refs(event.get("reviewed_task_refs"), allow_empty=False):
+        if (
+            not _nonempty_string(event.get("commit_range"))
+            or COMMIT_RANGE.fullmatch(event["commit_range"]) is None
+            or not _valid_refs(event.get("reviewed_task_refs"), allow_empty=False)
+            or "finding_refs" not in event
+            or not _valid_refs(event["finding_refs"])
+            or event["status"] != "done"
+        ):
             raise GraphError("REVIEW_INCOMPLETE", "review needs an exact commit range and task set")
     if event["event_kind"] == "remediation" and not _valid_refs(event.get("finding_refs"), allow_empty=False):
         raise GraphError("REMEDIATION_RUN_REQUIRED", "remediation needs finding refs")
@@ -309,7 +413,7 @@ def _validate_event(event: Any, workflow: dict[str, Any] | None = None) -> dict[
     elif "delegation_record" in event:
         raise GraphError("DELEGATION_INVALID", "only delegation events may contain delegation records")
     if event["event_kind"] == "analysis":
-        _validate_analysis(event, _route_registry(workflow))
+        _validate_analysis(event, _route_registry(workflow), _route_reduction(workflow))
     elif "analysis_ref" in event or "analysis_result" in event or event["status"] == "audited":
         raise GraphError("ANALYSIS_INCOMPLETE", "only analysis events may contain analysis data or audited status")
     return event
@@ -338,7 +442,11 @@ def _validate_run_lifecycle(
     if len(starts) != 1:
         raise GraphError("RUN_SCOPE_INVALID", "run needs exactly one run-start")
     start = starts[0]
-    if any(event[key] != start[key] for event in checked for key in ("actor", "repo_ref", "wave_ref", "task_refs")):
+    if any(
+        event[key] != start[key]
+        for event in checked
+        for key in ("actor", "owner_session_ref", "repo_ref", "wave_ref", "task_refs")
+    ):
         raise GraphError("RUN_SCOPE_INVALID", "event authority or scope differs from run-start")
     for task_ref in start["task_refs"]:
         task = tasks.get(task_ref)
@@ -350,11 +458,34 @@ def _validate_run_lifecycle(
             or task.get("wave_id") != start["wave_ref"]
         ):
             raise GraphError("OWNERSHIP_INVALID", "run task authority or scope disagrees with the ledger", task_ref=task_ref)
+        if not _valid_git_refs(task.get("retirement_commit_refs")):
+            raise GraphError("RUN_SCOPE_INVALID", "task retirement commit refs are invalid", task_ref=task_ref)
     ordered = causal_order(checked)
     if ordered[0]["event_ref"] != start["event_ref"]:
         raise GraphError("RUN_SCOPE_INVALID", "run-start must be the only causal root")
     task_results: dict[str, dict[str, Any]] = {}
     by_ref = {event["event_ref"]: event for event in checked}
+    ordered_refs: list[str] = []
+    reviews: list[dict[str, Any]] = []
+    remediations: list[dict[str, Any]] = []
+    handoffs: list[dict[str, Any]] = []
+    ancestor_cache: dict[str, set[str]] = {}
+
+    def ancestors(event_ref: str) -> set[str]:
+        cached = ancestor_cache.get(event_ref)
+        if cached is not None:
+            return cached
+        result: set[str] = set()
+        frontier = list(by_ref[event_ref]["causal_refs"])
+        while frontier:
+            ref = frontier.pop()
+            if ref in result:
+                continue
+            result.add(ref)
+            frontier.extend(by_ref[ref]["causal_refs"])
+        ancestor_cache[event_ref] = result
+        return result
+
     for event in ordered:
         for cause_ref in event["causal_refs"]:
             cause = by_ref[cause_ref]
@@ -369,39 +500,102 @@ def _validate_run_lifecycle(
             task_ref = event["task_ref"]
             if task_ref not in start["task_refs"] or task_ref in task_results:
                 raise GraphError("RUN_SCOPE_INVALID", "task result is outside scope or duplicated", task_ref=task_ref)
+            task = tasks[task_ref]
+            changed_paths = set(event["changed_paths"])
+            allowed_files = set(task.get("allowed_files", []))
+            target_paths = set(task.get("target_paths", []))
+            expected_artifacts = set(task.get("implementation_refs", [])) | set(task.get("evidence_refs", []))
+            expected_trace = {
+                task_ref,
+                *task.get("requirement_refs", []),
+                *task.get("functionality_refs", []),
+                *task.get("graph_entity_refs", []),
+            }
+            if not changed_paths.issubset(allowed_files) or not changed_paths.issubset(target_paths):
+                raise GraphError("RUN_SCOPE_INVALID", "task result changed paths exceed the task scope", task_ref=task_ref)
+            if set(event["artifact_refs"]) != expected_artifacts:
+                raise GraphError("RUN_SCOPE_INVALID", "task result artifacts differ from the ledger", task_ref=task_ref)
+            if not expected_trace.issubset(event["trace_refs"]):
+                raise GraphError("RUN_SCOPE_INVALID", "task result trace refs do not cover the ledger", task_ref=task_ref)
+            if not set(task["retirement_commit_refs"]).issubset(event["commit_refs"]):
+                raise GraphError("RUN_SCOPE_INVALID", "task result omits retirement commit provenance", task_ref=task_ref)
             task_results[task_ref] = event
         if event["event_kind"] == "review":
             if set(task_results) != set(start["task_refs"]):
                 raise GraphError("REVIEW_INCOMPLETE", "review requires full-run terminal results")
             if set(event["reviewed_task_refs"]) != set(start["task_refs"]):
                 raise GraphError("REVIEW_INCOMPLETE", "review task set differs from run scope")
-        if event["event_kind"] == "analysis" and not any(
-            by_ref[cause_ref]["status"] in {"implemented", "no-work"}
-            for cause_ref in event["causal_refs"]
-        ):
-            raise GraphError("ANALYSIS_INCOMPLETE", "analysis must directly follow implemented or no-work")
+            if not {item["event_ref"] for item in task_results.values()}.issubset(ancestors(event["event_ref"])):
+                raise GraphError("REVIEW_INCOMPLETE", "review is not causally after every task result")
+            reviews.append(event)
+        if event["event_kind"] == "remediation":
+            remediations.append(event)
+        if event["event_kind"] == "repo-handoff":
+            handoffs.append(event)
+            clean_reviews = [review for review in reviews if not review.get("finding_refs")]
+            if (
+                len(handoffs) != 1
+                or set(task_results) != set(start["task_refs"])
+                or any(result["terminal_result"] != "done" for result in task_results.values())
+                or len(clean_reviews) != 1
+                or reviews[-1]["event_ref"] != clean_reviews[0]["event_ref"]
+                or event["causal_refs"] != [clean_reviews[0]["event_ref"]]
+                or ancestors(event["event_ref"]) != set(ordered_refs)
+            ):
+                raise GraphError("REVIEW_INCOMPLETE", "implemented handoff needs full results and one final clean review")
+            unresolved_findings = [
+                finding_ref
+                for review in reviews
+                for finding_ref in review.get("finding_refs", [])
+                if not any(
+                    finding_ref in remediation["finding_refs"]
+                    and review["event_ref"] in ancestors(remediation["event_ref"])
+                    for remediation in remediations
+                )
+            ]
+            if unresolved_findings or any(
+                remediation["status"] != "done" for remediation in remediations
+            ):
+                raise GraphError("REMEDIATION_RUN_REQUIRED", "implemented handoff has unresolved review findings")
+        if event["event_kind"] == "analysis":
+            if len(event["causal_refs"]) != 1:
+                raise GraphError("ANALYSIS_INCOMPLETE", "analysis needs one direct incoming boundary")
+            cause_ref = event["causal_refs"][0]
+            cause = by_ref[cause_ref]
+            implemented_input = cause["event_kind"] == "repo-handoff" and cause["status"] == "implemented"
+            no_work_input = (
+                cause["event_kind"] == "stage"
+                and cause["stage"] == "app-plan"
+                and cause["status"] == "no-work"
+            )
+            if not implemented_input and not no_work_input:
+                raise GraphError("ANALYSIS_INCOMPLETE", "analysis must follow repo handoff or app-plan no-work")
+            if event["analysis_result"]["input_refs"]["incoming_handoff_refs"] != _ref_set_binding([cause_ref]):
+                raise GraphError("ANALYSIS_INCOMPLETE", "analysis input does not bind its incoming boundary")
+        ordered_refs.append(event["event_ref"])
     terminals = [event for event in ordered if _terminal_event(event)]
     if len(terminals) > 1:
         raise GraphError("RUN_TERMINAL_CONFLICT", "run has more than one terminal event")
     if terminals and ordered[-1]["event_ref"] != terminals[0]["event_ref"]:
         raise GraphError("RUN_SEALED", "run contains records after its terminal event")
     if terminals:
-        ancestors: set[str] = set()
+        terminal_ancestors: set[str] = set()
         frontier = list(terminals[0]["causal_refs"])
         while frontier:
             ref = frontier.pop()
-            if ref in ancestors:
+            if ref in terminal_ancestors:
                 continue
-            ancestors.add(ref)
+            terminal_ancestors.add(ref)
             frontier.extend(by_ref[ref]["causal_refs"])
-        if ancestors != set(by_ref) - {terminals[0]["event_ref"]}:
+        if terminal_ancestors != set(by_ref) - {terminals[0]["event_ref"]}:
             raise GraphError("RUN_SEALED", "terminal event must causally seal the full run")
     audited = [event for event in checked if event["status"] == "audited"]
     if audited:
         event = audited[0]
         if event["event_kind"] != "analysis" or event["stage"] != "app-analyze":
             raise GraphError("ANALYSIS_INCOMPLETE", "audited must be the final app-analyze event")
-        if set(task_results) != set(start["task_refs"]):
+        cause = by_ref[event["causal_refs"][0]]
+        if cause["event_kind"] == "repo-handoff" and set(task_results) != set(start["task_refs"]):
             raise GraphError("ANALYSIS_INCOMPLETE", "audited requires terminal results for every run task")
     return ordered
 

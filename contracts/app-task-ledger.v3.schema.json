@@ -19,7 +19,8 @@
           "task_id", "repo_ref", "wave_id", "owner_role", "decision_state", "status",
           "queue_sequence", "task_kind", "requirement_refs", "functionality_refs",
           "graph_entity_refs", "target_paths", "allowed_files", "depends_on",
-          "definition_of_done", "proof_requirement", "implementation_refs", "evidence_refs"
+          "definition_of_done", "proof_requirement", "implementation_refs", "evidence_refs",
+          "retirement_commit_refs"
         ],
         "properties": {
           "task_id": {"type": "string", "minLength": 1},
@@ -40,6 +41,7 @@
           "proof_requirement": {"type": "string", "minLength": 1},
           "implementation_refs": {"$ref": "#/$defs/refs"},
           "evidence_refs": {"$ref": "#/$defs/refs"},
+          "retirement_commit_refs": {"$ref": "#/$defs/git_refs"},
           "replacement_task_refs": {"$ref": "#/$defs/refs"}
         }
       }
@@ -49,6 +51,11 @@
     "refs": {
       "type": "array",
       "items": {"type": "string", "minLength": 1},
+      "uniqueItems": true
+    },
+    "git_refs": {
+      "type": "array",
+      "items": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
       "uniqueItems": true
     }
   }

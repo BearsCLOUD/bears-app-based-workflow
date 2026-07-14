@@ -6,7 +6,8 @@
   "additionalProperties": false,
   "required": [
     "schema", "run_ref", "event_ref", "event_kind", "stage", "status", "actor",
-    "repo_ref", "wave_ref", "task_refs", "causal_refs", "trace_refs", "artifact_refs", "origin"
+    "owner_session_ref", "repo_ref", "wave_ref", "task_refs", "causal_refs", "trace_refs",
+    "artifact_refs", "origin"
   ],
   "properties": {
     "schema": {"const": "app-process-event.v3"},
@@ -16,6 +17,7 @@
     "stage": {"enum": ["app-constitution", "app-research", "app-specify", "app-functional-graph", "app-plan", "app-dev", "app-analyze"]},
     "status": {"enum": ["constitution-ready", "needs-research", "research-ready", "needs-spec", "spec-ready", "needs-graph", "graph-ready", "waiting", "needs-plan", "plan-ready", "ready", "in_progress", "implemented", "no-work", "audited", "done", "failed", "blocked", "superseded"]},
     "actor": {"enum": ["DIRECT-primary", "repo-L2"]},
+    "owner_session_ref": {"type": "string", "minLength": 1},
     "repo_ref": {"type": "string", "minLength": 1},
     "wave_ref": {"type": "string", "minLength": 1},
     "task_refs": {"$ref": "#/$defs/refs"},
@@ -25,9 +27,11 @@
     "origin": {"const": "native"},
     "task_ref": {"type": "string", "minLength": 1},
     "terminal_result": {"enum": ["done", "failed", "blocked"]},
+    "commit_refs": {"$ref": "#/$defs/non_empty_git_refs"},
+    "changed_paths": {"$ref": "#/$defs/non_empty_refs"},
     "reviewed_task_refs": {"$ref": "#/$defs/refs"},
     "finding_refs": {"$ref": "#/$defs/refs"},
-    "commit_range": {"type": "string", "minLength": 1},
+    "commit_range": {"$ref": "#/$defs/commit_range"},
     "remediates_run_ref": {"type": "string", "minLength": 1},
     "delegation_record": {
       "type": "object",
@@ -79,7 +83,17 @@
         "properties": {"event_kind": {"const": "task-result"}},
         "required": ["event_kind"]
       },
-      "then": {"required": ["task_ref", "terminal_result"]}
+      "then": {"required": ["task_ref", "terminal_result", "commit_refs", "changed_paths"]},
+      "else": {
+        "not": {
+          "anyOf": [
+            {"required": ["task_ref"]},
+            {"required": ["terminal_result"]},
+            {"required": ["commit_refs"]},
+            {"required": ["changed_paths"]}
+          ]
+        }
+      }
     },
     {
       "if": {
@@ -87,8 +101,11 @@
         "required": ["event_kind"]
       },
       "then": {
-        "required": ["commit_range", "reviewed_task_refs"],
-        "properties": {"reviewed_task_refs": {"minItems": 1}}
+        "required": ["commit_range", "reviewed_task_refs", "finding_refs"],
+        "properties": {
+          "status": {"const": "done"},
+          "reviewed_task_refs": {"minItems": 1}
+        }
       }
     },
     {
@@ -114,6 +131,20 @@
         "required": ["status"]
       },
       "then": {"properties": {"event_kind": {"const": "analysis"}}}
+    },
+    {
+      "if": {
+        "properties": {"actor": {"const": "DIRECT-primary"}},
+        "required": ["actor"]
+      },
+      "then": {"properties": {"owner_session_ref": {"const": "none"}}}
+    },
+    {
+      "if": {
+        "properties": {"actor": {"const": "repo-L2"}},
+        "required": ["actor"]
+      },
+      "then": {"properties": {"owner_session_ref": {"not": {"const": "none"}}}}
     }
   ],
   "$defs": {
@@ -121,6 +152,22 @@
       "type": "array",
       "items": {"type": "string", "minLength": 1},
       "uniqueItems": true
+    },
+    "non_empty_refs": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"type": "string", "minLength": 1},
+      "uniqueItems": true
+    },
+    "non_empty_git_refs": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+      "uniqueItems": true
+    },
+    "commit_range": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{40}\\.\\.[0-9a-f]{40}$"
     }
   }
 }

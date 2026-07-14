@@ -6,6 +6,7 @@
   "additionalProperties": false,
   "required": [
     "schema", "handoff_ref", "run_ref", "event_ref", "status", "target_stage",
+    "owner_mode", "owner_session_ref", "repo_ref", "wave_ref",
     "causal_refs", "trace_links", "build_ref", "source_snapshot_digest", "journal_digest",
     "artifact_refs", "decision_refs", "requirement_refs", "finding_refs", "evidence_refs", "stage_payload"
   ],
@@ -16,8 +17,16 @@
     "event_ref": {"type": "string", "minLength": 1},
     "status": {"enum": ["constitution-ready", "needs-research", "research-ready", "needs-spec", "spec-ready", "needs-graph", "graph-ready", "waiting", "needs-plan", "plan-ready", "ready", "implemented", "no-work", "audited", "blocked"]},
     "target_stage": {"enum": ["app-research", "app-specify", "app-functional-graph", "app-plan", "app-dev", "app-analyze", "none"]},
+    "owner_mode": {"enum": ["DIRECT", "DELEGATED"]},
+    "owner_session_ref": {"type": "string", "minLength": 1},
+    "repo_ref": {"type": "string", "minLength": 1},
+    "wave_ref": {"type": "string", "minLength": 1},
     "causal_refs": {"$ref": "#/$defs/refs"},
-    "trace_links": {"type": "array", "items": {"type": "object"}},
+    "trace_links": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/trace_link"},
+      "uniqueItems": true
+    },
     "build_ref": {"type": "string", "pattern": "^BUILD-[A-F0-9]{24}$"},
     "source_snapshot_digest": {"type": "string", "pattern": "^sha256:[a-f0-9]{64}$"},
     "journal_digest": {"type": "string", "pattern": "^sha256:[a-f0-9]{64}$"},
@@ -75,7 +84,12 @@
     },
     {
       "if": {"properties": {"status": {"const": "implemented"}}, "required": ["status"]},
-      "then": {"properties": {"target_stage": {"const": "app-analyze"}}}
+      "then": {
+        "properties": {
+          "target_stage": {"const": "app-analyze"},
+          "stage_payload": {"$ref": "#/$defs/implemented_payload"}
+        }
+      }
     },
     {
       "if": {"properties": {"status": {"const": "no-work"}}, "required": ["status"]},
@@ -83,11 +97,24 @@
     },
     {
       "if": {"properties": {"status": {"const": "audited"}}, "required": ["status"]},
-      "then": {"properties": {"target_stage": {"const": "none"}}}
+      "then": {
+        "properties": {
+          "target_stage": {"const": "none"},
+          "stage_payload": {"$ref": "#/$defs/audited_payload"}
+        }
+      }
     },
     {
       "if": {"properties": {"status": {"const": "blocked"}}, "required": ["status"]},
       "then": {"properties": {"target_stage": {"const": "none"}}}
+    },
+    {
+      "if": {"properties": {"owner_mode": {"const": "DIRECT"}}, "required": ["owner_mode"]},
+      "then": {"properties": {"owner_session_ref": {"const": "none"}}}
+    },
+    {
+      "if": {"properties": {"owner_mode": {"const": "DELEGATED"}}, "required": ["owner_mode"]},
+      "then": {"properties": {"owner_session_ref": {"not": {"const": "none"}}}}
     }
   ],
   "$defs": {
@@ -95,6 +122,57 @@
       "type": "array",
       "items": {"type": "string", "minLength": 1},
       "uniqueItems": true
+    },
+    "non_empty_refs": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"type": "string", "minLength": 1},
+      "uniqueItems": true
+    },
+    "git_refs": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+      "uniqueItems": true
+    },
+    "commit_ranges": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"type": "string", "pattern": "^[0-9a-f]{40}\\.\\.[0-9a-f]{40}$"},
+      "uniqueItems": true
+    },
+    "trace_link": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["ref", "kind", "from_ref", "to_ref"],
+      "properties": {
+        "ref": {"type": "string", "minLength": 1},
+        "kind": {"enum": ["depends_on", "constrains", "defines", "decomposes_to", "implemented_by", "evidenced_by", "replaces", "remediates", "causes"]},
+        "from_ref": {"type": "string", "minLength": 1},
+        "to_ref": {"type": "string", "minLength": 1}
+      }
+    },
+    "implemented_payload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["task_result_refs", "review_refs", "final_review_ref", "commit_refs", "commit_ranges", "remediation_refs"],
+      "properties": {
+        "task_result_refs": {"$ref": "#/$defs/non_empty_refs"},
+        "review_refs": {"$ref": "#/$defs/non_empty_refs"},
+        "final_review_ref": {"type": "string", "minLength": 1},
+        "commit_refs": {"$ref": "#/$defs/git_refs"},
+        "commit_ranges": {"$ref": "#/$defs/commit_ranges"},
+        "remediation_refs": {"$ref": "#/$defs/refs"}
+      }
+    },
+    "audited_payload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["analysis_ref", "analysis_result"],
+      "properties": {
+        "analysis_ref": {"type": "string", "minLength": 1},
+        "analysis_result": {"$ref": "app-semantic-analysis-result.v1.schema.json"}
+      }
     }
   }
 }

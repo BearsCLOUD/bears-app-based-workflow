@@ -19,8 +19,10 @@ Effectiveness verdicts remain separate from workflow authority. improved, neutra
 | late reroute | A needs-research, needs-spec, needs-graph, or needs-plan route first emitted after its owning stage. |
 | seven-dimension coverage | The share of required behavior, dependency, state, api, data, integration, and error mappings that are sourced or explicitly not applicable. |
 | trace completeness | The share of active branches connected from specification through decision, requirement, functionality or behavior, task, implementation artifact, and evidence. |
-| reference case | A frozen documentation packet with expected dimensions, graph links, findings, owner, and route. |
+| reference case | A frozen visible case packet paired with a sealed answer key. |
 | assessment agent | A named model and profile that analyzes a reference case without repository mutation or workflow authority. |
+| visible case packet | The case material available to an assessment agent without expected findings, routes, or scores. |
+| sealed answer key | The hidden expected outputs and scoring facts opened only after the candidate result is fixed. |
 
 ## Seven-dimension rubric
 
@@ -50,7 +52,9 @@ The stage status mapping remains defined only by contracts/app-workflow-definiti
 
 ## Metric record
 
-Each result records metric id, frozen definition, cohort ref, baseline ref, numerator, denominator, exclusions, value, confidence, and source refs. Missing source material produces inconclusive rather than a numeric substitute.
+Each assessment freezes one cohort ref, baseline ref, primary metric id, equivalence range, and raw-count availability before collection.
+
+Each result records metric id, frozen definition, cohort ref, baseline ref, numerator, denominator, exclusions, value, confidence, and source refs. Preserve unavailable raw counts as absent and return inconclusive rather than a numeric substitute.
 
 Aggregate only comparable repository, wave, owner-mode, complexity, and model-profile strata. Preserve raw counts beside rates.
 
@@ -79,13 +83,15 @@ SEM-01, SEM-02, RTE-01, AUT-01, AUT-02, AUT-03, DET-01, DET-02, and OPS-01 requi
 
 ## Reference-case agent assessment
 
-1. Freeze a packet containing the exact source refs, expected owner mode, seven-dimension labels, graph links, finding set, route, and scoring rubric.
-2. Give every assessment agent the same packet, context budget, response schema, and model-profile identity.
-3. Collect one read-only analysis result per agent with cited source refs.
-4. Score route selection, dimension classification, contradiction discovery, trace mapping, and authority-boundary adherence against the reference.
-5. Report exact-match counts, precision, recall, omissions, unsupported claims, latency, and token use when those observations are already available.
-6. Compare candidate and baseline agents only within the same frozen case set and configuration stratum.
-7. Publish an assessment report with limitations and suggested follow-up; let the workflow owner decide whether any suggestion becomes a source change or ledger task.
+1. Freeze canonical bytes and `sha256` digests for the case set, visible case packet, sealed answer key, response schema, rubric, plugin revision, model-profile identity, context budget, and one treatment ref.
+2. Freeze the cohort ref, baseline ref, primary metric id, equivalence range, and raw-count availability in the same packet.
+3. Give every assessment agent only the visible case packet, response schema, context budget, and model-profile identity.
+4. Fix each read-only result and its digest before the scorer opens the sealed answer key.
+5. Score route selection, dimension classification, contradiction discovery, trace mapping, and authority adherence against the opened key.
+6. Report raw exact-match counts, precision, recall, omissions, unsupported claims, latency, and token use when present.
+7. Compare candidate and baseline agents only within the frozen cohort and configuration stratum.
+8. Return inconclusive when any freeze field, digest, raw count, or baseline observation is absent or drifts.
+9. Publish limitations and suggested follow-up without changing workflow state.
 
 A useful reference set covers each route class, every dimension, DIRECT and DELEGATED ownership, an L3 boundary case, a source conflict, a graph gap, a remediation gap, and a blocker.
 
@@ -96,6 +102,6 @@ A useful reference set covers each route class, every dimension, DIRECT and DELE
 | improved | The frozen primary metric improves and no exact-correspondence metric regresses. |
 | neutral | Differences stay within the frozen equivalence range and exact-correspondence metrics remain complete. |
 | regressed | A primary metric worsens or an exact-correspondence metric loses completeness. |
-| inconclusive | The packet, cohort, baseline, or observation set is insufficient. |
+| inconclusive | A freeze field, digest, raw count, baseline, or observation is absent, insufficient, or drifted. |
 
 The report states its metric verdict and source limitations. It does not write a handoff, process event, task, or terminal workflow status.

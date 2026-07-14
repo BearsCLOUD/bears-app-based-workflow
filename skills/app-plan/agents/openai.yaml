@@ -1,4 +1,4 @@
 interface:
   display_name: "App Plan"
   short_description: "Plan graph-linked repo tasks"
-  default_prompt: "Use $app-plan to create repo-scoped app-task-ledger v3 tasks from current graph meaning or routed remediation findings."
+  default_prompt: "Use $app-plan to create repo-scoped app-task-ledger v3 tasks from current graph meaning or source-linked correction findings."

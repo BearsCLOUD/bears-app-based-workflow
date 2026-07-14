@@ -41,8 +41,8 @@ Never create or mutate ledger tasks in this stage.
 
 1. Require the `DIRECT` primary to perform the bounded reads and writes itself.
 2. Require the repo-L2 in `DELEGATED` mode to decompose each bounded read or write and dispatch each L3 through `$subagents`.
-3. Return `needs-spec` for an unresolved decision or requirement meaning without inferring its resolution.
+3. Return `needs-research` for a source gap, `needs-spec` for unresolved meaning, and `needs-graph` for an incomplete semantic mapping.
 4. Reconcile the changed functional map through `$app-context-index` and reject any structural finding before handoff.
-5. Select `graph-ready` only with complete seven-dimension coverage and current functional-map, entity, coverage, and replacement refs.
-6. Validate the candidate `app-stage-handoff.v4`, record only the actual native v3 stage event, and reconcile the resulting journal.
+5. Select `graph-ready` only with complete seven-dimension coverage, current semantic refs, and `task_refs` empty before ordinary scope or preserved on a corrective route.
+6. Record only the actual native v3 stage event with `handoff_payload_digest` over canonical `stage_payload`, reconcile the journal, and call `app-graph.handoff_validate` for the complete candidate.
 7. Emit the build-bound handoff with target `app-plan` from workflow v3.

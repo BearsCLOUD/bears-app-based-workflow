@@ -17,7 +17,7 @@ Resolve schemas, statuses, targets, and transitions only from `contracts/app-sta
 
 1. Invoke `$app-context-index` and bind the run to its current build and source snapshot.
 2. Resume the earliest incomplete stage in workflow order: constitution, research, specification, functional graph, plan, development, and semantic analysis.
-3. Require each stage to return one schema-conformant build-bound `app-stage-handoff.v4`.
+3. Require each stage to call `app-graph.handoff_validate` and return the validated build-bound `app-stage-handoff.v4`.
 4. Reject a stale build, invalid status-target pair, missing causal ref, missing stage payload, or incomplete paged result.
 5. Stop on `waiting` when its handoff fingerprint is unchanged, on `blocked`, or on a product decision that requires user input.
 6. Continue corrective `needs-*` routes only to the target declared by workflow v3.

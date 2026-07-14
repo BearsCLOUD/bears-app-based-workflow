@@ -38,9 +38,9 @@ Do not create implementation tasks in this stage.
 
 ## Completion
 
-1. Return `needs-research` when scope or source coverage changed and include exact question, source, and scope-delta refs.
+1. Return `needs-research` when source coverage changed; return `needs-spec` while a required product choice remains unresolved.
 2. Return `spec-ready` only when required behavior, data ownership, actor authority, and outcome conditions are decision-complete.
-3. Put constitution, research, specification, behavior, and seven-dimension hint refs in `stage_payload`.
+3. Put constitution, research, specification, behavior, and seven-dimension hint refs in `stage_payload`, with `task_refs` empty before ordinary scope or preserved on a corrective route.
 4. Reconcile changed sources through `$app-context-index` before selecting the transition.
-5. Validate the candidate `app-stage-handoff.v4`, record only the actual native v3 stage event, and reconcile the resulting journal.
+5. Record only the actual native v3 stage event with `handoff_payload_digest` over canonical `stage_payload`, reconcile the journal, and call `app-graph.handoff_validate` for the complete candidate.
 6. Emit the build-bound handoff with the target resolved from workflow v3.

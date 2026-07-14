@@ -32,4 +32,4 @@ Deny the maintainer shell, network, Git, credential, symlink, arbitrary-path, se
 
 Publish no partial receipt after a compiler failure.
 
-Require the stage owner to validate its candidate transition, append only the event that occurred, invoke this skill again, and bind the resulting refs to `app-stage-handoff.v4`.
+Require the stage owner to append only the event that occurred with its outgoing payload digest, invoke this skill again, derive the handoff ref from the source event and current build, bind the resulting refs, and call `app-graph.handoff_validate` before emitting `app-stage-handoff.v4`.

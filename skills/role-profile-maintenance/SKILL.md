@@ -11,11 +11,9 @@ Invoke this skill only when the current user directly requests one concrete sema
 
 Keep the operation decision, permission decision, profile content, edits, and delivered result with the invoking `role-profile-architect`.
 
-Use `$subagents` and `dispatch-packet.v3` for every delegated L3 assignment.
+Require the repo-L2 to supply each prerequisite L3 result before invoking this skill.
 
 Do not invoke this skill for generic assessment, lookup, inferred need, prose cleanup, formatting, file layout, metadata, or cachebuster work.
-
-Route a bounded read-only inspection to `explorer` and an ordinary bounded mutation to `worker` through `$subagents`.
 
 ## Request
 
@@ -39,7 +37,7 @@ Treat proposed permissions as evidence rather than granted authority.
 10. Select `delete` only when no deliverable remains or ownership moved to a retained profile.
 11. Select `reject` when the request lacks an observable deliverable, conflicts with authority, or cannot have a bounded permission surface.
 12. Return `RESEARCH_REQUIRED` only when a current external fact can change the decision.
-13. Route separate public-source research through `$subagents` and keep its facts separate from design choices.
+13. Keep supplied public-source facts separate from design choices.
 14. Apply `$instruction-hardening` after semantic meaning and permissions are decided.
 15. Keep structured identity, capabilities, runtime controls, and behavior in the authoritative JSON definition.
 16. Use the fixed renderer for derived TOML and never consume raw TOML as authoritative input.

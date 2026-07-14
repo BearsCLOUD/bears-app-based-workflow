@@ -35,6 +35,6 @@ Do not create implementation tasks in this stage.
 2. Require the repo-L2 in `DELEGATED` mode to decompose each bounded read or write and dispatch each L3 through `$subagents`.
 3. Reconcile changed sources through `$app-context-index` before selecting a transition.
 4. Select `constitution-ready` with target `app-research` from workflow v3.
-5. Put the constitution ref, constraint refs, research unknowns, wave creation basis, and known wave refs in `stage_payload`.
-6. Validate the candidate `app-stage-handoff.v4`, record only the actual native v3 stage event, and reconcile the resulting journal.
+5. Keep `task_refs` empty and put the constitution ref, constraint refs, research unknowns, wave creation basis, and known wave refs in `stage_payload`.
+6. Record only the actual native v3 run-start event with `handoff_payload_digest` over canonical `stage_payload`, reconcile the journal, and call `app-graph.handoff_validate` for the complete candidate.
 7. Emit the build-bound handoff with exact artifact, decision, requirement, finding, and evidence refs.

@@ -1,13 +1,13 @@
 ---
 name: app-dev
-description: Execute repo-scoped ledger tasks through worker, critic, and remediation waves.
+description: Execute repo-scoped ledger tasks through worker and critic waves with linked correction runs.
 ---
 
 # App Dev
 
 ## Ownership
 
-- Keep the `DIRECT` primary as the stage owner for the repo queue, target changes, review, remediation, protocol decisions, journal events, and the outgoing handoff.
+- Keep the `DIRECT` primary as the stage owner for the repo queue, target changes, review, correction routing, protocol decisions, journal events, and the outgoing handoff.
 - Keep `workflow-orchestrator` L1 limited to grouping repo handoffs, creating one persistent repo-L2 per independent repo, and gating cross-repo dependencies.
 - Never let L1 own a stage, dispatch an L3, or replace a missing repo-L2.
 - Keep one persistent repo-L2 with role `domain-lane-orchestrator` as the stage owner for one `repo_ref` in `DELEGATED` mode.
@@ -50,35 +50,35 @@ Use one persistent app-worker session per repo wave, accept one result before co
 
 ## Critic wave
 
-1. Review the immutable `base_commit..wave_head` after the worker wave closes.
+1. Review immutable `base_commit..wave_head` only after proving forward ancestry and exact equality between its commit set and the task-result commits.
 2. Perform the bounded review directly in `DIRECT` mode or dispatch one fresh `wave-change-critic` through `$subagents` in `DELEGATED` mode.
 3. Supply task results, failed-task refs, requirement refs, changed targets, evidence refs, and applicable trust, secret, identity, authorization, callback, ingress, and publication boundaries.
 4. Require the critic to remain read-only and report each contradiction, implementation gap, provenance gap, or scope violation with exact refs.
 5. Keep one critic session open for rereview and never create a duplicate or cross-repo critic.
 6. Record each completed finding review with its full run task set, exact `base_commit..wave_head`, and `finding_refs`.
-7. Record exactly one final clean full-scope review with empty `finding_refs` after every task result and remediation record.
+7. Record exactly one final clean full-scope review with empty `finding_refs` after every task result.
 
-## Remediation wave
+## Correction run
 
-1. Route each failed-task or critic finding to `$app-plan` under the same stage owner.
-2. Require the repo-L2 in `DELEGATED` mode to execute every planning read or write through `$subagents`.
-3. Create new remediation task ids and preserve the original terminal task and review refs.
-4. Run the remediation tasks through a new app-worker wave.
-5. Return the pinned remediation range to the original critic session for rereview.
-6. Repeat only while a routable critic finding or remediation task remains open.
+1. Route the current run to `$app-plan` with `needs-plan` and exact source, result, review, and finding refs when new ledger work is required.
+2. Require `$app-plan` to record terminal `needs-plan` without changing the source-run task scope.
+3. Require each new remediation task to preserve the source refs in `remediation_basis`.
+4. Start one linked run with `remediates_run_ref` and only those remediation tasks in scope.
+5. Run the linked tasks through a new app-worker wave and return its pinned range to the original critic session.
+6. Repeat only while a routable finding or remediation task remains open.
 
 ## Completion
 
-1. Reconcile every authoritative task-result, review, and remediation change through `$app-context-index`.
-2. Return `needs-spec` for a product or decision conflict and return `needs-plan` for a task, implementation, evidence, review, or remediation gap that requires new ledger work.
-3. Return `blocked` only for a credential, access, or explicit operator stop.
-4. Select `implemented` only when every task result is `done` and every finding has a completed remediation record.
+1. Reconcile every authoritative task-result, review, and ledger change through `$app-context-index`.
+2. Route source, decision, graph, and task-work gaps to `needs-research`, `needs-spec`, `needs-graph`, or `needs-plan` respectively.
+3. Return `blocked` only for a credential, access, or explicit operator stop; for every non-implemented route record its stage event, reconcile, validate the canonical handoff, and stop the run.
+4. Select `implemented` only when every task result is `done` and no remediation task remains open.
 5. Record one repo-handoff whose only direct cause is the final clean review.
 6. Put exact `task_result_refs`, `review_refs`, and `final_review_ref` in the implemented `stage_payload`.
-7. Put exact `commit_refs`, `commit_ranges`, and `remediation_refs` in the implemented `stage_payload`.
+7. Put exact `commit_refs`, `commit_ranges`, and remediation task ids in `stage_payload.remediation_refs`.
 8. Bind the handoff owner mode, owner session, and repo to the recorded run.
 9. Bind the handoff wave, trace links, and build to the recorded run.
 10. Bind the handoff source snapshot and journal digest to the recorded run.
-11. Validate the candidate `app-stage-handoff.v4` against workflow v3.
-12. Record only actual native v3 lifecycle events through the `DIRECT` primary or repo-L2.
-13. Reconcile the resulting journal and emit one build-bound repo handoff to `app-analyze`.
+11. Preserve the run's exact task scope and record only actual native v3 lifecycle events with `handoff_payload_digest` over canonical outgoing `stage_payload` through the `DIRECT` primary or repo-L2.
+12. Reconcile the resulting journal and call `app-graph.handoff_validate` for the complete candidate.
+13. Emit the validated build-bound repo handoff to `app-analyze`.

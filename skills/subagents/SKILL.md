@@ -77,7 +77,7 @@ Apply these rules in order and stop at the first match:
 4. Choose `diagnostic-command-runner` only for one bounded local diagnostic command whose result is the sole outcome.
 5. Choose `primary-source-researcher` only for current evidence from public primary sources.
 6. Choose `graph-evidence-reader` only for bounded evidence from the six declared read-only app-graph MCP tools.
-7. Choose `explorer` for any other bounded read-only workspace inspection.
+7. Choose `explorer` for any other bounded read-only workspace inspection, including one mixed documentation-and-graph app-analyze assignment.
 8. Choose `worker` for any other bounded mutation.
 
 Record the matched rule and concrete fact in `selection_basis` and copy the selected profile boundary into `capability_boundary`.
@@ -96,7 +96,7 @@ Keep packet inputs reference-only and exclude raw authority bodies, diffs, logs,
 
 Treat complete lane, dispatch, result, app-task, and outgoing handoff packets as typed transient protocol inputs.
 
-Preserve the exact authority, assignment, task, role, role kind, profile, and packet-schema identity required by the immutable v3 event `delegation_record`.
+Preserve the exact authority, assignment, task, role, role kind, profile, and packet identity required by native v3 delegation provenance, including the atomic app-analyze record.
 
 Never present an unrepresented packet body as graph evidence.
 
@@ -124,7 +124,7 @@ Keep a failed canonical task terminal and keep dependent tasks non-ready.
 
 Require `wave-change-critic` to review only its pinned repo range, remain read-only, and return exact findings without mutation.
 
-Require fixes to use a new remediation task and require rereview through the original open critic session.
+Require each fix to use a new remediation task in a `remediates_run_ref` run and require rereview through the original critic session.
 
 Keep push as a separate explicitly authorized assignment and forbid force-push to a shared branch.
 

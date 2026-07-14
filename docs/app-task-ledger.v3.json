@@ -1,7 +1,7 @@
 {
   "schema": "app-task-ledger.v3",
   "app_id": "bears-app-based-workflow",
-  "revision": 13,
+  "revision": 15,
   "tasks": [
     {
       "task_id": "TASK-WF5-CONTRACTS",
@@ -1024,7 +1024,7 @@
       "wave_id": "workflow-refactor-v5",
       "owner_role": "DIRECT-primary",
       "decision_state": "closed",
-      "status": "ready",
+      "status": "done",
       "queue_sequence": 130,
       "task_kind": "remediation",
       "requirement_refs": [
@@ -1077,7 +1077,7 @@
       "wave_id": "workflow-refactor-v5",
       "owner_role": "DIRECT-primary",
       "decision_state": "closed",
-      "status": "ready",
+      "status": "done",
       "queue_sequence": 140,
       "task_kind": "remediation",
       "requirement_refs": [

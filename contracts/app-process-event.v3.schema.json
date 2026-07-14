@@ -5,169 +5,1412 @@
   "type": "object",
   "additionalProperties": false,
   "required": [
-    "schema", "run_ref", "event_ref", "event_kind", "stage", "status", "actor",
-    "owner_session_ref", "repo_ref", "wave_ref", "task_refs", "causal_refs", "trace_refs",
-    "artifact_refs", "origin"
+    "schema",
+    "run_ref",
+    "event_ref",
+    "event_kind",
+    "stage",
+    "status",
+    "actor",
+    "owner_session_ref",
+    "repo_ref",
+    "wave_ref",
+    "task_refs",
+    "causal_refs",
+    "trace_refs",
+    "artifact_refs",
+    "task_spec_bindings",
+    "origin"
   ],
   "properties": {
-    "schema": {"const": "app-process-event.v3"},
-    "run_ref": {"type": "string", "minLength": 1},
-    "event_ref": {"type": "string", "minLength": 1},
-    "event_kind": {"enum": ["run-start", "stage", "delegation", "task-result", "review", "remediation", "repo-handoff", "analysis"]},
-    "stage": {"enum": ["app-constitution", "app-research", "app-specify", "app-functional-graph", "app-plan", "app-dev", "app-analyze"]},
-    "status": {"enum": ["constitution-ready", "needs-research", "research-ready", "needs-spec", "spec-ready", "needs-graph", "graph-ready", "waiting", "needs-plan", "plan-ready", "ready", "in_progress", "implemented", "no-work", "audited", "done", "failed", "blocked", "superseded"]},
-    "actor": {"enum": ["DIRECT-primary", "repo-L2"]},
-    "owner_session_ref": {"type": "string", "minLength": 1},
-    "repo_ref": {"type": "string", "minLength": 1},
-    "wave_ref": {"type": "string", "minLength": 1},
-    "task_refs": {"$ref": "#/$defs/refs"},
-    "causal_refs": {"$ref": "#/$defs/refs"},
-    "trace_refs": {"$ref": "#/$defs/refs"},
-    "artifact_refs": {"$ref": "#/$defs/refs"},
-    "origin": {"const": "native"},
-    "task_ref": {"type": "string", "minLength": 1},
-    "terminal_result": {"enum": ["done", "failed", "blocked"]},
-    "commit_refs": {"$ref": "#/$defs/non_empty_git_refs"},
-    "changed_paths": {"$ref": "#/$defs/non_empty_refs"},
-    "reviewed_task_refs": {"$ref": "#/$defs/refs"},
-    "finding_refs": {"$ref": "#/$defs/refs"},
-    "commit_range": {"$ref": "#/$defs/commit_range"},
-    "remediates_run_ref": {"type": "string", "minLength": 1},
-    "delegation_record": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": [
-        "dispatch_schema", "result_schema", "delegation_authority_ref", "assignment_authority_ref",
-        "assignment_id", "task_id", "role", "role_kind", "agent_level", "orchestrator_session_id"
-      ],
-      "properties": {
-        "dispatch_schema": {"const": "dispatch-packet.v3"},
-        "result_schema": {"const": "result-packet.v2"},
-        "app_task_schema": {"const": "app-task-dispatch.v2"},
-        "delegation_authority_ref": {"type": "string", "minLength": 1},
-        "assignment_authority_ref": {"type": "string", "minLength": 1},
-        "assignment_id": {"type": "string", "minLength": 1},
-        "task_id": {"type": "string", "minLength": 1},
-        "role": {"type": "string", "minLength": 1},
-        "role_kind": {"enum": ["helper", "mutation-worker", "primary-critic"]},
-        "agent_level": {"const": "L3"},
-        "orchestrator_session_id": {"type": "string", "minLength": 1}
+    "schema": {
+      "const": "app-process-event.v3"
+    },
+    "run_ref": {
+      "type": "string",
+      "minLength": 1
+    },
+    "event_ref": {
+      "type": "string",
+      "minLength": 1
+    },
+    "event_kind": {
+      "enum": [
+        "run-start",
+        "stage",
+        "delegation",
+        "task-result",
+        "review",
+        "repo-handoff",
+        "analysis"
+      ]
+    },
+    "stage": {
+      "enum": [
+        "app-constitution",
+        "app-research",
+        "app-specify",
+        "app-functional-graph",
+        "app-plan",
+        "app-dev",
+        "app-analyze"
+      ]
+    },
+    "status": {
+      "enum": [
+        "constitution-ready",
+        "needs-research",
+        "research-ready",
+        "needs-spec",
+        "spec-ready",
+        "needs-graph",
+        "graph-ready",
+        "waiting",
+        "needs-plan",
+        "plan-ready",
+        "ready",
+        "in_progress",
+        "implemented",
+        "no-work",
+        "audited",
+        "done",
+        "failed",
+        "blocked",
+        "superseded"
+      ]
+    },
+    "actor": {
+      "enum": [
+        "DIRECT-primary",
+        "repo-L2"
+      ]
+    },
+    "owner_session_ref": {
+      "type": "string",
+      "minLength": 1
+    },
+    "repo_ref": {
+      "type": "string",
+      "minLength": 1
+    },
+    "wave_ref": {
+      "type": "string",
+      "minLength": 1
+    },
+    "task_refs": {
+      "$ref": "#/$defs/refs",
+      "description": "Empty before scope establishment; thereafter the immutable run scope, including corrective no-work and needs-plan boundaries."
+    },
+    "task_spec_bindings": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/task_spec_binding"
       }
     },
-    "analysis_ref": {"type": "string", "minLength": 1},
-    "analysis_result": {"$ref": "app-semantic-analysis-result.v1.schema.json"}
+    "causal_refs": {
+      "$ref": "#/$defs/refs"
+    },
+    "trace_refs": {
+      "$ref": "#/$defs/refs"
+    },
+    "artifact_refs": {
+      "$ref": "#/$defs/refs"
+    },
+    "origin": {
+      "const": "native"
+    },
+    "task_ref": {
+      "type": "string",
+      "minLength": 1
+    },
+    "terminal_result": {
+      "enum": [
+        "done",
+        "failed",
+        "blocked"
+      ]
+    },
+    "commit_refs": {
+      "$ref": "#/$defs/non_empty_git_refs",
+      "description": "Reachable result commits, including every ledger retirement commit and any current delivery commits."
+    },
+    "changed_paths": {
+      "$ref": "#/$defs/non_empty_refs",
+      "description": "Exact paths from current delivery commits, or the exact ledger allowed_files set when commit_refs contains retirement provenance only."
+    },
+    "reviewed_task_refs": {
+      "$ref": "#/$defs/refs"
+    },
+    "finding_refs": {
+      "$ref": "#/$defs/refs"
+    },
+    "finding_records": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/finding_record"
+      }
+    },
+    "replacement_bindings": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/replacement_binding"
+      }
+    },
+    "commit_range": {
+      "$ref": "#/$defs/commit_range"
+    },
+    "remediates_run_ref": {
+      "type": "string",
+      "minLength": 1
+    },
+    "handoff_payload_digest": {
+      "type": "string",
+      "pattern": "^sha256:[a-f0-9]{64}$",
+      "description": "SHA-256 of the canonical JSON stage_payload emitted from this boundary event."
+    },
+    "delegation_record": {
+      "$ref": "#/$defs/delegation_record"
+    },
+    "analysis_ref": {
+      "type": "string",
+      "minLength": 1
+    },
+    "analysis_result": {
+      "$ref": "app-semantic-analysis-result.v1.schema.json"
+    },
+    "delegation_records": {
+      "oneOf": [
+        {
+          "type": "array",
+          "maxItems": 0
+        },
+        {
+          "$ref": "#/$defs/analysis_delegation_records"
+        }
+      ]
+    }
   },
   "allOf": [
     {
       "if": {
-        "properties": {"event_kind": {"const": "run-start"}},
-        "required": ["event_kind"]
+        "properties": {
+          "event_kind": {
+            "const": "run-start"
+          }
+        },
+        "required": [
+          "event_kind"
+        ]
       },
       "then": {
         "properties": {
-          "task_refs": {"minItems": 1},
-          "causal_refs": {"maxItems": 0}
-        }
-      }
-    },
-    {
-      "if": {
-        "properties": {"event_kind": {"const": "delegation"}},
-        "required": ["event_kind"]
+          "causal_refs": {
+            "maxItems": 0
+          }
+        },
+        "oneOf": [
+          {
+            "required": [
+              "remediates_run_ref"
+            ],
+            "properties": {
+              "stage": {
+                "const": "app-plan"
+              },
+              "status": {
+                "const": "plan-ready"
+              },
+              "task_refs": {
+                "minItems": 1
+              }
+            }
+          },
+          {
+            "not": {
+              "required": [
+                "remediates_run_ref"
+              ]
+            },
+            "properties": {
+              "stage": {
+                "const": "app-constitution"
+              },
+              "status": {
+                "const": "constitution-ready"
+              },
+              "task_refs": {
+                "maxItems": 0
+              }
+            }
+          }
+        ]
       },
-      "then": {"required": ["delegation_record"]},
-      "else": {"not": {"required": ["delegation_record"]}}
-    },
-    {
-      "if": {
-        "properties": {"event_kind": {"const": "task-result"}},
-        "required": ["event_kind"]
-      },
-      "then": {"required": ["task_ref", "terminal_result", "commit_refs", "changed_paths"]},
       "else": {
+        "properties": {
+          "causal_refs": {
+            "minItems": 1
+          }
+        },
         "not": {
-          "anyOf": [
-            {"required": ["task_ref"]},
-            {"required": ["terminal_result"]},
-            {"required": ["commit_refs"]},
-            {"required": ["changed_paths"]}
+          "required": [
+            "remediates_run_ref"
           ]
         }
       }
     },
     {
       "if": {
-        "properties": {"event_kind": {"const": "review"}},
-        "required": ["event_kind"]
+        "properties": {
+          "event_kind": {
+            "const": "stage"
+          }
+        },
+        "required": [
+          "event_kind"
+        ]
       },
       "then": {
-        "required": ["commit_range", "reviewed_task_refs", "finding_refs"],
+        "required": [
+          "finding_refs"
+        ],
+        "oneOf": [
+          {
+            "properties": {
+              "stage": {
+                "const": "app-research"
+              },
+              "status": {
+                "enum": [
+                  "needs-research",
+                  "research-ready",
+                  "blocked"
+                ]
+              }
+            }
+          },
+          {
+            "properties": {
+              "stage": {
+                "const": "app-specify"
+              },
+              "status": {
+                "enum": [
+                  "needs-research",
+                  "needs-spec",
+                  "spec-ready",
+                  "blocked"
+                ]
+              }
+            }
+          },
+          {
+            "properties": {
+              "stage": {
+                "const": "app-functional-graph"
+              },
+              "status": {
+                "enum": [
+                  "needs-research",
+                  "needs-spec",
+                  "needs-graph",
+                  "graph-ready",
+                  "blocked"
+                ]
+              }
+            }
+          },
+          {
+            "properties": {
+              "stage": {
+                "const": "app-plan"
+              },
+              "status": {
+                "enum": [
+                  "needs-research",
+                  "needs-spec",
+                  "needs-graph",
+                  "waiting",
+                  "needs-plan",
+                  "plan-ready",
+                  "ready",
+                  "no-work",
+                  "blocked"
+                ]
+              }
+            }
+          },
+          {
+            "properties": {
+              "stage": {
+                "const": "app-dev"
+              },
+              "status": {
+                "enum": [
+                  "needs-research",
+                  "needs-spec",
+                  "needs-graph",
+                  "needs-plan",
+                  "blocked"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "if": {
         "properties": {
-          "status": {"const": "done"},
-          "reviewed_task_refs": {"minItems": 1}
+          "event_kind": {
+            "const": "delegation"
+          }
+        },
+        "required": [
+          "event_kind"
+        ]
+      },
+      "then": {
+        "required": [
+          "delegation_record"
+        ],
+        "properties": {
+          "actor": {
+            "const": "repo-L2"
+          },
+          "stage": {
+            "enum": [
+              "app-constitution",
+              "app-research",
+              "app-specify",
+              "app-functional-graph",
+              "app-plan",
+              "app-dev"
+            ]
+          },
+          "status": {
+            "const": "in_progress"
+          }
+        }
+      },
+      "else": {
+        "not": {
+          "required": [
+            "delegation_record"
+          ]
         }
       }
     },
     {
       "if": {
-        "properties": {"event_kind": {"const": "remediation"}},
-        "required": ["event_kind"]
+        "properties": {
+          "event_kind": {
+            "const": "task-result"
+          }
+        },
+        "required": [
+          "event_kind"
+        ]
       },
       "then": {
-        "required": ["finding_refs"],
-        "properties": {"finding_refs": {"minItems": 1}}
+        "required": [
+          "task_ref",
+          "terminal_result",
+          "commit_refs",
+          "changed_paths"
+        ],
+        "properties": {
+          "stage": {
+            "const": "app-dev"
+          }
+        },
+        "oneOf": [
+          {
+            "properties": {
+              "terminal_result": {
+                "const": "done"
+              },
+              "status": {
+                "const": "done"
+              }
+            }
+          },
+          {
+            "properties": {
+              "terminal_result": {
+                "const": "failed"
+              },
+              "status": {
+                "const": "failed"
+              }
+            }
+          },
+          {
+            "properties": {
+              "terminal_result": {
+                "const": "blocked"
+              },
+              "status": {
+                "const": "blocked"
+              }
+            }
+          }
+        ]
+      },
+      "else": {
+        "not": {
+          "anyOf": [
+            {
+              "required": [
+                "task_ref"
+              ]
+            },
+            {
+              "required": [
+                "terminal_result"
+              ]
+            },
+            {
+              "required": [
+                "commit_refs"
+              ]
+            },
+            {
+              "required": [
+                "changed_paths"
+              ]
+            }
+          ]
+        }
       }
     },
     {
       "if": {
-        "properties": {"event_kind": {"const": "analysis"}},
-        "required": ["event_kind"]
+        "properties": {
+          "event_kind": {
+            "const": "review"
+          }
+        },
+        "required": [
+          "event_kind"
+        ]
       },
-      "then": {"required": ["analysis_ref", "analysis_result"]}
+      "then": {
+        "required": [
+          "commit_range",
+          "reviewed_task_refs",
+          "finding_refs",
+          "finding_records"
+        ],
+        "properties": {
+          "stage": {
+            "const": "app-dev"
+          },
+          "status": {
+            "const": "done"
+          },
+          "reviewed_task_refs": {
+            "minItems": 1
+          }
+        }
+      },
+      "else": {
+        "not": {
+          "anyOf": [
+            {
+              "required": [
+                "commit_range"
+              ]
+            },
+            {
+              "required": [
+                "reviewed_task_refs"
+              ]
+            }
+          ]
+        }
+      }
     },
     {
       "if": {
-        "properties": {"status": {"const": "audited"}},
-        "required": ["status"]
+        "properties": {
+          "event_kind": {
+            "const": "repo-handoff"
+          }
+        },
+        "required": [
+          "event_kind"
+        ]
       },
-      "then": {"properties": {"event_kind": {"const": "analysis"}}}
+      "then": {
+        "properties": {
+          "stage": {
+            "const": "app-dev"
+          },
+          "status": {
+            "const": "implemented"
+          }
+        }
+      }
     },
     {
       "if": {
-        "properties": {"actor": {"const": "DIRECT-primary"}},
-        "required": ["actor"]
+        "properties": {
+          "event_kind": {
+            "const": "analysis"
+          }
+        },
+        "required": [
+          "event_kind"
+        ]
       },
-      "then": {"properties": {"owner_session_ref": {"const": "none"}}}
+      "then": {
+        "required": [
+          "analysis_ref",
+          "analysis_result"
+        ],
+        "properties": {
+          "stage": {
+            "const": "app-analyze"
+          },
+          "status": {
+            "enum": [
+              "needs-research",
+              "needs-spec",
+              "needs-graph",
+              "needs-plan",
+              "audited",
+              "blocked"
+            ]
+          }
+        },
+        "oneOf": [
+          {
+            "properties": {
+              "status": {
+                "const": "audited"
+              },
+              "analysis_result": {
+                "properties": {
+                  "route": {
+                    "const": "none"
+                  }
+                }
+              }
+            }
+          },
+          {
+            "properties": {
+              "status": {
+                "const": "needs-research"
+              },
+              "analysis_result": {
+                "properties": {
+                  "route": {
+                    "const": "needs-research"
+                  }
+                }
+              }
+            }
+          },
+          {
+            "properties": {
+              "status": {
+                "const": "needs-spec"
+              },
+              "analysis_result": {
+                "properties": {
+                  "route": {
+                    "const": "needs-spec"
+                  }
+                }
+              }
+            }
+          },
+          {
+            "properties": {
+              "status": {
+                "const": "needs-graph"
+              },
+              "analysis_result": {
+                "properties": {
+                  "route": {
+                    "const": "needs-graph"
+                  }
+                }
+              }
+            }
+          },
+          {
+            "properties": {
+              "status": {
+                "const": "needs-plan"
+              },
+              "analysis_result": {
+                "properties": {
+                  "route": {
+                    "const": "needs-plan"
+                  }
+                }
+              }
+            }
+          },
+          {
+            "properties": {
+              "status": {
+                "const": "blocked"
+              },
+              "analysis_result": {
+                "properties": {
+                  "route": {
+                    "const": "blocked"
+                  }
+                }
+              }
+            }
+          }
+        ],
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "actor": {
+                  "const": "repo-L2"
+                }
+              },
+              "required": [
+                "actor"
+              ]
+            },
+            "then": {
+              "required": [
+                "delegation_records"
+              ],
+              "properties": {
+                "delegation_records": {
+                  "$ref": "#/$defs/analysis_delegation_records"
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "actor": {
+                  "const": "DIRECT-primary"
+                }
+              },
+              "required": [
+                "actor"
+              ]
+            },
+            "then": {
+              "properties": {
+                "delegation_records": {
+                  "maxItems": 0
+                }
+              }
+            }
+          }
+        ]
+      },
+      "else": {
+        "not": {
+          "anyOf": [
+            {
+              "required": [
+                "analysis_ref"
+              ]
+            },
+            {
+              "required": [
+                "analysis_result"
+              ]
+            },
+            {
+              "required": [
+                "delegation_records"
+              ]
+            }
+          ]
+        }
+      }
     },
     {
       "if": {
-        "properties": {"actor": {"const": "repo-L2"}},
-        "required": ["actor"]
+        "properties": {
+          "event_kind": {
+            "enum": [
+              "run-start",
+              "stage",
+              "repo-handoff",
+              "analysis"
+            ]
+          }
+        },
+        "required": [
+          "event_kind"
+        ]
       },
-      "then": {"properties": {"owner_session_ref": {"not": {"const": "none"}}}}
+      "then": {
+        "required": [
+          "handoff_payload_digest"
+        ]
+      },
+      "else": {
+        "not": {
+          "required": [
+            "handoff_payload_digest"
+          ]
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "event_kind": {
+            "enum": [
+              "stage",
+              "review"
+            ]
+          }
+        },
+        "required": [
+          "event_kind"
+        ]
+      },
+      "then": {
+        "required": [
+          "finding_refs",
+          "finding_records"
+        ]
+      },
+      "else": {
+        "not": {
+          "anyOf": [
+            {
+              "required": [
+                "finding_refs"
+              ]
+            },
+            {
+              "required": [
+                "finding_records"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "enum": [
+              "plan-ready",
+              "ready"
+            ]
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "properties": {
+          "task_refs": {
+            "minItems": 1
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "audited"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "properties": {
+          "event_kind": {
+            "const": "analysis"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "actor": {
+            "const": "DIRECT-primary"
+          }
+        },
+        "required": [
+          "actor"
+        ]
+      },
+      "then": {
+        "properties": {
+          "owner_session_ref": {
+            "const": "none"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "actor": {
+            "const": "repo-L2"
+          }
+        },
+        "required": [
+          "actor"
+        ]
+      },
+      "then": {
+        "properties": {
+          "owner_session_ref": {
+            "not": {
+              "const": "none"
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "event_kind": {
+            "const": "stage"
+          },
+          "stage": {
+            "const": "app-plan"
+          },
+          "status": {
+            "const": "needs-plan"
+          }
+        },
+        "required": [
+          "event_kind",
+          "stage",
+          "status"
+        ]
+      },
+      "then": {
+        "required": [
+          "replacement_bindings"
+        ]
+      },
+      "else": {
+        "not": {
+          "required": [
+            "replacement_bindings"
+          ]
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "event_kind": {
+            "const": "stage"
+          },
+          "status": {
+            "enum": [
+              "needs-research",
+              "needs-spec",
+              "needs-graph",
+              "needs-plan",
+              "blocked"
+            ]
+          }
+        },
+        "required": [
+          "event_kind",
+          "status"
+        ],
+        "not": {
+          "properties": {
+            "stage": {
+              "enum": [
+                "app-dev",
+                "app-plan"
+              ]
+            },
+            "status": {
+              "const": "needs-plan"
+            }
+          },
+          "required": [
+            "stage",
+            "status"
+          ]
+        }
+      },
+      "then": {
+        "properties": {
+          "finding_refs": {
+            "minItems": 1
+          },
+          "finding_records": {
+            "minItems": 1
+          }
+        }
+      }
     }
   ],
   "$defs": {
     "refs": {
       "type": "array",
-      "items": {"type": "string", "minLength": 1},
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
       "uniqueItems": true
     },
     "non_empty_refs": {
       "type": "array",
       "minItems": 1,
-      "items": {"type": "string", "minLength": 1},
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
       "uniqueItems": true
     },
     "non_empty_git_refs": {
       "type": "array",
       "minItems": 1,
-      "items": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+      "items": {
+        "type": "string",
+        "pattern": "^[0-9a-f]{40}$"
+      },
       "uniqueItems": true
     },
     "commit_range": {
       "type": "string",
       "pattern": "^[0-9a-f]{40}\\.\\.[0-9a-f]{40}$"
+    },
+    "task_spec_binding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "task_ref",
+        "task_spec_digest"
+      ],
+      "properties": {
+        "task_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "task_spec_digest": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        }
+      }
+    },
+    "replacement_binding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "task_ref",
+        "replacement_task_refs"
+      ],
+      "properties": {
+        "task_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "replacement_task_refs": {
+          "$ref": "#/$defs/non_empty_refs"
+        }
+      }
+    },
+    "finding_record": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "finding_ref",
+        "kind",
+        "subject_refs",
+        "conflict_refs",
+        "route",
+        "summary"
+      ],
+      "properties": {
+        "finding_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "kind": {
+          "enum": [
+            "missing-source",
+            "product-conflict",
+            "decision-conflict",
+            "semantic-gap",
+            "reference-gap",
+            "cycle-gap",
+            "task-gap",
+            "implementation-gap",
+            "evidence-gap",
+            "review-gap",
+            "remediation-gap",
+            "credential-stop",
+            "access-stop",
+            "operator-stop"
+          ]
+        },
+        "subject_refs": {
+          "$ref": "#/$defs/non_empty_refs"
+        },
+        "conflict_refs": {
+          "$ref": "#/$defs/refs"
+        },
+        "route": {
+          "enum": [
+            "needs-research",
+            "needs-spec",
+            "needs-graph",
+            "needs-plan",
+            "blocked"
+          ]
+        },
+        "summary": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "oneOf": [
+        {
+          "properties": {
+            "kind": {
+              "const": "missing-source"
+            },
+            "route": {
+              "const": "needs-research"
+            }
+          }
+        },
+        {
+          "properties": {
+            "kind": {
+              "const": "product-conflict"
+            },
+            "route": {
+              "const": "needs-spec"
+            }
+          }
+        },
+        {
+          "properties": {
+            "kind": {
+              "const": "decision-conflict"
+            },
+            "route": {
+              "const": "needs-spec"
+            }
+          }
+        },
+        {
+          "properties": {
+            "kind": {
+              "const": "semantic-gap"
+            },
+            "route": {
+              "const": "needs-graph"
+            }
+          }
+        },
+        {
+          "properties": {
+            "kind": {
+              "const": "reference-gap"
+            },
+            "route": {
+              "const": "needs-graph"
+            }
+          }
+        },
+        {
+          "properties": {
+            "kind": {
+              "const": "cycle-gap"
+            },
+            "route": {
+              "const": "needs-graph"
+            }
+          }
+        },
+        {
+          "properties": {
+            "kind": {
+              "const": "task-gap"
+            },
+            "route": {
+              "const": "needs-plan"
+            }
+          }
+        },
+        {
+          "properties": {
+            "kind": {
+              "const": "implementation-gap"
+            },
+            "route": {
+              "const": "needs-plan"
+            }
+          }
+        },
+        {
+          "properties": {
+            "kind": {
+              "const": "evidence-gap"
+            },
+            "route": {
+              "const": "needs-plan"
+            }
+          }
+        },
+        {
+          "properties": {
+            "kind": {
+              "const": "review-gap"
+            },
+            "route": {
+              "const": "needs-plan"
+            }
+          }
+        },
+        {
+          "properties": {
+            "kind": {
+              "const": "remediation-gap"
+            },
+            "route": {
+              "const": "needs-plan"
+            }
+          }
+        },
+        {
+          "properties": {
+            "kind": {
+              "const": "credential-stop"
+            },
+            "route": {
+              "const": "blocked"
+            }
+          }
+        },
+        {
+          "properties": {
+            "kind": {
+              "const": "access-stop"
+            },
+            "route": {
+              "const": "blocked"
+            }
+          }
+        },
+        {
+          "properties": {
+            "kind": {
+              "const": "operator-stop"
+            },
+            "route": {
+              "const": "blocked"
+            }
+          }
+        }
+      ]
+    },
+    "delegation_record": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "dispatch_schema",
+        "result_schema",
+        "delegation_authority_ref",
+        "assignment_authority_ref",
+        "assignment_id",
+        "task_id",
+        "role",
+        "role_kind",
+        "agent_level",
+        "orchestrator_session_id",
+        "result_ref",
+        "result_digest",
+        "completion_status",
+        "profile_ref",
+        "model_ref",
+        "checklist_ref"
+      ],
+      "properties": {
+        "dispatch_schema": {
+          "const": "dispatch-packet.v3"
+        },
+        "result_schema": {
+          "const": "result-packet.v2"
+        },
+        "app_task_schema": {
+          "const": "app-task-dispatch.v2"
+        },
+        "delegation_authority_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "assignment_authority_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "assignment_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "task_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "role": {
+          "type": "string",
+          "minLength": 1
+        },
+        "role_kind": {
+          "enum": [
+            "helper",
+            "mutation-worker",
+            "primary-critic"
+          ]
+        },
+        "agent_level": {
+          "const": "L3"
+        },
+        "orchestrator_session_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "result_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "result_digest": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        },
+        "completion_status": {
+          "const": "completed"
+        },
+        "profile_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "model_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "checklist_ref": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "oneOf": [
+        {
+          "properties": {
+            "role": {
+              "const": "app-worker"
+            },
+            "role_kind": {
+              "const": "mutation-worker"
+            },
+            "app_task_schema": {
+              "const": "app-task-dispatch.v2"
+            }
+          },
+          "required": [
+            "app_task_schema"
+          ]
+        },
+        {
+          "properties": {
+            "role": {
+              "const": "worker"
+            },
+            "role_kind": {
+              "const": "mutation-worker"
+            }
+          },
+          "not": {
+            "required": [
+              "app_task_schema"
+            ]
+          }
+        },
+        {
+          "properties": {
+            "role": {
+              "const": "wave-change-critic"
+            },
+            "role_kind": {
+              "const": "primary-critic"
+            }
+          },
+          "not": {
+            "required": [
+              "app_task_schema"
+            ]
+          }
+        },
+        {
+          "properties": {
+            "role": {
+              "not": {
+                "enum": [
+                  "app-worker",
+                  "worker",
+                  "wave-change-critic"
+                ]
+              }
+            },
+            "role_kind": {
+              "const": "helper"
+            }
+          },
+          "not": {
+            "required": [
+              "app_task_schema"
+            ]
+          }
+        }
+      ]
+    },
+    "analysis_delegation_records": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 1,
+      "uniqueItems": true,
+      "prefixItems": [
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/delegation_record"
+            },
+            {
+              "properties": {
+                "role": {
+                  "const": "explorer"
+                },
+                "role_kind": {
+                  "const": "helper"
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "items": false
     }
   }
 }

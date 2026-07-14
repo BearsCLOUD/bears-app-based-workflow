@@ -34,6 +34,101 @@
     "DIRECT": "DIRECT-primary",
     "DELEGATED": "persistent-repo-L2"
   },
+  "event_rules": {
+    "run-start": {
+      "app-constitution": [
+        "constitution-ready"
+      ],
+      "app-plan": [
+        "plan-ready"
+      ]
+    },
+    "stage": {
+      "app-research": [
+        "needs-research",
+        "research-ready",
+        "blocked"
+      ],
+      "app-specify": [
+        "needs-research",
+        "needs-spec",
+        "spec-ready",
+        "blocked"
+      ],
+      "app-functional-graph": [
+        "needs-research",
+        "needs-spec",
+        "needs-graph",
+        "graph-ready",
+        "blocked"
+      ],
+      "app-plan": [
+        "needs-research",
+        "needs-spec",
+        "needs-graph",
+        "waiting",
+        "needs-plan",
+        "plan-ready",
+        "ready",
+        "no-work",
+        "blocked"
+      ],
+      "app-dev": [
+        "needs-research",
+        "needs-spec",
+        "needs-graph",
+        "needs-plan",
+        "blocked"
+      ]
+    },
+    "delegation": {
+      "app-constitution": [
+        "in_progress"
+      ],
+      "app-research": [
+        "in_progress"
+      ],
+      "app-specify": [
+        "in_progress"
+      ],
+      "app-functional-graph": [
+        "in_progress"
+      ],
+      "app-plan": [
+        "in_progress"
+      ],
+      "app-dev": [
+        "in_progress"
+      ]
+    },
+    "task-result": {
+      "app-dev": [
+        "done",
+        "failed",
+        "blocked"
+      ]
+    },
+    "review": {
+      "app-dev": [
+        "done"
+      ]
+    },
+    "repo-handoff": {
+      "app-dev": [
+        "implemented"
+      ]
+    },
+    "analysis": {
+      "app-analyze": [
+        "needs-research",
+        "needs-spec",
+        "needs-graph",
+        "needs-plan",
+        "audited",
+        "blocked"
+      ]
+    }
+  },
   "routes": {
     "constitution-ready": "app-research",
     "needs-research": "app-research",
@@ -77,17 +172,52 @@
     ],
     "clean_route": "none"
   },
-  "audited_gate": {
+  "analysis_gate": {
     "exact_source_snapshot": true,
-    "semantic_analysis_basis": "immediate-predecessor-build",
-    "allowed_post_analysis_delta": "one-native-analysis-event",
-    "semantic_analysis_complete": true,
-    "logical_contradictions": 0,
-    "unmapped_decisions": 0,
-    "unmapped_requirements": 0,
-    "routable_findings": 0,
-    "open_remediation_tasks": 0,
-    "meaning": "documentation-and-graph-logical-consistency"
+    "basis": "immediate-predecessor-build",
+    "applies_to": "every-analysis-outcome",
+    "allowed_delta": "one-native-analysis-event",
+    "exact_categorized_inputs": true,
+    "exact_open_remediation_lineage": true,
+    "audited": {
+      "semantic_analysis_complete": true,
+      "logical_contradictions": 0,
+      "unmapped_decisions": 0,
+      "unmapped_requirements": 0,
+      "routable_findings": 0,
+      "open_remediation_tasks": 0,
+      "meaning": "constitution-specification-semantic-and-process-consistency"
+    }
+  },
+  "remediation_gate": {
+    "source_boundary": {
+      "event_kind": "stage",
+      "stage": "app-plan",
+      "status": "needs-plan"
+    },
+    "successor_boundary": {
+      "event_kind": "run-start",
+      "stage": "app-plan",
+      "status": "plan-ready"
+    },
+    "link_field": "remediates_run_ref",
+    "single_successor": true,
+    "acyclic": true,
+    "recursive_replacement_basis": "current-correction-run",
+    "replacement_lineage_acyclic": true
+  },
+  "handoff_gate": {
+    "schema": "app-stage-handoff.v4",
+    "validator": "handoff_validate",
+    "exact_current_build": true,
+    "sole_current_run_leaf": true,
+    "exact_event_and_payload_binding": true
+  },
+  "publication_gate": {
+    "compare_and_swap": true,
+    "source_snapshot_recheck": true,
+    "immutable_bundle_before_pointer": true,
+    "analysis_delta": "one-native-analysis-event"
   },
   "delegated_process": {
     "repo_l2_scope": "all-app-stages",
@@ -119,7 +249,17 @@
       "dispatch_schema": "dispatch-packet.v3",
       "result_schema": "result-packet.v2",
       "app_task_schema": "app-task-dispatch.v2",
-      "durable_scope": "represented-l3-identity-only"
+      "durable_scope": "represented-l3-identity-and-completion-only",
+      "completion_fields": [
+        "result_ref",
+        "result_digest",
+        "completion_status",
+        "profile_ref",
+        "model_ref",
+        "checklist_ref"
+      ],
+      "analysis_persistence": "embedded-explorer-on-analysis-event",
+      "analysis_role": "explorer"
     },
     "native_event_kinds": [
       "run-start",
@@ -127,7 +267,6 @@
       "delegation",
       "task-result",
       "review",
-      "remediation",
       "repo-handoff",
       "analysis"
     ]
@@ -145,51 +284,69 @@
     "edge_types": {
       "depends_on": {
         "family": "dependency",
+        "direction": "dependent-to-prerequisite",
         "transitive": true,
         "impact": true,
+        "topological": true,
         "cycle": "forbidden"
       },
       "constrains": {
         "family": "dependency",
+        "direction": "constraint-to-constrained",
         "transitive": true,
         "impact": true,
+        "topological": false,
         "cycle": "forbidden"
       },
       "defines": {
         "family": "trace",
+        "direction": "defining-to-defined",
         "transitive": false,
         "impact": true,
+        "topological": false,
         "cycle": "forbidden"
       },
       "decomposes_to": {
         "family": "trace",
+        "direction": "aggregate-to-component",
         "transitive": true,
         "impact": true,
+        "topological": false,
         "cycle": "forbidden"
       },
       "implemented_by": {
         "family": "trace",
+        "direction": "task-to-implementation",
         "transitive": true,
         "impact": true,
+        "topological": false,
         "cycle": "forbidden"
       },
       "evidenced_by": {
         "family": "trace",
+        "direction": "claim-to-evidence",
         "transitive": true,
         "impact": true,
+        "topological": false,
         "cycle": "forbidden"
       },
       "replaces": {
         "family": "replacement",
+        "direction": "replacement-to-replaced",
         "transitive": true,
         "impact": true,
+        "topological": false,
         "cycle": "forbidden"
       },
       "remediates": {
         "family": "process",
+        "direction": "corrective-to-source",
         "transitive": false,
         "impact": true,
-        "cycle": "controlled"
+        "topological": false,
+        "cycle": "forbidden",
+        "single_successor": true,
+        "single_successor_scope": "source-run"
       }
     }
   },
@@ -199,6 +356,8 @@
     "native_event": "durable-graph-source",
     "lane_packet": "typed-transient",
     "l3_packet": "typed-transient",
-    "outgoing_handoff": "typed-transient-build-bound"
+    "outgoing_handoff": "typed-transient-build-bound",
+    "route_application": "every-causal-adjacency",
+    "corrective_boundary_evidence": "typed-finding-except-failed-task-needs-plan"
   }
 }

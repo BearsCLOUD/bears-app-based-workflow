@@ -1,6 +1,6 @@
 ---
 name: subagents
-description: Select one installed L3 profile and dispatch one authority-bound assignment through delegation v2.
+description: Select one installed L3 profile and dispatch one authority-bound assignment through dispatch-packet.v3.
 ---
 
 # Subagents
@@ -12,6 +12,10 @@ Accept only work already classified `DELEGATED` by the active caller instruction
 Keep `DIRECT` work with the primary and never route it through this skill.
 
 Require one persistent repo-L2 with role `domain-lane-orchestrator` to own every `DELEGATED` app stage and its repo boundary.
+
+Keep L1-to-repo-L2 lane coordination outside this skill.
+
+Require L1 to use native collaboration with `repo-lane-dispatch.v1` and one persistent repo-L2 session.
 
 Permit a generic non-app delegated caller to use `caller_level: solo-l2` only when its authority packet allows it.
 
@@ -41,6 +45,8 @@ Require byte-identical delegation authority, assignment authority, workstream, r
 
 Discover role identity from the selected regular non-symlink installed profile and reject packet identity drift.
 
+Derive authority and session lifecycle only from `role_kind`; use specialization only to match the bounded subject and never as a grant.
+
 Treat `task_name` only as a label and bind the selected role through packet identity plus its exact installed `config_file` instruction ref.
 
 Use `fork_turns=none` and set a transport role selector when the transport provides one.
@@ -64,7 +70,7 @@ Apply these rules in order and stop at the first match:
 3. Choose `wave-change-critic` only for the primary read-only review of one repo wave pinned by exact `base_commit` and `wave_head`.
 4. Choose `diagnostic-command-runner` only for one bounded local diagnostic command whose result is the sole outcome.
 5. Choose `primary-source-researcher` only for current evidence from public primary sources.
-6. Choose `graph-evidence-reader` only for bounded sanitized runtime or service-interface evidence.
+6. Choose `graph-evidence-reader` only for bounded evidence from the six declared read-only app-graph MCP tools.
 7. Choose `explorer` for any other bounded read-only workspace inspection.
 8. Choose `worker` for any other bounded mutation.
 
@@ -81,6 +87,12 @@ Use only `dispatch-packet.v3`, `result-packet.v2`, and `app-task-dispatch.v2` fo
 Require every contract field and preserve every authority, identity, session, input, and evidence ref.
 
 Keep packet inputs reference-only and exclude raw authority bodies, diffs, logs, command dumps, secrets, credentials, tokens, and production data.
+
+Treat complete lane, dispatch, result, app-task, and outgoing handoff packets as typed transient protocol inputs.
+
+Preserve the exact authority, assignment, task, role, role kind, profile, and packet-schema identity required by the immutable v3 event `delegation_record`.
+
+Never present an unrepresented packet body as graph evidence.
 
 Return `PACKET_REJECTED` before dispatch or forwarding when a packet is incomplete, unbounded, unsanitized, authority-mismatched, role-mismatched, session-mismatched, or outside capability.
 

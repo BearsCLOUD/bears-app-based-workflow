@@ -17,7 +17,17 @@ MCP capability policy is rendered under the installed plugin namespace. The plug
 
 The explicit `./install` entrypoint registers the discovered profiles through `config_file` entries in `$CODEX_HOME/config.toml`. Removed names are not registered and have no compatibility aliases; prior receipt ownership is required before a managed registration can be retired. Run the installer after profile changes and start a new task so Codex loads the current registrations.
 
-For every DELEGATED app stage, one persistent `domain-lane-orchestrator` owns the complete repository lifecycle. It invokes bounded L3 work only through `$subagents`, retains stage ownership, and emits one repo-scoped canonical handoff. The L1 `workflow-orchestrator` coordinates repository lanes without taking stage or L3 dispatch authority from repo L2.
+Open each DELEGATED repository lane from the L1 `workflow-orchestrator` through native collaboration with one `repo-lane-dispatch.v1` and `fork_turns=none`.
+
+Continue each lane through native collaboration with the same persistent `domain-lane-orchestrator` and `orchestrator_session_id`.
+
+Keep every DELEGATED app stage, route choice, and process-record decision with that repo-L2.
+
+Invoke every L3 only from repo-L2 through `$subagents` with `dispatch-packet.v3`, `result-packet.v2`, and applicable `app-task-dispatch.v2`.
+
+Treat complete lane, L3, result, and outgoing handoff packets as typed transient protocol inputs.
+
+Record only the represented L3 identity fields in the immutable v3 event `delegation_record`; never treat an unrepresented packet body as graph evidence.
 
 - Do not copy these profiles into the global agent directory.
 - Deterministic role choice and dispatch live in `skills/subagents/SKILL.md`.

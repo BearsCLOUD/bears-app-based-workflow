@@ -2,27 +2,27 @@
 
 ## Basis
 
-This analysis compares the designated human documentation against contracts/app-workflow-definition.v3.json and its linked v4 semantic, handoff, ledger, index, and v3 process schemas.
+This document records pre-binding correspondence notes for the workflow architecture refactor. The terminal semantic result remains a separate `app-semantic-analysis-result.v1` record bound to one exact compiled build and journal snapshot.
 
-## Correspondence result
+## Provisional correspondence
 
-| Requirement | Corresponding artifacts | Result |
+| Requirement | Current source correspondence | Remaining terminal check |
 | --- | --- | --- |
-| WF5-01 | README.md, AGENTS.md, docs/app-constitution.md | DIRECT ownership is uniform across every stage. |
-| WF5-02 | README.md, AGENTS.md, assets/codex-home-graph-instructions.md | Persistent repo-L2 ownership is uniform across every DELEGATED stage. |
-| WF5-03 | README.md, AGENTS.md, docs/app-constitution.md | L3 dispatch is bounded to $subagents and returns to repo-L2. |
-| WF5-04 | README.md, AGENTS.md, assets/codex-home-graph-instructions.md | Journal authority is limited to the stage owner. |
-| WF5-05 | README.md, scripts/README.md, docs/app-constitution.md | app-analyze is agent-authored correspondence analysis on an exact snapshot. |
-| WF5-06 | docs/app-constitution.md, workflow contract links | Analysis output coverage and route are explicit. |
-| WF5-07 | README.md, docs/app-constitution.md, runner guide | audited has only semantic and process meaning. |
-| WF5-08 | README.md, docs/app-constitution.md, wave specification | All seven dimensions have consistent definitions. |
-| WF5-09 | README.md, docs/app-constitution.md, wave specification | Status and finding routes match the v3 registry. |
-| WF5-10 | Effectiveness methodology, evidence packet | Assessment is read-only and separate from workflow authority. |
+| WF5-01 | `README.md`, `AGENTS.md`, and `contracts/app-workflow-definition.v3.json` assign each DIRECT stage to the DIRECT primary. | Traverse the exact build and confirm every stage record preserves that owner. |
+| WF5-02 | `contracts/delegation-packets.v2.json`, `agents/README.md`, and the two orchestrator role definitions bind one persistent repo-L2 to each DELEGATED lane. | Confirm the exact process records retain one repo-L2 identity for the complete lane. |
+| WF5-03 | L1 uses native collaboration with `repo-lane-dispatch.v1`; repo-L2 uses `$subagents` with `dispatch-packet.v3`, `result-packet.v2`, and applicable `app-task-dispatch.v2`. | Confirm no represented record transfers stage or route authority to L3. |
+| WF5-04 | `contracts/app-process-event.v3.schema.json` and graph runtime sources restrict native process records to the stage owner. | Confirm actor and causal continuity across every exact journal record. |
+| WF5-05 | `skills/app-analyze/SKILL.md` defines agent-authored logical correspondence over one exact snapshot. | Complete all bounded graph reads through the final opaque cursor. |
+| WF5-06 | `contracts/app-semantic-analysis-result.v1.schema.json` defines coverage, findings, unmapped refs, remediation refs, completeness, and route. | Construct and validate the result against actual snapshot counts and refs. |
+| WF5-07 | The workflow, event, handoff, and analysis contracts restrict `audited` to complete semantic and process consistency. | Emit no terminal result until the immediate-predecessor build and journal delta satisfy that condition. |
+| WF5-08 | The specification and functional map define all seven dimensions for each active requirement. | Reconcile every dimension entity, relation, and evidence ref in the exact build. |
+| WF5-09 | `contracts/app-workflow-definition.v3.json` is the route registry consumed by stage and analysis surfaces. | Confirm every represented status and finding resolves to one registered route. |
+| WF5-10 | `docs/plugin-effectiveness-metrics-and-agent-audit-methodology.md` keeps assessment observational and outside workflow authority. | Confirm the final evidence set attributes no route, journal, or mutation act to the evaluator. |
 
-## Findings
+## Representation boundary
 
-No logical contradiction, unmapped wave requirement, or route mismatch remains in the designated documentation set.
+Treat lane, L3, result, and handoff packets as typed transient protocol inputs. Count only the L3 identity fields represented by an immutable v3 event `delegation_record` as durable graph evidence; never infer the full packet body from that record.
 
-## Handoff
+## Pending conclusion
 
-The stage owner binds this analysis and docs/workflow-refactor-v5-evidence.md to the exact build and journal snapshot before selecting the canonical handoff status.
+Do not infer a terminal semantic result from these notes. Bind `docs/workflow-refactor-v5-evidence.md` and the structured app-analyze result only after source convergence, complete graph traversal, exact coverage reconciliation, and process-causality review.

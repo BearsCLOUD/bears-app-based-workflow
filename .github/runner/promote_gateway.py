@@ -232,7 +232,7 @@ def _source_blobs(repository: Path, requested: str) -> dict[str, bytes]:
             raise GatewayUpdateError("gateway source bundle is too large")
         blobs[path] = data
     expected = {LAUNCHER_SOURCE, LOCK_SOURCE}
-    missing = expected - blobs
+    missing = expected - blobs.keys()
     module_names = {path.removeprefix(SOURCE_PREFIX) for path in blobs if path.startswith(SOURCE_PREFIX)}
     if missing or not REQUIRED_MODULES.issubset(module_names):
         raise GatewayUpdateError("gateway source bundle is incomplete")

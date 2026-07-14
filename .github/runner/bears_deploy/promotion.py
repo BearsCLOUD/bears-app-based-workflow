@@ -15,6 +15,7 @@ from .constants import (
     RECEIPT_MAX_BYTES,
     ROLE_RECEIPT_MAX_BYTES,
     ROLE_RECEIPT_SCHEMA,
+    ROLE_GRAPH_DEPLOY_RECEIPT_SCHEMA,
     SEMVER_RE,
     VERSION_RE,
 )
@@ -32,8 +33,8 @@ from .marketplace import (
 )
 from .models import DeployContext, DeployError, begin_activation_mutation
 from .graph_instructions import (
-    reconcile_graph_instructions,
-    remove_graph_instructions,
+    converge_graph_absence,
+    retire_graph_instructions,
     restore_graph_preimage,
 )
 from .process import (
@@ -45,7 +46,13 @@ from .process import (
     prepare_mirror,
     run_json,
 )
-from .receipts import clear_state, save_state, verify_receipted_install
+from .receipts import (
+    clear_state,
+    payload_fingerprint_matches_receipt,
+    save_exact_state,
+    save_state,
+    verify_receipted_install,
+)
 from .role_deploy import reconcile_roles
 from .role_recovery import clear_owned_roles, rollback_journaled_roles
 from .role_profiles import strict_json_loads
@@ -68,12 +75,15 @@ def reconcile_receipted_roles(
         state_directory,
         intent,
     )
-    if role_record["payload_fingerprint"] != state["payload_fingerprint"]:
+    if not payload_fingerprint_matches_receipt(
+        state,
+        str(role_record["payload_fingerprint"]),
+    ):
         raise DeployError(
             "live roles disagree with the exact deployment receipt",
             error_code="receipt-corruption",
         )
-    if state.get("schema") == DEPLOY_RECEIPT_SCHEMA:
+    if state.get("schema") in {ROLE_GRAPH_DEPLOY_RECEIPT_SCHEMA, DEPLOY_RECEIPT_SCHEMA}:
         for field, value in role_record.items():
             if state.get(field) != value:
                 raise DeployError(
@@ -89,7 +99,6 @@ def restore_receipted_install(
 ) -> None:
     sha = str(state["sha"])
     version = str(state["version"])
-    fingerprint = str(state["payload_fingerprint"])
     restore_intent = save_intent(state_directory, sha, state)
     marketplace_row(create=False)
     exact_remote(MARKETPLACE_ROOT)
@@ -102,24 +111,45 @@ def restore_receipted_install(
     ).stdout
     if dirty_payload or manifest(MARKETPLACE_ROOT, sha).get("version") != version:
         raise DeployError("recovery marketplace checkout is inconsistent")
-    if payload_fingerprint(MARKETPLACE_ROOT, sha) != fingerprint:
+    if not payload_fingerprint_matches_receipt(
+        state,
+        payload_fingerprint(MARKETPLACE_ROOT, sha),
+    ):
         raise DeployError("recovery marketplace payload disagrees with its receipt")
     run_json([CODEX, "plugin", "add", f"{PLUGIN}@{MARKETPLACE}", "--json"])
     verify_receipted_install(state)
     role_record = reconcile_receipted_roles(state_directory, state, restore_intent)
-    graph_record = reconcile_graph_instructions(state_directory, state)
-    save_state(state_directory, sha, version, role_record, graph_record)
+    durable = save_recovered_state(state_directory, state, role_record)
+    verify_receipted_install(durable)
+
+
+def save_recovered_state(
+    state_directory: int,
+    state: dict[str, Any],
+    role_record: dict[str, Any],
+) -> dict[str, Any]:
+    """Keep graph receipts exact; migrate graphless legacy receipts to v5."""
+    exact = bool(state.get("graph_block_sha256"))
+    if exact:
+        save_exact_state(state_directory, state)
+    else:
+        save_state(
+            state_directory,
+            str(state["sha"]),
+            str(state["version"]),
+            role_record,
+        )
     durable = load_state(state_directory)
     if (
         durable is None
-        or durable.get("schema") != DEPLOY_RECEIPT_SCHEMA
-        or durable.get("sha") != sha
-        or durable.get("version") != version
+        or (exact and durable != state)
+        or (not exact and durable.get("schema") != DEPLOY_RECEIPT_SCHEMA)
+        or durable.get("sha") != state["sha"]
+        or durable.get("version") != state["version"]
         or any(durable.get(field) != value for field, value in role_record.items())
-        or any(durable.get(field) != value for field, value in graph_record.items())
     ):
         raise DeployError("recovered deployment receipt is not durably role-complete")
-    verify_receipted_install(durable)
+    return durable
 
 
 def remove_and_verify(state_directory: int, intent: dict[str, Any]) -> None:
@@ -129,9 +159,9 @@ def remove_and_verify(state_directory: int, intent: dict[str, Any]) -> None:
     except Exception:
         pass
     verify_removed()
-    clear_owned_roles(state_directory, load_intent(state_directory) or intent)
-    restore_graph_preimage(load_intent(state_directory) or intent)
-    remove_graph_instructions(state)
+    active_intent = load_intent(state_directory) or intent
+    clear_owned_roles(state_directory, active_intent)
+    converge_graph_absence(state, active_intent)
     clear_state(state_directory)
 
 
@@ -160,9 +190,10 @@ def converge_registration_migration(
     ):
         raise DeployError("registration migration desired receipt is invalid")
     requested = str(intent["requested_sha"])
+    previous_state = load_state(state_directory)
     role_record = reconcile_roles(requested, version, state_directory, intent)
-    graph_record = reconcile_graph_instructions(state_directory, load_state(state_directory))
-    save_state(state_directory, requested, version, role_record, graph_record)
+    retire_graph_instructions(state_directory, previous_state)
+    save_state(state_directory, requested, version, role_record)
     durable = load_state(state_directory)
     if (
         durable is None
@@ -170,7 +201,6 @@ def converge_registration_migration(
         or durable.get("sha") != requested
         or durable.get("version") != version
         or any(durable.get(field) != value for field, value in role_record.items())
-        or any(durable.get(field) != value for field, value in graph_record.items())
     ):
         raise DeployError("registration migration deployment receipt is not durable")
     expected_tombstone = parse_migration_tombstone(
@@ -214,20 +244,18 @@ def converge_promotion_intent(
         try:
             verify_receipted_install(state)
             role_record = reconcile_receipted_roles(state_directory, state, intent)
-            graph_record = reconcile_graph_instructions(state_directory, state)
+            retire_graph_instructions(state_directory, state)
             save_state(
                 state_directory,
                 str(state["sha"]),
                 str(state["version"]),
                 role_record,
-                graph_record,
             )
             durable = load_state(state_directory)
             if (
                 durable is None
                 or durable.get("schema") != DEPLOY_RECEIPT_SCHEMA
                 or any(durable.get(field) != value for field, value in role_record.items())
-                or any(durable.get(field) != value for field, value in graph_record.items())
             ):
                 raise DeployError("recovered requested receipt is not durably role-complete")
             verify_receipted_install(durable)
@@ -274,7 +302,7 @@ def fail_after_recovery(
     state_directory: int,
     intent: dict[str, Any],
     failure: Exception,
-) -> None:
+) -> str:
     try:
         outcome = converge_promotion_intent(state_directory, intent)
     except Exception as recovery_failure:
@@ -283,8 +311,8 @@ def fail_after_recovery(
             error_code="recovery-failure",
         ) from recovery_failure
     if outcome == "requested":
-        message = "promotion failed; requested revision is durably receipted and active"
-    elif outcome == "previous":
+        return "recovered-requested"
+    if outcome == "previous":
         message = "promotion failed; previous receipted revision was restored"
     else:
         message = "promotion failed; plugin was removed"
@@ -333,13 +361,12 @@ def promote(
                     state,
                     repair_intent,
                 )
-                graph_record = reconcile_graph_instructions(state_directory, state)
+                retire_graph_instructions(state_directory, state)
                 save_state(
                     state_directory,
                     current,
                     str(state["version"]),
                     role_record,
-                    graph_record,
                 )
                 repaired = load_state(state_directory)
                 if repaired is None or repaired.get("schema") != DEPLOY_RECEIPT_SCHEMA:
@@ -347,7 +374,7 @@ def promote(
                 verify_receipted_install(repaired)
                 clear_intent(state_directory)
             except Exception as exc:
-                fail_after_recovery(state_directory, repair_intent, exc)
+                return fail_after_recovery(state_directory, repair_intent, exc)
             return early_status
         if not is_ancestor(MIRROR, current, requested):
             raise DeployError("non-fast-forward promotion requires a separate rollback authorization")
@@ -378,20 +405,21 @@ def promote(
         context.phase = "post-mutation"
         version = str(requested_manifest["version"])
         role_record = reconcile_roles(requested, version, state_directory, intent)
-        graph_record = reconcile_graph_instructions(state_directory, state)
-        save_state(state_directory, requested, version, role_record, graph_record)
+        retire_graph_instructions(state_directory, state)
+        save_state(state_directory, requested, version, role_record)
         durable_state = load_state(state_directory)
         if (
             durable_state is None
             or durable_state["sha"] != requested
             or durable_state["version"] != version
             or any(durable_state.get(field) != value for field, value in role_record.items())
-            or any(durable_state.get(field) != value for field, value in graph_record.items())
         ):
             raise DeployError("durable deployment receipt disagrees with the verified promotion")
         verify_receipted_install(durable_state)
         clear_intent(state_directory)
     except Exception as exc:
-        fail_after_recovery(state_directory, intent, exc)
+        status = fail_after_recovery(state_directory, intent, exc)
+        context.phase = "complete"
+        return status
     context.phase = "complete"
     return "deployed"

@@ -77,10 +77,26 @@ def validate_intent(value: Any) -> dict[str, Any]:
             ) from exc
     graph_transaction = value["graph_transaction"]
     if graph_transaction is not None:
+        legacy_graph_fields = {
+            "original_b64",
+            "original_present",
+            "original_sha256",
+            "desired_b64",
+            "desired_sha256",
+        }
+        graph_fields = legacy_graph_fields | {"desired_present"}
         if (
             not isinstance(graph_transaction, dict)
-            or set(graph_transaction) != {"original_b64", "original_present", "original_sha256", "desired_b64", "desired_sha256"}
+            or frozenset(graph_transaction)
+            not in {
+                frozenset(legacy_graph_fields),
+                frozenset(graph_fields),
+            }
             or not isinstance(graph_transaction.get("original_present"), bool)
+            or (
+                "desired_present" in graph_transaction
+                and not isinstance(graph_transaction.get("desired_present"), bool)
+            )
             or not FINGERPRINT_RE.fullmatch(str(graph_transaction.get("original_sha256", "")))
             or not FINGERPRINT_RE.fullmatch(str(graph_transaction.get("desired_sha256", "")))
         ):
@@ -94,6 +110,7 @@ def validate_intent(value: Any) -> dict[str, Any]:
             hashlib.sha256(original).hexdigest() != graph_transaction["original_sha256"]
             or hashlib.sha256(desired).hexdigest() != graph_transaction["desired_sha256"]
             or (not graph_transaction["original_present"] and original != b"")
+            or (not graph_transaction.get("desired_present", True) and desired != b"")
         ):
             raise DeployError("promotion graph transaction digest is invalid", error_code="receipt-corruption")
     transaction = value["role_transaction"]
@@ -307,12 +324,6 @@ def validate_intent(value: Any) -> dict[str, Any]:
                         "version": "0.0.0+codex.00000000000000",
                         **role_record,
                     }
-                if receipt_schema == DEPLOY_RECEIPT_SCHEMA:
-                    candidate.update(
-                        graph_template_sha256="0" * 64,
-                        graph_block_sha256="0" * 64,
-                        graph_separator_added=False,
-                    )
                 validate_deploy_receipt(candidate)
             except DeployError as exc:
                 raise DeployError(

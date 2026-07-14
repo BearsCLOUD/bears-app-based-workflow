@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 """Root-owned exact-SHA gateway updater and non-root promotion bridge.
 
-This executable is installed once by ``install-runner.sh``.  It treats the
+This executable is installed by ``install-runner.sh``.  It treats the
 requested repository revision as data: it fetches only the fixed ``main``
 history, materializes the hash-locked gateway in a root-owned staging tree,
-and executes that gateway as ``ai1``.  A failed promotion restores the prior
-gateway tree and launcher before returning the deployment failure.
+and executes that gateway as ``ai1``. A failed promotion restores the prior
+gateway unless a graphless v5 receipt already binds the active gateway revision.
 """
 
 from __future__ import annotations
@@ -18,12 +18,15 @@ import os
 from pathlib import Path, PurePosixPath
 import pwd
 import re
+import selectors
 import shutil
+import signal
 import stat
 import subprocess
 import sys
 import tempfile
-from typing import Mapping
+import time
+from typing import Any, Mapping
 
 
 REPOSITORY = "https://github.com/BearsCLOUD/bears-app-based-workflow.git"
@@ -31,6 +34,8 @@ MAIN_REF = "refs/remotes/origin/main"
 SHA_RE = re.compile(r"[0-9a-f]{40}")
 TOKEN_RE = re.compile(rb"[\x21-\x7e]+")
 TOKEN_MAX_BYTES = 1024
+FINGERPRINT_RE = re.compile(r"[0-9a-f]{64}")
+VERSION_RE = re.compile(r"(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)(?:\+codex\.\d{14})?")
 SOURCE_PREFIX = ".github/runner/bears_deploy/"
 LAUNCHER_SOURCE = ".github/runner/deploy_plugin.py"
 LOCK_SOURCE = ".github/runner/sentry-requirements.lock"
@@ -39,11 +44,15 @@ LAUNCHER = Path("/usr/local/sbin/deploy-bears-app-based-workflow")
 STATE_ROOT = Path("/var/lib/bears-plugin-gateway-update")
 LOCK_FILE = STATE_ROOT / "update.lock"
 JOURNAL_FILE = STATE_ROOT / "transaction.json"
+DEPLOY_STATE_DIR = Path("/var/lib/bears-plugin-deploy/ai1")
+DEPLOY_RECEIPT = DEPLOY_STATE_DIR / "bears-app-based-workflow.json"
+DEPLOY_RECEIPT_SCHEMA = "bears-plugin-deploy-state.v5"
 PACKAGE_BACKUP = Path("/usr/local/lib/bears-plugin-deploy.previous")
 LAUNCHER_BACKUP = Path("/usr/local/sbin/deploy-bears-app-based-workflow.previous")
 GIT = "/usr/bin/git"
 PYTHON = "/usr/bin/python3"
 RUNUSER = "/usr/sbin/runuser"
+TIMEOUT = "/usr/bin/timeout"
 ENV = {
     "HOME": "/root",
     "PATH": "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
@@ -58,7 +67,28 @@ ENV = {
 MAX_BLOB_BYTES = 512 * 1024
 MAX_SOURCE_BYTES = 4 * 1024 * 1024
 MAX_GATEWAY_OUTPUT = 128 * 1024
+MAX_DEPLOY_RECEIPT_BYTES = 64 * 1024
+GATEWAY_TIMEOUT_SECONDS = 600
+GATEWAY_KILL_AFTER_SECONDS = 10
+GATEWAY_COMMUNICATE_GRACE_SECONDS = 20
 ALLOWED_REQUIREMENTS = frozenset({"sentry-sdk", "urllib3", "certifi"})
+V5_RECEIPT_FIELDS = frozenset(
+    {
+        "schema",
+        "repository",
+        "marketplace",
+        "plugin",
+        "sha",
+        "version",
+        "payload_fingerprint",
+        "role_generation",
+        "role_count",
+        "role_catalog_sha256",
+        "role_receipt_sha256",
+        "role_source_blobs",
+        "role_profiles",
+    }
+)
 REQUIRED_MODULES = frozenset(
     {
         "__init__.py",
@@ -75,6 +105,241 @@ REQUIRED_MODULES = frozenset(
 
 class GatewayUpdateError(RuntimeError):
     """A fail-closed updater or rollback error."""
+
+
+def _strict_object(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
+    value: dict[str, Any] = {}
+    for key, item in pairs:
+        if key in value:
+            raise ValueError("duplicate JSON key")
+        value[key] = item
+    return value
+
+
+def _valid_v5_roles(receipt: dict[str, Any]) -> bool:
+    generation = receipt.get("role_generation")
+    blobs = receipt.get("role_source_blobs")
+    profiles = receipt.get("role_profiles")
+    if not isinstance(profiles, list):
+        return False
+    profile_names = tuple(
+        record.get("name")
+        for record in profiles
+        if isinstance(record, dict) and isinstance(record.get("name"), str)
+    )
+    if (
+        len(profile_names) != len(profiles)
+        or profile_names != tuple(sorted(set(profile_names)))
+        or any(
+            re.fullmatch(r"[a-z][a-z0-9-]{0,63}", name) is None
+            for name in profile_names
+        )
+    ):
+        return False
+    expected_sources = {
+        ".codex-plugin/plugin.json",
+        "agents/README.md",
+        *(f"agents/{name}.toml" for name in profile_names),
+    }
+    legacy_jsonless = bool(
+        isinstance(receipt.get("version"), str)
+        and re.fullmatch(r"\d+\.\d+\.\d+\+codex\.\d{14}", receipt["version"])
+    )
+    has_definition_sources = isinstance(blobs, dict) and any(
+        path.startswith("role-definitions/") for path in blobs
+    )
+    if has_definition_sources or not legacy_jsonless:
+        expected_sources.update(
+            {
+                "role-definitions/capability-catalog.v1.json",
+                *(f"role-definitions/{name}.json" for name in profile_names),
+            }
+        )
+    if (
+        not isinstance(generation, str)
+        or FINGERPRINT_RE.fullmatch(generation) is None
+        or receipt.get("role_catalog_sha256") != generation
+        or not isinstance(receipt.get("role_count"), int)
+        or isinstance(receipt.get("role_count"), bool)
+        or not 1 <= receipt["role_count"] <= 64
+        or len(profiles) != receipt["role_count"]
+        or not isinstance(blobs, dict)
+        or set(blobs) != expected_sources
+    ):
+        return False
+    for record in blobs.values():
+        if (
+            not isinstance(record, dict)
+            or set(record) != {"git_oid", "sha256"}
+            or not isinstance(record.get("git_oid"), str)
+            or re.fullmatch(r"(?:[0-9a-f]{40}|[0-9a-f]{64})", record["git_oid"]) is None
+            or not isinstance(record.get("sha256"), str)
+            or FINGERPRINT_RE.fullmatch(record["sha256"]) is None
+        ):
+            return False
+    for name, record in zip(profile_names, profiles, strict=True):
+        source = blobs[f"agents/{name}.toml"]
+        expected_path = str(DEPLOY_STATE_DIR / "role-generations" / generation / f"{name}.toml")
+        if (
+            set(record) != {"name", "config_file", "git_oid", "sha256"}
+            or record.get("name") != name
+            or record.get("config_file") != expected_path
+            or record.get("git_oid") != source["git_oid"]
+            or record.get("sha256") != source["sha256"]
+        ):
+            return False
+    return True
+
+
+def _durable_v5_binds(requested: str) -> bool:
+    """Read one private receipt without executing newly fetched gateway code."""
+    directory = -1
+    descriptor = -1
+    try:
+        account = pwd.getpwnam("ai1")
+        directory = os.open(
+            DEPLOY_STATE_DIR,
+            os.O_RDONLY | os.O_DIRECTORY | os.O_CLOEXEC | os.O_NOFOLLOW,
+        )
+        directory_stat = os.fstat(directory)
+        if (
+            directory_stat.st_uid != account.pw_uid
+            or directory_stat.st_gid != account.pw_gid
+            or stat.S_IMODE(directory_stat.st_mode) != 0o700
+        ):
+            return False
+        descriptor = os.open(
+            DEPLOY_RECEIPT.name,
+            os.O_RDONLY | os.O_CLOEXEC | os.O_NOFOLLOW | os.O_NONBLOCK,
+            dir_fd=directory,
+        )
+        receipt_stat = os.fstat(descriptor)
+        if (
+            not stat.S_ISREG(receipt_stat.st_mode)
+            or receipt_stat.st_nlink != 1
+            or receipt_stat.st_uid != account.pw_uid
+            or receipt_stat.st_gid != account.pw_gid
+            or stat.S_IMODE(receipt_stat.st_mode) != 0o600
+            or receipt_stat.st_size > MAX_DEPLOY_RECEIPT_BYTES
+        ):
+            return False
+        payload = bytearray()
+        while len(payload) <= MAX_DEPLOY_RECEIPT_BYTES:
+            chunk = os.read(descriptor, min(4096, MAX_DEPLOY_RECEIPT_BYTES + 1 - len(payload)))
+            if not chunk:
+                break
+            payload.extend(chunk)
+        if len(payload) > MAX_DEPLOY_RECEIPT_BYTES:
+            return False
+        receipt = json.loads(payload.decode("utf-8"), object_pairs_hook=_strict_object)
+    except (KeyError, OSError, UnicodeDecodeError, ValueError, json.JSONDecodeError):
+        return False
+    finally:
+        if descriptor >= 0:
+            os.close(descriptor)
+        if directory >= 0:
+            os.close(directory)
+    digest_fields = (
+        "payload_fingerprint",
+        "role_generation",
+        "role_catalog_sha256",
+        "role_receipt_sha256",
+    )
+    return bool(
+        isinstance(receipt, dict)
+        and set(receipt) == V5_RECEIPT_FIELDS
+        and receipt.get("schema") == DEPLOY_RECEIPT_SCHEMA
+        and receipt.get("repository") == REPOSITORY
+        and receipt.get("marketplace") == "bears-app-based-workflow"
+        and receipt.get("plugin") == "bears-app-based-workflow"
+        and receipt.get("sha") == requested
+        and isinstance(receipt.get("version"), str)
+        and VERSION_RE.fullmatch(receipt["version"])
+        and all(
+            isinstance(receipt.get(field), str) and FINGERPRINT_RE.fullmatch(receipt[field])
+            for field in digest_fields
+        )
+        and isinstance(receipt.get("role_count"), int)
+        and not isinstance(receipt.get("role_count"), bool)
+        and _valid_v5_roles(receipt)
+    )
+
+
+def _active_gateway_binds(requested: str) -> bool:
+    """Require the active package and launcher to bind the requested source."""
+    source_receipt = PACKAGE_ROOT / ".gateway-source.json"
+    requirements = PACKAGE_ROOT / ".sentry-requirements.lock"
+    package = PACKAGE_ROOT / "bears_deploy"
+    try:
+        _validate_stage(PACKAGE_ROOT)
+        _validate_installed_file(source_receipt, 0o644)
+        _validate_installed_file(LAUNCHER, 0o755)
+        payload = source_receipt.read_bytes()
+        if len(payload) > MAX_BLOB_BYTES:
+            return False
+        value = json.loads(payload.decode("utf-8"), object_pairs_hook=_strict_object)
+    except (
+        GatewayUpdateError,
+        OSError,
+        UnicodeDecodeError,
+        ValueError,
+        json.JSONDecodeError,
+    ):
+        return False
+    digest_fields = {"launcher_sha256", "requirements_sha256"}
+    if not (
+        isinstance(value, dict)
+        and set(value) == {
+            "schema",
+            "source_sha",
+            "launcher_sha256",
+            "requirements_sha256",
+            "modules",
+        }
+        and value.get("schema") == "bears-plugin-gateway-source.v1"
+        and value.get("source_sha") == requested
+        and all(
+            isinstance(value.get(field), str) and FINGERPRINT_RE.fullmatch(value[field])
+            for field in digest_fields
+        )
+        and isinstance(value.get("modules"), dict)
+        and REQUIRED_MODULES.issubset(value["modules"])
+        and all(
+            isinstance(name, str)
+            and re.fullmatch(r"(?:__init__|[a-z][a-z0-9_]{0,63})\.py", name)
+            and isinstance(digest, str)
+            and FINGERPRINT_RE.fullmatch(digest)
+            for name, digest in value["modules"].items()
+        )
+    ):
+        return False
+
+    modules: dict[str, str] = value["modules"]
+    try:
+        if not package.is_dir() or package.is_symlink():
+            return False
+        if {entry.name for entry in package.iterdir()} != set(modules):
+            return False
+        expected_files = {
+            LAUNCHER: (0o755, value["launcher_sha256"]),
+            requirements: (0o644, value["requirements_sha256"]),
+            **{
+                package / name: (0o644, digest)
+                for name, digest in modules.items()
+            },
+        }
+        total = 0
+        for path, (mode, digest) in expected_files.items():
+            _validate_installed_file(path, mode)
+            data = path.read_bytes()
+            if len(data) > MAX_BLOB_BYTES:
+                return False
+            total += len(data)
+            if total > MAX_SOURCE_BYTES or hashlib.sha256(data).hexdigest() != digest:
+                return False
+    except (GatewayUpdateError, OSError):
+        return False
+    return True
 
 
 def _diagnostic(value: str) -> str:
@@ -417,6 +682,25 @@ def _rollback() -> None:
     _sync_directory(STATE_ROOT)
 
 
+def _commit_active_gateway(requested: str) -> None:
+    _write_journal(requested, "committed")
+    _remove_path(PACKAGE_BACKUP)
+    _remove_path(LAUNCHER_BACKUP)
+    JOURNAL_FILE.unlink(missing_ok=True)
+    _sync_directory(PACKAGE_ROOT.parent)
+    _sync_directory(LAUNCHER.parent)
+    _sync_directory(STATE_ROOT)
+
+
+def _settle_active_gateway_after_failure(requested: str) -> bool:
+    """Retain the only v5-capable gateway, otherwise restore its predecessor."""
+    if _active_gateway_binds(requested) and _durable_v5_binds(requested):
+        _commit_active_gateway(requested)
+        return True
+    _rollback()
+    return False
+
+
 def _recover_interrupted_transaction() -> None:
     if not JOURNAL_FILE.exists():
         if PACKAGE_BACKUP.exists() or LAUNCHER_BACKUP.exists():
@@ -437,7 +721,7 @@ def _recover_interrupted_transaction() -> None:
     ):
         raise GatewayUpdateError("gateway transaction journal is invalid")
     if value["state"] == "activated":
-        _rollback()
+        _settle_active_gateway_after_failure(value["sha"])
         return
     _remove_path(PACKAGE_BACKUP)
     _remove_path(LAUNCHER_BACKUP)
@@ -471,7 +755,74 @@ def _activate(stage: Path, launcher_data: bytes, requested: str) -> None:
         raise
 
 
-def _run_gateway(requested: str, token: bytes) -> subprocess.CompletedProcess[bytes]:
+def _terminate_gateway_group(process: subprocess.Popen[bytes]) -> None:
+    """Terminate and reap the complete leased gateway process group."""
+    for signal_number, wait_seconds in (
+        (signal.SIGTERM, GATEWAY_KILL_AFTER_SECONDS),
+        (signal.SIGKILL, GATEWAY_KILL_AFTER_SECONDS),
+    ):
+        try:
+            os.killpg(process.pid, signal_number)
+        except ProcessLookupError:
+            pass
+        try:
+            process.wait(timeout=wait_seconds)
+            return
+        except subprocess.TimeoutExpired:
+            continue
+    raise GatewayUpdateError("gateway process group could not be reaped")
+
+
+def _capture_gateway_output(
+    process: subprocess.Popen[bytes],
+    token: bytes,
+    timeout_seconds: int,
+) -> tuple[bytes, bytes]:
+    """Drain child pipes while retaining at most the diagnostic budget per stream."""
+    if process.stdin is None or process.stdout is None or process.stderr is None:
+        raise GatewayUpdateError("gateway process pipes are unavailable")
+    try:
+        try:
+            process.stdin.write(token)
+            process.stdin.flush()
+        except BrokenPipeError:
+            pass
+        finally:
+            process.stdin.close()
+
+        output = bytearray()
+        errors = bytearray()
+        selector = selectors.DefaultSelector()
+        selector.register(process.stdout, selectors.EVENT_READ, output)
+        selector.register(process.stderr, selectors.EVENT_READ, errors)
+        deadline = time.monotonic() + timeout_seconds
+        try:
+            while selector.get_map():
+                remaining = deadline - time.monotonic()
+                if remaining <= 0:
+                    raise subprocess.TimeoutExpired(process.args, timeout_seconds)
+                for key, _ in selector.select(min(remaining, 0.25)):
+                    chunk = os.read(key.fd, 8192)
+                    if not chunk:
+                        selector.unregister(key.fileobj)
+                        continue
+                    target: bytearray = key.data
+                    available = MAX_GATEWAY_OUTPUT - len(target)
+                    if available > 0:
+                        target.extend(chunk[:available])
+            remaining = deadline - time.monotonic()
+            if remaining <= 0:
+                raise subprocess.TimeoutExpired(process.args, timeout_seconds)
+            process.wait(timeout=remaining)
+        finally:
+            selector.close()
+        return bytes(output), bytes(errors)
+    finally:
+        process.stdout.close()
+        process.stderr.close()
+
+
+def _gateway_child_env() -> list[str]:
     child_env = [
         "HOME=/home/ai1",
         "CODEX_HOME=/srv/bears/codex/ai1",
@@ -482,12 +833,94 @@ def _run_gateway(requested: str, token: bytes) -> subprocess.CompletedProcess[by
         value = os.environ.get(name, "")
         if value.isdigit():
             child_env.append(f"{name}={value}")
-    return _run(
-        [RUNUSER, "-u", "ai1", "--", "/usr/bin/env", "-i", *child_env, str(LAUNCHER), requested],
-        input_bytes=token,
-        ok=tuple(range(256)),
-        timeout=None,
+    return child_env
+
+
+def _exec_gateway_child(lease_value: str, requested: str) -> None:
+    """Close the root lease in trusted code before execing the non-root gateway."""
+    if SHA_RE.fullmatch(requested) is None or not lease_value.isdigit():
+        raise GatewayUpdateError("invalid supervised gateway arguments")
+    lease_descriptor = int(lease_value)
+    if lease_descriptor <= 2:
+        raise GatewayUpdateError("invalid supervised gateway lease")
+    try:
+        lease = os.fstat(lease_descriptor)
+        lock = LOCK_FILE.stat()
+    except OSError as exc:
+        raise GatewayUpdateError("supervised gateway lease is unavailable") from exc
+    if (
+        not stat.S_ISREG(lease.st_mode)
+        or (lease.st_dev, lease.st_ino) != (lock.st_dev, lock.st_ino)
+        or lease.st_uid != 0
+        or lease.st_gid != 0
+        or stat.S_IMODE(lease.st_mode) != 0o600
+    ):
+        raise GatewayUpdateError("supervised gateway lease is invalid")
+    try:
+        fcntl.flock(lease_descriptor, fcntl.LOCK_EX | fcntl.LOCK_NB)
+    except BlockingIOError as exc:
+        raise GatewayUpdateError("supervised gateway lease is not held") from exc
+    os.close(lease_descriptor)
+    argv = [
+        RUNUSER,
+        "-u",
+        "ai1",
+        "--",
+        "/usr/bin/env",
+        "-i",
+        *_gateway_child_env(),
+        str(LAUNCHER),
+        requested,
+    ]
+    os.execve(RUNUSER, argv, ENV)
+    raise GatewayUpdateError("supervised gateway exec returned unexpectedly")
+
+
+def _run_gateway(
+    requested: str,
+    token: bytes,
+    lease_descriptor: int,
+) -> subprocess.CompletedProcess[bytes]:
+    """Run one bounded non-root gateway while its supervisor leases the root lock."""
+    supervisor_env = dict(ENV)
+    for name in ("GITHUB_RUN_ID", "GITHUB_RUN_ATTEMPT"):
+        value = os.environ.get(name, "")
+        if value.isdigit():
+            supervisor_env[name] = value
+    argv = [
+        TIMEOUT,
+        "--signal=TERM",
+        f"--kill-after={GATEWAY_KILL_AFTER_SECONDS}s",
+        f"{GATEWAY_TIMEOUT_SECONDS}s",
+        PYTHON,
+        str(Path(__file__).resolve()),
+        "--gateway-child",
+        str(lease_descriptor),
+        requested,
+    ]
+    process = subprocess.Popen(
+        argv,
+        stdin=subprocess.PIPE,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        env=supervisor_env,
+        start_new_session=True,
+        pass_fds=(lease_descriptor,),
     )
+    try:
+        stdout, stderr = _capture_gateway_output(
+            process,
+            token,
+            (
+                GATEWAY_TIMEOUT_SECONDS
+                + GATEWAY_KILL_AFTER_SECONDS
+                + GATEWAY_COMMUNICATE_GRACE_SECONDS
+            ),
+        )
+    except BaseException:
+        _terminate_gateway_group(process)
+        raise
+    return subprocess.CompletedProcess(argv, process.returncode, stdout, stderr)
 
 
 def promote(requested: str, token: bytes) -> int:
@@ -518,24 +951,18 @@ def promote(requested: str, token: bytes) -> int:
         try:
             _activate(stage, blobs[LAUNCHER_SOURCE], requested)
             try:
-                result = _run_gateway(requested, token)
+                result = _run_gateway(requested, token, descriptor)
             except Exception:
-                _rollback()
+                _settle_active_gateway_after_failure(requested)
                 raise
             if result.returncode:
-                _rollback()
+                _settle_active_gateway_after_failure(requested)
                 if result.stdout:
                     sys.stdout.buffer.write(result.stdout[:MAX_GATEWAY_OUTPUT])
                 if result.stderr:
                     sys.stderr.buffer.write(result.stderr[:MAX_GATEWAY_OUTPUT])
                 return result.returncode
-            _write_journal(requested, "committed")
-            _remove_path(PACKAGE_BACKUP)
-            _remove_path(LAUNCHER_BACKUP)
-            JOURNAL_FILE.unlink(missing_ok=True)
-            _sync_directory(PACKAGE_ROOT.parent)
-            _sync_directory(LAUNCHER.parent)
-            _sync_directory(STATE_ROOT)
+            _commit_active_gateway(requested)
             if result.stdout:
                 sys.stdout.buffer.write(result.stdout[:MAX_GATEWAY_OUTPUT])
             if result.stderr:
@@ -553,6 +980,9 @@ def main() -> int:
         os.umask(0o022)
         if os.geteuid() != 0 or pwd.getpwuid(os.geteuid()).pw_name != "root":
             raise GatewayUpdateError("gateway promoter must run as root")
+        if len(sys.argv) == 4 and sys.argv[1] == "--gateway-child":
+            _exec_gateway_child(sys.argv[2], sys.argv[3])
+            raise GatewayUpdateError("supervised gateway child returned unexpectedly")
         if len(sys.argv) != 2 or SHA_RE.fullmatch(sys.argv[1]) is None:
             raise GatewayUpdateError("expected one exact lowercase 40-character SHA")
         token = _read_token()

@@ -2,6 +2,13 @@
 
 All notable changes to this plugin are documented in this file.
 
+## 0.5.0
+
+- Stopped plugin promotion and repair from injecting or refreshing instructions in `$CODEX_HOME/AGENTS.md`.
+- Added a one-release, receipt-bound migration that removes only the exact legacy managed block and preserves all unmanaged bytes.
+- Introduced graphless deployment receipt v5 while retaining read-only compatibility with v1-v4 receipts and interrupted legacy transactions.
+- Gated CD on migration recovery tests and an explicit root-promoter bootstrap, then retained the v5-capable gateway across post-receipt process or commit interruption.
+
 ## 0.4.3
 
 - Reframed the plugin as a workflow for deterministic documentation routing, graph planning, repository orchestration, and semantic correspondence analysis.

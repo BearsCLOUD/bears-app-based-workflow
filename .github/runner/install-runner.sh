@@ -107,7 +107,8 @@ IMPORT_TOMBSTONE_SCHEMA = "bears-plugin-deploy-state-import.v1"
 LEGACY_RECEIPT_SCHEMA = "bears-plugin-deploy-state.v1"
 PRIOR_RECEIPT_SCHEMA = "bears-plugin-deploy-state.v2"
 GRAPH_RECEIPT_SCHEMA = "bears-plugin-deploy-state.v3"
-DEPLOY_RECEIPT_SCHEMA = "bears-plugin-deploy-state.v4"
+ROLE_GRAPH_RECEIPT_SCHEMA = "bears-plugin-deploy-state.v4"
+DEPLOY_RECEIPT_SCHEMA = "bears-plugin-deploy-state.v5"
 REPOSITORY = "https://github.com/BearsCLOUD/bears-app-based-workflow.git"
 LEGACY_RECEIPT_PATH = f"{LEGACY_STATE_DIR}/{RECEIPT}"
 MAXIMUM = 64 * 1024
@@ -418,15 +419,20 @@ def validate_destination_receipt(payload: bytes) -> dict[str, object]:
         if set(receipt) != RECEIPT_FIELDS:
             fail("new v1 deployment receipt shape is invalid")
         return receipt
-    if schema not in {PRIOR_RECEIPT_SCHEMA, GRAPH_RECEIPT_SCHEMA, DEPLOY_RECEIPT_SCHEMA}:
+    if schema not in {
+        PRIOR_RECEIPT_SCHEMA,
+        GRAPH_RECEIPT_SCHEMA,
+        ROLE_GRAPH_RECEIPT_SCHEMA,
+        DEPLOY_RECEIPT_SCHEMA,
+    }:
         fail("new deployment receipt schema or shape is invalid")
 
     expected_fields = RECEIPT_FIELDS | ROLE_RECEIPT_FIELDS
-    if schema in {GRAPH_RECEIPT_SCHEMA, DEPLOY_RECEIPT_SCHEMA}:
+    if schema in {GRAPH_RECEIPT_SCHEMA, ROLE_GRAPH_RECEIPT_SCHEMA}:
         expected_fields |= GRAPH_RECEIPT_FIELDS
     if set(receipt) != expected_fields:
         fail("new deployment receipt schema or shape is invalid")
-    if schema in {GRAPH_RECEIPT_SCHEMA, DEPLOY_RECEIPT_SCHEMA} and (
+    if schema in {GRAPH_RECEIPT_SCHEMA, ROLE_GRAPH_RECEIPT_SCHEMA} and (
         not isinstance(receipt.get("graph_template_sha256"), str)
         or not re.fullmatch(r"[0-9a-f]{64}", receipt["graph_template_sha256"])
         or not isinstance(receipt.get("graph_block_sha256"), str)
@@ -455,7 +461,9 @@ def validate_destination_receipt(payload: bytes) -> dict[str, object]:
     has_definition_sources = isinstance(blobs, dict) and any(
         path.startswith("role-definitions/") for path in blobs
     )
-    if schema == DEPLOY_RECEIPT_SCHEMA and (has_definition_sources or not legacy_jsonless):
+    if schema in {ROLE_GRAPH_RECEIPT_SCHEMA, DEPLOY_RECEIPT_SCHEMA} and (
+        has_definition_sources or not legacy_jsonless
+    ):
         expected_sources.update(
             {
                 "role-definitions/capability-catalog.v1.json",

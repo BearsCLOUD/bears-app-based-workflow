@@ -8,7 +8,7 @@ These files form the repository-owned deployment boundary. They are not plugin a
 - promote_gateway.py is the fixed privileged bridge for one exact revision reachable from authoritative main.
 - bears_deploy/constants.py owns fixed identities, paths, schemas, and size limits.
 - bears_deploy/models.py owns shared errors and transaction context models.
-- bears_deploy/graph_instructions.py reconciles the receipted graph-behavior block in $CODEX_HOME/AGENTS.md.
+- bears_deploy/graph_instructions.py only retires an exact receipted legacy block; ordinary promotion and repair never access $CODEX_HOME/AGENTS.md.
 - bears_deploy/telemetry.py sends bounded sanitized Sentry events without changing the deployment result.
 - bears_deploy/process.py owns bounded subprocess, Git, and GitHub credential operations.
 - bears_deploy/marketplace.py owns manifest, marketplace, cache, and pinned Git-blob verification.
@@ -32,9 +32,17 @@ These files form the repository-owned deployment boundary. They are not plugin a
 
 The privileged bridge reads bounded Git blobs, installs only hash-locked allowlisted dependencies, and never executes fetched gateway code as root. It activates the gateway atomically, invokes it as non-root ai1, and restores the prior gateway when the requested revision cannot converge.
 
+CD runs the deployment recovery regression suite against the exact pushed revision before invoking the privileged bridge. Receipt v5 rollout is gated on an exact installed copy of `promote_gateway.py`, so the operator must bootstrap that root-owned file with `install-runner.sh` before publication. A fixed bounded timeout supervisor inherits the update-lock lease while the fetched gateway runs as non-root `ai1`; recovery cannot overlap a surviving old child after the outer promoter exits. Once v5 becomes durable, the bridge retains the v5-capable gateway across child failure, signal termination, or interrupted root commit while still propagating a failed child result to CI.
+
 The gateway persists a promotion intent before mutation and clears it only after the requested revision, the previous receipted revision, or local plugin removal is verified. Role recovery converges partial publication while preserving unrelated files.
 
 An unsafe marketplace state, corrupt receipt, or unresolved recovery stops promotion without advancing the receipt.
+
+## Large-module boundary
+
+- `promote_gateway.py` stays standalone so the root-owned updater has one auditable installation unit; before adding another gateway feature, extract receipt and source-binding validation into an installer-owned module.
+- `bears_deploy/graph_instructions.py` stays cohesive only for the bounded v3/v4 retirement window; remove the module and tombstone asset after legacy receipts are no longer supported.
+- `test_graph_instruction_retirement.py` stays one standard-library CI entrypoint for the v5 rollout; before adding another scenario, split legacy-transaction and privileged-gateway cases into separate test modules.
 
 ## Sentry boundary
 

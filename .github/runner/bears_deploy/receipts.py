@@ -9,6 +9,7 @@ from typing import Any
 
 from .constants import (
     DEPLOY_RECEIPT_SCHEMA,
+    LEGACY_DEPLOY_RECEIPT_SCHEMA,
     LEGACY_VERSION_RE,
     MARKETPLACE,
     MIRROR,
@@ -26,7 +27,6 @@ def save_state(
     sha: str,
     version: str,
     role_record: dict[str, Any],
-    graph_record: dict[str, Any],
 ) -> None:
     value = {
         "schema": DEPLOY_RECEIPT_SCHEMA,
@@ -36,8 +36,16 @@ def save_state(
         "sha": sha,
         "version": version,
         **role_record,
-        **graph_record,
     }
+    _write_state(state_directory, value)
+
+
+def save_exact_state(state_directory: int, value: dict[str, Any]) -> None:
+    """Restore a previously validated receipt without silently migrating it."""
+    _write_state(state_directory, dict(value))
+
+
+def _write_state(state_directory: int, value: dict[str, Any]) -> None:
     validate_deploy_receipt(value)
     payload = (json.dumps(value, sort_keys=True) + "\n").encode("utf-8")
     temporary = f".{PLUGIN}.{secrets.token_hex(16)}.tmp"
@@ -86,12 +94,23 @@ def clear_state(state_directory: int) -> None:
     os.fsync(state_directory)
 
 
-def verify_receipted_install(state: dict[str, Any]) -> None:
-    fingerprint = verify_install(str(state["sha"]), str(state["version"]))
+def payload_fingerprint_matches_receipt(
+    state: dict[str, Any],
+    current_fingerprint: str,
+) -> bool:
+    """Accept the exact current fingerprint or the bounded v1 legacy digest."""
     receipted_fingerprint = str(state["payload_fingerprint"])
-    legacy_match = (
-        LEGACY_VERSION_RE.fullmatch(str(state["version"])) is not None
+    return current_fingerprint == receipted_fingerprint or (
+        state.get("schema") == LEGACY_DEPLOY_RECEIPT_SCHEMA
+        and LEGACY_VERSION_RE.fullmatch(str(state["version"])) is not None
         and receipted_fingerprint == legacy_payload_fingerprint(MIRROR, str(state["sha"]))
     )
-    if fingerprint != receipted_fingerprint and not legacy_match:
-        raise DeployError("active plugin disagrees with its deployment receipt", error_code="receipt-corruption")
+
+
+def verify_receipted_install(state: dict[str, Any]) -> None:
+    fingerprint = verify_install(str(state["sha"]), str(state["version"]))
+    if not payload_fingerprint_matches_receipt(state, fingerprint):
+        raise DeployError(
+            "active plugin disagrees with its deployment receipt",
+            error_code="receipt-corruption",
+        )

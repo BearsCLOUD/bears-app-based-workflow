@@ -64,6 +64,7 @@
     ".github/runner/install-sentry-materializer.sh",
     ".github/runner/materialize_sentry_dsn.py",
     ".github/runner/promote_gateway.py",
+    ".github/runner/test_graph_instruction_retirement.py",
     ".github/runner/sentry-requirements.lock",
     ".github/workflows/plugin-marketplace-cd.yml",
     ".gitignore",

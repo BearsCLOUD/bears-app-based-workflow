@@ -17,7 +17,7 @@ from .constants import (
     REPOSITORY,
 )
 from .intent_schema import validate_intent
-from .journal import decode_journal_bytes, encode_journal_bytes
+from .journal import encode_journal_bytes
 from .models import DeployError
 from .role_io import snapshot_metadata
 from .state_io import build_migration_tombstone, validate_private_regular
@@ -122,21 +122,23 @@ def save_intent(
     )
 
 
-def save_graph_intent(
+def save_instruction_removal_intent(
     state_directory: int,
     intent: dict[str, Any],
     *,
     original: bytes,
     original_present: bool,
     desired: bytes,
+    desired_present: bool,
 ) -> dict[str, Any]:
-    """Persist exact AGENTS.md preimage and desired bytes before publication."""
+    """Persist one legacy AGENTS.md removal before publication."""
     value = dict(intent)
     value["graph_transaction"] = {
         "original_b64": encode_journal_bytes(original),
         "original_present": original_present,
         "original_sha256": hashlib.sha256(original).hexdigest(),
         "desired_b64": encode_journal_bytes(desired),
+        "desired_present": desired_present,
         "desired_sha256": hashlib.sha256(desired).hexdigest(),
     }
     return persist_intent(state_directory, value)

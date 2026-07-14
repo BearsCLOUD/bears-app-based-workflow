@@ -1,6 +1,6 @@
 {
   "name": "bears-app-based-workflow",
-  "version": "0.4.3",
+  "version": "0.5.0",
   "description": "Bears app workflow plugin with deterministic graph compilation, immutable process records, repo-scoped orchestration, and semantic correspondence analysis.",
   "author": {
     "name": "BearsCLOUD",
@@ -37,8 +37,7 @@
       "Semantic correspondence analysis",
       "Opaque snapshot-bound pagination",
       "Graph-linked task ledger",
-      "Repo-scoped work and linked correction",
-      "CD-managed Codex graph instructions"
+      "Repo-scoped work and linked correction"
     ],
     "websiteURL": "https://github.com/BearsCLOUD/bears-app-based-workflow",
     "defaultPrompt": [

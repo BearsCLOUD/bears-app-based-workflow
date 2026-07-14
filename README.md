@@ -79,10 +79,8 @@ The closed workflow edge registry determines dependency direction, traversal, im
 
 ## Managed deployment
 
-assets/codex-home-graph-instructions.md is the exact managed instruction block promoted into $CODEX_HOME/AGENTS.md. Promotion preserves unmanaged bytes, records the desired revision, and fails closed on unsafe filesystem state or receipt drift.
-
-The repository-owned deployment gateway activates one authoritative main revision at a time, runs repository gateway code as non-root ai1, and restores the prior gateway when activation cannot converge.
+The repository-owned deployment gateway activates one authoritative main revision at a time, runs repository gateway code as non-root ai1, and restores the prior gateway when activation cannot converge. Promotion never adds or refreshes instructions in `$CODEX_HOME/AGENTS.md`. Receipt v5 retains one transition-only migration that removes an exact v3/v4 managed block while preserving unmanaged bytes.
 
 ## Version
 
-Workflow refactor v5 is represented by plugin source version 0.4.3. Publication remains a separately authorized action.
+Workflow refactor v5 is represented by plugin source version 0.5.0. Publication remains a separately authorized action.

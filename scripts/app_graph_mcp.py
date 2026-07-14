@@ -18,6 +18,8 @@ NON_EMPTY_REFS = {**REFS, "minItems": 1}
 GIT_REF = {"type": "string", "pattern": r"^[0-9a-f]{40}$"}
 GIT_REFS = {"type": "array", "minItems": 1, "items": GIT_REF, "uniqueItems": True}
 COMMIT_RANGE = {"type": "string", "pattern": r"^[0-9a-f]{40}\.\.[0-9a-f]{40}$"}
+DIGEST = {"type": "string", "pattern": r"^sha256:[a-f0-9]{64}$"}
+HANDOFF_REF = {"type": "string", "pattern": r"^HANDOFF-[A-F0-9]{24}$"}
 STAGES = [
     "app-constitution", "app-research", "app-specify", "app-functional-graph",
     "app-plan", "app-dev", "app-analyze",
@@ -34,6 +36,31 @@ FINDING_KINDS = [
     "evidence-gap", "review-gap", "remediation-gap", "credential-stop",
     "access-stop", "operator-stop",
 ]
+FINDING_RECORD_SCHEMA = {
+    "type": "object",
+    "additionalProperties": False,
+    "required": ["finding_ref", "kind", "subject_refs", "conflict_refs", "route", "summary"],
+    "properties": {
+        "finding_ref": STR,
+        "kind": {"enum": FINDING_KINDS},
+        "subject_refs": NON_EMPTY_REFS,
+        "conflict_refs": REFS,
+        "route": {"enum": ["needs-research", "needs-spec", "needs-graph", "needs-plan", "blocked"]},
+        "summary": STR,
+    },
+}
+TASK_SPEC_BINDING_SCHEMA = {
+    "type": "object",
+    "additionalProperties": False,
+    "required": ["task_ref", "task_spec_digest"],
+    "properties": {"task_ref": STR, "task_spec_digest": DIGEST},
+}
+REPLACEMENT_BINDING_SCHEMA = {
+    "type": "object",
+    "additionalProperties": False,
+    "required": ["task_ref", "replacement_task_refs"],
+    "properties": {"task_ref": STR, "replacement_task_refs": NON_EMPTY_REFS},
+}
 ANALYSIS_INPUT_FIELDS = (
     "source_refs", "decision_refs", "requirement_refs", "functionality_refs",
     "dimension_refs", "dimension_mapping_refs", "relation_refs", "graph_edge_refs",
@@ -60,7 +87,7 @@ CURSOR = {"type": "string", "description": "Opaque snapshot/query-bound continua
 BOUNDS = {
     "app_root": STR,
     "expected_build_ref": STR,
-    "limit": {"type": "integer", "minimum": 1, "maximum": 200, "default": 50},
+    "limit": {"type": "integer", "minimum": 1, "maximum": 200, "default": 10},
     "max_depth": {"type": "integer", "minimum": 1, "maximum": 32, "default": 8},
     "cursor": CURSOR,
 }
@@ -70,7 +97,9 @@ DELEGATION_RECORD_SCHEMA = {
     "required": [
         "dispatch_schema", "result_schema", "delegation_authority_ref",
         "assignment_authority_ref", "assignment_id", "task_id", "role",
-        "role_kind", "agent_level", "orchestrator_session_id",
+        "role_kind", "agent_level", "orchestrator_session_id", "result_ref",
+        "result_digest", "completion_status", "profile_ref", "model_ref",
+        "checklist_ref",
     ],
     "properties": {
         "dispatch_schema": {"const": "dispatch-packet.v3"},
@@ -84,7 +113,55 @@ DELEGATION_RECORD_SCHEMA = {
         "agent_level": {"const": "L3"},
         "orchestrator_session_id": STR,
         "app_task_schema": {"const": "app-task-dispatch.v2"},
+        "result_ref": STR,
+        "result_digest": DIGEST,
+        "completion_status": {"const": "completed"},
+        "profile_ref": STR,
+        "model_ref": STR,
+        "checklist_ref": STR,
     },
+    "oneOf": [
+        {
+            "properties": {
+                "role": {"const": "app-worker"},
+                "role_kind": {"const": "mutation-worker"},
+                "app_task_schema": {"const": "app-task-dispatch.v2"},
+            },
+            "required": ["app_task_schema"],
+        },
+        {
+            "properties": {
+                "role": {"const": "worker"},
+                "role_kind": {"const": "mutation-worker"},
+            },
+            "not": {"required": ["app_task_schema"]},
+        },
+        {
+            "properties": {
+                "role": {"const": "wave-change-critic"},
+                "role_kind": {"const": "primary-critic"},
+            },
+            "not": {"required": ["app_task_schema"]},
+        },
+        {
+            "properties": {
+                "role": {"not": {"enum": ["app-worker", "worker", "wave-change-critic"]}},
+                "role_kind": {"const": "helper"},
+            },
+            "not": {"required": ["app_task_schema"]},
+        },
+    ],
+}
+ANALYSIS_DELEGATION_RECORD_SCHEMA = {
+    "allOf": [
+        DELEGATION_RECORD_SCHEMA,
+        {
+            "properties": {
+                "role": {"const": "explorer"},
+                "role_kind": {"const": "helper"},
+            },
+        },
+    ],
 }
 ANALYSIS_RESULT_SCHEMA = {
     "type": "object",
@@ -119,19 +196,7 @@ ANALYSIS_RESULT_SCHEMA = {
         },
         "findings": {
             "type": "array",
-            "items": {
-                "type": "object",
-                "additionalProperties": False,
-                "required": ["finding_ref", "kind", "subject_refs", "conflict_refs", "route", "summary"],
-                "properties": {
-                    "finding_ref": STR,
-                    "kind": {"enum": FINDING_KINDS},
-                    "subject_refs": REFS,
-                    "conflict_refs": REFS,
-                    "route": {"enum": ["needs-research", "needs-spec", "needs-graph", "needs-plan", "blocked"]},
-                    "summary": STR,
-                },
-            },
+            "items": FINDING_RECORD_SCHEMA,
         },
         "unmapped_decision_refs": REFS,
         "unmapped_requirement_refs": REFS,
@@ -139,27 +204,201 @@ ANALYSIS_RESULT_SCHEMA = {
         "complete": {"type": "boolean"},
         "route": {"enum": ["none", "needs-research", "needs-spec", "needs-graph", "needs-plan", "blocked"]},
     },
+    "oneOf": [
+        {
+            "properties": {
+                "route": {"const": "none"},
+                "complete": {"const": True},
+                "findings": {"maxItems": 0},
+                "unmapped_decision_refs": {"maxItems": 0},
+                "unmapped_requirement_refs": {"maxItems": 0},
+                "open_remediation_refs": {"maxItems": 0},
+            },
+        },
+        {
+            "properties": {
+                "route": {"enum": ["needs-research", "needs-spec", "needs-graph", "needs-plan", "blocked"]},
+                "complete": {"const": False},
+                "findings": {"minItems": 1},
+            },
+        },
+    ],
 }
 EVENT_SCHEMA = {
     "type": "object", "additionalProperties": False,
-    "required": ["schema", "run_ref", "event_ref", "event_kind", "stage", "status", "actor", "owner_session_ref", "causal_refs", "trace_refs", "artifact_refs", "task_refs", "origin", "repo_ref", "wave_ref"],
+    "required": ["schema", "run_ref", "event_ref", "event_kind", "stage", "status", "actor", "owner_session_ref", "causal_refs", "trace_refs", "artifact_refs", "task_refs", "task_spec_bindings", "origin", "repo_ref", "wave_ref"],
     "properties": {
         "schema": {"const": "app-process-event.v3"},
         **{name: STR for name in ("run_ref", "event_ref", "owner_session_ref", "repo_ref", "wave_ref")},
         "stage": {"enum": STAGES},
         "status": {"enum": STATUSES},
         "actor": {"enum": ["DIRECT-primary", "repo-L2"]},
-        "event_kind": {"enum": ["run-start", "stage", "delegation", "task-result", "review", "remediation", "repo-handoff", "analysis"]},
+        "event_kind": {"enum": ["run-start", "stage", "delegation", "task-result", "review", "repo-handoff", "analysis"]},
         **{name: REFS for name in ("causal_refs", "trace_refs", "artifact_refs", "task_refs")},
+        "task_spec_bindings": {"type": "array", "items": TASK_SPEC_BINDING_SCHEMA, "uniqueItems": True},
         "origin": {"const": "native"},
         "task_ref": STR, "terminal_result": {"enum": ["done", "failed", "blocked"]},
         "commit_refs": GIT_REFS,
         "changed_paths": NON_EMPTY_REFS,
         "reviewed_task_refs": REFS,
         "finding_refs": REFS,
+        "finding_records": {"type": "array", "items": FINDING_RECORD_SCHEMA, "uniqueItems": True},
+        "replacement_bindings": {"type": "array", "items": REPLACEMENT_BINDING_SCHEMA, "uniqueItems": True},
         "commit_range": COMMIT_RANGE, "remediates_run_ref": STR, "analysis_ref": STR,
+        "handoff_payload_digest": DIGEST,
         "analysis_result": ANALYSIS_RESULT_SCHEMA,
         "delegation_record": DELEGATION_RECORD_SCHEMA,
+        "delegation_records": {
+            "type": "array", "items": ANALYSIS_DELEGATION_RECORD_SCHEMA,
+            "maxItems": 1, "uniqueItems": True,
+        },
+    },
+    "allOf": [
+        {
+            "if": {
+                "properties": {"event_kind": {"enum": ["run-start", "stage", "repo-handoff", "analysis"]}},
+                "required": ["event_kind"],
+            },
+            "then": {"required": ["handoff_payload_digest"]},
+            "else": {"not": {"required": ["handoff_payload_digest"]}},
+        },
+        {
+            "if": {
+                "properties": {"event_kind": {"enum": ["stage", "review"]}},
+                "required": ["event_kind"],
+            },
+            "then": {"required": ["finding_refs", "finding_records"]},
+            "else": {
+                "not": {
+                    "anyOf": [
+                        {"required": ["finding_refs"]},
+                        {"required": ["finding_records"]},
+                    ],
+                },
+            },
+        },
+        {
+            "if": {
+                "properties": {
+                    "event_kind": {"const": "stage"},
+                    "status": {"enum": ["needs-research", "needs-spec", "needs-graph", "needs-plan", "blocked"]},
+                },
+                "required": ["event_kind", "status"],
+                "not": {
+                    "properties": {
+                        "stage": {"enum": ["app-dev", "app-plan"]},
+                        "status": {"const": "needs-plan"},
+                    },
+                    "required": ["stage", "status"],
+                },
+            },
+            "then": {
+                "properties": {
+                    "finding_refs": {"minItems": 1},
+                    "finding_records": {"minItems": 1},
+                },
+            },
+        },
+        {
+            "if": {
+                "properties": {"event_kind": {"const": "delegation"}},
+                "required": ["event_kind"],
+            },
+            "then": {
+                "required": ["delegation_record"],
+                "properties": {
+                    "actor": {"const": "repo-L2"},
+                    "stage": {"enum": [stage for stage in STAGES if stage != "app-analyze"]},
+                    "status": {"const": "in_progress"},
+                },
+            },
+            "else": {"not": {"required": ["delegation_record"]}},
+        },
+        {
+            "if": {
+                "properties": {"event_kind": {"const": "analysis"}},
+                "required": ["event_kind"],
+            },
+            "then": {
+                "required": ["analysis_ref", "analysis_result"],
+                "properties": {
+                    "stage": {"const": "app-analyze"},
+                    "status": {"enum": [
+                        "needs-research", "needs-spec", "needs-graph",
+                        "needs-plan", "audited", "blocked",
+                    ]},
+                },
+                "allOf": [
+                    {
+                        "if": {
+                            "properties": {"actor": {"const": "repo-L2"}},
+                            "required": ["actor"],
+                        },
+                        "then": {
+                            "required": ["delegation_records"],
+                            "properties": {"delegation_records": {"minItems": 1, "maxItems": 1}},
+                        },
+                    },
+                    {
+                        "if": {
+                            "properties": {"actor": {"const": "DIRECT-primary"}},
+                            "required": ["actor"],
+                        },
+                        "then": {"properties": {"delegation_records": {"maxItems": 0}}},
+                    },
+                ],
+            },
+            "else": {"not": {"required": ["delegation_records"]}},
+        },
+    ],
+}
+TRACE_LINK_SCHEMA = {
+    "type": "object",
+    "additionalProperties": False,
+    "required": ["ref", "kind", "from_ref", "to_ref"],
+    "properties": {
+        "ref": STR,
+        "kind": {"enum": ["depends_on", "constrains", "defines", "decomposes_to", "implemented_by", "evidenced_by", "replaces", "remediates", "causes"]},
+        "from_ref": STR,
+        "to_ref": STR,
+    },
+}
+HANDOFF_SCHEMA = {
+    "type": "object",
+    "additionalProperties": False,
+    "required": [
+        "schema", "handoff_ref", "run_ref", "event_ref", "status", "target_stage",
+        "owner_mode", "owner_session_ref", "repo_ref", "wave_ref", "causal_refs",
+        "trace_links", "build_ref", "source_snapshot_digest", "journal_digest",
+        "artifact_refs", "decision_refs", "requirement_refs", "functionality_refs",
+        "graph_entity_refs", "task_refs", "remediation_refs", "finding_refs",
+        "evidence_refs", "delegation_records", "stage_payload",
+    ],
+    "properties": {
+        "schema": {"const": "app-stage-handoff.v4"},
+        "handoff_ref": HANDOFF_REF,
+        **{name: STR for name in ("run_ref", "event_ref", "owner_session_ref", "repo_ref", "wave_ref")},
+        "status": {"enum": [
+            "constitution-ready", "needs-research", "research-ready", "needs-spec",
+            "spec-ready", "needs-graph", "graph-ready", "waiting", "needs-plan",
+            "plan-ready", "ready", "implemented", "no-work", "audited", "blocked",
+        ]},
+        "target_stage": {"enum": ["app-research", "app-specify", "app-functional-graph", "app-plan", "app-dev", "app-analyze", "none"]},
+        "owner_mode": {"enum": ["DIRECT", "DELEGATED"]},
+        **{name: REFS for name in (
+            "causal_refs", "artifact_refs", "decision_refs", "requirement_refs",
+            "functionality_refs", "graph_entity_refs", "task_refs",
+            "remediation_refs", "finding_refs", "evidence_refs",
+        )},
+        "trace_links": {"type": "array", "items": TRACE_LINK_SCHEMA, "uniqueItems": True},
+        "delegation_records": {
+            "type": "array", "items": ANALYSIS_DELEGATION_RECORD_SCHEMA,
+            "maxItems": 1, "uniqueItems": True,
+        },
+        "build_ref": {"type": "string", "pattern": r"^BUILD-[A-F0-9]{24}$"},
+        "source_snapshot_digest": DIGEST,
+        "journal_digest": DIGEST,
+        "stage_payload": {"type": "object", "minProperties": 1},
     },
 }
 
@@ -171,6 +410,7 @@ def _object(properties: dict[str, Any], required: tuple[str, ...] = ("app_root",
 SCHEMAS = {
     "graph_compile": _object({"app_root": STR, "expected_build_ref": STR}),
     "process_record_event": _object({"app_root": STR, "event": EVENT_SCHEMA}, ("app_root", "event")),
+    "handoff_validate": _object({"app_root": STR, "expected_build_ref": STR, "handoff": HANDOFF_SCHEMA}, ("app_root", "handoff")),
     "dependency_slice": _object({**BOUNDS, "refs": {"type": "array", "items": STR, "uniqueItems": True}, "direction": {"enum": ["dependencies", "dependents"]}}, ("app_root", "refs")),
     "impact_analysis": _object({**BOUNDS, "refs": {"type": "array", "items": STR, "uniqueItems": True}}, ("app_root", "refs")),
     "graph_trace": _object({**BOUNDS, "refs": {"type": "array", "items": STR, "uniqueItems": True}}),
@@ -185,6 +425,7 @@ READ_DESCRIPTIONS = {
     "graph_diagnostics": "Return compiler findings.",
     "topological_plan": "Return dependency-ordered task refs.",
     "workflow_state": "Return immutable process events.",
+    "handoff_validate": "Validate one stage handoff against the exact current graph build.",
 }
 
 
@@ -204,6 +445,7 @@ def _validate(schema: dict[str, Any], value: Any, path: str = "arguments") -> No
     kind = schema.get("type")
     if kind == "object":
         if not isinstance(value, dict): raise ValueError(f"{path} must be an object")
+        if len(value) < schema.get("minProperties", 0): raise ValueError(f"{path} contains too few properties")
         props = schema.get("properties", {})
         if schema.get("additionalProperties") is False and set(value) - set(props): raise ValueError(f"{path} contains unknown fields")
         missing = set(schema.get("required", [])) - set(value)

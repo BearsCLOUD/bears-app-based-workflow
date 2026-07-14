@@ -9,11 +9,15 @@ import heapq
 import json
 import os
 from pathlib import Path
+import selectors
 import stat
+import subprocess
+import time
 from typing import Any, Iterable
 
 MAX_REQUEST_BYTES = 64 * 1024
 MAX_RESPONSE_BYTES = 16 * 1024
+MAX_GIT_PROVENANCE_BYTES = 2 * 1024 * 1024
 MAX_SOURCE_BYTES = 64 * 1024 * 1024
 MAX_SOURCES = 2_048
 MAX_ENTITIES = 25_000
@@ -45,6 +49,18 @@ FIXED_LIMITS = {
     "entities": MAX_ENTITIES, "edges": MAX_EDGES, "events": MAX_EVENTS,
     "process_links": MAX_PROCESS_LINKS,
 }
+
+
+def immutable_build_paths(build_ref: str) -> dict[str, str]:
+    """Derive immutable artifact paths without expanding the receipt contract."""
+    if not valid_build_ref(build_ref):
+        raise GraphError("BUILD_RECEIPT_INVALID", "immutable build path needs a valid build ref")
+    prefix = f"{BUILD_ROOT}/{build_ref}"
+    return {
+        "trace": f"{prefix}/app-traceability-index.v4.json",
+        "process": f"{prefix}/app-process-index.v4.json",
+        "context": f"{prefix}/app-context-index-result.v2.json",
+    }
 
 
 class GraphError(RuntimeError):
@@ -101,7 +117,7 @@ class QueryBounds:
 
     @classmethod
     def from_args(cls, arguments: dict[str, Any]) -> "QueryBounds":
-        limit, depth = arguments.get("limit", 50), arguments.get("max_depth", 8)
+        limit, depth = arguments.get("limit", 10), arguments.get("max_depth", 8)
         if isinstance(limit, bool) or not isinstance(limit, int) or not 1 <= limit <= MAX_PAGE:
             raise GraphError("QUERY_LIMIT", "limit must be 1..200")
         if isinstance(depth, bool) or not isinstance(depth, int) or not 1 <= depth <= MAX_DEPTH:
@@ -123,6 +139,236 @@ def safe_root(value: Any) -> RepoRoot:
         info = os.fstat(descriptor)
     except OSError as exc: raise GraphError("INVALID_ROOT", "app_root must be a real non-symlink directory") from exc
     return RepoRoot(supplied.absolute(), descriptor, info.st_dev, info.st_ino)
+
+
+def validate_git_commit(root: RepoRoot, ref: str) -> None:
+    """Require one exact commit object reachable from the repository HEAD."""
+    if (
+        not isinstance(ref, str)
+        or len(ref) != 40
+        or any(character not in "0123456789abcdef" for character in ref)
+    ):
+        raise GraphError("GIT_PROVENANCE_INVALID", "commit ref must be one full lowercase object name")
+    try:
+        result = subprocess.run(
+            ["git", "-C", f"/proc/self/fd/{root.fd}", "cat-file", "-t", ref],
+            stdin=subprocess.DEVNULL,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.DEVNULL,
+            pass_fds=(root.fd,),
+            timeout=5,
+            check=False,
+        )
+    except (OSError, subprocess.TimeoutExpired) as exc:
+        raise GraphError("GIT_PROVENANCE_INVALID", "commit lookup failed") from exc
+    if result.returncode != 0 or result.stdout != b"commit\n":
+        raise GraphError("GIT_PROVENANCE_INVALID", "ref is not an exact commit object", commit_ref=ref)
+    try:
+        reachable = subprocess.run(
+            ["git", "-C", f"/proc/self/fd/{root.fd}", "merge-base", "--is-ancestor", ref, "HEAD"],
+            stdin=subprocess.DEVNULL,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            pass_fds=(root.fd,),
+            timeout=5,
+            check=False,
+        )
+    except (OSError, subprocess.TimeoutExpired) as exc:
+        raise GraphError("GIT_PROVENANCE_INVALID", "commit reachability lookup failed") from exc
+    if reachable.returncode != 0:
+        raise GraphError(
+            "GIT_PROVENANCE_INVALID",
+            "commit is not reachable from repository HEAD",
+            commit_ref=ref,
+        )
+
+
+def validate_git_commit_range(root: RepoRoot, value: str) -> None:
+    """Require one exact base..head range whose base is an ancestor of its head."""
+    if not isinstance(value, str) or value.count("..") != 1:
+        raise GraphError("GIT_PROVENANCE_INVALID", "commit range must be base..head")
+    base, head = value.split("..")
+    validate_git_commit(root, base)
+    validate_git_commit(root, head)
+    try:
+        result = subprocess.run(
+            ["git", "-C", f"/proc/self/fd/{root.fd}", "merge-base", "--is-ancestor", base, head],
+            stdin=subprocess.DEVNULL,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            pass_fds=(root.fd,),
+            timeout=5,
+            check=False,
+        )
+    except (OSError, subprocess.TimeoutExpired) as exc:
+        raise GraphError("GIT_PROVENANCE_INVALID", "commit ancestry lookup failed") from exc
+    if result.returncode != 0:
+        raise GraphError(
+            "GIT_PROVENANCE_INVALID",
+            "commit range base is not an ancestor of its head",
+            commit_range=value,
+        )
+
+
+def git_is_ancestor(root: RepoRoot, ancestor: str, descendant: str) -> bool:
+    """Return whether two reachable exact commits have ancestor ordering."""
+    validate_git_commit(root, ancestor)
+    validate_git_commit(root, descendant)
+    try:
+        result = subprocess.run(
+            [
+                "git", "-C", f"/proc/self/fd/{root.fd}", "merge-base",
+                "--is-ancestor", ancestor, descendant,
+            ],
+            stdin=subprocess.DEVNULL,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            pass_fds=(root.fd,),
+            timeout=5,
+            check=False,
+        )
+    except (OSError, subprocess.TimeoutExpired) as exc:
+        raise GraphError("GIT_PROVENANCE_INVALID", "commit ancestry lookup failed") from exc
+    if result.returncode not in {0, 1}:
+        raise GraphError("GIT_PROVENANCE_INVALID", "commit ancestry lookup failed")
+    return result.returncode == 0
+
+
+def _bounded_git_output(root: RepoRoot, arguments: list[str]) -> bytes:
+    """Run one read-only Git query with a time and output bound."""
+    try:
+        process = subprocess.Popen(
+            ["git", "-C", f"/proc/self/fd/{root.fd}", *arguments],
+            stdin=subprocess.DEVNULL,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.DEVNULL,
+            pass_fds=(root.fd,),
+        )
+    except OSError as exc:
+        raise GraphError("GIT_PROVENANCE_INVALID", "git provenance query failed") from exc
+    assert process.stdout is not None
+    descriptor = process.stdout.fileno()
+    os.set_blocking(descriptor, False)
+    selector = selectors.DefaultSelector()
+    selector.register(descriptor, selectors.EVENT_READ)
+    payload = bytearray()
+    deadline = time.monotonic() + 5
+    try:
+        while selector.get_map():
+            remaining = deadline - time.monotonic()
+            if remaining <= 0:
+                raise GraphError("GIT_PROVENANCE_INVALID", "git provenance query timed out")
+            ready = selector.select(remaining)
+            if not ready:
+                raise GraphError("GIT_PROVENANCE_INVALID", "git provenance query timed out")
+            for key, _ in ready:
+                try:
+                    chunk = os.read(key.fd, min(65_536, MAX_GIT_PROVENANCE_BYTES + 1 - len(payload)))
+                except BlockingIOError:
+                    continue
+                if not chunk:
+                    selector.unregister(key.fd)
+                    continue
+                payload.extend(chunk)
+                if len(payload) > MAX_GIT_PROVENANCE_BYTES:
+                    raise GraphError("GIT_PROVENANCE_INVALID", "git provenance output exceeds its bound")
+        remaining = deadline - time.monotonic()
+        if remaining <= 0 or process.wait(timeout=remaining) != 0:
+            raise GraphError("GIT_PROVENANCE_INVALID", "git provenance query failed")
+        return bytes(payload)
+    except subprocess.TimeoutExpired as exc:
+        raise GraphError("GIT_PROVENANCE_INVALID", "git provenance query timed out") from exc
+    finally:
+        selector.close()
+        process.stdout.close()
+        if process.poll() is None:
+            process.kill()
+            process.wait()
+
+
+def git_commit_changed_paths(root: RepoRoot, ref: str) -> set[str]:
+    """Return every repository path changed by one exact commit object."""
+    validate_git_commit(root, ref)
+    raw = _bounded_git_output(
+        root,
+        ["diff-tree", "--root", "-m", "--no-commit-id", "--name-only", "-r", "-z", ref],
+    )
+    if not raw:
+        return set()
+    if not raw.endswith(b"\0"):
+        raise GraphError("GIT_PROVENANCE_INVALID", "git changed-path output is malformed")
+    try:
+        paths = {item.decode("utf-8") for item in raw[:-1].split(b"\0")}
+    except UnicodeDecodeError as exc:
+        raise GraphError("GIT_PROVENANCE_INVALID", "git changed paths must be UTF-8") from exc
+    if any(not path or Path(path).is_absolute() or ".." in Path(path).parts for path in paths):
+        raise GraphError("GIT_PROVENANCE_INVALID", "git changed path escapes repository scope")
+    return paths
+
+
+def git_range_commits(root: RepoRoot, value: str) -> set[str]:
+    """Return the complete commit set in one validated base..head range."""
+    validate_git_commit_range(root, value)
+    raw = _bounded_git_output(root, ["rev-list", "--topo-order", value])
+    if not raw:
+        return set()
+    try:
+        refs = raw.decode("ascii").splitlines()
+    except UnicodeDecodeError as exc:
+        raise GraphError("GIT_PROVENANCE_INVALID", "git range output is malformed") from exc
+    if any(
+        len(ref) != 40 or any(character not in "0123456789abcdef" for character in ref)
+        for ref in refs
+    ) or len(refs) != len(set(refs)):
+        raise GraphError("GIT_PROVENANCE_INVALID", "git range output is malformed")
+    return set(refs)
+
+
+def git_range_changed_paths(root: RepoRoot, value: str) -> set[str]:
+    """Return the exact net path delta of one validated base..head range."""
+    validate_git_commit_range(root, value)
+    base, head = value.split("..")
+    raw = _bounded_git_output(root, ["diff", "--name-only", "-z", base, head])
+    if not raw:
+        return set()
+    if not raw.endswith(b"\0"):
+        raise GraphError("GIT_PROVENANCE_INVALID", "git range path output is malformed")
+    try:
+        paths = {item.decode("utf-8") for item in raw[:-1].split(b"\0")}
+    except UnicodeDecodeError as exc:
+        raise GraphError("GIT_PROVENANCE_INVALID", "git range paths must be UTF-8") from exc
+    if any(not path or Path(path).is_absolute() or ".." in Path(path).parts for path in paths):
+        raise GraphError("GIT_PROVENANCE_INVALID", "git range path escapes repository scope")
+    return paths
+
+
+def validate_git_commit_in_range(root: RepoRoot, commit_ref: str, value: str) -> None:
+    """Require commit_ref to be included in the exact base..head ancestry range."""
+    validate_git_commit_range(root, value)
+    validate_git_commit(root, commit_ref)
+    base, head = value.split("..")
+    if commit_ref == base:
+        raise GraphError("GIT_PROVENANCE_INVALID", "review range excludes its base commit", commit_ref=commit_ref)
+    for ancestor, descendant in ((base, commit_ref), (commit_ref, head)):
+        try:
+            result = subprocess.run(
+                ["git", "-C", f"/proc/self/fd/{root.fd}", "merge-base", "--is-ancestor", ancestor, descendant],
+                stdin=subprocess.DEVNULL,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+                pass_fds=(root.fd,),
+                timeout=5,
+                check=False,
+            )
+        except (OSError, subprocess.TimeoutExpired) as exc:
+            raise GraphError("GIT_PROVENANCE_INVALID", "review range coverage lookup failed") from exc
+        if result.returncode != 0:
+            raise GraphError(
+                "GIT_PROVENANCE_INVALID",
+                "task result commit is outside the review range",
+                commit_ref=commit_ref,
+                commit_range=value,
+            )
 
 
 def parts(relative: str) -> tuple[str, ...]:
@@ -266,6 +512,61 @@ def validate_current_pointer(pointer: Any) -> str:
     ):
         raise GraphError("BUILD_POINTER_INVALID", "current build pointer does not bind its receipt")
     return receipt_ref
+
+
+def immutable_build_directory_exists(root: RepoRoot, build_ref: str) -> bool:
+    """Return False only when a validated immutable build directory is absent."""
+    if not valid_build_ref(build_ref):
+        raise GraphError("BUILD_RECEIPT_INVALID", "immutable build directory needs a valid build ref")
+    build_root = open_directory(root, parts(BUILD_ROOT)); descriptor = -1
+    try:
+        try:
+            descriptor = os.open(
+                build_ref,
+                os.O_RDONLY | os.O_DIRECTORY | os.O_CLOEXEC | os.O_NOFOLLOW,
+                dir_fd=build_root,
+            )
+        except FileNotFoundError:
+            return False
+        except OSError as exc:
+            raise GraphError(
+                "BUILD_RECEIPT_INVALID",
+                "immutable build directory is linked or unsafe",
+                build_ref=build_ref,
+            ) from exc
+        return True
+    finally:
+        if descriptor >= 0: os.close(descriptor)
+        os.close(build_root)
+
+
+def read_bound_indexes(
+    root: RepoRoot,
+    pointer: dict[str, Any],
+) -> tuple[dict[str, Any], dict[str, Any], dict[str, Any]]:
+    """Read the immutable bundle selected by a pointer, with legacy bootstrap fallback."""
+    receipt_ref = validate_current_pointer(pointer)
+    build, _ = read_json(root, receipt_ref, max_bytes=262144)
+    immutable = immutable_build_paths(pointer["build_ref"])
+    if not immutable_build_directory_exists(root, pointer["build_ref"]):
+        # Bootstrap only: pre-transaction publications had shared indexes. A new
+        # publication materializes an immutable predecessor before switching.
+        trace, _ = read_json(root, TRACE_PATH)
+        process, _ = read_json(root, PROCESS_PATH)
+    else:
+        trace_raw = read_regular(root, immutable["trace"], missing=True)
+        process_raw = read_regular(root, immutable["process"], missing=True)
+        if trace_raw is None or process_raw is None:
+            raise GraphError("BUILD_RECEIPT_INVALID", "immutable build bundle is incomplete")
+        try:
+            trace = json.loads(trace_raw)
+            process = json.loads(process_raw)
+        except (UnicodeError, json.JSONDecodeError) as exc:
+            raise GraphError("BUILD_RECEIPT_INVALID", "immutable build index is invalid JSON") from exc
+        if not isinstance(trace, dict) or not isinstance(process, dict):
+            raise GraphError("BUILD_RECEIPT_INVALID", "immutable build indexes must be objects")
+    validate_build_bundle(pointer, build, trace, process)
+    return build, trace, process
 
 
 def validate_build_bundle(

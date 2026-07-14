@@ -15,7 +15,17 @@ class GraphStore:
 
     def __init__(self, root: RepoRoot, trace: dict[str, Any], process: dict[str, Any], build: dict[str, Any], workflow: dict[str, Any], ledger: dict[str, Any]) -> None:
         self.root, self.trace, self.process, self.build, self.workflow, self.ledger = root, trace, process, build, workflow, ledger
-        self.entities = {x["ref"]:x for x in trace.get("entities",[])}; self.edges = list(trace.get("edges",[]))
+        self.entities = {x["ref"]:x for x in trace.get("entities",[])}
+        combined_edges: dict[str, dict[str, Any]] = {}
+        for edge in list(trace.get("edges", [])) + list(process.get("links", [])):
+            ref = edge.get("ref") if isinstance(edge, dict) else None
+            if not isinstance(ref, str) or not ref:
+                raise GraphError("BUILD_RECEIPT_INVALID", "bound graph contains an invalid edge")
+            previous = combined_edges.get(ref)
+            if previous is not None and previous != edge:
+                raise GraphError("BUILD_RECEIPT_INVALID", "bound graph edge ref is ambiguous", ref=ref)
+            combined_edges[ref] = edge
+        self.edges = list(combined_edges.values())
 
     @classmethod
     def load(cls, arguments: dict[str, Any]) -> "GraphStore":
@@ -23,13 +33,9 @@ class GraphStore:
         try:
             source_manifest = manifest(root)
             pointer, _ = read_json(root, CURRENT_BUILD_PATH, max_bytes=262144)
-            receipt_ref = validate_current_pointer(pointer)
-            build, _ = read_json(root, receipt_ref, max_bytes=262144)
-            trace, _ = read_json(root, TRACE_PATH)
-            process, _ = read_json(root, PROCESS_PATH)
+            build, trace, process = read_bound_indexes(root, pointer)
             workflow, workflow_raw = read_json(root, source_manifest["sources"]["workflow"])
             ledger, _ = read_json(root, source_manifest["sources"]["task_ledger"])
-            validate_build_bundle(pointer, build, trace, process)
             if workflow.get("schema") != "app-workflow-definition.v3" or ledger.get("schema") != "app-task-ledger.v3":
                 raise GraphError("SCHEMA_UNSUPPORTED", "bound workflow or ledger is unsupported")
             if (
@@ -53,8 +59,40 @@ class GraphStore:
     def close(self) -> None: self.root.close()
 
     def _page(self, items: list[Any], bounds: QueryBounds, query: str) -> dict[str, Any]:
-        offset=cursor_decode(bounds.cursor,self.build["build_ref"],query); page=items[offset:offset+bounds.limit]; next_offset=offset+len(page); truncated=next_offset<len(items)
-        return {"items":page,"truncated":truncated,"next_cursor":cursor_encode(self.build["build_ref"],query,next_offset) if truncated else None,"build_ref":self.build["build_ref"]}
+        offset = cursor_decode(bounds.cursor, self.build["build_ref"], query)
+        page: list[Any] = []
+        maximum = min(len(items), offset + bounds.limit)
+
+        def result(candidate: list[Any]) -> dict[str, Any]:
+            next_offset = offset + len(candidate)
+            truncated = next_offset < len(items)
+            return {
+                "items": candidate,
+                "truncated": truncated,
+                "next_cursor": cursor_encode(self.build["build_ref"], query, next_offset) if truncated else None,
+                "build_ref": self.build["build_ref"],
+            }
+
+        def emitted_size(payload: dict[str, Any]) -> int:
+            text = json.dumps(payload, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+            envelope = {
+                "content": [{"type": "text", "text": text}],
+                "structuredContent": payload,
+                "isError": False,
+            }
+            return len(json.dumps(envelope, ensure_ascii=False, separators=(",", ":")).encode())
+
+        for index in range(offset, maximum):
+            candidate = page + [items[index]]
+            if emitted_size(result(candidate)) > MAX_RESPONSE_BYTES - 1024:
+                if not page:
+                    raise GraphError("RESPONSE_LIMIT", "one page item exceeds the bounded response size")
+                break
+            page = candidate
+        payload = result(page)
+        if emitted_size(payload) > MAX_RESPONSE_BYTES - 1024:
+            raise GraphError("RESPONSE_LIMIT", "page metadata exceeds the bounded response size")
+        return payload
 
     def dependency_slice(self, arguments: dict[str, Any]) -> dict[str, Any]:
         bounds=QueryBounds.from_args(arguments); refs=arguments.get("refs",[]); direction=arguments.get("direction","dependencies")
@@ -77,11 +115,14 @@ class GraphStore:
         for edge in self.edges:
             if edge.get("active",True) and registry.get(edge.get("kind"),{}).get("impact") is True:
                 adjacency[edge["from_ref"]].append((edge["to_ref"],edge,"forward")); adjacency[edge["to_ref"]].append((edge["from_ref"],edge,"reverse"))
-        seen=set(refs); frontier=[(x,0) for x in refs]; found=[]
+        seen=set(refs); emitted_edges=set(); frontier=[(x,0) for x in refs]; found=[]
         while frontier:
             current,depth=frontier.pop(0)
             if depth>=bounds.depth: continue
             for target,edge,direction in sorted(adjacency[current],key=lambda x:(x[0],x[1]["ref"],x[2])):
+                if edge["ref"] in emitted_edges:
+                    continue
+                emitted_edges.add(edge["ref"])
                 found.append({"from_ref":current,"to_ref":target,"edge_ref":edge["ref"],"edge_kind":edge["kind"],"direction":direction,"depth":depth+1})
                 if target not in seen: seen.add(target); frontier.append((target,depth+1))
         return self._page(sorted(found,key=lambda x:(x["depth"],x["from_ref"],x["edge_ref"],x["direction"])),bounds,"impact:"+json.dumps(sorted(refs))+f":{bounds.depth}")
@@ -91,14 +132,16 @@ class GraphStore:
         return self._page(sorted(items,key=lambda x:x["ref"]),bounds,"trace:"+json.dumps(sorted(refs)))
 
     def diagnostics(self, arguments: dict[str, Any]) -> dict[str, Any]:
-        return self._page(sorted(self.trace.get("findings",[])+self.process.get("findings",[]),key=lambda x:str(x.get("ref",""))),QueryBounds.from_args(arguments),"diagnostics")
+        return self._page(sorted(self.trace.get("findings",[])+self.process.get("findings",[]),key=lambda x:str(x.get("finding_ref",x.get("ref","")))),QueryBounds.from_args(arguments),"diagnostics")
 
     def topological_plan(self, arguments: dict[str, Any]) -> dict[str, Any]:
-        bounds=QueryBounds.from_args(arguments); task_data={x["task_id"]:x for x in self.ledger.get("tasks",[]) if x.get("status")!="superseded"}; prerequisites={x:set() for x in task_data}; dependents=defaultdict(set)
-        for task, data in task_data.items():
-            for prerequisite in data.get("depends_on",[]):
-                if prerequisite not in task_data: raise GraphError("DANGLING_REF", "active prerequisite is missing", task_ref=task)
-                prerequisites[task].add(prerequisite); dependents[prerequisite].add(task)
+        bounds=QueryBounds.from_args(arguments); task_data={x["task_id"]:x for x in self.ledger.get("tasks",[]) if x.get("status")!="superseded"}; prerequisites={x:set() for x in task_data}; dependents=defaultdict(set); registry=self.workflow.get("graph",{}).get("edge_types",{})
+        for edge in self.edges:
+            if not edge.get("active",True) or registry.get(edge.get("kind"),{}).get("topological") is not True: continue
+            task,prerequisite=edge["from_ref"],edge["to_ref"]
+            if task not in task_data: continue
+            if prerequisite not in task_data: raise GraphError("DANGLING_REF", "active prerequisite is missing", task_ref=task)
+            prerequisites[task].add(prerequisite); dependents[prerequisite].add(task)
         key=lambda ref:(task_data[ref].get("queue_sequence",2**31),ref); ready=sorted((x for x in task_data if not prerequisites[x]),key=key); ordered=[]
         while ready:
             ref=ready.pop(0); ordered.append(ref)

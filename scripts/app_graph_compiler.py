@@ -10,13 +10,28 @@ from pathlib import Path
 import secrets
 from typing import Any
 
-from app_graph_process import _validate_event, _validate_run_lifecycle, _validate_workflow
+from app_graph_process import (
+    _validate_analysis_basis_binding,
+    _validate_event,
+    _validate_process_lifecycles,
+    _validate_workflow,
+)
 from app_graph_store import *
 
 
 DIMENSIONS = {"behavior", "dependency", "state", "api", "data", "integration", "error"}
 ARTIFACT_KINDS = {"code", "configuration", "document", "evidence"}
 ACTIVE_TASK_STATES = {"waiting", "ready", "in_progress", "done", "failed", "blocked"}
+TASK_REQUIRED_FIELDS = {
+    "task_id", "repo_ref", "wave_id", "owner_role", "decision_state", "status",
+    "queue_sequence", "task_kind", "requirement_refs", "functionality_refs",
+    "graph_entity_refs", "target_paths", "allowed_files", "depends_on",
+    "definition_of_done", "proof_requirement", "implementation_refs", "evidence_refs",
+    "retirement_commit_refs",
+}
+TASK_OPTIONAL_FIELDS = {"replacement_task_refs", "remediation_basis"}
+TASK_STATES = ACTIVE_TASK_STATES | {"superseded"}
+TASK_KINDS = {"documentation", "graph", "implementation", "review", "remediation"}
 
 
 def _entity(ref: str, kind: str, path: str, digest: str, **extra: Any) -> dict[str, Any]:
@@ -143,11 +158,92 @@ def _validate_dimensions(fmap: dict[str, Any], entities: dict[str, dict[str, Any
                 raise GraphError("DIMENSION_NA_INVALID", "not-applicable needs a rationale")
 
 
-def _acyclic_task_order(tasks: dict[str, dict[str, Any]], edges: dict[str, dict[str, Any]]) -> None:
+def _validate_ledger(ledger: Any) -> dict[str, dict[str, Any]]:
+    """Validate the complete v3 ledger contract before using any task field."""
+    if (
+        not isinstance(ledger, dict)
+        or set(ledger) != {"schema", "app_id", "revision", "tasks"}
+        or ledger.get("schema") != "app-task-ledger.v3"
+        or not isinstance(ledger.get("app_id"), str)
+        or not ledger["app_id"]
+        or isinstance(ledger.get("revision"), bool)
+        or not isinstance(ledger.get("revision"), int)
+        or ledger["revision"] < 1
+        or not isinstance(ledger.get("tasks"), list)
+        or len(ledger["tasks"]) > 25_000
+    ):
+        raise GraphError("SCHEMA_UNSUPPORTED", "task ledger root is invalid")
+    tasks: dict[str, dict[str, Any]] = {}
+    queue_keys: set[tuple[str, str, int]] = set()
+    for task in ledger["tasks"]:
+        if not isinstance(task, dict) or not TASK_REQUIRED_FIELDS.issubset(task):
+            raise GraphError("SCHEMA_UNSUPPORTED", "task ledger entry is incomplete")
+        if set(task) - TASK_REQUIRED_FIELDS - TASK_OPTIONAL_FIELDS:
+            raise GraphError("SCHEMA_UNSUPPORTED", "task ledger entry has unknown fields")
+        task_ref = task.get("task_id")
+        string_fields = ("task_id", "repo_ref", "wave_id", "definition_of_done", "proof_requirement")
+        if any(not isinstance(task.get(field), str) or not task[field] for field in string_fields):
+            raise GraphError("SCHEMA_UNSUPPORTED", "task scalar fields are invalid", task_ref=task_ref)
+        if task_ref in tasks:
+            raise GraphError("DUPLICATE_REF", "task ref is duplicated", ref=task_ref)
+        if (
+            task.get("owner_role") not in {"DIRECT-primary", "repo-L2"}
+            or task.get("decision_state") not in {"planned", "closed"}
+            or task.get("status") not in TASK_STATES
+            or task.get("task_kind") not in TASK_KINDS
+            or isinstance(task.get("queue_sequence"), bool)
+            or not isinstance(task.get("queue_sequence"), int)
+            or task["queue_sequence"] < 0
+        ):
+            raise GraphError("SCHEMA_UNSUPPORTED", "task enum or queue fields are invalid", task_ref=task_ref)
+        queue_key = (task["repo_ref"], task["wave_id"], task["queue_sequence"])
+        if queue_key in queue_keys:
+            raise GraphError("DUPLICATE_REF", "task queue sequence is duplicated within repo-wave", task_ref=task_ref)
+        queue_keys.add(queue_key)
+        for field in (
+            "requirement_refs", "functionality_refs", "graph_entity_refs", "target_paths",
+            "allowed_files", "depends_on", "implementation_refs", "evidence_refs",
+        ):
+            _refs(task.get(field), field=f"task.{field}")
+        _git_refs(task.get("retirement_commit_refs"), field="task.retirement_commit_refs")
+        if not set(task["target_paths"]).issubset(task["allowed_files"]):
+            raise GraphError("RUN_SCOPE_INVALID", "task target paths exceed allowed files", task_ref=task_ref)
+        superseded = task["status"] == "superseded"
+        if superseded != ("replacement_task_refs" in task):
+            raise GraphError("TASK_REPLACEMENT_INVALID", "replacement refs must exactly mark superseded tasks", task_ref=task_ref)
+        if superseded:
+            _refs(task["replacement_task_refs"], field="task.replacement_task_refs", allow_empty=False)
+        remediation = task["task_kind"] == "remediation"
+        if remediation != ("remediation_basis" in task):
+            raise GraphError("REMEDIATION_RUN_REQUIRED", "remediation basis presence disagrees with task kind", task_ref=task_ref)
+        if remediation:
+            basis = task["remediation_basis"]
+            if (
+                not isinstance(basis, dict)
+                or set(basis) != {"run_ref", "source_event_refs", "finding_refs"}
+                or not isinstance(basis.get("run_ref"), str)
+                or not basis["run_ref"]
+            ):
+                raise GraphError("REMEDIATION_RUN_REQUIRED", "remediation task basis is incomplete", task_ref=task_ref)
+            _refs(basis.get("source_event_refs"), field="task.remediation_basis.source_event_refs", allow_empty=False)
+            _refs(basis.get("finding_refs"), field="task.remediation_basis.finding_refs")
+        tasks[task_ref] = task
+    return tasks
+
+
+def _acyclic_task_order(
+    tasks: dict[str, dict[str, Any]],
+    edges: dict[str, dict[str, Any]],
+    registry: dict[str, dict[str, Any]],
+) -> None:
     indegree = {ref: 0 for ref, item in tasks.items() if item.get("status") in ACTIVE_TASK_STATES}
     outgoing: dict[str, list[str]] = defaultdict(list)
     for edge in edges.values():
-        if edge["kind"] != "depends_on" or edge["from_ref"] not in indegree or edge["to_ref"] not in indegree:
+        if (
+            registry[edge["kind"]]["topological"] is not True
+            or edge["from_ref"] not in indegree
+            or edge["to_ref"] not in indegree
+        ):
             continue
         indegree[edge["from_ref"]] += 1
         outgoing[edge["to_ref"]].append(edge["from_ref"])
@@ -164,13 +260,104 @@ def _acyclic_task_order(tasks: dict[str, dict[str, Any]], edges: dict[str, dict[
         raise GraphError("GRAPH_CYCLE", "active ledger dependency cycle")
 
 
+def _validate_forbidden_edge_cycles(
+    edges: dict[str, dict[str, Any]],
+    registry: dict[str, dict[str, Any]],
+) -> None:
+    """Reject cycles across every active edge governed by a forbidden policy."""
+    adjacency: dict[str, list[str]] = defaultdict(list)
+    indegree: dict[str, int] = {}
+    active_kinds: set[str] = set()
+    for edge_ref in sorted(edges):
+        edge = edges[edge_ref]
+        kind = edge["kind"]
+        semantics = registry.get(kind)
+        if (
+            not isinstance(semantics, dict)
+            or semantics.get("cycle") != "forbidden"
+            or edge.get("active", True) is not True
+        ):
+            continue
+        source, target = edge["from_ref"], edge["to_ref"]
+        adjacency[source].append(target)
+        indegree.setdefault(source, 0)
+        indegree[target] = indegree.get(target, 0) + 1
+        active_kinds.add(kind)
+    queue = deque(sorted(ref for ref, degree in indegree.items() if degree == 0))
+    visited = 0
+    while queue:
+        ref = queue.popleft()
+        visited += 1
+        for target in sorted(adjacency.get(ref, [])):
+            indegree[target] -= 1
+            if indegree[target] == 0:
+                queue.append(target)
+    if visited != len(indegree):
+        cycle_ref = min(ref for ref, degree in indegree.items() if degree > 0)
+        raise GraphError(
+            "GRAPH_CYCLE",
+            "forbidden active-edge cycle",
+            edge_kinds=sorted(active_kinds),
+            ref=cycle_ref,
+        )
+
+
+def _validate_task_replacements(tasks: dict[str, dict[str, Any]]) -> None:
+    """Require same-scope, acyclic replacement lineage for superseded tasks."""
+    for task_ref, task in tasks.items():
+        replacements = _refs(
+            task.get("replacement_task_refs", []),
+            field="task.replacement_task_refs",
+            allow_empty=task.get("status") != "superseded",
+        )
+        if task.get("status") != "superseded" and "replacement_task_refs" in task:
+            raise GraphError("TASK_REPLACEMENT_INVALID", "only superseded tasks may declare replacements", task_ref=task_ref)
+        for replacement_ref in replacements:
+            replacement = tasks.get(replacement_ref)
+            if replacement is None or replacement_ref == task_ref:
+                raise GraphError("TASK_REPLACEMENT_INVALID", "task replacement is missing or self-referential", task_ref=task_ref)
+            if any(
+                replacement.get(field) != task.get(field)
+                for field in ("repo_ref", "wave_id", "owner_role")
+            ) or replacement.get("task_kind") != "remediation":
+                raise GraphError("TASK_REPLACEMENT_INVALID", "task replacement crosses its authority scope", task_ref=task_ref)
+            if task.get("task_kind") == "remediation":
+                basis = task["remediation_basis"]
+                replacement_basis = replacement["remediation_basis"]
+                if replacement_basis["run_ref"] == basis["run_ref"]:
+                    raise GraphError(
+                        "TASK_REPLACEMENT_INVALID",
+                        "recursive remediation replacement must advance to the current correction run",
+                        task_ref=task_ref,
+                    )
+
+    indegree = {task_ref: 0 for task_ref in tasks}
+    outgoing: dict[str, list[str]] = defaultdict(list)
+    for task_ref, task in tasks.items():
+        for replacement_ref in task.get("replacement_task_refs", []):
+            outgoing[task_ref].append(replacement_ref)
+            indegree[replacement_ref] += 1
+    queue = deque(sorted(task_ref for task_ref, degree in indegree.items() if degree == 0))
+    visited = 0
+    while queue:
+        task_ref = queue.popleft()
+        visited += 1
+        for replacement_ref in sorted(outgoing.get(task_ref, [])):
+            indegree[replacement_ref] -= 1
+            if indegree[replacement_ref] == 0:
+                queue.append(replacement_ref)
+    if visited != len(tasks):
+        cycle_ref = min(task_ref for task_ref, degree in indegree.items() if degree > 0)
+        raise GraphError("GRAPH_CYCLE", "task replacement cycle", task_ref=cycle_ref)
+
+
 def _validate_event_journal(
     root: RepoRoot,
     config: dict[str, Any],
     values: dict[str, dict[str, Any]],
     tasks: dict[str, dict[str, Any]],
     entities: dict[str, dict[str, Any]],
-) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]], list[dict[str, Any]]]:
     event_root = config["event_roots"][0]
     workflow = values[config["workflow"]]
     _validate_workflow(workflow)
@@ -194,19 +381,106 @@ def _validate_event_journal(
             raise GraphError("DANGLING_REF", "event task ref is missing", event_ref=event["event_ref"])
         if any(ref not in entities for ref in event["trace_refs"] + event["artifact_refs"]):
             raise GraphError("DANGLING_REF", "event graph ref is missing", event_ref=event["event_ref"])
+        if (
+            set(event["trace_refs"]) & set(event["artifact_refs"])
+            or any(entities[ref]["kind"] in ARTIFACT_KINDS for ref in event["trace_refs"])
+            or any(entities[ref]["kind"] not in ARTIFACT_KINDS for ref in event["artifact_refs"])
+        ):
+            raise GraphError(
+                "RUN_SCOPE_INVALID",
+                "event trace and artifact refs are not disjoint typed categories",
+                event_ref=event["event_ref"],
+            )
         event_runs[ref] = run_ref
         events.append(event)
     by_run: dict[str, list[dict[str, Any]]] = defaultdict(list)
     for event in events:
         by_run[event["run_ref"]].append(event)
-    for run_events in by_run.values():
-        _validate_run_lifecycle(run_events, tasks, workflow)
+    ordered_runs = _validate_process_lifecycles(
+        by_run,
+        tasks,
+        workflow,
+        root,
+        known_refs=set(entities),
+    )
     ordered = causal_order(events)
-    links = [
+    links: list[dict[str, str]] = [
         {"ref": f"CAUSE:{cause}:{event['event_ref']}", "kind": "causes", "from_ref": cause, "to_ref": event["event_ref"]}
         for event in ordered for cause in event["causal_refs"]
     ]
-    return ordered, sorted(links, key=lambda item: item["ref"])
+    findings: dict[str, dict[str, Any]] = {}
+    for event in ordered:
+        if event["event_kind"] in {"stage", "review"}:
+            records = event.get("finding_records", [])
+        elif event["event_kind"] == "analysis":
+            records = event["analysis_result"].get("findings", [])
+        else:
+            records = []
+        for finding in records:
+            finding_ref = finding["finding_ref"]
+            previous = findings.get(finding_ref)
+            if previous is not None and canonical(previous) != canonical(finding):
+                raise GraphError(
+                    "FINDING_INVALID",
+                    "finding identity has conflicting canonical records",
+                    finding_ref=finding_ref,
+                )
+            findings[finding_ref] = finding
+
+    for run_ref, run_events in ordered_runs.items():
+        start = run_events[0]
+        source_run_ref = start.get("remediates_run_ref")
+        if source_run_ref is not None:
+            source_terminal = ordered_runs[source_run_ref][-1]
+            links.append(
+                {
+                    "ref": f"REMEDIATE:RUN:{start['event_ref']}:{source_terminal['event_ref']}",
+                    "kind": "remediates",
+                    "from_ref": start["event_ref"],
+                    "to_ref": source_terminal["event_ref"],
+                }
+            )
+
+    for task_ref, task in tasks.items():
+        basis = task.get("remediation_basis")
+        if not isinstance(basis, dict):
+            continue
+        for source_ref in sorted(set(basis["source_event_refs"] + basis["finding_refs"])):
+            links.append(
+                {
+                    "ref": f"REMEDIATE:TASK:{task_ref}:{source_ref}",
+                    "kind": "remediates",
+                    "from_ref": task_ref,
+                    "to_ref": source_ref,
+                }
+            )
+
+    for event in ordered:
+        for binding in event.get("replacement_bindings", []):
+            for replacement_ref in binding["replacement_task_refs"]:
+                links.append(
+                    {
+                        "ref": f"REMEDIATE:REPLACE:{replacement_ref}:{binding['task_ref']}",
+                        "kind": "remediates",
+                        "from_ref": replacement_ref,
+                        "to_ref": binding["task_ref"],
+                    }
+                )
+
+    links_by_ref: dict[str, dict[str, str]] = {}
+    for link in links:
+        previous = links_by_ref.get(link["ref"])
+        if previous is not None and previous != link:
+            raise GraphError("DUPLICATE_REF", "process link ref has conflicting meanings", ref=link["ref"])
+        links_by_ref[link["ref"]] = link
+    if len(links_by_ref) > MAX_PROCESS_LINKS:
+        raise GraphError("SOURCE_LIMIT", "process link limit exceeded")
+    _validate_forbidden_edge_cycles(links_by_ref, workflow["graph"]["edge_types"])
+    return (
+        ordered,
+        sorted(links_by_ref.values(), key=lambda item: item["ref"]),
+        sorted(findings.values(), key=lambda item: item["finding_ref"]),
+    )
 
 
 def build_indexes(root: RepoRoot, source_manifest: dict[str, Any]) -> tuple[dict[str, Any], dict[str, Any], dict[str, Any], dict[str, Any]]:
@@ -216,7 +490,8 @@ def build_indexes(root: RepoRoot, source_manifest: dict[str, Any]) -> tuple[dict
         values[config[key]] for key in ("functional_map", "task_ledger", "artifact_catalog", "workflow")
     )
     if (
-        fmap.get("schema") != "app-functional-map.v4"
+        not all(isinstance(value, dict) for value in (fmap, ledger, artifacts, workflow))
+        or fmap.get("schema") != "app-functional-map.v4"
         or ledger.get("schema") != "app-task-ledger.v3"
         or artifacts.get("schema") != "app-artifact-catalog.v2"
         or workflow.get("schema") != "app-workflow-definition.v3"
@@ -231,26 +506,58 @@ def build_indexes(root: RepoRoot, source_manifest: dict[str, Any]) -> tuple[dict
 
     def add_entity(item: dict[str, Any], path: str, *, digest: str | None = None) -> None:
         ref, kind = item.get("ref"), item.get("kind")
-        if not isinstance(ref, str) or not ref or not isinstance(kind, str) or ref in entities:
+        scope = item.get("scope", "app")
+        active = item.get("active", True)
+        if (
+            not isinstance(ref, str)
+            or not ref
+            or not isinstance(kind, str)
+            or not kind
+            or not isinstance(scope, str)
+            or not scope
+            or not isinstance(active, bool)
+            or path not in declared_sources
+            or ref in entities
+        ):
             raise GraphError("DUPLICATE_REF", "entity ref is missing or duplicated", ref=ref)
+        if len(entities) >= MAX_ENTITIES:
+            raise GraphError("SOURCE_LIMIT", "entity limit exceeded")
         entities[ref] = _entity(
             ref, kind, path, digest or source_digest[path],
-            scope=item.get("scope", "app"), active=item.get("active", True),
+            scope=scope, active=active,
         )
 
     def add_edge(item: dict[str, Any], path: str) -> None:
         ref, kind = item.get("ref"), item.get("kind")
-        if not isinstance(ref, str) or not ref or ref in edges or kind not in registry:
+        from_ref, to_ref = item.get("from_ref"), item.get("to_ref")
+        active = item.get("active", True)
+        if (
+            not isinstance(ref, str)
+            or not ref
+            or ref in edges
+            or kind not in registry
+            or not isinstance(from_ref, str)
+            or not from_ref
+            or not isinstance(to_ref, str)
+            or not to_ref
+            or not isinstance(active, bool)
+            or path not in declared_sources
+        ):
             raise GraphError("EDGE_KIND_UNKNOWN", "edge ref or kind is invalid", ref=ref)
+        if len(edges) >= MAX_EDGES:
+            raise GraphError("SOURCE_LIMIT", "edge limit exceeded")
         source_refs = _refs(item.get("source_refs", []), field="edge.source_refs")
+        bound_sources = sorted(set(source_refs + [path]))
+        if any(source_ref not in declared_sources for source_ref in bound_sources):
+            raise GraphError("DANGLING_REF", "edge source ref is not manifest-declared", ref=ref)
         edges[ref] = {
             "ref": ref,
             "kind": kind,
-            "from_ref": item.get("from_ref"),
-            "to_ref": item.get("to_ref"),
-            "source_refs": sorted(set(source_refs + [path])),
+            "from_ref": from_ref,
+            "to_ref": to_ref,
+            "source_refs": bound_sources,
             "condition_refs": sorted(_refs(item.get("condition_refs", []), field="edge.condition_refs")),
-            "active": item.get("active", True),
+            "active": active,
         }
 
     functional_source_refs = _refs(fmap.get("source_refs"), field="functional_map.source_refs", allow_empty=False)
@@ -286,12 +593,8 @@ def build_indexes(root: RepoRoot, source_manifest: dict[str, Any]) -> tuple[dict
             if artifact_items.get(evidence_ref, {}).get("kind") != "evidence":
                 raise GraphError("DANGLING_REF", "dimension evidence ref is missing", ref=evidence_ref)
 
-    tasks: dict[str, dict[str, Any]] = {}
-    for task in ledger.get("tasks", []):
-        task_ref = task.get("task_id")
-        if not isinstance(task_ref, str) or not task_ref or task_ref in tasks:
-            raise GraphError("DUPLICATE_REF", "task ref is missing or duplicated", ref=task_ref)
-        tasks[task_ref] = task
+    tasks = _validate_ledger(ledger)
+    for task_ref, task in tasks.items():
         active = task.get("status") != "superseded"
         requirement_refs = _refs(task.get("requirement_refs"), field="task.requirement_refs", allow_empty=not active)
         functionality_refs = _refs(task.get("functionality_refs"), field="task.functionality_refs", allow_empty=not active)
@@ -300,7 +603,22 @@ def build_indexes(root: RepoRoot, source_manifest: dict[str, Any]) -> tuple[dict
         evidence_refs = _refs(task.get("evidence_refs"), field="task.evidence_refs")
         target_paths = _refs(task.get("target_paths"), field="task.target_paths", allow_empty=not active)
         allowed_files = _refs(task.get("allowed_files"), field="task.allowed_files", allow_empty=not active)
-        _git_refs(task.get("retirement_commit_refs"), field="task.retirement_commit_refs")
+        retirement_commit_refs = _git_refs(task.get("retirement_commit_refs"), field="task.retirement_commit_refs")
+        for commit_ref in retirement_commit_refs:
+            validate_git_commit(root, commit_ref)
+        remediation_basis = task.get("remediation_basis")
+        if task.get("task_kind") == "remediation":
+            if (
+                not isinstance(remediation_basis, dict)
+                or set(remediation_basis) != {"run_ref", "source_event_refs", "finding_refs"}
+            ):
+                raise GraphError("REMEDIATION_RUN_REQUIRED", "remediation task basis is incomplete", task_ref=task_ref)
+            _refs(remediation_basis.get("source_event_refs"), field="task.remediation_basis.source_event_refs", allow_empty=False)
+            _refs(remediation_basis.get("finding_refs"), field="task.remediation_basis.finding_refs")
+            if not isinstance(remediation_basis.get("run_ref"), str) or not remediation_basis["run_ref"]:
+                raise GraphError("REMEDIATION_RUN_REQUIRED", "remediation task source run is invalid", task_ref=task_ref)
+        elif remediation_basis is not None:
+            raise GraphError("SCHEMA_UNSUPPORTED", "ordinary task cannot carry a remediation basis", task_ref=task_ref)
         if any(functional_items.get(ref, {}).get("kind") != "requirement" for ref in requirement_refs):
             raise GraphError("DANGLING_REF", "task requirement ref is invalid", task_ref=task_ref)
         if any(functional_items.get(ref, {}).get("kind") != "functionality" for ref in functionality_refs):
@@ -332,7 +650,18 @@ def build_indexes(root: RepoRoot, source_manifest: dict[str, Any]) -> tuple[dict
             config["task_ledger"],
         )
 
+    _validate_task_replacements(tasks)
     for task_ref, task in tasks.items():
+        for replacement_ref in task.get("replacement_task_refs", []):
+            add_edge(
+                {
+                    "ref": f"LEDGER-REPLACE:{replacement_ref}:{task_ref}",
+                    "kind": "replaces",
+                    "from_ref": replacement_ref,
+                    "to_ref": task_ref,
+                },
+                config["task_ledger"],
+            )
         for prerequisite in task.get("depends_on", []):
             if prerequisite not in tasks:
                 raise GraphError("DANGLING_REF", "task prerequisite is missing", task_ref=task_ref, prerequisite_ref=prerequisite)
@@ -351,8 +680,9 @@ def build_indexes(root: RepoRoot, source_manifest: dict[str, Any]) -> tuple[dict
             raise GraphError("DANGLING_REF", "edge endpoint is missing", edge_ref=edge["ref"])
         if any(ref not in entities for ref in edge["condition_refs"]):
             raise GraphError("DANGLING_REF", "edge condition ref is missing", edge_ref=edge["ref"])
-    _acyclic_task_order(tasks, edges)
-    events, links = _validate_event_journal(root, config, values, tasks, entities)
+    _validate_forbidden_edge_cycles(edges, registry)
+    _acyclic_task_order(tasks, edges, registry)
+    events, links, findings = _validate_event_journal(root, config, values, tasks, entities)
 
     trace_body = {
         "schema": "app-traceability-index.v4",
@@ -378,7 +708,7 @@ def build_indexes(root: RepoRoot, source_manifest: dict[str, Any]) -> tuple[dict
         "runs": sorted({item["run_ref"] for item in ordered_events}),
         "events": ordered_events,
         "links": links,
-        "findings": [],
+        "findings": findings,
     }
     content = digest_bytes(canonical({"trace": trace_body, "process": process_body}))
     build_ref = "BUILD-" + content[7:31].upper()
@@ -413,12 +743,7 @@ def _read_bound_bundle(
     root: RepoRoot,
     pointer: dict[str, Any],
 ) -> tuple[dict[str, Any], dict[str, Any], dict[str, Any]]:
-    receipt_ref = validate_current_pointer(pointer)
-    build, _ = read_json(root, receipt_ref, max_bytes=262144)
-    trace, _ = read_json(root, TRACE_PATH)
-    process, _ = read_json(root, PROCESS_PATH)
-    validate_build_bundle(pointer, build, trace, process)
-    return build, trace, process
+    return read_bound_indexes(root, pointer)
 
 
 def _locator_map(trace: dict[str, Any]) -> dict[str, str]:
@@ -439,41 +764,45 @@ def _locator_map(trace: dict[str, Any]) -> dict[str, str]:
     return result
 
 
-def _enforce_audited_publish(
+def _enforce_analysis_publish(
     root: RepoRoot,
     pointer: dict[str, Any] | None,
     trace: dict[str, Any],
     process: dict[str, Any],
 ) -> None:
-    """Bind a newly published audited record to one unchanged predecessor build."""
-    candidate_audited = {
+    """Keep the journal append-only and bind analysis to its predecessor build."""
+    candidate_events = {event["event_ref"]: event for event in process["events"]}
+    candidate_analyses = {
         event["event_ref"]: event
-        for event in process["events"] if event.get("status") == "audited"
+        for event in process["events"] if event.get("event_kind") == "analysis"
     }
-    if not candidate_audited:
-        return
     if pointer is None:
-        raise GraphError("AUDITED_GATE", "audited requires an immediate predecessor build")
+        if candidate_analyses:
+            raise GraphError("ANALYSIS_BASIS_INVALID", "analysis requires an immediate predecessor build")
+        return
     previous_build, previous_trace, previous_process = _read_bound_bundle(root, pointer)
     previous_events = {event["event_ref"]: event for event in previous_process.get("events", [])}
-    new_audited = [event for ref, event in candidate_audited.items() if ref not in previous_events]
-    if not new_audited:
-        return
-    if len(new_audited) != 1:
-        raise GraphError("AUDITED_GATE", "one compile may publish only one audited analysis event")
-    candidate_events = {event["event_ref"]: event for event in process["events"]}
     added_refs = set(candidate_events) - set(previous_events)
     removed_refs = set(previous_events) - set(candidate_events)
     changed_refs = {
         ref for ref in set(previous_events) & set(candidate_events)
         if canonical(previous_events[ref]) != canonical(candidate_events[ref])
     }
-    analysis_event = new_audited[0]
+    if removed_refs or changed_refs:
+        raise GraphError(
+            "JOURNAL_IMMUTABLE",
+            "published process records must remain a canonical-identical subset",
+            removed_refs=sorted(removed_refs),
+            changed_refs=sorted(changed_refs),
+        )
+    new_analyses = [event for ref, event in candidate_analyses.items() if ref not in previous_events]
+    if not new_analyses:
+        return
+    if len(new_analyses) != 1:
+        raise GraphError("ANALYSIS_BASIS_INVALID", "one compile may publish only one analysis event")
+    analysis_event = new_analyses[0]
     if added_refs != {analysis_event["event_ref"]} or removed_refs or changed_refs:
-        raise GraphError("AUDITED_GATE", "audited compile may add only its native analysis event")
-    result = analysis_event["analysis_result"]
-    if result["basis_build_ref"] != previous_build["build_ref"]:
-        raise GraphError("AUDITED_GATE", "audited analysis basis is not the immediate predecessor build")
+        raise GraphError("ANALYSIS_BASIS_INVALID", "analysis compile may add only its native analysis event")
     previous_locators = _locator_map(previous_trace)
     candidate_locators = _locator_map(trace)
     event_path = (
@@ -485,80 +814,17 @@ def _enforce_audited_publish(
         or set(previous_locators) - set(candidate_locators)
         or any(candidate_locators[path] != digest for path, digest in previous_locators.items())
     ):
-        raise GraphError("AUDITED_GATE", "audited analysis is not bound to an unchanged source snapshot")
-    previous_entities = previous_trace.get("entities", [])
-    previous_edges = previous_trace.get("edges", [])
-    previous_process_events = previous_process.get("events", [])
+        raise GraphError("ANALYSIS_BASIS_INVALID", "analysis is not bound to an unchanged source snapshot")
     functional_map, _ = read_json(root, SOURCE_PATHS["functional_map"])
-    expected_ref_sets = {
-        "source_refs": sorted(previous_locators),
-        "decision_refs": sorted(item["ref"] for item in previous_entities if item.get("kind") == "decision"),
-        "requirement_refs": sorted(item["ref"] for item in previous_entities if item.get("kind") == "requirement"),
-        "functionality_refs": sorted(item["ref"] for item in previous_entities if item.get("kind") == "functionality"),
-        "dimension_refs": sorted(item["ref"] for item in previous_entities if item.get("kind") in DIMENSIONS),
-        "dimension_mapping_refs": sorted(item["ref"] for item in functional_map.get("coverage", [])),
-        "relation_refs": sorted(item["ref"] for item in functional_map.get("relations", [])),
-        "graph_edge_refs": sorted(item["ref"] for item in previous_edges),
-        "functional_map_refs": [SOURCE_PATHS["functional_map"]],
-        "ledger_refs": [SOURCE_PATHS["task_ledger"]],
-        "artifact_refs": sorted(
-            item["ref"] for item in previous_entities
-            if item.get("kind") in ARTIFACT_KINDS - {"evidence"}
-        ),
-        "evidence_refs": sorted(item["ref"] for item in previous_entities if item.get("kind") == "evidence"),
-        "task_refs": sorted(item["ref"] for item in previous_entities if item.get("kind") == "task"),
-        "task_result_refs": sorted(
-            item["event_ref"] for item in previous_process_events if item.get("event_kind") == "task-result"
-        ),
-        "review_refs": sorted(
-            item["event_ref"] for item in previous_process_events if item.get("event_kind") == "review"
-        ),
-        "remediation_refs": sorted(
-            item["event_ref"] for item in previous_process_events if item.get("event_kind") == "remediation"
-        ),
-        "process_record_refs": sorted(item["event_ref"] for item in previous_process_events),
-        "incoming_handoff_refs": list(analysis_event["causal_refs"]),
-    }
-    expected_inputs = {
-        category: _ref_set_binding(refs)
-        for category, refs in expected_ref_sets.items()
-    }
-    if result["input_refs"] != expected_inputs:
-        raise GraphError(
-            "AUDITED_GATE",
-            "audited analysis inputs disagree with its predecessor build",
-            expected_inputs=expected_inputs,
-        )
-    coverage_to_input = {
-        "sources": "source_refs",
-        "decisions": "decision_refs",
-        "requirements": "requirement_refs",
-        "functionalities": "functionality_refs",
-        "dimensions": "dimension_refs",
-        "dimension_mappings": "dimension_mapping_refs",
-        "relations": "relation_refs",
-        "graph_edges": "graph_edge_refs",
-        "functional_map": "functional_map_refs",
-        "ledger": "ledger_refs",
-        "artifacts": "artifact_refs",
-        "evidence": "evidence_refs",
-        "tasks": "task_refs",
-        "task_results": "task_result_refs",
-        "reviews": "review_refs",
-        "remediations": "remediation_refs",
-        "process_records": "process_record_refs",
-        "incoming_handoff": "incoming_handoff_refs",
-    }
-    expected_coverage = {
-        count_field: expected_inputs[input_field]["count"]
-        for count_field, input_field in coverage_to_input.items()
-    }
-    if result["coverage"] != expected_coverage:
-        raise GraphError(
-            "AUDITED_GATE",
-            "audited analysis coverage disagrees with its predecessor build",
-            expected_coverage=expected_coverage,
-        )
+    ledger, _ = read_json(root, SOURCE_PATHS["task_ledger"])
+    _validate_analysis_basis_binding(
+        analysis_event,
+        previous_build,
+        previous_trace,
+        previous_process,
+        functional_map,
+        ledger,
+    )
 
 
 def _bundle_is_current(
@@ -569,8 +835,12 @@ def _bundle_is_current(
     process: dict[str, Any],
     context: dict[str, Any],
 ) -> bool:
+    immutable = immutable_build_paths(build["build_ref"])
     expected = {
         pointer["receipt_ref"]: canonical(build),
+        immutable["trace"]: canonical(trace),
+        immutable["process"]: canonical(process),
+        immutable["context"]: canonical(context),
         TRACE_PATH: canonical(trace),
         PROCESS_PATH: canonical(process),
         CONTEXT_PATH: canonical(context),
@@ -614,17 +884,26 @@ def graph_compile(arguments: dict[str, Any]) -> dict[str, Any]:
                 raise GraphError("SOURCE_DRIFT", "sources changed during compilation")
             receipt = f"{BUILD_ROOT}/{build['build_ref']}.json"
             current_pointer = {"schema": "app-index-current.v1", "build_ref": build["build_ref"], "receipt_ref": receipt}
-            _enforce_audited_publish(root, pointer, trace, process)
+            _enforce_analysis_publish(root, pointer, trace, process)
             if current == build["build_ref"] and pointer == current_pointer and _bundle_is_current(
                 root, current_pointer, build, trace, process, context,
             ):
                 return {**context, "schema": "app-graph-compile-result.v2", "status": "current", "no_op": True}
-            _atomic_write(root, receipt, canonical(build), immutable=True)
+            immutable = immutable_build_paths(build["build_ref"])
+            # Publish a complete immutable bundle first. The pointer is the sole
+            # transaction switch; shared paths are recoverable projections only.
+            for path, value in (
+                (immutable["trace"], trace),
+                (immutable["process"], process),
+                (immutable["context"], context),
+                (receipt, build),
+            ):
+                _atomic_write(root, path, canonical(value), immutable=True)
+            _atomic_write(root, CURRENT_BUILD_PATH, canonical(current_pointer))
             for path, value in (
                 (TRACE_PATH, trace),
                 (PROCESS_PATH, process),
                 (CONTEXT_PATH, context),
-                (CURRENT_BUILD_PATH, current_pointer),
             ):
                 _atomic_write(root, path, canonical(value))
             QUERY_CACHE.clear()

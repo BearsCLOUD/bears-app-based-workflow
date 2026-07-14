@@ -22,7 +22,7 @@ Never append, rewrite, or synthesize a journal event in this skill.
 3. Compare the tracked source snapshot and journal digest to the current receipt.
 4. Invoke `graph_compile` with the current `expected_build_ref` compare-and-swap pin when either digest drifted.
 5. Reuse a byte-identical current build when the compiler reports `no_op=true`.
-6. Return `app-context-index-result.v1` with exact build, source snapshot, journal, trace index, process index, and build receipt refs.
+6. Return `app-context-index-result.v2` with exact build, source snapshot, journal, trace index, process index, and build receipt refs.
 
 ## Authority
 

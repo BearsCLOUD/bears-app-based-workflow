@@ -19,9 +19,12 @@ description: Execute repo-scoped ledger tasks through worker and critic waves wi
 ## Input
 
 - Accept only a repo-scoped `app-stage-handoff.v4` status `plan-ready` or `ready` whose build and source snapshot are current.
-- Require complete `app-task-ledger.v3` task records with status `ready`, closed decisions, current graph refs, exact target paths, allowed files, dependencies, completion definition, proof requirement, evidence refs, and opaque `retirement_commit_refs`.
+- Require complete `app-task-ledger.v3` records with status `ready` or `waiting` and every schema field.
+- Require `ready` only when every dependency has a terminal `done` result and `waiting` otherwise.
+- Require at least one `ready` record.
 - Require the handoff `stage_payload` to provide the repo cwd, batch ref, wave ref, queue order, and complete current task records.
-- Reject mixed repos, duplicate queue positions, open dependencies, widened targets, stale graph refs, or fields outside the task schema.
+- Reject mixed repos, duplicate queue positions, or missing dependency refs.
+- Reject widened targets, stale graph refs, or fields outside the task schema.
 - Resolve routes and task states only from `contracts/app-workflow-definition.v3.json`.
 
 ## Delegation protocol
@@ -36,7 +39,7 @@ Use one persistent app-worker session per repo wave, accept one result before co
 
 ## Worker wave
 
-1. Select the next `ready` task by declared dependency order and `queue_sequence` without changing its meaning or targets.
+1. Promote each `waiting` task to `ready` only after every dependency has a terminal `done` result, then select the next `ready` task by declared dependency order and `queue_sequence`.
 2. Move only that task through `ready` to `in_progress` before mutation.
 3. Perform the bounded change directly in `DIRECT` mode or dispatch one `app-worker` through `$subagents` in `DELEGATED` mode.
 4. Require at least one retained full Git commit ref for every task result.

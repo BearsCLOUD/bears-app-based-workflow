@@ -32,7 +32,7 @@ These files form the repository-owned deployment boundary. They are not plugin a
 
 The privileged bridge reads bounded Git blobs, installs only hash-locked allowlisted dependencies, and never executes fetched gateway code as root. It activates the gateway atomically, invokes it as non-root ai1, and restores the prior gateway when the requested revision cannot converge.
 
-The gateway persists a promotion intent before mutation and clears it only after the requested revision, the previous receipted revision, or the disabled state is verified. Role recovery converges partial publication while preserving unrelated files.
+The gateway persists a promotion intent before mutation and clears it only after the requested revision, the previous receipted revision, or local plugin removal is verified. Role recovery converges partial publication while preserving unrelated files.
 
 An unsafe marketplace state, corrupt receipt, or unresolved recovery stops promotion without advancing the receipt.
 

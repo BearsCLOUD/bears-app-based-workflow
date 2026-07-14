@@ -174,6 +174,11 @@ def verify_disabled() -> None:
         raise DeployError("fixed plugin remains enabled after recovery")
 
 
+def verify_removed() -> None:
+    if any(item["installed"] or item["enabled"] for item in plugin_rows()):
+        raise DeployError("fixed plugin remains installed after recovery")
+
+
 def verify_install(requested: str, expected_version: str) -> str:
     row = installed_row()
     if not row.get("installed") or not row.get("enabled") or row.get("version") != expected_version:

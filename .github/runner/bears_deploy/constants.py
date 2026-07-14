@@ -23,7 +23,7 @@ ROLE_RECEIPT_DIR = CODEX_HOME / "state"
 ROLE_RECEIPT_FILE = ROLE_RECEIPT_DIR / f"{PLUGIN}-role-sync.json"
 MIRROR = STATE_DIR / "repository.git"
 GIT = "/usr/bin/git"
-CODEX = "/usr/local/bin/codex"
+CODEX = "/srv/bears/.codex/packages/standalone/current/bin/codex"
 SHA_RE = re.compile(r"[0-9a-f]{40}")
 FINGERPRINT_RE = re.compile(r"[0-9a-f]{64}")
 SEMVER_RE = re.compile(r"(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)")
@@ -152,6 +152,14 @@ ENV = {
     "GIT_CONFIG_NOSYSTEM": "1",
     "GIT_CONFIG_GLOBAL": "/dev/null",
     "GIT_TERMINAL_PROMPT": "0",
+    "HTTP_PROXY": "http://127.0.0.1:8090",
+    "HTTPS_PROXY": "http://127.0.0.1:8090",
+    "http_proxy": "http://127.0.0.1:8090",
+    "https_proxy": "http://127.0.0.1:8090",
+    "NO_PROXY": "localhost,127.0.0.1,::1,.local",
+    "no_proxy": "localhost,127.0.0.1,::1,.local",
+    "CODEX_PROXY_URL": "http://127.0.0.1:8090",
+    "CODEX_PROXY_HTTP_FALLBACK": "http://127.0.0.1:8090",
 }
 FIXED_MARKETPLACE_SOURCE = {"sourceType": "git", "source": REPOSITORY}
 RENAME_NOREPLACE = 1

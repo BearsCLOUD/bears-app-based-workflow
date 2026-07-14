@@ -943,6 +943,8 @@ _install_runner_gateway_tmp="$(/usr/bin/mktemp -d "${DEPLOY_PACKAGE_ROOT}.XXXXXX
 /usr/bin/python3 -m pip install --disable-pip-version-check --no-deps \
   --require-hashes --only-binary=:all: --target "$_install_runner_gateway_tmp" \
   --requirement "$script_dir/sentry-requirements.lock"
+/usr/bin/find "$_install_runner_gateway_tmp" -type d -exec /usr/bin/chmod 0755 {} +
+/usr/bin/find "$_install_runner_gateway_tmp" -type f -exec /usr/bin/chmod 0644 {} +
 /usr/bin/install -d -o root -g root -m 0755 "$_install_runner_gateway_tmp/bears_deploy"
 for module in "${gateway_modules[@]}"; do
   /usr/bin/install -o root -g root -m 0644 \

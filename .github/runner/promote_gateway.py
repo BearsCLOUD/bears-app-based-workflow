@@ -288,6 +288,10 @@ def _validate_stage(root: Path) -> None:
             raise GatewayUpdateError(f"writable gateway stage entry: {path.name}")
         if not (stat.S_ISDIR(metadata.st_mode) or stat.S_ISREG(metadata.st_mode)):
             raise GatewayUpdateError(f"special gateway stage entry: {path.name}")
+        if stat.S_ISDIR(metadata.st_mode) and stat.S_IMODE(metadata.st_mode) & 0o005 != 0o005:
+            raise GatewayUpdateError(f"gateway stage directory is not readable by its runtime: {path.name}")
+        if stat.S_ISREG(metadata.st_mode) and stat.S_IMODE(metadata.st_mode) & 0o004 != 0o004:
+            raise GatewayUpdateError(f"gateway stage file is not readable by its runtime: {path.name}")
         if stat.S_ISREG(metadata.st_mode) and (
             path.suffix in {".pth", ".so", ".dll", ".dylib"} or metadata.st_size > 4 * 1024 * 1024
         ):

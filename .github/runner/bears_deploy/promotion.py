@@ -28,6 +28,7 @@ from .marketplace import (
     semver_tuple,
     validate_marketplace,
     verify_disabled,
+    verify_removed,
 )
 from .models import DeployContext, DeployError, begin_activation_mutation
 from .graph_instructions import (
@@ -121,13 +122,13 @@ def restore_receipted_install(
     verify_receipted_install(durable)
 
 
-def disable_and_verify(state_directory: int, intent: dict[str, Any]) -> None:
+def remove_and_verify(state_directory: int, intent: dict[str, Any]) -> None:
     state = load_state(state_directory)
     try:
-        run_json([CODEX, "plugin", "disable", f"{PLUGIN}@{MARKETPLACE}", "--json"])
+        run_json([CODEX, "plugin", "remove", f"{PLUGIN}@{MARKETPLACE}", "--json"])
     except Exception:
         pass
-    verify_disabled()
+    verify_removed()
     clear_owned_roles(state_directory, load_intent(state_directory) or intent)
     restore_graph_preimage(load_intent(state_directory) or intent)
     remove_graph_instructions(state)
@@ -198,9 +199,9 @@ def converge_promotion_intent(
     if transaction is not None and transaction.get("operation") == "migrate-v1-registration":
         return converge_registration_migration(state_directory, intent)
     if transaction is not None and transaction.get("operation") == "remove":
-        disable_and_verify(state_directory, intent)
+        remove_and_verify(state_directory, intent)
         clear_intent(state_directory)
-        return "disabled"
+        return "removed"
     requested = str(intent["requested_sha"])
     state: dict[str, Any] | None
     try:
@@ -250,9 +251,9 @@ def converge_promotion_intent(
 
     active_intent = load_intent(state_directory) or intent
     rollback_journaled_roles(active_intent)
-    disable_and_verify(state_directory, active_intent)
+    remove_and_verify(state_directory, active_intent)
     clear_intent(state_directory)
-    return "disabled"
+    return "removed"
 
 
 def recover_promotion_intent(state_directory: int) -> None:
@@ -278,15 +279,15 @@ def fail_after_recovery(
         outcome = converge_promotion_intent(state_directory, intent)
     except Exception as recovery_failure:
         raise DeployError(
-            "promotion failed after activation and recovery convergence is unproven",
+            "promotion failed and recovery convergence is unproven",
             error_code="recovery-failure",
         ) from recovery_failure
     if outcome == "requested":
-        message = "promotion failed after activation; requested revision is durably receipted and active"
+        message = "promotion failed; requested revision is durably receipted and active"
     elif outcome == "previous":
-        message = "promotion failed after activation; previous receipted revision was restored"
+        message = "promotion failed; previous receipted revision was restored"
     else:
-        message = "promotion failed after activation; plugin was disabled"
+        message = "promotion failed; plugin was removed"
     message = f"{message}; cause: {normalized_diagnostic(str(failure))}"
     raise DeployError(
         message,

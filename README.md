@@ -10,12 +10,12 @@ app-context-index reconciles an opted-in repository from its source manifest. ap
 
 ## Ownership
 
-| Mode | Stage owner | Journal writer | L3 use |
+| Mode | Stage owner | Owner session | L3 use |
 | --- | --- | --- | --- |
-| DIRECT | The DIRECT primary owns every app-* stage. | DIRECT primary | Not used for stage ownership. |
-| DELEGATED | One persistent repo-L2 owns every app-* stage. | Persistent repo-L2 | The repo-L2 dispatches assignment-bounded work only through $subagents. |
+| DIRECT | The DIRECT primary owns every app-* stage. | `none` | Not used for stage ownership. |
+| DELEGATED | One persistent repo-L2 of kind `repo-orchestrator` owns every app-* stage and the journal. | One stable non-`none` ref for the full run | The repo-L2 dispatches assignment-bounded work only through $subagents. |
 
-An L3 worker returns only its bounded result. It does not own a stage, choose the next workflow route, or append process records.
+L1 has kind `workflow-orchestrator`; it only opens and continues repository lanes and never owns a stage or dispatches L3. An L3 worker returns only its bounded result. It does not own a stage, choose the next workflow route, or append process records.
 
 ## Stage sequence
 
@@ -26,10 +26,10 @@ An L3 worker returns only its bounded result. It does not own a stage, choose th
 | app-specify | Close product decisions and state decision-complete requirements. |
 | app-functional-graph | Map requirements, seven dimensions, relations, and source refs. |
 | app-plan | Produce dependency-ordered, repository-bounded ledger work. |
-| app-dev | Orchestrate ready ledger work, immutable review, and remediation. |
-| app-analyze | Compare documentation, graph, ledger, implementation refs, and process records for logical correspondence. |
+| app-dev | Orchestrate ready ledger work, immutable full-scope review, remediation, and one clean repo handoff. |
+| app-analyze | Compare documentation, graph entities and edges, ledger, artifacts, evidence, task results, reviews, remediations, and process records for logical correspondence. |
 
-app-analyze is semantic agent analysis of documentation correspondence. It produces structured findings and a canonical route; it does not evaluate runtime product behavior or grant product outcome authority.
+app-analyze is semantic agent analysis of documentation correspondence. It binds each complete input category by count and canonical digest, produces structured findings, and resolves one route through the workflow registry.
 
 ## Seven dimensions
 
@@ -47,7 +47,7 @@ Every active requirement maps each dimension or records a sourced not-applicable
 
 ## Deterministic routes
 
-The workflow definition is the only route registry.
+The workflow definition is the only route and reduction registry. Blocked dominates; otherwise findings reduce by the declared corrective priority.
 
 | Status | Next stage |
 | --- | --- |

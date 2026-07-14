@@ -1,7 +1,7 @@
 {
   "schema": "app-functional-map.v4",
   "app_id": "bears-app-based-workflow",
-  "revision": 6,
+  "revision": 7,
   "source_refs": [
     "waves/workflow-refactor-v5/spec.md",
     "waves/workflow-refactor-v5/research.md",
@@ -25,7 +25,13 @@
     "docs/plugin-effectiveness-metrics-and-agent-audit-methodology.md",
     "README.md",
     "skills/subagents/SKILL.md",
-    "scripts/app_graph_process.py"
+    "scripts/app_graph_process.py",
+    "scripts/app_graph_handoff.py",
+    "scripts/app_graph_store.py",
+    "contracts/app-task-ledger.v3.schema.json",
+    "skills/app-plan/SKILL.md",
+    "skills/app-dev/SKILL.md",
+    "docs/workflow-refactor-v5-assessment.md"
   ],
   "entities": [
     {
@@ -97,7 +103,8 @@
         "contracts/app-stage-handoff.v4.schema.json",
         "contracts/app-semantic-analysis-result.v1.schema.json",
         "contracts/app-process-event.v3.schema.json",
-        "skills/app-solo-route/SKILL.md"
+        "skills/app-solo-route/SKILL.md",
+        "scripts/app_graph_handoff.py"
       ]
     },
     {
@@ -108,7 +115,8 @@
       "active": true,
       "source_refs": [
         "waves/workflow-refactor-v5/spec.md",
-        "docs/plugin-effectiveness-metrics-and-agent-audit-methodology.md"
+        "docs/plugin-effectiveness-metrics-and-agent-audit-methodology.md",
+        "docs/workflow-refactor-v5-assessment.md"
       ]
     },
     {
@@ -166,7 +174,7 @@
     {
       "ref": "DIM-DIRECT-OWNERSHIP-STATE",
       "kind": "state",
-      "title": "DIRECT ownership persists through the terminal handoff.",
+      "title": "DIRECT ownership and owner_session_ref=none persist through the terminal handoff.",
       "scope": "workflow-refactor-v5",
       "active": true,
       "source_refs": [
@@ -192,7 +200,7 @@
     {
       "ref": "DIM-DIRECT-OWNERSHIP-DATA",
       "kind": "data",
-      "title": "Handoffs bind DIRECT-primary, repository, wave, and run refs.",
+      "title": "Handoffs bind DIRECT-primary, owner_session_ref=none, repository, wave, and run refs.",
       "scope": "workflow-refactor-v5",
       "active": true,
       "source_refs": [
@@ -205,7 +213,7 @@
     {
       "ref": "DIM-DIRECT-OWNERSHIP-INTEGRATION",
       "kind": "integration",
-      "title": "The primary uses context and graph surfaces without transferring ownership.",
+      "title": "The primary uses context and graph surfaces; workflow-orchestrator coordinates repository lanes only.",
       "scope": "workflow-refactor-v5",
       "active": true,
       "source_refs": [
@@ -218,7 +226,7 @@
     {
       "ref": "DIM-DIRECT-OWNERSHIP-ERROR",
       "kind": "error",
-      "title": "Any attempted DIRECT stage delegation is an ownership violation.",
+      "title": "DIRECT stage delegation, a non-none DIRECT owner session, or L1 stage action is an ownership violation.",
       "scope": "workflow-refactor-v5",
       "active": true,
       "source_refs": [
@@ -263,7 +271,7 @@
     {
       "ref": "DIM-REPO-L2-OWNERSHIP-BEHAVIOR",
       "kind": "behavior",
-      "title": "One repo-L2 performs every delegated stage and retains route authority.",
+      "title": "One persistent repo-L2 owns every delegated stage and route; L1 never owns either.",
       "scope": "workflow-refactor-v5",
       "active": true,
       "source_refs": [
@@ -295,7 +303,7 @@
     {
       "ref": "DIM-REPO-L2-OWNERSHIP-STATE",
       "kind": "state",
-      "title": "The repo_ref to L2 binding persists across all stages.",
+      "title": "One non-none owner_session_ref and repo_ref-to-L2 binding persist across every stage.",
       "scope": "workflow-refactor-v5",
       "active": true,
       "source_refs": [
@@ -327,7 +335,7 @@
     {
       "ref": "DIM-REPO-L2-OWNERSHIP-DATA",
       "kind": "data",
-      "title": "Lane state binds repository, wave, run, and stable L2 identity.",
+      "title": "Lane state binds repository, wave, run, and the stable non-none repo-L2 owner session.",
       "scope": "workflow-refactor-v5",
       "active": true,
       "source_refs": [
@@ -359,7 +367,7 @@
     {
       "ref": "DIM-REPO-L2-OWNERSHIP-ERROR",
       "kind": "error",
-      "title": "A missing or replaced L2 binding blocks the lane.",
+      "title": "A missing or replaced repo-L2, L1 stage action, or owner-session drift blocks the lane.",
       "scope": "workflow-refactor-v5",
       "active": true,
       "source_refs": [
@@ -375,7 +383,7 @@
     {
       "ref": "REQ-SUBAGENT-DISPATCH",
       "kind": "requirement",
-      "title": "Bounded L3 dispatch through subagents",
+      "title": "Bounded L3 dispatch through subagents with completed-result provenance",
       "scope": "workflow-refactor-v5",
       "active": true,
       "source_refs": [
@@ -391,7 +399,7 @@
     {
       "ref": "FUNC-SUBAGENT-DISPATCH",
       "kind": "functionality",
-      "title": "Bounded L3 dispatch through subagents capability",
+      "title": "Bounded L3 dispatch and completed-result admission capability",
       "scope": "workflow-refactor-v5",
       "active": true,
       "source_refs": [
@@ -471,7 +479,7 @@
     {
       "ref": "DIM-SUBAGENT-DISPATCH-DATA",
       "kind": "data",
-      "title": "L3 packets are typed transient inputs; the v3 delegation_record preserves only represented authority, task, role, profile, and packet-schema identity.",
+      "title": "Completed delegation provenance binds result ref, digest, status, profile, model, checklist, assignment, and authority identity; app-analyze stores one explorer completion record atomically in the analysis event.",
       "scope": "workflow-refactor-v5",
       "active": true,
       "source_refs": [
@@ -487,7 +495,7 @@
     {
       "ref": "DIM-SUBAGENT-DISPATCH-INTEGRATION",
       "kind": "integration",
-      "title": "Subagents connects repo-L2 to L3 helpers, mutation workers, and critics while the immutable v3 event records represented delegation identity.",
+      "title": "Subagents connects repo-L2 to L3 roles while immutable provenance admits only completed bound results and app-analyze admits them only in its single analysis event.",
       "scope": "workflow-refactor-v5",
       "active": true,
       "source_refs": [
@@ -503,7 +511,7 @@
     {
       "ref": "DIM-SUBAGENT-DISPATCH-ERROR",
       "kind": "error",
-      "title": "Direct L3 invocation or an invalid result packet is rejected.",
+      "title": "Direct dispatch, an incomplete result, packet identity drift, or a separate app-analyze delegation event is rejected.",
       "scope": "workflow-refactor-v5",
       "active": true,
       "source_refs": [
@@ -519,7 +527,7 @@
     {
       "ref": "REQ-JOURNAL-OWNERSHIP",
       "kind": "requirement",
-      "title": "Stage-owner native records with immutable result and review provenance",
+      "title": "Build-bound stage-owner records with immutable run, task, result, and review provenance",
       "scope": "workflow-refactor-v5",
       "active": true,
       "source_refs": [
@@ -527,13 +535,16 @@
         "contracts/app-workflow-definition.v3.json",
         "contracts/app-process-event.v3.schema.json",
         "scripts/app_graph_process.py",
-        "scripts/app_graph_compiler.py"
+        "scripts/app_graph_compiler.py",
+        "contracts/app-task-ledger.v3.schema.json",
+        "skills/app-plan/SKILL.md",
+        "skills/app-dev/SKILL.md"
       ]
     },
     {
       "ref": "FUNC-JOURNAL-OWNERSHIP",
       "kind": "functionality",
-      "title": "Stage-owner native record and provenance capability",
+      "title": "Build-bound native process and linked correction capability",
       "scope": "workflow-refactor-v5",
       "active": true,
       "source_refs": [
@@ -541,7 +552,10 @@
         "contracts/app-workflow-definition.v3.json",
         "contracts/app-process-event.v3.schema.json",
         "scripts/app_graph_process.py",
-        "scripts/app_graph_compiler.py"
+        "scripts/app_graph_compiler.py",
+        "contracts/app-task-ledger.v3.schema.json",
+        "skills/app-plan/SKILL.md",
+        "skills/app-dev/SKILL.md"
       ]
     },
     {
@@ -555,13 +569,16 @@
         "contracts/app-workflow-definition.v3.json",
         "contracts/app-process-event.v3.schema.json",
         "scripts/app_graph_process.py",
-        "scripts/app_graph_compiler.py"
+        "scripts/app_graph_compiler.py",
+        "contracts/app-task-ledger.v3.schema.json",
+        "skills/app-plan/SKILL.md",
+        "skills/app-dev/SKILL.md"
       ]
     },
     {
       "ref": "DIM-JOURNAL-OWNERSHIP-DEPENDENCY",
       "kind": "dependency",
-      "title": "Each event depends on its declared run scope and causal refs.",
+      "title": "Pre-plan scope is empty, ordinary plan-ready establishes it, correction preserves it through terminal app-plan needs-plan, and only a linked run admits remediation tasks.",
       "scope": "workflow-refactor-v5",
       "active": true,
       "source_refs": [
@@ -569,13 +586,16 @@
         "contracts/app-workflow-definition.v3.json",
         "contracts/app-process-event.v3.schema.json",
         "scripts/app_graph_process.py",
-        "scripts/app_graph_compiler.py"
+        "scripts/app_graph_compiler.py",
+        "contracts/app-task-ledger.v3.schema.json",
+        "skills/app-plan/SKILL.md",
+        "skills/app-dev/SKILL.md"
       ]
     },
     {
       "ref": "DIM-JOURNAL-OWNERSHIP-STATE",
       "kind": "state",
-      "title": "Native records are immutable and terminal task history is not reopened.",
+      "title": "Records and terminal tasks are immutable, owner sessions are stable, and correction lineage is acyclic with at most one successor per source run.",
       "scope": "workflow-refactor-v5",
       "active": true,
       "source_refs": [
@@ -583,13 +603,16 @@
         "contracts/app-workflow-definition.v3.json",
         "contracts/app-process-event.v3.schema.json",
         "scripts/app_graph_process.py",
-        "scripts/app_graph_compiler.py"
+        "scripts/app_graph_compiler.py",
+        "contracts/app-task-ledger.v3.schema.json",
+        "skills/app-plan/SKILL.md",
+        "skills/app-dev/SKILL.md"
       ]
     },
     {
       "ref": "DIM-JOURNAL-OWNERSHIP-API",
       "kind": "api",
-      "title": "process_record_event admits only DIRECT-primary or repo-L2.",
+      "title": "process_record_event admits only DIRECT-primary or repo-L2 and enforces the event transition matrix.",
       "scope": "workflow-refactor-v5",
       "active": true,
       "source_refs": [
@@ -597,13 +620,16 @@
         "contracts/app-workflow-definition.v3.json",
         "contracts/app-process-event.v3.schema.json",
         "scripts/app_graph_process.py",
-        "scripts/app_graph_compiler.py"
+        "scripts/app_graph_compiler.py",
+        "contracts/app-task-ledger.v3.schema.json",
+        "skills/app-plan/SKILL.md",
+        "skills/app-dev/SKILL.md"
       ]
     },
     {
       "ref": "DIM-JOURNAL-OWNERSHIP-DATA",
       "kind": "data",
-      "title": "Event v3 binds run, stage, status, tasks, causes, trace, and artifacts.",
+      "title": "Event v3 binds run, owner, stage, status, exact task-spec digests, causes, trace, artifacts, payload digest, and Git provenance.",
       "scope": "workflow-refactor-v5",
       "active": true,
       "source_refs": [
@@ -611,13 +637,16 @@
         "contracts/app-workflow-definition.v3.json",
         "contracts/app-process-event.v3.schema.json",
         "scripts/app_graph_process.py",
-        "scripts/app_graph_compiler.py"
+        "scripts/app_graph_compiler.py",
+        "contracts/app-task-ledger.v3.schema.json",
+        "skills/app-plan/SKILL.md",
+        "skills/app-dev/SKILL.md"
       ]
     },
     {
       "ref": "DIM-JOURNAL-OWNERSHIP-INTEGRATION",
       "kind": "integration",
-      "title": "Graph compilation consumes the journal; transient handoffs or L3 packets contribute only through refs represented by native records or opted-in sources.",
+      "title": "Compilation enforces ledger and event parity, reviews cover exactly result commits, and handoff_validate reconstructs the current boundary.",
       "scope": "workflow-refactor-v5",
       "active": true,
       "source_refs": [
@@ -625,13 +654,18 @@
         "contracts/app-workflow-definition.v3.json",
         "contracts/app-process-event.v3.schema.json",
         "scripts/app_graph_process.py",
-        "scripts/app_graph_compiler.py"
+        "scripts/app_graph_compiler.py",
+        "scripts/app_graph_handoff.py",
+        "contracts/app-task-ledger.v3.schema.json",
+        "skills/app-plan/SKILL.md",
+        "skills/app-dev/SKILL.md",
+        "role-definitions/wave-change-critic.json"
       ]
     },
     {
       "ref": "DIM-JOURNAL-OWNERSHIP-ERROR",
       "kind": "error",
-      "title": "L3 authorship, scope mismatch, or a dangling cause is rejected.",
+      "title": "L3 authorship, duplicate result, session mismatch, incomplete dependency, invalid or extra reviewed commit, scope drift, historical boundary, or dangling cause is rejected.",
       "scope": "workflow-refactor-v5",
       "active": true,
       "source_refs": [
@@ -639,7 +673,11 @@
         "contracts/app-workflow-definition.v3.json",
         "contracts/app-process-event.v3.schema.json",
         "scripts/app_graph_process.py",
-        "scripts/app_graph_compiler.py"
+        "scripts/app_graph_compiler.py",
+        "contracts/app-task-ledger.v3.schema.json",
+        "skills/app-plan/SKILL.md",
+        "skills/app-dev/SKILL.md",
+        "role-definitions/wave-change-critic.json"
       ]
     },
     {
@@ -725,7 +763,7 @@
     {
       "ref": "DIM-ANALYSIS-SCOPE-API",
       "kind": "api",
-      "title": "Analysts use bounded graph reads and opaque cursor continuation.",
+      "title": "One explorer reads named documentation and every graph page with opaque cursor continuation.",
       "scope": "workflow-refactor-v5",
       "active": true,
       "source_refs": [
@@ -741,7 +779,7 @@
     {
       "ref": "DIM-ANALYSIS-SCOPE-DATA",
       "kind": "data",
-      "title": "Inputs cover sources, decisions, requirements, dimensions, tasks, artifacts, evidence, and process records.",
+      "title": "Inputs bind sources, decisions, requirements, functionalities, dimension mappings, relations, graph edges, functional-map records, ledger records, artifacts, evidence, tasks, results, reviews, remediation tasks, process-index records, and incoming boundaries.",
       "scope": "workflow-refactor-v5",
       "active": true,
       "source_refs": [
@@ -796,7 +834,10 @@
         "waves/workflow-refactor-v5/spec.md",
         "contracts/app-semantic-analysis-result.v1.schema.json",
         "contracts/app-process-event.v3.schema.json",
-        "skills/app-analyze/SKILL.md"
+        "skills/app-analyze/SKILL.md",
+        "contracts/app-task-ledger.v3.schema.json",
+        "skills/app-plan/SKILL.md",
+        "skills/app-dev/SKILL.md"
       ]
     },
     {
@@ -809,7 +850,10 @@
         "waves/workflow-refactor-v5/spec.md",
         "contracts/app-semantic-analysis-result.v1.schema.json",
         "contracts/app-process-event.v3.schema.json",
-        "skills/app-analyze/SKILL.md"
+        "skills/app-analyze/SKILL.md",
+        "contracts/app-task-ledger.v3.schema.json",
+        "skills/app-plan/SKILL.md",
+        "skills/app-dev/SKILL.md"
       ]
     },
     {
@@ -822,20 +866,26 @@
         "waves/workflow-refactor-v5/spec.md",
         "contracts/app-semantic-analysis-result.v1.schema.json",
         "contracts/app-process-event.v3.schema.json",
-        "skills/app-analyze/SKILL.md"
+        "skills/app-analyze/SKILL.md",
+        "contracts/app-task-ledger.v3.schema.json",
+        "skills/app-plan/SKILL.md",
+        "skills/app-dev/SKILL.md"
       ]
     },
     {
       "ref": "DIM-ANALYSIS-RESULT-DEPENDENCY",
       "kind": "dependency",
-      "title": "The result depends on its exact build, profile, model, and checklist.",
+      "title": "The result depends on its exact build, profile, model, checklist, and every categorized input-set digest.",
       "scope": "workflow-refactor-v5",
       "active": true,
       "source_refs": [
         "waves/workflow-refactor-v5/spec.md",
         "contracts/app-semantic-analysis-result.v1.schema.json",
         "contracts/app-process-event.v3.schema.json",
-        "skills/app-analyze/SKILL.md"
+        "skills/app-analyze/SKILL.md",
+        "contracts/app-task-ledger.v3.schema.json",
+        "skills/app-plan/SKILL.md",
+        "skills/app-dev/SKILL.md"
       ]
     },
     {
@@ -848,7 +898,10 @@
         "waves/workflow-refactor-v5/spec.md",
         "contracts/app-semantic-analysis-result.v1.schema.json",
         "contracts/app-process-event.v3.schema.json",
-        "skills/app-analyze/SKILL.md"
+        "skills/app-analyze/SKILL.md",
+        "contracts/app-task-ledger.v3.schema.json",
+        "skills/app-plan/SKILL.md",
+        "skills/app-dev/SKILL.md"
       ]
     },
     {
@@ -861,20 +914,26 @@
         "waves/workflow-refactor-v5/spec.md",
         "contracts/app-semantic-analysis-result.v1.schema.json",
         "contracts/app-process-event.v3.schema.json",
-        "skills/app-analyze/SKILL.md"
+        "skills/app-analyze/SKILL.md",
+        "contracts/app-task-ledger.v3.schema.json",
+        "skills/app-plan/SKILL.md",
+        "skills/app-dev/SKILL.md"
       ]
     },
     {
       "ref": "DIM-ANALYSIS-RESULT-DATA",
       "kind": "data",
-      "title": "Required fields bind inputs, counts, findings, unmapped refs, remediation refs, completeness, and route.",
+      "title": "Required fields bind every categorized input count and digest, coverage count, finding, unmapped ref, remediation task ref, completeness value, and route.",
       "scope": "workflow-refactor-v5",
       "active": true,
       "source_refs": [
         "waves/workflow-refactor-v5/spec.md",
         "contracts/app-semantic-analysis-result.v1.schema.json",
         "contracts/app-process-event.v3.schema.json",
-        "skills/app-analyze/SKILL.md"
+        "skills/app-analyze/SKILL.md",
+        "contracts/app-task-ledger.v3.schema.json",
+        "skills/app-plan/SKILL.md",
+        "skills/app-dev/SKILL.md"
       ]
     },
     {
@@ -887,7 +946,10 @@
         "waves/workflow-refactor-v5/spec.md",
         "contracts/app-semantic-analysis-result.v1.schema.json",
         "contracts/app-process-event.v3.schema.json",
-        "skills/app-analyze/SKILL.md"
+        "skills/app-analyze/SKILL.md",
+        "contracts/app-task-ledger.v3.schema.json",
+        "skills/app-plan/SKILL.md",
+        "skills/app-dev/SKILL.md"
       ]
     },
     {
@@ -900,7 +962,10 @@
         "waves/workflow-refactor-v5/spec.md",
         "contracts/app-semantic-analysis-result.v1.schema.json",
         "contracts/app-process-event.v3.schema.json",
-        "skills/app-analyze/SKILL.md"
+        "skills/app-analyze/SKILL.md",
+        "contracts/app-task-ledger.v3.schema.json",
+        "skills/app-plan/SKILL.md",
+        "skills/app-dev/SKILL.md"
       ]
     },
     {
@@ -916,7 +981,11 @@
         "contracts/app-process-event.v3.schema.json",
         "contracts/app-stage-handoff.v4.schema.json",
         "skills/app-analyze/SKILL.md",
-        "scripts/app_graph_compiler.py"
+        "scripts/app_graph_compiler.py",
+        "scripts/app_graph_handoff.py",
+        "contracts/app-task-ledger.v3.schema.json",
+        "skills/app-plan/SKILL.md",
+        "skills/app-dev/SKILL.md"
       ]
     },
     {
@@ -932,7 +1001,11 @@
         "contracts/app-process-event.v3.schema.json",
         "contracts/app-stage-handoff.v4.schema.json",
         "skills/app-analyze/SKILL.md",
-        "scripts/app_graph_compiler.py"
+        "scripts/app_graph_compiler.py",
+        "scripts/app_graph_handoff.py",
+        "contracts/app-task-ledger.v3.schema.json",
+        "skills/app-plan/SKILL.md",
+        "skills/app-dev/SKILL.md"
       ]
     },
     {
@@ -948,7 +1021,11 @@
         "contracts/app-process-event.v3.schema.json",
         "contracts/app-stage-handoff.v4.schema.json",
         "skills/app-analyze/SKILL.md",
-        "scripts/app_graph_compiler.py"
+        "scripts/app_graph_compiler.py",
+        "scripts/app_graph_handoff.py",
+        "contracts/app-task-ledger.v3.schema.json",
+        "skills/app-plan/SKILL.md",
+        "skills/app-dev/SKILL.md"
       ]
     },
     {
@@ -964,7 +1041,11 @@
         "contracts/app-process-event.v3.schema.json",
         "contracts/app-stage-handoff.v4.schema.json",
         "skills/app-analyze/SKILL.md",
-        "scripts/app_graph_compiler.py"
+        "scripts/app_graph_compiler.py",
+        "scripts/app_graph_handoff.py",
+        "contracts/app-task-ledger.v3.schema.json",
+        "skills/app-plan/SKILL.md",
+        "skills/app-dev/SKILL.md"
       ]
     },
     {
@@ -980,7 +1061,11 @@
         "contracts/app-process-event.v3.schema.json",
         "contracts/app-stage-handoff.v4.schema.json",
         "skills/app-analyze/SKILL.md",
-        "scripts/app_graph_compiler.py"
+        "scripts/app_graph_compiler.py",
+        "scripts/app_graph_handoff.py",
+        "contracts/app-task-ledger.v3.schema.json",
+        "skills/app-plan/SKILL.md",
+        "skills/app-dev/SKILL.md"
       ]
     },
     {
@@ -996,13 +1081,17 @@
         "contracts/app-process-event.v3.schema.json",
         "contracts/app-stage-handoff.v4.schema.json",
         "skills/app-analyze/SKILL.md",
-        "scripts/app_graph_compiler.py"
+        "scripts/app_graph_compiler.py",
+        "scripts/app_graph_handoff.py",
+        "contracts/app-task-ledger.v3.schema.json",
+        "skills/app-plan/SKILL.md",
+        "skills/app-dev/SKILL.md"
       ]
     },
     {
       "ref": "DIM-AUDITED-SEMANTICS-DATA",
       "kind": "data",
-      "title": "Zero contradictions, unmapped refs, routable findings, and open remediation are recorded.",
+      "title": "Zero contradictions, unmapped refs, routable findings, and open remediation tasks are recorded.",
       "scope": "workflow-refactor-v5",
       "active": true,
       "source_refs": [
@@ -1012,7 +1101,11 @@
         "contracts/app-process-event.v3.schema.json",
         "contracts/app-stage-handoff.v4.schema.json",
         "skills/app-analyze/SKILL.md",
-        "scripts/app_graph_compiler.py"
+        "scripts/app_graph_compiler.py",
+        "scripts/app_graph_handoff.py",
+        "contracts/app-task-ledger.v3.schema.json",
+        "skills/app-plan/SKILL.md",
+        "skills/app-dev/SKILL.md"
       ]
     },
     {
@@ -1028,7 +1121,11 @@
         "contracts/app-process-event.v3.schema.json",
         "contracts/app-stage-handoff.v4.schema.json",
         "skills/app-analyze/SKILL.md",
-        "scripts/app_graph_compiler.py"
+        "scripts/app_graph_compiler.py",
+        "scripts/app_graph_handoff.py",
+        "contracts/app-task-ledger.v3.schema.json",
+        "skills/app-plan/SKILL.md",
+        "skills/app-dev/SKILL.md"
       ]
     },
     {
@@ -1044,7 +1141,11 @@
         "contracts/app-process-event.v3.schema.json",
         "contracts/app-stage-handoff.v4.schema.json",
         "skills/app-analyze/SKILL.md",
-        "scripts/app_graph_compiler.py"
+        "scripts/app_graph_compiler.py",
+        "scripts/app_graph_handoff.py",
+        "contracts/app-task-ledger.v3.schema.json",
+        "skills/app-plan/SKILL.md",
+        "skills/app-dev/SKILL.md"
       ]
     },
     {
@@ -1158,7 +1259,7 @@
     {
       "ref": "REQ-ROUTE-REGISTRY",
       "kind": "requirement",
-      "title": "Single deterministic route and reduction registry",
+      "title": "Single build-bound registry for edges, statuses, transitions, findings, handoffs, and publication",
       "scope": "workflow-refactor-v5",
       "active": true,
       "source_refs": [
@@ -1167,13 +1268,17 @@
         "contracts/app-stage-handoff.v4.schema.json",
         "contracts/app-semantic-analysis-result.v1.schema.json",
         "contracts/app-process-event.v3.schema.json",
-        "skills/app-solo-route/SKILL.md"
+        "skills/app-solo-route/SKILL.md",
+        "scripts/app_graph_handoff.py",
+        "scripts/app_graph_compiler.py",
+        "scripts/app_graph_query.py",
+        "scripts/app_graph_store.py"
       ]
     },
     {
       "ref": "FUNC-ROUTE-REGISTRY",
       "kind": "functionality",
-      "title": "Single deterministic route and reduction capability",
+      "title": "Build-bound edge, route, event, finding, handoff, and publication capability",
       "scope": "workflow-refactor-v5",
       "active": true,
       "source_refs": [
@@ -1182,13 +1287,17 @@
         "contracts/app-stage-handoff.v4.schema.json",
         "contracts/app-semantic-analysis-result.v1.schema.json",
         "contracts/app-process-event.v3.schema.json",
-        "skills/app-solo-route/SKILL.md"
+        "skills/app-solo-route/SKILL.md",
+        "scripts/app_graph_handoff.py",
+        "scripts/app_graph_compiler.py",
+        "scripts/app_graph_query.py",
+        "scripts/app_graph_store.py"
       ]
     },
     {
       "ref": "DIM-ROUTE-REGISTRY-BEHAVIOR",
       "kind": "behavior",
-      "title": "Every status and finding resolves through one route registry.",
+      "title": "Every edge, status, transition, finding, and outgoing handoff resolves through one registry and exact build.",
       "scope": "workflow-refactor-v5",
       "active": true,
       "source_refs": [
@@ -1197,13 +1306,17 @@
         "contracts/app-stage-handoff.v4.schema.json",
         "contracts/app-semantic-analysis-result.v1.schema.json",
         "contracts/app-process-event.v3.schema.json",
-        "skills/app-solo-route/SKILL.md"
+        "skills/app-solo-route/SKILL.md",
+        "scripts/app_graph_handoff.py",
+        "scripts/app_graph_compiler.py",
+        "scripts/app_graph_query.py",
+        "scripts/app_graph_store.py"
       ]
     },
     {
       "ref": "DIM-ROUTE-REGISTRY-DEPENDENCY",
       "kind": "dependency",
-      "title": "The selected route is the earliest corrective stage required by the findings.",
+      "title": "Edge metadata defines traversal, impact, and cycle policy; blocked otherwise dominates the frozen corrective route priority.",
       "scope": "workflow-refactor-v5",
       "active": true,
       "source_refs": [
@@ -1212,13 +1325,17 @@
         "contracts/app-stage-handoff.v4.schema.json",
         "contracts/app-semantic-analysis-result.v1.schema.json",
         "contracts/app-process-event.v3.schema.json",
-        "skills/app-solo-route/SKILL.md"
+        "skills/app-solo-route/SKILL.md",
+        "scripts/app_graph_handoff.py",
+        "scripts/app_graph_compiler.py",
+        "scripts/app_graph_query.py",
+        "scripts/app_graph_store.py"
       ]
     },
     {
       "ref": "DIM-ROUTE-REGISTRY-STATE",
       "kind": "state",
-      "title": "Only audited and blocked are terminal.",
+      "title": "Build bundles are immutable and complete before atomic pointer publication; only audited and blocked are terminal.",
       "scope": "workflow-refactor-v5",
       "active": true,
       "source_refs": [
@@ -1227,13 +1344,17 @@
         "contracts/app-stage-handoff.v4.schema.json",
         "contracts/app-semantic-analysis-result.v1.schema.json",
         "contracts/app-process-event.v3.schema.json",
-        "skills/app-solo-route/SKILL.md"
+        "skills/app-solo-route/SKILL.md",
+        "scripts/app_graph_handoff.py",
+        "scripts/app_graph_compiler.py",
+        "scripts/app_graph_query.py",
+        "scripts/app_graph_store.py"
       ]
     },
     {
       "ref": "DIM-ROUTE-REGISTRY-API",
       "kind": "api",
-      "title": "Workflow v3 defines routes; handoff v4 restricts emitted statuses.",
+      "title": "Workflow v3 defines edge and process rules; handoff_validate derives identity and validates the current payload.",
       "scope": "workflow-refactor-v5",
       "active": true,
       "source_refs": [
@@ -1242,13 +1363,17 @@
         "contracts/app-stage-handoff.v4.schema.json",
         "contracts/app-semantic-analysis-result.v1.schema.json",
         "contracts/app-process-event.v3.schema.json",
-        "skills/app-solo-route/SKILL.md"
+        "skills/app-solo-route/SKILL.md",
+        "scripts/app_graph_handoff.py",
+        "scripts/app_graph_compiler.py",
+        "scripts/app_graph_query.py",
+        "scripts/app_graph_store.py"
       ]
     },
     {
       "ref": "DIM-ROUTE-REGISTRY-DATA",
       "kind": "data",
-      "title": "Each finding binds kind, subjects, conflicts, summary, and canonical route.",
+      "title": "The registry binds edge semantics; findings and handoffs bind exact subjects, conflicts, owner, refs, payload, route, and build.",
       "scope": "workflow-refactor-v5",
       "active": true,
       "source_refs": [
@@ -1257,13 +1382,17 @@
         "contracts/app-stage-handoff.v4.schema.json",
         "contracts/app-semantic-analysis-result.v1.schema.json",
         "contracts/app-process-event.v3.schema.json",
-        "skills/app-solo-route/SKILL.md"
+        "skills/app-solo-route/SKILL.md",
+        "scripts/app_graph_handoff.py",
+        "scripts/app_graph_compiler.py",
+        "scripts/app_graph_query.py",
+        "scripts/app_graph_store.py"
       ]
     },
     {
       "ref": "DIM-ROUTE-REGISTRY-INTEGRATION",
       "kind": "integration",
-      "title": "Stage skills, analysis results, and native events consume the same vocabulary; transient handoffs do not independently establish graph state.",
+      "title": "Compiler, queries, stages, analysis, and handoff validation share the registry; impact is deduplicated and remediates lineage is traversable.",
       "scope": "workflow-refactor-v5",
       "active": true,
       "source_refs": [
@@ -1272,13 +1401,17 @@
         "contracts/app-stage-handoff.v4.schema.json",
         "contracts/app-semantic-analysis-result.v1.schema.json",
         "contracts/app-process-event.v3.schema.json",
-        "skills/app-solo-route/SKILL.md"
+        "skills/app-solo-route/SKILL.md",
+        "scripts/app_graph_handoff.py",
+        "scripts/app_graph_compiler.py",
+        "scripts/app_graph_query.py",
+        "scripts/app_graph_store.py"
       ]
     },
     {
       "ref": "DIM-ROUTE-REGISTRY-ERROR",
       "kind": "error",
-      "title": "An unknown status or route mismatch is rejected.",
+      "title": "An unknown edge or transition, forbidden cycle, route mismatch, partial publication, stale build, historical boundary, or payload mismatch is rejected.",
       "scope": "workflow-refactor-v5",
       "active": true,
       "source_refs": [
@@ -1287,7 +1420,11 @@
         "contracts/app-stage-handoff.v4.schema.json",
         "contracts/app-semantic-analysis-result.v1.schema.json",
         "contracts/app-process-event.v3.schema.json",
-        "skills/app-solo-route/SKILL.md"
+        "skills/app-solo-route/SKILL.md",
+        "scripts/app_graph_handoff.py",
+        "scripts/app_graph_compiler.py",
+        "scripts/app_graph_query.py",
+        "scripts/app_graph_store.py"
       ]
     },
     {
@@ -1298,7 +1435,8 @@
       "active": true,
       "source_refs": [
         "waves/workflow-refactor-v5/spec.md",
-        "docs/plugin-effectiveness-metrics-and-agent-audit-methodology.md"
+        "docs/plugin-effectiveness-metrics-and-agent-audit-methodology.md",
+        "docs/workflow-refactor-v5-assessment.md"
       ]
     },
     {
@@ -1309,18 +1447,20 @@
       "active": true,
       "source_refs": [
         "waves/workflow-refactor-v5/spec.md",
-        "docs/plugin-effectiveness-metrics-and-agent-audit-methodology.md"
+        "docs/plugin-effectiveness-metrics-and-agent-audit-methodology.md",
+        "docs/workflow-refactor-v5-assessment.md"
       ]
     },
     {
       "ref": "DIM-EFFECTIVENESS-BOUNDARY-BEHAVIOR",
       "kind": "behavior",
-      "title": "The evaluator observes exact records and reports without workflow mutation.",
+      "title": "The assessment agent observes exact records and reports without workflow mutation.",
       "scope": "workflow-refactor-v5",
       "active": true,
       "source_refs": [
         "waves/workflow-refactor-v5/spec.md",
-        "docs/plugin-effectiveness-metrics-and-agent-audit-methodology.md"
+        "docs/plugin-effectiveness-metrics-and-agent-audit-methodology.md",
+        "docs/workflow-refactor-v5-assessment.md"
       ]
     },
     {
@@ -1331,7 +1471,8 @@
       "active": true,
       "source_refs": [
         "waves/workflow-refactor-v5/spec.md",
-        "docs/plugin-effectiveness-metrics-and-agent-audit-methodology.md"
+        "docs/plugin-effectiveness-metrics-and-agent-audit-methodology.md",
+        "docs/workflow-refactor-v5-assessment.md"
       ]
     },
     {
@@ -1342,7 +1483,8 @@
       "active": true,
       "source_refs": [
         "waves/workflow-refactor-v5/spec.md",
-        "docs/plugin-effectiveness-metrics-and-agent-audit-methodology.md"
+        "docs/plugin-effectiveness-metrics-and-agent-audit-methodology.md",
+        "docs/workflow-refactor-v5-assessment.md"
       ]
     },
     {
@@ -1353,7 +1495,8 @@
       "active": true,
       "source_refs": [
         "waves/workflow-refactor-v5/spec.md",
-        "docs/plugin-effectiveness-metrics-and-agent-audit-methodology.md"
+        "docs/plugin-effectiveness-metrics-and-agent-audit-methodology.md",
+        "docs/workflow-refactor-v5-assessment.md"
       ]
     },
     {
@@ -1364,7 +1507,8 @@
       "active": true,
       "source_refs": [
         "waves/workflow-refactor-v5/spec.md",
-        "docs/plugin-effectiveness-metrics-and-agent-audit-methodology.md"
+        "docs/plugin-effectiveness-metrics-and-agent-audit-methodology.md",
+        "docs/workflow-refactor-v5-assessment.md"
       ]
     },
     {
@@ -1375,7 +1519,8 @@
       "active": true,
       "source_refs": [
         "waves/workflow-refactor-v5/spec.md",
-        "docs/plugin-effectiveness-metrics-and-agent-audit-methodology.md"
+        "docs/plugin-effectiveness-metrics-and-agent-audit-methodology.md",
+        "docs/workflow-refactor-v5-assessment.md"
       ]
     },
     {
@@ -1386,7 +1531,8 @@
       "active": true,
       "source_refs": [
         "waves/workflow-refactor-v5/spec.md",
-        "docs/plugin-effectiveness-metrics-and-agent-audit-methodology.md"
+        "docs/plugin-effectiveness-metrics-and-agent-audit-methodology.md",
+        "docs/workflow-refactor-v5-assessment.md"
       ]
     }
   ],
@@ -2258,7 +2404,8 @@
       "to_ref": "REQ-EFFECTIVENESS-BOUNDARY",
       "condition_refs": [],
       "source_refs": [
-        "waves/workflow-refactor-v5/spec.md"
+        "waves/workflow-refactor-v5/spec.md",
+        "docs/workflow-refactor-v5-assessment.md"
       ]
     },
     {
@@ -2268,7 +2415,8 @@
       "to_ref": "FUNC-EFFECTIVENESS-BOUNDARY",
       "condition_refs": [],
       "source_refs": [
-        "waves/workflow-refactor-v5/spec.md"
+        "waves/workflow-refactor-v5/spec.md",
+        "docs/workflow-refactor-v5-assessment.md"
       ]
     },
     {
@@ -2278,7 +2426,8 @@
       "to_ref": "DIM-EFFECTIVENESS-BOUNDARY-BEHAVIOR",
       "condition_refs": [],
       "source_refs": [
-        "waves/workflow-refactor-v5/spec.md"
+        "waves/workflow-refactor-v5/spec.md",
+        "docs/workflow-refactor-v5-assessment.md"
       ]
     },
     {
@@ -2288,7 +2437,8 @@
       "to_ref": "DIM-EFFECTIVENESS-BOUNDARY-DEPENDENCY",
       "condition_refs": [],
       "source_refs": [
-        "waves/workflow-refactor-v5/spec.md"
+        "waves/workflow-refactor-v5/spec.md",
+        "docs/workflow-refactor-v5-assessment.md"
       ]
     },
     {
@@ -2298,7 +2448,8 @@
       "to_ref": "DIM-EFFECTIVENESS-BOUNDARY-STATE",
       "condition_refs": [],
       "source_refs": [
-        "waves/workflow-refactor-v5/spec.md"
+        "waves/workflow-refactor-v5/spec.md",
+        "docs/workflow-refactor-v5-assessment.md"
       ]
     },
     {
@@ -2308,7 +2459,8 @@
       "to_ref": "DIM-EFFECTIVENESS-BOUNDARY-API",
       "condition_refs": [],
       "source_refs": [
-        "waves/workflow-refactor-v5/spec.md"
+        "waves/workflow-refactor-v5/spec.md",
+        "docs/workflow-refactor-v5-assessment.md"
       ]
     },
     {
@@ -2318,7 +2470,8 @@
       "to_ref": "DIM-EFFECTIVENESS-BOUNDARY-DATA",
       "condition_refs": [],
       "source_refs": [
-        "waves/workflow-refactor-v5/spec.md"
+        "waves/workflow-refactor-v5/spec.md",
+        "docs/workflow-refactor-v5-assessment.md"
       ]
     },
     {
@@ -2328,7 +2481,8 @@
       "to_ref": "DIM-EFFECTIVENESS-BOUNDARY-INTEGRATION",
       "condition_refs": [],
       "source_refs": [
-        "waves/workflow-refactor-v5/spec.md"
+        "waves/workflow-refactor-v5/spec.md",
+        "docs/workflow-refactor-v5-assessment.md"
       ]
     },
     {
@@ -2338,7 +2492,8 @@
       "to_ref": "DIM-EFFECTIVENESS-BOUNDARY-ERROR",
       "condition_refs": [],
       "source_refs": [
-        "waves/workflow-refactor-v5/spec.md"
+        "waves/workflow-refactor-v5/spec.md",
+        "docs/workflow-refactor-v5-assessment.md"
       ]
     },
     {
@@ -2428,7 +2583,8 @@
       "to_ref": "FUNC-ANALYSIS-RESULT",
       "condition_refs": [],
       "source_refs": [
-        "waves/workflow-refactor-v5/spec.md"
+        "waves/workflow-refactor-v5/spec.md",
+        "docs/workflow-refactor-v5-assessment.md"
       ]
     }
   ],
@@ -3206,7 +3362,8 @@
       "status": "mapped",
       "evidence_refs": [
         "EVIDENCE-CONTRACTS",
-        "EVIDENCE-STAGES"
+        "EVIDENCE-STAGES",
+        "EVIDENCE-RUNTIME"
       ]
     },
     {
@@ -3219,7 +3376,8 @@
       "status": "mapped",
       "evidence_refs": [
         "EVIDENCE-CONTRACTS",
-        "EVIDENCE-STAGES"
+        "EVIDENCE-STAGES",
+        "EVIDENCE-RUNTIME"
       ]
     },
     {
@@ -3232,7 +3390,8 @@
       "status": "mapped",
       "evidence_refs": [
         "EVIDENCE-CONTRACTS",
-        "EVIDENCE-STAGES"
+        "EVIDENCE-STAGES",
+        "EVIDENCE-RUNTIME"
       ]
     },
     {
@@ -3245,7 +3404,8 @@
       "status": "mapped",
       "evidence_refs": [
         "EVIDENCE-CONTRACTS",
-        "EVIDENCE-STAGES"
+        "EVIDENCE-STAGES",
+        "EVIDENCE-RUNTIME"
       ]
     },
     {
@@ -3258,7 +3418,8 @@
       "status": "mapped",
       "evidence_refs": [
         "EVIDENCE-CONTRACTS",
-        "EVIDENCE-STAGES"
+        "EVIDENCE-STAGES",
+        "EVIDENCE-RUNTIME"
       ]
     },
     {
@@ -3271,7 +3432,8 @@
       "status": "mapped",
       "evidence_refs": [
         "EVIDENCE-CONTRACTS",
-        "EVIDENCE-STAGES"
+        "EVIDENCE-STAGES",
+        "EVIDENCE-RUNTIME"
       ]
     },
     {
@@ -3284,7 +3446,8 @@
       "status": "mapped",
       "evidence_refs": [
         "EVIDENCE-CONTRACTS",
-        "EVIDENCE-STAGES"
+        "EVIDENCE-STAGES",
+        "EVIDENCE-RUNTIME"
       ]
     },
     {

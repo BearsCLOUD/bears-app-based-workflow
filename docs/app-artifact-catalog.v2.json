@@ -1,7 +1,7 @@
 {
   "schema": "app-artifact-catalog.v2",
   "app_id": "bears-app-based-workflow",
-  "revision": 4,
+  "revision": 5,
   "artifacts": [
     {
       "ref": "ART-WORKFLOW-DEFINITION",
@@ -52,6 +52,11 @@
       "ref": "ART-GRAPH-PROCESS",
       "kind": "code",
       "path": "scripts/app_graph_process.py"
+    },
+    {
+      "ref": "ART-GRAPH-HANDOFF",
+      "kind": "code",
+      "path": "scripts/app_graph_handoff.py"
     },
     {
       "ref": "ART-GRAPH-QUERY",
@@ -152,6 +157,11 @@
       "ref": "ART-METHODOLOGY",
       "kind": "document",
       "path": "docs/plugin-effectiveness-metrics-and-agent-audit-methodology.md"
+    },
+    {
+      "ref": "ART-WORKFLOW-REFACTOR-V5-ASSESSMENT",
+      "kind": "document",
+      "path": "docs/workflow-refactor-v5-assessment.md"
     },
     {
       "ref": "ART-WAVE-SPEC",
@@ -496,32 +506,32 @@
     {
       "ref": "EVIDENCE-CONTRACTS",
       "kind": "evidence",
-      "path": "docs/workflow-refactor-v5-source-map.md"
+      "path": "docs/workflow-refactor-v5-assessment.md"
     },
     {
       "ref": "EVIDENCE-RUNTIME",
       "kind": "evidence",
-      "path": "docs/workflow-refactor-v5-source-map.md"
+      "path": "docs/workflow-refactor-v5-assessment.md"
     },
     {
       "ref": "EVIDENCE-STAGES",
       "kind": "evidence",
-      "path": "docs/workflow-refactor-v5-source-map.md"
+      "path": "docs/workflow-refactor-v5-assessment.md"
     },
     {
       "ref": "EVIDENCE-ROLES",
       "kind": "evidence",
-      "path": "docs/workflow-refactor-v5-source-map.md"
+      "path": "docs/workflow-refactor-v5-assessment.md"
     },
     {
       "ref": "EVIDENCE-DOCS-GRAPH",
       "kind": "evidence",
-      "path": "docs/workflow-refactor-v5-source-map.md"
+      "path": "docs/workflow-refactor-v5-assessment.md"
     },
     {
       "ref": "EVIDENCE-DELIVERY",
       "kind": "evidence",
-      "path": "docs/workflow-refactor-v5-source-map.md"
+      "path": "docs/workflow-refactor-v5-assessment.md"
     }
   ]
 }

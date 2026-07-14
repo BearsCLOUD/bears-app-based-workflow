@@ -1,7 +1,7 @@
 {
   "schema": "app-task-ledger.v3",
   "app_id": "bears-app-based-workflow",
-  "revision": 5,
+  "revision": 10,
   "tasks": [
     {
       "task_id": "TASK-WF5-CONTRACTS",
@@ -537,6 +537,486 @@
       "retirement_commit_refs": [
         "353f01c3284919b256d87a9c4b86e01b10394ed6"
       ]
+    },
+    {
+      "task_id": "TASK-WF5-REM-CONTRACTS",
+      "repo_ref": "bears-app-based-workflow",
+      "wave_id": "workflow-refactor-v5",
+      "owner_role": "DIRECT-primary",
+      "decision_state": "closed",
+      "status": "done",
+      "queue_sequence": 70,
+      "task_kind": "remediation",
+      "requirement_refs": [
+        "REQ-SEVEN-DIMENSIONS",
+        "REQ-ROUTE-REGISTRY",
+        "REQ-ANALYSIS-RESULT"
+      ],
+      "functionality_refs": [
+        "FUNC-SEVEN-DIMENSIONS",
+        "FUNC-ROUTE-REGISTRY",
+        "FUNC-ANALYSIS-RESULT"
+      ],
+      "graph_entity_refs": [
+        "DEC-TYPED-DIMENSIONS",
+        "DEC-SINGLE-ROUTE-REGISTRY",
+        "DEC-SEMANTIC-ANALYSIS"
+      ],
+      "target_paths": [
+        "contracts/app-process-event.v3.schema.json",
+        "contracts/app-semantic-analysis-result.v1.schema.json",
+        "contracts/app-stage-handoff.v4.schema.json",
+        "contracts/app-task-ledger.v3.schema.json",
+        "contracts/app-workflow-definition.v3.json"
+      ],
+      "allowed_files": [
+        "contracts/app-process-event.v3.schema.json",
+        "contracts/app-semantic-analysis-result.v1.schema.json",
+        "contracts/app-stage-handoff.v4.schema.json",
+        "contracts/app-task-ledger.v3.schema.json",
+        "contracts/app-workflow-definition.v3.json"
+      ],
+      "depends_on": [],
+      "definition_of_done": "Refactored workflow contracts encode the approved authority, route, semantic-analysis, remediation, and handoff model.",
+      "proof_requirement": "Every changed contract agrees with the structured graph and native process semantics.",
+      "implementation_refs": [
+        "ART-EVENT-SCHEMA",
+        "ART-ANALYSIS-SCHEMA",
+        "ART-HANDOFF-SCHEMA",
+        "ART-LEDGER-SCHEMA",
+        "ART-WORKFLOW-DEFINITION"
+      ],
+      "evidence_refs": [
+        "EVIDENCE-CONTRACTS"
+      ],
+      "retirement_commit_refs": [],
+      "remediation_basis": {
+        "run_ref": "RUN-WORKFLOW-REFACTOR-V5-SOURCE-001",
+        "source_event_refs": [
+          "EVT-WF5-SOURCE-ANALYSIS-NEEDS-PLAN-001",
+          "EVT-WF5-SOURCE-PLAN-NEEDS-PLAN-001"
+        ],
+        "finding_refs": [
+          "FIND-WF5-CORRECTION-SCOPE-UNREPRESENTED"
+        ]
+      }
+    },
+    {
+      "task_id": "TASK-WF5-REM-GRAPH-RUNTIME",
+      "repo_ref": "bears-app-based-workflow",
+      "wave_id": "workflow-refactor-v5",
+      "owner_role": "DIRECT-primary",
+      "decision_state": "closed",
+      "status": "done",
+      "queue_sequence": 80,
+      "task_kind": "remediation",
+      "requirement_refs": [
+        "REQ-JOURNAL-OWNERSHIP",
+        "REQ-SEVEN-DIMENSIONS",
+        "REQ-ROUTE-REGISTRY"
+      ],
+      "functionality_refs": [
+        "FUNC-JOURNAL-OWNERSHIP",
+        "FUNC-SEVEN-DIMENSIONS",
+        "FUNC-ROUTE-REGISTRY"
+      ],
+      "graph_entity_refs": [
+        "DEC-OWNERSHIP-MODEL",
+        "DEC-TYPED-DIMENSIONS",
+        "DEC-SINGLE-ROUTE-REGISTRY"
+      ],
+      "target_paths": [
+        "scripts/README.md",
+        "scripts/app_graph_compiler.py",
+        "scripts/app_graph_engine.py",
+        "scripts/app_graph_handoff.py",
+        "scripts/app_graph_mcp.py",
+        "scripts/app_graph_process.py",
+        "scripts/app_graph_query.py",
+        "scripts/app_graph_store.py"
+      ],
+      "allowed_files": [
+        "scripts/README.md",
+        "scripts/app_graph_compiler.py",
+        "scripts/app_graph_engine.py",
+        "scripts/app_graph_handoff.py",
+        "scripts/app_graph_mcp.py",
+        "scripts/app_graph_process.py",
+        "scripts/app_graph_query.py",
+        "scripts/app_graph_store.py"
+      ],
+      "depends_on": [
+        "TASK-WF5-REM-CONTRACTS"
+      ],
+      "definition_of_done": "Graph compilation, queries, event admission, and handoff validation enforce the approved refactor.",
+      "proof_requirement": "Exact-build graph operations reject invalid routes, cycles, provenance, lineage, and handoffs deterministically.",
+      "implementation_refs": [
+        "ART-SCRIPTS-README",
+        "ART-GRAPH-COMPILER",
+        "ART-GRAPH-ENGINE",
+        "ART-GRAPH-HANDOFF",
+        "ART-GRAPH-MCP",
+        "ART-GRAPH-PROCESS",
+        "ART-GRAPH-QUERY",
+        "ART-GRAPH-STORE"
+      ],
+      "evidence_refs": [
+        "EVIDENCE-RUNTIME"
+      ],
+      "retirement_commit_refs": [],
+      "remediation_basis": {
+        "run_ref": "RUN-WORKFLOW-REFACTOR-V5-SOURCE-001",
+        "source_event_refs": [
+          "EVT-WF5-SOURCE-ANALYSIS-NEEDS-PLAN-001",
+          "EVT-WF5-SOURCE-PLAN-NEEDS-PLAN-001"
+        ],
+        "finding_refs": [
+          "FIND-WF5-CORRECTION-SCOPE-UNREPRESENTED"
+        ]
+      }
+    },
+    {
+      "task_id": "TASK-WF5-REM-STAGES",
+      "repo_ref": "bears-app-based-workflow",
+      "wave_id": "workflow-refactor-v5",
+      "owner_role": "DIRECT-primary",
+      "decision_state": "closed",
+      "status": "done",
+      "queue_sequence": 90,
+      "task_kind": "remediation",
+      "requirement_refs": [
+        "REQ-DIRECT-OWNERSHIP",
+        "REQ-REPO-L2-OWNERSHIP",
+        "REQ-SUBAGENT-DISPATCH",
+        "REQ-ANALYSIS-SCOPE",
+        "REQ-ANALYSIS-RESULT",
+        "REQ-AUDITED-SEMANTICS"
+      ],
+      "functionality_refs": [
+        "FUNC-DIRECT-OWNERSHIP",
+        "FUNC-REPO-L2-OWNERSHIP",
+        "FUNC-SUBAGENT-DISPATCH",
+        "FUNC-ANALYSIS-SCOPE",
+        "FUNC-ANALYSIS-RESULT",
+        "FUNC-AUDITED-SEMANTICS"
+      ],
+      "graph_entity_refs": [
+        "DEC-OWNERSHIP-MODEL",
+        "DEC-SEMANTIC-ANALYSIS"
+      ],
+      "target_paths": [
+        "skills/app-analyze/SKILL.md",
+        "skills/app-constitution/SKILL.md",
+        "skills/app-context-index/SKILL.md",
+        "skills/app-dev/SKILL.md",
+        "skills/app-dev/agents/openai.yaml",
+        "skills/app-functional-graph/SKILL.md",
+        "skills/app-plan/SKILL.md",
+        "skills/app-plan/agents/openai.yaml",
+        "skills/app-research/SKILL.md",
+        "skills/app-solo-route/SKILL.md",
+        "skills/app-specify/SKILL.md",
+        "skills/role-profile-maintenance/SKILL.md",
+        "skills/subagents/SKILL.md"
+      ],
+      "allowed_files": [
+        "skills/app-analyze/SKILL.md",
+        "skills/app-constitution/SKILL.md",
+        "skills/app-context-index/SKILL.md",
+        "skills/app-dev/SKILL.md",
+        "skills/app-dev/agents/openai.yaml",
+        "skills/app-functional-graph/SKILL.md",
+        "skills/app-plan/SKILL.md",
+        "skills/app-plan/agents/openai.yaml",
+        "skills/app-research/SKILL.md",
+        "skills/app-solo-route/SKILL.md",
+        "skills/app-specify/SKILL.md",
+        "skills/role-profile-maintenance/SKILL.md",
+        "skills/subagents/SKILL.md"
+      ],
+      "depends_on": [
+        "TASK-WF5-REM-CONTRACTS"
+      ],
+      "definition_of_done": "Every app stage uses one mode-bound owner, compact fail-closed instructions, and canonical semantic routes.",
+      "proof_requirement": "Stage instructions agree with workflow v3 and preserve persistent repo-L2 plus explicit subagent dispatch.",
+      "implementation_refs": [
+        "ART-SKILL-ANALYZE",
+        "ART-SKILLS-APP-CONSTITUTION-SKILL",
+        "ART-SKILLS-APP-CONTEXT-INDEX-SKILL",
+        "ART-SKILL-DEV",
+        "ART-SKILLS-APP-DEV-AGENTS-OPENAI",
+        "ART-SKILL-FUNCTIONAL",
+        "ART-SKILL-PLAN",
+        "ART-SKILLS-APP-PLAN-AGENTS-OPENAI",
+        "ART-SKILL-RESEARCH",
+        "ART-SKILL-SOLO",
+        "ART-SKILL-SPECIFY",
+        "ART-SKILLS-ROLE-PROFILE-MAINTENANCE-SKILL",
+        "ART-SKILL-SUBAGENTS"
+      ],
+      "evidence_refs": [
+        "EVIDENCE-STAGES"
+      ],
+      "retirement_commit_refs": [],
+      "remediation_basis": {
+        "run_ref": "RUN-WORKFLOW-REFACTOR-V5-SOURCE-001",
+        "source_event_refs": [
+          "EVT-WF5-SOURCE-ANALYSIS-NEEDS-PLAN-001",
+          "EVT-WF5-SOURCE-PLAN-NEEDS-PLAN-001"
+        ],
+        "finding_refs": [
+          "FIND-WF5-CORRECTION-SCOPE-UNREPRESENTED"
+        ]
+      }
+    },
+    {
+      "task_id": "TASK-WF5-REM-ROLES",
+      "repo_ref": "bears-app-based-workflow",
+      "wave_id": "workflow-refactor-v5",
+      "owner_role": "DIRECT-primary",
+      "decision_state": "closed",
+      "status": "done",
+      "queue_sequence": 100,
+      "task_kind": "remediation",
+      "requirement_refs": [
+        "REQ-REPO-L2-OWNERSHIP",
+        "REQ-SUBAGENT-DISPATCH",
+        "REQ-JOURNAL-OWNERSHIP"
+      ],
+      "functionality_refs": [
+        "FUNC-REPO-L2-OWNERSHIP",
+        "FUNC-SUBAGENT-DISPATCH",
+        "FUNC-JOURNAL-OWNERSHIP"
+      ],
+      "graph_entity_refs": [
+        "DEC-OWNERSHIP-MODEL"
+      ],
+      "target_paths": [
+        ".github/runner/bears_deploy/role_renderer.py",
+        "agents/README.md",
+        "agents/app-worker.toml",
+        "agents/diagnostic-command-runner.toml",
+        "agents/domain-lane-orchestrator.toml",
+        "agents/explorer.toml",
+        "agents/graph-evidence-reader.toml",
+        "agents/primary-source-researcher.toml",
+        "agents/role-profile-architect.toml",
+        "agents/wave-change-critic.toml",
+        "agents/worker.toml",
+        "agents/workflow-orchestrator.toml",
+        "contracts/app-role-capability-catalog.v1.schema.json",
+        "role-definitions/capability-catalog.v1.json",
+        "role-definitions/domain-lane-orchestrator.json",
+        "role-definitions/explorer.json",
+        "role-definitions/wave-change-critic.json"
+      ],
+      "allowed_files": [
+        ".github/runner/bears_deploy/role_renderer.py",
+        "agents/README.md",
+        "agents/app-worker.toml",
+        "agents/diagnostic-command-runner.toml",
+        "agents/domain-lane-orchestrator.toml",
+        "agents/explorer.toml",
+        "agents/graph-evidence-reader.toml",
+        "agents/primary-source-researcher.toml",
+        "agents/role-profile-architect.toml",
+        "agents/wave-change-critic.toml",
+        "agents/worker.toml",
+        "agents/workflow-orchestrator.toml",
+        "contracts/app-role-capability-catalog.v1.schema.json",
+        "role-definitions/capability-catalog.v1.json",
+        "role-definitions/domain-lane-orchestrator.json",
+        "role-definitions/explorer.json",
+        "role-definitions/wave-change-critic.json"
+      ],
+      "depends_on": [
+        "TASK-WF5-REM-STAGES"
+      ],
+      "definition_of_done": "Role kind determines authority and lifecycle while specialization remains descriptive and permissions stay explicit.",
+      "proof_requirement": "Rendered profiles preserve the approved L1, repo-L2, helper, mutation-worker, and primary-critic boundaries.",
+      "implementation_refs": [
+        "ART-ROLE-RENDERER",
+        "ART-AGENTS-README",
+        "ART-AGENTS-APP-WORKER",
+        "ART-AGENTS-DIAGNOSTIC-COMMAND-RUNNER",
+        "ART-AGENTS-DOMAIN-LANE-ORCHESTRATOR",
+        "ART-AGENTS-EXPLORER",
+        "ART-AGENTS-GRAPH-EVIDENCE-READER",
+        "ART-AGENTS-PRIMARY-SOURCE-RESEARCHER",
+        "ART-AGENTS-ROLE-PROFILE-ARCHITECT",
+        "ART-AGENTS-WAVE-CHANGE-CRITIC",
+        "ART-AGENTS-WORKER",
+        "ART-AGENTS-WORKFLOW-ORCHESTRATOR",
+        "ART-CONTRACTS-APP-ROLE-CAPABILITY-CATALOG-V1",
+        "ART-ROLE-CATALOG",
+        "ART-ROLE-DOMAIN-L2",
+        "ART-ROLE-DEFINITIONS-EXPLORER",
+        "ART-ROLE-DEFINITIONS-WAVE-CHANGE-CRITIC"
+      ],
+      "evidence_refs": [
+        "EVIDENCE-ROLES"
+      ],
+      "retirement_commit_refs": [],
+      "remediation_basis": {
+        "run_ref": "RUN-WORKFLOW-REFACTOR-V5-SOURCE-001",
+        "source_event_refs": [
+          "EVT-WF5-SOURCE-ANALYSIS-NEEDS-PLAN-001",
+          "EVT-WF5-SOURCE-PLAN-NEEDS-PLAN-001"
+        ],
+        "finding_refs": [
+          "FIND-WF5-CORRECTION-SCOPE-UNREPRESENTED"
+        ]
+      }
+    },
+    {
+      "task_id": "TASK-WF5-REM-DOCS-GRAPH",
+      "repo_ref": "bears-app-based-workflow",
+      "wave_id": "workflow-refactor-v5",
+      "owner_role": "DIRECT-primary",
+      "decision_state": "closed",
+      "status": "ready",
+      "queue_sequence": 110,
+      "task_kind": "remediation",
+      "requirement_refs": [
+        "REQ-ANALYSIS-SCOPE",
+        "REQ-ANALYSIS-RESULT",
+        "REQ-AUDITED-SEMANTICS",
+        "REQ-SEVEN-DIMENSIONS",
+        "REQ-EFFECTIVENESS-BOUNDARY"
+      ],
+      "functionality_refs": [
+        "FUNC-ANALYSIS-SCOPE",
+        "FUNC-ANALYSIS-RESULT",
+        "FUNC-AUDITED-SEMANTICS",
+        "FUNC-SEVEN-DIMENSIONS",
+        "FUNC-EFFECTIVENESS-BOUNDARY"
+      ],
+      "graph_entity_refs": [
+        "DEC-SEMANTIC-ANALYSIS",
+        "DEC-TYPED-DIMENSIONS",
+        "DEC-ASSESSMENT-SEPARATION"
+      ],
+      "target_paths": [
+        "CHANGELOG.md",
+        "README.md",
+        "assets/codex-home-graph-instructions.md",
+        "docs/app-artifact-catalog.v2.json",
+        "docs/app-constitution.md",
+        "docs/app-functional-map.v4.json",
+        "docs/app-graph-source-manifest.v1.json",
+        "docs/app-task-ledger.v3.json",
+        "docs/plugin-effectiveness-metrics-and-agent-audit-methodology.md",
+        "docs/workflow-refactor-v5-assessment.md",
+        "docs/workflow-refactor-v5-source-map.md",
+        "waves/workflow-refactor-v5/analysis.md",
+        "waves/workflow-refactor-v5/plan.md",
+        "waves/workflow-refactor-v5/research.md",
+        "waves/workflow-refactor-v5/spec.md"
+      ],
+      "allowed_files": [
+        "CHANGELOG.md",
+        "README.md",
+        "assets/codex-home-graph-instructions.md",
+        "docs/app-artifact-catalog.v2.json",
+        "docs/app-constitution.md",
+        "docs/app-functional-map.v4.json",
+        "docs/app-graph-source-manifest.v1.json",
+        "docs/app-task-ledger.v3.json",
+        "docs/plugin-effectiveness-metrics-and-agent-audit-methodology.md",
+        "docs/workflow-refactor-v5-assessment.md",
+        "docs/workflow-refactor-v5-source-map.md",
+        "waves/workflow-refactor-v5/analysis.md",
+        "waves/workflow-refactor-v5/plan.md",
+        "waves/workflow-refactor-v5/research.md",
+        "waves/workflow-refactor-v5/spec.md"
+      ],
+      "depends_on": [
+        "TASK-WF5-REM-GRAPH-RUNTIME",
+        "TASK-WF5-REM-ROLES"
+      ],
+      "definition_of_done": "Authoritative documentation, graph sources, task lineage, and the frozen observational assessment express one refactor model.",
+      "proof_requirement": "Every active requirement has complete typed dimensions and exact task, artifact, evidence, and process correspondence.",
+      "implementation_refs": [
+        "ART-CHANGELOG",
+        "ART-README",
+        "ART-MANAGED-INSTRUCTIONS",
+        "ART-ARTIFACT-CATALOG",
+        "ART-CONSTITUTION",
+        "ART-FUNCTIONAL-MAP",
+        "ART-DOCS-APP-GRAPH-SOURCE-MANIFEST-V1",
+        "ART-TASK-LEDGER",
+        "ART-METHODOLOGY",
+        "ART-WORKFLOW-REFACTOR-V5-ASSESSMENT",
+        "ART-DOCS-WORKFLOW-REFACTOR-V5-SOURCE-MAP",
+        "ART-WAVES-WORKFLOW-REFACTOR-V5-ANALYSIS",
+        "ART-WAVES-WORKFLOW-REFACTOR-V5-PLAN",
+        "ART-WAVES-WORKFLOW-REFACTOR-V5-RESEARCH",
+        "ART-WAVE-SPEC"
+      ],
+      "evidence_refs": [
+        "EVIDENCE-DOCS-GRAPH"
+      ],
+      "retirement_commit_refs": [],
+      "remediation_basis": {
+        "run_ref": "RUN-WORKFLOW-REFACTOR-V5-SOURCE-001",
+        "source_event_refs": [
+          "EVT-WF5-SOURCE-ANALYSIS-NEEDS-PLAN-001",
+          "EVT-WF5-SOURCE-PLAN-NEEDS-PLAN-001"
+        ],
+        "finding_refs": [
+          "FIND-WF5-CORRECTION-SCOPE-UNREPRESENTED"
+        ]
+      }
+    },
+    {
+      "task_id": "TASK-WF5-REM-DELIVERY",
+      "repo_ref": "bears-app-based-workflow",
+      "wave_id": "workflow-refactor-v5",
+      "owner_role": "DIRECT-primary",
+      "decision_state": "closed",
+      "status": "waiting",
+      "queue_sequence": 120,
+      "task_kind": "remediation",
+      "requirement_refs": [
+        "REQ-REPO-L2-OWNERSHIP",
+        "REQ-ROUTE-REGISTRY"
+      ],
+      "functionality_refs": [
+        "FUNC-REPO-L2-OWNERSHIP",
+        "FUNC-ROUTE-REGISTRY"
+      ],
+      "graph_entity_refs": [
+        "DEC-OWNERSHIP-MODEL",
+        "DEC-SINGLE-ROUTE-REGISTRY"
+      ],
+      "target_paths": [
+        ".codex-plugin/plugin.json"
+      ],
+      "allowed_files": [
+        ".codex-plugin/plugin.json"
+      ],
+      "depends_on": [
+        "TASK-WF5-REM-DOCS-GRAPH"
+      ],
+      "definition_of_done": "Plugin metadata exposes the refactored workflow and current role catalog.",
+      "proof_requirement": "Published plugin metadata contains only the approved current capability surface.",
+      "implementation_refs": [
+        "ART-PLUGIN-METADATA"
+      ],
+      "evidence_refs": [
+        "EVIDENCE-DELIVERY"
+      ],
+      "retirement_commit_refs": [],
+      "remediation_basis": {
+        "run_ref": "RUN-WORKFLOW-REFACTOR-V5-SOURCE-001",
+        "source_event_refs": [
+          "EVT-WF5-SOURCE-ANALYSIS-NEEDS-PLAN-001",
+          "EVT-WF5-SOURCE-PLAN-NEEDS-PLAN-001"
+        ],
+        "finding_refs": [
+          "FIND-WF5-CORRECTION-SCOPE-UNREPRESENTED"
+        ]
+      }
     }
   ]
 }

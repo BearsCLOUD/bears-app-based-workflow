@@ -6,7 +6,7 @@ Bears App-Based Workflow is a Codex plugin for deterministic documentation-to-im
 
 The workflow is defined by contracts/app-workflow-definition.v3.json and exchanges typed transient app-stage-handoff.v4 packets. Structured semantics use app-functional-map.v4, work queues use app-task-ledger.v3, durable process records use app-process-event.v3, and app-analyze results use app-semantic-analysis-result.v1.
 
-app-context-index reconciles an opted-in repository from its source manifest. app-graph-compile publishes immutable build receipts, rebuildable traceability and process indexes, and one current-build pointer. Every stage works from the exact build, source snapshot digest, and journal digest carried by its handoff.
+app-context-index reconciles an opted-in repository from its source manifest. app-graph-compile publishes each complete immutable build bundle before atomically replacing one current-build pointer. Every stage uses the build, source snapshot digest, and journal digest in its handoff; pre-plan scope is empty, ordinary plan-ready establishes it, correction preserves it through terminal app-plan needs-plan, and only a linked run admits remediation tasks.
 
 ## Ownership
 
@@ -26,10 +26,10 @@ L1 has kind `workflow-orchestrator`; it only opens and continues repository lane
 | app-specify | Close product decisions and state decision-complete requirements. |
 | app-functional-graph | Map requirements, seven dimensions, relations, and source refs. |
 | app-plan | Produce dependency-ordered, repository-bounded ledger work. |
-| app-dev | Orchestrate ready ledger work, immutable full-scope review, remediation, and one clean repo handoff. |
-| app-analyze | Compare documentation, graph entities and edges, ledger, artifacts, evidence, task results, reviews, remediations, and process records for logical correspondence. |
+| app-dev | Orchestrate ready ledger work, immutable full-scope review, linked correction runs, and one clean repo handoff. |
+| app-analyze | Compare documentation, graph entities and edges, ledger, artifacts, evidence, task results, reviews, remediation tasks, and process records for logical correspondence. |
 
-app-analyze is semantic agent analysis of documentation correspondence. It binds each complete input category by count and canonical digest, produces structured findings, and resolves one route through the workflow registry.
+app-analyze is semantic agent analysis of documentation and graph correspondence against the constitution and specification. In DELEGATED mode one `explorer` reads the named documentation and every bound graph page, returns the typed result, and leaves event persistence to repo-L2. The result binds each complete input category by count and canonical digest, produces structured findings, and resolves one route through the workflow registry.
 
 ## Seven dimensions
 
@@ -66,16 +66,16 @@ Findings route as follows:
 | Missing source | needs-research |
 | Product or decision conflict | needs-spec |
 | Semantic, reference, or cycle gap | needs-graph |
-| Task, implementation, evidence, review, or remediation gap | needs-plan |
+| Task, implementation, evidence, review, or remediation-task gap | needs-plan |
 | Credential, access, or explicit operator stop | blocked |
 
-audited is the only successful terminal workflow status. It means that the exact documentation and process snapshot is logically consistent: semantic analysis is complete, contradictions and unmapped decisions or requirements are absent, and no routable finding or open remediation remains.
+audited is the only successful terminal workflow status. It means every analyzed documentation, graph, ledger, result, review, remediation, and process correspondence is consistent with the constitution and specification on the exact snapshot.
 
 ## Graph surfaces
 
-The read-only app-graph MCP provides bounded dependency, impact, trace, ordering, workflow-state, and diagnostic queries. The app-graph-maintainer MCP exposes only graph_compile and process_record_event, and only when maintainer_enabled=true in the exact repository manifest.
+The read-only app-graph MCP provides bounded dependency, impact, trace, ordering, workflow-state, diagnostic, and current-boundary handoff queries. The app-graph-maintainer MCP exposes only graph_compile and process_record_event, and only when maintainer_enabled=true in the exact repository manifest.
 
-Graph dependencies and the topological plan determine work order. Pagination cursors are opaque and snapshot-bound; a decision query continues until no cursor remains.
+The closed workflow edge registry determines dependency direction, traversal, impact, cycle policy, and topological order. Pagination cursors are opaque and snapshot-bound; a decision query continues until no cursor remains.
 
 ## Managed deployment
 

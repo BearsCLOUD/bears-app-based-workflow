@@ -9,7 +9,9 @@ The plugin turns app intent into deterministic documentation, graph, plan, imple
 - Keep source documents, structured semantic records, ledger records, implementation refs, review records, process events, and evidence authoritative.
 - Treat traceability and process indexes as rebuildable projections.
 - Bind every stage handoff to one build ref, source snapshot digest, journal digest, and explicit source refs.
+- Record the outgoing payload digest in the stage event; after reconciliation derive the handoff identity and emit only when `app-graph.handoff_validate` accepts the current-boundary candidate.
 - Use contracts/app-workflow-definition.v3.json as the only stage and finding route registry.
+- Publish each complete immutable build bundle before atomically replacing the current-build pointer.
 - Derive work order from typed graph dependencies and the topological ledger plan.
 
 ## Stage authority
@@ -22,9 +24,11 @@ The plugin turns app intent into deterministic documentation, graph, plan, imple
 
 ## Stage flow
 
-The ordered stages are app-constitution, app-research, app-specify, app-functional-graph, app-plan, app-dev, and app-analyze.
+The ordered stages are app-constitution, app-research, app-specify, app-functional-graph, app-plan, app-dev, and app-analyze. Pre-plan events keep task scope empty; ordinary `plan-ready` establishes it and later events preserve it.
 
-app-analyze compares the exact documentation, graph, ledger, implementation refs, review records, and process records for logical correspondence. Its structured result names covered refs, contradictions, unmapped decisions or requirements, open remediation, findings, completeness, and one canonical route.
+app-analyze compares the exact documentation, graph, ledger, implementation refs, review records, remediation tasks, and process records for logical correspondence. Its structured result names covered refs, contradictions, unmapped decisions or requirements, open remediation tasks, findings, completeness, and one canonical route.
+
+A task-producing analysis routes to app-plan with `needs-plan`. app-plan creates tasks with `remediation_basis`, records terminal `needs-plan` without changing source-run scope, and starts one linked run containing only those tasks; no standalone remediation event exists.
 
 ## Seven dimensions
 
@@ -52,10 +56,8 @@ Every active requirement must map all seven dimensions or state a sourced not-ap
 | implemented, no-work | app-analyze |
 | audited, blocked | none |
 
-Route a missing source to needs-research, a product or decision conflict to needs-spec, a semantic or reference gap to needs-graph, a task or remediation gap to needs-plan, and an access, credential, or operator stop to blocked.
+Route a missing source to needs-research, a product or decision conflict to needs-spec, a semantic or reference gap to needs-graph, a task or remediation-task gap to needs-plan, and an access, credential, or operator stop to blocked.
 
 ## Terminal meaning
 
-audited means semantic and process consistency on one exact snapshot. It requires complete semantic analysis, zero logical contradictions, zero unmapped decisions, zero unmapped requirements, zero routable findings, and zero open remediation.
-
-The plugin workflow owns only this documentation-and-process conclusion. Product outcome decisions remain outside its authority.
+audited means every analyzed documentation, graph, ledger, result, review, remediation, and process correspondence is consistent with this constitution and the specification on one exact snapshot.

@@ -14,8 +14,8 @@ Effectiveness verdicts remain separate from workflow authority. improved, neutra
 | --- | --- |
 | eligible run | A native run with one repository, wave, owner mode, exact start snapshot, and complete observed record set. |
 | exact snapshot | One build ref bound to its source snapshot digest and journal digest. |
-| semantic convergence | The exact snapshot has complete app-analyze coverage with no contradiction, unmapped decision, unmapped requirement, routable finding, or open remediation. |
-| first-pass convergence | Semantic convergence without a remediation cycle. |
+| semantic convergence | The exact snapshot has complete app-analyze coverage with no contradiction, unmapped decision, unmapped requirement, routable finding, or open remediation task. |
+| first-pass convergence | Semantic convergence without a linked correction run. |
 | late reroute | A needs-research, needs-spec, needs-graph, or needs-plan route first emitted after its owning stage. |
 | seven-dimension coverage | The share of required behavior, dependency, state, api, data, integration, and error mappings that are sourced or explicitly not applicable. |
 | trace completeness | The share of active branches connected from specification through decision, requirement, functionality or behavior, task, implementation artifact, and evidence. |
@@ -45,7 +45,7 @@ A not-applicable result counts only when it carries a source-backed rationale.
 | Missing source | needs-research |
 | Product or decision conflict | needs-spec |
 | Semantic, reference, or cycle gap | needs-graph |
-| Task, implementation, evidence, review, or remediation gap | needs-plan |
+| Task, implementation, evidence, review, or remediation-task gap | needs-plan |
 | Credential, access, or explicit operator stop | blocked |
 
 The stage status mapping remains defined only by contracts/app-workflow-definition.v3.json. The assessment report records observed route correspondence but cannot create or change a route.
@@ -93,7 +93,7 @@ SEM-01, SEM-02, RTE-01, AUT-01, AUT-02, AUT-03, DET-01, DET-02, and OPS-01 requi
 8. Return inconclusive when any freeze field, digest, raw count, or baseline observation is absent or drifts.
 9. Publish limitations and suggested follow-up without changing workflow state.
 
-A useful reference set covers each route class, every dimension, DIRECT and DELEGATED ownership, an L3 boundary case, a source conflict, a graph gap, a remediation gap, and a blocker.
+A useful reference set covers each route class, every dimension, DIRECT and DELEGATED ownership, an L3 boundary case, a source conflict, a graph gap, a remediation-task gap, and a blocker.
 
 ## Verdict policy
 

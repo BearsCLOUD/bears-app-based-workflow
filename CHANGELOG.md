@@ -8,11 +8,12 @@ All notable changes to this plugin are documented in this file.
 - Assigned every DIRECT stage to the DIRECT primary and every DELEGATED stage to one persistent `repo-orchestrator` repo-L2 with a stable owner session.
 - Limited `workflow-orchestrator` L1 to native repository-lane coordination without stage, route, journal, or L3 authority.
 - Restricted L3 use to assignment-bounded dispatch through $subagents.
-- Defined app-analyze as agent-authored logical comparison of documentation, graph edges, ledger provenance, task results, immutable reviews, remediations, and process records.
-- Defined audited as documentation-and-process logical consistency only.
+- Defined app-analyze as agent-authored logical comparison of documentation, graph edges, ledger provenance, task results, immutable reviews, remediation tasks, and process records.
+- Defined audited as exact-snapshot semantic and process correspondence against the constitution and specification.
 - Added app-workflow-definition.v3, app-stage-handoff.v4, app-functional-map.v4, app-task-ledger.v3, app-process-event.v3, v4 indexes, and app-semantic-analysis-result.v1.
-- Replaced legacy evaluator surfaces and legacy proof metadata with native semantic-analysis and process records.
+- Replaced legacy evaluation surfaces and proof metadata with native semantic-analysis and process records.
 - Added exact task-result commit provenance, final-clean-review causality, canonical analysis input-set digests, and workflow-owned route reduction.
+- Added completed-result delegation provenance, task-spec digests, exact review ranges, linked-run lineage, closed edge semantics, and atomic immutable build publication.
 - Added the workflow-refactor-v5 wave, its source map, and a compact read-only effectiveness methodology with a sealed scoring key.
 - Retained bounded graph queries, immutable build receipts, opaque snapshot-bound cursors, and compare-and-swap publication.
 

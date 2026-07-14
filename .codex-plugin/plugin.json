@@ -27,7 +27,7 @@
   "interface": {
     "displayName": "Bears App-Based Workflow",
     "shortDescription": "DIRECT routing and bounded repo app waves.",
-    "longDescription": "Bears App-Based Workflow provides structured app stages, deterministic trace/process compilation, immutable process events, bounded dependency and impact queries, semantic correspondence analysis, graph-linked planning, repo-scoped orchestration, and remediation convergence.",
+    "longDescription": "Bears App-Based Workflow provides structured app stages, deterministic trace/process compilation, immutable process events, build-bound handoff validation, bounded graph queries, semantic correspondence analysis, graph-linked planning, repo-scoped orchestration, and linked correction runs.",
     "developerName": "BearsCLOUD",
     "category": "Development",
     "capabilities": [
@@ -37,7 +37,7 @@
       "Semantic correspondence analysis",
       "Opaque snapshot-bound pagination",
       "Graph-linked task ledger",
-      "Repo-scoped implementation and remediation",
+      "Repo-scoped work and linked correction",
       "CD-managed Codex graph instructions"
     ],
     "websiteURL": "https://github.com/BearsCLOUD/bears-app-based-workflow",

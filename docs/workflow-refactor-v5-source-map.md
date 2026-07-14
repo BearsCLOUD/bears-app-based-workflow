@@ -1,6 +1,6 @@
-# Workflow Refactor v5 Evidence
+# Workflow Refactor v5 Source Map
 
-This packet maps the full workflow architecture refactor to current repository sources. It records correspondence inputs and does not itself assert a terminal semantic result.
+This packet maps the full workflow architecture refactor to current repository sources. It is an implementation source map, not independent evidence and not a terminal semantic result.
 
 ## EVIDENCE-CONTRACTS
 
@@ -9,10 +9,10 @@ This packet maps the full workflow architecture refactor to current repository s
 | `contracts/app-workflow-definition.v3.json` | Stage order, ownership modes, status routes, finding routes, and terminal semantics |
 | `contracts/delegation-packets.v2.json` | Native L1 lane packet plus L3 dispatch, result, and app-task packet boundaries |
 | `contracts/app-functional-map.v4.schema.json` | Semantic entities, relations, seven-dimension mapping, and evidence refs |
-| `contracts/app-task-ledger.v3.schema.json` | Repository task ownership, dependency order, and implementation refs |
-| `contracts/app-process-event.v3.schema.json` | Stage-owner journal records, actor scope, causality, and analysis payload |
+| `contracts/app-task-ledger.v3.schema.json` | Repository task ownership, dependency order, implementation refs, and path-free retirement provenance |
+| `contracts/app-process-event.v3.schema.json` | Stage-owner journal records, owner sessions, causality, task-result provenance, immutable review, and analysis payload |
 | `contracts/app-stage-handoff.v4.schema.json` | Typed transient stage handoff and exact-snapshot fields |
-| `contracts/app-semantic-analysis-result.v1.schema.json` | Analysis basis, coverage, findings, completeness, and canonical route |
+| `contracts/app-semantic-analysis-result.v1.schema.json` | Analysis basis, categorized input-set digests, coverage, findings, completeness, and canonical route |
 | `contracts/app-traceability-index.v4.schema.json`; `contracts/app-process-index.v4.schema.json` | Build-bound semantic and process index shapes |
 
 ## EVIDENCE-RUNTIME
@@ -20,7 +20,7 @@ This packet maps the full workflow architecture refactor to current repository s
 | Source | Represented meaning |
 | --- | --- |
 | `scripts/app_graph_store.py` | Manifest, pointer, receipt, source, and journal storage boundary |
-| `scripts/app_graph_process.py` | Native process-record admission and lifecycle checks |
+| `scripts/app_graph_process.py` | Native process-record admission, owner-session continuity, result-review-handoff causality, and route reduction |
 | `scripts/app_graph_compiler.py` | Deterministic source and journal reconciliation into build-bound indexes |
 | `scripts/app_graph_query.py` | Bounded graph reads, opaque cursors, impact, dependency, plan, and workflow-state views |
 | `scripts/app_graph_mcp.py` | Read-only graph tools and manifest-gated maintainer tools |
@@ -42,14 +42,14 @@ Lane, L3, result, and handoff packets remain typed transient protocol inputs. On
 
 | Source | Represented meaning |
 | --- | --- |
-| `role-definitions/workflow-orchestrator.json` | L1 native repository-lane coordination without stage or L3 authority |
-| `role-definitions/domain-lane-orchestrator.json` | Persistent repo-L2 ownership of every DELEGATED app stage |
+| `role-definitions/workflow-orchestrator.json` | L1 `workflow-orchestrator` native repository-lane coordination without stage or L3 authority |
+| `role-definitions/domain-lane-orchestrator.json` | Persistent `repo-orchestrator` repo-L2 ownership of every DELEGATED app stage |
 | `role-definitions/capability-catalog.v1.json` | Closed skills, MCP tools, native tools, and request-user-input capability sets |
 | `role-definitions/*.json`; `agents/*.toml` | Authoritative role definitions and rendered installed profiles |
 | `agents/README.md` | `role_kind` authority, descriptive specialization, profile identity, and lane lifecycle |
 | `skills/subagents/SKILL.md`; `contracts/delegation-packets.v2.json`; `contracts/app-process-event.v3.schema.json` | L3 selection, exact profile binding, packet identity, session lifecycle, and represented `delegation_record` fields |
 
-L1 opens or continues a persistent repo-L2 through native collaboration with `repo-lane-dispatch.v1`. Only repo-L2 invokes L3, and it does so through `$subagents` with `dispatch-packet.v3`, `result-packet.v2`, and applicable `app-task-dispatch.v2`. The immutable v3 event stores only the represented delegation identity, not the transient packet bodies.
+L1 opens or continues a persistent repo-L2 through native collaboration with `repo-lane-dispatch.v1`. Only repo-L2 invokes L3, and it does so through `$subagents` with `dispatch-packet.v3`, `result-packet.v2`, and applicable `app-task-dispatch.v2`. The immutable v3 event stores the stable owner session and represented delegation identity, not the transient packet bodies.
 
 ## EVIDENCE-DOCS-GRAPH
 
@@ -62,7 +62,7 @@ L1 opens or continues a persistent repo-L2 through native collaboration with `re
 | `docs/app-graph-source-manifest.v1.json` | Opted-in structured-source and journal compilation boundary |
 | `docs/plugin-effectiveness-metrics-and-agent-audit-methodology.md` | Read-only effectiveness observation methodology |
 
-The structured app-analyze result must reconcile these sources on one exact build before a terminal status is selected.
+The structured app-analyze result must reconcile these sources, graph edges, task-result provenance, the final clean review, and independent evidence on one exact build before a terminal status is selected.
 
 ## EVIDENCE-DELIVERY
 
@@ -74,4 +74,4 @@ The structured app-analyze result must reconcile these sources on one exact buil
 | `docs/app-artifact-catalog.v2.json`; `docs/app-task-ledger.v3.json` | Exact refactor artifact coverage and bounded task ownership |
 | `docs/app-functional-map.v4.json`; `docs/app-graph-source-manifest.v1.json` | Semantic dependency model and opted-in source boundary |
 
-Bind this packet through an exact source ref in the final structured analysis input set. Keep delivery metadata and transient protocol traffic non-authoritative unless an opted-in structured source or native process record represents them.
+Bind this source map through the exact source-set digest in the final structured analysis input. Keep delivery metadata and transient protocol traffic non-authoritative unless an opted-in structured source or native process record represents them.

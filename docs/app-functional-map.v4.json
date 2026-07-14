@@ -1,7 +1,7 @@
 {
   "schema": "app-functional-map.v4",
   "app_id": "bears-app-based-workflow",
-  "revision": 5,
+  "revision": 6,
   "source_refs": [
     "waves/workflow-refactor-v5/spec.md",
     "waves/workflow-refactor-v5/research.md",
@@ -43,7 +43,7 @@
     {
       "ref": "DEC-OWNERSHIP-MODEL",
       "kind": "decision",
-      "title": "Role kind owns authority and persistent repo-L2 owns delegated stages",
+      "title": "Role kinds define authority and one owner session binds each repository lane",
       "scope": "workflow-refactor-v5",
       "active": true,
       "source_refs": [
@@ -60,7 +60,7 @@
     {
       "ref": "DEC-SEMANTIC-ANALYSIS",
       "kind": "decision",
-      "title": "app-analyze performs semantic correspondence analysis",
+      "title": "app-analyze reasons over exact documentation, graph, result, review, and process correspondence",
       "scope": "workflow-refactor-v5",
       "active": true,
       "source_refs": [
@@ -88,7 +88,7 @@
     {
       "ref": "DEC-SINGLE-ROUTE-REGISTRY",
       "kind": "decision",
-      "title": "The workflow contract is the only route registry",
+      "title": "The workflow contract is the only route and reduction registry",
       "scope": "workflow-refactor-v5",
       "active": true,
       "source_refs": [
@@ -103,7 +103,7 @@
     {
       "ref": "DEC-ASSESSMENT-SEPARATION",
       "kind": "decision",
-      "title": "Effectiveness assessment has no workflow authority",
+      "title": "Effectiveness assessment is read-only and uses a sealed scoring key",
       "scope": "workflow-refactor-v5",
       "active": true,
       "source_refs": [
@@ -231,7 +231,7 @@
     {
       "ref": "REQ-REPO-L2-OWNERSHIP",
       "kind": "requirement",
-      "title": "Persistent repository orchestration",
+      "title": "Persistent repository orchestration and owner-session continuity",
       "scope": "workflow-refactor-v5",
       "active": true,
       "source_refs": [
@@ -247,7 +247,7 @@
     {
       "ref": "FUNC-REPO-L2-OWNERSHIP",
       "kind": "functionality",
-      "title": "Persistent repository orchestration capability",
+      "title": "Persistent repository orchestration and owner-session capability",
       "scope": "workflow-refactor-v5",
       "active": true,
       "source_refs": [
@@ -519,7 +519,7 @@
     {
       "ref": "REQ-JOURNAL-OWNERSHIP",
       "kind": "requirement",
-      "title": "Stage-owner native process records",
+      "title": "Stage-owner native records with immutable result and review provenance",
       "scope": "workflow-refactor-v5",
       "active": true,
       "source_refs": [
@@ -533,7 +533,7 @@
     {
       "ref": "FUNC-JOURNAL-OWNERSHIP",
       "kind": "functionality",
-      "title": "Stage-owner native process records capability",
+      "title": "Stage-owner native record and provenance capability",
       "scope": "workflow-refactor-v5",
       "active": true,
       "source_refs": [
@@ -645,7 +645,7 @@
     {
       "ref": "REQ-ANALYSIS-SCOPE",
       "kind": "requirement",
-      "title": "Whole-snapshot correspondence analysis",
+      "title": "Whole-snapshot documentation and graph correspondence analysis",
       "scope": "workflow-refactor-v5",
       "active": true,
       "source_refs": [
@@ -661,7 +661,7 @@
     {
       "ref": "FUNC-ANALYSIS-SCOPE",
       "kind": "functionality",
-      "title": "Whole-snapshot correspondence analysis capability",
+      "title": "Whole-snapshot documentation and graph correspondence capability",
       "scope": "workflow-refactor-v5",
       "active": true,
       "source_refs": [
@@ -789,7 +789,7 @@
     {
       "ref": "REQ-ANALYSIS-RESULT",
       "kind": "requirement",
-      "title": "Typed semantic analysis result",
+      "title": "Typed bounded semantic analysis result",
       "scope": "workflow-refactor-v5",
       "active": true,
       "source_refs": [
@@ -802,7 +802,7 @@
     {
       "ref": "FUNC-ANALYSIS-RESULT",
       "kind": "functionality",
-      "title": "Typed semantic analysis result capability",
+      "title": "Typed bounded semantic analysis result capability",
       "scope": "workflow-refactor-v5",
       "active": true,
       "source_refs": [
@@ -1158,7 +1158,7 @@
     {
       "ref": "REQ-ROUTE-REGISTRY",
       "kind": "requirement",
-      "title": "Single deterministic route registry",
+      "title": "Single deterministic route and reduction registry",
       "scope": "workflow-refactor-v5",
       "active": true,
       "source_refs": [
@@ -1173,7 +1173,7 @@
     {
       "ref": "FUNC-ROUTE-REGISTRY",
       "kind": "functionality",
-      "title": "Single deterministic route registry capability",
+      "title": "Single deterministic route and reduction capability",
       "scope": "workflow-refactor-v5",
       "active": true,
       "source_refs": [
@@ -1293,7 +1293,7 @@
     {
       "ref": "REQ-EFFECTIVENESS-BOUNDARY",
       "kind": "requirement",
-      "title": "Read-only effectiveness assessment boundary",
+      "title": "Read-only effectiveness assessment with sealed scoring key",
       "scope": "workflow-refactor-v5",
       "active": true,
       "source_refs": [
@@ -1304,7 +1304,7 @@
     {
       "ref": "FUNC-EFFECTIVENESS-BOUNDARY",
       "kind": "functionality",
-      "title": "Read-only effectiveness assessment boundary capability",
+      "title": "Read-only sealed-key effectiveness assessment capability",
       "scope": "workflow-refactor-v5",
       "active": true,
       "source_refs": [

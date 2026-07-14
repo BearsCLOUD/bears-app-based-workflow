@@ -18,15 +18,17 @@ Define one workflow architecture across contracts, graph runtime, app stages, ro
 ## Findings
 
 1. Stage authority must remain uniform across the complete app-* sequence instead of changing at development.
-2. DELEGATED continuity requires one persistent repo-L2 from constitution through analysis.
-3. L1 must open and continue each repository lane through native collaboration with `repo-lane-dispatch.v1`.
+2. DELEGATED continuity requires one persistent repo-L2 of kind `repo-orchestrator` and one stable owner-session ref from constitution through analysis.
+3. L1 of kind `workflow-orchestrator` must only open and continue each repository lane through native collaboration with `repo-lane-dispatch.v1`.
 4. Repo-L2 must dispatch each L3 assignment only through `$subagents` with `dispatch-packet.v3`, `result-packet.v2`, and, for app-worker mutation, `app-task-dispatch.v2`.
 5. Lane, dispatch, result, and handoff packets are typed transient protocol inputs; only the L3 identity fields represented by an immutable v3 event `delegation_record` become durable graph evidence.
-6. Runtime graph operations establish structural correspondence, while app-analyze interprets logical correspondence across linked documentation and records.
-7. `audited` can represent only complete semantic and process consistency on one exact snapshot.
-8. A compact effectiveness methodology must observe the workflow without gaining route, journal, or mutation authority.
-9. Human documentation must use the same seven dimensions and deterministic route vocabulary as the machine-readable workflow.
+6. Runtime graph operations establish structural correspondence, while app-analyze interprets logical correspondence across linked documentation, graph edges, result provenance, reviews, remediations, and records.
+7. The implemented path requires complete task results, one final clean immutable review, one repo handoff, and then analysis; canonical `no-work` originates at app-plan.
+8. Large exact input sets require canonical count-and-digest bindings rather than unbounded event payloads.
+9. `audited` can represent only complete semantic and process consistency on one exact snapshot.
+10. A compact effectiveness methodology must observe the workflow without gaining route, journal, or mutation authority and must hide its sealed scoring key from the assessed agent.
+11. Human documentation must use the same seven dimensions and deterministic route vocabulary as the machine-readable workflow.
 
 ## Decision
 
-Refactor contracts, graph lifecycle, stage procedures, role authority, documentation, structured graph sources, and delivery metadata as one versioned architecture cutover. Preserve native L1-to-repo-L2 lane coordination, L3-only `$subagents` dispatch, stage-owner journal authority, exact-snapshot analysis, and explicit representation boundaries for transient protocol inputs.
+Refactor contracts, graph lifecycle, stage procedures, role authority, documentation, structured graph sources, and delivery metadata as one versioned architecture cutover. Preserve native L1-to-repo-L2 lane coordination, stable owner sessions, L3-only `$subagents` dispatch, stage-owner journal authority, immutable review provenance, exact-snapshot analysis, sealed assessment keys, and explicit representation boundaries for transient protocol inputs.

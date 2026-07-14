@@ -18,6 +18,7 @@ Use the exact target paths, implementation refs, evidence refs, and queue sequen
 - Every ledger target is represented by one exact catalog ref and one owning task.
 - Every app stage uses the same mode-bound owner and deterministic route vocabulary.
 - Every active requirement maps all seven dimensions with kind-compatible evidence.
-- Every native event preserves owner, causal, task, trace, and artifact correspondence.
+- Every native event preserves owner-session, causal, task, trace, artifact, commit, and review correspondence.
 - The exact-snapshot semantic result has no contradictions, gaps, unmapped refs, or open remediation.
-- The effectiveness assessment remains read-only and outside workflow authority.
+- The semantic result binds every categorized input set by an exact count and canonical digest.
+- The effectiveness assessment remains read-only, keeps its scoring key sealed, and remains outside workflow authority.

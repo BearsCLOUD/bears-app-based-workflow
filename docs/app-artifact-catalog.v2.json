@@ -1,7 +1,7 @@
 {
   "schema": "app-artifact-catalog.v2",
   "app_id": "bears-app-based-workflow",
-  "revision": 3,
+  "revision": 4,
   "artifacts": [
     {
       "ref": "ART-WORKFLOW-DEFINITION",
@@ -324,9 +324,9 @@
       "path": "docs/app-graph-source-manifest.v1.json"
     },
     {
-      "ref": "ART-DOCS-WORKFLOW-REFACTOR-V5-EVIDENCE",
+      "ref": "ART-DOCS-WORKFLOW-REFACTOR-V5-SOURCE-MAP",
       "kind": "document",
-      "path": "docs/workflow-refactor-v5-evidence.md"
+      "path": "docs/workflow-refactor-v5-source-map.md"
     },
     {
       "ref": "ART-ROLE-DEFINITIONS-APP-WORKER",
@@ -496,32 +496,32 @@
     {
       "ref": "EVIDENCE-CONTRACTS",
       "kind": "evidence",
-      "path": "docs/workflow-refactor-v5-evidence.md"
+      "path": "docs/workflow-refactor-v5-source-map.md"
     },
     {
       "ref": "EVIDENCE-RUNTIME",
       "kind": "evidence",
-      "path": "docs/workflow-refactor-v5-evidence.md"
+      "path": "docs/workflow-refactor-v5-source-map.md"
     },
     {
       "ref": "EVIDENCE-STAGES",
       "kind": "evidence",
-      "path": "docs/workflow-refactor-v5-evidence.md"
+      "path": "docs/workflow-refactor-v5-source-map.md"
     },
     {
       "ref": "EVIDENCE-ROLES",
       "kind": "evidence",
-      "path": "docs/workflow-refactor-v5-evidence.md"
+      "path": "docs/workflow-refactor-v5-source-map.md"
     },
     {
       "ref": "EVIDENCE-DOCS-GRAPH",
       "kind": "evidence",
-      "path": "docs/workflow-refactor-v5-evidence.md"
+      "path": "docs/workflow-refactor-v5-source-map.md"
     },
     {
       "ref": "EVIDENCE-DELIVERY",
       "kind": "evidence",
-      "path": "docs/workflow-refactor-v5-evidence.md"
+      "path": "docs/workflow-refactor-v5-source-map.md"
     }
   ]
 }

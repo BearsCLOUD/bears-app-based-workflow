@@ -1,7 +1,7 @@
 {
   "schema": "app-task-ledger.v3",
   "app_id": "bears-app-based-workflow",
-  "revision": 4,
+  "revision": 5,
   "tasks": [
     {
       "task_id": "TASK-WF5-CONTRACTS",
@@ -77,6 +77,9 @@
       ],
       "evidence_refs": [
         "EVIDENCE-CONTRACTS"
+      ],
+      "retirement_commit_refs": [
+        "1bd9a21e6cbc5037632a5b25007b4c8dc63f36bb"
       ]
     },
     {
@@ -137,6 +140,9 @@
       ],
       "evidence_refs": [
         "EVIDENCE-RUNTIME"
+      ],
+      "retirement_commit_refs": [
+        "383993334128c3fc0208777e79efeff3523dc055"
       ]
     },
     {
@@ -253,6 +259,9 @@
       ],
       "evidence_refs": [
         "EVIDENCE-STAGES"
+      ],
+      "retirement_commit_refs": [
+        "b48c00042ffaf8ec86c8ae9209761227c39453c6"
       ]
     },
     {
@@ -365,6 +374,9 @@
       ],
       "evidence_refs": [
         "EVIDENCE-ROLES"
+      ],
+      "retirement_commit_refs": [
+        "c9864b1cd6d4509d13f046f73e7dd025aeafdc76"
       ]
     },
     {
@@ -406,7 +418,7 @@
         "docs/app-graph-source-manifest.v1.json",
         "docs/app-task-ledger.v3.json",
         "docs/plugin-effectiveness-metrics-and-agent-audit-methodology.md",
-        "docs/workflow-refactor-v5-evidence.md",
+        "docs/workflow-refactor-v5-source-map.md",
         "waves/index.md",
         "waves/workflow-refactor-v5/analysis.md",
         "waves/workflow-refactor-v5/plan.md",
@@ -424,7 +436,7 @@
         "docs/app-graph-source-manifest.v1.json",
         "docs/app-task-ledger.v3.json",
         "docs/plugin-effectiveness-metrics-and-agent-audit-methodology.md",
-        "docs/workflow-refactor-v5-evidence.md",
+        "docs/workflow-refactor-v5-source-map.md",
         "waves/index.md",
         "waves/workflow-refactor-v5/analysis.md",
         "waves/workflow-refactor-v5/plan.md",
@@ -448,7 +460,7 @@
         "ART-DOCS-APP-GRAPH-SOURCE-MANIFEST-V1",
         "ART-TASK-LEDGER",
         "ART-METHODOLOGY",
-        "ART-DOCS-WORKFLOW-REFACTOR-V5-EVIDENCE",
+        "ART-DOCS-WORKFLOW-REFACTOR-V5-SOURCE-MAP",
         "ART-WAVES-INDEX",
         "ART-WAVES-WORKFLOW-REFACTOR-V5-ANALYSIS",
         "ART-WAVES-WORKFLOW-REFACTOR-V5-PLAN",
@@ -457,6 +469,10 @@
       ],
       "evidence_refs": [
         "EVIDENCE-DOCS-GRAPH"
+      ],
+      "retirement_commit_refs": [
+        "1244aa986d5cae989a5f2a6ea4f963263c3ba338",
+        "9d1d1f2a8df86603fc10e0dfc69a18f4218f2fc8"
       ]
     },
     {
@@ -517,6 +533,9 @@
       ],
       "evidence_refs": [
         "EVIDENCE-DELIVERY"
+      ],
+      "retirement_commit_refs": [
+        "353f01c3284919b256d87a9c4b86e01b10394ed6"
       ]
     }
   ]

@@ -1,0 +1,527 @@
+{
+  "schema": "app-artifact-catalog.v2",
+  "app_id": "bears-app-based-workflow",
+  "revision": 3,
+  "artifacts": [
+    {
+      "ref": "ART-WORKFLOW-DEFINITION",
+      "kind": "configuration",
+      "path": "contracts/app-workflow-definition.v3.json"
+    },
+    {
+      "ref": "ART-FUNCTIONAL-SCHEMA",
+      "kind": "configuration",
+      "path": "contracts/app-functional-map.v4.schema.json"
+    },
+    {
+      "ref": "ART-LEDGER-SCHEMA",
+      "kind": "configuration",
+      "path": "contracts/app-task-ledger.v3.schema.json"
+    },
+    {
+      "ref": "ART-EVENT-SCHEMA",
+      "kind": "configuration",
+      "path": "contracts/app-process-event.v3.schema.json"
+    },
+    {
+      "ref": "ART-HANDOFF-SCHEMA",
+      "kind": "configuration",
+      "path": "contracts/app-stage-handoff.v4.schema.json"
+    },
+    {
+      "ref": "ART-ANALYSIS-SCHEMA",
+      "kind": "configuration",
+      "path": "contracts/app-semantic-analysis-result.v1.schema.json"
+    },
+    {
+      "ref": "ART-DELEGATION-CONTRACT",
+      "kind": "configuration",
+      "path": "contracts/delegation-packets.v2.json"
+    },
+    {
+      "ref": "ART-GRAPH-COMPILER",
+      "kind": "code",
+      "path": "scripts/app_graph_compiler.py"
+    },
+    {
+      "ref": "ART-GRAPH-STORE",
+      "kind": "code",
+      "path": "scripts/app_graph_store.py"
+    },
+    {
+      "ref": "ART-GRAPH-PROCESS",
+      "kind": "code",
+      "path": "scripts/app_graph_process.py"
+    },
+    {
+      "ref": "ART-GRAPH-QUERY",
+      "kind": "code",
+      "path": "scripts/app_graph_query.py"
+    },
+    {
+      "ref": "ART-GRAPH-ENGINE",
+      "kind": "code",
+      "path": "scripts/app_graph_engine.py"
+    },
+    {
+      "ref": "ART-GRAPH-MCP",
+      "kind": "code",
+      "path": "scripts/app_graph_mcp.py"
+    },
+    {
+      "ref": "ART-SKILL-ANALYZE",
+      "kind": "document",
+      "path": "skills/app-analyze/SKILL.md"
+    },
+    {
+      "ref": "ART-SKILL-DEV",
+      "kind": "document",
+      "path": "skills/app-dev/SKILL.md"
+    },
+    {
+      "ref": "ART-SKILL-PLAN",
+      "kind": "document",
+      "path": "skills/app-plan/SKILL.md"
+    },
+    {
+      "ref": "ART-SKILL-SUBAGENTS",
+      "kind": "document",
+      "path": "skills/subagents/SKILL.md"
+    },
+    {
+      "ref": "ART-SKILL-SOLO",
+      "kind": "document",
+      "path": "skills/app-solo-route/SKILL.md"
+    },
+    {
+      "ref": "ART-SKILL-RESEARCH",
+      "kind": "document",
+      "path": "skills/app-research/SKILL.md"
+    },
+    {
+      "ref": "ART-SKILL-SPECIFY",
+      "kind": "document",
+      "path": "skills/app-specify/SKILL.md"
+    },
+    {
+      "ref": "ART-SKILL-FUNCTIONAL",
+      "kind": "document",
+      "path": "skills/app-functional-graph/SKILL.md"
+    },
+    {
+      "ref": "ART-ROLE-DOMAIN-L2",
+      "kind": "configuration",
+      "path": "role-definitions/domain-lane-orchestrator.json"
+    },
+    {
+      "ref": "ART-ROLE-WORKFLOW-L1",
+      "kind": "configuration",
+      "path": "role-definitions/workflow-orchestrator.json"
+    },
+    {
+      "ref": "ART-ROLE-GRAPH-READER",
+      "kind": "configuration",
+      "path": "role-definitions/graph-evidence-reader.json"
+    },
+    {
+      "ref": "ART-ROLE-CATALOG",
+      "kind": "configuration",
+      "path": "role-definitions/capability-catalog.v1.json"
+    },
+    {
+      "ref": "ART-ROLE-RENDERER",
+      "kind": "code",
+      "path": ".github/runner/bears_deploy/role_renderer.py"
+    },
+    {
+      "ref": "ART-FUNCTIONAL-MAP",
+      "kind": "configuration",
+      "path": "docs/app-functional-map.v4.json"
+    },
+    {
+      "ref": "ART-TASK-LEDGER",
+      "kind": "configuration",
+      "path": "docs/app-task-ledger.v3.json"
+    },
+    {
+      "ref": "ART-ARTIFACT-CATALOG",
+      "kind": "configuration",
+      "path": "docs/app-artifact-catalog.v2.json"
+    },
+    {
+      "ref": "ART-METHODOLOGY",
+      "kind": "document",
+      "path": "docs/plugin-effectiveness-metrics-and-agent-audit-methodology.md"
+    },
+    {
+      "ref": "ART-WAVE-SPEC",
+      "kind": "document",
+      "path": "waves/workflow-refactor-v5/spec.md"
+    },
+    {
+      "ref": "ART-CONSTITUTION",
+      "kind": "document",
+      "path": "docs/app-constitution.md"
+    },
+    {
+      "ref": "ART-MANAGED-INSTRUCTIONS",
+      "kind": "document",
+      "path": "assets/codex-home-graph-instructions.md"
+    },
+    {
+      "ref": "ART-PLUGIN-METADATA",
+      "kind": "configuration",
+      "path": ".codex-plugin/plugin.json"
+    },
+    {
+      "ref": "ART-INSTALLER",
+      "kind": "code",
+      "path": "install"
+    },
+    {
+      "ref": "ART-RUNNER-INSTALLER",
+      "kind": "code",
+      "path": ".github/runner/install-runner.sh"
+    },
+    {
+      "ref": "ART-AGENTS-PLUGINS-MARKETPLACE",
+      "kind": "configuration",
+      "path": ".agents/plugins/marketplace.json"
+    },
+    {
+      "ref": "ART-GITHUB-RUNNER-README",
+      "kind": "document",
+      "path": ".github/runner/README.md"
+    },
+    {
+      "ref": "ART-GITHUB-RUNNER-BEARS-DEPLOY-GRAPH-INSTRUCTIONS",
+      "kind": "code",
+      "path": ".github/runner/bears_deploy/graph_instructions.py"
+    },
+    {
+      "ref": "ART-GITHUB-RUNNER-DEPLOY-PLUGIN",
+      "kind": "code",
+      "path": ".github/runner/deploy_plugin.py"
+    },
+    {
+      "ref": "ART-GITIGNORE",
+      "kind": "configuration",
+      "path": ".gitignore"
+    },
+    {
+      "ref": "ART-AGENTS",
+      "kind": "document",
+      "path": "AGENTS.md"
+    },
+    {
+      "ref": "ART-CHANGELOG",
+      "kind": "document",
+      "path": "CHANGELOG.md"
+    },
+    {
+      "ref": "ART-README",
+      "kind": "document",
+      "path": "README.md"
+    },
+    {
+      "ref": "ART-AGENTS-README",
+      "kind": "document",
+      "path": "agents/README.md"
+    },
+    {
+      "ref": "ART-AGENTS-APP-WORKER",
+      "kind": "configuration",
+      "path": "agents/app-worker.toml"
+    },
+    {
+      "ref": "ART-AGENTS-DIAGNOSTIC-COMMAND-RUNNER",
+      "kind": "configuration",
+      "path": "agents/diagnostic-command-runner.toml"
+    },
+    {
+      "ref": "ART-AGENTS-DOMAIN-LANE-ORCHESTRATOR",
+      "kind": "configuration",
+      "path": "agents/domain-lane-orchestrator.toml"
+    },
+    {
+      "ref": "ART-AGENTS-EXPLORER",
+      "kind": "configuration",
+      "path": "agents/explorer.toml"
+    },
+    {
+      "ref": "ART-AGENTS-GRAPH-EVIDENCE-READER",
+      "kind": "configuration",
+      "path": "agents/graph-evidence-reader.toml"
+    },
+    {
+      "ref": "ART-AGENTS-PRIMARY-SOURCE-RESEARCHER",
+      "kind": "configuration",
+      "path": "agents/primary-source-researcher.toml"
+    },
+    {
+      "ref": "ART-AGENTS-ROLE-PROFILE-ARCHITECT",
+      "kind": "configuration",
+      "path": "agents/role-profile-architect.toml"
+    },
+    {
+      "ref": "ART-AGENTS-WAVE-CHANGE-CRITIC",
+      "kind": "configuration",
+      "path": "agents/wave-change-critic.toml"
+    },
+    {
+      "ref": "ART-AGENTS-WORKER",
+      "kind": "configuration",
+      "path": "agents/worker.toml"
+    },
+    {
+      "ref": "ART-AGENTS-WORKFLOW-ORCHESTRATOR",
+      "kind": "configuration",
+      "path": "agents/workflow-orchestrator.toml"
+    },
+    {
+      "ref": "ART-CONTRACTS-APP-ARTIFACT-CATALOG-V2",
+      "kind": "configuration",
+      "path": "contracts/app-artifact-catalog.v2.schema.json"
+    },
+    {
+      "ref": "ART-CONTRACTS-APP-CONTEXT-INDEX-RESULT-V2",
+      "kind": "configuration",
+      "path": "contracts/app-context-index-result.v2.schema.json"
+    },
+    {
+      "ref": "ART-CONTRACTS-APP-GRAPH-COMPILE-RESULT-V2",
+      "kind": "configuration",
+      "path": "contracts/app-graph-compile-result.v2.schema.json"
+    },
+    {
+      "ref": "ART-CONTRACTS-APP-GRAPH-SOURCE-MANIFEST-V1",
+      "kind": "configuration",
+      "path": "contracts/app-graph-source-manifest.v1.schema.json"
+    },
+    {
+      "ref": "ART-CONTRACTS-APP-PROCESS-INDEX-V4",
+      "kind": "configuration",
+      "path": "contracts/app-process-index.v4.schema.json"
+    },
+    {
+      "ref": "ART-CONTRACTS-APP-ROLE-CAPABILITY-CATALOG-V1",
+      "kind": "configuration",
+      "path": "contracts/app-role-capability-catalog.v1.schema.json"
+    },
+    {
+      "ref": "ART-CONTRACTS-APP-ROLE-PROFILE-DEFINITION-V1",
+      "kind": "configuration",
+      "path": "contracts/app-role-profile-definition.v1.schema.json"
+    },
+    {
+      "ref": "ART-CONTRACTS-APP-TRACEABILITY-INDEX-V4",
+      "kind": "configuration",
+      "path": "contracts/app-traceability-index.v4.schema.json"
+    },
+    {
+      "ref": "ART-DOCS-APP-GRAPH-SOURCE-MANIFEST-V1",
+      "kind": "configuration",
+      "path": "docs/app-graph-source-manifest.v1.json"
+    },
+    {
+      "ref": "ART-DOCS-WORKFLOW-REFACTOR-V5-EVIDENCE",
+      "kind": "document",
+      "path": "docs/workflow-refactor-v5-evidence.md"
+    },
+    {
+      "ref": "ART-ROLE-DEFINITIONS-APP-WORKER",
+      "kind": "configuration",
+      "path": "role-definitions/app-worker.json"
+    },
+    {
+      "ref": "ART-ROLE-DEFINITIONS-DIAGNOSTIC-COMMAND-RUNNER",
+      "kind": "configuration",
+      "path": "role-definitions/diagnostic-command-runner.json"
+    },
+    {
+      "ref": "ART-ROLE-DEFINITIONS-EXPLORER",
+      "kind": "configuration",
+      "path": "role-definitions/explorer.json"
+    },
+    {
+      "ref": "ART-ROLE-DEFINITIONS-PRIMARY-SOURCE-RESEARCHER",
+      "kind": "configuration",
+      "path": "role-definitions/primary-source-researcher.json"
+    },
+    {
+      "ref": "ART-ROLE-DEFINITIONS-ROLE-PROFILE-ARCHITECT",
+      "kind": "configuration",
+      "path": "role-definitions/role-profile-architect.json"
+    },
+    {
+      "ref": "ART-ROLE-DEFINITIONS-WAVE-CHANGE-CRITIC",
+      "kind": "configuration",
+      "path": "role-definitions/wave-change-critic.json"
+    },
+    {
+      "ref": "ART-ROLE-DEFINITIONS-WORKER",
+      "kind": "configuration",
+      "path": "role-definitions/worker.json"
+    },
+    {
+      "ref": "ART-SCRIPTS-README",
+      "kind": "document",
+      "path": "scripts/README.md"
+    },
+    {
+      "ref": "ART-SKILLS-APP-ANALYZE-AGENTS-OPENAI",
+      "kind": "configuration",
+      "path": "skills/app-analyze/agents/openai.yaml"
+    },
+    {
+      "ref": "ART-SKILLS-APP-CONSTITUTION-SKILL",
+      "kind": "document",
+      "path": "skills/app-constitution/SKILL.md"
+    },
+    {
+      "ref": "ART-SKILLS-APP-CONSTITUTION-AGENTS-OPENAI",
+      "kind": "configuration",
+      "path": "skills/app-constitution/agents/openai.yaml"
+    },
+    {
+      "ref": "ART-SKILLS-APP-CONTEXT-INDEX-SKILL",
+      "kind": "document",
+      "path": "skills/app-context-index/SKILL.md"
+    },
+    {
+      "ref": "ART-SKILLS-APP-DEV-AGENTS-OPENAI",
+      "kind": "configuration",
+      "path": "skills/app-dev/agents/openai.yaml"
+    },
+    {
+      "ref": "ART-SKILLS-APP-FUNCTIONAL-GRAPH-AGENTS-OPENAI",
+      "kind": "configuration",
+      "path": "skills/app-functional-graph/agents/openai.yaml"
+    },
+    {
+      "ref": "ART-SKILLS-APP-GRAPH-COMPILE-SKILL",
+      "kind": "document",
+      "path": "skills/app-graph-compile/SKILL.md"
+    },
+    {
+      "ref": "ART-SKILLS-APP-PLAN-AGENTS-OPENAI",
+      "kind": "configuration",
+      "path": "skills/app-plan/agents/openai.yaml"
+    },
+    {
+      "ref": "ART-SKILLS-APP-RESEARCH-AGENTS-OPENAI",
+      "kind": "configuration",
+      "path": "skills/app-research/agents/openai.yaml"
+    },
+    {
+      "ref": "ART-SKILLS-APP-SOLO-ROUTE-AGENTS-OPENAI",
+      "kind": "configuration",
+      "path": "skills/app-solo-route/agents/openai.yaml"
+    },
+    {
+      "ref": "ART-SKILLS-APP-SPECIFY-AGENTS-OPENAI",
+      "kind": "configuration",
+      "path": "skills/app-specify/agents/openai.yaml"
+    },
+    {
+      "ref": "ART-SKILLS-INSTRUCTION-HARDENING-SKILL",
+      "kind": "document",
+      "path": "skills/instruction-hardening/SKILL.md"
+    },
+    {
+      "ref": "ART-SKILLS-INSTRUCTION-HARDENING-AGENTS-OPENAI",
+      "kind": "configuration",
+      "path": "skills/instruction-hardening/agents/openai.yaml"
+    },
+    {
+      "ref": "ART-SKILLS-ROLE-PROFILE-MAINTENANCE-SKILL",
+      "kind": "document",
+      "path": "skills/role-profile-maintenance/SKILL.md"
+    },
+    {
+      "ref": "ART-SKILLS-ROLE-PROFILE-MAINTENANCE-AGENTS-OPENAI",
+      "kind": "configuration",
+      "path": "skills/role-profile-maintenance/agents/openai.yaml"
+    },
+    {
+      "ref": "ART-SKILLS-SUBAGENTS-AGENTS-OPENAI",
+      "kind": "configuration",
+      "path": "skills/subagents/agents/openai.yaml"
+    },
+    {
+      "ref": "ART-WAVES-INDEX",
+      "kind": "document",
+      "path": "waves/index.md"
+    },
+    {
+      "ref": "ART-WAVES-WORKFLOW-REFACTOR-V5-ANALYSIS",
+      "kind": "document",
+      "path": "waves/workflow-refactor-v5/analysis.md"
+    },
+    {
+      "ref": "ART-WAVES-WORKFLOW-REFACTOR-V5-PLAN",
+      "kind": "document",
+      "path": "waves/workflow-refactor-v5/plan.md"
+    },
+    {
+      "ref": "ART-WAVES-WORKFLOW-REFACTOR-V5-RESEARCH",
+      "kind": "document",
+      "path": "waves/workflow-refactor-v5/research.md"
+    },
+    {
+      "ref": "ART-BUILD-RECEIPT-SCHEMA",
+      "kind": "configuration",
+      "path": "contracts/app-index-build.v1.schema.json"
+    },
+    {
+      "ref": "ART-CURRENT-POINTER-SCHEMA",
+      "kind": "configuration",
+      "path": "contracts/app-index-current.v1.schema.json"
+    },
+    {
+      "ref": "ART-GRAPH-MCP-CONFIG",
+      "kind": "configuration",
+      "path": ".mcp.json"
+    },
+    {
+      "ref": "ART-PUBLICATION-WORKFLOW",
+      "kind": "configuration",
+      "path": ".github/workflows/plugin-marketplace-cd.yml"
+    },
+    {
+      "ref": "ART-ROLE-RENDERER-ENTRY",
+      "kind": "code",
+      "path": "scripts/role_profile_renderer.py"
+    },
+    {
+      "ref": "EVIDENCE-CONTRACTS",
+      "kind": "evidence",
+      "path": "docs/workflow-refactor-v5-evidence.md"
+    },
+    {
+      "ref": "EVIDENCE-RUNTIME",
+      "kind": "evidence",
+      "path": "docs/workflow-refactor-v5-evidence.md"
+    },
+    {
+      "ref": "EVIDENCE-STAGES",
+      "kind": "evidence",
+      "path": "docs/workflow-refactor-v5-evidence.md"
+    },
+    {
+      "ref": "EVIDENCE-ROLES",
+      "kind": "evidence",
+      "path": "docs/workflow-refactor-v5-evidence.md"
+    },
+    {
+      "ref": "EVIDENCE-DOCS-GRAPH",
+      "kind": "evidence",
+      "path": "docs/workflow-refactor-v5-evidence.md"
+    },
+    {
+      "ref": "EVIDENCE-DELIVERY",
+      "kind": "evidence",
+      "path": "docs/workflow-refactor-v5-evidence.md"
+    }
+  ]
+}

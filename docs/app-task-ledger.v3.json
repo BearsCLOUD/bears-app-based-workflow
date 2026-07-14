@@ -1,0 +1,523 @@
+{
+  "schema": "app-task-ledger.v3",
+  "app_id": "bears-app-based-workflow",
+  "revision": 4,
+  "tasks": [
+    {
+      "task_id": "TASK-WF5-CONTRACTS",
+      "repo_ref": "bears-app-based-workflow",
+      "wave_id": "workflow-refactor-v5",
+      "owner_role": "DIRECT-primary",
+      "decision_state": "closed",
+      "status": "done",
+      "queue_sequence": 10,
+      "task_kind": "graph",
+      "requirement_refs": [
+        "REQ-SEVEN-DIMENSIONS",
+        "REQ-ROUTE-REGISTRY",
+        "REQ-ANALYSIS-RESULT"
+      ],
+      "functionality_refs": [
+        "FUNC-SEVEN-DIMENSIONS",
+        "FUNC-ROUTE-REGISTRY",
+        "FUNC-ANALYSIS-RESULT"
+      ],
+      "graph_entity_refs": [
+        "DEC-TYPED-DIMENSIONS",
+        "DEC-SINGLE-ROUTE-REGISTRY",
+        "DEC-SEMANTIC-ANALYSIS"
+      ],
+      "target_paths": [
+        "contracts/app-artifact-catalog.v2.schema.json",
+        "contracts/app-context-index-result.v2.schema.json",
+        "contracts/app-functional-map.v4.schema.json",
+        "contracts/app-graph-compile-result.v2.schema.json",
+        "contracts/app-graph-source-manifest.v1.schema.json",
+        "contracts/app-process-event.v3.schema.json",
+        "contracts/app-process-index.v4.schema.json",
+        "contracts/app-semantic-analysis-result.v1.schema.json",
+        "contracts/app-stage-handoff.v4.schema.json",
+        "contracts/app-task-ledger.v3.schema.json",
+        "contracts/app-traceability-index.v4.schema.json",
+        "contracts/app-workflow-definition.v3.json",
+        "contracts/delegation-packets.v2.json"
+      ],
+      "allowed_files": [
+        "contracts/app-artifact-catalog.v2.schema.json",
+        "contracts/app-context-index-result.v2.schema.json",
+        "contracts/app-functional-map.v4.schema.json",
+        "contracts/app-graph-compile-result.v2.schema.json",
+        "contracts/app-graph-source-manifest.v1.schema.json",
+        "contracts/app-process-event.v3.schema.json",
+        "contracts/app-process-index.v4.schema.json",
+        "contracts/app-semantic-analysis-result.v1.schema.json",
+        "contracts/app-stage-handoff.v4.schema.json",
+        "contracts/app-task-ledger.v3.schema.json",
+        "contracts/app-traceability-index.v4.schema.json",
+        "contracts/app-workflow-definition.v3.json",
+        "contracts/delegation-packets.v2.json"
+      ],
+      "depends_on": [],
+      "definition_of_done": "Versioned contracts encode one authority, route, graph, process, and analysis model.",
+      "proof_requirement": "Contract refs and graph mappings agree on the v3/v4 cutover.",
+      "implementation_refs": [
+        "ART-CONTRACTS-APP-ARTIFACT-CATALOG-V2",
+        "ART-CONTRACTS-APP-CONTEXT-INDEX-RESULT-V2",
+        "ART-FUNCTIONAL-SCHEMA",
+        "ART-CONTRACTS-APP-GRAPH-COMPILE-RESULT-V2",
+        "ART-CONTRACTS-APP-GRAPH-SOURCE-MANIFEST-V1",
+        "ART-EVENT-SCHEMA",
+        "ART-CONTRACTS-APP-PROCESS-INDEX-V4",
+        "ART-ANALYSIS-SCHEMA",
+        "ART-HANDOFF-SCHEMA",
+        "ART-LEDGER-SCHEMA",
+        "ART-CONTRACTS-APP-TRACEABILITY-INDEX-V4",
+        "ART-WORKFLOW-DEFINITION",
+        "ART-DELEGATION-CONTRACT"
+      ],
+      "evidence_refs": [
+        "EVIDENCE-CONTRACTS"
+      ]
+    },
+    {
+      "task_id": "TASK-WF5-GRAPH-RUNTIME",
+      "repo_ref": "bears-app-based-workflow",
+      "wave_id": "workflow-refactor-v5",
+      "owner_role": "DIRECT-primary",
+      "decision_state": "closed",
+      "status": "done",
+      "queue_sequence": 20,
+      "task_kind": "implementation",
+      "requirement_refs": [
+        "REQ-JOURNAL-OWNERSHIP",
+        "REQ-SEVEN-DIMENSIONS",
+        "REQ-ROUTE-REGISTRY"
+      ],
+      "functionality_refs": [
+        "FUNC-JOURNAL-OWNERSHIP",
+        "FUNC-SEVEN-DIMENSIONS",
+        "FUNC-ROUTE-REGISTRY"
+      ],
+      "graph_entity_refs": [
+        "DEC-OWNERSHIP-MODEL",
+        "DEC-TYPED-DIMENSIONS",
+        "DEC-SINGLE-ROUTE-REGISTRY"
+      ],
+      "target_paths": [
+        "scripts/README.md",
+        "scripts/app_graph_compiler.py",
+        "scripts/app_graph_engine.py",
+        "scripts/app_graph_mcp.py",
+        "scripts/app_graph_process.py",
+        "scripts/app_graph_query.py",
+        "scripts/app_graph_store.py"
+      ],
+      "allowed_files": [
+        "scripts/README.md",
+        "scripts/app_graph_compiler.py",
+        "scripts/app_graph_engine.py",
+        "scripts/app_graph_mcp.py",
+        "scripts/app_graph_process.py",
+        "scripts/app_graph_query.py",
+        "scripts/app_graph_store.py"
+      ],
+      "depends_on": [
+        "TASK-WF5-CONTRACTS"
+      ],
+      "definition_of_done": "Compiler, query, and process surfaces enforce the active versioned graph model.",
+      "proof_requirement": "A build receipt binds the v4 indexes to exact source and journal digests.",
+      "implementation_refs": [
+        "ART-SCRIPTS-README",
+        "ART-GRAPH-COMPILER",
+        "ART-GRAPH-ENGINE",
+        "ART-GRAPH-MCP",
+        "ART-GRAPH-PROCESS",
+        "ART-GRAPH-QUERY",
+        "ART-GRAPH-STORE"
+      ],
+      "evidence_refs": [
+        "EVIDENCE-RUNTIME"
+      ]
+    },
+    {
+      "task_id": "TASK-WF5-STAGES",
+      "repo_ref": "bears-app-based-workflow",
+      "wave_id": "workflow-refactor-v5",
+      "owner_role": "DIRECT-primary",
+      "decision_state": "closed",
+      "status": "done",
+      "queue_sequence": 30,
+      "task_kind": "documentation",
+      "requirement_refs": [
+        "REQ-DIRECT-OWNERSHIP",
+        "REQ-REPO-L2-OWNERSHIP",
+        "REQ-SUBAGENT-DISPATCH",
+        "REQ-ANALYSIS-SCOPE",
+        "REQ-ANALYSIS-RESULT",
+        "REQ-AUDITED-SEMANTICS"
+      ],
+      "functionality_refs": [
+        "FUNC-DIRECT-OWNERSHIP",
+        "FUNC-REPO-L2-OWNERSHIP",
+        "FUNC-SUBAGENT-DISPATCH",
+        "FUNC-ANALYSIS-SCOPE",
+        "FUNC-ANALYSIS-RESULT",
+        "FUNC-AUDITED-SEMANTICS"
+      ],
+      "graph_entity_refs": [
+        "DEC-OWNERSHIP-MODEL",
+        "DEC-SEMANTIC-ANALYSIS"
+      ],
+      "target_paths": [
+        "skills/app-analyze/SKILL.md",
+        "skills/app-analyze/agents/openai.yaml",
+        "skills/app-constitution/SKILL.md",
+        "skills/app-constitution/agents/openai.yaml",
+        "skills/app-context-index/SKILL.md",
+        "skills/app-dev/SKILL.md",
+        "skills/app-dev/agents/openai.yaml",
+        "skills/app-functional-graph/SKILL.md",
+        "skills/app-functional-graph/agents/openai.yaml",
+        "skills/app-graph-compile/SKILL.md",
+        "skills/app-plan/SKILL.md",
+        "skills/app-plan/agents/openai.yaml",
+        "skills/app-research/SKILL.md",
+        "skills/app-research/agents/openai.yaml",
+        "skills/app-solo-route/SKILL.md",
+        "skills/app-solo-route/agents/openai.yaml",
+        "skills/app-specify/SKILL.md",
+        "skills/app-specify/agents/openai.yaml",
+        "skills/instruction-hardening/SKILL.md",
+        "skills/instruction-hardening/agents/openai.yaml",
+        "skills/role-profile-maintenance/SKILL.md",
+        "skills/role-profile-maintenance/agents/openai.yaml",
+        "skills/subagents/SKILL.md",
+        "skills/subagents/agents/openai.yaml"
+      ],
+      "allowed_files": [
+        "skills/app-analyze/SKILL.md",
+        "skills/app-analyze/agents/openai.yaml",
+        "skills/app-constitution/SKILL.md",
+        "skills/app-constitution/agents/openai.yaml",
+        "skills/app-context-index/SKILL.md",
+        "skills/app-dev/SKILL.md",
+        "skills/app-dev/agents/openai.yaml",
+        "skills/app-functional-graph/SKILL.md",
+        "skills/app-functional-graph/agents/openai.yaml",
+        "skills/app-graph-compile/SKILL.md",
+        "skills/app-plan/SKILL.md",
+        "skills/app-plan/agents/openai.yaml",
+        "skills/app-research/SKILL.md",
+        "skills/app-research/agents/openai.yaml",
+        "skills/app-solo-route/SKILL.md",
+        "skills/app-solo-route/agents/openai.yaml",
+        "skills/app-specify/SKILL.md",
+        "skills/app-specify/agents/openai.yaml",
+        "skills/instruction-hardening/SKILL.md",
+        "skills/instruction-hardening/agents/openai.yaml",
+        "skills/role-profile-maintenance/SKILL.md",
+        "skills/role-profile-maintenance/agents/openai.yaml",
+        "skills/subagents/SKILL.md",
+        "skills/subagents/agents/openai.yaml"
+      ],
+      "depends_on": [
+        "TASK-WF5-CONTRACTS"
+      ],
+      "definition_of_done": "Every stage has one mode-bound owner and app-analyze performs typed correspondence analysis.",
+      "proof_requirement": "Stage instructions contain the same owners, routes, and analysis fields as the workflow contract.",
+      "implementation_refs": [
+        "ART-SKILL-ANALYZE",
+        "ART-SKILLS-APP-ANALYZE-AGENTS-OPENAI",
+        "ART-SKILLS-APP-CONSTITUTION-SKILL",
+        "ART-SKILLS-APP-CONSTITUTION-AGENTS-OPENAI",
+        "ART-SKILLS-APP-CONTEXT-INDEX-SKILL",
+        "ART-SKILL-DEV",
+        "ART-SKILLS-APP-DEV-AGENTS-OPENAI",
+        "ART-SKILL-FUNCTIONAL",
+        "ART-SKILLS-APP-FUNCTIONAL-GRAPH-AGENTS-OPENAI",
+        "ART-SKILLS-APP-GRAPH-COMPILE-SKILL",
+        "ART-SKILL-PLAN",
+        "ART-SKILLS-APP-PLAN-AGENTS-OPENAI",
+        "ART-SKILL-RESEARCH",
+        "ART-SKILLS-APP-RESEARCH-AGENTS-OPENAI",
+        "ART-SKILL-SOLO",
+        "ART-SKILLS-APP-SOLO-ROUTE-AGENTS-OPENAI",
+        "ART-SKILL-SPECIFY",
+        "ART-SKILLS-APP-SPECIFY-AGENTS-OPENAI",
+        "ART-SKILLS-INSTRUCTION-HARDENING-SKILL",
+        "ART-SKILLS-INSTRUCTION-HARDENING-AGENTS-OPENAI",
+        "ART-SKILLS-ROLE-PROFILE-MAINTENANCE-SKILL",
+        "ART-SKILLS-ROLE-PROFILE-MAINTENANCE-AGENTS-OPENAI",
+        "ART-SKILL-SUBAGENTS",
+        "ART-SKILLS-SUBAGENTS-AGENTS-OPENAI"
+      ],
+      "evidence_refs": [
+        "EVIDENCE-STAGES"
+      ]
+    },
+    {
+      "task_id": "TASK-WF5-ROLES",
+      "repo_ref": "bears-app-based-workflow",
+      "wave_id": "workflow-refactor-v5",
+      "owner_role": "DIRECT-primary",
+      "decision_state": "closed",
+      "status": "done",
+      "queue_sequence": 40,
+      "task_kind": "documentation",
+      "requirement_refs": [
+        "REQ-REPO-L2-OWNERSHIP",
+        "REQ-SUBAGENT-DISPATCH",
+        "REQ-JOURNAL-OWNERSHIP"
+      ],
+      "functionality_refs": [
+        "FUNC-REPO-L2-OWNERSHIP",
+        "FUNC-SUBAGENT-DISPATCH",
+        "FUNC-JOURNAL-OWNERSHIP"
+      ],
+      "graph_entity_refs": [
+        "DEC-OWNERSHIP-MODEL"
+      ],
+      "target_paths": [
+        ".github/runner/bears_deploy/role_renderer.py",
+        "agents/README.md",
+        "agents/app-worker.toml",
+        "agents/diagnostic-command-runner.toml",
+        "agents/domain-lane-orchestrator.toml",
+        "agents/explorer.toml",
+        "agents/graph-evidence-reader.toml",
+        "agents/primary-source-researcher.toml",
+        "agents/role-profile-architect.toml",
+        "agents/wave-change-critic.toml",
+        "agents/worker.toml",
+        "agents/workflow-orchestrator.toml",
+        "contracts/app-role-capability-catalog.v1.schema.json",
+        "contracts/app-role-profile-definition.v1.schema.json",
+        "role-definitions/app-worker.json",
+        "role-definitions/capability-catalog.v1.json",
+        "role-definitions/diagnostic-command-runner.json",
+        "role-definitions/domain-lane-orchestrator.json",
+        "role-definitions/explorer.json",
+        "role-definitions/graph-evidence-reader.json",
+        "role-definitions/primary-source-researcher.json",
+        "role-definitions/role-profile-architect.json",
+        "role-definitions/wave-change-critic.json",
+        "role-definitions/worker.json",
+        "role-definitions/workflow-orchestrator.json"
+      ],
+      "allowed_files": [
+        ".github/runner/bears_deploy/role_renderer.py",
+        "agents/README.md",
+        "agents/app-worker.toml",
+        "agents/diagnostic-command-runner.toml",
+        "agents/domain-lane-orchestrator.toml",
+        "agents/explorer.toml",
+        "agents/graph-evidence-reader.toml",
+        "agents/primary-source-researcher.toml",
+        "agents/role-profile-architect.toml",
+        "agents/wave-change-critic.toml",
+        "agents/worker.toml",
+        "agents/workflow-orchestrator.toml",
+        "contracts/app-role-capability-catalog.v1.schema.json",
+        "contracts/app-role-profile-definition.v1.schema.json",
+        "role-definitions/app-worker.json",
+        "role-definitions/capability-catalog.v1.json",
+        "role-definitions/diagnostic-command-runner.json",
+        "role-definitions/domain-lane-orchestrator.json",
+        "role-definitions/explorer.json",
+        "role-definitions/graph-evidence-reader.json",
+        "role-definitions/primary-source-researcher.json",
+        "role-definitions/role-profile-architect.json",
+        "role-definitions/wave-change-critic.json",
+        "role-definitions/worker.json",
+        "role-definitions/workflow-orchestrator.json"
+      ],
+      "depends_on": [
+        "TASK-WF5-STAGES"
+      ],
+      "definition_of_done": "Role kind determines lifecycle and every profile has bounded graph, web, skill, and mutation capabilities.",
+      "proof_requirement": "Rendered profiles preserve approved role kinds and explicit L2-to-L3 dispatch.",
+      "implementation_refs": [
+        "ART-ROLE-RENDERER",
+        "ART-AGENTS-README",
+        "ART-AGENTS-APP-WORKER",
+        "ART-AGENTS-DIAGNOSTIC-COMMAND-RUNNER",
+        "ART-AGENTS-DOMAIN-LANE-ORCHESTRATOR",
+        "ART-AGENTS-EXPLORER",
+        "ART-AGENTS-GRAPH-EVIDENCE-READER",
+        "ART-AGENTS-PRIMARY-SOURCE-RESEARCHER",
+        "ART-AGENTS-ROLE-PROFILE-ARCHITECT",
+        "ART-AGENTS-WAVE-CHANGE-CRITIC",
+        "ART-AGENTS-WORKER",
+        "ART-AGENTS-WORKFLOW-ORCHESTRATOR",
+        "ART-CONTRACTS-APP-ROLE-CAPABILITY-CATALOG-V1",
+        "ART-CONTRACTS-APP-ROLE-PROFILE-DEFINITION-V1",
+        "ART-ROLE-DEFINITIONS-APP-WORKER",
+        "ART-ROLE-CATALOG",
+        "ART-ROLE-DEFINITIONS-DIAGNOSTIC-COMMAND-RUNNER",
+        "ART-ROLE-DOMAIN-L2",
+        "ART-ROLE-DEFINITIONS-EXPLORER",
+        "ART-ROLE-GRAPH-READER",
+        "ART-ROLE-DEFINITIONS-PRIMARY-SOURCE-RESEARCHER",
+        "ART-ROLE-DEFINITIONS-ROLE-PROFILE-ARCHITECT",
+        "ART-ROLE-DEFINITIONS-WAVE-CHANGE-CRITIC",
+        "ART-ROLE-DEFINITIONS-WORKER",
+        "ART-ROLE-WORKFLOW-L1"
+      ],
+      "evidence_refs": [
+        "EVIDENCE-ROLES"
+      ]
+    },
+    {
+      "task_id": "TASK-WF5-DOCS-GRAPH",
+      "repo_ref": "bears-app-based-workflow",
+      "wave_id": "workflow-refactor-v5",
+      "owner_role": "DIRECT-primary",
+      "decision_state": "closed",
+      "status": "done",
+      "queue_sequence": 50,
+      "task_kind": "graph",
+      "requirement_refs": [
+        "REQ-ANALYSIS-SCOPE",
+        "REQ-ANALYSIS-RESULT",
+        "REQ-AUDITED-SEMANTICS",
+        "REQ-SEVEN-DIMENSIONS",
+        "REQ-EFFECTIVENESS-BOUNDARY"
+      ],
+      "functionality_refs": [
+        "FUNC-ANALYSIS-SCOPE",
+        "FUNC-ANALYSIS-RESULT",
+        "FUNC-AUDITED-SEMANTICS",
+        "FUNC-SEVEN-DIMENSIONS",
+        "FUNC-EFFECTIVENESS-BOUNDARY"
+      ],
+      "graph_entity_refs": [
+        "DEC-SEMANTIC-ANALYSIS",
+        "DEC-TYPED-DIMENSIONS",
+        "DEC-ASSESSMENT-SEPARATION"
+      ],
+      "target_paths": [
+        "AGENTS.md",
+        "CHANGELOG.md",
+        "README.md",
+        "assets/codex-home-graph-instructions.md",
+        "docs/app-artifact-catalog.v2.json",
+        "docs/app-constitution.md",
+        "docs/app-functional-map.v4.json",
+        "docs/app-graph-source-manifest.v1.json",
+        "docs/app-task-ledger.v3.json",
+        "docs/plugin-effectiveness-metrics-and-agent-audit-methodology.md",
+        "docs/workflow-refactor-v5-evidence.md",
+        "waves/index.md",
+        "waves/workflow-refactor-v5/analysis.md",
+        "waves/workflow-refactor-v5/plan.md",
+        "waves/workflow-refactor-v5/research.md",
+        "waves/workflow-refactor-v5/spec.md"
+      ],
+      "allowed_files": [
+        "AGENTS.md",
+        "CHANGELOG.md",
+        "README.md",
+        "assets/codex-home-graph-instructions.md",
+        "docs/app-artifact-catalog.v2.json",
+        "docs/app-constitution.md",
+        "docs/app-functional-map.v4.json",
+        "docs/app-graph-source-manifest.v1.json",
+        "docs/app-task-ledger.v3.json",
+        "docs/plugin-effectiveness-metrics-and-agent-audit-methodology.md",
+        "docs/workflow-refactor-v5-evidence.md",
+        "waves/index.md",
+        "waves/workflow-refactor-v5/analysis.md",
+        "waves/workflow-refactor-v5/plan.md",
+        "waves/workflow-refactor-v5/research.md",
+        "waves/workflow-refactor-v5/spec.md"
+      ],
+      "depends_on": [
+        "TASK-WF5-GRAPH-RUNTIME",
+        "TASK-WF5-ROLES"
+      ],
+      "definition_of_done": "Authoritative documentation and structured graph sources express one complete logical model.",
+      "proof_requirement": "Every requirement has seven unique typed mappings and a task-to-artifact-to-evidence branch.",
+      "implementation_refs": [
+        "ART-AGENTS",
+        "ART-CHANGELOG",
+        "ART-README",
+        "ART-MANAGED-INSTRUCTIONS",
+        "ART-ARTIFACT-CATALOG",
+        "ART-CONSTITUTION",
+        "ART-FUNCTIONAL-MAP",
+        "ART-DOCS-APP-GRAPH-SOURCE-MANIFEST-V1",
+        "ART-TASK-LEDGER",
+        "ART-METHODOLOGY",
+        "ART-DOCS-WORKFLOW-REFACTOR-V5-EVIDENCE",
+        "ART-WAVES-INDEX",
+        "ART-WAVES-WORKFLOW-REFACTOR-V5-ANALYSIS",
+        "ART-WAVES-WORKFLOW-REFACTOR-V5-PLAN",
+        "ART-WAVES-WORKFLOW-REFACTOR-V5-RESEARCH",
+        "ART-WAVE-SPEC"
+      ],
+      "evidence_refs": [
+        "EVIDENCE-DOCS-GRAPH"
+      ]
+    },
+    {
+      "task_id": "TASK-WF5-DELIVERY",
+      "repo_ref": "bears-app-based-workflow",
+      "wave_id": "workflow-refactor-v5",
+      "owner_role": "DIRECT-primary",
+      "decision_state": "closed",
+      "status": "done",
+      "queue_sequence": 60,
+      "task_kind": "implementation",
+      "requirement_refs": [
+        "REQ-REPO-L2-OWNERSHIP",
+        "REQ-ROUTE-REGISTRY"
+      ],
+      "functionality_refs": [
+        "FUNC-REPO-L2-OWNERSHIP",
+        "FUNC-ROUTE-REGISTRY"
+      ],
+      "graph_entity_refs": [
+        "DEC-OWNERSHIP-MODEL",
+        "DEC-SINGLE-ROUTE-REGISTRY"
+      ],
+      "target_paths": [
+        ".agents/plugins/marketplace.json",
+        ".codex-plugin/plugin.json",
+        ".github/runner/README.md",
+        ".github/runner/bears_deploy/graph_instructions.py",
+        ".github/runner/deploy_plugin.py",
+        ".github/runner/install-runner.sh",
+        ".gitignore",
+        "install"
+      ],
+      "allowed_files": [
+        ".agents/plugins/marketplace.json",
+        ".codex-plugin/plugin.json",
+        ".github/runner/README.md",
+        ".github/runner/bears_deploy/graph_instructions.py",
+        ".github/runner/deploy_plugin.py",
+        ".github/runner/install-runner.sh",
+        ".gitignore",
+        "install"
+      ],
+      "depends_on": [
+        "TASK-WF5-DOCS-GRAPH"
+      ],
+      "definition_of_done": "Plugin metadata and installation surfaces expose only the refactored workflow and role catalog.",
+      "proof_requirement": "No retired workflow role or field remains in active installation data.",
+      "implementation_refs": [
+        "ART-AGENTS-PLUGINS-MARKETPLACE",
+        "ART-PLUGIN-METADATA",
+        "ART-GITHUB-RUNNER-README",
+        "ART-GITHUB-RUNNER-BEARS-DEPLOY-GRAPH-INSTRUCTIONS",
+        "ART-GITHUB-RUNNER-DEPLOY-PLUGIN",
+        "ART-RUNNER-INSTALLER",
+        "ART-GITIGNORE",
+        "ART-INSTALLER"
+      ],
+      "evidence_refs": [
+        "EVIDENCE-DELIVERY"
+      ]
+    }
+  ]
+}

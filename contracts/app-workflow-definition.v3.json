@@ -1,17 +1,15 @@
 {
-  "schema": "app-workflow-definition.v2",
-  "handoff_schema": "contracts/app-stage-handoff.v3.schema.json",
+  "schema": "app-workflow-definition.v3",
+  "handoff_schema": "contracts/app-stage-handoff.v4.schema.json",
   "manifest_schema": "contracts/app-graph-source-manifest.v1.schema.json",
-  "event_schema": "contracts/app-process-event.v2.schema.json",
-  "task_ledger_schema": "contracts/app-task-ledger.v2.schema.json",
-  "traceability_index_schema": "contracts/app-traceability-index.v3.schema.json",
-  "process_index_schema": "contracts/app-process-index.v3.schema.json",
+  "event_schema": "contracts/app-process-event.v3.schema.json",
+  "task_ledger_schema": "contracts/app-task-ledger.v3.schema.json",
+  "artifact_catalog_schema": "contracts/app-artifact-catalog.v2.schema.json",
+  "functional_map_schema": "contracts/app-functional-map.v4.schema.json",
+  "traceability_index_schema": "contracts/app-traceability-index.v4.schema.json",
+  "process_index_schema": "contracts/app-process-index.v4.schema.json",
   "index_build_schema": "contracts/app-index-build.v1.schema.json",
-  "audit_result_schemas": [
-    "contracts/app-graph-compile-result.v1.schema.json",
-    "contracts/app-process-audit-result.v1.schema.json",
-    "contracts/app-trace-audit-result.v1.schema.json"
-  ],
+  "semantic_analysis_schema": "contracts/app-semantic-analysis-result.v1.schema.json",
   "entry_gate": {
     "skill": "app-context-index",
     "compiler_skill": "app-graph-compile",
@@ -33,34 +31,8 @@
     "app-analyze"
   ],
   "stage_owners": {
-    "app-constitution": [
-      "DIRECT-primary",
-      "repo-L2"
-    ],
-    "app-research": [
-      "DIRECT-primary",
-      "repo-L2"
-    ],
-    "app-specify": [
-      "DIRECT-primary",
-      "repo-L2"
-    ],
-    "app-functional-graph": [
-      "DIRECT-primary",
-      "repo-L2"
-    ],
-    "app-plan": [
-      "DIRECT-primary",
-      "repo-L2"
-    ],
-    "app-dev": [
-      "DIRECT-primary",
-      "repo-L2"
-    ],
-    "app-analyze": [
-      "DIRECT-primary",
-      "repo-L2"
-    ]
+    "DIRECT": "DIRECT-primary",
+    "DELEGATED": "persistent-repo-L2"
   },
   "routes": {
     "constitution-ready": "app-research",
@@ -96,29 +68,51 @@
     "operator-stop": "blocked"
   },
   "audited_gate": {
-    "exact_snapshot": true,
-    "process_audit_complete": true,
-    "convergence_audit_complete": true,
+    "exact_source_snapshot": true,
+    "semantic_analysis_basis": "immediate-predecessor-build",
+    "allowed_post_analysis_delta": "one-native-analysis-event",
+    "semantic_analysis_complete": true,
+    "logical_contradictions": 0,
+    "unmapped_decisions": 0,
+    "unmapped_requirements": 0,
     "routable_findings": 0,
     "open_remediation_tasks": 0,
-    "meaning": "semantic-and-process-consistency-only"
+    "meaning": "documentation-and-graph-logical-consistency"
   },
-  "app_dev_process": {
+  "delegated_process": {
+    "repo_l2_scope": "all-app-stages",
     "journal_writer": "repo-L2-or-DIRECT-primary",
     "l3_journal_write": false,
-    "states": [
+    "l3_dispatch_skill": "subagents",
+    "task_states": [
+      "waiting",
       "ready",
       "in_progress",
       "done",
       "failed",
+      "blocked",
       "superseded"
     ],
-    "required_event_kinds": [
+    "l1_role": "workflow-orchestrator",
+    "repo_l2_role": "domain-lane-orchestrator",
+    "repo_l2_role_kind": "orchestrator",
+    "repo_lane_schema": "repo-lane-dispatch.v1",
+    "delegation_record": {
+      "event_schema": "app-process-event.v3",
+      "dispatch_schema": "dispatch-packet.v3",
+      "result_schema": "result-packet.v2",
+      "app_task_schema": "app-task-dispatch.v2",
+      "durable_scope": "represented-l3-identity-only"
+    },
+    "native_event_kinds": [
+      "run-start",
+      "stage",
       "delegation",
       "task-result",
       "review",
       "remediation",
-      "repo-handoff"
+      "repo-handoff",
+      "analysis"
     ]
   },
   "graph": {
@@ -128,8 +122,7 @@
       "requirement",
       "functionality-or-behavior",
       "task",
-      "code",
-      "test",
+      "implementation-artifact",
       "evidence"
     ],
     "edge_types": {
@@ -163,12 +156,6 @@
         "impact": true,
         "cycle": "forbidden"
       },
-      "verified_by": {
-        "family": "trace",
-        "transitive": true,
-        "impact": true,
-        "cycle": "forbidden"
-      },
       "evidenced_by": {
         "family": "trace",
         "transitive": true,
@@ -189,20 +176,12 @@
       }
     }
   },
-  "acceptance": {
-    "owner": "autoCI",
-    "semantic_audits_are_acceptance": false,
-    "automation_status": [
-      "unavailable",
-      "not_run",
-      "passed",
-      "failed"
-    ]
-  },
-  "functional_map_schema": "contracts/app-functional-map.v3.schema.json",
-  "legacy_read_schemas": [
-    "contracts/app-functional-map.v2.schema.json",
-    "contracts/app-process-event.v1.schema.json",
-    "contracts/app-process-index.v2.schema.json"
-  ]
+  "context_result_schema": "contracts/app-context-index-result.v2.schema.json",
+  "compile_result_schema": "contracts/app-graph-compile-result.v2.schema.json",
+  "protocol_persistence": {
+    "native_event": "durable-graph-source",
+    "lane_packet": "typed-transient",
+    "l3_packet": "typed-transient",
+    "outgoing_handoff": "typed-transient-build-bound"
+  }
 }

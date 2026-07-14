@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://bears.cloud/contracts/app-task-ledger.v3.schema.json",
+  "title": "app-task-ledger.v3",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "app_id", "revision", "tasks"],
+  "properties": {
+    "schema": {"const": "app-task-ledger.v3"},
+    "app_id": {"type": "string", "minLength": 1},
+    "revision": {"type": "integer", "minimum": 1},
+    "tasks": {
+      "type": "array",
+      "maxItems": 25000,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "task_id", "repo_ref", "wave_id", "owner_role", "decision_state", "status",
+          "queue_sequence", "task_kind", "requirement_refs", "functionality_refs",
+          "graph_entity_refs", "target_paths", "allowed_files", "depends_on",
+          "definition_of_done", "proof_requirement", "implementation_refs", "evidence_refs"
+        ],
+        "properties": {
+          "task_id": {"type": "string", "minLength": 1},
+          "repo_ref": {"type": "string", "minLength": 1},
+          "wave_id": {"type": "string", "minLength": 1},
+          "owner_role": {"enum": ["DIRECT-primary", "repo-L2"]},
+          "decision_state": {"enum": ["planned", "closed"]},
+          "status": {"enum": ["waiting", "ready", "in_progress", "done", "failed", "blocked", "superseded"]},
+          "queue_sequence": {"type": "integer", "minimum": 0},
+          "task_kind": {"enum": ["documentation", "graph", "implementation", "review", "remediation"]},
+          "requirement_refs": {"$ref": "#/$defs/refs"},
+          "functionality_refs": {"$ref": "#/$defs/refs"},
+          "graph_entity_refs": {"$ref": "#/$defs/refs"},
+          "target_paths": {"$ref": "#/$defs/refs"},
+          "allowed_files": {"$ref": "#/$defs/refs"},
+          "depends_on": {"$ref": "#/$defs/refs"},
+          "definition_of_done": {"type": "string", "minLength": 1},
+          "proof_requirement": {"type": "string", "minLength": 1},
+          "implementation_refs": {"$ref": "#/$defs/refs"},
+          "evidence_refs": {"$ref": "#/$defs/refs"},
+          "replacement_task_refs": {"$ref": "#/$defs/refs"}
+        }
+      }
+    }
+  },
+  "$defs": {
+    "refs": {
+      "type": "array",
+      "items": {"type": "string", "minLength": 1},
+      "uniqueItems": true
+    }
+  }
+}

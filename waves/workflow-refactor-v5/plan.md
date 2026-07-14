@@ -2,19 +2,22 @@
 
 ## Dependency order
 
-| Order | Work item | Targets | Depends on |
+| Order | Ledger task | Work item | Depends on |
 | --- | --- | --- | --- |
-| 1 | Establish canonical semantics and terminology. | docs/app-constitution.md, waves/workflow-refactor-v5/research.md, waves/workflow-refactor-v5/spec.md | v3 workflow and linked schemas |
-| 2 | Update operator and agent routing documentation. | AGENTS.md, assets/codex-home-graph-instructions.md, README.md | 1 |
-| 3 | Align runtime and deployment boundary guides. | scripts/README.md, .github/runner/README.md | 1 |
-| 4 | Replace the effectiveness framework with a compact read-only methodology. | docs/plugin-effectiveness-metrics-and-agent-audit-methodology.md | 1 |
-| 5 | Record the refactor history and wave navigation. | CHANGELOG.md, waves/index.md | 2, 3, 4 |
-| 6 | Perform semantic correspondence analysis and bind evidence. | waves/workflow-refactor-v5/analysis.md, docs/workflow-refactor-v5-evidence.md | 5 |
+| 1 | `TASK-WF5-CONTRACTS` | Replace the workflow, graph, process, handoff, analysis, ledger, catalog, and delegation contracts as one versioned model. | None |
+| 2 | `TASK-WF5-GRAPH-RUNTIME` | Enforce the active model in compilation, event admission, queries, storage, and MCP surfaces. | `TASK-WF5-CONTRACTS` |
+| 3 | `TASK-WF5-STAGES` | Align every app stage with mode-bound ownership, exact-snapshot handoffs, and semantic analysis. | `TASK-WF5-CONTRACTS` |
+| 4 | `TASK-WF5-ROLES` | Align L1, persistent repo-L2, L3 role kinds, capabilities, and `$subagents` dispatch. | `TASK-WF5-STAGES` |
+| 5 | `TASK-WF5-DOCS-GRAPH` | Reconcile human documentation, structured semantics, exact artifact coverage, and the observational assessment methodology. | `TASK-WF5-GRAPH-RUNTIME`, `TASK-WF5-ROLES` |
+| 6 | `TASK-WF5-DELIVERY` | Align plugin metadata, installation, and machine-owned publication surfaces with the refactored model. | `TASK-WF5-DOCS-GRAPH` |
+
+Use the exact target paths, implementation refs, evidence refs, and queue sequence from `docs/app-task-ledger.v3.json`; do not infer a second work order from this prose.
 
 ## Completion conditions
 
-- Every designated artifact uses the same stage ownership model.
-- Every designated artifact describes app-analyze as semantic documentation correspondence.
-- The seven dimensions and deterministic route vocabulary are defined without contradiction.
-- Effectiveness assessment has no workflow or execution authority.
-- The evidence packet maps every requirement to its documentation refs.
+- Every ledger target is represented by one exact catalog ref and one owning task.
+- Every app stage uses the same mode-bound owner and deterministic route vocabulary.
+- Every active requirement maps all seven dimensions with kind-compatible evidence.
+- Every native event preserves owner, causal, task, trace, and artifact correspondence.
+- The exact-snapshot semantic result has no contradictions, gaps, unmapped refs, or open remediation.
+- The effectiveness assessment remains read-only and outside workflow authority.

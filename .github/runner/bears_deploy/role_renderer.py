@@ -40,8 +40,9 @@ ROLE_KIND_LEVELS = {
 }
 GRAPH_READ_TOOLS = frozenset({
     "dependency_slice", "impact_analysis", "graph_trace", "graph_diagnostics",
-    "topological_plan", "workflow_state",
+    "topological_plan", "workflow_state", "handoff_validate",
 })
+GRAPH_EVIDENCE_READER_TOOLS = GRAPH_READ_TOOLS - {"handoff_validate"}
 GRAPH_MAINTAINER_TOOLS = frozenset({"graph_compile", "process_record_event"})
 DOMAIN_LANE_SKILLS = frozenset({
     "app-constitution", "app-research", "app-specify", "app-functional-graph",
@@ -207,7 +208,7 @@ def validate_definition(value: dict[str, Any], catalog: dict[str, Any], *, expec
         raise RoleDefinitionError("domain lane stage skills are incomplete")
     if name == "graph-evidence-reader" and (
         requirements["native_tools"]
-        or requested_servers != {"app-graph": set(GRAPH_READ_TOOLS)}
+        or requested_servers != {"app-graph": set(GRAPH_EVIDENCE_READER_TOOLS)}
         or any(plugin["skills"] for plugin in normalized_plugins)
     ):
         raise RoleDefinitionError("graph evidence reader capabilities are not exact")

@@ -1,7 +1,7 @@
 {
   "schema": "app-role-profile-definition.v1",
   "name": "domain-lane-orchestrator",
-  "description": "Choose for one delegated repository app workflow; this persistent L2 role owns every app stage, route, journal record, bounded L3 dispatch, remediation, and repo closeout.",
+  "description": "Choose for one delegated repository app workflow; this persistent L2 role owns every app stage, route, journal record, bounded L3 dispatch, linked correction run, and repo closeout.",
   "identity": {
     "level": "L2",
     "role_kind": "repo-orchestrator",
@@ -47,6 +47,7 @@
             "tools": [
               "dependency_slice",
               "impact_analysis",
+              "handoff_validate",
               "graph_trace",
               "graph_diagnostics",
               "topological_plan",
@@ -112,15 +113,15 @@
       },
       {
         "id": "app-dev-review",
-        "text": "During `app-dev`, keep one immutable primary-critic review per completed range and represent each correction as a remediation task."
+        "text": "During `app-dev`, keep one immutable primary-critic review per completed range and represent each correction as a remediation task in a source-linked run."
       },
       {
         "id": "blocker-classification",
         "text": "Classify repository blockers only from canonical finding routes and exact stage evidence."
       },
       {
-        "id": "graph-build",
-        "text": "Preserve the current graph build for one repository."
+        "id": "handoff",
+        "text": "Call `app-graph.handoff_validate` before returning each outgoing handoff."
       },
       {
         "id": "graph-state",
@@ -164,7 +165,7 @@
       },
       {
         "id": "non-blockers",
-        "text": "Keep capacity wait, represented remediation, and gated dependents as repository state instead of lane-wide blockers."
+        "text": "Keep capacity wait, source-linked remediation tasks, and gated dependents as repository state instead of lane-wide blockers."
       },
       {
         "id": "profile-blocker",
@@ -188,7 +189,7 @@
       },
       {
         "id": "trace-work",
-        "text": "Require repo-scoped task, review, and remediation references."
+        "text": "Require repo-scoped task, review, and remediation task refs."
       }
     ],
     "result": [

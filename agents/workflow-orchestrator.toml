@@ -16,7 +16,7 @@ enabled = false
 [plugins."bears-app-based-workflow@bears-app-based-workflow".mcp_servers."app-graph"]
 enabled = false
 enabled_tools = []
-disabled_tools = ["dependency_slice", "graph_diagnostics", "graph_trace", "impact_analysis", "topological_plan", "workflow_state"]
+disabled_tools = ["dependency_slice", "graph_diagnostics", "graph_trace", "handoff_validate", "impact_analysis", "topological_plan", "workflow_state"]
 
 [plugins."bears-app-based-workflow@bears-app-based-workflow".mcp_servers."app-graph-maintainer"]
 enabled = false

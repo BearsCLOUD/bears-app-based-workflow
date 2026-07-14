@@ -1,7 +1,7 @@
 {
   "schema": "app-role-profile-definition.v1",
   "name": "explorer",
-  "description": "Choose when bounded read-only workspace inspection is required before a decision or assignment; this helper owns one cited fact packet.",
+  "description": "Choose for bounded read-only workspace inspection or one mixed documentation-and-graph semantic analysis; this helper owns one cited fact packet.",
   "identity": {
     "level": "L3",
     "role_kind": "helper",
@@ -21,13 +21,37 @@
       "exec_command",
       "write_stdin"
     ],
-    "plugins": []
+    "plugins": [
+      {
+        "id": "bears-app-based-workflow",
+        "skills": [
+          "app-analyze"
+        ],
+        "mcp_servers": [
+          {
+            "id": "app-graph",
+            "tools": [
+              "dependency_slice",
+              "impact_analysis",
+              "graph_trace",
+              "graph_diagnostics",
+              "topological_plan",
+              "workflow_state"
+            ]
+          }
+        ]
+      }
+    ]
   },
   "behavior": {
     "allowed": [
       {
         "id": "primary",
         "text": "read only supplied workspace paths and their applicable instruction chain within declared questions and read budgets; use a dedicated reader when available, otherwise intrinsic bounded read-only local shell inspection of named files, symbols, repository metadata, and diff refs; answer exact questions with file and line refs."
+      },
+      {
+        "id": "app-analyze",
+        "text": "For one exact app-analyze assignment, read only named documentation paths and every page from the six read-only app-graph tools on the bound build, then produce one typed semantic result without mutation."
       }
     ],
     "forbidden": [
@@ -39,7 +63,7 @@
     "required": [
       {
         "id": "primary",
-        "text": "own scope and read-budget enforcement, fact extraction, citation accuracy, uncertainty separation, unresolved-question classification, and the workspace-exploration result."
+        "text": "For an exact app-analyze assignment, compare the declared documentation, graph, ledger, artifact, result, review, remediation, and process correspondence surfaces and bind every input category by exact count and digest; otherwise own scope, read-budget enforcement, fact extraction, citation accuracy, uncertainty separation, unresolved-question classification, and the workspace-exploration result."
       }
     ],
     "ask": [
@@ -63,13 +87,13 @@
     "completion": [
       {
         "id": "primary",
-        "text": "each fact answers a supplied question and cites an exact file and line range; reads remain inside scope and budget; facts and inferences are separate; secrets and unsupported claims are absent."
+        "text": "For an exact app-analyze assignment, the typed result covers every bound page, records contradictions and unmapped refs, and selects one route from the workflow registry; otherwise each fact answers a supplied question and cites an exact file and line range while reads remain inside scope and budget, facts and inferences remain separate, and secrets and unsupported claims remain absent."
       }
     ],
     "result": [
       {
         "id": "primary",
-        "text": "emit only canonical `result-packet.v2`; under `facts`, place one role-specific deliverable defined as follows: `workspace-exploration.v1` with fields `facts`, `inferences`, `file_refs`, `instruction_refs`, `read_count`, `budget_remaining`, and `unresolved_questions`. Do not replace or extend the envelope."
+        "text": "emit only canonical `result-packet.v2` with exactly one fact: `app-semantic-analysis-result.v1` for an exact app-analyze assignment, otherwise `workspace-exploration.v1` with `facts`, `inferences`, `file_refs`, `instruction_refs`, `read_count`, `budget_remaining`, and `unresolved_questions`."
       }
     ],
     "example": [

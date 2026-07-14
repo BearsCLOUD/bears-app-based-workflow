@@ -25,10 +25,10 @@
                 "classification": {"const": "read-only"},
                 "tools": {
                   "type": "array",
-                  "minItems": 6,
-                  "maxItems": 6,
+                  "minItems": 7,
+                  "maxItems": 7,
                   "uniqueItems": true,
-                  "items": {"enum": ["dependency_slice", "impact_analysis", "graph_trace", "graph_diagnostics", "topological_plan", "workflow_state"]}
+                  "items": {"enum": ["dependency_slice", "impact_analysis", "handoff_validate", "graph_trace", "graph_diagnostics", "topological_plan", "workflow_state"]}
                 }
               }
             }

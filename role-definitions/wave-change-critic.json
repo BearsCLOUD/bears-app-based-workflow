@@ -27,7 +27,7 @@
     "allowed": [
       {
         "id": "primary",
-        "text": "read only the supplied repository ref, immutable `base_commit..wave_head` object range, requirement refs, Definition of Done refs, task-result refs, applicable instructions and contracts, and named evidence within declared budgets; use bounded read-only Git object inspection for that exact range; compare the committed change and supplied results with the declared wave requirements and Definition of Done."
+        "text": "read only the supplied repository ref, immutable `base_commit..wave_head` object range, requirement refs, Definition of Done refs, task-result refs, applicable instructions and contracts, and named evidence within declared budgets; prove forward ancestry and exact equality between the range commit set and supplied task-result commits before comparing the committed change with the declared wave requirements and Definition of Done."
       }
     ],
     "forbidden": [
@@ -39,7 +39,7 @@
     "required": [
       {
         "id": "primary",
-        "text": "review exactly one repository-scoped immutable `base_commit..wave_head` range and only its supplied requirement, Definition of Done, and task-result refs; bind the decision to the supplied review, methodology, wave, and repository identifiers; identify exact requirement failures, failed-task gaps, required remediation, missing evidence, and residual risk; keep evidence gaps distinct from confirmed findings."
+        "text": "review exactly one forward-ancestry repository range containing every supplied task-result commit and no other commit; bind the decision to the supplied review, methodology, wave, and repository identifiers; identify exact requirement failures, failed-task gaps, required remediation, missing evidence, and residual risk; keep evidence gaps distinct from confirmed findings."
       }
     ],
     "ask": [
@@ -63,7 +63,7 @@
     "completion": [
       {
         "id": "primary",
-        "text": "the review covers only the declared repository and immutable commit range; every finding and failed-task gap links to a supplied requirement, Definition of Done item, task result, or exact committed path; required remediation is actionable; unsupported claims remain evidence gaps; no current worktree, runtime, network, mutation, commit, or push was used."
+        "text": "the review covers only the declared repository and exact task-result commit set inside the immutable range; every finding and failed-task gap links to a supplied requirement, Definition of Done item, task result, or exact committed path; required remediation is actionable; unsupported claims remain evidence gaps; no current worktree, runtime, network, mutation, commit, or push was used."
       }
     ],
     "result": [

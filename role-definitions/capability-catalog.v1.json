@@ -49,6 +49,7 @@
         "graph_diagnostics",
         "graph_trace",
         "impact_analysis",
+        "handoff_validate",
         "topological_plan",
         "workflow_state"
       ]

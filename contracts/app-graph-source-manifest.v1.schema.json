@@ -50,21 +50,20 @@
       ],
       "properties": {
         "workflow": {
-          "const": "contracts/app-workflow-definition.v2.json"
+          "const": "contracts/app-workflow-definition.v3.json"
         },
         "functional_map": {
-          "const": "docs/app-functional-map.v3.json"
+          "const": "docs/app-functional-map.v4.json"
         },
         "task_ledger": {
-          "const": "docs/app-task-ledger.v2.json"
+          "const": "docs/app-task-ledger.v3.json"
         },
         "artifact_catalog": {
-          "const": "docs/app-artifact-catalog.v1.json"
+          "const": "docs/app-artifact-catalog.v2.json"
         },
         "event_roots": {
           "const": [
-            "docs/app-process-events/v1",
-            "docs/app-process-events/v2"
+            "docs/app-process-events/v3"
           ]
         }
       }
@@ -77,15 +76,14 @@
         "process_index",
         "current_build",
         "build_receipt_root",
-        "audit_receipt_root",
         "context_result"
       ],
       "properties": {
         "trace_index": {
-          "const": "docs/app-traceability-index.v3.json"
+          "const": "docs/app-traceability-index.v4.json"
         },
         "process_index": {
-          "const": "docs/app-process-index.v3.json"
+          "const": "docs/app-process-index.v4.json"
         },
         "current_build": {
           "const": "docs/app-index-current.v1.json"
@@ -93,11 +91,8 @@
         "build_receipt_root": {
           "const": "docs/app-index-builds/v1"
         },
-        "audit_receipt_root": {
-          "const": "docs/app-audit-receipts/v1"
-        },
         "context_result": {
-          "const": "docs/app-context-index-result.v1.json"
+          "const": "docs/app-context-index-result.v2.json"
         }
       }
     },

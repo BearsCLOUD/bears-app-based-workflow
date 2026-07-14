@@ -1,0 +1,113 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://bears.cloud/contracts/app-functional-map.v4.schema.json",
+  "title": "app-functional-map.v4",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "app_id", "revision", "source_refs", "entities", "relations", "coverage", "replacements", "requirement_dimensions"],
+  "properties": {
+    "schema": {"const": "app-functional-map.v4"},
+    "app_id": {"type": "string", "minLength": 1},
+    "revision": {"type": "integer", "minimum": 1},
+    "source_refs": {"$ref": "#/$defs/refs"},
+    "entities": {
+      "type": "array",
+      "maxItems": 25000,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["ref", "kind", "title", "scope", "active", "source_refs"],
+        "properties": {
+          "ref": {"type": "string", "minLength": 1},
+          "kind": {"enum": ["spec", "decision", "requirement", "functionality", "behavior", "dependency", "state", "api", "data", "integration", "error"]},
+          "title": {"type": "string", "minLength": 1},
+          "scope": {"type": "string", "minLength": 1},
+          "active": {"type": "boolean"},
+          "source_refs": {"$ref": "#/$defs/refs"}
+        }
+      }
+    },
+    "relations": {
+      "type": "array",
+      "maxItems": 100000,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["ref", "kind", "from_ref", "to_ref", "condition_refs", "source_refs"],
+        "properties": {
+          "ref": {"type": "string", "minLength": 1},
+          "kind": {"enum": ["depends_on", "constrains", "defines", "decomposes_to", "implemented_by", "evidenced_by", "replaces", "remediates"]},
+          "from_ref": {"type": "string", "minLength": 1},
+          "to_ref": {"type": "string", "minLength": 1},
+          "condition_refs": {"$ref": "#/$defs/refs"},
+          "source_refs": {"$ref": "#/$defs/refs"}
+        }
+      }
+    },
+    "coverage": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["ref", "requirement_ref", "dimension", "entity_refs", "status", "evidence_refs"],
+        "properties": {
+          "ref": {"type": "string", "minLength": 1},
+          "requirement_ref": {"type": "string", "minLength": 1},
+          "dimension": {"enum": ["behavior", "dependency", "state", "api", "data", "integration", "error"]},
+          "entity_refs": {"$ref": "#/$defs/refs"},
+          "status": {"enum": ["mapped", "not-applicable"]},
+          "evidence_refs": {"$ref": "#/$defs/refs"},
+          "rationale": {"type": "string", "minLength": 1}
+        }
+      }
+    },
+    "replacements": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["old_ref", "new_ref", "reason"],
+        "properties": {
+          "old_ref": {"type": "string", "minLength": 1},
+          "new_ref": {"type": "string", "minLength": 1},
+          "reason": {"type": "string", "minLength": 1}
+        }
+      }
+    },
+    "requirement_dimensions": {
+      "type": "object",
+      "additionalProperties": {"$ref": "#/$defs/dimensionSet"}
+    }
+  },
+  "$defs": {
+    "refs": {
+      "type": "array",
+      "items": {"type": "string", "minLength": 1},
+      "uniqueItems": true
+    },
+    "dimension": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "refs"],
+      "properties": {
+        "status": {"enum": ["applicable", "not-applicable"]},
+        "refs": {"$ref": "#/$defs/refs"},
+        "rationale": {"type": "string", "minLength": 1}
+      }
+    },
+    "dimensionSet": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["behavior", "dependency", "state", "api", "data", "integration", "error"],
+      "properties": {
+        "behavior": {"$ref": "#/$defs/dimension"},
+        "dependency": {"$ref": "#/$defs/dimension"},
+        "state": {"$ref": "#/$defs/dimension"},
+        "api": {"$ref": "#/$defs/dimension"},
+        "data": {"$ref": "#/$defs/dimension"},
+        "integration": {"$ref": "#/$defs/dimension"},
+        "error": {"$ref": "#/$defs/dimension"}
+      }
+    }
+  }
+}

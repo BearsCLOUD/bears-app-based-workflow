@@ -1,12 +1,13 @@
 {
-  "schema": "plugin-delegation-contract.v1",
+  "schema": "plugin-delegation-contract.v2",
   "active_schemas": {
     "entry": "delegation-entry.v1",
     "authority": "assignment-authority.v1",
     "transport": "typed-agent-dispatch.v1",
-    "dispatch": "dispatch-packet.v2",
-    "result": "result-packet.v1",
-    "app_task": "app-task-dispatch.v1"
+    "dispatch": "dispatch-packet.v3",
+    "result": "result-packet.v2",
+    "app_task": "app-task-dispatch.v2",
+    "repo_lane": "repo-lane-dispatch.v1"
   },
   "delegation_entry": {
     "context_states": [
@@ -55,6 +56,50 @@
       "solo-l2"
     ]
   },
+  "repo_lane_dispatch_required_fields": [
+    "schema",
+    "delegation_authority_ref",
+    "workstream_id",
+    "repo_ref",
+    "repo_cwd",
+    "trust_boundary",
+    "caller_role",
+    "caller_role_kind",
+    "role",
+    "agent_level",
+    "role_kind",
+    "orchestrator_session_id",
+    "session_action",
+    "current_stage",
+    "build_ref",
+    "source_snapshot_digest",
+    "journal_digest",
+    "dependency_refs",
+    "capacity_state",
+    "instruction_refs",
+    "stage_payload"
+  ],
+  "repo_l2_lifecycle": {
+    "schema": "repo-lane-dispatch.v1",
+    "caller_role": "workflow-orchestrator",
+    "callee_role": "domain-lane-orchestrator",
+    "role_kind": "orchestrator",
+    "session_field": "orchestrator_session_id",
+    "dispatch_actions": [
+      "start",
+      "continue"
+    ],
+    "result_actions": [
+      "continue",
+      "close"
+    ],
+    "start_transport": "collaboration.spawn_agent",
+    "continue_transport": "collaboration.followup_task",
+    "fork_turns": "none",
+    "one_persistent_session_per_repo_ref": true,
+    "l2_owns_all_delegated_app_stages": true,
+    "l1_may_dispatch_l3": false
+  },
   "dispatch_required_fields": [
     "schema",
     "delegation_authority_ref",
@@ -66,6 +111,9 @@
     "trust_boundary",
     "stage",
     "caller_level",
+    "orchestrator_session_id",
+    "caller_role_kind",
+    "caller_role",
     "role",
     "agent_level",
     "role_kind",
@@ -84,7 +132,7 @@
     "risk",
     "completion_criteria",
     "return_schema",
-    "automation_evidence_refs"
+    "evidence_refs"
   ],
   "result_required_fields": [
     "schema",
@@ -95,6 +143,9 @@
     "assignment_id",
     "repo_ref",
     "trust_boundary",
+    "orchestrator_session_id",
+    "caller_role_kind",
+    "caller_role",
     "role",
     "agent_level",
     "role_kind",
@@ -110,11 +161,15 @@
     "files_changed",
     "commands_run",
     "git_state",
-    "automation_evidence",
+    "evidence",
     "risks",
     "next_action"
   ],
-  "persistent_lifecycle": {
+  "persistent_l3_lifecycle": {
+    "role_kinds": [
+      "mutation-worker",
+      "primary-critic"
+    ],
     "dispatch_actions": [
       "start",
       "continue"
@@ -123,10 +178,13 @@
       "continue",
       "close"
     ],
-    "continue_transport": "followup_task",
+    "worker_session_field": "worker_session_id",
+    "critic_session_field": "critic_session_id",
+    "continue_transport": "collaboration.followup_task",
     "closed_session_reuse": false
   },
   "helper_lifecycle": {
+    "role_kind": "helper",
     "dispatch_action": "start",
     "result_action": "close",
     "worker_session_id": "none",
@@ -153,7 +211,38 @@
       "primary-critic",
       "helper"
     ],
-    "fixed_role_count": false
+    "fixed_role_count": false,
+    "specialization_authority": false
+  },
+  "authority_by_role_kind": {
+    "orchestrator": {
+      "authority": "Own the declared workflow or repository-lane lifecycle at its assigned level and dispatch only lower-level bounded work.",
+      "may_mutate_assigned_targets": false,
+      "may_select_routes": true,
+      "may_write_journal": true,
+      "persistent": true
+    },
+    "mutation-worker": {
+      "authority": "Mutate only assigned targets and return one bounded committed result without route or journal authority.",
+      "may_mutate_assigned_targets": true,
+      "may_select_routes": false,
+      "may_write_journal": false,
+      "persistent": true
+    },
+    "primary-critic": {
+      "authority": "Judge one immutable assigned scope and return findings without mutation, route, or journal authority.",
+      "may_mutate_assigned_targets": false,
+      "may_select_routes": false,
+      "may_write_journal": false,
+      "persistent": true
+    },
+    "helper": {
+      "authority": "Return one bounded read-only fact packet without mutation, route, journal, or continuation authority.",
+      "may_mutate_assigned_targets": false,
+      "may_select_routes": false,
+      "may_write_journal": false,
+      "persistent": false
+    }
   },
   "result_statuses": [
     "done",

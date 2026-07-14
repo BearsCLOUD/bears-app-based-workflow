@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://bears.cloud/contracts/app-context-index-result.v1.schema.json",
-  "title": "App context index result v1",
+  "$id": "https://bears.cloud/contracts/app-context-index-result.v2.schema.json",
+  "title": "app-context-index-result.v2",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -16,7 +16,7 @@
   ],
   "properties": {
     "schema": {
-      "const": "app-context-index-result.v1"
+      "const": "app-context-index-result.v2"
     },
     "status": {
       "enum": [
@@ -37,10 +37,10 @@
       "pattern": "^sha256:[a-f0-9]{64}$"
     },
     "traceability_index_ref": {
-      "const": "docs/app-traceability-index.v3.json"
+      "const": "docs/app-traceability-index.v4.json"
     },
     "process_index_ref": {
-      "const": "docs/app-process-index.v3.json"
+      "const": "docs/app-process-index.v4.json"
     },
     "build_receipt_ref": {
       "type": "string",

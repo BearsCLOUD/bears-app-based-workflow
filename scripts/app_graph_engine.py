@@ -1,4 +1,4 @@
-"""Compatibility facade for the modular app graph compiler, store, queries, audits, and process journal."""
+"""Compatibility facade for graph compilation, bounded queries, and process records."""
 
 from __future__ import annotations
 
@@ -9,12 +9,12 @@ from app_graph_process import process_record_event
 from app_graph_query import GraphStore, execute_query
 from app_graph_store import GraphError, MAX_REQUEST_BYTES, MAX_RESPONSE_BYTES
 
-READ_TOOLS = {"dependency_slice","impact_analysis","graph_trace","graph_diagnostics","topological_plan","workflow_state","process_audit","trace_audit"}
+READ_TOOLS = {"dependency_slice","impact_analysis","graph_trace","graph_diagnostics","topological_plan","workflow_state"}
 MAINTAINER_TOOLS = {"graph_compile","process_record_event"}
 
 
 def execute_tool(name: str, arguments: dict[str, Any], *, maintainer: bool = False) -> dict[str, Any]:
-    """Preserve the v0.3 import and tool names while routing to focused modules."""
+    """Route the stable MCP surface to focused graph modules."""
     if not isinstance(arguments, dict): raise GraphError("QUERY_INVALID", "arguments must be an object")
     if maintainer:
         if name == "graph_compile": return graph_compile(arguments)

@@ -11,13 +11,15 @@ Accept only work already classified `DELEGATED` by the active caller instruction
 
 Keep `DIRECT` work with the primary and never route it through this skill.
 
-Require one persistent repo-L2 with role `domain-lane-orchestrator` to own every `DELEGATED` app stage and its repo boundary.
+Require one persistent repo-L2 with profile `domain-lane-orchestrator` and role kind `repo-orchestrator` to own every `DELEGATED` app stage and its repo boundary.
 
 Keep L1-to-repo-L2 lane coordination outside this skill.
 
-Require L1 to use native collaboration with `repo-lane-dispatch.v1` and one persistent repo-L2 session.
+Require role kind `workflow-orchestrator` to use only native collaboration with `repo-lane-dispatch.v1` and one persistent repo-L2 session.
 
-Permit a generic non-app delegated caller to use `caller_level: solo-l2` only when its authority packet allows it.
+Never accept role kind `workflow-orchestrator` as an L3 caller.
+
+Permit a generic non-app delegated caller to use `caller_level: solo-l2` only when its caller role kind is `repo-orchestrator` and its authority packet allows it.
 
 Invoke every L3 only through this skill and never call a named worker, critic, reader, or writer directly.
 
@@ -45,7 +47,11 @@ Require byte-identical delegation authority, assignment authority, workstream, r
 
 Discover role identity from the selected regular non-symlink installed profile and reject packet identity drift.
 
-Derive authority and session lifecycle only from `role_kind`; use specialization only to match the bounded subject and never as a grant.
+Derive authority and session lifecycle only from `role_kind`.
+
+Require `caller_role_kind: repo-orchestrator` for every L3 dispatch.
+
+Use specialization only to match the bounded subject and never as a grant.
 
 Treat `task_name` only as a label and bind the selected role through packet identity plus its exact installed `config_file` instruction ref.
 

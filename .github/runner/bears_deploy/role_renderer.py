@@ -22,14 +22,21 @@ NAME_RE = re.compile(r"[a-z][a-z0-9-]{0,63}")
 ROLE_KINDS = {
     "app-worker": "mutation-worker",
     "diagnostic-command-runner": "helper",
-    "domain-lane-orchestrator": "orchestrator",
+    "domain-lane-orchestrator": "repo-orchestrator",
     "explorer": "helper",
     "graph-evidence-reader": "helper",
     "primary-source-researcher": "helper",
     "role-profile-architect": "mutation-worker",
     "wave-change-critic": "primary-critic",
     "worker": "mutation-worker",
-    "workflow-orchestrator": "orchestrator",
+    "workflow-orchestrator": "workflow-orchestrator",
+}
+ROLE_KIND_LEVELS = {
+    "workflow-orchestrator": "L1",
+    "repo-orchestrator": "L2",
+    "helper": "L3",
+    "mutation-worker": "L3",
+    "primary-critic": "L3",
 }
 GRAPH_READ_TOOLS = frozenset({
     "dependency_slice", "impact_analysis", "graph_trace", "graph_diagnostics",
@@ -124,6 +131,7 @@ def validate_definition(value: dict[str, Any], catalog: dict[str, Any], *, expec
         identity["level"] not in {"L1", "L2", "L3"}
         or name not in ROLE_KINDS
         or identity["role_kind"] != ROLE_KINDS[name]
+        or identity["level"] != ROLE_KIND_LEVELS.get(identity["role_kind"])
         or not isinstance(specialization, str)
         or not 1 <= len(specialization) <= 256
         or "\n" in specialization
@@ -204,8 +212,8 @@ def validate_definition(value: dict[str, Any], catalog: dict[str, Any], *, expec
     ):
         raise RoleDefinitionError("graph evidence reader capabilities are not exact")
     collaboration_tools = {tool for tool in requirements["native_tools"] if tool.startswith("collaboration.")}
-    if collaboration_tools and identity["role_kind"] != "orchestrator":
-        raise RoleDefinitionError(f"non-orchestrator cannot delegate: {name}")
+    if collaboration_tools and identity["role_kind"] not in {"workflow-orchestrator", "repo-orchestrator"}:
+        raise RoleDefinitionError(f"role kind cannot use native collaboration: {name}")
     if runtime["web_search"] == "live" and not {"web.search_query", "web.open"}.issubset(requirements["native_tools"]):
         raise RoleDefinitionError(f"live web search lacks explicit native requirements: {name}")
     behavior = value.get("behavior")

@@ -15,9 +15,23 @@
       "required": ["level", "role_kind", "specialization"],
       "properties": {
         "level": {"enum": ["L1", "L2", "L3"]},
-        "role_kind": {"enum": ["helper", "mutation-worker", "primary-critic", "orchestrator"]},
+        "role_kind": {"enum": ["helper", "mutation-worker", "primary-critic", "workflow-orchestrator", "repo-orchestrator"]},
         "specialization": {"type": "string", "minLength": 1, "maxLength": 256, "pattern": "^[^\\r\\n]+$"}
-      }
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"level": {"const": "L1"}}, "required": ["level"]},
+          "then": {"properties": {"role_kind": {"const": "workflow-orchestrator"}}}
+        },
+        {
+          "if": {"properties": {"level": {"const": "L2"}}, "required": ["level"]},
+          "then": {"properties": {"role_kind": {"const": "repo-orchestrator"}}}
+        },
+        {
+          "if": {"properties": {"level": {"const": "L3"}}, "required": ["level"]},
+          "then": {"properties": {"role_kind": {"enum": ["helper", "mutation-worker", "primary-critic"]}}}
+        }
+      ]
     },
     "model": {
       "type": "object",

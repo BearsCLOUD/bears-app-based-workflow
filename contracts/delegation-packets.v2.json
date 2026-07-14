@@ -51,9 +51,12 @@
     "fork_turns": "none",
     "conversation_inheritance": false,
     "parent_execution_fallback": false,
-    "allowed_l3_callers": [
+    "allowed_l3_caller_levels": [
       "L2",
       "solo-l2"
+    ],
+    "allowed_l3_caller_role_kinds": [
+      "repo-orchestrator"
     ]
   },
   "repo_lane_dispatch_required_fields": [
@@ -83,7 +86,8 @@
     "schema": "repo-lane-dispatch.v1",
     "caller_role": "workflow-orchestrator",
     "callee_role": "domain-lane-orchestrator",
-    "role_kind": "orchestrator",
+    "caller_role_kind": "workflow-orchestrator",
+    "callee_role_kind": "repo-orchestrator",
     "session_field": "orchestrator_session_id",
     "dispatch_actions": [
       "start",
@@ -98,7 +102,12 @@
     "fork_turns": "none",
     "one_persistent_session_per_repo_ref": true,
     "l2_owns_all_delegated_app_stages": true,
-    "l1_may_dispatch_l3": false
+    "l1_may_select_routes": false,
+    "l1_may_write_journal": false,
+    "l1_may_dispatch_l3": false,
+    "l2_may_select_routes": true,
+    "l2_may_write_journal": true,
+    "l2_may_dispatch_l3": true
   },
   "dispatch_required_fields": [
     "schema",
@@ -206,41 +215,71 @@
   "role_metadata": {
     "source": "agents/*.toml developer_instructions Role identity line",
     "allowed_role_kinds": [
-      "orchestrator",
+      "workflow-orchestrator",
+      "repo-orchestrator",
       "mutation-worker",
       "primary-critic",
       "helper"
     ],
     "fixed_role_count": false,
+    "role_kind_authority": true,
+    "level_authority": false,
     "specialization_authority": false
   },
   "authority_by_role_kind": {
-    "orchestrator": {
-      "authority": "Own the declared workflow or repository-lane lifecycle at its assigned level and dispatch only lower-level bounded work.",
+    "workflow-orchestrator": {
+      "authority": "Coordinate persistent repository lanes through native collaboration without app-stage, route, journal, or L3 authority.",
       "may_mutate_assigned_targets": false,
+      "may_coordinate_repo_lanes": true,
+      "may_own_app_stages": false,
+      "may_select_routes": false,
+      "may_write_journal": false,
+      "may_dispatch_l3": false,
+      "may_classify_repo_blockers": false,
+      "persistent": true
+    },
+    "repo-orchestrator": {
+      "authority": "Own one persistent repository app-stage lifecycle with route, journal, and bounded L3 dispatch authority.",
+      "may_mutate_assigned_targets": false,
+      "may_coordinate_repo_lanes": false,
+      "may_own_app_stages": true,
       "may_select_routes": true,
       "may_write_journal": true,
+      "may_dispatch_l3": true,
+      "may_classify_repo_blockers": true,
       "persistent": true
     },
     "mutation-worker": {
       "authority": "Mutate only assigned targets and return one bounded committed result without route or journal authority.",
       "may_mutate_assigned_targets": true,
+      "may_coordinate_repo_lanes": false,
+      "may_own_app_stages": false,
       "may_select_routes": false,
       "may_write_journal": false,
+      "may_dispatch_l3": false,
+      "may_classify_repo_blockers": false,
       "persistent": true
     },
     "primary-critic": {
       "authority": "Judge one immutable assigned scope and return findings without mutation, route, or journal authority.",
       "may_mutate_assigned_targets": false,
+      "may_coordinate_repo_lanes": false,
+      "may_own_app_stages": false,
       "may_select_routes": false,
       "may_write_journal": false,
+      "may_dispatch_l3": false,
+      "may_classify_repo_blockers": false,
       "persistent": true
     },
     "helper": {
       "authority": "Return one bounded read-only fact packet without mutation, route, journal, or continuation authority.",
       "may_mutate_assigned_targets": false,
+      "may_coordinate_repo_lanes": false,
+      "may_own_app_stages": false,
       "may_select_routes": false,
       "may_write_journal": false,
+      "may_dispatch_l3": false,
+      "may_classify_repo_blockers": false,
       "persistent": false
     }
   },

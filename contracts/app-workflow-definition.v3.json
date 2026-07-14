@@ -67,6 +67,16 @@
     "access-stop": "blocked",
     "operator-stop": "blocked"
   },
+  "analysis_route_reduction": {
+    "blocked_dominance": true,
+    "corrective_priority": [
+      "needs-research",
+      "needs-spec",
+      "needs-graph",
+      "needs-plan"
+    ],
+    "clean_route": "none"
+  },
   "audited_gate": {
     "exact_source_snapshot": true,
     "semantic_analysis_basis": "immediate-predecessor-build",
@@ -81,9 +91,10 @@
   },
   "delegated_process": {
     "repo_l2_scope": "all-app-stages",
-    "journal_writer": "repo-L2-or-DIRECT-primary",
+    "journal_writer": "repo-orchestrator-or-DIRECT-primary",
     "l3_journal_write": false,
     "l3_dispatch_skill": "subagents",
+    "l3_dispatch_owner_role_kind": "repo-orchestrator",
     "task_states": [
       "waiting",
       "ready",
@@ -94,8 +105,14 @@
       "superseded"
     ],
     "l1_role": "workflow-orchestrator",
+    "l1_role_kind": "workflow-orchestrator",
+    "l1_authority": "native-repo-lane-coordination-only",
+    "l1_may_own_app_stages": false,
+    "l1_may_select_routes": false,
+    "l1_may_write_journal": false,
+    "l1_may_dispatch_l3": false,
     "repo_l2_role": "domain-lane-orchestrator",
-    "repo_l2_role_kind": "orchestrator",
+    "repo_l2_role_kind": "repo-orchestrator",
     "repo_lane_schema": "repo-lane-dispatch.v1",
     "delegation_record": {
       "event_schema": "app-process-event.v3",

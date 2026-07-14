@@ -1,4 +1,4 @@
-"""Build-bound bounded graph queries with additive edge metadata and query caching."""
+"""Build-bound bounded graph queries with typed edge metadata and query caching."""
 
 from __future__ import annotations
 
@@ -7,12 +7,11 @@ import copy
 import json
 from typing import Any
 
-from app_graph_audit import process_audit, trace_audit
 from app_graph_store import *
 
 
 class GraphStore:
-    """Verified read view; every query is bound to one immutable build receipt."""
+    """Bound read view; every query is tied to one immutable build receipt."""
 
     def __init__(self, root: RepoRoot, trace: dict[str, Any], process: dict[str, Any], build: dict[str, Any], workflow: dict[str, Any], ledger: dict[str, Any]) -> None:
         self.root, self.trace, self.process, self.build, self.workflow, self.ledger = root, trace, process, build, workflow, ledger
@@ -22,16 +21,34 @@ class GraphStore:
     def load(cls, arguments: dict[str, Any]) -> "GraphStore":
         root = safe_root(arguments.get("app_root"))
         try:
-            source_manifest = manifest(root); pointer,_ = read_json(root,CURRENT_BUILD_PATH,max_bytes=262144); build,_ = read_json(root,pointer["receipt_ref"],max_bytes=262144)
-            trace,_ = read_json(root,TRACE_PATH); process,_ = read_json(root,PROCESS_PATH); workflow,_ = read_json(root,source_manifest["sources"]["workflow"]); ledger,_ = read_json(root,source_manifest["sources"]["task_ledger"])
-            if process.get("schema") not in {"app-process-index.v2","app-process-index.v3"}: raise GraphError("SCHEMA_UNSUPPORTED", "process index is unsupported")
-            if trace.get("build_ref") != build.get("build_ref") or process.get("build_ref") != build.get("build_ref"): raise GraphError("SOURCE_DRIFT", "index build refs disagree")
-            if digest_bytes(canonical(trace)) != build.get("trace_index_digest") or digest_bytes(canonical(process)) != build.get("process_index_digest"): raise GraphError("SOURCE_DRIFT", "index digest disagrees with receipt")
-            _,locators,snapshot=source_snapshot(root,source_manifest["sources"])
-            if snapshot != build.get("source_snapshot_digest") or locators != trace.get("generated_from"): raise GraphError("SOURCE_DRIFT", "source drift requires compile")
-            if arguments.get("expected_build_ref") not in (None,build["build_ref"]): raise GraphError("SOURCE_DRIFT", "expected build is stale")
-            return cls(root,trace,process,build,workflow,ledger)
-        except Exception: root.close(); raise
+            source_manifest = manifest(root)
+            pointer, _ = read_json(root, CURRENT_BUILD_PATH, max_bytes=262144)
+            receipt_ref = validate_current_pointer(pointer)
+            build, _ = read_json(root, receipt_ref, max_bytes=262144)
+            trace, _ = read_json(root, TRACE_PATH)
+            process, _ = read_json(root, PROCESS_PATH)
+            workflow, workflow_raw = read_json(root, source_manifest["sources"]["workflow"])
+            ledger, _ = read_json(root, source_manifest["sources"]["task_ledger"])
+            validate_build_bundle(pointer, build, trace, process)
+            if workflow.get("schema") != "app-workflow-definition.v3" or ledger.get("schema") != "app-task-ledger.v3":
+                raise GraphError("SCHEMA_UNSUPPORTED", "bound workflow or ledger is unsupported")
+            if (
+                process.get("workflow_definition_ref") != source_manifest["sources"]["workflow"]
+                or process.get("workflow_definition_digest") != digest_bytes(workflow_raw)
+            ):
+                raise GraphError("SOURCE_DRIFT", "workflow binding disagrees with the process index")
+            _, locators, snapshot = source_snapshot(root, source_manifest["sources"])
+            if snapshot != build["source_snapshot_digest"] or locators != trace.get("generated_from"):
+                raise GraphError("SOURCE_DRIFT", "source drift requires compile")
+            expected = arguments.get("expected_build_ref")
+            if expected is not None and not valid_build_ref(expected):
+                raise GraphError("QUERY_INVALID", "expected build ref is invalid")
+            if expected not in (None, build["build_ref"]):
+                raise GraphError("SOURCE_DRIFT", "expected build is stale")
+            return cls(root, trace, process, build, workflow, ledger)
+        except Exception:
+            root.close()
+            raise
 
     def close(self) -> None: self.root.close()
 
@@ -93,11 +110,7 @@ class GraphStore:
 
     def workflow_state(self, arguments: dict[str, Any]) -> dict[str, Any]:
         bounds=QueryBounds.from_args(arguments); run_ref=arguments.get("run_ref"); events=[x for x in self.process.get("events",[]) if not run_ref or x.get("run_ref")==run_ref]
-        return self._page(sorted(events,key=lambda x:x["event_ref"]),bounds,"workflow-state:"+str(run_ref or "*"))
-
-    def process_audit(self, arguments: dict[str, Any]) -> dict[str, Any]: return process_audit(self,arguments)
-    def trace_audit(self, arguments: dict[str, Any]) -> dict[str, Any]: return trace_audit(self,arguments)
-
+        return self._page(causal_order(events),bounds,"workflow-state:"+str(run_ref or "*"))
 
 def execute_query(name: str, arguments: dict[str, Any]) -> dict[str, Any]:
     store=GraphStore.load(arguments)

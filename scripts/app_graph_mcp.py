@@ -3,15 +3,33 @@
 from __future__ import annotations
 
 import json
+import re
 import sys
 from typing import Any
 
 from app_graph_engine import GraphError, MAX_REQUEST_BYTES, MAX_RESPONSE_BYTES, execute_tool
 
 SUPPORTED_PROTOCOLS = ("2025-11-25", "2025-06-18")
-SERVER_VERSION = "0.4.2"
+SERVER_VERSION = "0.4.3"
 
 STR = {"type": "string", "minLength": 1}
+REFS = {"type": "array", "items": STR, "uniqueItems": True}
+STAGES = [
+    "app-constitution", "app-research", "app-specify", "app-functional-graph",
+    "app-plan", "app-dev", "app-analyze",
+]
+STATUSES = [
+    "constitution-ready", "needs-research", "research-ready", "needs-spec",
+    "spec-ready", "needs-graph", "graph-ready", "waiting", "needs-plan",
+    "plan-ready", "ready", "in_progress", "implemented", "no-work",
+    "audited", "done", "failed", "blocked", "superseded",
+]
+FINDING_KINDS = [
+    "missing-source", "product-conflict", "decision-conflict", "semantic-gap",
+    "reference-gap", "cycle-gap", "task-gap", "implementation-gap",
+    "evidence-gap", "review-gap", "remediation-gap", "credential-stop",
+    "access-stop", "operator-stop",
+]
 CURSOR = {"type": "string", "description": "Opaque snapshot/query-bound continuation token."}
 BOUNDS = {
     "app_root": STR,
@@ -20,22 +38,95 @@ BOUNDS = {
     "max_depth": {"type": "integer", "minimum": 1, "maximum": 32, "default": 8},
     "cursor": CURSOR,
 }
+DELEGATION_RECORD_SCHEMA = {
+    "type": "object",
+    "additionalProperties": False,
+    "required": [
+        "dispatch_schema", "result_schema", "delegation_authority_ref",
+        "assignment_authority_ref", "assignment_id", "task_id", "role",
+        "role_kind", "agent_level", "orchestrator_session_id",
+    ],
+    "properties": {
+        "dispatch_schema": {"const": "dispatch-packet.v3"},
+        "result_schema": {"const": "result-packet.v2"},
+        "delegation_authority_ref": STR,
+        "assignment_authority_ref": STR,
+        "assignment_id": STR,
+        "task_id": STR,
+        "role": STR,
+        "role_kind": {"enum": ["helper", "mutation-worker", "primary-critic"]},
+        "agent_level": {"const": "L3"},
+        "orchestrator_session_id": STR,
+        "app_task_schema": {"const": "app-task-dispatch.v2"},
+    },
+}
+ANALYSIS_RESULT_SCHEMA = {
+    "type": "object",
+    "additionalProperties": False,
+    "required": [
+        "schema", "analysis_ref", "profile_ref", "model_ref", "checklist_ref",
+        "basis_build_ref", "input_refs", "coverage", "findings",
+        "unmapped_decision_refs", "unmapped_requirement_refs",
+        "open_remediation_refs", "complete", "route",
+    ],
+    "properties": {
+        "schema": {"const": "app-semantic-analysis-result.v1"},
+        "analysis_ref": STR,
+        "profile_ref": STR,
+        "model_ref": STR,
+        "checklist_ref": STR,
+        "basis_build_ref": {"type": "string", "pattern": r"^BUILD-[A-F0-9]{24}$"},
+        "input_refs": {**REFS, "minItems": 1},
+        "coverage": {
+            "type": "object",
+            "additionalProperties": False,
+            "required": ["sources", "decisions", "requirements", "dimensions", "tasks", "process_records"],
+            "properties": {
+                name: {"type": "integer", "minimum": 0}
+                for name in ("sources", "decisions", "requirements", "dimensions", "tasks", "process_records")
+            },
+        },
+        "findings": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "additionalProperties": False,
+                "required": ["finding_ref", "kind", "subject_refs", "conflict_refs", "route", "summary"],
+                "properties": {
+                    "finding_ref": STR,
+                    "kind": {"enum": FINDING_KINDS},
+                    "subject_refs": REFS,
+                    "conflict_refs": REFS,
+                    "route": {"enum": ["needs-research", "needs-spec", "needs-graph", "needs-plan", "blocked"]},
+                    "summary": STR,
+                },
+            },
+        },
+        "unmapped_decision_refs": REFS,
+        "unmapped_requirement_refs": REFS,
+        "open_remediation_refs": REFS,
+        "complete": {"type": "boolean"},
+        "route": {"enum": ["none", "needs-research", "needs-spec", "needs-graph", "needs-plan", "blocked"]},
+    },
+}
 EVENT_SCHEMA = {
     "type": "object", "additionalProperties": False,
-    "required": ["schema", "run_ref", "event_ref", "event_kind", "stage", "status", "actor", "causal_refs", "trace_refs", "artifact_refs", "task_refs", "origin", "automation_status", "repo_ref", "wave_ref"],
+    "required": ["schema", "run_ref", "event_ref", "event_kind", "stage", "status", "actor", "causal_refs", "trace_refs", "artifact_refs", "task_refs", "origin", "repo_ref", "wave_ref"],
     "properties": {
-        "schema": {"const": "app-process-event.v2"},
-        **{name: STR for name in ("run_ref", "event_ref", "event_kind", "stage", "status", "actor", "repo_ref", "wave_ref")},
-        **{name: {"type": "array", "items": STR, "uniqueItems": True} for name in ("causal_refs", "trace_refs", "artifact_refs", "task_refs")},
+        "schema": {"const": "app-process-event.v3"},
+        **{name: STR for name in ("run_ref", "event_ref", "repo_ref", "wave_ref")},
+        "stage": {"enum": STAGES},
+        "status": {"enum": STATUSES},
+        "actor": {"enum": ["DIRECT-primary", "repo-L2"]},
+        "event_kind": {"enum": ["run-start", "stage", "delegation", "task-result", "review", "remediation", "repo-handoff", "analysis"]},
+        **{name: REFS for name in ("causal_refs", "trace_refs", "artifact_refs", "task_refs")},
         "origin": {"const": "native"},
-        "automation_status": {"enum": ["not_run", "passed", "failed"]},
         "task_ref": STR, "terminal_result": {"enum": ["done", "failed", "blocked"]},
-        "reviewed_task_refs": {"type": "array", "items": STR, "uniqueItems": True},
-        "finding_refs": {"type": "array", "items": STR, "uniqueItems": True},
-        "commit_range": STR, "remediates_run_ref": STR, "audit_receipt_ref": STR,
-        "build_ref": STR, "source_snapshot_digest": STR, "journal_digest": STR,
-        "process_audit_refs": {"type": "array", "items": STR, "uniqueItems": True},
-        "trace_audit_refs": {"type": "array", "items": STR, "uniqueItems": True},
+        "reviewed_task_refs": REFS,
+        "finding_refs": REFS,
+        "commit_range": STR, "remediates_run_ref": STR, "analysis_ref": STR,
+        "analysis_result": ANALYSIS_RESULT_SCHEMA,
+        "delegation_record": DELEGATION_RECORD_SCHEMA,
     },
 }
 
@@ -53,8 +144,6 @@ SCHEMAS = {
     "graph_diagnostics": _object(BOUNDS),
     "topological_plan": _object(BOUNDS),
     "workflow_state": _object({**BOUNDS, "run_ref": STR}),
-    "process_audit": _object({**BOUNDS, "run_ref": STR, "terminal": {"type": "boolean"}}, ("app_root", "run_ref")),
-    "trace_audit": _object({**BOUNDS, "profile": {"enum": ["semantic", "planning", "convergence"]}}, ("app_root", "profile")),
 }
 READ_DESCRIPTIONS = {
     "dependency_slice": "Return bounded graph prerequisites or dependents.",
@@ -63,8 +152,6 @@ READ_DESCRIPTIONS = {
     "graph_diagnostics": "Return compiler findings.",
     "topological_plan": "Return dependency-ordered task refs.",
     "workflow_state": "Return immutable process events.",
-    "process_audit": "Audit one exact run's causal DAG, ownership, lifecycle, and terminal candidate.",
-    "trace_audit": "Audit semantic, planning, or convergence trace completeness.",
 }
 
 
@@ -92,10 +179,12 @@ def _validate(schema: dict[str, Any], value: Any, path: str = "arguments") -> No
             if key in props: _validate(props[key], item, f"{path}.{key}")
     elif kind == "array":
         if not isinstance(value, list): raise ValueError(f"{path} must be an array")
+        if len(value) < schema.get("minItems", 0): raise ValueError(f"{path} contains too few items")
         if schema.get("uniqueItems") and len({json.dumps(item, sort_keys=True) for item in value}) != len(value): raise ValueError(f"{path} must contain unique items")
         for index, item in enumerate(value): _validate(schema["items"], item, f"{path}[{index}]")
     elif kind == "string":
         if not isinstance(value, str) or len(value) < schema.get("minLength", 0): raise ValueError(f"{path} must be a non-empty string")
+        if schema.get("pattern") and re.fullmatch(schema["pattern"], value) is None: raise ValueError(f"{path} has an invalid format")
     elif kind == "integer":
         if isinstance(value, bool) or not isinstance(value, int) or value < schema.get("minimum", value) or value > schema.get("maximum", value): raise ValueError(f"{path} is outside its integer bounds")
     elif kind == "boolean" and not isinstance(value, bool): raise ValueError(f"{path} must be a boolean")

@@ -2,7 +2,7 @@
 
 All notable changes to this plugin are documented in this file.
 
-## Unreleased
+## 0.4.3
 
 - Reframed the plugin as a workflow for deterministic documentation routing, graph planning, repository orchestration, and semantic correspondence analysis.
 - Assigned every DIRECT stage to the DIRECT primary and every DELEGATED stage to one persistent repo-L2.

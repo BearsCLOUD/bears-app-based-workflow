@@ -357,7 +357,7 @@
     "lane_packet": "typed-transient",
     "l3_packet": "typed-transient",
     "outgoing_handoff": "typed-transient-build-bound",
-    "route_application": "every-causal-adjacency",
+    "route_application": "boundary-status-or-same-stage-internal-event",
     "corrective_boundary_evidence": "typed-finding-except-failed-task-needs-plan"
   }
 }

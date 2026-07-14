@@ -559,7 +559,7 @@ def _validate_workflow(workflow: Any) -> dict[str, str]:
         "lane_packet": "typed-transient",
         "l3_packet": "typed-transient",
         "outgoing_handoff": "typed-transient-build-bound",
-        "route_application": "every-causal-adjacency",
+        "route_application": "boundary-status-or-same-stage-internal-event",
         "corrective_boundary_evidence": "typed-finding-except-failed-task-needs-plan",
     }
     if (
@@ -1280,14 +1280,12 @@ def _validate_run_lifecycle(
     for event in ordered:
         for cause_ref in event["causal_refs"]:
             cause = by_ref[cause_ref]
-            expected_stage = routes.get(cause["status"])
-            if (
-                expected_stage is not None
-                and expected_stage != event["stage"]
-            ) or (
-                expected_stage is None
-                and cause["stage"] != event["stage"]
-            ):
+            expected_stage = (
+                routes[cause["status"]]
+                if cause["event_kind"] in HANDOFF_EVENT_KINDS
+                else cause["stage"]
+            )
+            if expected_stage != event["stage"]:
                 raise GraphError(
                     "RUN_TRANSITION_INVALID",
                     "causal adjacency does not follow the workflow route",

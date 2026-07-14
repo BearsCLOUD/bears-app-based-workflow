@@ -1,0 +1,126 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://bears.cloud/contracts/app-process-event.v3.schema.json",
+  "title": "app-process-event.v3",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema", "run_ref", "event_ref", "event_kind", "stage", "status", "actor",
+    "repo_ref", "wave_ref", "task_refs", "causal_refs", "trace_refs", "artifact_refs", "origin"
+  ],
+  "properties": {
+    "schema": {"const": "app-process-event.v3"},
+    "run_ref": {"type": "string", "minLength": 1},
+    "event_ref": {"type": "string", "minLength": 1},
+    "event_kind": {"enum": ["run-start", "stage", "delegation", "task-result", "review", "remediation", "repo-handoff", "analysis"]},
+    "stage": {"enum": ["app-constitution", "app-research", "app-specify", "app-functional-graph", "app-plan", "app-dev", "app-analyze"]},
+    "status": {"enum": ["constitution-ready", "needs-research", "research-ready", "needs-spec", "spec-ready", "needs-graph", "graph-ready", "waiting", "needs-plan", "plan-ready", "ready", "in_progress", "implemented", "no-work", "audited", "done", "failed", "blocked", "superseded"]},
+    "actor": {"enum": ["DIRECT-primary", "repo-L2"]},
+    "repo_ref": {"type": "string", "minLength": 1},
+    "wave_ref": {"type": "string", "minLength": 1},
+    "task_refs": {"$ref": "#/$defs/refs"},
+    "causal_refs": {"$ref": "#/$defs/refs"},
+    "trace_refs": {"$ref": "#/$defs/refs"},
+    "artifact_refs": {"$ref": "#/$defs/refs"},
+    "origin": {"const": "native"},
+    "task_ref": {"type": "string", "minLength": 1},
+    "terminal_result": {"enum": ["done", "failed", "blocked"]},
+    "reviewed_task_refs": {"$ref": "#/$defs/refs"},
+    "finding_refs": {"$ref": "#/$defs/refs"},
+    "commit_range": {"type": "string", "minLength": 1},
+    "remediates_run_ref": {"type": "string", "minLength": 1},
+    "delegation_record": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "dispatch_schema", "result_schema", "delegation_authority_ref", "assignment_authority_ref",
+        "assignment_id", "task_id", "role", "role_kind", "agent_level", "orchestrator_session_id"
+      ],
+      "properties": {
+        "dispatch_schema": {"const": "dispatch-packet.v3"},
+        "result_schema": {"const": "result-packet.v2"},
+        "app_task_schema": {"const": "app-task-dispatch.v2"},
+        "delegation_authority_ref": {"type": "string", "minLength": 1},
+        "assignment_authority_ref": {"type": "string", "minLength": 1},
+        "assignment_id": {"type": "string", "minLength": 1},
+        "task_id": {"type": "string", "minLength": 1},
+        "role": {"type": "string", "minLength": 1},
+        "role_kind": {"enum": ["helper", "mutation-worker", "primary-critic"]},
+        "agent_level": {"const": "L3"},
+        "orchestrator_session_id": {"type": "string", "minLength": 1}
+      }
+    },
+    "analysis_ref": {"type": "string", "minLength": 1},
+    "analysis_result": {"$ref": "app-semantic-analysis-result.v1.schema.json"}
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {"event_kind": {"const": "run-start"}},
+        "required": ["event_kind"]
+      },
+      "then": {
+        "properties": {
+          "task_refs": {"minItems": 1},
+          "causal_refs": {"maxItems": 0}
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {"event_kind": {"const": "delegation"}},
+        "required": ["event_kind"]
+      },
+      "then": {"required": ["delegation_record"]},
+      "else": {"not": {"required": ["delegation_record"]}}
+    },
+    {
+      "if": {
+        "properties": {"event_kind": {"const": "task-result"}},
+        "required": ["event_kind"]
+      },
+      "then": {"required": ["task_ref", "terminal_result"]}
+    },
+    {
+      "if": {
+        "properties": {"event_kind": {"const": "review"}},
+        "required": ["event_kind"]
+      },
+      "then": {
+        "required": ["commit_range", "reviewed_task_refs"],
+        "properties": {"reviewed_task_refs": {"minItems": 1}}
+      }
+    },
+    {
+      "if": {
+        "properties": {"event_kind": {"const": "remediation"}},
+        "required": ["event_kind"]
+      },
+      "then": {
+        "required": ["finding_refs"],
+        "properties": {"finding_refs": {"minItems": 1}}
+      }
+    },
+    {
+      "if": {
+        "properties": {"event_kind": {"const": "analysis"}},
+        "required": ["event_kind"]
+      },
+      "then": {"required": ["analysis_ref", "analysis_result"]}
+    },
+    {
+      "if": {
+        "properties": {"status": {"const": "audited"}},
+        "required": ["status"]
+      },
+      "then": {"properties": {"event_kind": {"const": "analysis"}}}
+    }
+  ],
+  "$defs": {
+    "refs": {
+      "type": "array",
+      "items": {"type": "string", "minLength": 1},
+      "uniqueItems": true
+    }
+  }
+}

@@ -1,0 +1,62 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://bears.cloud/contracts/app-semantic-analysis-result.v1.schema.json",
+  "title": "app-semantic-analysis-result.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema", "analysis_ref", "profile_ref", "model_ref", "checklist_ref", "basis_build_ref",
+    "input_refs", "coverage", "findings", "unmapped_decision_refs", "unmapped_requirement_refs",
+    "open_remediation_refs", "complete", "route"
+  ],
+  "properties": {
+    "schema": {"const": "app-semantic-analysis-result.v1"},
+    "analysis_ref": {"type": "string", "minLength": 1},
+    "profile_ref": {"type": "string", "minLength": 1},
+    "model_ref": {"type": "string", "minLength": 1},
+    "checklist_ref": {"type": "string", "minLength": 1},
+    "basis_build_ref": {"type": "string", "minLength": 1},
+    "input_refs": {"$ref": "#/$defs/refs"},
+    "coverage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["sources", "decisions", "requirements", "dimensions", "tasks", "process_records"],
+      "properties": {
+        "sources": {"type": "integer", "minimum": 0},
+        "decisions": {"type": "integer", "minimum": 0},
+        "requirements": {"type": "integer", "minimum": 0},
+        "dimensions": {"type": "integer", "minimum": 0},
+        "tasks": {"type": "integer", "minimum": 0},
+        "process_records": {"type": "integer", "minimum": 0}
+      }
+    },
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["finding_ref", "kind", "subject_refs", "conflict_refs", "route", "summary"],
+        "properties": {
+          "finding_ref": {"type": "string", "minLength": 1},
+          "kind": {"enum": ["missing-source", "product-conflict", "decision-conflict", "semantic-gap", "reference-gap", "cycle-gap", "task-gap", "implementation-gap", "evidence-gap", "review-gap", "remediation-gap", "credential-stop", "access-stop", "operator-stop"]},
+          "subject_refs": {"$ref": "#/$defs/refs"},
+          "conflict_refs": {"$ref": "#/$defs/refs"},
+          "route": {"enum": ["needs-research", "needs-spec", "needs-graph", "needs-plan", "blocked"]},
+          "summary": {"type": "string", "minLength": 1}
+        }
+      }
+    },
+    "unmapped_decision_refs": {"$ref": "#/$defs/refs"},
+    "unmapped_requirement_refs": {"$ref": "#/$defs/refs"},
+    "open_remediation_refs": {"$ref": "#/$defs/refs"},
+    "complete": {"type": "boolean"},
+    "route": {"enum": ["none", "needs-research", "needs-spec", "needs-graph", "needs-plan", "blocked"]}
+  },
+  "$defs": {
+    "refs": {
+      "type": "array",
+      "items": {"type": "string", "minLength": 1},
+      "uniqueItems": true
+    }
+  }
+}

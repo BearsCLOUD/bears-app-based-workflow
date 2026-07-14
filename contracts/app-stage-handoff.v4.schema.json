@@ -1,0 +1,100 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://bears.cloud/contracts/app-stage-handoff.v4.schema.json",
+  "title": "app-stage-handoff.v4",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema", "handoff_ref", "run_ref", "event_ref", "status", "target_stage",
+    "causal_refs", "trace_links", "build_ref", "source_snapshot_digest", "journal_digest",
+    "artifact_refs", "decision_refs", "requirement_refs", "finding_refs", "evidence_refs", "stage_payload"
+  ],
+  "properties": {
+    "schema": {"const": "app-stage-handoff.v4"},
+    "handoff_ref": {"type": "string", "minLength": 1},
+    "run_ref": {"type": "string", "minLength": 1},
+    "event_ref": {"type": "string", "minLength": 1},
+    "status": {"enum": ["constitution-ready", "needs-research", "research-ready", "needs-spec", "spec-ready", "needs-graph", "graph-ready", "waiting", "needs-plan", "plan-ready", "ready", "implemented", "no-work", "audited", "blocked"]},
+    "target_stage": {"enum": ["app-research", "app-specify", "app-functional-graph", "app-plan", "app-dev", "app-analyze", "none"]},
+    "causal_refs": {"$ref": "#/$defs/refs"},
+    "trace_links": {"type": "array", "items": {"type": "object"}},
+    "build_ref": {"type": "string", "minLength": 1},
+    "source_snapshot_digest": {"type": "string", "minLength": 1},
+    "journal_digest": {"type": "string", "minLength": 1},
+    "artifact_refs": {"$ref": "#/$defs/refs"},
+    "decision_refs": {"$ref": "#/$defs/refs"},
+    "requirement_refs": {"$ref": "#/$defs/refs"},
+    "finding_refs": {"$ref": "#/$defs/refs"},
+    "evidence_refs": {"$ref": "#/$defs/refs"},
+    "stage_payload": {"type": "object"}
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"status": {"const": "constitution-ready"}}, "required": ["status"]},
+      "then": {"properties": {"target_stage": {"const": "app-research"}}}
+    },
+    {
+      "if": {"properties": {"status": {"const": "needs-research"}}, "required": ["status"]},
+      "then": {"properties": {"target_stage": {"const": "app-research"}}}
+    },
+    {
+      "if": {"properties": {"status": {"const": "research-ready"}}, "required": ["status"]},
+      "then": {"properties": {"target_stage": {"const": "app-specify"}}}
+    },
+    {
+      "if": {"properties": {"status": {"const": "needs-spec"}}, "required": ["status"]},
+      "then": {"properties": {"target_stage": {"const": "app-specify"}}}
+    },
+    {
+      "if": {"properties": {"status": {"const": "spec-ready"}}, "required": ["status"]},
+      "then": {"properties": {"target_stage": {"const": "app-functional-graph"}}}
+    },
+    {
+      "if": {"properties": {"status": {"const": "needs-graph"}}, "required": ["status"]},
+      "then": {"properties": {"target_stage": {"const": "app-functional-graph"}}}
+    },
+    {
+      "if": {"properties": {"status": {"const": "graph-ready"}}, "required": ["status"]},
+      "then": {"properties": {"target_stage": {"const": "app-plan"}}}
+    },
+    {
+      "if": {"properties": {"status": {"const": "waiting"}}, "required": ["status"]},
+      "then": {"properties": {"target_stage": {"const": "app-plan"}}}
+    },
+    {
+      "if": {"properties": {"status": {"const": "needs-plan"}}, "required": ["status"]},
+      "then": {"properties": {"target_stage": {"const": "app-plan"}}}
+    },
+    {
+      "if": {"properties": {"status": {"const": "plan-ready"}}, "required": ["status"]},
+      "then": {"properties": {"target_stage": {"const": "app-dev"}}}
+    },
+    {
+      "if": {"properties": {"status": {"const": "ready"}}, "required": ["status"]},
+      "then": {"properties": {"target_stage": {"const": "app-dev"}}}
+    },
+    {
+      "if": {"properties": {"status": {"const": "implemented"}}, "required": ["status"]},
+      "then": {"properties": {"target_stage": {"const": "app-analyze"}}}
+    },
+    {
+      "if": {"properties": {"status": {"const": "no-work"}}, "required": ["status"]},
+      "then": {"properties": {"target_stage": {"const": "app-analyze"}}}
+    },
+    {
+      "if": {"properties": {"status": {"const": "audited"}}, "required": ["status"]},
+      "then": {"properties": {"target_stage": {"const": "none"}}}
+    },
+    {
+      "if": {"properties": {"status": {"const": "blocked"}}, "required": ["status"]},
+      "then": {"properties": {"target_stage": {"const": "none"}}}
+    }
+  ],
+  "$defs": {
+    "refs": {
+      "type": "array",
+      "items": {"type": "string", "minLength": 1},
+      "uniqueItems": true
+    }
+  }
+}

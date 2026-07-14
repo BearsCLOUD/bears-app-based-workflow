@@ -1,7 +1,7 @@
 {
   "name": "bears-app-based-workflow",
-  "version": "0.4.2",
-  "description": "Bears app workflow plugin with deterministic graph compilation, immutable process journal, semantic audits, repo-scoped execution, and audited convergence.",
+  "version": "0.4.3",
+  "description": "Bears app workflow plugin with deterministic graph compilation, immutable process records, repo-scoped orchestration, and semantic correspondence analysis.",
   "author": {
     "name": "BearsCLOUD",
     "url": "https://github.com/BearsCLOUD"
@@ -27,14 +27,14 @@
   "interface": {
     "displayName": "Bears App-Based Workflow",
     "shortDescription": "DIRECT routing and bounded repo app waves.",
-    "longDescription": "Bears App-Based Workflow provides structured app stages, deterministic trace/process compilation, immutable process events, bounded dependency and impact queries, semantic/process audits, graph-linked task planning, repo-scoped implementation, and remediation convergence.",
+    "longDescription": "Bears App-Based Workflow provides structured app stages, deterministic trace/process compilation, immutable process events, bounded dependency and impact queries, semantic correspondence analysis, graph-linked planning, repo-scoped orchestration, and remediation convergence.",
     "developerName": "BearsCLOUD",
     "category": "Development",
     "capabilities": [
       "Structured app workflow",
       "Deterministic graph compiler",
       "Immutable process journal",
-      "Read-only semantic and process audits",
+      "Semantic correspondence analysis",
       "Opaque snapshot-bound pagination",
       "Graph-linked task ledger",
       "Repo-scoped implementation and remediation",

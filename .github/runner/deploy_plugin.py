@@ -3,7 +3,7 @@
 
 Entry point: ``main``. Boundary: the installed launcher imports only the fixed
 root-owned package tree; repository-local imports are allowed only beside this
-source file for autoCI coverage.
+deployment facade.
 """
 
 from __future__ import annotations

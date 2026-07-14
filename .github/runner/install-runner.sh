@@ -78,10 +78,9 @@ _install_runner_quiesce_managed_service() {
 
 _install_runner_import_deployment_state() {
   local ai1_uid="$1" ai1_gid="$2" state_root="$3" state_dir="$4"
-  local legacy_state_dir="$5" path_profile="$6" test_root="$7" crash_point="$8"
+  local legacy_state_dir="$5"
   /usr/bin/python3 - \
-    "$ai1_uid" "$ai1_gid" "$state_root" "$state_dir" "$legacy_state_dir" \
-    "$path_profile" "$test_root" "$crash_point" <<'PY'
+    "$ai1_uid" "$ai1_gid" "$state_root" "$state_dir" "$legacy_state_dir" <<'PY'
 import ctypes
 import errno
 import fcntl
@@ -98,9 +97,6 @@ AI1_GID = int(sys.argv[2])
 STATE_ROOT = sys.argv[3]
 STATE_DIR = sys.argv[4]
 LEGACY_STATE_DIR = sys.argv[5]
-PATH_PROFILE = sys.argv[6]
-TEST_ROOT = sys.argv[7]
-CRASH_POINT = sys.argv[8]
 PLUGIN = "bears-app-based-workflow"
 RECEIPT = f"{PLUGIN}.json"
 INTENT = f"{PLUGIN}.promotion-intent.json"
@@ -144,10 +140,9 @@ ROLE_NAMES = (
     "diagnostic-command-runner",
     "domain-lane-orchestrator",
     "explorer",
+    "graph-evidence-reader",
     "primary-source-researcher",
     "role-profile-architect",
-    "runtime-evidence-reader",
-    "security-analysis-critic",
     "wave-change-critic",
     "worker",
     "workflow-orchestrator",
@@ -158,34 +153,13 @@ def fail(message: str) -> None:
     raise SystemExit(f"install-runner: {message}")
 
 
-if PATH_PROFILE == "live":
-    if (
-        STATE_ROOT != "/var/lib/bears-plugin-deploy"
-        or STATE_DIR != f"{STATE_ROOT}/ai1"
-        or LEGACY_STATE_DIR
-        != "/srv/bears/codex/ai1/.local/state/bears-plugin-deploy"
-        or TEST_ROOT
-        or CRASH_POINT
-    ):
-        fail("deployment state path contract drifted")
-elif PATH_PROFILE == "test":
-    if (
-        not TEST_ROOT.startswith("/")
-        or TEST_ROOT == "/"
-        or ".." in TEST_ROOT.split("/")
-        or "\n" in TEST_ROOT
-        or STATE_ROOT != f"{TEST_ROOT}/state"
-        or STATE_DIR != f"{STATE_ROOT}/ai1"
-        or LEGACY_STATE_DIR != f"{TEST_ROOT}/legacy"
-        or CRASH_POINT not in {
-            "",
-            "after-stage-write-before-receipt",
-            "after-receipt-before-tombstone",
-        }
-    ):
-        fail("test deployment state path contract drifted")
-else:
-    fail("unknown deployment state path profile")
+if (
+    STATE_ROOT != "/var/lib/bears-plugin-deploy"
+    or STATE_DIR != f"{STATE_ROOT}/ai1"
+    or LEGACY_STATE_DIR
+    != "/srv/bears/codex/ai1/.local/state/bears-plugin-deploy"
+):
+    fail("deployment state path contract drifted")
 
 
 def validate_directory(
@@ -240,43 +214,20 @@ def create_or_open_directory(
     return descriptor
 
 
-var = None
-var_lib = None
-if PATH_PROFILE == "live":
-    root = os.open("/", FLAGS)
-    validate_directory(root, "/", uid=0, gid=0, exact_mode=None)
-    var = open_child(root, "var", "/var")
-    validate_directory(var, "/var", uid=0, gid=0, exact_mode=None)
-    var_lib = open_child(var, "lib", "/var/lib")
-    validate_directory(var_lib, "/var/lib", uid=0, gid=0, exact_mode=None)
-    state_root = create_or_open_directory(
-        var_lib,
-        "bears-plugin-deploy",
-        STATE_ROOT,
-        uid=0,
-        gid=0,
-        mode=0o755,
-    )
-else:
-    try:
-        root = os.open(TEST_ROOT, FLAGS)
-    except OSError as exc:
-        fail(f"missing or unsafe test deployment state root: {exc.errno}")
-    validate_directory(
-        root,
-        TEST_ROOT,
-        uid=AI1_UID,
-        gid=AI1_GID,
-        exact_mode=0o700,
-    )
-    state_root = create_or_open_directory(
-        root,
-        "state",
-        STATE_ROOT,
-        uid=AI1_UID,
-        gid=AI1_GID,
-        mode=0o700,
-    )
+root = os.open("/", FLAGS)
+validate_directory(root, "/", uid=0, gid=0, exact_mode=None)
+var = open_child(root, "var", "/var")
+validate_directory(var, "/var", uid=0, gid=0, exact_mode=None)
+var_lib = open_child(var, "lib", "/var/lib")
+validate_directory(var_lib, "/var/lib", uid=0, gid=0, exact_mode=None)
+state_root = create_or_open_directory(
+    var_lib,
+    "bears-plugin-deploy",
+    STATE_ROOT,
+    uid=0,
+    gid=0,
+    mode=0o755,
+)
 state = create_or_open_directory(
     state_root,
     "ai1",
@@ -288,21 +239,6 @@ state = create_or_open_directory(
 
 
 def optional_old_state() -> int | None:
-    if PATH_PROFILE == "test":
-        try:
-            descriptor = os.open("legacy", FLAGS, dir_fd=root)
-        except FileNotFoundError:
-            return None
-        except OSError as exc:
-            fail(f"unsafe legacy deployment state path: {exc.errno}")
-        validate_directory(
-            descriptor,
-            LEGACY_STATE_DIR,
-            uid=AI1_UID,
-            gid=AI1_GID,
-            exact_mode=0o700,
-        )
-        return descriptor
     descriptor = os.dup(root)
     specifications = (
         ("srv", "/srv", 0, 0, 0o755),
@@ -688,12 +624,8 @@ def publish_private_no_replace(
     name: str,
     payload: bytes,
     label: str,
-    *,
-    crash_after_stage: bool = False,
 ) -> None:
     write_import_stage(directory, stage_name, payload, label)
-    if crash_after_stage and CRASH_POINT == "after-stage-write-before-receipt":
-        fail("injected crash after import stage write before receipt publication")
     if renameat2(
         directory,
         os.fsencode(stage_name),
@@ -805,13 +737,10 @@ else:
                     RECEIPT,
                     source,
                     "legacy deployment receipt import",
-                    crash_after_stage=True,
                 )
             imported = read_private(state, RECEIPT, "imported deployment receipt")
             if not hmac.compare_digest(source, imported):
                 fail("imported deployment receipt changed before tombstone publication")
-            if CRASH_POINT == "after-receipt-before-tombstone":
-                fail("injected crash after receipt publication before tombstone")
             publish_private_no_replace(
                 state,
                 IMPORT_STAGE,
@@ -943,7 +872,7 @@ IFS=: read -r _ _ ai1_uid ai1_gid _ _ _ < <(/usr/bin/getent passwd ai1)
   _install_runner_die "ai1 must have a fixed non-root uid and numeric gid"
 _install_runner_import_deployment_state \
   "$ai1_uid" "$ai1_gid" "$DEPLOY_STATE_ROOT" "$DEPLOY_STATE_DIR" \
-  "$LEGACY_DEPLOY_STATE_DIR" live "" ""
+  "$LEGACY_DEPLOY_STATE_DIR"
 
 /usr/bin/install -d -o root -g root -m 0755 "$(dirname "$ARCHIVE")"
 if [[ -f "$ARCHIVE" ]] && ! printf '%s  %s\n' "$RUNNER_SHA256" "$ARCHIVE" | /usr/bin/sha256sum --check --status; then
@@ -1049,7 +978,9 @@ _install_runner_sudoers_tmp=""
 for protected_root in /home/ai1 /srv/bears/codex/ai1; do
   [[ -d "$protected_root" ]] || _install_runner_die "protected operator path is missing: $protected_root"
   for access_mode in -r -x; do
-    if /usr/sbin/runuser -u "$RUNNER_USER" -- /usr/bin/test "$access_mode" "$protected_root"; then
+    if /usr/sbin/runuser -u "$RUNNER_USER" -- /usr/bin/python3 -c \
+      'import os,sys; mode={"-r":os.R_OK,"-x":os.X_OK}[sys.argv[1]]; raise SystemExit(0 if os.access(sys.argv[2],mode,effective_ids=True) else 1)' \
+      "$access_mode" "$protected_root"; then
       _install_runner_die "$RUNNER_USER can read or traverse protected operator path: $protected_root"
     fi
   done
@@ -1058,7 +989,9 @@ for sensitive in \
   /home/ai1/.config/gh/hosts.yml \
   /srv/bears/codex/ai1/auth.json \
   /srv/bears/codex/ai1/config.toml; do
-  if /usr/sbin/runuser -u "$RUNNER_USER" -- /usr/bin/test -r "$sensitive"; then
+  if /usr/sbin/runuser -u "$RUNNER_USER" -- /usr/bin/python3 -c \
+    'import os,sys; raise SystemExit(0 if os.access(sys.argv[1],os.R_OK,effective_ids=True) else 1)' \
+    "$sensitive"; then
     _install_runner_die "$RUNNER_USER can read sensitive operator state: $sensitive"
   fi
 done

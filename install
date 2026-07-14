@@ -44,13 +44,12 @@ MAX_JOURNAL_BYTES = (MAX_PREIMAGE_BYTES * 6) + (256 * 1024)
 _BOUND_CODEX_HOME_FD = -1
 _BOUND_CODEX_HOME_PATH: Path | None = None
 
-# These 43 names were retired by the eleven-profile catalog. Both their files and
+# These 42 names were retired by the role catalog. Both their files and
 # unmanaged config registrations are one-way migration inputs, never aliases.
 RETIRED_PROFILE_NAMES = frozenset(
     {
         "android-emulator-config-editor",
         "application-change-editor",
-        "automation-status-reader",
         "codex-config-editor",
         "codex-daemon-editor",
         "codex-health-diagnostician",
@@ -101,7 +100,6 @@ LEGACY_RETIRED_PROFILE_DIGESTS = MappingProxyType(
     {
         "android-emulator-config-editor": "cc2d2e0afca3c58c86d1377d51379219fca21d48f415186fd7abab93e576702c",
         "application-change-editor": "8f14313f78d16da70417746a6a2dda3c80ee2eb60662888ae2a8b7bfdc346e75",
-        "automation-status-reader": "efe7c29a120acfa448d8035b769cd6430a64959cd9352e805e556b4dbc89bfc3",
         "codex-config-editor": "2e1a5b411b168870a92dffb16eb10dd99b0eb89227cce6d480a4148d8363b235",
         "codex-daemon-editor": "3562c454445fdc1537b31e14edceaa72891da0c364842979db40abc62f30a879",
         "codex-health-diagnostician": "c7491ba8d763c6b0fd14d9bca7e6dcee7f0716fd93a24f61823b7a1b831147ff",
@@ -154,7 +152,6 @@ LEGACY_PROFILE_FILES = frozenset(
         "bears-app-functional-graph-orchestrator.toml",
         "bears-auth-domain-orchestrator.toml",
         "bears-auth-platform-engineer.toml",
-        "bears-autoci-evidence-helper.toml",
         "bears-clarification-architect.toml",
         "bears-codex-daemon-engineer.toml",
         "bears-codex-health-engineer.toml",
@@ -182,7 +179,6 @@ LEGACY_PROFILE_FILES = frozenset(
         "bears-orchestrator.toml",
         "bears-payments-domain-orchestrator.toml",
         "bears-payments-platform-engineer.toml",
-        "bears-platform-security-re" + "viewer.toml",
         "bears-plugin-update-engineer.toml",
         "bears-product-app-zone-engineer.toml",
         "bears-qa-governance-orchestrator.toml",
@@ -213,9 +209,7 @@ LEGACY_PROFILE_FILES = frozenset(
         "l2-platform-domain-orchestrator.toml",
         "l2-product-infra-domain-orchestrator.toml",
         "overlay-controller.toml",
-        "autoci-evidence-" + "reader.toml",
         "re" + "view-fix-editor.toml",
-        "security-re" + "viewer.toml",
     }
 ) | frozenset(f"{name}.toml" for name in RETIRED_PROFILE_NAMES)
 
@@ -224,9 +218,7 @@ LEGACY_PROFILE_FILES = frozenset(
 STALE_ROLE_NAMES = frozenset(
     {
         "bears-orchestrator",
-        "autoci-evidence-" + "reader",
         "re" + "view-fix-editor",
-        "security-re" + "viewer",
     }
 ) | RETIRED_PROFILE_NAMES
 

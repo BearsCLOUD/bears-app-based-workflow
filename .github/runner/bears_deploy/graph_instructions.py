@@ -19,7 +19,7 @@ END = b"<!-- <<< bears-app-based-workflow graph behavior (managed by CD) -->"
 
 
 def _target() -> Path:
-    """Resolve the target at call time so tests and recovery cannot retain another home."""
+    """Resolve the target at call time so recovery cannot retain another home."""
     return CODEX_HOME / "AGENTS.md"
 
 

@@ -43,3 +43,14 @@ Source run `RUN-WORKFLOW-REFACTOR-V5-SOURCE-001` routes finding `FIND-WF5-CORREC
 | 6 | `TASK-WF5-REM-DELIVERY` | Changed plugin metadata. | `TASK-WF5-REM-DOCS-GRAPH` |
 
 The linked run ref is `RUN-WORKFLOW-REFACTOR-V5-CORRECTION-001`. Exact targets, catalog bindings, queue order, and remediation basis remain authoritative only in `docs/app-task-ledger.v3.json`.
+
+## Review correction run
+
+Review `EVT-WF5-CORRECTION-REVIEW-FINDINGS-001` routes two implementation gaps to a second linked run without reopening completed tasks.
+
+| Order | Remediation task | Scope | Depends on |
+| --- | --- | --- | --- |
+| 1 | `TASK-WF5-REM2-BLOCKED-ROUTE` | Keep internal task results inside `app-dev` while terminal boundaries retain canonical status routing. | None |
+| 2 | `TASK-WF5-REM2-WAITING-GATE` | Admit complete topological batches containing both dependency-ready and dependency-blocked tasks. | None |
+
+The linked run ref is `RUN-WORKFLOW-REFACTOR-V5-CORRECTION-002`.

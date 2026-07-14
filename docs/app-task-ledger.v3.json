@@ -1,7 +1,7 @@
 {
   "schema": "app-task-ledger.v3",
   "app_id": "bears-app-based-workflow",
-  "revision": 10,
+  "revision": 13,
   "tasks": [
     {
       "task_id": "TASK-WF5-CONTRACTS",
@@ -874,7 +874,7 @@
       "wave_id": "workflow-refactor-v5",
       "owner_role": "DIRECT-primary",
       "decision_state": "closed",
-      "status": "ready",
+      "status": "done",
       "queue_sequence": 110,
       "task_kind": "remediation",
       "requirement_refs": [
@@ -974,7 +974,7 @@
       "wave_id": "workflow-refactor-v5",
       "owner_role": "DIRECT-primary",
       "decision_state": "closed",
-      "status": "waiting",
+      "status": "done",
       "queue_sequence": 120,
       "task_kind": "remediation",
       "requirement_refs": [
@@ -1015,6 +1015,107 @@
         ],
         "finding_refs": [
           "FIND-WF5-CORRECTION-SCOPE-UNREPRESENTED"
+        ]
+      }
+    },
+    {
+      "task_id": "TASK-WF5-REM2-BLOCKED-ROUTE",
+      "repo_ref": "bears-app-based-workflow",
+      "wave_id": "workflow-refactor-v5",
+      "owner_role": "DIRECT-primary",
+      "decision_state": "closed",
+      "status": "ready",
+      "queue_sequence": 130,
+      "task_kind": "remediation",
+      "requirement_refs": [
+        "REQ-ROUTE-REGISTRY"
+      ],
+      "functionality_refs": [
+        "FUNC-ROUTE-REGISTRY"
+      ],
+      "graph_entity_refs": [
+        "DEC-SINGLE-ROUTE-REGISTRY"
+      ],
+      "target_paths": [
+        "contracts/app-workflow-definition.v3.json",
+        "scripts/app_graph_process.py"
+      ],
+      "allowed_files": [
+        "contracts/app-workflow-definition.v3.json",
+        "scripts/app_graph_process.py"
+      ],
+      "depends_on": [],
+      "definition_of_done": "Internal task results remain in app-dev while boundary statuses follow the canonical route registry.",
+      "proof_requirement": "Blocked task results can causally reach the app-dev needs-plan correction boundary without changing terminal blocked boundaries.",
+      "implementation_refs": [
+        "ART-WORKFLOW-DEFINITION",
+        "ART-GRAPH-PROCESS"
+      ],
+      "evidence_refs": [
+        "EVIDENCE-RUNTIME"
+      ],
+      "retirement_commit_refs": [
+        "7594953c92c639560a0b1d706511cf7e9327163d",
+        "e426e635b8dd1eccb721785211f41bc8d7641de6",
+        "b06ee58b807ae5cd80172cc93ac1f025172c3153"
+      ],
+      "remediation_basis": {
+        "run_ref": "RUN-WORKFLOW-REFACTOR-V5-CORRECTION-001",
+        "source_event_refs": [
+          "EVT-WF5-CORRECTION-REVIEW-FINDINGS-001",
+          "EVT-WF5-CORRECTION-DEV-NEEDS-PLAN-001",
+          "EVT-WF5-CORRECTION-PLAN-NEEDS-PLAN-001"
+        ],
+        "finding_refs": [
+          "FIND-WF5-BLOCKED-RESULT-ROUTE"
+        ]
+      }
+    },
+    {
+      "task_id": "TASK-WF5-REM2-WAITING-GATE",
+      "repo_ref": "bears-app-based-workflow",
+      "wave_id": "workflow-refactor-v5",
+      "owner_role": "DIRECT-primary",
+      "decision_state": "closed",
+      "status": "ready",
+      "queue_sequence": 140,
+      "task_kind": "remediation",
+      "requirement_refs": [
+        "REQ-REPO-L2-OWNERSHIP"
+      ],
+      "functionality_refs": [
+        "FUNC-REPO-L2-OWNERSHIP"
+      ],
+      "graph_entity_refs": [
+        "DEC-OWNERSHIP-MODEL"
+      ],
+      "target_paths": [
+        "skills/app-dev/SKILL.md"
+      ],
+      "allowed_files": [
+        "skills/app-dev/SKILL.md"
+      ],
+      "depends_on": [],
+      "definition_of_done": "The app-dev input gate admits a complete topological batch with ready and waiting task records.",
+      "proof_requirement": "The input rule and worker queue lifecycle use one dependency-state model without contradiction.",
+      "implementation_refs": [
+        "ART-SKILL-DEV"
+      ],
+      "evidence_refs": [
+        "EVIDENCE-STAGES"
+      ],
+      "retirement_commit_refs": [
+        "571acbcb5c4c8050b1985145ccc3ea2a63aeaf09"
+      ],
+      "remediation_basis": {
+        "run_ref": "RUN-WORKFLOW-REFACTOR-V5-CORRECTION-001",
+        "source_event_refs": [
+          "EVT-WF5-CORRECTION-REVIEW-FINDINGS-001",
+          "EVT-WF5-CORRECTION-DEV-NEEDS-PLAN-001",
+          "EVT-WF5-CORRECTION-PLAN-NEEDS-PLAN-001"
+        ],
+        "finding_refs": [
+          "FIND-WF5-WAITING-INPUT-GATE"
         ]
       }
     }

@@ -2,8 +2,20 @@
 
 All notable changes to this plugin are documented in this file.
 
+## 0.6.0
+
+- Replaced JSON functional-map and workflow-state files with a registered per-project SQLite database.
+- Added split `app-workflow` read-only and `app-workflow-maintainer` mutation MCP servers from one Python stdlib runtime.
+- Added normalized graph, provenance, phase, process, plan, review, correction, analysis, snapshot, request, and audit storage.
+- Added revision and logical-digest compare-and-swap writes, idempotent request IDs, bounded revision-bound cursors, and transactional batch changes.
+- Added exact-file validation, atomic audit attestation, audit staleness after mutation, and a shared read-only CLI validator.
+- Added guarded v5/state-v1 migration with source digest and parity checks plus non-lossy v4 evidence handling.
+- Replaced JSON-rendered roles with five authoritative TOML profiles and explicit per-profile MCP access.
+- Preserved seven Markdown-producing phases, existing main-branch CD topology, and deployment recovery compatibility.
+
 ## 0.5.0
 
+- Resolved bundled graph MCP script paths from the plugin root so new and resumed Codex sessions can initialize both graph servers.
 - Stopped plugin promotion and repair from injecting or refreshing instructions in `$CODEX_HOME/AGENTS.md`.
 - Added a one-release, receipt-bound migration that removes only the exact legacy managed block and preserves all unmanaged bytes.
 - Introduced graphless deployment receipt v5 while retaining read-only compatibility with v1-v4 receipts and interrupted legacy transactions.

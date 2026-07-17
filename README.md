@@ -1,86 +1,86 @@
 # Bears App-Based Workflow
 
-Bears App-Based Workflow is a Codex plugin for deterministic documentation-to-implementation routing, graph-bound planning, persistent repository orchestration, and semantic correspondence analysis.
+Bears App-Based Workflow is a seven-phase Codex plugin whose canonical workflow state is a registered per-project SQLite database exposed through two stdio MCP servers.
 
-## Workflow refactor v5
+## State Boundary
 
-The workflow is defined by contracts/app-workflow-definition.v3.json and exchanges typed transient app-stage-handoff.v4 packets. Structured semantics use app-functional-map.v4, work queues use app-task-ledger.v3, durable process records use app-process-event.v3, and app-analyze results use app-semantic-analysis-result.v1.
+- `$CODEX_HOME/state/bears-app-based-workflow/registry.sqlite3` maps stable `project_ref` values to absolute Git roots.
+- `<project>/.bears/app-workflow.sqlite3` stores normalized workflow state and never stores the absolute project path.
+- `app-workflow` exposes twelve read-only tools.
+- `app-workflow-maintainer` exposes thirteen registration and mutation tools.
+- Markdown phase artifacts remain under `waves/<wave_id>/` in the target project.
+- JSON workflow-state and functional-map fallbacks are forbidden.
 
-app-context-index reconciles an opted-in repository from its source manifest. app-graph-compile publishes each complete immutable build bundle before atomically replacing one current-build pointer. Every stage uses the build, source snapshot digest, and journal digest in its handoff; pre-plan scope is empty, ordinary plan-ready establishes it, correction preserves it through terminal app-plan needs-plan, and only a linked run admits remediation tasks.
+`project_register` accepts only an absolute non-symlink Git root. It creates or attaches the project database, writes its stable identity, and adds these target-repository rules:
+
+```gitattributes
+.bears/app-workflow.sqlite3 binary
+```
+
+```gitignore
+.bears/app-workflow.sqlite3-journal
+.bears/app-workflow.sqlite3-wal
+.bears/app-workflow.sqlite3-shm
+.bears/app-workflow.sqlite3.lock
+```
+
+The database uses foreign keys, DELETE journaling, FULL synchronization, and a five-second busy timeout. WAL is rejected.
+
+## MCP Surfaces
+
+Read-only tools:
+
+`project_list`, `project_status`, `graph_read`, `graph_search`, `graph_open`, `dependency_slice`, `impact_analysis`, `graph_trace`, `graph_diagnostics`, `topological_plan`, `workflow_state`, and `workflow_validate`.
+
+Maintainer tools:
+
+`project_register`, `project_rebind`, `project_unregister`, `project_migrate_json`, `wave_initialize`, `phase_record`, `graph_apply`, `plan_replace`, `task_record_change`, `review_record`, `correction_record`, `analysis_record`, and `workflow_mark_audited`.
+
+Every mutation requires a unique `request_id`, expected revision, and expected logical digest. Wave mutations also require the stable owner-session ref. Batch graph and plan changes commit completely or roll back completely.
+
+Responses contain text JSON and `structuredContent`. Pages default to 50 items and stop at 200. Traversal defaults to depth 4 and stops at 16. Cursors bind the project, revision, and normalized query. Requests stop at 1 MiB and responses stop at 512 KiB.
+
+## Graph and Workflow
+
+Entities, observations, and relations have stable refs, `active` or `retired` lifecycle state, optional replacement refs, and mandatory local-file provenance. The closed relation set is `depends_on`, `constrains`, `defines`, `decomposes_to`, `implemented_by`, `evidenced_by`, `replaces`, and `remediates`. No tool physically deletes graph records.
+
+Each phase retains one current process record while superseded records remain in history. Review approval binds the current task change digest and completes a task only after every correction closes. Semantic findings reopen the earliest required phase. A clean analysis becomes `ready`.
+
+`workflow_validate` reads canonical sorted logical database rows and exact SHA-256 file content. `workflow_mark_audited` repeats validation at the same revision inside its transaction and writes one audit attestation. Any later mutation stales that attestation.
+
+## Seven Phases
+
+1. `$app-constitution`
+2. `$app-research`
+3. `$app-specify`
+4. `$app-functional-graph`
+5. `$app-plan`
+6. `$app-dev`
+7. `$app-analyze`
+
+Every phase carries `project_ref`, `wave_id`, revision, and logical digest. If either required MCP server is unavailable, the phase remains `pending`.
 
 ## Ownership
 
-| Mode | Stage owner | Owner session | L3 use |
-| --- | --- | --- | --- |
-| DIRECT | The DIRECT primary owns every app-* stage. | `none` | Not used for stage ownership. |
-| DELEGATED | One persistent repo-L2 of kind `repo-orchestrator` owns every app-* stage and the journal. | One stable non-`none` ref for the full run | The repo-L2 dispatches assignment-bounded work only through $subagents. |
+The `DIRECT` primary owns every direct phase and may use both servers. One persistent `repo-orchestrator` owns every delegated phase and both servers for its repository lane. `app-reviewer` and `app-analyst` receive limited read-only tools. `app-worker` and `workflow-orchestrator` receive neither server. Only the wave owner records mutations.
 
-L1 has kind `workflow-orchestrator`; it only opens and continues repository lanes and never owns a stage or dispatches L3. An L3 worker returns only its bounded result. It does not own a stage, choose the next workflow route, or append process records.
+## Migration
 
-## Stage sequence
+`project_migrate_json` accepts `app-functional-map.v5` and `workflow-state.v1` only into an empty database. It verifies both declared SHA-256 values, checks imported parity, keeps source JSON files, and requires a new audit. A v4 map opens a new empty wave and remains snapshot evidence instead of receiving a lossy import. Source JSON deletion is a separate operator-reviewed change after parity succeeds.
 
-| Stage | Required outcome |
-| --- | --- |
-| app-constitution | Establish durable purpose, principles, and authority boundaries. |
-| app-research | Resolve sources, facts, constraints, and open questions. |
-| app-specify | Close product decisions and state decision-complete requirements. |
-| app-functional-graph | Map requirements, seven dimensions, relations, and source refs. |
-| app-plan | Produce dependency-ordered, repository-bounded ledger work. |
-| app-dev | Orchestrate ready ledger work, immutable full-scope review, linked correction runs, and one clean repo handoff. |
-| app-analyze | Compare documentation, graph entities and edges, ledger, artifacts, evidence, task results, reviews, remediation tasks, and process records for logical correspondence. |
+## Validation
 
-app-analyze is semantic agent analysis of documentation and graph correspondence against the constitution and specification. In DELEGATED mode one `explorer` reads the named documentation and every bound graph page, returns the typed result, and leaves event persistence to repo-L2. The result binds each complete input category by count and canonical digest, produces structured findings, and resolves one route through the workflow registry.
+```bash
+python3 skills/app-analyze/scripts/validate_workflow.py \
+  --project-ref <project_ref> --wave-id <wave_id>
 
-## Seven dimensions
+./install --codex-home /tmp/bears-app-workflow-codex --dry-run
+```
 
-Every active requirement maps each dimension or records a sourced not-applicable rationale.
+The validator emits `ok`, `snapshot_digest`, and `findings` from read-only SQLite access. Database and MCP contracts are in `contracts/app-workflow-db-v1.sql` and `contracts/app-workflow-mcp-tools.v1.json`.
 
-| Dimension | Meaning |
-| --- | --- |
-| behavior | Observable actor or system response and its governing rule. |
-| dependency | Prerequisites, ordering, constraints, and affected capabilities. |
-| state | Modes, transitions, invariants, and persistence boundaries. |
-| api | Callable interfaces, protocols, inputs, outputs, and compatibility rules. |
-| data | Entities, fields, ownership, lifecycle, and protection requirements. |
-| integration | Boundaries and message flow between internal or external systems. |
-| error | Failure conditions, recovery behavior, and user-visible consequences. |
+The runtime adapts entity, relation, observation, and MCP tool patterns from the pinned upstream memory server named in `THIRD_PARTY_NOTICES`. It does not copy JSONL rewrite storage, the fixed `memory://knowledge-graph` resource, or live subscriptions.
 
-## Deterministic routes
+## Deployment
 
-The workflow definition is the only route and reduction registry. Blocked dominates; otherwise findings reduce by the declared corrective priority.
-
-| Status | Next stage |
-| --- | --- |
-| constitution-ready, needs-research | app-research |
-| research-ready, needs-spec | app-specify |
-| spec-ready, needs-graph | app-functional-graph |
-| graph-ready, waiting, needs-plan | app-plan |
-| plan-ready, ready | app-dev |
-| implemented, no-work | app-analyze |
-| audited, blocked | none |
-
-Findings route as follows:
-
-| Finding class | Route |
-| --- | --- |
-| Missing source | needs-research |
-| Product or decision conflict | needs-spec |
-| Semantic, reference, or cycle gap | needs-graph |
-| Task, implementation, evidence, review, or remediation-task gap | needs-plan |
-| Credential, access, or explicit operator stop | blocked |
-
-audited is the only successful terminal workflow status. It means every analyzed documentation, graph, ledger, result, review, remediation, and process correspondence is consistent with the constitution and specification on the exact snapshot.
-
-## Graph surfaces
-
-The read-only app-graph MCP provides bounded dependency, impact, trace, ordering, workflow-state, diagnostic, and current-boundary handoff queries. The app-graph-maintainer MCP exposes only graph_compile and process_record_event, and only when maintainer_enabled=true in the exact repository manifest.
-
-The closed workflow edge registry determines dependency direction, traversal, impact, cycle policy, and topological order. Pagination cursors are opaque and snapshot-bound; a decision query continues until no cursor remains.
-
-## Managed deployment
-
-The repository-owned deployment gateway activates one authoritative main revision at a time, runs repository gateway code as non-root ai1, and restores the prior gateway when activation cannot converge. Promotion never adds or refreshes instructions in `$CODEX_HOME/AGENTS.md`. Receipt v5 retains one transition-only migration that removes an exact v3/v4 managed block while preserving unmanaged bytes.
-
-## Version
-
-Workflow refactor v5 is represented by plugin source version 0.5.0. Publication remains a separately authorized action.
+The existing main-branch CD topology remains separate from workflow execution. Push, promotion, merge, and deployment require separate authorization.

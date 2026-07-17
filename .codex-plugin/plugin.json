@@ -1,7 +1,7 @@
 {
   "name": "bears-app-based-workflow",
-  "version": "0.5.0",
-  "description": "Bears app workflow plugin with deterministic graph compilation, immutable process records, repo-scoped orchestration, and semantic correspondence analysis.",
+  "version": "0.6.0",
+  "description": "Bears app workflow plugin with registered SQLite state, split MCP access, repo-scoped orchestration, and exact-snapshot audit.",
   "author": {
     "name": "BearsCLOUD",
     "url": "https://github.com/BearsCLOUD"
@@ -11,42 +11,37 @@
   "license": "MIT",
   "keywords": [
     "bears",
-    "spec-kit",
-    "waves",
+    "sqlite-workflow",
+    "mcp",
     "functional-graph",
     "traceability",
-    "impact-analysis",
-    "mcp",
     "task-ledger",
     "direct-routing",
-    "instruction-hardening",
+    "semantic-analysis",
     "subagents"
   ],
   "skills": "./skills/",
   "mcpServers": "./.mcp.json",
   "interface": {
     "displayName": "Bears App-Based Workflow",
-    "shortDescription": "DIRECT routing and bounded repo app waves.",
-    "longDescription": "Bears App-Based Workflow provides structured app stages, deterministic trace/process compilation, immutable process events, build-bound handoff validation, bounded graph queries, semantic correspondence analysis, graph-linked planning, repo-scoped orchestration, and linked correction runs.",
+    "shortDescription": "SQLite workflow state with exact audit.",
+    "longDescription": "Bears App-Based Workflow provides seven app phases over a registered SQLite state database, split read and maintainer MCP servers, sequential task review, repo-scoped orchestration, and exact-snapshot semantic audit.",
     "developerName": "BearsCLOUD",
     "category": "Development",
     "capabilities": [
-      "Structured app workflow",
-      "Deterministic graph compiler",
-      "Immutable process journal",
-      "Semantic correspondence analysis",
-      "Opaque snapshot-bound pagination",
-      "Graph-linked task ledger",
-      "Repo-scoped work and linked correction"
+      "Registered per-project SQLite workflow state",
+      "Split read-only and maintainer MCP access",
+      "Direct or persistent repository ownership",
+      "Sequential reviewed implementation",
+      "Exact-snapshot atomic audit"
     ],
     "websiteURL": "https://github.com/BearsCLOUD/bears-app-based-workflow",
     "defaultPrompt": [
-      "Research app feature waves.",
-      "Resume app workflow stages with one DIRECT primary.",
-      "Trace app dependencies and change impact through the read-only graph index.",
-      "Harden approved instructions.",
-      "Create a primary-source evidence packet.",
-      "Execute repo-scoped ledger queues with bounded workers and immutable review."
+      "Register a Git project for an app workflow.",
+      "Start a direct or delegated app wave.",
+      "Map source-linked app behavior and dependencies.",
+      "Execute graph-linked tasks sequentially with review.",
+      "Validate and atomically audit the exact workflow snapshot."
     ],
     "brandColor": "#3B82F6"
   }

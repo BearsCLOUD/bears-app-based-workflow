@@ -17,7 +17,6 @@ from .constants import (
     GRAPH_DEPLOY_RECEIPT_SCHEMA,
     FINGERPRINT_RE,
     LEGACY_DEPLOY_RECEIPT_SCHEMA,
-    LEGACY_VERSION_RE,
     PRIOR_DEPLOY_RECEIPT_SCHEMA,
     ROLE_GRAPH_DEPLOY_RECEIPT_SCHEMA,
     LOCK_FILE,
@@ -366,15 +365,11 @@ def validate_deploy_receipt(value: Any) -> dict[str, Any]:
         "agents/README.md",
         *(f"agents/{name}.toml" for name in profile_names),
     }
-    legacy_jsonless = value.get("version") == "0.3.0" or (
-        isinstance(value.get("version"), str)
-        and LEGACY_VERSION_RE.fullmatch(value["version"]) is not None
-    )
     has_definition_sources = isinstance(blobs, dict) and any(
         path.startswith("role-definitions/") for path in blobs
     )
     if value["schema"] in {ROLE_GRAPH_DEPLOY_RECEIPT_SCHEMA, DEPLOY_RECEIPT_SCHEMA} and (
-        has_definition_sources or not legacy_jsonless
+        has_definition_sources
     ):
         expected_sources.update(
             {

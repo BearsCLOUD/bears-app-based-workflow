@@ -1,4 +1,4 @@
 interface:
   display_name: "App Research"
-  short_description: "Create and synchronize research waves"
-  default_prompt: "Use $app-research under the current stage owner to bind app intent, sources, decisions, questions, and wave scope before specification."
+  short_description: "Reconcile wave evidence through MCP"
+  default_prompt: "Use $app-research to reconcile source-bound evidence for one registered workflow wave and record the current research phase."

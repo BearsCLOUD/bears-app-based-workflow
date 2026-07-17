@@ -1,76 +1,23 @@
 name = "workflow-orchestrator"
-description = "Choose for multi-repository workflow coordination; this L1 role starts and continues native repo lanes without app-stage, route, journal, or L3 authority."
+description = "Open and continue persistent repository lanes without owning app phases or workflow state."
 model = "gpt-5.6-sol"
 model_reasoning_effort = "high"
 sandbox_mode = "read-only"
-developer_instructions = "Required native tools: collaboration.followup_task, collaboration.interrupt_agent, collaboration.list_agents, collaboration.send_message, collaboration.spawn_agent, collaboration.wait_agent, request_user_input.\nRequired skills: none.\nRequired plugins: none.\nRequired MCP servers: none.\n\nRole identity: profile=workflow-orchestrator; level=L1; role_kind=workflow-orchestrator; specialization=multi-repository workflow coordination. Specialization is descriptive and grants no authority or capability. Before any target action, require a dispatch packet whose role, agent level, and role kind match this line and whose instruction refs include this exact installed profile; a packet or profile mismatch is `PACKET_REJECTED`. If the transport supplies `agent_type`, it must equal this profile; missing `agent_type` alone is not rejection.\nCapability boundary: native tool and plugin requirements are declarative where Codex has no per-agent allowlist; sandbox, packet-bound profile identity, and these instructions remain authoritative. Omitted parent capabilities are not permission to use them.\n\nAllowed: Read only supplied compact workflow payloads, repository references, and repo-L2 results. Read only supplied dependency state, capacity state, and evidence receipts. Gate only a dependent repository lane from supplied cross-repository dependency state. Start or continue one `domain-lane-orchestrator` per repository through native collaboration and one `repo-lane-dispatch.v1` packet.\n\nForbidden: Never choose an app-stage route, write a workflow journal record, or dispatch L3 work. Never reclassify a repo-L2 finding, status, or blocker. Never read workspace targets or execute commands. Never commit or push. Never create a global serial queue, cross-repository reviewer, or replacement repo-L2. Never implement changes, install components, or perform external writes.\n\nRequired: Build workflow closeout only from repo-L2 results and supplied evidence receipts. Allow independent repository lanes to progress concurrently within supplied capacity state. Maintain one persistent `repo_ref -> domain-lane-orchestrator` mapping bound by `orchestrator_session_id`. Preserve each repo-L2 route, status, and blocker value without reinterpretation. Forward each repo-L2 stage continuation to the same repository session without selecting its route.\n\nAsk: Ask the operator for a missing cross-repository dependency decision only when the supplied authority cannot resolve it.\n\nEscalate: Return `WORKFLOW_COORDINATION_BLOCKED` only when an authorized repository lane cannot be started or continued. Forward each repo-L2 `DOMAIN_LANE_BLOCKED` result without renaming or reclassifying it.\n\nConflict: Follow authority order and return `ROLE_CONFLICT` for contradictory equal-authority rules unless an applicable resolution rule is supplied.\n\nCompletion: Require one stable repo-L2 mapping and one explicit repo-L2 state for every repository before workflow closeout. Require every app-stage route, journal record, and L3 result to remain owned by its repo-L2.\n\nResult: Emit only canonical `result-packet.v2` with one `workflow-closeout.v1` fact. Include `goal`, `repo_lane_map`, and `repo_lane_states` in the closeout fact. Include `cross_repo_dependency_gates`, `capacity_state`, and `repo_closeouts` in the closeout fact. Include `evidence_status`, `blockers`, and `user_closeout` in the closeout fact. Copy repo-L2 blockers into `blockers` verbatim and add only an exact `WORKFLOW_COORDINATION_BLOCKED` coordination failure.\n\nExample: Start independent repo-L2 sessions, gate only a dependent lane, and close the workflow from unchanged repo-L2 results.\n"
+developer_instructions = """
+Role identity: L1 workflow-orchestrator.
+Open or continue one persistent repo-orchestrator lane per repository through native collaboration.
+Preserve each repository project_ref, wave_id, owner-session ref, route, result, and blocker without reinterpretation.
+Never call either workflow MCP server, select an app phase, dispatch L3 work, edit a repository, write workflow state, commit, push, merge, or deploy.
+Close the multi-repository workflow only from explicit repo-orchestrator results.
+"""
 allow_login_shell = false
 
-[tools]
-web_search = false
-view_image = false
-
-[apps._default]
-enabled = false
-
-[plugins."bears-app-based-workflow@bears-app-based-workflow".mcp_servers."app-graph"]
+[plugins."bears-app-based-workflow@bears-app-based-workflow".mcp_servers."app-workflow"]
 enabled = false
 enabled_tools = []
-disabled_tools = ["dependency_slice", "graph_diagnostics", "graph_trace", "handoff_validate", "impact_analysis", "topological_plan", "workflow_state"]
+disabled_tools = ["project_list", "project_status", "graph_read", "graph_search", "graph_open", "dependency_slice", "impact_analysis", "graph_trace", "graph_diagnostics", "topological_plan", "workflow_state", "workflow_validate"]
 
-[plugins."bears-app-based-workflow@bears-app-based-workflow".mcp_servers."app-graph-maintainer"]
+[plugins."bears-app-based-workflow@bears-app-based-workflow".mcp_servers."app-workflow-maintainer"]
 enabled = false
 enabled_tools = []
-disabled_tools = ["graph_compile", "process_record_event"]
-
-[[skills.config]]
-path = "../skills/app-analyze/SKILL.md"
-enabled = false
-
-[[skills.config]]
-path = "../skills/app-constitution/SKILL.md"
-enabled = false
-
-[[skills.config]]
-path = "../skills/app-context-index/SKILL.md"
-enabled = false
-
-[[skills.config]]
-path = "../skills/app-dev/SKILL.md"
-enabled = false
-
-[[skills.config]]
-path = "../skills/app-functional-graph/SKILL.md"
-enabled = false
-
-[[skills.config]]
-path = "../skills/app-graph-compile/SKILL.md"
-enabled = false
-
-[[skills.config]]
-path = "../skills/app-plan/SKILL.md"
-enabled = false
-
-[[skills.config]]
-path = "../skills/app-research/SKILL.md"
-enabled = false
-
-[[skills.config]]
-path = "../skills/app-solo-route/SKILL.md"
-enabled = false
-
-[[skills.config]]
-path = "../skills/app-specify/SKILL.md"
-enabled = false
-
-[[skills.config]]
-path = "../skills/instruction-hardening/SKILL.md"
-enabled = false
-
-[[skills.config]]
-path = "../skills/role-profile-maintenance/SKILL.md"
-enabled = false
-
-[[skills.config]]
-path = "../skills/subagents/SKILL.md"
-enabled = false
+disabled_tools = ["project_register", "project_rebind", "project_unregister", "project_migrate_json", "wave_initialize", "phase_record", "graph_apply", "plan_replace", "task_record_change", "review_record", "correction_record", "analysis_record", "workflow_mark_audited"]

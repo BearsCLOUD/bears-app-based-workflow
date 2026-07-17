@@ -27,7 +27,6 @@ _MODULE_NAMES = (
     "telemetry",
     "process",
     "marketplace",
-    "role_renderer",
     "role_profiles",
     "role_io",
     "publication",

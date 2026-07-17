@@ -1,4 +1,0 @@
-interface:
-  display_name: "Instruction Hardening"
-  short_description: "Normalize approved policy meaning"
-  default_prompt: "Use $instruction-hardening to compress approved meaning into scoped rules while preserving authority, permissions, bypass closure, and unresolved conflicts."

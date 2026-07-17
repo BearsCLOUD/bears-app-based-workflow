@@ -97,7 +97,6 @@ REQUIRED_MODULES = frozenset(
         "marketplace.py",
         "process.py",
         "promotion.py",
-        "role_renderer.py",
         "telemetry.py",
     }
 )
@@ -141,14 +140,10 @@ def _valid_v5_roles(receipt: dict[str, Any]) -> bool:
         "agents/README.md",
         *(f"agents/{name}.toml" for name in profile_names),
     }
-    legacy_jsonless = bool(
-        isinstance(receipt.get("version"), str)
-        and re.fullmatch(r"\d+\.\d+\.\d+\+codex\.\d{14}", receipt["version"])
-    )
     has_definition_sources = isinstance(blobs, dict) and any(
         path.startswith("role-definitions/") for path in blobs
     )
-    if has_definition_sources or not legacy_jsonless:
+    if has_definition_sources:
         expected_sources.update(
             {
                 "role-definitions/capability-catalog.v1.json",

@@ -1,4 +1,4 @@
 interface:
   display_name: "App Dev"
-  short_description: "Run worker, critic, and linked correction runs"
-  default_prompt: "Use $app-dev to execute one repo-scoped ledger queue through bounded worker changes, immutable critic review, source-linked remediation tasks, and a workflow-v3 handoff."
+  short_description: "Execute and review tasks sequentially"
+  default_prompt: "Use $app-dev to implement, digest, review, and correct one workflow task at a time in sequence."

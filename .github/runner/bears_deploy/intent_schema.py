@@ -13,7 +13,6 @@ from .constants import (
     FINGERPRINT_RE,
     MARKETPLACE,
     PLUGIN,
-    PRIOR_DEPLOY_RECEIPT_SCHEMA,
     PROMOTION_INTENT_SCHEMA,
     RECEIPT_MAX_BYTES,
     REPOSITORY,
@@ -308,15 +307,8 @@ def validate_intent(value: Any) -> dict[str, Any]:
             )
         if operation in {"install", "migrate-v1-registration"}:
             try:
-                source_blobs = role_record.get("role_source_blobs", {})
-                has_definitions = isinstance(source_blobs, dict) and any(
-                    path.startswith("role-definitions/") for path in source_blobs
-                )
-                receipt_schema = (
-                    DEPLOY_RECEIPT_SCHEMA if has_definitions else PRIOR_DEPLOY_RECEIPT_SCHEMA
-                )
                 candidate = {
-                        "schema": receipt_schema,
+                        "schema": DEPLOY_RECEIPT_SCHEMA,
                         "repository": REPOSITORY,
                         "marketplace": MARKETPLACE,
                         "plugin": PLUGIN,

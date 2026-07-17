@@ -1,40 +1,28 @@
 ---
 name: app-constitution
-description: Create or update the app-local constitution that starts a Bears app workflow run.
+description: Register a Git project and establish one app wave's purpose, constraints, authority, and ownership. Use first in the seven-phase workflow.
 ---
 
 # App Constitution
 
-## Ownership
+## Preconditions
 
-- Keep the `DIRECT` primary as the stage owner for target access, artifact changes, protocol decisions, journal events, and the outgoing handoff.
-- Keep one persistent repo-L2 with role `domain-lane-orchestrator` as the stage owner for `DELEGATED` work.
-- Require the repo-L2 to invoke every L3 assignment through `$subagents` and consume only its bounded result packet.
-- Never let an L3 write the journal, select a transition, or emit the stage handoff.
+- Keep the stage with the `DIRECT` primary or the persistent `repo-orchestrator`.
+- Require an absolute non-symlink Git root for first registration.
+- Keep `project_ref`, `wave_id`, `owner_session_ref`, revision, and logical digest in every stage handoff.
+- Leave the phase `pending` when either workflow MCP server is unavailable.
+- Never use a JSON workflow-state fallback.
 
-## Input
+## Method
 
-- Accept direct user entry with an app id, one repo boundary, a decision source, known actors, runtime surfaces, constraints, and unresolved decisions.
-- Accept an existing constitution ref only when it belongs to the same app and repo boundary.
-- Invoke `$app-context-index` at entry and bind all subsequent work to its current build and source snapshot.
-- Resolve inter-stage schemas and routes only from `contracts/app-stage-handoff.v4.schema.json` and `contracts/app-workflow-definition.v3.json`.
-
-## Artifact
-
-Create or update `docs/app-constitution.md` with the app boundary, decision owner, actors, runtime surfaces, constraints, data ownership, secret boundaries, required evidence, and open decisions.
-
-Link wave-owned detail instead of copying it into the constitution.
-
-Keep workspace-wide policy outside the app constitution.
-
-Do not create implementation tasks in this stage.
+1. Call `project_list` and reuse the registered `project_ref` for the exact Git root.
+2. Call `project_register` through `app-workflow-maintainer` when the project is not registered.
+3. Call `project_status` and retain its current revision and logical digest.
+4. Call `wave_initialize` with one `DIRECT` or `DELEGATED` mode and the stable owner-session ref.
+5. Write `waves/<wave_id>/constitution.md` with purpose, scope, constraints, authority, and unresolved decisions.
+6. Call `phase_record` once with exact source and artifact refs, current CAS fields, and outcome `completed` or `blocked`.
 
 ## Completion
 
-1. Require the `DIRECT` primary to perform the bounded reads and writes itself.
-2. Require the repo-L2 in `DELEGATED` mode to decompose each bounded read or write and dispatch each L3 through `$subagents`.
-3. Reconcile changed sources through `$app-context-index` before selecting a transition.
-4. Select `constitution-ready` with target `app-research` from workflow v3.
-5. Keep `task_refs` empty and put the constitution ref, constraint refs, research unknowns, wave creation basis, and known wave refs in `stage_payload`.
-6. Record only the actual native v3 run-start event with `handoff_payload_digest` over canonical `stage_payload`, reconcile the journal, and call `app-graph.handoff_validate` for the complete candidate.
-7. Emit the build-bound handoff with exact artifact, decision, requirement, finding, and evidence refs.
+- Return the stable project and wave identity, new revision and digest, Markdown artifact ref, process-record ref, and next phase.
+- Never register a symlink, transfer the wave owner, emit `audited`, push, merge, or deploy.

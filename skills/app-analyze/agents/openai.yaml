@@ -1,4 +1,4 @@
 interface:
   display_name: "App Analyze"
-  short_description: "Check documentation and graph logic"
-  default_prompt: "Use $app-analyze to perform exact-snapshot semantic agent analysis, emit app-semantic-analysis-result.v1, and route every contradiction or gap through workflow v3."
+  short_description: "Validate and atomically audit a wave"
+  default_prompt: "Use $app-analyze to compare workflow semantics, validate the exact SQLite-backed snapshot, and atomically attest audited."

@@ -454,15 +454,11 @@ def validate_destination_receipt(payload: bytes) -> dict[str, object]:
         "agents/README.md",
         *(f"agents/{name}.toml" for name in profile_names),
     }
-    legacy_jsonless = receipt.get("version") == "0.3.0" or bool(
-        isinstance(receipt.get("version"), str)
-        and re.fullmatch(r"\d+\.\d+\.\d+\+codex\.\d{14}", receipt["version"])
-    )
     has_definition_sources = isinstance(blobs, dict) and any(
         path.startswith("role-definitions/") for path in blobs
     )
     if schema in {ROLE_GRAPH_RECEIPT_SCHEMA, DEPLOY_RECEIPT_SCHEMA} and (
-        has_definition_sources or not legacy_jsonless
+        has_definition_sources
     ):
         expected_sources.update(
             {
@@ -803,7 +799,6 @@ local -a gateway_modules=(
   role_deploy.py
   role_io.py
   role_profiles.py
-  role_renderer.py
   role_recovery.py
   standalone_roles.py
   state_io.py

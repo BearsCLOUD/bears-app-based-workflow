@@ -22,6 +22,15 @@ from types import MappingProxyType
 from typing import Any
 
 PLUGIN_ID = "bears-app-based-workflow"
+ACTIVE_PROFILE_NAMES = frozenset(
+    {
+        "app-analyst",
+        "app-reviewer",
+        "app-worker",
+        "repo-orchestrator",
+        "workflow-orchestrator",
+    }
+)
 STATE_SCHEMA = "bears-role-install-receipt.v1"
 BEGIN_MARKER = b"# >>> bears-app-based-workflow agent roles (managed by ./install)"
 END_MARKER = b"# <<< bears-app-based-workflow agent roles (managed by ./install)"
@@ -262,26 +271,12 @@ def plugin_metadata(plugin_root: Path) -> tuple[str, list[tuple[str, Path]]]:
     if not isinstance(version, str) or not version:
         raise InstallError("plugin-version-invalid")
 
-    runner_root = plugin_root / ".github" / "runner"
-    sys.path.insert(0, str(runner_root))
-    try:
-        from bears_deploy.role_renderer import RoleDefinitionError, render_directory
-
-        render_directory(plugin_root, version, check=True)
-    except (ImportError, RoleDefinitionError):
-        raise InstallError("profile-definition-drift") from None
-    finally:
-        try:
-            sys.path.remove(str(runner_root))
-        except ValueError:
-            pass
-
     agents_dir = plugin_root / "agents"
     try:
         paths = sorted(agents_dir.glob("*.toml"))
     except OSError:
         raise InstallError("profile-catalog-unreadable") from None
-    if not 1 <= len(paths) <= 64:
+    if {path.stem for path in paths} != ACTIVE_PROFILE_NAMES:
         raise InstallError("profile-count-invalid")
 
     profiles: list[tuple[str, Path]] = []
@@ -313,6 +308,8 @@ def plugin_metadata(plugin_root: Path) -> tuple[str, list[tuple[str, Path]]]:
             raise InstallError("profile-name-invalid")
         seen.add(name)
         profiles.append((name, path.resolve()))
+    if seen != ACTIVE_PROFILE_NAMES:
+        raise InstallError("profile-count-invalid")
     return version, sorted(profiles, key=lambda item: item[0])
 
 
@@ -415,6 +412,8 @@ def open_codex_home_fd(path: Path, *, create: bool) -> int | None:
         current_fd = os.open("/", flags)
     except OSError:
         raise InstallError("codex-home-invalid") from None
+    root_owner = os.fstat(current_fd).st_uid
+    allowed_ancestor_owners = {0, os.geteuid(), root_owner}
     components = [part for part in path.parts if part not in {"/", ""}]
     try:
         for index, component in enumerate(components):
@@ -441,7 +440,7 @@ def open_codex_home_fd(path: Path, *, create: bool) -> int | None:
             )
             if (
                 not stat.S_ISDIR(component_stat.st_mode)
-                or component_stat.st_uid not in {0, os.geteuid()}
+                or component_stat.st_uid not in allowed_ancestor_owners
                 or unsafe_writable
                 or (final and component_stat.st_uid != os.geteuid())
             ):

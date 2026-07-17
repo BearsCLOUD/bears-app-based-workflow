@@ -1,4 +1,4 @@
 interface:
   display_name: "App Constitution"
-  short_description: "Create the app-local workflow baseline"
-  default_prompt: "Use $app-constitution under the current stage owner to record the app boundary, constraints, decision source, and research unknowns."
+  short_description: "Register a project and start a wave"
+  default_prompt: "Use $app-constitution to register the Git project, initialize one owned wave, and record its constitution phase through MCP."

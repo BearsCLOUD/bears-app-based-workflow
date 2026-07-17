@@ -12,7 +12,7 @@ These files form the repository-owned deployment boundary. They are not plugin a
 - bears_deploy/telemetry.py sends bounded sanitized Sentry events without changing the deployment result.
 - bears_deploy/process.py owns bounded subprocess, Git, and GitHub credential operations.
 - bears_deploy/marketplace.py owns manifest, marketplace, cache, and pinned Git-blob verification.
-- bears_deploy/role_profiles.py and bears_deploy/role_renderer.py own role bundle materialization and desired profile rendering.
+- bears_deploy/role_profiles.py validates and materializes the authoritative TOML role bundle.
 - bears_deploy/role_io.py owns locked role state reads, snapshots, validation, and receipt construction.
 - bears_deploy/publication.py owns compare-and-swap publication, rollback, and journaled file replacement.
 - bears_deploy/standalone_roles.py owns receipt-bounded standalone profile publication under $CODEX_HOME/agents.

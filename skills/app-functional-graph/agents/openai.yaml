@@ -1,4 +1,4 @@
 interface:
   display_name: "App Functional Graph"
-  short_description: "Map typed app semantics"
-  default_prompt: "Use $app-functional-graph to map source decisions, requirements, seven typed dimensions, dependencies, replacements, and coverage in functional-map v4."
+  short_description: "Maintain the SQLite-backed graph"
+  default_prompt: "Use $app-functional-graph to apply one source-linked entity, observation, and relation batch through workflow MCP."

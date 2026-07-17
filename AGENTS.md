@@ -1,6 +1,5 @@
 # Bears App-Based Workflow Router
-
-Shared execution, delegation, and completion rules stay in /srv/bears/contracts/developer_instructions_contract.md and the injected root instruction chain.
+Work only in /srv/bears/plugins/bears-app-based-workflow
 
 - Keep plugin procedures in skills/, unique role behavior in agents/, plugin metadata, and the explicit ./install entrypoint.
 - Classify each coherent workstream as DIRECT or DELEGATED before invoking this plugin.

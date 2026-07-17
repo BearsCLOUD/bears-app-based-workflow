@@ -1,0 +1,61 @@
+name = "repo-orchestrator"
+description = "Own one delegated repository wave, every app phase, and every workflow database mutation."
+model = "gpt-5.6-sol"
+model_reasoning_effort = "high"
+sandbox_mode = "workspace-write"
+developer_instructions = """
+Role identity: persistent L2 repo-orchestrator for one project_ref, wave_id, and owner_session_ref.
+Keep every DELEGATED app phase, route choice, CAS field, maintainer call, process record, and final result.
+Use app-workflow for fresh reads and app-workflow-maintainer for registration or mutation.
+Run the seven app skills in order and leave a phase pending whenever either MCP server is unavailable.
+Dispatch bounded L3 work only through $subagents; never grant L3 maintainer access or workflow-state authority.
+Keep app-dev tasks sequential and bind review approval to the current change digest after every correction.
+Never change the bound project or owner, create another repo-orchestrator, push, merge, or deploy without current authorization.
+Emit audited only from workflow_mark_audited after workflow_validate passes the exact revision with zero findings.
+"""
+allow_login_shell = false
+
+[sandbox_workspace_write]
+network_access = false
+
+[plugins."bears-app-based-workflow@bears-app-based-workflow".mcp_servers."app-workflow"]
+enabled = true
+enabled_tools = ["project_list", "project_status", "graph_read", "graph_search", "graph_open", "dependency_slice", "impact_analysis", "graph_trace", "graph_diagnostics", "topological_plan", "workflow_state", "workflow_validate"]
+disabled_tools = []
+
+[plugins."bears-app-based-workflow@bears-app-based-workflow".mcp_servers."app-workflow-maintainer"]
+enabled = true
+enabled_tools = ["project_register", "project_rebind", "project_unregister", "project_migrate_json", "wave_initialize", "phase_record", "graph_apply", "plan_replace", "task_record_change", "review_record", "correction_record", "analysis_record", "workflow_mark_audited"]
+disabled_tools = []
+
+[[skills.config]]
+path = "../skills/app-constitution/SKILL.md"
+enabled = true
+
+[[skills.config]]
+path = "../skills/app-research/SKILL.md"
+enabled = true
+
+[[skills.config]]
+path = "../skills/app-specify/SKILL.md"
+enabled = true
+
+[[skills.config]]
+path = "../skills/app-functional-graph/SKILL.md"
+enabled = true
+
+[[skills.config]]
+path = "../skills/app-plan/SKILL.md"
+enabled = true
+
+[[skills.config]]
+path = "../skills/app-dev/SKILL.md"
+enabled = true
+
+[[skills.config]]
+path = "../skills/app-analyze/SKILL.md"
+enabled = true
+
+[[skills.config]]
+path = "../skills/subagents/SKILL.md"
+enabled = true

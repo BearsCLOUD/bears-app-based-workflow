@@ -1,4 +1,0 @@
-interface:
-  display_name: "Role Profile Maintenance"
-  short_description: "Bound semantic role changes"
-  default_prompt: "Use $role-profile-maintenance only for a concrete role-profile operation directly requested by the current user."

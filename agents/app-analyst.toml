@@ -1,0 +1,23 @@
+name = "app-analyst"
+description = "Compare one exact workflow snapshot slice and return semantic correspondence findings."
+model = "gpt-5.6-sol"
+model_reasoning_effort = "high"
+sandbox_mode = "read-only"
+developer_instructions = """
+Role identity: L3 app-analyst for one project_ref, wave_id, revision, and logical digest.
+Compare only supplied documentation, graph objects, provenance, tasks, reviews, corrections, process records, and exact file evidence.
+Use only the enabled read-only workflow tools and return stable semantic finding refs with the earliest required phase.
+Treat project revision, logical digest, pagination, or source drift as ANALYSIS_SNAPSHOT_DRIFT.
+Never edit artifacts, call app-workflow-maintainer, record analysis, attest audited, choose the next route, delegate, commit, push, merge, or deploy.
+"""
+allow_login_shell = false
+
+[plugins."bears-app-based-workflow@bears-app-based-workflow".mcp_servers."app-workflow"]
+enabled = true
+enabled_tools = ["project_status", "graph_read", "graph_search", "graph_open", "dependency_slice", "impact_analysis", "graph_trace", "graph_diagnostics", "topological_plan", "workflow_state", "workflow_validate"]
+disabled_tools = ["project_list"]
+
+[plugins."bears-app-based-workflow@bears-app-based-workflow".mcp_servers."app-workflow-maintainer"]
+enabled = false
+enabled_tools = []
+disabled_tools = ["project_register", "project_rebind", "project_unregister", "project_migrate_json", "wave_initialize", "phase_record", "graph_apply", "plan_replace", "task_record_change", "review_record", "correction_record", "analysis_record", "workflow_mark_audited"]

@@ -1,48 +1,27 @@
 ---
 name: app-functional-graph
-description: Maintain decision-complete app semantics and typed dependency relations before planning.
+description: Maintain source-linked workflow entities, observations, and closed-type relations through MCP. Use after app-specify.
 ---
 
 # App Functional Graph
 
-## Ownership
+## Preconditions
 
-- Keep the `DIRECT` primary as the stage owner for target access, graph changes, protocol decisions, journal events, and the outgoing handoff.
-- Keep one persistent repo-L2 with role `domain-lane-orchestrator` as the stage owner for `DELEGATED` work.
-- Require the repo-L2 to invoke every L3 assignment through `$subagents` and consume only its bounded result packet.
-- Never let an L3 write the journal, select a transition, or emit the stage handoff.
+- Keep graph writes with the wave owner.
+- Require `project_ref`, `wave_id`, `owner_session_ref`, revision, and logical digest.
+- Leave the phase `pending` when either workflow MCP server is unavailable.
+- Never write `app-functional-map.v5.json` or another graph fallback.
 
-## Input
+## Method
 
-- Accept only `app-stage-handoff.v4` status `spec-ready` or `needs-graph` for the same repo boundary.
-- Require a current `$app-context-index` result whose build and source snapshot match the handoff.
-- Resolve graph kinds, edge direction, routes, and transitions only from `contracts/app-functional-map.v4.schema.json` and `contracts/app-workflow-definition.v3.json`.
-- Follow every opaque cursor until no cursor remains before treating a graph result as complete.
-
-## Semantic mapping
-
-Create or update only `docs/app-functional-map.v4.json` as `app-functional-map.v4`.
-
-Map every source decision to its requirements and map every active requirement to typed functionality or behavior.
-
-Map each requirement across behavior, dependency, state, API, data, integration, and error dimensions.
-
-Use kind-compatible entity refs for each dimension and use `not-applicable` only with empty refs and an explicit rationale.
-
-Record typed relations with stable refs and direct `depends_on` from the dependent entity to its prerequisite.
-
-Reject unknown edge kinds, dangling refs, duplicate refs, forbidden cycles, reversed dependency direction, and missing source provenance.
-
-Record replacements instead of deleting any ref used by a task or process record.
-
-Never create or mutate ledger tasks in this stage.
+1. Call `project_status`, `graph_read`, `graph_search`, and `graph_diagnostics` at the current revision.
+2. Map specified behavior into stable entities, observations, and relations with mandatory local source refs.
+3. Use only `depends_on`, `constrains`, `defines`, `decomposes_to`, `implemented_by`, `evidenced_by`, `replaces`, or `remediates`.
+4. Retire obsolete objects with `replacement_ref` when applicable; never request physical deletion.
+5. Submit every related change in one `graph_apply` batch with current CAS and owner fields.
+6. Re-read diagnostics, write `waves/<wave_id>/functional-graph.md`, and call `phase_record` once.
 
 ## Completion
 
-1. Require the `DIRECT` primary to perform the bounded reads and writes itself.
-2. Require the repo-L2 in `DELEGATED` mode to decompose each bounded read or write and dispatch each L3 through `$subagents`.
-3. Return `needs-research` for a source gap, `needs-spec` for unresolved meaning, and `needs-graph` for an incomplete semantic mapping.
-4. Reconcile the changed functional map through `$app-context-index` and reject any structural finding before handoff.
-5. Select `graph-ready` only with complete seven-dimension coverage, current semantic refs, and `task_refs` empty before ordinary scope or preserved on a corrective route.
-6. Record only the actual native v3 stage event with `handoff_payload_digest` over canonical `stage_payload`, reconcile the journal, and call `app-graph.handoff_validate` for the complete candidate.
-7. Emit the build-bound handoff with target `app-plan` from workflow v3.
+- Return changed stable refs, diagnostics, new revision and digest, Markdown artifact ref, process-record ref, and next phase.
+- Never split one logical batch, mutate plan tasks, emit `audited`, push, merge, or deploy.

@@ -1,4 +1,4 @@
 interface:
   display_name: "App Specify"
-  short_description: "Produce decision-complete app behavior"
-  default_prompt: "Use $app-specify to resolve product decisions with the user and emit stable specification, decision, requirement, and dimension-hint refs."
+  short_description: "Specify decision-complete behavior"
+  default_prompt: "Use $app-specify to define source-linked app behavior and acceptance criteria for the current workflow revision."

@@ -1,12 +1,14 @@
 {
   "mcpServers": {
-    "app-graph": {
+    "app-workflow": {
       "command": "python3",
-      "args": ["./scripts/app_graph_mcp.py"]
+      "args": ["./scripts/app_workflow.py", "serve", "--mode", "reader"],
+      "cwd": "."
     },
-    "app-graph-maintainer": {
+    "app-workflow-maintainer": {
       "command": "python3",
-      "args": ["./scripts/app_graph_mcp.py", "--maintainer"]
+      "args": ["./scripts/app_workflow.py", "serve", "--mode", "maintainer"],
+      "cwd": "."
     }
   }
 }

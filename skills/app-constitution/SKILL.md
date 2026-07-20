@@ -1,28 +1,53 @@
 ---
 name: app-constitution
-description: Register a Git project and establish one app wave's purpose, constraints, authority, and ownership. Use first in the seven-phase workflow.
+description: Establish one app wave's purpose, scope, constraints, and authority, and register the Git project that holds it. Phase 1 of the seven-phase workflow.
 ---
 
 # App Constitution
 
-## Preconditions
+## Purpose
 
-- Keep the stage with the `DIRECT` primary or the persistent `repo-orchestrator`.
-- Require an absolute non-symlink Git root for first registration.
-- Keep `project_ref`, `wave_id`, `owner_session_ref`, revision, and logical digest in every stage handoff.
-- Leave the phase `pending` when either workflow MCP server is unavailable.
-- Never use a JSON workflow-state fallback.
+Give a wave a stable identity and a written charter: why this work exists,
+what it may and may not touch, which constraints are non-negotiable, and who
+decides. Everything later in the workflow is judged against this artifact.
 
-## Method
+## Done means
 
-1. Call `project_list` and reuse the registered `project_ref` for the exact Git root.
-2. Call `project_register` through `app-workflow-maintainer` when the project is not registered.
-3. Call `project_status` and retain its current revision and logical digest.
-4. Call `wave_initialize` with one `DIRECT` or `DELEGATED` mode and the stable owner-session ref.
-5. Write `waves/<wave_id>/constitution.md` with purpose, scope, constraints, authority, and unresolved decisions.
-6. Call `phase_record` once with exact source and artifact refs, current CAS fields, and outcome `completed` or `blocked`.
+- The Git project is registered and has a stable `project_ref`.
+- The wave exists with a `wave_id`, a mode (`DIRECT` or `DELEGATED`), and a
+  stable `owner_session_ref`.
+- `waves/<wave_id>/constitution.md` states purpose, scope and non-scope,
+  constraints, decision authority, and the decisions still unresolved.
 
-## Completion
+## How to think about this phase
 
-- Return the stable project and wave identity, new revision and digest, Markdown artifact ref, process-record ref, and next phase.
-- Never register a symlink, transfer the wave owner, emit `audited`, push, merge, or deploy.
+- Charter, not plan. Say what the wave is for and what bounds it; leave design,
+  evidence, and tasks to later phases.
+- Constraints are the valuable part. A constraint that cannot be violated
+  without failing the wave belongs here; a preference does not.
+- Name the unresolved decisions explicitly instead of guessing. An open
+  question written down is what app-research is for.
+- Scope is defined by its edges. State the non-scope as concretely as the scope.
+- One registration per exact Git root: reuse an existing `project_ref` for a
+  root that is already registered, and never register a symlink.
+
+## Tools and artifact
+
+- Reads: `project_list`, `project_status`.
+- Records: `project_register` (only when the root is unregistered),
+  `wave_initialize`, `phase_record`.
+- Writes exactly one artifact: `waves/<wave_id>/constitution.md`.
+
+Workflow state lives only in the MCP servers; never reconstruct it from JSON
+artifacts.
+
+## Left to the orchestrator
+
+Phase ordering, gate decisions, retries, and outcome selection
+(`completed`, `blocked`, or `pending` when a workflow MCP server is
+unavailable) belong to the wave owner. Only the wave owner
+performs mutations, and every mutation carries `request_id`,
+`expected_revision`, and `expected_logical_digest` read fresh from
+`project_status`. Subagents never call the maintainer server.
+
+Never transfer wave ownership, emit `audited`, push, merge, or deploy.

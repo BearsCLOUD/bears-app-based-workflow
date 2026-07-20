@@ -1,15 +1,29 @@
 # Plugin Agent Profiles
 
-The five TOML files in this directory are authoritative agent configurations. The installer validates and registers them directly without JSON role duplicates or a renderer.
+The TOML files in this directory are **generated**. Do not edit them by hand.
 
-| Profile | Level | Workflow MCP access |
-| --- | --- | --- |
-| `workflow-orchestrator` | L1 | None |
-| `repo-orchestrator` | Persistent L2 | Full read-only and maintainer surfaces |
-| `app-worker` | L3 | None |
-| `app-reviewer` | L3 | Limited read-only review queries |
-| `app-analyst` | L3 | Limited read-only analysis queries |
+The single source of truth is the typed role IR in `roles/roles.json`. `scripts/render_roles.py`
+renders it into both runtime representations:
 
-The `DIRECT` primary retains every app phase and may use both plugin servers. The persistent `repo-orchestrator` retains every `DELEGATED` app phase and all workflow writes. L3 profiles never call the maintainer server or own workflow state.
+- `agents/<name>.toml` - Codex profile (model, reasoning effort, sandbox, developer instructions, per-server MCP policy).
+- `claude/agents/<name>.md` - Claude Code subagent (frontmatter `name`, `description`, `model`, `tools`, plus role prose).
 
-Run `./install --codex-home <path>` to register the five profiles through `config_file` entries. Use `--dry-run` to validate without writing.
+```bash
+python3 scripts/render_roles.py           # write both artifact sets
+python3 scripts/render_roles.py --check   # drift detection; non-zero exit if artifacts are stale
+```
+
+| Role | Kind | Authority | Workflow MCP access |
+| --- | --- | --- | --- |
+| `app-worker` | worker | mutation (Edit/Write/Bash) | None |
+| `app-reviewer` | critic | read-only | Bounded read-only review queries |
+| `app-analyst` | reader | read-only | Bounded read-only analysis queries |
+
+Claude Code is the sole orchestrator and the sole writer: the main session owns the wave and both
+MCP servers, and dispatches these three bounded roles as subagents. The former Codex-only
+`workflow-orchestrator` and `repo-orchestrator` lane profiles are retired; parallel work uses
+native subagents and separate sessions instead.
+
+Authority derives from role kind, not from specialization. Specialization arrives through the
+assignment, so per-technology micro-profiles are not added here, and security and performance are
+mandatory sections of the reviewer's single acceptance surface rather than separate roles.

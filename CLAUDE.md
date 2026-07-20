@@ -60,11 +60,14 @@ Layered top to bottom: validation/hashing/path helpers -> registry and project S
 |-------------|------------------------------------------------|----------------------------------------------------|
 | Manifest    | .claude-plugin/plugin.json (+ marketplace.json) | .codex-plugin/plugin.json (+ .agents/plugins/marketplace.json) |
 | MCP wiring  | claude/mcp.json via ${CLAUDE_PLUGIN_ROOT}       | .mcp.json (cwd-relative)                            |
-| Roles       | claude/agents/*.md (three L3 agents)            | agents/*.toml (five profiles)                       |
+| Roles       | claude/agents/*.md (generated)                  | agents/*.toml (generated)                           |
+| Extras      | claude/hooks.json, claude/commands/, claude/workflows/ | -                                            |
 
-skills/ (eight skills: one per phase plus subagents) is shared by both runtimes; skills/*/agents/openai.yaml files are Codex UI metadata only. The five Codex profiles: app-worker (no MCP), app-reviewer and app-analyst (read-only tool subsets), repo-orchestrator (both servers, owns a delegated repository lane), workflow-orchestrator (no MCP, opens lanes). claude/agents/*.md mirror the three L3 profiles with Claude tool names - keep the allowlists in sync; tests/test_plugin_shape.py and tests/test_claude_plugin_shape.py enforce both sides.
+skills/ (eight skills: one per phase plus subagents) is shared by both runtimes; skills/*/agents/openai.yaml files are Codex UI metadata only.
 
-Ownership: the DIRECT primary (main session) or one persistent repo-orchestrator owns a wave and both servers; only the wave owner records mutations. Delegated orchestrator lanes are Codex-only; in Claude Code the main session is the DIRECT primary, one session per repository.
+Roles are generated, not hand-written: `roles/roles.json` is the single typed source and `scripts/render_roles.py` renders both `claude/agents/*.md` and `agents/*.toml` (`--check` detects drift). Edit the IR, never the artifacts. Three roles remain - app-worker (no MCP), app-reviewer and app-analyst (disjoint read-only subsets); the Codex-only repo-orchestrator and workflow-orchestrator lanes were retired in 0.7.0. tests/test_plugin_shape.py and tests/test_claude_plugin_shape.py enforce both sides.
+
+Ownership: one orchestrator per repository - the main session owns the wave and both servers, and is the only writer. A second repository is a separate session with its own wave, not a delegated lane. `claude/workflows/app-wave.js` ships as a file and is invoked by path; plugin manifests have no `workflows` key, so it is deliberately unregistered.
 
 ### Releases and CD
 

@@ -1,27 +1,54 @@
 ---
 name: app-research
-description: Reconcile primary evidence for one registered app workflow wave. Use after app-constitution when facts or constraints remain unresolved.
+description: Reconcile primary evidence for one registered app wave and separate fact from inference. Phase 2 of the seven-phase workflow.
 ---
 
 # App Research
 
-## Preconditions
+## Purpose
 
-- Keep the stage with the wave owner.
-- Require `project_ref`, `wave_id`, `owner_session_ref`, revision, and logical digest.
-- Leave the phase `pending` when `app-workflow` or `app-workflow-maintainer` is unavailable.
-- Never reconstruct workflow state from JSON artifacts.
+Resolve the questions the constitution left open by reading primary sources,
+and record what is actually known before anyone specifies behavior. Research
+produces evidence, not decisions.
 
-## Method
+## Done means
 
-1. Call `project_status` and reject a stale revision or logical digest.
-2. Call `workflow_state`, `graph_search`, and `graph_open` for the exact current evidence boundary.
-3. Read primary sources and separate observed facts, inferences, conflicts, and open questions.
-4. Write one current `waves/<wave_id>/research.md` artifact with local source refs.
-5. Call `phase_record` once with the current CAS fields and outcome `completed`, `skipped-current`, or `blocked`.
-6. Use `skipped-current` only when the recorded input digest still matches the exact source set.
+- The open questions from the charter are answered, or explicitly recorded as
+  still unanswered with the reason.
+- `waves/<wave_id>/research.md` exists for this wave and cites local source
+  refs (files, symbols, graph entities) for every claim.
 
-## Completion
+## How to think about this phase
 
-- Return the new revision and logical digest, evidence refs, artifact ref, process-record ref, unresolved questions, and next phase.
-- Never decide product behavior, mutate the graph, emit `audited`, push, merge, or deploy.
+- Keep four categories apart: observed facts, inferences drawn from them,
+  conflicts between sources, and open questions. Blurring them is the main
+  failure mode of this phase.
+- Prefer primary sources - the code, the schema, the contract, the log - over
+  summaries and over memory.
+- A claim without a local ref is not evidence. Cite where it came from.
+- Record conflicts rather than silently picking a winner; choosing is the job
+  of app-specify.
+- Read the existing graph before searching the tree: `graph_search` and
+  `graph_open` show what earlier waves already established.
+- Do not decide product behavior here, and do not mutate the graph.
+
+## Tools and artifact
+
+- Reads: `project_status`, `workflow_state`, `graph_search`, `graph_open`.
+- Records: `phase_record`.
+- Writes exactly one artifact: `waves/<wave_id>/research.md`.
+
+Workflow state lives only in the MCP servers; never reconstruct it from JSON
+artifacts.
+
+## Left to the orchestrator
+
+Phase ordering, gate decisions, retries, and outcome selection
+(`completed`, `skipped-current`, `blocked`, or `pending` when a workflow MCP
+server is unavailable) belong to the wave owner - including whether the recorded input digest still matches the source set
+closely enough for `skipped-current`. Only the wave owner performs mutations,
+and every mutation carries `request_id`, `expected_revision`, and
+`expected_logical_digest` read fresh from `project_status`. Subagents never
+call the maintainer server.
+
+Never emit `audited`, push, merge, or deploy.

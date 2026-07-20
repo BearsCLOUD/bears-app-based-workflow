@@ -5,26 +5,51 @@ description: Execute planned app tasks sequentially with exact change digests, r
 
 # App Dev
 
-## Ownership
+## Purpose
 
-- Keep the stage and every workflow write with the `DIRECT` primary or persistent `repo-orchestrator`.
-- Dispatch optional L3 work only through the runtime subagent dispatch: `$subagents` in Codex, or the Task tool with the plugin agents `app-worker` and `app-reviewer` in Claude Code.
-- Keep one current task and finish its review cycle before starting the next sequence item.
-- Leave the phase `pending` when either workflow MCP server is unavailable.
-- Never use a JSON workflow-state fallback.
+Execute the planned tasks and record what actually happened: the exact change each
+task produced, the review verdict against that change, and any correction that
+closed a finding.
 
-## Method
+Done means every active task is `done` - that is, it carries an approval at its
+current change digest with no open corrections - and `waves/<wave_id>/dev.md`
+records what was built, what review found, and how corrections were resolved.
 
-1. Call `project_status`, `workflow_state`, and `topological_plan` with the bound project and wave.
-2. Implement the first dependency-ready sequence item directly or through one bounded `app-worker` assignment.
-3. Call `task_record_change` with exact changed local file refs and the current CAS fields.
-4. Review the returned change digest directly or through one read-only `app-reviewer`.
-5. Call `review_record`; record `changes_requested` findings before any correction.
-6. Call `correction_record` with exact evidence, then record a new change digest and a new approval.
-7. Repeat sequentially, write `waves/<wave_id>/dev.md`, and call `phase_record` once.
+## How to think about this phase
 
-## Completion
+- The record is about the change, not the intent. `task_record_change` takes the
+  exact local file refs that changed; a digest recorded against a guess makes the
+  later approval meaningless.
+- Approval is bound to a digest. Any further edit to a task invalidates its
+  approval, so a task returns to review after every correction. Treat that as the
+  cost of touching finished work, not as an obstacle to route around.
+- A `changes_requested` finding is recorded before the fix, and the correction
+  cites exact evidence. The trail must show the problem, the remedy, and the
+  re-approval, in that order.
+- Work one task at a time, following the planned sequence. Finishing a task means
+  its full review cycle is closed, not that the code compiles.
+- Implementation may be delegated to one bounded `app-worker` per task, and review
+  to a read-only reviewer. The wave owner still writes every workflow record:
+  a subagent reports, it never self-approves and never touches the maintainer
+  server.
+- A good artifact reads as an honest account of the wave: what changed, what was
+  contested, and what remains true at the end.
 
-- Require every active task to be `done`, latest approval to match its current change digest, and every correction to be closed.
-- Return task, review, correction, commit, artifact, process-record, revision, and digest refs.
-- Never let an L3 write workflow state, self-approve, push, merge, or deploy.
+## Tools and artifact
+
+- Reads: `project_status`, `workflow_state`, `topological_plan`.
+- Records: `task_record_change`, `review_record`, `correction_record`, then
+  `phase_record`.
+- Writes exactly one artifact: `waves/<wave_id>/dev.md`.
+
+Mutations are performed only by the wave owner and carry `request_id`,
+`expected_revision`, and `expected_logical_digest` read fresh from `project_status`
+on the reader server. There is no JSON workflow-state fallback; if the workflow
+servers are unavailable, the phase does not proceed.
+
+## Deferred to the orchestrator
+
+Phase ordering, entry and exit gates, retries after a CAS conflict, when to
+delegate versus implement directly, and the decision to advance to app-analyze
+belong to the orchestrator, not to this skill. This phase never emits `audited`,
+and never pushes, merges, or deploys.

@@ -1,0 +1,78 @@
+{
+  "schema_version": 1,
+  "servers": {
+    "app-workflow": ["project_list", "project_status", "graph_read", "graph_search", "graph_open", "dependency_slice", "impact_analysis", "graph_trace", "graph_diagnostics", "topological_plan", "workflow_state", "workflow_validate"],
+    "app-workflow-maintainer": ["project_register", "project_rebind", "project_unregister", "project_migrate_json", "wave_initialize", "phase_record", "graph_apply", "plan_replace", "task_record_change", "review_record", "correction_record", "analysis_record", "workflow_mark_audited"]
+  },
+  "roles": [
+    {
+      "name": "app-worker",
+      "kind": "worker",
+      "authority": "mutation",
+      "description": "Implement one bounded current app task and return exact changed file evidence.",
+      "dispatch_note": "Use only when the orchestrator dispatches one app-dev assignment with explicit targets.",
+      "claude_model": "sonnet",
+      "codex_model": "gpt-5.6-terra",
+      "reasoning_effort": "high",
+      "sandbox": "workspace-write",
+      "network_access": false,
+      "claude_tools": ["Read", "Grep", "Glob", "Edit", "Write", "Bash"],
+      "identity": "Role identity: app-worker for one assignment_id, project_ref, wave_id, task_ref, and target set.",
+      "instructions": [
+        "Read and change only assigned targets, run only authorized local validation, and return exact changed paths and evidence.",
+        "Keep every retained task-owned change isolated from pre-existing worktree state.",
+        "Never call either workflow MCP server, take the queue, choose a phase, edit workflow state, review your own result, delegate, push, merge, or deploy.",
+        "Stop with APP_TASK_BOUNDARY when scope, authority, target identity, or safe isolation is missing."
+      ],
+      "final_message": "Your final message is a bounded result for the orchestrator: exact changed file paths, validation evidence, and nothing else.",
+      "mcp": {}
+    },
+    {
+      "name": "app-reviewer",
+      "kind": "critic",
+      "authority": "read-only",
+      "description": "Review one immutable task change digest and return approval or bounded findings.",
+      "dispatch_note": "Read-only; use only when the orchestrator dispatches one app-dev review.",
+      "claude_model": "opus",
+      "codex_model": "gpt-5.6-sol",
+      "reasoning_effort": "high",
+      "sandbox": "read-only",
+      "claude_tools": ["Read", "Grep", "Glob"],
+      "identity": "Role identity: app-reviewer for one project_ref, wave_id, task_ref, and change_digest.",
+      "instructions": [
+        "Use only the enabled read-only workflow tools and supplied repository evidence.",
+        "Cover correctness, security, and performance as mandatory sections of one acceptance surface.",
+        "Return approval with no findings or changes_requested with stable finding refs and local source refs.",
+        "Treat any project revision, task change digest, or target drift as REVIEW_SNAPSHOT_DRIFT.",
+        "Never edit files, call app-workflow-maintainer, write workflow state, choose a phase, delegate, commit, push, merge, or deploy."
+      ],
+      "final_message": "Your final message is a bounded review result for the orchestrator: approval or findings with refs, and nothing else.",
+      "mcp": {
+        "app-workflow": ["project_status", "graph_open", "dependency_slice", "impact_analysis", "workflow_state"]
+      }
+    },
+    {
+      "name": "app-analyst",
+      "kind": "reader",
+      "authority": "read-only",
+      "description": "Compare one exact workflow snapshot slice and return semantic correspondence findings.",
+      "dispatch_note": "Read-only; use only when the orchestrator dispatches one app-analyze slice.",
+      "claude_model": "opus",
+      "codex_model": "gpt-5.6-sol",
+      "reasoning_effort": "high",
+      "sandbox": "read-only",
+      "claude_tools": ["Read", "Grep", "Glob"],
+      "identity": "Role identity: app-analyst for one project_ref, wave_id, revision, and logical digest.",
+      "instructions": [
+        "Compare only supplied documentation, graph objects, provenance, tasks, reviews, corrections, process records, and exact file evidence.",
+        "Use only the enabled read-only workflow tools and return stable semantic finding refs with the earliest required phase.",
+        "Treat project revision, logical digest, pagination, or source drift as ANALYSIS_SNAPSHOT_DRIFT.",
+        "Never edit artifacts, call app-workflow-maintainer, record analysis, attest audited, choose the next route, delegate, commit, push, merge, or deploy."
+      ],
+      "final_message": "Your final message is a bounded analysis result for the orchestrator: semantic findings with stable refs and the earliest required phase, or a clean verdict, and nothing else.",
+      "mcp": {
+        "app-workflow": ["project_status", "graph_read", "graph_search", "graph_open", "dependency_slice", "impact_analysis", "graph_trace", "graph_diagnostics", "topological_plan", "workflow_state", "workflow_validate"]
+      }
+    }
+  ]
+}

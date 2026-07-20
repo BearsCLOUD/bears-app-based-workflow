@@ -25,6 +25,7 @@
     "./claude/agents/app-reviewer.md",
     "./claude/agents/app-analyst.md"
   ],
+  "commands": "./claude/commands",
   "mcpServers": "./claude/mcp.json",
   "hooks": "./claude/hooks.json"
 }

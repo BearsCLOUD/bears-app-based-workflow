@@ -11,7 +11,7 @@
       "source": "./",
       "description": "Seven-phase app workflow over registered per-project SQLite state with split MCP access and exact-snapshot audit.",
       "category": "development",
-      "version": "0.6.0"
+      "version": "0.7.0"
     }
   ]
 }

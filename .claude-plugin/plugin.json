@@ -1,7 +1,7 @@
 {
   "name": "bears-app-based-workflow",
   "displayName": "Bears App-Based Workflow",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "description": "Seven-phase app workflow over registered per-project SQLite state, split read-only and maintainer MCP servers, sequential reviewed implementation, and exact-snapshot atomic audit.",
   "author": {
     "name": "BearsCLOUD",
@@ -25,5 +25,6 @@
     "./claude/agents/app-reviewer.md",
     "./claude/agents/app-analyst.md"
   ],
-  "mcpServers": "./claude/mcp.json"
+  "mcpServers": "./claude/mcp.json",
+  "hooks": "./claude/hooks.json"
 }

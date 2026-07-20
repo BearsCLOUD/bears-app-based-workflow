@@ -1,4 +1,4 @@
-PRAGMA user_version = 1;
+PRAGMA user_version = 2;
 
 CREATE TABLE metadata (
     key TEXT PRIMARY KEY,
@@ -103,9 +103,10 @@ CREATE TABLE tasks (
     change_digest TEXT,
     change_refs_json TEXT NOT NULL,
     created_revision INTEGER NOT NULL,
-    updated_revision INTEGER NOT NULL,
-    UNIQUE (wave_id, sequence)
+    updated_revision INTEGER NOT NULL
 );
+
+CREATE UNIQUE INDEX tasks_active_sequence ON tasks (wave_id, sequence) WHERE record_status = 'active';
 
 CREATE TABLE dependencies (
     task_ref TEXT NOT NULL REFERENCES tasks(task_ref),

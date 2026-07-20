@@ -1,3 +1,8 @@
+# Plugin runtime state produced by running this workflow against a project
+# (including this repository itself, when dogfooding).
+.bears/
+waves/
+
 # Local editor/runtime noise
 *.log
 *.tmp
@@ -8,3 +13,7 @@ __pycache__/
 .venv/
 .env
 .env.*
+.bears/app-workflow.sqlite3-journal
+.bears/app-workflow.sqlite3-wal
+.bears/app-workflow.sqlite3-shm
+.bears/app-workflow.sqlite3.lock

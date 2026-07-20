@@ -29,14 +29,9 @@ python3 scripts/app_workflow.py serve --mode maintainer  # app-workflow-maintain
 python3 scripts/app_workflow.py validate --project-ref <ref> --wave-id <id>
 python3 skills/app-analyze/scripts/validate_workflow.py --project-ref <ref> --wave-id <id>
 
-# Codex-side installer (writes a managed [agents.*] block into $CODEX_HOME/config.toml)
-./install --codex-home /tmp/bears-app-workflow-codex --dry-run
-
-# CD runner regression check (what the CD workflow runs)
-python3 -B .github/runner/test_graph_instruction_retirement.py --verbose
 ```
 
-Run tests with unittest, not pytest: `test_repository_limits_and_artifact_language` in tests/test_plugin_shape.py counts every working-tree file (gitignored ones included) against an 80-file / 1 MiB budget, and a stray `.pytest_cache/` directory is enough to fail it locally.
+Run tests with unittest, not pytest: `test_repository_limits_and_artifact_language` in tests/test_plugin_shape.py counts every working-tree file (gitignored and untracked ones included) against an 80-file / 1 MiB budget, and a stray `.pytest_cache/` directory is enough to fail it locally. Only `.git/`, `__pycache__/`, `.ruff_cache/`, and the plugin's own runtime state (`.bears/`, `waves/`) are excluded - the last two so the workflow can be run against this repository itself.
 
 ## Architecture
 
@@ -65,7 +60,7 @@ Layered top to bottom: validation/hashing/path helpers -> registry and project S
 |-------------|------------------------------------------------|----------------------------------------------------|
 | Manifest    | .claude-plugin/plugin.json (+ marketplace.json) | .codex-plugin/plugin.json (+ .agents/plugins/marketplace.json) |
 | MCP wiring  | claude/mcp.json via ${CLAUDE_PLUGIN_ROOT}       | .mcp.json (cwd-relative)                            |
-| Roles       | claude/agents/*.md (three L3 agents)            | agents/*.toml (five profiles) installed by ./install |
+| Roles       | claude/agents/*.md (three L3 agents)            | agents/*.toml (five profiles)                       |
 
 skills/ (eight skills: one per phase plus subagents) is shared by both runtimes; skills/*/agents/openai.yaml files are Codex UI metadata only. The five Codex profiles: app-worker (no MCP), app-reviewer and app-analyst (read-only tool subsets), repo-orchestrator (both servers, owns a delegated repository lane), workflow-orchestrator (no MCP, opens lanes). claude/agents/*.md mirror the three L3 profiles with Claude tool names - keep the allowlists in sync; tests/test_plugin_shape.py and tests/test_claude_plugin_shape.py enforce both sides.
 
@@ -73,9 +68,8 @@ Ownership: the DIRECT primary (main session) or one persistent repo-orchestrator
 
 ### Releases and CD
 
-- The version (currently 0.6.0) appears in .codex-plugin/plugin.json, .claude-plugin/plugin.json, both marketplace.json files, and the dist/ filenames, and is asserted by tests - bump all of them together.
-- dist/ holds a committed, pre-built release bundle; a test verifies the archive SHA-256 against the .bundle.json manifest, so changing either means regenerating both. CD does not build dist/.
-- Pushing to main triggers .github/workflows/plugin-marketplace-cd.yml on a self-hosted runner: a recovery check, then a root-owned exact-SHA promotion gateway updates the Codex marketplace checkout and installs roles, writing receipts. Keep exact-SHA ancestry, monotonic SemVer, and the receipt/transaction invariants in .github/runner/bears_deploy/ intact.
+- The version (currently 0.7.0) appears in scripts/app_workflow.py (`VERSION`, served as MCP serverInfo.version), .codex-plugin/plugin.json, .claude-plugin/plugin.json, and both marketplace.json files, and is asserted by tests - bump all of them together.
+- The Codex installer (`install`), the self-hosted CD runner (`.github/runner`, `.github/workflows/plugin-marketplace-cd.yml`), and the committed `dist/` bundle were retired in 0.7.0: Claude Code installs plugins natively, and the runner was pinned to an operator Codex home that no longer exists. There is currently no CD.
 
 ## Repository rules (from AGENTS.md)
 

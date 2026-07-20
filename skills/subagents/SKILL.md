@@ -1,31 +1,57 @@
 ---
 name: subagents
-description: Dispatch one bounded L3 app assignment to app-worker, app-reviewer, or app-analyst. Use only when the wave owner chooses delegation.
+description: Dispatch one bounded L3 assignment to app-worker, app-reviewer, or app-analyst through Claude Code subagents. Use only when the wave owner chooses delegation.
 ---
 
 # Subagents
 
-## Runtimes
+## Purpose
 
-- In Codex, dispatch through `$subagents` with the installed agent profiles.
-- In Claude Code, dispatch through the Task tool with the plugin agents `app-worker`, `app-reviewer`, and `app-analyst`; the main session is the `DIRECT` primary and wave owner, and delegated `repo-orchestrator` lanes remain a Codex-runtime feature.
-
-## Profiles
-
-- Use `app-worker` for one current task and no workflow MCP access.
-- Use `app-reviewer` for one immutable change digest and its limited read-only MCP set.
-- Use `app-analyst` for one semantic snapshot slice and its limited read-only MCP set.
+Claude is the sole orchestrator and the sole writer of a wave. Delegation exists
+to buy isolation and parallelism for work that can be stated as a single bounded
+result, not to hand off ownership. Every subagent is a leaf: it reads or edits
+what it was pointed at, returns facts, and ends.
 
 ## Dispatch
 
-1. Keep route selection, CAS fields, and every maintainer call with the `DIRECT` primary or persistent `repo-orchestrator`.
-2. Bind one assignment to `project_ref`, `wave_id`, owner-session ref, revision, logical digest, target refs, and one expected result.
-3. Start the installed profile with no inherited chat context when the collaboration transport supports that boundary.
-4. Require the child to return only bounded result facts and exact evidence refs.
-5. Re-read `project_status` before recording the result because child work never reserves the database revision.
+Delegate through the Task tool with one of three roles.
+
+- `app-worker` for one current task. No workflow MCP access at all.
+- `app-reviewer` for one immutable change digest. Reader tools limited to
+  exactly `project_status`, `graph_open`, `dependency_slice`,
+  `impact_analysis`, and `workflow_state`.
+- `app-analyst` for one semantic snapshot slice. All reader tools except
+  `project_list`.
+
+Multi-repository work is not a lane hierarchy. Open a separate Claude session
+per repository; each session is the wave owner for its own repository.
+
+## Bounding an assignment
+
+An assignment names the snapshot it was cut against and the single result it
+must produce. Include `project_ref`, `wave_id`, the owner session ref, the
+revision and logical digest, the target refs, and the one expected output. Give
+the child the context it needs to do the work and nothing more; a child that has
+to guess which wave it is in will guess wrong.
+
+Require the child to return bounded result facts and exact evidence refs, not
+narration.
+
+## Recording the result
+
+Child work never reserves a database revision, so the snapshot the child was
+given may be stale by the time it answers. Re-read `project_status` before
+recording anything a child produced, and record it yourself.
+
+Reject a result outright when the project, wave, snapshot, assignment, role, or
+target identity has drifted from what was dispatched. A drifted result is
+re-dispatched, not repaired.
 
 ## Boundaries
 
-- Never let L1 `workflow-orchestrator` dispatch L3 work.
-- Never let an L3 choose a phase, call `app-workflow-maintainer`, mutate workflow state, push, merge, or deploy.
-- Reject a result when project, wave, snapshot, assignment, profile, or target identity drifts.
+- The wave owner is the sole writer. Only the owner calls
+  `app-workflow-maintainer`.
+- No L3 role touches the maintainer server, chooses a phase, mutates workflow
+  state, pushes, merges, or deploys.
+- One assignment produces one result. Widening scope mid-assignment is a new
+  assignment.

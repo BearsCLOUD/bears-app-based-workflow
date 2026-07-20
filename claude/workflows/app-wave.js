@@ -1,7 +1,7 @@
 export const meta = {
   name: 'app-wave',
   description:
-    'Runs one seven-phase app wave as deterministic control flow: resume from recorded state, one gate per phase, dev fan-out over independent plan tasks, audit only on a clean analysis',
+    'Runs one seven-phase app wave as deterministic control flow: resume from recorded state, one gate per phase, dev tasks strictly by sequence, audit only on a clean analysis',
   whenToUse:
     'Invoked when the Workflow tool is available and a wave must advance end to end. Requires args {projectRef, waveId, ownerSessionRef, objective}. Phase order, resume, and the audit gate live here, not in skill prose; the skills under skills/app-* describe what each phase produces.',
   phases: [
@@ -11,7 +11,7 @@ export const meta = {
     { title: 'Specify', detail: 'app-specify: waves/<wave_id>/spec.md' },
     { title: 'Functional graph', detail: 'app-functional-graph: waves/<wave_id>/functional-graph.md' },
     { title: 'Plan', detail: 'app-plan: contiguous acyclic task plan plus waves/<wave_id>/plan.md' },
-    { title: 'Dev', detail: 'app-dev: per-task implement / record change / review / settle fan-out' },
+    { title: 'Dev', detail: 'app-dev: each task implements, records, reviews, and settles in sequence order' },
     { title: 'Analyze', detail: 'app-analyze: waves/<wave_id>/analysis.md plus analysis_record' },
     { title: 'Audit', detail: 'workflow_validate then workflow_mark_audited, only on a clean analysis' },
   ],
@@ -29,12 +29,11 @@ export const meta = {
 // audit gate are therefore this file's job.
 //
 // Sole writer: every maintainer call in this script goes through owned(),
-// which serializes writes onto one lane. Concurrency never reaches the
-// maintainer server, so the CAS triple (request_id, expected_revision,
-// expected_logical_digest) read from project_status on the READER server is
-// still fresh at write time. Worker, reviewer, and analyst agents are
-// read-only with respect to workflow state and never touch the maintainer
-// server.
+// which serializes writes onto one lane. The CAS triple (request_id,
+// expected_revision, expected_logical_digest) read from project_status on the
+// READER server is therefore still fresh at write time. Worker, reviewer, and
+// analyst agents are read-only with respect to workflow state and never touch
+// the maintainer server.
 // ---------------------------------------------------------------------------
 
 // `args` may arrive as the caller's raw JSON string rather than the parsed
@@ -65,6 +64,12 @@ if (!projectRef || !waveId || !ownerSessionRef || !objective) {
 
 // Same reference grammar the runtime enforces (REF_RE in scripts/app_workflow.py).
 const REF_RE = /^[A-Za-z0-9][A-Za-z0-9._:/-]{0,199}$/
+const cleanRefs = value =>
+  Array.from(
+    new Set(
+      (Array.isArray(value) ? value : []).filter(ref => typeof ref === 'string' && ref && REF_RE.test(ref)),
+    ),
+  )
 for (const [name, value] of [
   ['projectRef', projectRef],
   ['waveId', waveId],
@@ -86,9 +91,9 @@ const waveDir = `waves/${waveId}`
 // ---------------------------------------------------------------------------
 // Deterministic identifiers
 //
-// Date.now() and Math.random() are unavailable in a Workflow script, and
-// nondeterministic request ids would defeat the replay-idempotency guarantee
-// anyway. Ids are derived from the wave, a kind, the revision the run
+// Clock- and random-derived values are unavailable in a Workflow script, and
+// nondeterministic request ids would defeat the replay-idempotency guarantee.
+// Ids are derived from the wave, a kind, the revision the run
 // observed, and a counter: stable within a run, distinct across reruns
 // (a rerun observes a different revision), so a replayed identical payload is
 // idempotent while a genuine retry is a new request.
@@ -161,6 +166,10 @@ returned revision and logical_digest verbatim as expected_revision and
 expected_logical_digest. Do not reuse values from an earlier turn: this lane is
 serialized, so a fresh read is always current. Pass the request_id given below
 exactly as written.
+Every app-workflow-maintainer call in this workflow must also include
+project_ref "${projectRef}", wave_id "${waveId}", and owner_session_ref
+"${ownerSessionRef}" exactly as bound. Send every field listed in the mutation
+instruction, including fields whose value is an empty array.
 If the tool result is ok:false, do not retry with different CAS values and do
 not invent a success. Return ok:false with the code and message you received.`
 
@@ -414,7 +423,7 @@ const recordPhase = async (spec, result) => {
   if (!result || !result.artifactWritten) {
     throw new Error(`${spec.phase} produced no artifact — not recording a process record, wave stops here`)
   }
-  const sourceRefs = (result.sourceRefs || []).filter(Boolean)
+  const sourceRefs = cleanRefs(result.sourceRefs)
   if (!sourceRefs.length) {
     throw new Error(`${spec.phase} returned no source refs — provenance is required, wave stops here`)
   }
@@ -430,14 +439,19 @@ const recordPhase = async (spec, result) => {
    as the sha256 of ${waveDir}/${spec.artifact}, both in the "sha256:<64 hex>"
    form the runtime requires (shasum -a 256 / sha256sum).
 3. Call app-workflow-maintainer phase_record with:
+     project_ref        "${projectRef}"
+     wave_id            "${waveId}"
+     owner_session_ref  "${ownerSessionRef}"
+     request_id         "${requestId}"
+     expected_revision   from the fresh project_status call
+     expected_logical_digest from the fresh project_status call
      phase              "${spec.phase}"
      record_ref         "${recordRef}"
      outcome            "completed"
-     owner_session_ref  "${ownerSessionRef}"
-     input_digest / output_digest as computed
+     input_digest       as computed
+     output_digest      as computed
      artifact_refs      ["${waveDir}/${spec.artifact}"]
      source_refs        ${JSON.stringify(sourceRefs)}
-     request_id         "${requestId}"
 4. Then call app-workflow workflow_state {project_ref, wave_id} once and report
    this phase's status as phaseStatus and wave.current_phase as currentPhase.
 
@@ -458,6 +472,181 @@ Set ok true only if phase_record itself returned success.`,
 }
 
 // ---------------------------------------------------------------------------
+// app-functional-graph: commit one non-empty, all-or-nothing graph batch
+// before recording the phase process record.
+// ---------------------------------------------------------------------------
+const RELATION_TYPE_ORDER = [
+  'depends_on',
+  'constrains',
+  'defines',
+  'decomposes_to',
+  'implemented_by',
+  'evidenced_by',
+  'replaces',
+  'remediates',
+]
+
+const GRAPH_SCHEMA = {
+  type: 'object',
+  required: ['operations'],
+  properties: {
+    operations: {
+      type: 'array',
+      minItems: 1,
+      maxItems: 200,
+      description: 'Exact graph_apply operations, ordered so referenced entity upserts come first',
+      items: {
+        type: 'object',
+        required: ['action', 'object_type', 'source_refs'],
+        properties: {
+          action: { type: 'string', enum: ['upsert', 'retire'] },
+          object_type: { type: 'string', enum: ['entity', 'observation', 'relation'] },
+          observation_ref: { type: 'string', description: 'Required when object_type is observation' },
+          relation_ref: { type: 'string', description: 'Required when object_type is relation' },
+          source_refs: {
+            type: 'array',
+            minItems: 1,
+            uniqueItems: true,
+            items: { type: 'string' },
+            description: 'Existing repository-relative evidence files for this graph object',
+          },
+          replacement_ref: { type: 'string', description: 'Optional only for retire operations' },
+          kind: { type: 'string', description: 'Required for an entity upsert' },
+          name: { type: 'string', description: 'Required for an entity upsert' },
+          properties: { type: 'object', description: 'Optional properties for an entity upsert' },
+          entity_ref: { type: 'string', description: 'Entity object ref, or parent ref for an observation upsert' },
+          content: { type: 'string', description: 'Required for an observation upsert' },
+          from_entity_ref: { type: 'string', description: 'Required for a relation upsert' },
+          to_entity_ref: { type: 'string', description: 'Required for a relation upsert' },
+          relation_type: {
+            type: 'string',
+            enum: RELATION_TYPE_ORDER,
+            description: 'Required for a relation upsert; the relation vocabulary is closed',
+          },
+        },
+      },
+    },
+    injectionSuspects: { type: 'array', items: { type: 'string' } },
+  },
+}
+
+const proposeGraph = () =>
+  agent(
+    `${BINDING}
+
+Translate ${waveDir}/functional-graph.md into the exact operations array for
+app-workflow-maintainer graph_apply. Read the current graph first with the
+read-only graph tools so you upsert active records, retire only records that
+exist, and never try to upsert a retired record.
+
+Hard constraints:
+- Return 1..200 operations; an empty graph batch is a phase failure.
+- action is upsert or retire; object_type is entity, observation, or relation.
+- Use the matching entity_ref, observation_ref, or relation_ref on every item.
+- Every item has a non-empty source_refs array of existing repository files.
+- Entity upserts have kind and name; properties, when present, is an object.
+- Observation upserts have entity_ref and content.
+- Relation upserts have from_entity_ref, to_entity_ref, and one of the closed
+  relation types: ${RELATION_TYPE_ORDER.join(', ')}.
+- Retire operations have the matching object ref and may have replacement_ref.
+- Put entity upserts before observations or relations that refer to them.
+${READ_ONLY_STATE}
+${UNTRUSTED}`,
+    { label: 'graph:propose', phase: 'Functional graph', schema: GRAPH_SCHEMA },
+  )
+
+const applyGraph = async proposal => {
+  const operations = proposal && proposal.operations
+  if (!Array.isArray(operations) || !operations.length) {
+    throw new Error('app-functional-graph proposed no operations — refusing to record a completed empty graph')
+  }
+  if (operations.length > 200) {
+    throw new Error(`app-functional-graph proposed ${operations.length} operations; graph_apply accepts at most 200`)
+  }
+  const actions = new Set(['upsert', 'retire'])
+  const objectTypes = new Set(['entity', 'observation', 'relation'])
+  const relationTypes = new Set(RELATION_TYPE_ORDER)
+  const requireText = (value, label) => {
+    if (typeof value !== 'string' || !value) throw new Error(`Graph operation ${label} must be non-empty text`)
+    return value
+  }
+  const requireRef = (value, label) => {
+    const ref = requireText(value, label)
+    if (!REF_RE.test(ref)) throw new Error(`Graph operation ${label} ${JSON.stringify(ref)} is not a valid reference`)
+    return ref
+  }
+
+  operations.forEach((operation, index) => {
+    const at = `operations[${index}]`
+    if (!operation || typeof operation !== 'object' || Array.isArray(operation)) {
+      throw new Error(`Graph ${at} must be an object`)
+    }
+    if (!actions.has(operation.action)) {
+      throw new Error(`Graph ${at}.action must be upsert or retire`)
+    }
+    if (!objectTypes.has(operation.object_type)) {
+      throw new Error(`Graph ${at}.object_type must be entity, observation, or relation`)
+    }
+    const refKey = `${operation.object_type}_ref`
+    requireRef(operation[refKey], `${at}.${refKey}`)
+    if (!Array.isArray(operation.source_refs) || !operation.source_refs.length) {
+      throw new Error(`Graph ${at}.source_refs must be a non-empty array`)
+    }
+    operation.source_refs.forEach((ref, sourceIndex) => requireRef(ref, `${at}.source_refs[${sourceIndex}]`))
+    if (new Set(operation.source_refs).size !== operation.source_refs.length) {
+      throw new Error(`Graph ${at}.source_refs contains duplicates`)
+    }
+
+    if (operation.action === 'retire') {
+      if (operation.replacement_ref != null) requireRef(operation.replacement_ref, `${at}.replacement_ref`)
+      return
+    }
+    if (operation.object_type === 'entity') {
+      requireText(operation.kind, `${at}.kind`)
+      requireText(operation.name, `${at}.name`)
+      if (
+        operation.properties != null &&
+        (typeof operation.properties !== 'object' || Array.isArray(operation.properties))
+      ) {
+        throw new Error(`Graph ${at}.properties must be an object`)
+      }
+    } else if (operation.object_type === 'observation') {
+      requireRef(operation.entity_ref, `${at}.entity_ref`)
+      requireText(operation.content, `${at}.content`)
+    } else {
+      requireRef(operation.from_entity_ref, `${at}.from_entity_ref`)
+      requireRef(operation.to_entity_ref, `${at}.to_entity_ref`)
+      if (!relationTypes.has(operation.relation_type)) {
+        throw new Error(`Graph ${at}.relation_type is outside the closed relation type set`)
+      }
+    }
+  })
+
+  const requestId = mintRef('REQ', 'graph')
+  await mutate(
+    'graph:apply',
+    'Functional graph',
+    `Apply the proposed functional graph as one all-or-nothing batch.
+
+Call app-workflow-maintainer graph_apply with:
+  project_ref              "${projectRef}"
+  wave_id                  "${waveId}"
+  owner_session_ref        "${ownerSessionRef}"
+  request_id               "${requestId}"
+  expected_revision        from the fresh project_status call
+  expected_logical_digest  from the fresh project_status call
+  operations               the exact array below
+
+${JSON.stringify(operations, null, 2)}
+
+Do not edit, reorder, split, or add to the operations array. Report any
+all-or-nothing rejection instead of retrying with a modified batch.`,
+  )
+  log(`Functional graph committed: ${operations.length} operation(s)`)
+  return operations
+}
+
+// ---------------------------------------------------------------------------
 // app-plan: the plan itself is a mutation with its own server-side gates
 // (contiguous sequences 1..n, no dangling refs, acyclic dependency graph).
 // ---------------------------------------------------------------------------
@@ -467,6 +656,7 @@ const PLAN_SCHEMA = {
   properties: {
     tasks: {
       type: 'array',
+      maxItems: 200,
       items: {
         type: 'object',
         required: ['taskRef', 'title', 'sequence', 'dependsOn', 'sourceRefs'],
@@ -500,9 +690,11 @@ Hard constraints, enforced by the server — a violation rejects the whole plan:
 - sequence values must be exactly 1..n with no gaps and no duplicates.
 - dependsOn may only name task_refs that appear in this same plan.
 - the dependency graph must be acyclic.
+- sequence is the real execution order; every dependency must point to a task
+  with a strictly LOWER sequence number.
 - every task needs at least one existing source_ref.
-Prefer real independence: tasks that do not actually depend on each other must
-not list a dependency, because independent tasks are implemented concurrently.
+Do not add dependencies merely to express the sequence order. Add only real
+dependencies, and always assign the dependency the lower sequence number.
 ${READ_ONLY_STATE}
 ${UNTRUSTED}`,
     { label: 'plan:propose', phase: 'Plan', schema: PLAN_SCHEMA },
@@ -513,8 +705,44 @@ const replacePlan = async plan => {
   if (!tasks.length) {
     throw new Error('app-plan produced no tasks — refusing to replace the plan with an empty set')
   }
-  // Local pre-check of the two gates the server enforces, so a bad plan fails
+  if (tasks.length > 200) {
+    throw new Error(`app-plan produced ${tasks.length} tasks; plan_replace accepts at most 200`)
+  }
+  // Local pre-check of the gates the server enforces, so a bad plan fails
   // here with a readable message instead of as an opaque CAS-consuming reject.
+  tasks.forEach((task, index) => {
+    if (!task || typeof task !== 'object' || Array.isArray(task)) {
+      throw new Error(`Plan tasks[${index}] must be an object`)
+    }
+    if (typeof task.taskRef !== 'string' || !REF_RE.test(task.taskRef)) {
+      throw new Error(`Plan tasks[${index}].taskRef is not a valid non-empty reference`)
+    }
+    if (typeof task.title !== 'string' || !task.title) {
+      throw new Error(`Plan task ${task.taskRef} has an empty title`)
+    }
+    if (!Array.isArray(task.dependsOn)) {
+      throw new Error(`Plan task ${task.taskRef} dependsOn must be an array`)
+    }
+    if (new Set(task.dependsOn).size !== task.dependsOn.length) {
+      throw new Error(`Plan task ${task.taskRef} has duplicate dependsOn refs`)
+    }
+    for (const dependencyRef of task.dependsOn) {
+      if (typeof dependencyRef !== 'string' || !REF_RE.test(dependencyRef)) {
+        throw new Error(`Plan task ${task.taskRef} has an invalid dependsOn ref ${JSON.stringify(dependencyRef)}`)
+      }
+    }
+    if (!Array.isArray(task.sourceRefs) || !task.sourceRefs.length) {
+      throw new Error(`Plan task ${task.taskRef} needs at least one source_ref`)
+    }
+    for (const sourceRef of task.sourceRefs) {
+      if (typeof sourceRef !== 'string' || !REF_RE.test(sourceRef)) {
+        throw new Error(`Plan task ${task.taskRef} has an invalid source_ref ${JSON.stringify(sourceRef)}`)
+      }
+    }
+    if (new Set(task.sourceRefs).size !== task.sourceRefs.length) {
+      throw new Error(`Plan task ${task.taskRef} has duplicate source_refs`)
+    }
+  })
   const refs = tasks.map(t => t.taskRef)
   const sequences = tasks.map(t => Number(t.sequence)).sort((a, b) => a - b)
   for (let i = 0; i < sequences.length; i++) {
@@ -523,9 +751,17 @@ const replacePlan = async plan => {
   }
   if (new Set(refs).size !== refs.length) throw new Error('Plan contains duplicate task_refs (PLAN_DUPLICATE)')
   const edges = new Map(tasks.map(t => [t.taskRef, (t.dependsOn || []).filter(Boolean)]))
+  const tasksByRef = new Map(tasks.map(t => [t.taskRef, t]))
   for (const [ref, deps] of edges) {
     for (const dep of deps) {
       if (!edges.has(dep)) throw new Error(`Task ${ref} depends on unknown ${dep} (TASK_DEPENDENCY_DANGLING)`)
+      const task = tasksByRef.get(ref)
+      const dependency = tasksByRef.get(dep)
+      if (Number(dependency.sequence) >= Number(task.sequence)) {
+        throw new Error(
+          `Task ${ref} (sequence ${task.sequence}) depends on ${dep} (sequence ${dependency.sequence}); dependencies must point to strictly lower sequence numbers or task_record_change would deadlock`,
+        )
+      }
     }
   }
   const mark = new Map()
@@ -555,25 +791,31 @@ const replacePlan = async plan => {
     'Plan',
     `Replace the active wave plan in one transaction.
 
-Call app-workflow-maintainer plan_replace with request_id "${mintRef('REQ', 'plan')}"
-and this exact tasks array (do not edit, reorder, or add to it):
+Call app-workflow-maintainer plan_replace with:
+  project_ref              "${projectRef}"
+  wave_id                  "${waveId}"
+  owner_session_ref        "${ownerSessionRef}"
+  request_id               "${mintRef('REQ', 'plan')}"
+  expected_revision        from the fresh project_status call
+  expected_logical_digest  from the fresh project_status call
+  tasks                     the exact array below
 
 ${JSON.stringify(payload, null, 2)}
 
-The server rejects the whole batch on non-contiguous sequences, dangling
-dependencies, or a cycle; report any such code back rather than repairing it.`,
+Do not edit, reorder, or add to the tasks array. The server rejects the whole
+batch on non-contiguous sequences, dangling dependencies, or a cycle; report
+any such code back rather than repairing it.`,
   )
   log(`Plan committed: ${payload.length} task(s)`)
   return payload
 }
 
 // ---------------------------------------------------------------------------
-// app-dev fan-out
+// app-dev sequential execution
 //
-// Tasks become ready at different times, so this is a pipeline, not a barrier:
-// each task moves implement -> record change -> review -> settle on its own,
-// and only waits on the tasks it actually depends on. The write stages still
-// serialize through owned(), so the fan-out never races the maintainer server.
+// task_record_change enforces a strict total order: every active lower-sequence
+// task must already be done. Process one task completely — implement, bind its
+// change, review, and settle corrections — before starting the next sequence.
 // ---------------------------------------------------------------------------
 const WORK_SCHEMA = {
   type: 'object',
@@ -604,9 +846,10 @@ const REVIEW_SCHEMA = {
       type: 'array',
       items: {
         type: 'object',
-        required: ['findingRef', 'summary'],
+        required: ['findingRef', 'kind', 'summary'],
         properties: {
           findingRef: { type: 'string' },
+          kind: { type: 'string', description: 'Short category label for what type of defect the finding identifies' },
           summary: { type: 'string' },
           evidenceRefs: { type: 'array', items: { type: 'string' } },
         },
@@ -616,97 +859,44 @@ const REVIEW_SCHEMA = {
   },
 }
 
-const runDevFanOut = async state => {
-  const tasks = (state.tasks || []).filter(t => t && t.status !== 'retired')
+const requireChangeRefs = (value, taskRef, label) => {
+  if (!Array.isArray(value) || !value.length) {
+    throw new Error(`${taskRef}: ${label} produced no changed files`)
+  }
+  for (const ref of value) {
+    if (typeof ref !== 'string' || !ref || !REF_RE.test(ref)) {
+      throw new Error(`${taskRef}: ${label} returned invalid change ref ${JSON.stringify(ref)}`)
+    }
+  }
+  if (new Set(value).size !== value.length) {
+    throw new Error(`${taskRef}: ${label} returned duplicate change refs`)
+  }
+  return value.slice()
+}
+
+const runDevSequential = async state => {
+  const tasks = (state.tasks || [])
+    .filter(t => t && t.status !== 'retired')
+    .slice()
+    .sort((a, b) => Number(a.sequence) - Number(b.sequence))
   if (!tasks.length) {
-    log('No active tasks in the plan — dev phase has no work to fan out')
+    log('No active tasks in the plan — dev phase has no work')
     return []
   }
 
-  // One gate promise per task. A task starts only once every task it depends
-  // on has actually reached done; a failed dependency fails its dependents
-  // instead of letting them build on an unreviewed change.
-  const gates = new Map()
-  for (const task of tasks) {
-    let resolve
-    let reject
-    const promise = new Promise((a, b) => {
-      resolve = a
-      reject = b
-    })
-    // Nothing else awaits this promise until the stage below does; attaching a
-    // no-op handler keeps a rejection from surfacing as unhandled.
-    promise.catch(() => undefined)
-    gates.set(task.taskRef, { promise, resolve, reject })
-  }
-  const known = new Set(tasks.map(t => t.taskRef))
-  const alreadyDone = new Set(tasks.filter(t => t.status === 'done').map(t => t.taskRef))
-  for (const ref of alreadyDone) gates.get(ref).resolve({ taskRef: ref, resumed: true })
-
-  const depsOf = task => (task.dependsOn || []).filter(dep => known.has(dep) && dep !== task.taskRef)
-
-  // Hand the pipeline a dependency-topological order. Waiting on a gate is what
-  // makes a task start at its real ready time, but a task must never wait on
-  // one the scheduler has not reached yet: under a bounded-concurrency
-  // scheduler that would deadlock instead of fanning out. In topological order
-  // every dependency is already in flight or finished. The plan is acyclic
-  // (plan_replace rejects cycles), so this terminates; any residual task is
-  // appended rather than dropped.
-  const ordered = []
-  const placed = new Set()
-  let progress = true
-  while (progress && ordered.length < tasks.length) {
-    progress = false
-    for (const task of tasks) {
-      if (placed.has(task.taskRef)) continue
-      if (depsOf(task).every(dep => placed.has(dep))) {
-        ordered.push(task)
-        placed.add(task.taskRef)
-        progress = true
-      }
+  const settled = []
+  for (let taskIndex = 0; taskIndex < tasks.length; taskIndex++) {
+    const task = tasks[taskIndex]
+    if (task.status === 'done') {
+      log(`Task ${task.taskRef} already done — skipping`)
+      settled.push({ task, skipped: true })
+      continue
     }
-  }
-  for (const task of tasks) {
-    if (!placed.has(task.taskRef)) {
-      log(`WARNING: ${task.taskRef} has an unsatisfiable dependency order — appending it last`)
-      ordered.push(task)
-    }
-  }
 
-  // A stage that throws must still settle its task's gate, or every dependent
-  // waits on a promise nothing will ever resolve and the pipeline hangs
-  // instead of failing.
-  const guard = (taskRef, run) =>
-    run().catch(e => {
-      const reason = String(e && e.message ? e.message : e)
-      log(`${taskRef}: ${reason}`)
-      gates.get(taskRef).reject(e instanceof Error ? e : new Error(reason))
-      return { task: tasks.find(t => t.taskRef === taskRef), failed: reason }
-    })
-
-  const results = await pipeline(
-    ordered,
-    // Stage 1 — wait for real readiness, then implement.
-    (task, _orig, _i) =>
-      guard(task.taskRef, async () => {
-        if (alreadyDone.has(task.taskRef)) {
-          log(`Task ${task.taskRef} already done — skipping`)
-          return { task, skipped: true }
-        }
-        const deps = depsOf(task)
-        if (deps.length) {
-          try {
-            await Promise.all(deps.map(dep => gates.get(dep).promise))
-          } catch (e) {
-            const reason = `blocked: dependency of ${task.taskRef} did not complete`
-            log(reason)
-            gates.get(task.taskRef).reject(new Error(reason))
-            return { task, failed: reason }
-          }
-        }
-        log(`Task ${task.taskRef} ready (${deps.length} dependency/dependencies satisfied) — implementing`)
-        const work = await agent(
-          `${BINDING}
+    try {
+      log(`Task ${task.taskRef} sequence ${task.sequence} — implementing`)
+      const work = await agent(
+        `${BINDING}
 
 Implement exactly one task and nothing else.
 
@@ -715,211 +905,241 @@ Implement exactly one task and nothing else.
   title     ${fence(task.title)}
 
 The specification is ${waveDir}/spec.md and the plan is ${waveDir}/plan.md.
-Stay inside this task's scope: another agent owns every other task in the plan.
+Stay inside this task's scope and do not modify work assigned to any other task.
 Report the exact repository-relative path of every file you changed — the
 change digest is computed from that list, so an inaccurate list makes the
 recorded state wrong.
 ${READ_ONLY_STATE}
 ${UNTRUSTED}`,
-          {
-            agentType: 'bears-app-based-workflow:app-worker',
-            label: `dev:${task.taskRef}`,
-            phase: 'Dev',
-            schema: WORK_SCHEMA,
-          },
-        )
-        if (!work || !work.implemented || !(work.changeRefs || []).length) {
-          const reason = `${task.taskRef} produced no changes (agent skipped or errored)`
-          log(reason)
-          gates.get(task.taskRef).reject(new Error(reason))
-          return { task, failed: reason }
-        }
-        return { task, work }
-      }),
-
-    // Stage 2 — bind the change digest. Serialized write.
-    item =>
-      item.skipped || item.failed
-        ? item
-        : guard(item.task.taskRef, async () => {
-            const written = await mutate(
-              `change:${item.task.taskRef}`,
-              'Dev',
-              `Bind task ${item.task.taskRef} to the digest of its changed files.
+        {
+          agentType: 'bears-app-based-workflow:app-worker',
+          label: `dev:${task.taskRef}`,
+          phase: 'Dev',
+          schema: WORK_SCHEMA,
+        },
+      )
+      if (!work || !work.implemented) {
+        throw new Error(`${task.taskRef} produced no changes (agent skipped or errored)`)
+      }
+      let changeRefs = requireChangeRefs(work.changeRefs, task.taskRef, 'worker')
+      const initialRequestId = mintRef('REQ', 'change')
+      const written = await mutate(
+        `change:${task.taskRef}`,
+        'Dev',
+        `Bind task ${task.taskRef} to the digest of its changed files.
 
 Call app-workflow-maintainer task_record_change with:
-  task_ref      "${item.task.taskRef}"
-  worker_ref    "${ownerSessionRef}"
-  change_refs   ${JSON.stringify(item.work.changeRefs)}
-  request_id    "${mintRef('REQ', 'change')}"
+  project_ref              "${projectRef}"
+  wave_id                  "${waveId}"
+  owner_session_ref        "${ownerSessionRef}"
+  request_id               "${initialRequestId}"
+  expected_revision        from the fresh project_status call
+  expected_logical_digest  from the fresh project_status call
+  task_ref                 "${task.taskRef}"
+  worker_ref               "${ownerSessionRef}"
+  change_refs              ${JSON.stringify(changeRefs)}
 
 Report the change digest the tool returned as changeDigest.`,
-            )
-            return { ...item, changeDigest: written.changeDigest }
-          }),
+      )
+      let changeDigest = written.changeDigest
+      if (typeof changeDigest !== 'string' || !/^sha256:[0-9a-f]{64}$/.test(changeDigest)) {
+        throw new Error(`${task.taskRef}: task_record_change returned no valid change digest`)
+      }
 
-    // Stage 3 — review, then settle. A task reaches done only on an approval
-    // at its current change digest with no open corrections, so a
-    // changes_requested verdict runs a bounded correction loop rather than
-    // being recorded as complete.
-    item =>
-      item.skipped || item.failed
-        ? item
-        : guard(item.task.taskRef, async () => {
-            const task = item.task
-            let changeDigest = item.changeDigest
-            let changeRefs = item.work.changeRefs
-
-            for (let round = 0; round <= maxCorrections; round++) {
-              const review = await agent(
-                `${BINDING}
+      let done = false
+      for (let round = 0; round <= maxCorrections; round++) {
+        const review = await agent(
+          `${BINDING}
 
 Review one immutable change and return a verdict.
 
   task_ref       ${task.taskRef}
   title          ${fence(task.title)}
-  change_digest  ${changeDigest || '(read it from workflow_state)'}
+  change_digest  ${changeDigest}
   changed files  ${JSON.stringify(changeRefs)}
 
 Judge the change against ${waveDir}/spec.md and ${waveDir}/plan.md. Return
 "approved" only if it is correct and complete for this task; otherwise return
-"changes_requested" with concrete findings, each with a stable findingRef and
-evidence file paths. You are read-only: change nothing.
+"changes_requested" with concrete findings. Each finding needs a stable
+findingRef, a short category label in kind, a summary, and evidence file paths.
+You are read-only: change nothing.
 ${READ_ONLY_STATE}
 ${UNTRUSTED}`,
-                {
-                  agentType: 'bears-app-based-workflow:app-reviewer',
-                  label: `review:${task.taskRef}`,
-                  phase: 'Dev',
-                  schema: REVIEW_SCHEMA,
-                },
-              )
-              if (!review) {
-                const reason = `${task.taskRef}: reviewer returned no result — not approving`
-                log(reason)
-                gates.get(task.taskRef).reject(new Error(reason))
-                return { task, failed: reason }
-              }
-              const verdict = review.verdict === 'approved' ? 'approved' : 'changes_requested'
-              const sourceRefs = (review.sourceRefs || []).filter(Boolean)
-              const findings = (review.findings || []).filter(f => f && f.findingRef)
+          {
+            agentType: 'bears-app-based-workflow:app-reviewer',
+            label: `review:${task.taskRef}`,
+            phase: 'Dev',
+            schema: REVIEW_SCHEMA,
+          },
+        )
+        if (!review) throw new Error(`${task.taskRef}: reviewer returned no result — not approving`)
 
-              try {
-                const recorded = await mutate(
-                  `review:${task.taskRef}`,
-                  'Dev',
-                  `Record the review of task ${task.taskRef}.
+        const verdict = review.verdict === 'approved' ? 'approved' : 'changes_requested'
+        const sourceRefs = cleanRefs(review.sourceRefs)
+        const reviewSourceRefs = sourceRefs.length ? sourceRefs : changeRefs
+        const findings = verdict === 'approved'
+          ? []
+          : (review.findings || [])
+              .filter(f => f && typeof f.findingRef === 'string' && REF_RE.test(f.findingRef))
+              .map(f => ({
+                ...f,
+                kind: typeof f.kind === 'string' && f.kind ? f.kind : 'review',
+                summary:
+                  typeof f.summary === 'string' && f.summary ? f.summary : 'Reviewer requested a correction',
+                evidenceRefs: cleanRefs(f.evidenceRefs),
+              }))
+        if (verdict === 'changes_requested' && !findings.length) {
+          throw new Error(`${task.taskRef}: changes_requested review returned no valid findings`)
+        }
+        if (new Set(findings.map(f => f.findingRef)).size !== findings.length) {
+          throw new Error(`${task.taskRef}: review returned duplicate finding refs`)
+        }
+
+        const reviewRequestId = mintRef('REQ', 'review')
+        const findingsPayload = findings.map(f => ({
+          finding_ref: f.findingRef,
+          kind: f.kind || 'review',
+          summary: f.summary,
+        }))
+        const recorded = await mutate(
+          `review:${task.taskRef}`,
+          'Dev',
+          `Record the review of task ${task.taskRef}.
 
 Call app-workflow-maintainer review_record with:
-  review_ref     "${mintRef('REVIEW', task.taskRef)}"
-  task_ref       "${task.taskRef}"
-  reviewer_ref   "${ownerSessionRef}"
-  verdict        "${verdict}"
-  change_digest  the CURRENT change digest of this task${changeDigest ? ` (expected ${changeDigest})` : ''} — read it from app-workflow workflow_state if you are not certain, because an approval only completes a task when it matches
-  source_refs    ${JSON.stringify(sourceRefs.length ? sourceRefs : changeRefs)}
-  findings       ${JSON.stringify(findings.map(f => ({ finding_ref: f.findingRef, summary: f.summary })))}
-  request_id     "${mintRef('REQ', 'review')}"
+  project_ref              "${projectRef}"
+  wave_id                  "${waveId}"
+  owner_session_ref        "${ownerSessionRef}"
+  request_id               "${reviewRequestId}"
+  expected_revision        from the fresh project_status call
+  expected_logical_digest  from the fresh project_status call
+  review_ref               "${mintRef('REVIEW', task.taskRef)}"
+  task_ref                 "${task.taskRef}"
+  reviewer_ref             "${ownerSessionRef}"
+  verdict                  "${verdict}"
+  change_digest            "${changeDigest}"
+  source_refs              ${JSON.stringify(reviewSourceRefs)}
+  findings                 ${JSON.stringify(findingsPayload)}
 
-Then report the task's status after the write as taskStatus.`,
-                )
-                if (verdict === 'approved') {
-                  if (recorded.taskStatus && recorded.taskStatus !== 'done') {
-                    const reason = `${task.taskRef}: approved but status is ${recorded.taskStatus} — an open correction or a stale change digest is blocking completion`
-                    log(reason)
-                    gates.get(task.taskRef).reject(new Error(reason))
-                    return { task, failed: reason }
-                  }
-                  log(`Task ${task.taskRef} done`)
-                  const done = { task, done: true, changeDigest }
-                  gates.get(task.taskRef).resolve(done)
-                  return done
-                }
+Send findings as [] for an approved verdict. Then call app-workflow
+workflow_state {project_ref, wave_id} and report the task's status after the
+write as taskStatus.`,
+        )
 
-                if (round === maxCorrections) {
-                  const reason = `${task.taskRef}: still changes_requested after ${maxCorrections} correction round(s) — leaving it open`
-                  log(reason)
-                  gates.get(task.taskRef).reject(new Error(reason))
-                  return { task, failed: reason }
-                }
+        if (verdict === 'approved') {
+          if (recorded.taskStatus && recorded.taskStatus !== 'done') {
+            throw new Error(
+              `${task.taskRef}: approved but status is ${recorded.taskStatus} — an open correction or a stale change digest is blocking completion`,
+            )
+          }
+          log(`Task ${task.taskRef} done`)
+          settled.push({ task, done: true, changeDigest })
+          done = true
+          break
+        }
 
-                log(`Task ${task.taskRef}: changes_requested (round ${round + 1}) — correcting`)
-                const fix = await agent(
-                  `${BINDING}
+        if (round === maxCorrections) {
+          throw new Error(
+            `${task.taskRef}: still changes_requested after ${maxCorrections} correction round(s) — leaving it open`,
+          )
+        }
+
+        log(`Task ${task.taskRef}: changes_requested (round ${round + 1}) — correcting`)
+        const fix = await agent(
+          `${BINDING}
 
 Correct one task against review findings. Change nothing outside its scope.
 
   task_ref  ${task.taskRef}
   title     ${fence(task.title)}
-  findings  ${fence(findings.map(f => `${f.findingRef}: ${f.summary} [${(f.evidenceRefs || []).join(', ')}]`).join('\n'))}
+  findings  ${fence(findings.map(f => `${f.findingRef}: ${f.summary} [${f.evidenceRefs.join(', ')}]`).join('\n'))}
 
 Report every file you changed, including files you had already changed in an
 earlier round.
 ${READ_ONLY_STATE}
 ${UNTRUSTED}`,
-                  {
-                    agentType: 'bears-app-based-workflow:app-worker',
-                    label: `fix:${task.taskRef}`,
-                    phase: 'Dev',
-                    schema: WORK_SCHEMA,
-                  },
-                )
-                if (!fix || !fix.implemented || !(fix.changeRefs || []).length) {
-                  const reason = `${task.taskRef}: correction produced no changes`
-                  log(reason)
-                  gates.get(task.taskRef).reject(new Error(reason))
-                  return { task, failed: reason }
-                }
-                changeRefs = fix.changeRefs
+          {
+            agentType: 'bears-app-based-workflow:app-worker',
+            label: `fix:${task.taskRef}`,
+            phase: 'Dev',
+            schema: WORK_SCHEMA,
+          },
+        )
+        if (!fix || !fix.implemented) throw new Error(`${task.taskRef}: correction produced no changes`)
+        changeRefs = requireChangeRefs(fix.changeRefs, task.taskRef, 'correction worker')
 
-                // Close every finding this round raised, then bind the new digest.
-                // The task cannot reach done while a correction is still open.
-                for (const finding of findings) {
-                  await mutate(
-                    `correction:${task.taskRef}:${finding.findingRef}`,
-                    'Dev',
-                    `Resolve one review finding on task ${task.taskRef}.
+        // Close every finding this round raised, then bind the new digest.
+        // Resolved corrections require evidence_refs; corrected changeRefs are
+        // the safe evidence fallback when the reviewer supplied none.
+        for (const finding of findings) {
+          const evidenceRefs = finding.evidenceRefs.length ? finding.evidenceRefs : changeRefs
+          const correctionRequestId = mintRef('REQ', 'correction')
+          await mutate(
+            `correction:${task.taskRef}:${finding.findingRef}`,
+            'Dev',
+            `Resolve one review finding on task ${task.taskRef}.
 
 Call app-workflow-maintainer correction_record with:
-  correction_ref  "${mintRef('CORRECTION', finding.findingRef)}"
-  finding_ref     "${finding.findingRef}"
-  task_ref        "${task.taskRef}"
-  status          "resolved"
-  evidence_refs   ${JSON.stringify((finding.evidenceRefs || []).filter(Boolean))}
-  source_refs     ${JSON.stringify(changeRefs)}
-  request_id      "${mintRef('REQ', 'correction')}"`,
-                  )
-                }
-                const rebound = await mutate(
-                  `change:${task.taskRef}:round${round + 1}`,
-                  'Dev',
-                  `Rebind task ${task.taskRef} to the digest of its corrected files.
+  project_ref              "${projectRef}"
+  wave_id                  "${waveId}"
+  owner_session_ref        "${ownerSessionRef}"
+  request_id               "${correctionRequestId}"
+  expected_revision        from the fresh project_status call
+  expected_logical_digest  from the fresh project_status call
+  correction_ref           "${mintRef('CORRECTION', finding.findingRef)}"
+  finding_ref              "${finding.findingRef}"
+  task_ref                 "${task.taskRef}"
+  status                   "resolved"
+  evidence_refs            ${JSON.stringify(evidenceRefs)}
+  source_refs              ${JSON.stringify(changeRefs)}`,
+          )
+        }
+
+        const reboundRequestId = mintRef('REQ', 'change')
+        const rebound = await mutate(
+          `change:${task.taskRef}:round${round + 1}`,
+          'Dev',
+          `Rebind task ${task.taskRef} to the digest of its corrected files.
 
 Call app-workflow-maintainer task_record_change with:
-  task_ref      "${task.taskRef}"
-  worker_ref    "${ownerSessionRef}"
-  change_refs   ${JSON.stringify(changeRefs)}
-  request_id    "${mintRef('REQ', 'change')}"
+  project_ref              "${projectRef}"
+  wave_id                  "${waveId}"
+  owner_session_ref        "${ownerSessionRef}"
+  request_id               "${reboundRequestId}"
+  expected_revision        from the fresh project_status call
+  expected_logical_digest  from the fresh project_status call
+  task_ref                 "${task.taskRef}"
+  worker_ref               "${ownerSessionRef}"
+  change_refs              ${JSON.stringify(changeRefs)}
 
 Report the new change digest as changeDigest.`,
-                )
-                changeDigest = rebound.changeDigest
-              } catch (e) {
-                gates.get(task.taskRef).reject(e)
-                return { task, failed: String(e && e.message ? e.message : e) }
-              }
-            }
-            const reason = `${task.taskRef}: correction loop exhausted`
-            gates.get(task.taskRef).reject(new Error(reason))
-            return { task, failed: reason }
-          }),
-  )
+        )
+        changeDigest = rebound.changeDigest
+        if (typeof changeDigest !== 'string' || !/^sha256:[0-9a-f]{64}$/.test(changeDigest)) {
+          throw new Error(`${task.taskRef}: corrected task_record_change returned no valid change digest`)
+        }
+      }
 
-  const settled = (results || []).map((r, i) => r || { task: ordered[i], failed: 'pipeline returned no result' })
-  const blocked = settled.filter(r => r.failed)
+      if (!done) throw new Error(`${task.taskRef}: correction loop exhausted`)
+    } catch (e) {
+      const reason = String(e && e.message ? e.message : e)
+      log(`${task.taskRef}: ${reason}`)
+      settled.push({ task, failed: reason })
+      for (let pendingIndex = taskIndex + 1; pendingIndex < tasks.length; pendingIndex++) {
+        settled.push({
+          task: tasks[pendingIndex],
+          failed: `not attempted: lower-sequence task ${task.taskRef} did not reach done`,
+        })
+      }
+      break
+    }
+  }
+
+  const blocked = settled.filter(result => result.failed)
   if (blocked.length) {
     throw new Error(
       `app-dev is incomplete: ${blocked.length} of ${tasks.length} task(s) did not reach done — ${blocked
-        .map(r => r.task.taskRef)
+        .map(result => result.task.taskRef)
         .join(', ')}. The wave does not advance to app-analyze on a partial plan.`,
     )
   }
@@ -929,6 +1149,8 @@ Report the new change digest as changeDigest.`,
 // ---------------------------------------------------------------------------
 // app-analyze and the audit gate
 // ---------------------------------------------------------------------------
+const ANALYSIS_ROUTES = PHASE_ORDER.slice(0, -1)
+
 const ANALYSIS_SCHEMA = {
   type: 'object',
   required: ['artifactWritten', 'sourceRefs', 'findings', 'summary'],
@@ -947,7 +1169,7 @@ const ANALYSIS_SCHEMA = {
           summary: { type: 'string' },
           requiredPhase: {
             type: 'string',
-            enum: PHASE_ORDER,
+            enum: ANALYSIS_ROUTES,
             description: 'Earliest phase that must be redone to fix this',
           },
           sourceRefs: { type: 'array', items: { type: 'string' } },
@@ -995,26 +1217,41 @@ ${UNTRUSTED}`,
 
   await recordPhase(spec, { ...analysis, artifactWritten: true })
 
-  const findings = (analysis.findings || []).filter(f => f && f.findingRef && PHASE_ORDER.includes(f.requiredPhase))
-  const sourceRefs = (analysis.sourceRefs || []).filter(Boolean)
+  const findings = (analysis.findings || []).filter(
+    f =>
+      f &&
+      typeof f.findingRef === 'string' &&
+      REF_RE.test(f.findingRef) &&
+      ANALYSIS_ROUTES.includes(f.requiredPhase),
+  )
+  const sourceRefs = cleanRefs(analysis.sourceRefs)
+  const analysisSourceRefs = sourceRefs.length ? sourceRefs : [`${waveDir}/analysis.md`]
+  const analysisFindings = findings.map(f => {
+    const findingSourceRefs = cleanRefs(f.sourceRefs)
+    return {
+      finding_ref: f.findingRef,
+      kind: f.kind || 'semantic',
+      summary: f.summary || `Analysis finding ${f.findingRef}`,
+      route: f.requiredPhase,
+      source_refs: findingSourceRefs.length ? findingSourceRefs : analysisSourceRefs,
+    }
+  })
+  const analysisRequestId = mintRef('REQ', 'analysis')
   const recorded = await mutate(
     'analysis:record',
     'Analyze',
     `Record the analysis outcome.
 
 Call app-workflow-maintainer analysis_record with:
-  analysis_ref  "${mintRef('ANALYSIS')}"
-  source_refs   ${JSON.stringify(sourceRefs.length ? sourceRefs : [`${waveDir}/analysis.md`])}
-  findings      ${JSON.stringify(
-    findings.map(f => ({
-      finding_ref: f.findingRef,
-      kind: f.kind || 'semantic',
-      summary: f.summary,
-      required_phase: f.requiredPhase,
-      source_refs: (f.sourceRefs || []).filter(Boolean),
-    })),
-  )}
-  request_id    "${mintRef('REQ', 'analysis')}"
+  project_ref              "${projectRef}"
+  wave_id                  "${waveId}"
+  owner_session_ref        "${ownerSessionRef}"
+  request_id               "${analysisRequestId}"
+  expected_revision        from the fresh project_status call
+  expected_logical_digest  from the fresh project_status call
+  analysis_ref             "${mintRef('ANALYSIS')}"
+  source_refs              ${JSON.stringify(analysisSourceRefs)}
+  findings                 ${JSON.stringify(analysisFindings)}
 
 An empty findings array asserts the wave is clean; the server rejects it with
 ANALYSIS_NOT_CLEAN if any task is unfinished or any finding is still open.
@@ -1037,10 +1274,17 @@ const runAudit = async () => {
 1. Call app-workflow workflow_validate {project_ref, wave_id}. If it returns
    ok:false, STOP: report ok:false with the findings and do not attest.
 2. Only if validation is clean, call app-workflow-maintainer
-   workflow_mark_audited with audit_ref "${mintRef('AUDIT')}" and request_id
-   "${mintRef('REQ', 'audit')}". It revalidates at the same revision inside its
-   own transaction; if it reports a mismatch, something mutated in between —
-   report ok:false rather than retrying.`,
+   workflow_mark_audited with:
+     project_ref              "${projectRef}"
+     wave_id                  "${waveId}"
+     owner_session_ref        "${ownerSessionRef}"
+     request_id               "${mintRef('REQ', 'audit')}"
+     expected_revision        from the fresh project_status call
+     expected_logical_digest  from the fresh project_status call
+     audit_ref                "${mintRef('AUDIT')}"
+   It revalidates at the same revision inside its own transaction; if it
+   reports a mismatch, something mutated in between — report ok:false rather
+   than retrying.`,
   )
   log('Wave attested as audited')
   return attested
@@ -1079,7 +1323,7 @@ for (let pass = 1; pass <= maxPasses; pass++) {
     if (spec.phase === 'app-dev') {
       phase('Dev')
       const planned = await readState('state:pre-dev')
-      await runDevFanOut(planned)
+      await runDevSequential(planned)
       const devSpec = spec
       const devArtifact = await authorPhase(devSpec)
       await recordPhase(devSpec, devArtifact)
@@ -1091,7 +1335,12 @@ for (let pass = 1; pass <= maxPasses; pass++) {
     phase(spec.title)
     const result = await authorPhase(spec)
 
-    if (spec.phase === 'app-plan') {
+    if (spec.phase === 'app-functional-graph') {
+      // Commit the graph BEFORE the process record, so this gate cannot record
+      // a completed phase over an empty or rejected graph batch.
+      const proposed = await proposeGraph()
+      await applyGraph(proposed)
+    } else if (spec.phase === 'app-plan') {
       // Commit the plan BEFORE the process record, so the app-plan gate means
       // "a valid plan is committed and the artifact is recorded" rather than
       // just the latter. plan_replace flips the phase to completed on its own

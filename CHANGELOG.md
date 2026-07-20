@@ -12,8 +12,13 @@ All notable changes to this plugin are documented in this file.
 - Stopped counting plugin runtime state (`.bears/`, `waves/`) against the repository budget so the workflow can be run against this repository itself.
 - Added Claude Code as a second supported runtime alongside Codex: `.claude-plugin/plugin.json`, `.claude-plugin/marketplace.json`, `claude/mcp.json` with `${CLAUDE_PLUGIN_ROOT}` server paths, and three Markdown L3 agents (`claude/agents/`).
 - Added the `BEARS_APP_WORKFLOW_STATE_DIR` environment variable as the primary registry location override; the `$CODEX_HOME/state/...` path remains the default so both runtimes share one registry.
-- In Claude Code the main session is the `DIRECT` primary and wave owner; delegated `repo-orchestrator` and `workflow-orchestrator` lanes remain Codex-runtime features because Claude Code subagents cannot dispatch subagents.
-- Clarified skill dispatch wording for both runtimes; skills remain shared and unchanged in behavior.
+- Retired the delegated lane hierarchy. The `repo-orchestrator` and `workflow-orchestrator` profiles are gone; one orchestrator owns one repository, and a second repository is a separate session with its own wave. Three bounded roles remain: `app-worker`, `app-reviewer`, `app-analyst`.
+- Generated roles from a single typed source: `roles/roles.json` plus `scripts/render_roles.py` render both `claude/agents/*.md` and `agents/*.toml`, with `--check` drift detection, replacing two hand-maintained representations that had drifted.
+- Added enforcement hooks (`claude/hooks.json`): a PreToolUse guard denying maintainer mutations without a well-formed compare-and-swap triple, and Stop/SubagentStop guards refusing to end a turn on an inconsistent wave. Both fail open.
+- Added the `/app-wave` command for starting and resuming a wave from live database state, and `claude/workflows/app-wave.js`, which encodes the seven phases as deterministic control flow with a dependency-ordered dev fan-out.
+- Added `scripts/codex_exec_bridge.py`, a bounded executor bridge over `codex exec`: network off, sandbox overrides denylisted, and changed-file evidence taken from content digests at the git root.
+- Demoted the phase skills from prose-as-algorithm to phase guidance; sequencing, gates, and retries now belong to the orchestrator.
+- Added `docs/architecture.md` describing the layers, invariants, and the non-obvious sharp edges.
 
 ## 0.6.0
 

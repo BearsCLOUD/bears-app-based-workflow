@@ -212,7 +212,7 @@ class McpLifecycleTests(WorkflowTestCase):
         ]
         reader = self.rpc("reader", base)
         maintainer = self.rpc("maintainer", base)
-        self.assertEqual(reader[0]["result"]["serverInfo"]["version"], "0.6.0")
+        self.assertEqual(reader[0]["result"]["serverInfo"]["version"], WORKFLOW.VERSION)
         self.assertEqual(len(reader[1]["result"]["tools"]), 12)
         self.assertEqual(len(maintainer[1]["result"]["tools"]), 13)
         self.assertNotIn("graph_apply", {tool["name"] for tool in reader[1]["result"]["tools"]})

@@ -1,6 +1,6 @@
 {
   "name": "bears-app-based-workflow",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "description": "Bears app workflow plugin with registered SQLite state, split MCP access, repo-scoped orchestration, and exact-snapshot audit.",
   "author": {
     "name": "BearsCLOUD",

@@ -17,7 +17,7 @@ import sys
 from typing import Any, Callable, Sequence
 import uuid
 
-VERSION = "0.6.0"
+VERSION = "0.7.0"
 SCHEMA_VERSION = "app-workflow-db.v2"
 REGISTRY_VERSION = 1
 DATABASE_RELATIVE = Path(".bears/app-workflow.sqlite3")

@@ -2,8 +2,14 @@
 
 All notable changes to this plugin are documented in this file.
 
-## Unreleased
+## 0.7.0
 
+- Made Claude Code the primary runtime and orchestrator. The plugin now ships a `hooks` entry point (`claude/hooks.json`) alongside its agents and MCP servers.
+- Retired the Codex-host installer (`install`) and the self-hosted CD runner (`.github/runner`, `.github/workflows/plugin-marketplace-cd.yml`). Claude Code installs plugins natively, and the runner was pinned to an operator path that no longer exists.
+- Removed the committed `dist/` release bundle; it was a Codex-marketplace artifact built by the retired CD.
+- Hardened the substrate: `plan_replace` reorders tasks and reuses freed sequences, `project_status` reports an `audited` flag that on-disk file drift invalidates, `project_rebind` refuses to roll canonical state back from a stale clone, and the task, review, and correction backends reject a foreign `wave_id`.
+- Versioned the project database `v1` -> `v2` with an idempotent in-place migration on writable open; `schema_version` is excluded from the logical digest so a migrating open cannot fail a caller's compare-and-swap.
+- Stopped counting plugin runtime state (`.bears/`, `waves/`) against the repository budget so the workflow can be run against this repository itself.
 - Added Claude Code as a second supported runtime alongside Codex: `.claude-plugin/plugin.json`, `.claude-plugin/marketplace.json`, `claude/mcp.json` with `${CLAUDE_PLUGIN_ROOT}` server paths, and three Markdown L3 agents (`claude/agents/`).
 - Added the `BEARS_APP_WORKFLOW_STATE_DIR` environment variable as the primary registry location override; the `$CODEX_HOME/state/...` path remains the default so both runtimes share one registry.
 - In Claude Code the main session is the `DIRECT` primary and wave owner; delegated `repo-orchestrator` and `workflow-orchestrator` lanes remain Codex-runtime features because Claude Code subagents cannot dispatch subagents.

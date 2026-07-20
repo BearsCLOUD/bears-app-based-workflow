@@ -2,6 +2,13 @@
 
 All notable changes to this plugin are documented in this file.
 
+## Unreleased
+
+- Added Claude Code as a second supported runtime alongside Codex: `.claude-plugin/plugin.json`, `.claude-plugin/marketplace.json`, `claude/mcp.json` with `${CLAUDE_PLUGIN_ROOT}` server paths, and three Markdown L3 agents (`claude/agents/`).
+- Added the `BEARS_APP_WORKFLOW_STATE_DIR` environment variable as the primary registry location override; the `$CODEX_HOME/state/...` path remains the default so both runtimes share one registry.
+- In Claude Code the main session is the `DIRECT` primary and wave owner; delegated `repo-orchestrator` and `workflow-orchestrator` lanes remain Codex-runtime features because Claude Code subagents cannot dispatch subagents.
+- Clarified skill dispatch wording for both runtimes; skills remain shared and unchanged in behavior.
+
 ## 0.6.0
 
 - Replaced JSON functional-map and workflow-state files with a registered per-project SQLite database.

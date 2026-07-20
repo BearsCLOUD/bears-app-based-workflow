@@ -8,7 +8,7 @@ description: Execute planned app tasks sequentially with exact change digests, r
 ## Ownership
 
 - Keep the stage and every workflow write with the `DIRECT` primary or persistent `repo-orchestrator`.
-- Dispatch optional L3 work only through `$subagents`.
+- Dispatch optional L3 work only through the runtime subagent dispatch: `$subagents` in Codex, or the Task tool with the plugin agents `app-worker` and `app-reviewer` in Claude Code.
 - Keep one current task and finish its review cycle before starting the next sequence item.
 - Leave the phase `pending` when either workflow MCP server is unavailable.
 - Never use a JSON workflow-state fallback.

@@ -1,10 +1,10 @@
 # Bears App-Based Workflow
 
-Bears App-Based Workflow is a seven-phase Codex plugin whose canonical workflow state is a registered per-project SQLite database exposed through two stdio MCP servers.
+Bears App-Based Workflow is a seven-phase plugin for the Codex and Claude Code runtimes whose canonical workflow state is a registered per-project SQLite database exposed through two stdio MCP servers.
 
 ## State Boundary
 
-- `$CODEX_HOME/state/bears-app-based-workflow/registry.sqlite3` maps stable `project_ref` values to absolute Git roots.
+- The registry `registry.sqlite3` maps stable `project_ref` values to absolute Git roots. It lives in `$BEARS_APP_WORKFLOW_STATE_DIR` when that variable is set, otherwise in `$CODEX_HOME/state/bears-app-based-workflow/`; both runtimes share one registry by default.
 - `<project>/.bears/app-workflow.sqlite3` stores normalized workflow state and never stores the absolute project path.
 - `app-workflow` exposes twelve read-only tools.
 - `app-workflow-maintainer` exposes thirteen registration and mutation tools.
@@ -63,6 +63,17 @@ Every phase carries `project_ref`, `wave_id`, revision, and logical digest. If e
 ## Ownership
 
 The `DIRECT` primary owns every direct phase and may use both servers. One persistent `repo-orchestrator` owns every delegated phase and both servers for its repository lane. `app-reviewer` and `app-analyst` receive limited read-only tools. `app-worker` and `workflow-orchestrator` receive neither server. Only the wave owner records mutations.
+
+## Claude Code Runtime
+
+Claude Code loads the plugin from `.claude-plugin/plugin.json`: both MCP servers start from `claude/mcp.json` through `${CLAUDE_PLUGIN_ROOT}`, the eight shared skills load from `skills/`, and the three L3 agents load from `claude/agents/` with per-agent read-only tool allowlists mirroring the Codex TOML profiles. The main session is the `DIRECT` primary and wave owner and holds both servers. Delegated `repo-orchestrator` and `workflow-orchestrator` lanes remain Codex-runtime features because Claude Code subagents cannot dispatch subagents; run one Claude session per repository instead.
+
+```bash
+claude plugin marketplace add /absolute/path/to/bears-app-based-workflow
+claude plugin install bears-app-based-workflow@bears-app-based-workflow
+```
+
+For a single session, use `claude --plugin-dir /absolute/path/to/bears-app-based-workflow`.
 
 ## Migration
 

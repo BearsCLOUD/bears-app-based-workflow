@@ -125,6 +125,9 @@ def codex_home() -> Path:
 
 
 def registry_path() -> Path:
+    raw = os.environ.get("BEARS_APP_WORKFLOW_STATE_DIR")
+    if raw:
+        return Path(raw).expanduser() / REGISTRY_RELATIVE.name
     return codex_home() / REGISTRY_RELATIVE
 
 

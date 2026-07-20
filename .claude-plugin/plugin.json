@@ -1,0 +1,29 @@
+{
+  "name": "bears-app-based-workflow",
+  "displayName": "Bears App-Based Workflow",
+  "version": "0.6.0",
+  "description": "Seven-phase app workflow over registered per-project SQLite state, split read-only and maintainer MCP servers, sequential reviewed implementation, and exact-snapshot atomic audit.",
+  "author": {
+    "name": "BearsCLOUD",
+    "url": "https://github.com/BearsCLOUD"
+  },
+  "homepage": "https://github.com/BearsCLOUD/bears-app-based-workflow",
+  "repository": "https://github.com/BearsCLOUD/bears-app-based-workflow",
+  "license": "MIT",
+  "keywords": [
+    "bears",
+    "sqlite-workflow",
+    "mcp",
+    "functional-graph",
+    "traceability",
+    "task-ledger",
+    "semantic-analysis",
+    "subagents"
+  ],
+  "agents": [
+    "./claude/agents/app-worker.md",
+    "./claude/agents/app-reviewer.md",
+    "./claude/agents/app-analyst.md"
+  ],
+  "mcpServers": "./claude/mcp.json"
+}

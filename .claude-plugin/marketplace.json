@@ -1,0 +1,17 @@
+{
+  "name": "bears-app-based-workflow",
+  "owner": {
+    "name": "BearsCLOUD",
+    "url": "https://github.com/BearsCLOUD"
+  },
+  "description": "Marketplace for the Bears App-Based Workflow plugin: seven-phase app workflow with SQLite-backed state and exact-snapshot audit.",
+  "plugins": [
+    {
+      "name": "bears-app-based-workflow",
+      "source": "./",
+      "description": "Seven-phase app workflow over registered per-project SQLite state with split MCP access and exact-snapshot audit.",
+      "category": "development",
+      "version": "0.6.0"
+    }
+  ]
+}

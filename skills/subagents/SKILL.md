@@ -5,6 +5,11 @@ description: Dispatch one bounded L3 app assignment to app-worker, app-reviewer,
 
 # Subagents
 
+## Runtimes
+
+- In Codex, dispatch through `$subagents` with the installed agent profiles.
+- In Claude Code, dispatch through the Task tool with the plugin agents `app-worker`, `app-reviewer`, and `app-analyst`; the main session is the `DIRECT` primary and wave owner, and delegated `repo-orchestrator` lanes remain a Codex-runtime feature.
+
 ## Profiles
 
 - Use `app-worker` for one current task and no workflow MCP access.

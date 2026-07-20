@@ -1,0 +1,22 @@
+{
+  "mcpServers": {
+    "app-workflow": {
+      "command": "python3",
+      "args": [
+        "${CLAUDE_PLUGIN_ROOT}/scripts/app_workflow.py",
+        "serve",
+        "--mode",
+        "reader"
+      ]
+    },
+    "app-workflow-maintainer": {
+      "command": "python3",
+      "args": [
+        "${CLAUDE_PLUGIN_ROOT}/scripts/app_workflow.py",
+        "serve",
+        "--mode",
+        "maintainer"
+      ]
+    }
+  }
+}

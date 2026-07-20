@@ -239,8 +239,11 @@ class PhaseHookTests(unittest.TestCase):
             self.assertEqual("block", out["decision"])
             self.assertIn("app-constitution", out["reason"])
 
-    def test_plan_replace_completing_app_plan_without_record_is_allowed(self):
-        # plan_replace marks app-plan completed without a process record.
+    def test_plan_replace_completing_app_plan_without_record_blocks(self):
+        # plan_replace settles app-plan to completed without a process record, and the skill
+        # requires phase_record right after. Ending the turn in between is precisely the missed
+        # step this hook exists to catch, and validation_result() reports the same state as
+        # PROCESS_CURRENT_INVALID - so it must not be exempted.
         with tempfile.TemporaryDirectory() as tmp:
             self.build_db(
                 os.path.join(tmp, ".bears", "app-workflow.sqlite3"),
@@ -250,10 +253,14 @@ class PhaseHookTests(unittest.TestCase):
                 current_phase="app-dev",
                 wave_status="plan-ready",
             )
-            self.assertIsNone(self.decision(tmp))
+            out = self.decision(tmp)
+            self.assertIsNotNone(out)
+            self.assertEqual(out["decision"], "block")
+            self.assertIn("app-plan", out["reason"])
 
-    def test_analysis_record_readying_app_analyze_without_record_is_allowed(self):
-        # analysis_record marks app-analyze ready without a process record.
+    def test_analysis_record_readying_app_analyze_without_record_blocks(self):
+        # analysis_record settles app-analyze to 'ready' without a process record. The status is
+        # 'ready' rather than 'completed', so the predicate has to cover both.
         with tempfile.TemporaryDirectory() as tmp:
             self.build_db(
                 os.path.join(tmp, ".bears", "app-workflow.sqlite3"),
@@ -263,7 +270,10 @@ class PhaseHookTests(unittest.TestCase):
                 current_phase="app-analyze",
                 wave_status="ready",
             )
-            self.assertIsNone(self.decision(tmp))
+            out = self.decision(tmp)
+            self.assertIsNotNone(out)
+            self.assertEqual(out["decision"], "block")
+            self.assertIn("app-analyze", out["reason"])
 
     def test_dangling_process_record_pointer_blocks(self):
         with tempfile.TemporaryDirectory() as tmp:

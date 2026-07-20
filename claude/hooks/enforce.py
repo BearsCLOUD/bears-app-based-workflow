@@ -42,7 +42,12 @@ PHASES = (
 # Phases the runtime settles on its own, without a process record: plan_replace
 # marks 'app-plan' completed and analysis_record marks 'app-analyze' ready. A
 # missing process record for those two is legitimate, not an inconsistency.
-SELF_SETTLING_PHASES = ("app-plan", "app-analyze")
+# A phase reaching either status still owes an active process record. `plan_replace` settles
+# app-plan to 'completed' and `analysis_record` settles app-analyze to 'ready' without writing
+# one, so those are exactly the turns most likely to end a step early - they are checked, not
+# exempted. This matches validation_result(), which reports the same state as
+# PROCESS_CURRENT_INVALID.
+SETTLED_STATUSES = ("completed", "ready")
 
 
 def maintainer_tool(tool_name: object) -> str | None:
@@ -145,11 +150,11 @@ def phase_inconsistencies(connection: sqlite3.Connection) -> list[str]:
                         "is not the active record for that phase"
                         % (wave_id, phase, record_ref)
                     )
-            elif status == "completed" and phase not in SELF_SETTLING_PHASES:
+            elif status in SETTLED_STATUSES:
                 problems.append(
-                    "wave %s phase '%s' is marked completed but has no active "
-                    "process record; call phase_record before ending the turn"
-                    % (wave_id, phase)
+                    "wave %s phase '%s' is marked %s but has no active process "
+                    "record; call phase_record before ending the turn"
+                    % (wave_id, phase, status)
                 )
 
         audited = connection.execute(
@@ -207,7 +212,7 @@ def main(argv: list[str]) -> int:
     mode = argv[1] if len(argv) > 1 else ""
     try:
         payload = json.loads(sys.stdin.read() or "{}")
-    except (ValueError, OSError):
+    except Exception:  # deeply nested input raises RecursionError, not ValueError
         return 0
     if not isinstance(payload, dict):
         return 0

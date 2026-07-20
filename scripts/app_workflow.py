@@ -18,7 +18,7 @@ from typing import Any, Callable, Sequence
 import uuid
 
 VERSION = "0.6.0"
-SCHEMA_VERSION = "app-workflow-db.v1"
+SCHEMA_VERSION = "app-workflow-db.v2"
 REGISTRY_VERSION = 1
 DATABASE_RELATIVE = Path(".bears/app-workflow.sqlite3")
 REGISTRY_RELATIVE = Path("state/bears-app-based-workflow/registry.sqlite3")
@@ -230,6 +230,82 @@ def schema_sql() -> str:
     return contract.read_text(encoding="utf-8")
 
 
+def migrate_project_database(connection: sqlite3.Connection) -> None:
+    metadata = dict(connection.execute("SELECT key,value FROM metadata"))
+    schema_version = metadata.get("schema_version")
+    if schema_version == SCHEMA_VERSION:
+        return
+    if schema_version != "app-workflow-db.v1":
+        raise WorkflowError("PROJECT_SCHEMA_UNSUPPORTED")
+
+    migration_error: Exception | None = None
+    connection.execute("PRAGMA foreign_keys=OFF")
+    try:
+        if connection.execute("PRAGMA foreign_keys").fetchone()[0] != 0:
+            raise WorkflowError("DATABASE_PRAGMA_DRIFT")
+        connection.execute("BEGIN IMMEDIATE")
+        try:
+            connection.execute(
+                """
+                CREATE TABLE tasks_new (
+                    task_ref TEXT PRIMARY KEY,
+                    wave_id TEXT NOT NULL REFERENCES waves(wave_id),
+                    title TEXT NOT NULL,
+                    sequence INTEGER NOT NULL,
+                    status TEXT NOT NULL,
+                    record_status TEXT NOT NULL CHECK (record_status IN ('active', 'retired')),
+                    replacement_ref TEXT,
+                    owner_session_ref TEXT NOT NULL,
+                    worker_ref TEXT,
+                    change_digest TEXT,
+                    change_refs_json TEXT NOT NULL,
+                    created_revision INTEGER NOT NULL,
+                    updated_revision INTEGER NOT NULL
+                )
+                """
+            )
+            connection.execute(
+                "INSERT INTO tasks_new "
+                "(task_ref,wave_id,title,sequence,status,record_status,replacement_ref,"
+                "owner_session_ref,worker_ref,change_digest,change_refs_json,created_revision,updated_revision) "
+                "SELECT task_ref,wave_id,title,sequence,status,record_status,replacement_ref,"
+                "owner_session_ref,worker_ref,change_digest,change_refs_json,created_revision,updated_revision "
+                "FROM tasks"
+            )
+            connection.execute("DROP TABLE tasks")
+            connection.execute("ALTER TABLE tasks_new RENAME TO tasks")
+            connection.execute(
+                "CREATE UNIQUE INDEX tasks_active_sequence ON tasks (wave_id, sequence) "
+                "WHERE record_status = 'active'"
+            )
+            connection.execute(
+                "CREATE INDEX tasks_wave_status ON tasks(wave_id, record_status, sequence)"
+            )
+            connection.execute(
+                "UPDATE metadata SET value=? WHERE key='schema_version'", (SCHEMA_VERSION,)
+            )
+            connection.execute("PRAGMA user_version=2")
+            if connection.execute("PRAGMA foreign_key_check").fetchone() is not None:
+                raise WorkflowError("PROJECT_MIGRATION_FOREIGN_KEY")
+            connection.commit()
+        except Exception:
+            connection.rollback()
+            raise
+    except Exception as exc:
+        migration_error = exc
+        raise
+    finally:
+        restore_error: Exception | None = None
+        try:
+            connection.execute("PRAGMA foreign_keys=ON")
+            if connection.execute("PRAGMA foreign_keys").fetchone()[0] != 1:
+                raise WorkflowError("DATABASE_PRAGMA_DRIFT")
+        except Exception as exc:
+            restore_error = exc
+        if restore_error is not None and migration_error is None:
+            raise restore_error
+
+
 def initialize_project_database(path: Path, project_ref: str) -> None:
     created = not path.exists()
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -249,6 +325,8 @@ def initialize_project_database(path: Path, project_ref: str) -> None:
                 ),
             )
             connection.commit()
+        else:
+            migrate_project_database(connection)
         metadata = dict(connection.execute("SELECT key,value FROM metadata"))
         if metadata.get("schema_version") != SCHEMA_VERSION:
             raise WorkflowError("PROJECT_SCHEMA_UNSUPPORTED")
@@ -308,10 +386,15 @@ def resolve_project(project_ref: str) -> Path:
 def open_project(project_ref: str, *, writable: bool = False) -> tuple[Path, sqlite3.Connection]:
     root = resolve_project(project_ref)
     connection = connect_sqlite(root / DATABASE_RELATIVE, writable=writable)
-    metadata = project_metadata(connection)
-    if metadata.get("project_ref") != project_ref:
+    try:
+        if writable:
+            migrate_project_database(connection)
+        metadata = project_metadata(connection)
+        if metadata.get("project_ref") != project_ref:
+            raise WorkflowError("PROJECT_REF_MISMATCH")
+    except Exception:
         connection.close()
-        raise WorkflowError("PROJECT_REF_MISMATCH")
+        raise
     return root, connection
 
 
@@ -332,7 +415,7 @@ def logical_lines(connection: sqlite3.Connection) -> list[str]:
         columns = [row[1] for row in connection.execute(f"PRAGMA table_info({table})")]
         for row in connection.execute(f"SELECT * FROM {table}"):
             record = {column: row[column] for column in columns}
-            if table == "metadata" and record.get("key") == "revision":
+            if table == "metadata" and record.get("key") in {"revision", "schema_version"}:
                 continue
             lines.append(f"{table}\t{canonical_json(record)}")
     return sorted(lines)
@@ -384,6 +467,7 @@ def register_backend(args: dict[str, Any]) -> dict[str, Any]:
                 raise WorkflowError("PROJECT_REBIND_REQUIRED")
             initialize_project_database(database, project_ref)
             with contextlib.closing(connect_sqlite(database, writable=True)) as project:
+                migrate_project_database(project)
                 revision = current_revision(project)
                 digest = logical_digest(project)
                 allowed_digest = GENESIS_DIGEST if revision == 0 and expected_digest == GENESIS_DIGEST else digest
@@ -454,17 +538,26 @@ def project_status_backend(project_ref: str) -> dict[str, Any]:
     root, connection = open_project(project_ref)
     with contextlib.closing(connection):
         revision = current_revision(connection)
+        digest = logical_digest(connection)
         audit = connection.execute(
             "SELECT wave_id,revision,logical_digest,snapshot_digest,status FROM audit_attestations "
             "ORDER BY rowid DESC LIMIT 1"
         ).fetchone()
+        audited = bool(
+            audit
+            and audit["status"] == "active"
+            and audit["revision"] == revision
+            and audit["logical_digest"] == digest
+            and audit["snapshot_digest"] == current_snapshot_digest(root, connection)
+        )
         return {
             "project_ref": project_ref,
             "revision": revision,
-            "logical_digest": logical_digest(connection),
+            "logical_digest": digest,
             "database": DATABASE_RELATIVE.as_posix(),
             "settings": database_settings(connection),
             "audit": dict(audit) if audit else None,
+            "audited": audited,
         }
 
 
@@ -652,6 +745,7 @@ def rebind_backend(args: dict[str, Any]) -> dict[str, Any]:
     if not database.is_file() or database.is_symlink():
         raise WorkflowError("PROJECT_DATABASE_MISSING")
     with contextlib.closing(connect_sqlite(database, writable=True)) as project:
+        migrate_project_database(project)
         metadata = project_metadata(project)
         if metadata.get("project_ref") != project_ref:
             raise WorkflowError("PROJECT_REF_MISMATCH")
@@ -668,6 +762,29 @@ def rebind_backend(args: dict[str, Any]) -> dict[str, Any]:
             with contextlib.closing(open_registry()) as registry:
                 registry.execute("BEGIN IMMEDIATE")
                 try:
+                    bound = registry.execute(
+                        "SELECT root_path FROM projects WHERE project_ref=?", (project_ref,)
+                    ).fetchone()
+                    if bound is None:
+                        raise WorkflowError("PROJECT_NOT_REGISTERED")
+                    current_root = Path(bound["root_path"])
+                    if current_root != new_root:
+                        # The currently bound root is being replaced. If it is still reachable
+                        # on disk, require the caller to prove it has seen ITS current state too
+                        # -- not just the target database's -- so a stale or forked clone parked
+                        # at a different path cannot silently roll the canonical state backward.
+                        # When the old root is truly gone (the ordinary "directory moved" case),
+                        # there is nothing left to compare against and the target-only CAS above
+                        # already governs the switch.
+                        current_database = current_root / DATABASE_RELATIVE
+                        if current_database.is_file() and not current_database.is_symlink():
+                            with contextlib.closing(connect_sqlite(current_database, writable=False)) as canonical:
+                                canonical_metadata = project_metadata(canonical)
+                                if canonical_metadata.get("project_ref") == project_ref:
+                                    canonical_revision = current_revision(canonical)
+                                    canonical_digest = logical_digest(canonical)
+                                    if canonical_revision != expected_revision or canonical_digest != expected_digest:
+                                        raise WorkflowError("REBIND_CANONICAL_DRIFT")
                     conflict = registry.execute(
                         "SELECT project_ref FROM projects WHERE root_path=?", (str(new_root),)
                     ).fetchone()
@@ -976,6 +1093,15 @@ def plan_replace_backend(args: dict[str, Any]) -> dict[str, Any]:
                 previous["title"] != title or previous["sequence"] != sequence
             ):
                 raise WorkflowError("COMPLETED_TASK_IMMUTABLE")
+        # Two-phase sequence assignment: park every retained active task at a unique
+        # temporary negative sequence first, so an in-place reorder never trips the
+        # active-only UNIQUE(wave_id, sequence) index mid-batch.
+        for offset, (task_ref, *_rest) in enumerate(parsed):
+            if task_ref in active:
+                connection.execute(
+                    "UPDATE tasks SET sequence=? WHERE task_ref=?", (-(offset + 1), task_ref)
+                )
+        for task_ref, title, sequence, dependencies, sources in parsed:
             connection.execute(
                 "INSERT INTO tasks VALUES(?,?,?,?,'pending','active',NULL,?,NULL,NULL,'[]',?,?) "
                 "ON CONFLICT(task_ref) DO UPDATE SET title=excluded.title,sequence=excluded.sequence,"
@@ -1011,10 +1137,11 @@ def digest_ref_set(root: Path, refs: list[str]) -> tuple[str, list[dict[str, str
 
 def task_record_change_backend(args: dict[str, Any]) -> dict[str, Any]:
     def apply(root: Path, connection: sqlite3.Connection, revision: int) -> dict[str, Any]:
+        wave_id = require_text(args.get("wave_id"), "wave_id", ref=True)
         task_ref = require_text(args.get("task_ref"), "task_ref", ref=True)
         worker_ref = require_text(args.get("worker_ref"), "worker_ref", ref=True)
         refs = normalize_refs(args.get("change_refs", []), "change_refs", nonempty=True)
-        task = connection.execute("SELECT * FROM tasks WHERE task_ref=? AND record_status='active'", (task_ref,)).fetchone()
+        task = connection.execute("SELECT * FROM tasks WHERE task_ref=? AND wave_id=? AND record_status='active'", (task_ref, wave_id)).fetchone()
         if task is None:
             raise WorkflowError("TASK_NOT_FOUND")
         blocked = connection.execute(
@@ -1040,13 +1167,14 @@ def task_record_change_backend(args: dict[str, Any]) -> dict[str, Any]:
 
 def review_record_backend(args: dict[str, Any]) -> dict[str, Any]:
     def apply(root: Path, connection: sqlite3.Connection, revision: int) -> dict[str, Any]:
+        wave_id = require_text(args.get("wave_id"), "wave_id", ref=True)
         review_ref = require_text(args.get("review_ref"), "review_ref", ref=True)
         task_ref = require_text(args.get("task_ref"), "task_ref", ref=True)
         reviewer = require_text(args.get("reviewer_ref"), "reviewer_ref", ref=True)
         verdict = require_text(args.get("verdict"), "verdict")
         change_digest = require_digest(args.get("change_digest"), "change_digest")
         source_refs = normalize_refs(args.get("source_refs", []), "source_refs", nonempty=True)
-        task = connection.execute("SELECT * FROM tasks WHERE task_ref=? AND record_status='active'", (task_ref,)).fetchone()
+        task = connection.execute("SELECT * FROM tasks WHERE task_ref=? AND wave_id=? AND record_status='active'", (task_ref, wave_id)).fetchone()
         if task is None or task["change_digest"] != change_digest:
             raise WorkflowError("REVIEW_CHANGE_DIGEST_MISMATCH")
         if task["status"] not in {"review_pending", "correction"}:
@@ -1102,6 +1230,7 @@ def review_record_backend(args: dict[str, Any]) -> dict[str, Any]:
 
 def correction_record_backend(args: dict[str, Any]) -> dict[str, Any]:
     def apply(root: Path, connection: sqlite3.Connection, revision: int) -> dict[str, Any]:
+        wave_id = require_text(args.get("wave_id"), "wave_id", ref=True)
         correction_ref = require_text(args.get("correction_ref"), "correction_ref", ref=True)
         finding_ref = require_text(args.get("finding_ref"), "finding_ref", ref=True)
         task_ref = require_text(args.get("task_ref"), "task_ref", ref=True)
@@ -1112,7 +1241,15 @@ def correction_record_backend(args: dict[str, Any]) -> dict[str, Any]:
         sources = normalize_refs(args.get("source_refs", []), "source_refs", nonempty=True)
         finding = connection.execute("SELECT * FROM findings WHERE finding_ref=?", (finding_ref,)).fetchone()
         task = connection.execute("SELECT * FROM tasks WHERE task_ref=?", (task_ref,)).fetchone()
-        if finding is None or task is None or finding["wave_id"] != task["wave_id"]:
+        if finding is None or task is None or finding["wave_id"] != task["wave_id"] or task["wave_id"] != wave_id:
+            raise WorkflowError("CORRECTION_BINDING_INVALID")
+        existing = connection.execute(
+            "SELECT finding_ref,task_ref FROM corrections WHERE correction_ref=?", (correction_ref,)
+        ).fetchone()
+        if existing is not None and (existing["finding_ref"] != finding_ref or existing["task_ref"] != task_ref):
+            # A correction_ref is permanently bound to its finding/task (both wave-checked above).
+            # Without this, ON CONFLICT DO UPDATE would let a caller flip the status of an existing
+            # correction owned by another wave by reusing its correction_ref with their own refs.
             raise WorkflowError("CORRECTION_BINDING_INVALID")
         capture_files(root, connection, sorted(set(evidence + sources)), revision)
         connection.execute(
@@ -1205,6 +1342,40 @@ def analysis_record_backend(args: dict[str, Any]) -> dict[str, Any]:
 
 def add_finding(findings: list[dict[str, str]], code: str, location: str, message: str | None = None) -> None:
     findings.append({"code": code, "location": location, "message": message or code.lower()})
+
+
+def snapshot_file_state(root: Path, connection: sqlite3.Connection) -> tuple[list[dict[str, str]], list[tuple[str, str]]]:
+    """Re-read every snapshot_files row from disk against its stored digest.
+
+    Returns (file_records, problems); problems are (code, path) pairs for
+    SNAPSHOT_FILE_INVALID / SNAPSHOT_FILE_DRIFT conditions.
+    """
+    file_records: list[dict[str, str]] = []
+    problems: list[tuple[str, str]] = []
+    for row in connection.execute("SELECT path,sha256 FROM snapshot_files ORDER BY path"):
+        try:
+            relative, actual = require_local_file(root, row["path"], "snapshot.path")
+        except WorkflowError:
+            problems.append(("SNAPSHOT_FILE_INVALID", row["path"]))
+            continue
+        file_records.append({"path": relative, "sha256": actual})
+        if actual != row["sha256"]:
+            problems.append(("SNAPSHOT_FILE_DRIFT", row["path"]))
+    return file_records, problems
+
+
+def current_snapshot_digest(root: Path, connection: sqlite3.Connection) -> str | None:
+    """Recompute the snapshot digest from current on-disk file content.
+
+    Returns None if any tracked file is missing or otherwise unreadable, which never
+    equals a stored attestation digest -- callers treat that as "not currently audited".
+    Used by cheap status reads (project_status, workflow_state) so a file edited on disk
+    without any MCP mutation cannot keep reporting a stale attestation as audited.
+    """
+    file_records, problems = snapshot_file_state(root, connection)
+    if any(code == "SNAPSHOT_FILE_INVALID" for code, _ in problems):
+        return None
+    return sha256_json({"logical_digest": logical_digest(connection), "files": file_records})
 
 
 def validation_result(
@@ -1326,16 +1497,9 @@ def validation_result(
     ).fetchone()
     if latest_analysis is None or latest_analysis["status"] != "ready":
         add_finding(findings, "ANALYSIS_NOT_READY", "analyses")
-    file_records: list[dict[str, str]] = []
-    for row in connection.execute("SELECT path,sha256 FROM snapshot_files ORDER BY path"):
-        try:
-            relative, actual = require_local_file(root, row["path"], "snapshot.path")
-        except WorkflowError:
-            add_finding(findings, "SNAPSHOT_FILE_INVALID", f"snapshot_files.{row['path']}")
-            continue
-        file_records.append({"path": relative, "sha256": actual})
-        if actual != row["sha256"]:
-            add_finding(findings, "SNAPSHOT_FILE_DRIFT", f"snapshot_files.{row['path']}")
+    file_records, file_problems = snapshot_file_state(root, connection)
+    for code, path in file_problems:
+        add_finding(findings, code, f"snapshot_files.{path}")
     for table in list_project_tables(connection):
         if table in {"registry_metadata"}:
             continue
@@ -1647,7 +1811,7 @@ def topological_plan_backend(args: dict[str, Any]) -> dict[str, Any]:
 def workflow_state_backend(args: dict[str, Any]) -> dict[str, Any]:
     project_ref = require_text(args.get("project_ref"), "project_ref", ref=True)
     wave_id = require_text(args.get("wave_id"), "wave_id", ref=True)
-    _, connection = open_project(project_ref)
+    root, connection = open_project(project_ref)
     with contextlib.closing(connection):
         wave = connection.execute("SELECT * FROM waves WHERE wave_id=?", (wave_id,)).fetchone()
         if wave is None:
@@ -1679,7 +1843,14 @@ def workflow_state_backend(args: dict[str, Any]) -> dict[str, Any]:
         value.update(page)
         audit = connection.execute("SELECT * FROM audit_attestations WHERE wave_id=? ORDER BY rowid DESC LIMIT 1", (wave_id,)).fetchone()
         value["audit"] = dict(audit) if audit else None
-        value["workflow_status"] = "audited" if audit and audit["status"] == "active" and audit["revision"] == value["revision"] and audit["logical_digest"] == value["logical_digest"] else wave["status"]
+        currently_audited = (
+            audit
+            and audit["status"] == "active"
+            and audit["revision"] == value["revision"]
+            and audit["logical_digest"] == value["logical_digest"]
+            and audit["snapshot_digest"] == current_snapshot_digest(root, connection)
+        )
+        value["workflow_status"] = "audited" if currently_audited else wave["status"]
         return value
 
 

@@ -1,9 +1,11 @@
 from __future__ import annotations
 
+import contextlib
 import importlib.util
 import json
 import os
 from pathlib import Path
+import shutil
 import sqlite3
 import subprocess
 import tempfile
@@ -280,6 +282,40 @@ class RegistrationTests(WorkflowTestCase):
         self.assertTrue((new_root / WORKFLOW.DATABASE_RELATIVE).is_file())
         self.assertEqual(WORKFLOW.unregister_backend({"project_ref": project_ref, "request_id": "REQ-UNREGISTER", "expected_revision": rebound["revision"], "expected_logical_digest": rebound["logical_digest"]}), removed)
 
+    def test_rebind_rejects_unregistered_project_ref(self) -> None:
+        root = self.make_project()
+        WORKFLOW.initialize_project_database(root / WORKFLOW.DATABASE_RELATIVE, "PROJECT-GHOST")
+        connection = WORKFLOW.connect_sqlite(root / WORKFLOW.DATABASE_RELATIVE, writable=False)
+        digest = WORKFLOW.logical_digest(connection)
+        connection.close()
+        with self.assertRaises(WORKFLOW.WorkflowError) as caught:
+            WORKFLOW.rebind_backend({"project_ref": "PROJECT-GHOST", "project_root": str(root), "request_id": "REQ-REBIND", "expected_revision": 0, "expected_logical_digest": digest})
+        self.assertEqual(caught.exception.code, "PROJECT_NOT_REGISTERED")
+
+    def test_rebind_rejects_stale_clone_while_canonical_root_is_reachable(self) -> None:
+        # Tier-A #4: a stale/forked clone of the same project, parked at a different path,
+        # must not be able to roll the registry's canonical binding backward while the real
+        # (more advanced) canonical root is still reachable on disk.
+        old_root = self.make_project("old")
+        registered = self.register(old_root)
+        project_ref = registered["project_ref"]
+        stale_clone = self.base / "stale-clone"
+        shutil.copytree(old_root, stale_clone)
+        # Advance the real, still-reachable canonical database past the clone's snapshot.
+        advanced = self.initialize(project_ref)
+        with self.assertRaises(WORKFLOW.WorkflowError) as caught:
+            WORKFLOW.rebind_backend({
+                "project_ref": project_ref,
+                "project_root": str(stale_clone),
+                "request_id": "REQ-REBIND-ATTACK",
+                "expected_revision": registered["revision"],
+                "expected_logical_digest": registered["logical_digest"],
+            })
+        self.assertEqual(caught.exception.code, "REBIND_CANONICAL_DRIFT")
+        # The registry binding must still point at the real canonical root, untouched.
+        still_canonical = WORKFLOW.project_status_backend(project_ref)
+        self.assertEqual(still_canonical["revision"], advanced["revision"])
+
 
 class TransactionTests(WorkflowTestCase):
     def test_cas_and_request_id_idempotency(self) -> None:
@@ -424,6 +460,23 @@ class WorkflowSemanticsTests(WorkflowTestCase):
         self.call(project_ref, "MUTATION", WORKFLOW.graph_apply_backend, wave_id="WAVE-1", owner_session_ref="OWNER-1", operations=[{"action": "upsert", "object_type": "entity", "entity_ref": "ENTITY-2", "kind": "feature", "name": "Other", "properties": {}, "source_refs": ["evidence.md"]}])
         self.assertNotEqual(WORKFLOW.workflow_state_backend({"project_ref": project_ref, "wave_id": "WAVE-1"})["workflow_status"], "audited")
 
+    def test_audit_status_does_not_survive_on_disk_file_drift(self) -> None:
+        # Tier-A #2: editing an evidenced file on disk with no MCP mutation at all must
+        # not keep project_status/workflow_state reporting the stale attestation as audited,
+        # even though revision and logical_digest are untouched.
+        root = self.make_project()
+        project_ref = self.register(root)["project_ref"]
+        self.clean_wave(root, project_ref)
+        self.call(project_ref, "AUDIT", WORKFLOW.workflow_mark_audited_backend, wave_id="WAVE-1", owner_session_ref="OWNER-1", audit_ref="AUDIT-1")
+        before = WORKFLOW.project_status_backend(project_ref)
+        self.assertTrue(before["audited"])
+        self.assertEqual(WORKFLOW.workflow_state_backend({"project_ref": project_ref, "wave_id": "WAVE-1"})["workflow_status"], "audited")
+        (root / "code.py").write_text("VALUE = 2\n", encoding="utf-8")
+        after = WORKFLOW.project_status_backend(project_ref)
+        self.assertEqual(after["revision"], before["revision"])
+        self.assertFalse(after["audited"])
+        self.assertNotEqual(WORKFLOW.workflow_state_backend({"project_ref": project_ref, "wave_id": "WAVE-1"})["workflow_status"], "audited")
+
     def test_file_drift_blocks_validation_and_audit(self) -> None:
         root = self.make_project()
         project_ref = self.register(root)["project_ref"]
@@ -485,6 +538,247 @@ class MigrationTests(WorkflowTestCase):
         self.assertFalse(result["migrated"])
         self.assertEqual(result["legacy_schema"], "v4")
         self.assertTrue((root / "map.json").is_file())
+
+
+class PlanReplaceReorderTests(WorkflowTestCase):
+    def replace(self, project_ref: str, tasks: list[dict[str, object]]):
+        return self.call(project_ref, "PLAN", WORKFLOW.plan_replace_backend, wave_id="WAVE-1", owner_session_ref="OWNER-1", tasks=tasks)
+
+    def active_sequences(self, project_ref: str) -> dict[str, int]:
+        state = WORKFLOW.workflow_state_backend({"project_ref": project_ref, "wave_id": "WAVE-1"})
+        return {task["task_ref"]: task["sequence"] for task in state["tasks"] if task["record_status"] == "active"}
+
+    def test_plan_replace_reorders_and_reuses_sequences(self) -> None:
+        root = self.make_project()
+        project_ref = self.register(root)["project_ref"]
+        self.initialize(project_ref)
+
+        def task(ref: str, seq: int) -> dict[str, object]:
+            return {"task_ref": ref, "title": ref, "sequence": seq, "depends_on": [], "source_refs": ["code.py"]}
+
+        self.replace(project_ref, [task("TASK-A", 1), task("TASK-B", 2)])
+        # Swapping the sequences of two active tasks used to trip the full UNIQUE(wave_id, sequence).
+        self.replace(project_ref, [task("TASK-B", 1), task("TASK-A", 2)])
+        self.assertEqual(self.active_sequences(project_ref), {"TASK-B": 1, "TASK-A": 2})
+        # Dropping a task and reusing its sequence for a new one used to collide with the retired row.
+        self.replace(project_ref, [task("TASK-C", 1), task("TASK-B", 2)])
+        self.assertEqual(self.active_sequences(project_ref), {"TASK-C": 1, "TASK-B": 2})
+
+
+class CrossWaveGuardTests(WorkflowTestCase):
+    def test_task_change_rejects_foreign_wave_task(self) -> None:
+        root = self.make_project()
+        project_ref = self.register(root)["project_ref"]
+        self.initialize(project_ref, wave_id="WAVE-1", owner="OWNER-1")
+        self.initialize(project_ref, wave_id="WAVE-2", owner="OWNER-2")
+        self.call(project_ref, "PLAN", WORKFLOW.plan_replace_backend, wave_id="WAVE-2", owner_session_ref="OWNER-2",
+                  tasks=[{"task_ref": "TASK-X", "title": "X", "sequence": 1, "depends_on": [], "source_refs": ["code.py"]}])
+        # TASK-X lives in WAVE-2; recording a change while claiming WAVE-1 must not reach it.
+        with self.assertRaises(WORKFLOW.WorkflowError) as caught:
+            self.call(project_ref, "CHANGE", WORKFLOW.task_record_change_backend, wave_id="WAVE-1", owner_session_ref="OWNER-1",
+                      task_ref="TASK-X", worker_ref="WORKER-1", change_refs=["code.py"])
+        self.assertEqual(caught.exception.code, "TASK_NOT_FOUND")
+
+    def test_correction_record_rejects_reused_foreign_correction_ref(self) -> None:
+        root = self.make_project()
+        project_ref = self.register(root)["project_ref"]
+        self.initialize(project_ref, wave_id="WAVE-1", owner="OWNER-1")
+        self.initialize(project_ref, wave_id="WAVE-2", owner="OWNER-2")
+        for wave, owner, suffix in (("WAVE-1", "OWNER-1", "1"), ("WAVE-2", "OWNER-2", "2")):
+            self.call(project_ref, f"PLAN-{suffix}", WORKFLOW.plan_replace_backend, wave_id=wave, owner_session_ref=owner,
+                      tasks=[{"task_ref": f"TASK-{suffix}", "title": "T", "sequence": 1, "depends_on": [], "source_refs": ["evidence.md"]}])
+            self.call(project_ref, f"CHANGE-{suffix}", WORKFLOW.task_record_change_backend, wave_id=wave, owner_session_ref=owner,
+                      task_ref=f"TASK-{suffix}", worker_ref=f"WORKER-{suffix}", change_refs=["code.py"])
+            digest = WORKFLOW.workflow_state_backend({"project_ref": project_ref, "wave_id": wave})["tasks"][0]["change_digest"]
+            self.call(project_ref, f"REVIEW-{suffix}", WORKFLOW.review_record_backend, wave_id=wave, owner_session_ref=owner,
+                      review_ref=f"REVIEW-{suffix}", task_ref=f"TASK-{suffix}", reviewer_ref=f"REVIEWER-{suffix}", verdict="changes_requested",
+                      change_digest=digest, source_refs=["evidence.md"],
+                      findings=[{"finding_ref": f"FINDING-{suffix}", "kind": "behavior", "summary": "Fix", "source_refs": ["evidence.md"]}])
+        # WAVE-2's owner opens a correction; its ref must stay bound to WAVE-2's finding/task.
+        self.call(project_ref, "CORR-2", WORKFLOW.correction_record_backend, wave_id="WAVE-2", owner_session_ref="OWNER-2",
+                  correction_ref="CORR-SHARED", finding_ref="FINDING-2", task_ref="TASK-2", status="open", source_refs=["evidence.md"])
+        # WAVE-1's owner reuses that correction_ref with their own wave-legal refs; ON CONFLICT must not
+        # let them flip a foreign wave's correction. The binding is immutable -> rejected.
+        with self.assertRaises(WORKFLOW.WorkflowError) as caught:
+            self.call(project_ref, "CORR-1", WORKFLOW.correction_record_backend, wave_id="WAVE-1", owner_session_ref="OWNER-1",
+                      correction_ref="CORR-SHARED", finding_ref="FINDING-1", task_ref="TASK-1", status="resolved",
+                      evidence_refs=["code.py"], source_refs=["evidence.md"])
+        self.assertEqual(caught.exception.code, "CORRECTION_BINDING_INVALID")
+
+
+V1_TASKS_DDL = """
+CREATE TABLE tasks (
+    task_ref TEXT PRIMARY KEY,
+    wave_id TEXT NOT NULL REFERENCES waves(wave_id),
+    title TEXT NOT NULL,
+    sequence INTEGER NOT NULL,
+    status TEXT NOT NULL,
+    record_status TEXT NOT NULL CHECK (record_status IN ('active', 'retired')),
+    replacement_ref TEXT,
+    owner_session_ref TEXT NOT NULL,
+    worker_ref TEXT,
+    change_digest TEXT,
+    change_refs_json TEXT NOT NULL,
+    created_revision INTEGER NOT NULL,
+    updated_revision INTEGER NOT NULL,
+    UNIQUE (wave_id, sequence)
+)
+"""
+
+
+class SchemaMigrationTests(WorkflowTestCase):
+    def task(self, ref: str, seq: int, depends_on=None) -> dict[str, object]:
+        return {
+            "task_ref": ref,
+            "title": ref,
+            "sequence": seq,
+            "depends_on": depends_on or [],
+            "source_refs": ["code.py"],
+        }
+
+    def replace(self, project_ref: str, tasks: list[dict[str, object]]):
+        return self.call(
+            project_ref,
+            "PLAN",
+            WORKFLOW.plan_replace_backend,
+            wave_id="WAVE-1",
+            owner_session_ref="OWNER-1",
+            tasks=tasks,
+        )
+
+    def active_sequences(self, project_ref: str) -> dict[str, int]:
+        state = WORKFLOW.workflow_state_backend({"project_ref": project_ref, "wave_id": "WAVE-1"})
+        return {t["task_ref"]: t["sequence"] for t in state["tasks"] if t["record_status"] == "active"}
+
+    def tasks_table_sql(self, database: Path) -> str:
+        with contextlib.closing(sqlite3.connect(database)) as raw:
+            row = raw.execute(
+                "SELECT sql FROM sqlite_master WHERE type='table' AND name='tasks'"
+            ).fetchone()
+        return row[0]
+
+    def downgrade_to_v1(self, database: Path) -> None:
+        """Rebuild the on-disk tasks table back into the pre-migration v1 shape.
+
+        Mirrors the migration's own build-tmp / drop / rename-into-place pattern so
+        that the stable table name ``tasks`` keeps child FK references intact.
+        """
+        with contextlib.closing(sqlite3.connect(database, isolation_level=None)) as raw:
+            raw.execute("PRAGMA foreign_keys=OFF")
+            raw.execute("BEGIN IMMEDIATE")
+            raw.execute("DROP INDEX IF EXISTS tasks_active_sequence")
+            raw.execute(V1_TASKS_DDL.replace("CREATE TABLE tasks", "CREATE TABLE tasks_tmp"))
+            raw.execute(
+                "INSERT INTO tasks_tmp "
+                "(task_ref,wave_id,title,sequence,status,record_status,replacement_ref,"
+                "owner_session_ref,worker_ref,change_digest,change_refs_json,created_revision,updated_revision) "
+                "SELECT task_ref,wave_id,title,sequence,status,record_status,replacement_ref,"
+                "owner_session_ref,worker_ref,change_digest,change_refs_json,created_revision,updated_revision "
+                "FROM tasks"
+            )
+            raw.execute("DROP TABLE tasks")
+            raw.execute("ALTER TABLE tasks_tmp RENAME TO tasks")
+            raw.execute("CREATE INDEX tasks_wave_status ON tasks(wave_id, record_status, sequence)")
+            raw.execute("UPDATE metadata SET value='app-workflow-db.v1' WHERE key='schema_version'")
+            raw.execute("PRAGMA user_version=1")
+            if raw.execute("PRAGMA foreign_key_check").fetchone() is not None:
+                raise AssertionError("downgrade fixture left dangling foreign keys")
+            raw.execute("COMMIT")
+            raw.execute("PRAGMA foreign_keys=ON")
+
+    def user_version(self, database: Path) -> int:
+        with contextlib.closing(sqlite3.connect(database)) as raw:
+            return int(raw.execute("PRAGMA user_version").fetchone()[0])
+
+    def schema_version(self, database: Path) -> str:
+        with contextlib.closing(sqlite3.connect(database)) as raw:
+            row = raw.execute("SELECT value FROM metadata WHERE key='schema_version'").fetchone()
+        return row[0]
+
+    def test_old_full_unique_rejects_sequence_reuse(self) -> None:
+        # Pins the pre-migration defect: the full UNIQUE(wave_id, sequence) counts
+        # retired rows, so a freed sequence cannot be reused by a new active task.
+        database = self.base / "legacy.sqlite3"
+        with contextlib.closing(sqlite3.connect(database, isolation_level=None)) as raw:
+            raw.execute("CREATE TABLE waves (wave_id TEXT PRIMARY KEY)")
+            raw.executescript(V1_TASKS_DDL)
+            raw.execute("INSERT INTO waves(wave_id) VALUES('WAVE-1')")
+            raw.execute(
+                "INSERT INTO tasks VALUES('T-A','WAVE-1','A',1,'pending','active',NULL,'O',NULL,NULL,'[]',1,1)"
+            )
+            raw.execute("UPDATE tasks SET record_status='retired' WHERE task_ref='T-A'")
+            with self.assertRaises(sqlite3.IntegrityError):
+                raw.execute(
+                    "INSERT INTO tasks VALUES('T-B','WAVE-1','B',1,'pending','active',NULL,'O',NULL,NULL,'[]',2,2)"
+                )
+
+    def test_writable_open_migrates_v1_and_enables_reuse(self) -> None:
+        root = self.make_project()
+        project_ref = self.register(root)["project_ref"]
+        self.initialize(project_ref)
+        # Seed a dependency so child-table referential integrity is exercised.
+        self.replace(project_ref, [self.task("TASK-A", 1), self.task("TASK-B", 2, depends_on=["TASK-A"])])
+        database = root / WORKFLOW.DATABASE_RELATIVE
+
+        # Downgrade the registered DB back to genuine v1 on disk.
+        self.downgrade_to_v1(database)
+        self.assertEqual(self.schema_version(database), "app-workflow-db.v1")
+        self.assertEqual(self.user_version(database), 1)
+        self.assertIn("UNIQUE (wave_id, sequence)", self.tasks_table_sql(database))
+
+        # Read-only access must NOT migrate or write.
+        status = WORKFLOW.project_status_backend(project_ref)
+        self.assertEqual(self.schema_version(database), "app-workflow-db.v1")
+        self.assertEqual(self.user_version(database), 1)
+
+        # First mutation after downgrade: opening writable migrates in place and must
+        # NOT raise CAS_MISMATCH even though expected_digest came from the v1 read above.
+        self.replace(project_ref, [self.task("TASK-B", 1), self.task("TASK-A", 2, depends_on=["TASK-B"])])
+
+        # DB is now v2.
+        self.assertEqual(self.schema_version(database), WORKFLOW.SCHEMA_VERSION)
+        self.assertEqual(self.schema_version(database), "app-workflow-db.v2")
+        self.assertEqual(self.user_version(database), 2)
+        self.assertNotIn("UNIQUE (wave_id, sequence)", self.tasks_table_sql(database))
+        with contextlib.closing(sqlite3.connect(database)) as raw:
+            self.assertIsNotNone(
+                raw.execute(
+                    "SELECT 1 FROM sqlite_master WHERE type='index' AND name='tasks_active_sequence'"
+                ).fetchone()
+            )
+            # Child rows survived with intact task_ref references.
+            self.assertEqual(raw.execute("SELECT COUNT(*) FROM dependencies").fetchone()[0], 1)
+            fk = raw.execute("PRAGMA foreign_key_check").fetchall()
+        self.assertEqual(fk, [])
+        self.assertEqual(self.active_sequences(project_ref), {"TASK-B": 1, "TASK-A": 2})
+
+        # Retire a task and reuse its freed sequence -- impossible under the old full UNIQUE.
+        self.replace(project_ref, [self.task("TASK-C", 1), self.task("TASK-B", 2)])
+        self.assertEqual(self.active_sequences(project_ref), {"TASK-C": 1, "TASK-B": 2})
+
+    def test_migration_is_idempotent_noop_on_v2(self) -> None:
+        root = self.make_project()
+        project_ref = self.register(root)["project_ref"]
+        database = root / WORKFLOW.DATABASE_RELATIVE
+        # Freshly created DB is already v2.
+        self.assertEqual(self.schema_version(database), WORKFLOW.SCHEMA_VERSION)
+        with contextlib.closing(WORKFLOW.connect_sqlite(database, writable=True)) as conn:
+            WORKFLOW.migrate_project_database(conn)  # no-op
+            WORKFLOW.migrate_project_database(conn)  # still no-op
+            self.assertEqual(int(conn.execute("PRAGMA foreign_keys").fetchone()[0]), 1)
+        self.assertEqual(self.schema_version(database), "app-workflow-db.v2")
+        self.assertEqual(self.user_version(database), 2)
+
+    def test_unknown_schema_version_rejected(self) -> None:
+        root = self.make_project()
+        project_ref = self.register(root)["project_ref"]
+        database = root / WORKFLOW.DATABASE_RELATIVE
+        with contextlib.closing(sqlite3.connect(database, isolation_level=None)) as raw:
+            raw.execute("UPDATE metadata SET value='app-workflow-db.v99' WHERE key='schema_version'")
+        with contextlib.closing(WORKFLOW.connect_sqlite(database, writable=True)) as conn:
+            with self.assertRaises(WORKFLOW.WorkflowError) as caught:
+                WORKFLOW.migrate_project_database(conn)
+        self.assertEqual(caught.exception.code, "PROJECT_SCHEMA_UNSUPPORTED")
 
 
 if __name__ == "__main__":

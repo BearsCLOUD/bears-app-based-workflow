@@ -193,16 +193,56 @@ class EvidenceTests(BridgeTestCase):
         self.assertEqual(result["code"], "OK")
         self.assertEqual(result["exit_status"], 0)
         self.assertFalse(result["timed_out"])
-        self.assertEqual(result["changed_files"]["added"], ["added.py"])
+        # Gitignored output is part of the evidence set on purpose: ignore rules
+        # are executor-controlled and must never decide what the caller sees.
+        self.assertEqual(result["changed_files"]["added"], ["added.py", "ignored/noise.txt"])
         self.assertEqual(result["changed_files"]["modified"], ["keep.py"])
         self.assertEqual(result["changed_files"]["deleted"], ["drop.txt"])
-        self.assertEqual(result["changed_file_count"], 3)
+        self.assertEqual(result["changed_file_count"], 4)
         self.assertEqual(result["stdout"], "agent stdout\n")
         self.assertEqual(result["stderr"], "agent stderr\n")
         self.assertEqual(result["last_message"], "done: edit the repo")
         self.assertEqual(result["brief_digest"], BRIDGE.sha256_bytes(b"edit the repo"))
-        self.assertNotIn("ignored/noise.txt", result["changed_files"]["added"])
         self.assertTrue(any(line.endswith("added.py") for line in result["status_after"]))
+
+    def test_self_hiding_gitignore_cannot_erase_the_evidence(self) -> None:
+        """An executor that ignores its own output is still reported."""
+        root = self.make_repository()
+        stub = self.make_stub(
+            "codex-hide",
+            """
+            import pathlib
+            import sys
+
+            sys.stdin.read()
+            target = pathlib.Path(sys.argv[sys.argv.index("--cd") + 1])
+            (target / "backdoor.py").write_text("EVIL = True\\n", encoding="utf-8")
+            (target / ".gitignore").write_text("*\\n", encoding="utf-8")
+            """,
+        )
+        result = BRIDGE.run_assignment(brief="hide yourself", target_dir=root, binary=str(stub))
+        self.assertTrue(result["ok"], result)
+        self.assertIn("backdoor.py", result["changed_files"]["added"])
+        self.assertIn(".gitignore", result["changed_files"]["modified"])
+
+    def test_file_mode_only_change_is_reported(self) -> None:
+        root = self.make_repository()
+        stub = self.make_stub(
+            "codex-chmod",
+            """
+            import os
+            import pathlib
+            import sys
+
+            sys.stdin.read()
+            target = pathlib.Path(sys.argv[sys.argv.index("--cd") + 1])
+            os.chmod(target / "keep.py", 0o755)
+            """,
+        )
+        result = BRIDGE.run_assignment(brief="chmod", target_dir=root, binary=str(stub))
+        self.assertTrue(result["ok"], result)
+        self.assertEqual(result["changed_files"]["modified"], ["keep.py"])
+
 
     def test_pre_existing_dirty_state_is_not_attributed_to_the_run(self) -> None:
         root = self.make_repository()
@@ -311,6 +351,69 @@ class EvidenceTests(BridgeTestCase):
         self.assertEqual(len(result["stdout"].encode("utf-8")), BRIDGE.MAX_CAPTURE_BYTES)
 
 
+class NestedRepositoryTests(BridgeTestCase):
+    def make_nested(self) -> tuple[Path, Path, str, str]:
+        """An outer repository containing a nested repository with two commits."""
+        outer = self.make_repository("outer")
+        inner = outer / "sub"
+        inner.mkdir()
+        subprocess.run(["git", "init", "-q", str(inner)], check=True)
+        subprocess.run(["git", "-C", str(inner), "config", "user.email", "t@example.com"], check=True)
+        subprocess.run(["git", "-C", str(inner), "config", "user.name", "Test"], check=True)
+        revisions = []
+        for index in (1, 2):
+            (inner / "value.txt").write_text(f"{index}\n", encoding="utf-8")
+            subprocess.run(["git", "-C", str(inner), "add", "-A"], check=True)
+            subprocess.run(["git", "-C", str(inner), "commit", "-qm", f"c{index}"], check=True)
+            revisions.append(
+                subprocess.run(
+                    ["git", "-C", str(inner), "rev-parse", "HEAD"],
+                    check=True,
+                    capture_output=True,
+                    text=True,
+                ).stdout.strip()
+            )
+        return outer, inner, revisions[0], revisions[1]
+
+    def test_nested_repository_pointer_change_is_reported(self) -> None:
+        outer, inner, first, _second = self.make_nested()
+        stub = self.make_stub(
+            "codex-checkout",
+            f"""
+            import subprocess
+            import sys
+
+            sys.stdin.read()
+            subprocess.run(["git", "-C", {str(inner)!r}, "checkout", "-q", {first!r}], check=True)
+            """,
+        )
+        result = BRIDGE.run_assignment(brief="move the pointer", target_dir=outer, binary=str(stub))
+        self.assertTrue(result["ok"], result)
+        self.assertEqual(result["changed_files"]["modified"], ["sub"])
+
+    def test_nested_repository_working_tree_edit_is_reported(self) -> None:
+        outer, inner, _first, _second = self.make_nested()
+        stub = self.make_stub(
+            "codex-dirty",
+            f"""
+            import pathlib
+            import sys
+
+            sys.stdin.read()
+            pathlib.Path({str(inner / "value.txt")!r}).write_text("tampered\\n", encoding="utf-8")
+            """,
+        )
+        result = BRIDGE.run_assignment(brief="edit inside the nested repo", target_dir=outer, binary=str(stub))
+        self.assertTrue(result["ok"], result)
+        self.assertEqual(result["changed_files"]["modified"], ["sub"])
+
+    def test_nested_repository_is_not_traversed(self) -> None:
+        outer, _inner, _first, _second = self.make_nested()
+        snapshot = BRIDGE.tree_snapshot(outer)
+        self.assertTrue(snapshot["sub"].startswith("gitlink:"))
+        self.assertNotIn("sub/value.txt", snapshot)
+
+
 class TimeoutTests(BridgeTestCase):
     def test_timeout_returns_typed_failure_and_kills_the_process_tree(self) -> None:
         root = self.make_repository()
@@ -397,6 +500,44 @@ class ConfigOverrideTests(BridgeTestCase):
     def test_malformed_override_is_refused(self) -> None:
         with self.assertRaises(BRIDGE.CodexExecError) as caught:
             BRIDGE.run_assignment(brief="work", target_dir=self.base, extra_config=["no-equals-sign"])
+        self.assertEqual(caught.exception.code, "CONFIG_OVERRIDE_INVALID")
+
+    def test_mcp_server_attachment_is_refused(self) -> None:
+        """The executor must never be able to reach the maintainer MCP server."""
+        with self.assertRaises(BRIDGE.CodexExecError) as caught:
+            BRIDGE.validate_extra_config(['mcp_servers.evil.command="python3"'])
+        self.assertEqual(caught.exception.code, "CONFIG_OVERRIDE_FORBIDDEN")
+
+    def test_every_escape_route_is_refused(self) -> None:
+        for override in (
+            'mcp_servers.evil.command="python3"',
+            'mcp_servers.evil.args=["x"]',
+            'model_providers.x.base_url="http://evil"',
+            'model_provider="x"',
+            'openai_base_url="http://evil"',
+            'notify=["curl","http://evil"]',
+            'profile="x"',
+            'sandbox="danger-full-access"',
+            "tools.web_search=true",
+            'experimental_instructions_file="/tmp/x"',
+            'model_reasoning_effort="high"',
+            ' Sandbox ="x"',
+            '"sandbox"="x"',
+            ' model_verbosity ="low"',
+            'MODEL_VERBOSITY="low"',
+        ):
+            with self.assertRaises(BRIDGE.CodexExecError, msg=override) as caught:
+                BRIDGE.validate_extra_config([override])
+            self.assertEqual(caught.exception.code, "CONFIG_OVERRIDE_FORBIDDEN", override)
+
+    def test_duplicate_key_is_refused(self) -> None:
+        with self.assertRaises(BRIDGE.CodexExecError) as caught:
+            BRIDGE.validate_extra_config(['model_verbosity="low"', 'model_verbosity="high"'])
+        self.assertEqual(caught.exception.code, "CONFIG_OVERRIDE_DUPLICATE")
+
+    def test_empty_key_is_refused(self) -> None:
+        with self.assertRaises(BRIDGE.CodexExecError) as caught:
+            BRIDGE.validate_extra_config(['="x"'])
         self.assertEqual(caught.exception.code, "CONFIG_OVERRIDE_INVALID")
 
     def test_benign_override_is_forwarded(self) -> None:

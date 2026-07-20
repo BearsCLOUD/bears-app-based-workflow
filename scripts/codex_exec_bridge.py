@@ -9,6 +9,7 @@ import os
 from pathlib import Path
 import shutil
 import signal
+import stat
 import subprocess
 import sys
 import tempfile
@@ -22,6 +23,7 @@ DEFAULT_TIMEOUT_SECONDS = 900
 MAX_TIMEOUT_SECONDS = 7200
 MAX_BRIEF_BYTES = 256 * 1024
 MAX_CAPTURE_BYTES = 512 * 1024
+MAX_SNAPSHOT_ENTRIES = 200000
 GIT_TIMEOUT_SECONDS = 30
 TERMINATION_GRACE_SECONDS = 5
 ALLOWED_SANDBOX_MODES = ("read-only", "workspace-write")
@@ -30,14 +32,20 @@ REASONING_EFFORTS = ("minimal", "low", "medium", "high", "xhigh")
 # Environment variables carrying orchestrator-local state that must not leak
 # into the executor process.
 STRIPPED_ENVIRONMENT = ("BEARS_APP_WORKFLOW_STATE_DIR",)
-# Config keys a caller may not override: they would undo the sandbox and network
-# guarantees this bridge exists to enforce.
-PROTECTED_CONFIG_PREFIXES = (
-    "sandbox",
-    "approval_policy",
-    "shell_environment_policy",
-    "features.",
-    "tools.",
+# Caller-supplied config is fail-closed: a denylist would turn every new Codex
+# config key into a potential hole in the bridge's isolation boundary.
+ALLOWED_CONFIG_KEYS = frozenset(
+    {
+        "model_reasoning_summary",
+        "model_verbosity",
+        "model_supports_reasoning_summaries",
+        "model_context_window",
+        "model_max_output_tokens",
+        "hide_agent_reasoning",
+        "show_raw_agent_reasoning",
+        "disable_response_storage",
+        "project_doc_max_bytes",
+    }
 )
 
 
@@ -151,14 +159,21 @@ def validate_reasoning_effort(effort: str | None) -> str | None:
 
 
 def validate_extra_config(overrides: Sequence[str]) -> list[str]:
-    """Reject caller config overrides that would weaken the sandbox."""
+    """Allow only explicitly safe, exact caller config keys."""
     checked: list[str] = []
+    seen: set[str] = set()
     for override in overrides:
         if "=" not in override:
             raise CodexExecError("CONFIG_OVERRIDE_INVALID", override)
-        key = override.split("=", 1)[0].strip().lower()
-        if any(key.startswith(prefix) for prefix in PROTECTED_CONFIG_PREFIXES):
+        raw_key, _ = override.split("=", 1)
+        key = raw_key.strip()
+        if not key:
+            raise CodexExecError("CONFIG_OVERRIDE_INVALID", override)
+        if raw_key != key or key not in ALLOWED_CONFIG_KEYS:
             raise CodexExecError("CONFIG_OVERRIDE_FORBIDDEN", override)
+        if key in seen:
+            raise CodexExecError("CONFIG_OVERRIDE_DUPLICATE", key)
+        seen.add(key)
         checked.append(override)
     return checked
 
@@ -182,6 +197,8 @@ def git_lines(target: Path, arguments: Sequence[str]) -> list[str]:
 
 
 def porcelain_status(target: Path) -> list[str]:
+    # Informational context only. changed_files, derived from the direct tree
+    # walk, is authoritative evidence and does not depend on ignore rules.
     return git_lines(target, ["status", "--porcelain=v1", "-z", "--untracked-files=all"])
 
 
@@ -198,39 +215,121 @@ def file_digest(path: Path) -> str:
 
 
 def tree_snapshot(repository_root: Path) -> dict[str, str]:
-    """Map every non-ignored working-tree path to a content digest.
+    """Map every working-tree file to evidence without consulting ignore rules.
 
     Paths are relative to the repository root, not to the executor working root,
     so an assignment scoped to a subdirectory still surfaces stray edits made
     elsewhere in the repository.
 
-    Tracked-but-absent paths are recorded as `missing` so deletions are visible
-    even when the index already knew about them before the run. Gitignored files
-    are deliberately outside the evidence set: they are build output, not work
-    product.
+    Executor-controlled ignore rules cannot be allowed to hide changes, so
+    gitignored files are included by design. Nested repositories are represented
+    by their HEAD commit rather than traversed.
     """
-    paths = git_lines(repository_root, ["ls-files", "-z", "--cached", "--others", "--exclude-standard"])
     snapshot: dict[str, str] = {}
-    for relative in sorted(set(paths)):
-        absolute = repository_root / relative
-        if absolute.is_symlink():
+
+    def record(relative: str, value: str) -> None:
+        if relative not in snapshot and len(snapshot) >= MAX_SNAPSHOT_ENTRIES:
+            raise CodexExecError("TREE_SNAPSHOT_TOO_LARGE", str(MAX_SNAPSHOT_ENTRIES))
+        snapshot[relative] = value
+
+    def relative_path(absolute: Path) -> str:
+        return absolute.relative_to(repository_root).as_posix()
+
+    def symlink_digest(absolute: Path) -> str:
+        try:
+            target = os.readlink(absolute)
+        except OSError:
+            return "unreadable"
+        return "symlink:" + sha256_bytes(target.encode("utf-8", "surrogateescape"))
+
+    def nested_git(absolute: Path, arguments: Sequence[str]) -> str | None:
+        try:
+            result = subprocess.run(
+                ["git", "-C", str(absolute), *arguments],
+                check=False,
+                capture_output=True,
+                timeout=GIT_TIMEOUT_SECONDS,
+            )
+        except (OSError, subprocess.TimeoutExpired):
+            return None
+        if result.returncode != 0:
+            return None
+        return result.stdout.decode("utf-8", "surrogateescape")
+
+    def gitlink_digest(absolute: Path) -> str:
+        """Summarize a nested repository without descending into it.
+
+        Both the checked-out commit and the nested working-tree state are
+        folded in, so neither `git -C sub checkout <other>` nor an uncommitted
+        edit inside the nested repository can pass unnoticed.
+        """
+        head = nested_git(absolute, ["rev-parse", "HEAD"])
+        if head is None:
+            return "gitlink:unknown"
+        head = head.strip()
+        if not head:
+            return "gitlink:unknown"
+        dirty = nested_git(absolute, ["status", "--porcelain=v1", "-z", "--untracked-files=all"])
+        if dirty is None:
+            return "gitlink:" + head + ":unknown"
+        return "gitlink:" + head + ":" + sha256_bytes(dirty.encode("utf-8", "surrogateescape"))
+
+    def walk_error(exc: OSError) -> None:
+        if exc.filename is None:
+            raise CodexExecError("GIT_SNAPSHOT_FAILED", str(exc)) from None
+        absolute = Path(exc.filename)
+        try:
+            relative = relative_path(absolute)
+        except ValueError:
+            raise CodexExecError("GIT_SNAPSHOT_FAILED", str(exc)) from None
+        record(relative, "unreadable")
+
+    for root, directory_names, file_names in os.walk(
+        repository_root,
+        topdown=True,
+        onerror=walk_error,
+        followlinks=False,
+    ):
+        root_path = Path(root)
+        descend: list[str] = []
+        for name in sorted(directory_names):
+            absolute = root_path / name
+            if name == ".git":
+                continue
+            relative = relative_path(absolute)
             try:
-                snapshot[relative] = "symlink:" + sha256_bytes(os.readlink(absolute).encode("utf-8", "surrogateescape"))
+                entry_stat = os.lstat(absolute)
             except OSError:
-                snapshot[relative] = "unreadable"
-            continue
-        if not absolute.exists():
-            snapshot[relative] = "missing"
-            continue
-        if absolute.is_dir():
-            # A gitlink (submodule) entry; content lives in another repository.
-            snapshot[relative] = "gitlink"
-            continue
-        if not absolute.is_file():
-            # A FIFO or device node: opening it could block forever.
-            snapshot[relative] = "special"
-            continue
-        snapshot[relative] = file_digest(absolute)
+                record(relative, "unreadable")
+                continue
+            if stat.S_ISLNK(entry_stat.st_mode):
+                record(relative, symlink_digest(absolute))
+                continue
+            if not stat.S_ISDIR(entry_stat.st_mode):
+                record(relative, "special")
+                continue
+            if os.path.lexists(absolute / ".git"):
+                record(relative, gitlink_digest(absolute))
+                continue
+            descend.append(name)
+        directory_names[:] = descend
+
+        for name in sorted(file_names):
+            absolute = root_path / name
+            relative = relative_path(absolute)
+            try:
+                entry_stat = os.lstat(absolute)
+            except OSError:
+                record(relative, "unreadable")
+                continue
+            if stat.S_ISLNK(entry_stat.st_mode):
+                record(relative, symlink_digest(absolute))
+            elif stat.S_ISREG(entry_stat.st_mode):
+                mode = "x:" if entry_stat.st_mode & 0o111 else "-:"
+                record(relative, mode + file_digest(absolute))
+            else:
+                # A FIFO or device node: opening it could block forever.
+                record(relative, "special")
     return snapshot
 
 
@@ -514,6 +613,9 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     runner.add_argument("--codex-binary", default=DEFAULT_BINARY)
     runner.add_argument("--codex-home")
     runner.add_argument("--json-events", action="store_true", help="ask codex for JSONL event output")
+    # The bridge's config CLI exposes only -c/--config, both using this same
+    # key=value destination. It never passes a config-file or --profile flag to
+    # Codex, and argparse rejects unknown flags before callers can introduce one.
     runner.add_argument("-c", "--config", dest="extra_config", action="append", default=[])
     return parser.parse_args(argv)
 

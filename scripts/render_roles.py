@@ -16,6 +16,7 @@ from __future__ import annotations
 import argparse
 import json
 from pathlib import Path
+import re
 import sys
 
 
@@ -28,6 +29,7 @@ CLAUDE_TOOL_PREFIX = "mcp__plugin_bears-app-based-workflow_"
 MAINTAINER_SERVER = "app-workflow-maintainer"
 KINDS = {"worker", "critic", "reader"}
 SANDBOXES = {"read-only", "workspace-write"}
+ROLE_NAME_PATTERN = re.compile(r"[a-z][a-z0-9-]*")
 
 
 class IRError(ValueError):
@@ -42,6 +44,10 @@ def load_ir(path: Path = IR_PATH) -> dict:
         name = role["name"]
         if name in names:
             raise IRError(f"duplicate role name: {name}")
+        # The name becomes a filename under agents/ and claude/agents/. Anything outside this
+        # alphabet could escape those directories or collide with a path separator.
+        if not ROLE_NAME_PATTERN.fullmatch(name):
+            raise IRError(f"unsafe role name: {name!r}")
         names.add(name)
         if role["kind"] not in KINDS:
             raise IRError(f"{name}: unknown role kind {role['kind']}")
@@ -73,6 +79,16 @@ def load_ir(path: Path = IR_PATH) -> dict:
         for text in [name, role["description"], role["claude_model"], role["codex_model"], role["reasoning_effort"], role["dispatch_note"]]:
             if '"' in text:
                 raise IRError(f"{name}: single-line field must not contain a quote: {text!r}")
+        # These land in YAML frontmatter as unquoted plain scalars on a `key: value` line.
+        # A colon-space makes the block unparseable; a hash silently truncates the value.
+        for text in [role["description"], role["dispatch_note"], role["claude_model"]]:
+            if ": " in text or "#" in text:
+                raise IRError(f"{name}: frontmatter field must not contain ': ' or '#': {text!r}")
+        # Defense in depth: the maintainer server must be unreachable through the free-form
+        # Claude tool list as well as through the validated `mcp` map.
+        for token in role["claude_tools"]:
+            if MAINTAINER_SERVER in token or token.startswith("mcp__"):
+                raise IRError(f"{name}: claude_tools must not carry MCP tokens: {token!r}")
     return ir
 
 

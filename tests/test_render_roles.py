@@ -87,6 +87,39 @@ class RenderRolesTests(unittest.TestCase):
         with self.assertRaises(render_roles.IRError):
             self.validate(broken)
 
+    def test_ir_rejects_a_name_that_could_escape_the_artifact_directories(self) -> None:
+        # The name becomes a filename under agents/ and claude/agents/, so a separator or a
+        # parent reference would write outside them.
+        for value in ("../../../../tmp/evil", "nested/name", "Has-Capitals", "-leading-dash", ""):
+            broken = copy.deepcopy(self.ir)
+            self.role_of(broken, "app-worker")["name"] = value
+            with self.assertRaises(render_roles.IRError, msg=value):
+                self.validate(broken)
+
+    def test_ir_rejects_frontmatter_text_that_yaml_would_mangle(self) -> None:
+        # These render as unquoted plain scalars on a `key: value` line: a colon-space makes the
+        # block unparseable, and a hash silently truncates the value.
+        for field, value in (
+            ("description", "Bounded reviewer: one task"),
+            ("description", "Bounded reviewer #1 for the wave"),
+            ("dispatch_note", "Dispatch: now"),
+            ("claude_model", "sonnet #latest"),
+        ):
+            broken = copy.deepcopy(self.ir)
+            self.role_of(broken, "app-reviewer")[field] = value
+            with self.assertRaises(render_roles.IRError, msg=f"{field}={value}"):
+                self.validate(broken)
+
+    def test_ir_rejects_mcp_tokens_smuggled_through_claude_tools(self) -> None:
+        # `mcp` is validated, but claude_tools is free-form and lands verbatim in the tools line.
+        broken = copy.deepcopy(self.ir)
+        self.role_of(broken, "app-worker")["claude_tools"] = [
+            "Read",
+            "mcp__plugin_bears-app-based-workflow_app-workflow-maintainer__phase_record",
+        ]
+        with self.assertRaises(render_roles.IRError):
+            self.validate(broken)
+
     @staticmethod
     def role_of(ir: dict, name: str) -> dict:
         return next(role for role in ir["roles"] if role["name"] == name)

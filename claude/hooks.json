@@ -1,3 +1,41 @@
 {
-  "hooks": {}
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "mcp__.*app-workflow-maintainer__.*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/claude/hooks/enforce.py\" cas",
+            "timeout": 10,
+            "statusMessage": "Checking maintainer CAS guard"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/claude/hooks/enforce.py\" phase",
+            "timeout": 15,
+            "statusMessage": "Checking app-workflow phase consistency"
+          }
+        ]
+      }
+    ],
+    "SubagentStop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/claude/hooks/enforce.py\" phase",
+            "timeout": 15,
+            "statusMessage": "Checking app-workflow phase consistency"
+          }
+        ]
+      }
+    ]
+  }
 }

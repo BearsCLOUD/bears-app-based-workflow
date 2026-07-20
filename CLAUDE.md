@@ -14,12 +14,9 @@ The runtime is stdlib-only Python 3.10+; `git` must be on PATH for project regis
 ## Commands
 
 ```bash
-# Full test suite (36 tests, stdlib unittest, ~10s)
+# The wave gate (stdlib unittest) - drives a full wave and lets the plugin judge itself
 python3 -m unittest discover -s tests
-
-# One file / one test
-python3 tests/test_app_workflow.py
-python3 tests/test_app_workflow.py StateDirEnvTests.test_state_dir_override_ignores_codex_home
+python3 tests/test_wave_gate.py WaveGate.test_a_complete_wave_validates_and_audits
 
 # Run an MCP server by hand
 python3 scripts/app_workflow.py serve --mode reader      # app-workflow
@@ -31,7 +28,7 @@ python3 skills/app-analyze/scripts/validate_workflow.py --project-ref <ref> --wa
 
 ```
 
-Run tests with unittest, not pytest: `test_repository_limits_and_artifact_language` in tests/test_plugin_shape.py counts every working-tree file (gitignored and untracked ones included) against an 80-file / 1 MiB budget, and a stray `.pytest_cache/` directory is enough to fail it locally. Only `.git/`, `__pycache__/`, `.ruff_cache/`, and the plugin's own runtime state (`.bears/`, `waves/`) are excluded - the last two so the workflow can be run against this repository itself.
+There is one test gate: `tests/test_wave_gate.py`. It drives a complete seven-phase wave through the real maintainer backends against a throwaway git project, then asserts only the plugin's own verdict via `workflow_validate` - a clean wave audits, an incomplete one is rejected, and on-disk file drift breaks the audit. Run it with unittest, never pytest (a stray `.pytest_cache/` is noise in the working tree). This gate deliberately does not check repository-artifact properties the runtime cannot see - the 80-file / 1 MiB budget, ASCII purity, manifest version sync, and the role allowlists (the L3-never-reaches-maintainer boundary) are no longer test-enforced; changing roles or manifests needs manual care.
 
 ## Architecture
 
@@ -65,7 +62,7 @@ Layered top to bottom: validation/hashing/path helpers -> registry and project S
 
 skills/ (eight skills: one per phase plus subagents) is shared by both runtimes; skills/*/agents/openai.yaml files are Codex UI metadata only.
 
-Roles are generated, not hand-written: `roles/roles.json` is the single typed source and `scripts/render_roles.py` renders both `claude/agents/*.md` and `agents/*.toml` (`--check` detects drift). Edit the IR, never the artifacts. Three roles remain - app-worker (no MCP), app-reviewer and app-analyst (disjoint read-only subsets); the Codex-only repo-orchestrator and workflow-orchestrator lanes were retired in 0.7.0. tests/test_plugin_shape.py and tests/test_claude_plugin_shape.py enforce both sides.
+Roles are generated, not hand-written: `roles/roles.json` is the single typed source and `scripts/render_roles.py` renders both `claude/agents/*.md` and `agents/*.toml` (`--check` detects drift). Edit the IR, never the artifacts, and re-run the renderer. Three roles remain - app-worker (no MCP), app-reviewer and app-analyst (disjoint read-only subsets); the Codex-only repo-orchestrator and workflow-orchestrator lanes were retired in 0.7.0. `scripts/render_roles.py --check` detects drift between the IR and the artifacts, but nothing test-enforces the allowlists themselves - the maintainer-access boundary now rests on review, not CI.
 
 Ownership: one orchestrator per repository - the main session owns the wave and both servers, and is the only writer. A second repository is a separate session with its own wave, not a delegated lane. `claude/workflows/app-wave.js` ships as a file and is invoked by path; plugin manifests have no `workflows` key, so it is deliberately unregistered.
 

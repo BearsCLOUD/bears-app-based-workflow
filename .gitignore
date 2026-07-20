@@ -17,3 +17,6 @@ __pycache__/
 .bears/app-workflow.sqlite3-wal
 .bears/app-workflow.sqlite3-shm
 .bears/app-workflow.sqlite3.lock
+
+# Claude Code local settings and worktrees
+.claude/

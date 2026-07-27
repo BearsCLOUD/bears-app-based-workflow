@@ -38,6 +38,7 @@
         "wave_initialize",
         "phase_record",
         "graph_apply",
+        "binding_apply",
         "plan_replace",
         "task_record_change",
         "review_record",
@@ -63,14 +64,21 @@
     "replaces",
     "remediates"
   ],
+  "binding_kinds": [
+    "graph_to_task",
+    "graph_to_spec",
+    "spec_to_wave_doc",
+    "wave_doc_to_constitution"
+  ],
   "lifecycle": {
     "record_statuses": ["active", "retired"],
     "physical_delete_exposed": false,
     "replacement_field": "replacement_ref",
-    "source_refs_required_for": ["entity", "observation", "relation"]
+    "source_refs_required_for": ["entity", "observation", "relation", "doc_binding"]
   },
   "transactions": {
     "graph_apply": "whole-batch",
+    "binding_apply": "whole-batch",
     "plan_replace": "whole-batch",
     "journal_mode": "DELETE",
     "synchronous": "FULL",

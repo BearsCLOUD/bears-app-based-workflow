@@ -1,6 +1,6 @@
 ---
 name: app-constitution
-description: Establish one app wave's purpose, scope, constraints, and authority, and register the Git project that holds it. Phase 1 of the seven-phase workflow.
+description: Establish one app wave's purpose, scope, constraints, and authority, register its Git project, and update the project constitution index. Phase 1 of the seven-phase workflow.
 ---
 
 # App Constitution
@@ -9,18 +9,24 @@ description: Establish one app wave's purpose, scope, constraints, and authority
 
 Give a wave a stable identity and a written charter: why this work exists,
 what it may and may not touch, which constraints are non-negotiable, and who
-decides. Everything later in the workflow is judged against this artifact.
+decides. Verify the project constitution index and accumulate one anchored line
+per wave, derived from the wave document.
 
 ## Done means
 
 - The Git project is registered and has a stable `project_ref`.
 - The wave exists with a `wave_id`, a mode (`DIRECT` or `DELEGATED`), and a
   stable `owner_session_ref`.
-- `waves/<wave_id>/constitution.md` states purpose, scope and non-scope,
-  constraints, decision authority, and the decisions still unresolved.
+- The project constitution index contains one line for this wave enclosed by
+  matching `<!-- bind:REF -->` and `<!-- /bind:REF -->` anchors and derived from
+  the wave document.
 
 ## How to think about this phase
 
+- Verify and update the project constitution index; do not author a per-wave
+  constitution document from scratch.
+- Derive the wave's anchored line from the wave document.
+- Leave sequencing to the orchestrator.
 - Charter, not plan. Say what the wave is for and what bounds it; leave design,
   evidence, and tasks to later phases.
 - Constraints are the valuable part. A constraint that cannot be violated
@@ -36,14 +42,14 @@ decides. Everything later in the workflow is judged against this artifact.
 - Reads: `project_list`, `project_status`.
 - Records: `project_register` (only when the root is unregistered),
   `wave_initialize`, `phase_record`.
-- Writes exactly one artifact: `waves/<wave_id>/constitution.md`.
+- Verifies or updates exactly one artifact: the project constitution index.
 
 Workflow state lives only in the MCP servers; never reconstruct it from JSON
 artifacts.
 
 ## Left to the orchestrator
 
-Phase ordering, gate decisions, retries, and outcome selection
+Phase sequencing, gate decisions, retries, and outcome selection
 (`completed`, `blocked`, or `pending` when a workflow MCP server is
 unavailable) belong to the wave owner. Only the wave owner
 performs mutations, and every mutation carries `request_id`,

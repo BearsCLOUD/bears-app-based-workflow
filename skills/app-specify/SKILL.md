@@ -8,8 +8,8 @@ description: Turn charter and evidence into decision-complete behavior and accep
 ## Purpose
 
 State what the system must do, precisely enough that a reader can tell whether
-a given implementation satisfies it - and precisely enough that the functional
-graph and plan phases have nothing left to guess about behavior.
+a given implementation satisfies it. Provide stable, self-contained functional
+blocks whose anchors continue the canonicity chain to graph entities.
 
 ## Done means
 
@@ -19,13 +19,18 @@ graph and plan phases have nothing left to guess about behavior.
   false.
 - `waves/<wave_id>/spec.md` exists for this wave, cites local source refs, and
   lists the decisions that remain unresolved.
+- Each functional block is enclosed by matching `<!-- bind:REF -->` and
+  `<!-- /bind:REF -->` anchors.
 
 ## How to think about this phase
 
-- Behavior, not mechanism. Name the observable contract; leave modules, data
-  structures, and sequencing to app-plan.
+- Behavior, not mechanism. Name the observable contract; leave modules and data
+  structures to later phases.
+- Leave sequencing to the orchestrator.
 - Decision-complete means no implied choices. If a reader would have to invent
   a rule to build it, the rule belongs in the spec.
+- Keep anchored content stable and self-contained; the orchestrator binds each
+  anchor to a graph entity and validation rejects drift.
 - Failure paths deserve the same detail as success paths, including what the
   system does with bad input and partial state.
 - Check the blast radius before writing: `graph_search` for constraints
@@ -39,14 +44,15 @@ graph and plan phases have nothing left to guess about behavior.
 
 - Reads: `project_status`, `workflow_state`, `graph_search`, `impact_analysis`.
 - Records: `phase_record`.
-- Writes exactly one artifact: `waves/<wave_id>/spec.md`.
+- Writes exactly one artifact: `waves/<wave_id>/spec.md` with anchored
+  functional blocks.
 
 Workflow state lives only in the MCP servers; never reconstruct it from JSON
 artifacts.
 
 ## Left to the orchestrator
 
-Phase ordering, gate decisions, retries, and outcome selection
+Phase sequencing, gate decisions, retries, and outcome selection
 (`completed`, `skipped-current`, `blocked`, or `pending` when a workflow MCP
 server is unavailable) belong to the wave owner. Only
 the wave owner performs mutations, and every mutation carries `request_id`,

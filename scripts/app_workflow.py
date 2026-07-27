@@ -1177,6 +1177,12 @@ def review_record_backend(args: dict[str, Any]) -> dict[str, Any]:
         task = connection.execute("SELECT * FROM tasks WHERE task_ref=? AND wave_id=? AND record_status='active'", (task_ref, wave_id)).fetchone()
         if task is None or task["change_digest"] != change_digest:
             raise WorkflowError("REVIEW_CHANGE_DIGEST_MISMATCH")
+        existing_review = connection.execute(
+            "SELECT t.wave_id FROM reviews r JOIN tasks t ON t.task_ref=r.task_ref WHERE r.review_ref=?",
+            (review_ref,),
+        ).fetchone()
+        if existing_review is not None and existing_review["wave_id"] != wave_id:
+            raise WorkflowError("REVIEW_REF_WAVE_MISMATCH")
         if task["status"] not in {"review_pending", "correction"}:
             raise WorkflowError("TASK_REVIEW_STATE_INVALID")
         if verdict not in {"approved", "changes_requested"}:

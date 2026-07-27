@@ -142,8 +142,104 @@ You must NOT call any app-workflow-maintainer tool. Workflow state is written
 only by the orchestrator lane of this workflow. The read-only app-workflow
 server is available to you where your role allows it.`
 
-// The analysis artifact sink uses the same Codex bridge settings as app-worker
-// in roles/roles.json. The transport has Bash only and does not edit itself.
+// These are the executable portions of the Codex MCP profiles. The MCP tool
+// accepts them as its config/base-instructions arguments, rather than relying
+// on the assignment prose to enforce server access.
+const MAINTAINER_TOOLS = [
+  'project_register',
+  'project_rebind',
+  'project_unregister',
+  'project_migrate_json',
+  'wave_initialize',
+  'phase_record',
+  'graph_apply',
+  'plan_replace',
+  'task_record_change',
+  'review_record',
+  'correction_record',
+  'analysis_record',
+  'workflow_mark_audited',
+]
+
+const disabledMaintainerServer = {
+  enabled: false,
+  enabled_tools: [],
+  disabled_tools: MAINTAINER_TOOLS,
+}
+
+const codexMcpProfile = ({ instructions, workflowTools, disabledWorkflowTools }) => ({
+  'model_reasoning_effort': 'high',
+  plugins: {
+    'bears-app-based-workflow@bears-app-based-workflow': {
+      mcp_servers: {
+        'app-workflow': {
+          enabled: workflowTools.length > 0,
+          enabled_tools: workflowTools,
+          disabled_tools: disabledWorkflowTools,
+        },
+        'app-workflow-maintainer': disabledMaintainerServer,
+      },
+    },
+  },
+  instructions,
+})
+
+const CODEX_MCP_PROFILES = {
+  'phase-artifact': codexMcpProfile({
+    instructions:
+      'Role identity: phase-artifact executor for one bounded phase artifact. Do not call either workflow MCP server, mutate workflow state, delegate, commit, push, merge, or deploy.',
+    workflowTools: [],
+    disabledWorkflowTools: [
+      'project_list',
+      'project_status',
+      'graph_read',
+      'graph_search',
+      'graph_open',
+      'dependency_slice',
+      'impact_analysis',
+      'graph_trace',
+      'graph_diagnostics',
+      'topological_plan',
+      'workflow_state',
+      'workflow_validate',
+    ],
+  }),
+  'app-reviewer': codexMcpProfile({
+    instructions:
+      'Role identity: app-reviewer for one project_ref, wave_id, task_ref, and change_digest. Use only the enabled read-only workflow tools and supplied repository evidence. Cover correctness, security, and performance as mandatory sections of one acceptance surface. Return approval with no findings or changes_requested with stable finding refs and local source refs. Treat any project revision, task change digest, or target drift as REVIEW_SNAPSHOT_DRIFT. Never edit files, call app-workflow-maintainer, write workflow state, choose a phase, delegate, commit, push, merge, or deploy.',
+    workflowTools: ['project_status', 'graph_open', 'dependency_slice', 'impact_analysis', 'workflow_state'],
+    disabledWorkflowTools: [
+      'project_list',
+      'graph_read',
+      'graph_search',
+      'graph_trace',
+      'graph_diagnostics',
+      'topological_plan',
+      'workflow_validate',
+    ],
+  }),
+  'app-analyst': codexMcpProfile({
+    instructions:
+      'Role identity: app-analyst for one project_ref, wave_id, revision, and logical digest. Compare only supplied documentation, graph objects, provenance, tasks, reviews, corrections, process records, and exact file evidence. Use only the enabled read-only workflow tools and return stable semantic finding refs with the earliest required phase. Treat project revision, logical digest, pagination, or source drift as ANALYSIS_SNAPSHOT_DRIFT. Never call app-workflow-maintainer, record analysis, attest audited, choose the next route, delegate, commit, push, merge, or deploy. You may write only the analysis artifact explicitly assigned to you.',
+    workflowTools: [
+      'project_status',
+      'graph_read',
+      'graph_search',
+      'graph_open',
+      'dependency_slice',
+      'impact_analysis',
+      'graph_trace',
+      'graph_diagnostics',
+      'topological_plan',
+      'workflow_state',
+      'workflow_validate',
+    ],
+    disabledWorkflowTools: ['project_list'],
+  }),
+}
+
+// The app-worker transport uses the Codex exec bridge. The transport has Bash
+// only and does not edit itself.
 const codexDev = (assignment, { label, phase: phaseTitle, schema }) =>
   agent(
     `You are a transport subagent, not the executor. Dispatch the bounded development assignment below only through the Codex exec bridge; do not edit project files yourself.
@@ -167,6 +263,40 @@ Codex assignment follows:
 ${assignment}`,
     { tools: ['Bash'], label, phase: phaseTitle, schema },
   )
+
+// Codex MCP dispatchers are deliberately thin: they load one tool, invoke it
+// once with an enforced profile, and relay the bounded result. Neither the
+// dispatcher nor its Codex executor receives maintainer-server access.
+const codexMcp = (assignment, { label, phase: phaseTitle, schema, model, sandbox, profile }) => {
+  const selectedProfile = CODEX_MCP_PROFILES[profile]
+  if (!selectedProfile) throw new Error(`Unknown Codex MCP profile: ${profile}`)
+  const { instructions, ...config } = selectedProfile
+  return agent(
+    `You are a thin ${profile} dispatcher, not the executor. Do not edit project
+files, inspect workflow state, or call any app-workflow or
+app-workflow-maintainer tool yourself.
+
+1. Load the Codex MCP tool with ToolSearch using exactly
+   "select:mcp__codex__codex".
+2. Call the loaded mcp__codex__codex tool exactly once, with:
+   - cwd: the workflow target-project root in \`project\` (${project})
+   - sandbox: "${sandbox}"
+   - approval-policy: "never"
+   - config: ${JSON.stringify(config)}
+   - base-instructions: ${JSON.stringify(instructions)}
+   - model: "${model}"
+   - prompt: the complete bounded assignment below, verbatim.
+3. Faithfully relay the Codex structured result as the requested schema. Do
+   not summarize, reinterpret, supplement, or make a second Codex call.
+
+The config explicitly disables app-workflow-maintainer, so Codex cannot
+receive maintainer-server access.
+
+Bounded Codex assignment follows:
+${assignment}`,
+    { tools: ['ToolSearch'], label, phase: phaseTitle, schema },
+  )
+}
 
 // ---------------------------------------------------------------------------
 // The single write lane
@@ -420,10 +550,8 @@ const PHASE_SPECS = [
 
 const PHASE_ORDER = PHASE_SPECS.map(spec => spec.phase)
 
-// Authors one phase artifact. No workflow mutation happens here.
-const authorPhase = spec =>
-  agent(
-    `${BINDING}
+const phaseArtifactAssignment = spec =>
+  `${BINDING}
 
 Objective for this wave:
 ${fence(objective)}
@@ -439,9 +567,25 @@ are the input to this one. Report the exact repository-relative paths of every
 file you consumed as sourceRefs; they are recorded as this phase's provenance
 and must all exist.
 ${READ_ONLY_STATE}
-${UNTRUSTED}`,
+${UNTRUSTED}`
+
+// Constitution remains a Claude decision. No workflow mutation happens here.
+const authorConstitution = spec =>
+  agent(
+    phaseArtifactAssignment(spec),
     { label: `phase:${spec.phase}`, phase: spec.title, schema: PHASE_SCHEMA },
   )
+
+// Research, specify, graph, plan, and dev narration are authored by Codex.
+const dispatchPhaseArtifact = spec =>
+  codexMcp(phaseArtifactAssignment(spec), {
+    label: `phase:${spec.phase}`,
+    phase: spec.title,
+    schema: PHASE_SCHEMA,
+    model: spec.phase === 'app-functional-graph' ? 'gpt-5.6-sol' : 'gpt-5.6-terra',
+    sandbox: 'workspace-write',
+    profile: 'phase-artifact',
+  })
 
 // The gate. A phase advances only on a recorded process record, and the record
 // is only written after the artifact exists.
@@ -921,7 +1065,7 @@ const runDevSequential = async state => {
 
     try {
       log(`Task ${task.taskRef} sequence ${task.sequence} — implementing`)
-      const work = await agent(
+      const work = await codexDev(
         `${BINDING}
 
 Implement exactly one task and nothing else.
@@ -938,7 +1082,6 @@ recorded state wrong.
 ${READ_ONLY_STATE}
 ${UNTRUSTED}`,
         {
-          agentType: 'bears-app-based-workflow:app-worker',
           label: `dev:${task.taskRef}`,
           phase: 'Dev',
           schema: WORK_SCHEMA,
@@ -974,10 +1117,13 @@ Report the change digest the tool returned as changeDigest.`,
 
       let done = false
       for (let round = 0; round <= maxCorrections; round++) {
-        const review = await agent(
+        const review = await codexMcp(
           `${BINDING}
 
 Review one immutable change and return a verdict.
+
+You are the app-reviewer. Cover correctness, security, and performance as one
+acceptance surface. Remain read-only and return only the REVIEW_SCHEMA verdict.
 
   task_ref       ${task.taskRef}
   title          ${fence(task.title)}
@@ -992,10 +1138,12 @@ You are read-only: change nothing.
 ${READ_ONLY_STATE}
 ${UNTRUSTED}`,
           {
-            agentType: 'bears-app-based-workflow:app-reviewer',
             label: `review:${task.taskRef}`,
             phase: 'Dev',
             schema: REVIEW_SCHEMA,
+            model: 'gpt-5.6-sol',
+            sandbox: 'read-only',
+            profile: 'app-reviewer',
           },
         )
         if (!review) throw new Error(`${task.taskRef}: reviewer returned no result — not approving`)
@@ -1071,7 +1219,7 @@ write as taskStatus.`,
         }
 
         log(`Task ${task.taskRef}: changes_requested (round ${round + 1}) — correcting`)
-        const fix = await agent(
+        const fix = await codexDev(
           `${BINDING}
 
 Correct one task against review findings. Change nothing outside its scope.
@@ -1085,7 +1233,6 @@ earlier round.
 ${READ_ONLY_STATE}
 ${UNTRUSTED}`,
           {
-            agentType: 'bears-app-based-workflow:app-worker',
             label: `fix:${task.taskRef}`,
             phase: 'Dev',
             schema: WORK_SCHEMA,
@@ -1207,45 +1354,20 @@ const ANALYSIS_SCHEMA = {
   },
 }
 
-const ANALYSIS_ARTIFACT_SCHEMA = {
-  type: 'object',
-  required: ['artifactWritten', 'artifactPath'],
-  properties: {
-    artifactWritten: { type: 'boolean' },
-    artifactPath: { type: 'string' },
-  },
-}
-
-const writeAnalysisArtifact = async () => {
-  const written = await codexDev(
-    `${BINDING}
-
-Read the existing ${waveDir}/analysis.md and write its exact Markdown content
-back to that path. This is a deterministic artifact sink: do not alter,
-summarize, extend, or interpret the content, and do not edit any other file or
-call any MCP tool. Return artifactWritten true and artifactPath
-"${waveDir}/analysis.md" only after the write succeeds.`,
-    {
-      label: 'artifact:app-analyze',
-      phase: 'Analyze',
-      schema: ANALYSIS_ARTIFACT_SCHEMA,
-    },
-  )
-  if (!written || !written.artifactWritten || written.artifactPath !== `${waveDir}/analysis.md`) {
-    throw new Error('app-analyze artifact sink did not write analysis.md — not recording, wave stops here')
-  }
-}
-
 const runAnalyze = async () => {
   phase('Analyze')
   const spec = PHASE_SPECS[PHASE_SPECS.length - 1]
-  const analysis = await agent(
+  const analysis = await codexMcp(
     `${BINDING}
 
 Objective for this wave:
 ${fence(objective)}
 
 Run the app-analyze phase per skills/app-analyze/SKILL.md.
+
+You are the app-analyst. You may write only ${waveDir}/analysis.md; do not
+change any other project file or workflow state. Return only the
+ANALYSIS_SCHEMA structured result.
 
 1. Call app-workflow workflow_state, graph_read, graph_diagnostics,
    topological_plan and workflow_validate at the current revision.
@@ -1260,17 +1382,17 @@ Run the app-analyze phase per skills/app-analyze/SKILL.md.
 ${READ_ONLY_STATE}
 ${UNTRUSTED}`,
     {
-      agentType: 'bears-app-based-workflow:app-analyst',
       label: 'phase:app-analyze',
       phase: 'Analyze',
       schema: ANALYSIS_SCHEMA,
+      model: 'gpt-5.6-sol',
+      sandbox: 'workspace-write',
+      profile: 'app-analyst',
     },
   )
   if (!analysis || !analysis.artifactWritten) {
     throw new Error('app-analyze produced no analysis.md — not recording, wave stops here')
   }
-  await writeAnalysisArtifact()
-
   await recordPhase(spec, { ...analysis, artifactWritten: true })
 
   const findings = (analysis.findings || []).filter(
@@ -1381,7 +1503,7 @@ for (let pass = 1; pass <= maxPasses; pass++) {
       const planned = await readState('state:pre-dev')
       await runDevSequential(planned)
       const devSpec = spec
-      const devArtifact = await authorPhase(devSpec)
+      const devArtifact = await dispatchPhaseArtifact(devSpec)
       await recordPhase(devSpec, devArtifact)
       continue
     }
@@ -1389,7 +1511,8 @@ for (let pass = 1; pass <= maxPasses; pass++) {
     if (spec.phase === 'app-analyze') break // handled after the loop
 
     phase(spec.title)
-    const result = await authorPhase(spec)
+    const result =
+      spec.phase === 'app-constitution' ? await authorConstitution(spec) : await dispatchPhaseArtifact(spec)
 
     if (spec.phase === 'app-functional-graph') {
       // Commit the graph BEFORE the process record, so this gate cannot record

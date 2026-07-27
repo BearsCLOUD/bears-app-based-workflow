@@ -17,8 +17,8 @@ import sys
 from typing import Any, Callable, Sequence
 import uuid
 
-VERSION = "0.7.0"
-SCHEMA_VERSION = "app-workflow-db.v2"
+VERSION = "0.8.0"
+SCHEMA_VERSION = "app-workflow-db.v3"
 REGISTRY_VERSION = 2
 DATABASE_RELATIVE = Path(".bears/app-workflow.sqlite3")
 REGISTRY_RELATIVE = Path("state/bears-app-based-workflow/registry.sqlite3")
@@ -310,12 +310,26 @@ def schema_sql() -> str:
     return contract.read_text(encoding="utf-8")
 
 
+def doc_bindings_schema_statements() -> tuple[str, ...]:
+    """Load the doc_bindings DDL directly from the canonical schema contract."""
+    statements = []
+    for statement in schema_sql().split(";"):
+        if re.search(
+            r"(?m)^CREATE (?:TABLE doc_bindings|INDEX doc_bindings_wave_status)\b",
+            statement,
+        ):
+            statements.append(statement)
+    if len(statements) != 2:
+        raise WorkflowError("PROJECT_SCHEMA_CONTRACT_INVALID")
+    return tuple(statements)
+
+
 def migrate_project_database(connection: sqlite3.Connection) -> None:
     metadata = dict(connection.execute("SELECT key,value FROM metadata"))
     schema_version = metadata.get("schema_version")
     if schema_version == SCHEMA_VERSION:
         return
-    if schema_version != "app-workflow-db.v1":
+    if schema_version not in {"app-workflow-db.v1", "app-workflow-db.v2"}:
         raise WorkflowError("PROJECT_SCHEMA_UNSUPPORTED")
 
     migration_error: Exception | None = None
@@ -325,46 +339,57 @@ def migrate_project_database(connection: sqlite3.Connection) -> None:
             raise WorkflowError("DATABASE_PRAGMA_DRIFT")
         connection.execute("BEGIN IMMEDIATE")
         try:
-            connection.execute(
-                """
-                CREATE TABLE tasks_new (
-                    task_ref TEXT PRIMARY KEY,
-                    wave_id TEXT NOT NULL REFERENCES waves(wave_id),
-                    title TEXT NOT NULL,
-                    sequence INTEGER NOT NULL,
-                    status TEXT NOT NULL,
-                    record_status TEXT NOT NULL CHECK (record_status IN ('active', 'retired')),
-                    replacement_ref TEXT,
-                    owner_session_ref TEXT NOT NULL,
-                    worker_ref TEXT,
-                    change_digest TEXT,
-                    change_refs_json TEXT NOT NULL,
-                    created_revision INTEGER NOT NULL,
-                    updated_revision INTEGER NOT NULL
-                )
-                """
-            )
-            connection.execute(
-                "INSERT INTO tasks_new "
-                "(task_ref,wave_id,title,sequence,status,record_status,replacement_ref,"
-                "owner_session_ref,worker_ref,change_digest,change_refs_json,created_revision,updated_revision) "
-                "SELECT task_ref,wave_id,title,sequence,status,record_status,replacement_ref,"
-                "owner_session_ref,worker_ref,change_digest,change_refs_json,created_revision,updated_revision "
-                "FROM tasks"
-            )
-            connection.execute("DROP TABLE tasks")
-            connection.execute("ALTER TABLE tasks_new RENAME TO tasks")
-            connection.execute(
-                "CREATE UNIQUE INDEX tasks_active_sequence ON tasks (wave_id, sequence) "
-                "WHERE record_status = 'active'"
-            )
-            connection.execute(
-                "CREATE INDEX tasks_wave_status ON tasks(wave_id, record_status, sequence)"
-            )
-            connection.execute(
-                "UPDATE metadata SET value=? WHERE key='schema_version'", (SCHEMA_VERSION,)
-            )
-            connection.execute("PRAGMA user_version=2")
+            while schema_version != SCHEMA_VERSION:
+                if schema_version == "app-workflow-db.v1":
+                    connection.execute(
+                        """
+                        CREATE TABLE tasks_new (
+                            task_ref TEXT PRIMARY KEY,
+                            wave_id TEXT NOT NULL REFERENCES waves(wave_id),
+                            title TEXT NOT NULL,
+                            sequence INTEGER NOT NULL,
+                            status TEXT NOT NULL,
+                            record_status TEXT NOT NULL CHECK (record_status IN ('active', 'retired')),
+                            replacement_ref TEXT,
+                            owner_session_ref TEXT NOT NULL,
+                            worker_ref TEXT,
+                            change_digest TEXT,
+                            change_refs_json TEXT NOT NULL,
+                            created_revision INTEGER NOT NULL,
+                            updated_revision INTEGER NOT NULL
+                        )
+                        """
+                    )
+                    connection.execute(
+                        "INSERT INTO tasks_new "
+                        "(task_ref,wave_id,title,sequence,status,record_status,replacement_ref,"
+                        "owner_session_ref,worker_ref,change_digest,change_refs_json,created_revision,updated_revision) "
+                        "SELECT task_ref,wave_id,title,sequence,status,record_status,replacement_ref,"
+                        "owner_session_ref,worker_ref,change_digest,change_refs_json,created_revision,updated_revision "
+                        "FROM tasks"
+                    )
+                    connection.execute("DROP TABLE tasks")
+                    connection.execute("ALTER TABLE tasks_new RENAME TO tasks")
+                    connection.execute(
+                        "CREATE UNIQUE INDEX tasks_active_sequence ON tasks (wave_id, sequence) "
+                        "WHERE record_status = 'active'"
+                    )
+                    connection.execute(
+                        "CREATE INDEX tasks_wave_status ON tasks(wave_id, record_status, sequence)"
+                    )
+                    schema_version = "app-workflow-db.v2"
+                    connection.execute(
+                        "UPDATE metadata SET value=? WHERE key='schema_version'", (schema_version,)
+                    )
+                    connection.execute("PRAGMA user_version=2")
+                elif schema_version == "app-workflow-db.v2":
+                    for statement in doc_bindings_schema_statements():
+                        connection.execute(statement)
+                    schema_version = SCHEMA_VERSION
+                    connection.execute(
+                        "UPDATE metadata SET value=? WHERE key='schema_version'", (schema_version,)
+                    )
+                    connection.execute("PRAGMA user_version=3")
             if connection.execute("PRAGMA foreign_key_check").fetchone() is not None:
                 raise WorkflowError("PROJECT_MIGRATION_FOREIGN_KEY")
             connection.commit()
@@ -397,6 +422,9 @@ def initialize_project_schema(connection: sqlite3.Connection, project_ref: str) 
     for statement in schema.split(";"):
         if statement.strip():
             connection.execute(statement)
+    # The v1 contract's bootstrap pragma predates doc_bindings; stamp fresh
+    # databases with the current schema marker after applying the contract.
+    connection.execute("PRAGMA user_version=3")
     connection.executemany(
         "INSERT INTO metadata(key,value) VALUES(?,?)",
         (

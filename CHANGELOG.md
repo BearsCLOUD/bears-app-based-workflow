@@ -2,6 +2,19 @@
 
 All notable changes to this plugin are documented in this file.
 
+## 0.8.0
+
+- Added the knowledge canonicity chain: the functional graph is canonical over the task ledger and every markdown layer. A new `doc_bindings` table holds a closed set of four binding kinds (`graph_to_task`, `graph_to_spec`, `spec_to_wave_doc`, `wave_doc_to_constitution`) binding graph state to anchored markdown blocks by content digest.
+- Added `binding_apply`, the fourteenth maintainer tool: an atomic compare-and-swap batch of binding upserts and retirements. A shared dangling-binding invariant now runs at the end of `binding_apply`, `graph_apply`, and `plan_replace`, so no mutation can leave an active binding pointing at a retired entity or task.
+- Extended `workflow_validate` with two audit-blocking finding families: `DOC_BINDING_DRIFT` (missing file, missing or duplicated anchor, digest mismatch) and `DOC_CHAIN_GAP` (task without a graph binding, spec binding not rolled up into the wave document, missing constitution line). The wave gate drives the full chain with genuine anchored-block digests and asserts both rejections.
+- Reworked the constitution into a project-level index: `constitution.md` accumulates one anchored line per wave, derived from that wave's constitution document.
+- Encoded the chain choreography in `claude/workflows/app-wave.js`: spec anchors authored at specify, `graph_to_spec` bound after the graph delta, one `graph_to_task` binding per active task after `plan_replace`, the anchored wave-document block and constitution line bound after analyze; binding refs are injective (sha256 suffix) with generation suffixes on resume, and bindings retire before their targets on replan.
+- Moved executor dispatch to Codex: reasoning phases run as Codex MCP sessions with role-derived models from `roles/roles.json`, dev tasks and correction fixes run through the codex exec bridge, review and analyze use the `app-reviewer` and `app-analyst` profiles. The orchestrator remains the sole maintainer writer.
+- Made register/rebind/unregister replay ordering registry-authoritative: every binding-affecting operation writes a monotonic `registry_requests` row atomically with the binding change in one ATTACH transaction; wall-clock ordering is gone, a stale replay can no longer resurrect a binding past a later unregister, and a missing registry file maps to `PROJECT_NOT_REGISTERED`.
+- Hardened `review_record`: a `review_ref` colliding across waves is rejected with `REVIEW_REF_WAVE_MISMATCH` instead of surfacing a raw SQLite error.
+- Mirrored the new surface in `contracts/app-workflow-mcp-tools.v1.json` (14 maintainer tools, `binding_kinds`, whole-batch `binding_apply` transactions) and documented the chain in README and the `app-specify` / `app-constitution` skills.
+- Versioned the project database `v2` -> `v3`: a stepwise idempotent migration creates `doc_bindings` on existing databases from the contract DDL; `v1` databases chain through both steps, and fresh databases initialize directly at `v3`.
+
 ## 0.7.0
 
 - Made Claude Code the primary runtime and orchestrator. The plugin now ships a `hooks` entry point (`claude/hooks.json`) alongside its agents and MCP servers.

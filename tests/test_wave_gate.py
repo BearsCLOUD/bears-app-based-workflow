@@ -15,6 +15,7 @@ unittest, never pytest.
 
 from __future__ import annotations
 
+import hashlib
 import importlib.util
 import os
 from pathlib import Path
@@ -97,6 +98,87 @@ class WaveGate(unittest.TestCase):
             artifact_refs=["evidence.md"],
         )
 
+    def write_bound_document(self, name: str, binding_ref: str, block: bytes) -> str:
+        """Write one exact anchor block and return its normalized content digest."""
+        self.assertTrue(block.endswith((b"\n", b"\r")))
+        content = (
+            b"# Bound document\n"
+            + f"<!-- bind:{binding_ref} -->\n".encode("ascii")
+            + block
+            + f"<!-- /bind:{binding_ref} -->\n".encode("ascii")
+        )
+        (self.root / name).write_bytes(content)
+        return "sha256:" + hashlib.sha256(block.replace(b"\r\n", b"\n")).hexdigest()
+
+    def apply_doc_binding_chain(self) -> None:
+        """Bind every active task and the graph-to-spec-to-wave-doc document chain."""
+        self.mutate(
+            WORKFLOW.binding_apply_backend,
+            wave_id="WAVE-1",
+            owner_session_ref="OWNER",
+            operations=[
+                {
+                    "action": "upsert",
+                    "binding_ref": f"BINDING-GRAPH-TASK-{task['task_ref']}",
+                    "binding_kind": "graph_to_task",
+                    "source_refs": ["ENTITY-1"],
+                    "target_ref": task["task_ref"],
+                }
+                for task in self.state()["tasks"]
+            ],
+        )
+        spec_digest = self.write_bound_document(
+            "spec.md", "BINDING-GRAPH-SPEC-1", b"Feature specification\r\n"
+        )
+        self.mutate(
+            WORKFLOW.binding_apply_backend,
+            wave_id="WAVE-1",
+            owner_session_ref="OWNER",
+            operations=[{
+                "action": "upsert",
+                "binding_ref": "BINDING-GRAPH-SPEC-1",
+                "binding_kind": "graph_to_spec",
+                "source_refs": ["ENTITY-1"],
+                "target_path": "spec.md",
+                "target_anchor": "BINDING-GRAPH-SPEC-1",
+                "content_digest": spec_digest,
+            }],
+        )
+        wave_doc_digest = self.write_bound_document(
+            "wave-doc.md", "BINDING-SPEC-WAVE-DOC-1", b"Wave documentation\n"
+        )
+        self.mutate(
+            WORKFLOW.binding_apply_backend,
+            wave_id="WAVE-1",
+            owner_session_ref="OWNER",
+            operations=[{
+                "action": "upsert",
+                "binding_ref": "BINDING-SPEC-WAVE-DOC-1",
+                "binding_kind": "spec_to_wave_doc",
+                "source_refs": ["BINDING-GRAPH-SPEC-1"],
+                "target_path": "wave-doc.md",
+                "target_anchor": "BINDING-SPEC-WAVE-DOC-1",
+                "content_digest": wave_doc_digest,
+            }],
+        )
+        constitution_digest = self.write_bound_document(
+            "constitution.md", "BINDING-WAVE-DOC-CONSTITUTION-1", b"Constitution rule\n"
+        )
+        self.mutate(
+            WORKFLOW.binding_apply_backend,
+            wave_id="WAVE-1",
+            owner_session_ref="OWNER",
+            operations=[{
+                "action": "upsert",
+                "binding_ref": "BINDING-WAVE-DOC-CONSTITUTION-1",
+                "binding_kind": "wave_doc_to_constitution",
+                "source_refs": ["BINDING-SPEC-WAVE-DOC-1"],
+                "target_path": "constitution.md",
+                "target_anchor": "BINDING-WAVE-DOC-CONSTITUTION-1",
+                "content_digest": constitution_digest,
+            }],
+        )
+
     def drive_clean_wave(self) -> None:
         """A complete, internally consistent wave: graph, plan, one done task, analysis, phases."""
         self.mutate(WORKFLOW.wave_initialize_backend, wave_id="WAVE-1", mode="DIRECT", owner_session_ref="OWNER")
@@ -110,6 +192,7 @@ class WaveGate(unittest.TestCase):
             tasks=[{"task_ref": "TASK-1", "title": "Implement feature", "sequence": 1,
                     "depends_on": [], "source_refs": ["evidence.md"]}],
         )
+        self.apply_doc_binding_chain()
         self.mutate(WORKFLOW.task_record_change_backend, wave_id="WAVE-1", owner_session_ref="OWNER",
                     task_ref="TASK-1", worker_ref="WORKER-1", change_refs=["code.py"])
         change_digest = self.state()["tasks"][0]["change_digest"]
@@ -132,23 +215,41 @@ class WaveGate(unittest.TestCase):
         self.assertTrue(audited["audited"])
         self.assertEqual(self.state()["workflow_status"], "audited")
 
-    def test_an_incomplete_wave_is_rejected(self) -> None:
-        # A wave initialized but not carried through must not validate: the plugin's logic,
-        # not a hand-listed assertion, is what says "not ready".
+    def test_a_task_without_a_graph_to_task_binding_is_rejected(self) -> None:
+        # The doc chain begins at every active task, so an otherwise valid task plan cannot
+        # omit its graph binding.
         self.mutate(WORKFLOW.wave_initialize_backend, wave_id="WAVE-1", mode="DIRECT", owner_session_ref="OWNER")
+        self.mutate(
+            WORKFLOW.graph_apply_backend, wave_id="WAVE-1", owner_session_ref="OWNER",
+            operations=[{"action": "upsert", "object_type": "entity", "entity_ref": "ENTITY-1",
+                         "kind": "feature", "name": "Feature", "properties": {}, "source_refs": ["evidence.md"]}],
+        )
+        self.mutate(
+            WORKFLOW.plan_replace_backend, wave_id="WAVE-1", owner_session_ref="OWNER",
+            tasks=[{"task_ref": "TASK-1", "title": "Implement feature", "sequence": 1,
+                    "depends_on": [], "source_refs": ["evidence.md"]}],
+        )
         validation = self.validate()
         self.assertFalse(validation["ok"])
-        self.assertTrue(validation["findings"])
+        self.assertIn("DOC_CHAIN_GAP", {finding["code"] for finding in validation["findings"]})
 
     def test_on_disk_drift_after_audit_breaks_the_audit(self) -> None:
-        # The audit binds a verdict to an exact file snapshot. Editing a provenanced source
-        # on disk must make the plugin stop reporting the wave as audited.
+        # The audit binds the exact anchored document bytes, normalized only for CRLF.
+        # Editing one bound block must report drift for that exact binding.
         self.drive_clean_wave()
-        self.mutate(WORKFLOW.workflow_mark_audited_backend, wave_id="WAVE-1",
-                    owner_session_ref="OWNER", audit_ref="AUDIT-1")
+        audited = self.mutate(WORKFLOW.workflow_mark_audited_backend, wave_id="WAVE-1",
+                              owner_session_ref="OWNER", audit_ref="AUDIT-1")
+        self.assertTrue(audited["audited"])
         self.assertEqual(self.state()["workflow_status"], "audited")
-        (self.root / "code.py").write_text("VALUE = 999\n", encoding="utf-8")
-        self.assertFalse(self.validate()["ok"])
+        spec = self.root / "spec.md"
+        spec.write_bytes(spec.read_bytes().replace(b"Feature specification\r\n", b"Changed specification\r\n"))
+        validation = self.validate()
+        self.assertFalse(validation["ok"])
+        self.assertIn(
+            {"code": "DOC_BINDING_DRIFT", "location": "doc_bindings.BINDING-GRAPH-SPEC-1",
+             "message": "doc_binding_drift"},
+            validation["findings"],
+        )
 
 
 if __name__ == "__main__":

@@ -1509,6 +1509,86 @@ def snapshot_file_state(root: Path, connection: sqlite3.Connection) -> tuple[lis
     return file_records, problems
 
 
+def doc_binding_block_digest(content: bytes, binding_ref: str) -> str | None:
+    """Return the normalized digest for the sole anchor block of a binding."""
+    opening = f"<!-- bind:{binding_ref} -->".encode("ascii")
+    closing = f"<!-- /bind:{binding_ref} -->".encode("ascii")
+    lines = content.splitlines(keepends=True)
+
+    def marker_indexes(marker: bytes) -> list[int]:
+        indexes: list[int] = []
+        for index, line in enumerate(lines):
+            if line.endswith(b"\r\n"):
+                line = line[:-2]
+            elif line.endswith(b"\n"):
+                line = line[:-1]
+            elif line.endswith(b"\r"):
+                line = line[:-1]
+            if line == marker:
+                indexes.append(index)
+        return indexes
+
+    openings = marker_indexes(opening)
+    closings = marker_indexes(closing)
+    if len(openings) != 1 or len(closings) != 1 or openings[0] >= closings[0]:
+        return None
+    block = b"".join(lines[openings[0] + 1:closings[0]]).replace(b"\r\n", b"\n")
+    return sha256_bytes(block)
+
+
+def validate_doc_binding_canonicity(
+    root: Path,
+    connection: sqlite3.Connection,
+    wave_id: str,
+    tasks: Sequence[sqlite3.Row],
+    findings: list[dict[str, str]],
+) -> None:
+    """Add findings for on-disk document bindings and gaps in their active chain."""
+    bindings = list(
+        connection.execute(
+            "SELECT binding_ref,binding_kind,source_refs,target_ref,target_path,content_digest "
+            "FROM doc_bindings WHERE wave_id=? AND record_status='active' ORDER BY binding_ref",
+            (wave_id,),
+        )
+    )
+    document_kinds = {"graph_to_spec", "spec_to_wave_doc", "wave_doc_to_constitution"}
+    for binding in bindings:
+        if binding["binding_kind"] not in document_kinds:
+            continue
+        try:
+            relative, _ = require_local_file(root, binding["target_path"], "doc_binding.target_path")
+            actual = doc_binding_block_digest((root / relative).read_bytes(), binding["binding_ref"])
+        except (OSError, WorkflowError):
+            actual = None
+        if actual is None or actual != binding["content_digest"]:
+            add_finding(findings, "DOC_BINDING_DRIFT", f"doc_bindings.{binding['binding_ref']}")
+
+    graph_to_task_targets = {
+        binding["target_ref"] for binding in bindings if binding["binding_kind"] == "graph_to_task"
+    }
+    for task in tasks:
+        if task["task_ref"] not in graph_to_task_targets:
+            add_finding(findings, "DOC_CHAIN_GAP", f"tasks.{task['task_ref']}")
+
+    spec_to_wave_docs = [
+        binding for binding in bindings if binding["binding_kind"] == "spec_to_wave_doc"
+    ]
+    wave_doc_to_constitutions = [
+        binding for binding in bindings if binding["binding_kind"] == "wave_doc_to_constitution"
+    ]
+    downstream_sources: set[str] = set()
+    for binding in spec_to_wave_docs:
+        try:
+            downstream_sources.update(json.loads(binding["source_refs"]))
+        except (TypeError, json.JSONDecodeError):
+            continue
+    for binding in bindings:
+        if binding["binding_kind"] == "graph_to_spec" and binding["binding_ref"] not in downstream_sources:
+            add_finding(findings, "DOC_CHAIN_GAP", f"doc_bindings.{binding['binding_ref']}")
+    if spec_to_wave_docs and not wave_doc_to_constitutions:
+        add_finding(findings, "DOC_CHAIN_GAP", f"doc_bindings.{spec_to_wave_docs[0]['binding_ref']}")
+
+
 def current_snapshot_digest(root: Path, connection: sqlite3.Connection) -> str | None:
     """Recompute the snapshot digest from current on-disk file content.
 
@@ -1632,6 +1712,7 @@ def validation_result(
                 add_finding(findings, "TASK_SEQUENCE", f"tasks.{task['task_ref']}")
         else:
             done_seen = False
+    validate_doc_binding_canonicity(root, connection, wave_id, tasks, findings)
     open_findings = connection.execute(
         "SELECT COUNT(*) FROM findings WHERE wave_id=? AND status='open'", (wave_id,)
     ).fetchone()[0]

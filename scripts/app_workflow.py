@@ -19,7 +19,7 @@ import uuid
 
 VERSION = "0.7.0"
 SCHEMA_VERSION = "app-workflow-db.v2"
-REGISTRY_VERSION = 1
+REGISTRY_VERSION = 2
 DATABASE_RELATIVE = Path(".bears/app-workflow.sqlite3")
 REGISTRY_RELATIVE = Path("state/bears-app-based-workflow/registry.sqlite3")
 MAX_REQUEST_BYTES = 1024 * 1024
@@ -169,7 +169,8 @@ CREATE TABLE IF NOT EXISTS projects (
     rebound_at TEXT
 );
 CREATE TABLE IF NOT EXISTS registry_requests (
-    request_id TEXT PRIMARY KEY,
+    seq INTEGER PRIMARY KEY AUTOINCREMENT,
+    request_id TEXT NOT NULL UNIQUE,
     project_ref TEXT NOT NULL,
     operation TEXT NOT NULL,
     payload_digest TEXT NOT NULL,
@@ -179,18 +180,97 @@ CREATE TABLE IF NOT EXISTS registry_requests (
 """
 
 
+def migrate_registry_database(connection: sqlite3.Connection) -> None:
+    columns = {
+        row["name"] for row in connection.execute("PRAGMA table_info(registry_requests)")
+    }
+    if "seq" in columns:
+        return
+    connection.execute("BEGIN IMMEDIATE")
+    try:
+        connection.execute(
+            """
+            CREATE TABLE registry_requests_new (
+                seq INTEGER PRIMARY KEY AUTOINCREMENT,
+                request_id TEXT NOT NULL UNIQUE,
+                project_ref TEXT NOT NULL,
+                operation TEXT NOT NULL,
+                payload_digest TEXT NOT NULL,
+                result_json TEXT NOT NULL,
+                created_at TEXT NOT NULL
+            )
+            """
+        )
+        connection.execute(
+            "INSERT INTO registry_requests_new "
+            "(request_id,project_ref,operation,payload_digest,result_json,created_at) "
+            "SELECT request_id,project_ref,operation,payload_digest,result_json,created_at "
+            "FROM registry_requests ORDER BY rowid"
+        )
+        connection.execute("DROP TABLE registry_requests")
+        connection.execute("ALTER TABLE registry_requests_new RENAME TO registry_requests")
+        connection.commit()
+    except Exception:
+        connection.rollback()
+        raise
+
+
 def open_registry(*, writable: bool = True) -> sqlite3.Connection:
     path = registry_path()
     if writable:
         path.parent.mkdir(parents=True, exist_ok=True)
-    connection = connect_sqlite(path, writable=writable)
-    if writable:
-        connection.executescript(REGISTRY_SQL)
-        connection.execute(
-            "INSERT OR IGNORE INTO registry_metadata(key,value) VALUES('schema_version',?)",
-            (str(REGISTRY_VERSION),),
-        )
+    elif not path.is_file():
+        raise WorkflowError("PROJECT_NOT_REGISTERED")
+    try:
+        connection = connect_sqlite(path, writable=writable)
+    except sqlite3.OperationalError:
+        if not writable and not path.is_file():
+            raise WorkflowError("PROJECT_NOT_REGISTERED") from None
+        raise
+    try:
+        if writable:
+            connection.executescript(REGISTRY_SQL)
+            migrate_registry_database(connection)
+            connection.execute(
+                "INSERT OR IGNORE INTO registry_metadata(key,value) VALUES('schema_version',?)",
+                (str(REGISTRY_VERSION),),
+            )
+            connection.execute(
+                "UPDATE registry_metadata SET value=? "
+                "WHERE key='schema_version' AND value<>?",
+                (str(REGISTRY_VERSION), str(REGISTRY_VERSION)),
+            )
+    except Exception:
+        connection.close()
+        raise
     return connection
+
+
+@contextlib.contextmanager
+def attached_registry(project: sqlite3.Connection):
+    """Attach the registry to a project connection for an atomic binding update."""
+    # Bootstrap the registry before attaching it.  The lifecycle transaction
+    # below then spans two on-disk databases; SQLite's rollback
+    # journal protocol makes that commit atomic while both databases use DELETE
+    # journalling and FULL synchronous mode.
+    with contextlib.closing(open_registry()):
+        pass
+    project.execute("ATTACH DATABASE ? AS workflow_registry", (str(registry_path()),))
+    try:
+        mode = project.execute("PRAGMA workflow_registry.journal_mode=DELETE").fetchone()[0]
+        project.execute("PRAGMA workflow_registry.synchronous=FULL")
+        synchronous = int(project.execute("PRAGMA workflow_registry.synchronous").fetchone()[0])
+        if str(mode).lower() != "delete":
+            raise WorkflowError("WAL_FORBIDDEN", f"journal mode is {mode}")
+        if synchronous != 2:
+            raise WorkflowError("DATABASE_PRAGMA_DRIFT")
+        yield
+    finally:
+        # Callers always finish their transaction before leaving this context.
+        # Suppressing detach failures during exception unwinding lets close()
+        # release the attachment without concealing the original error.
+        with contextlib.suppress(sqlite3.Error):
+            project.execute("DETACH DATABASE workflow_registry")
 
 
 def validate_git_root(raw: Any) -> Path:
@@ -306,6 +386,27 @@ def migrate_project_database(connection: sqlite3.Connection) -> None:
             raise restore_error
 
 
+def initialize_project_schema(connection: sqlite3.Connection, project_ref: str) -> None:
+    """Create the project schema and identifying metadata in an active transaction."""
+    # schema_sql is a controlled contract with no semicolons inside SQL
+    # literals.  Execute each statement so this helper never commits the
+    # caller's transaction (Connection.executescript() would do so first).
+    schema = schema_sql().replace("CREATE TABLE ", "CREATE TABLE IF NOT EXISTS ")
+    schema = schema.replace("CREATE UNIQUE INDEX ", "CREATE UNIQUE INDEX IF NOT EXISTS ")
+    schema = schema.replace("CREATE INDEX ", "CREATE INDEX IF NOT EXISTS ")
+    for statement in schema.split(";"):
+        if statement.strip():
+            connection.execute(statement)
+    connection.executemany(
+        "INSERT INTO metadata(key,value) VALUES(?,?)",
+        (
+            ("schema_version", SCHEMA_VERSION),
+            ("project_ref", project_ref),
+            ("revision", "0"),
+        ),
+    )
+
+
 def initialize_project_database(path: Path, project_ref: str) -> None:
     created = not path.exists()
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -313,17 +414,19 @@ def initialize_project_database(path: Path, project_ref: str) -> None:
         raise WorkflowError("PROJECT_DATABASE_SYMLINK_FORBIDDEN")
     connection = connect_sqlite(path, writable=True)
     try:
-        if created:
-            connection.executescript(schema_sql())
+        metadata: dict[str, str]
+        try:
+            metadata = project_metadata(connection)
+        except sqlite3.OperationalError as exc:
+            if "no such table: metadata" not in str(exc):
+                raise
+            metadata = {}
+        if created or not metadata:
+            # Keep the schema and its identifying metadata in one transaction.
+            # The IF NOT EXISTS form also repairs a file left by the former
+            # autocommit bootstrap between schema creation and metadata write.
             connection.execute("BEGIN IMMEDIATE")
-            connection.executemany(
-                "INSERT INTO metadata(key,value) VALUES(?,?)",
-                (
-                    ("schema_version", SCHEMA_VERSION),
-                    ("project_ref", project_ref),
-                    ("revision", "0"),
-                ),
-            )
+            initialize_project_schema(connection, project_ref)
             connection.commit()
         else:
             migrate_project_database(connection)
@@ -362,6 +465,15 @@ def ensure_git_rules(root: Path) -> None:
 
 def project_metadata(connection: sqlite3.Connection) -> dict[str, str]:
     return {row["key"]: row["value"] for row in connection.execute("SELECT key,value FROM metadata")}
+
+
+def project_metadata_table_exists(connection: sqlite3.Connection) -> bool:
+    return (
+        connection.execute(
+            "SELECT 1 FROM sqlite_master WHERE type='table' AND name='metadata'"
+        ).fetchone()
+        is not None
+    )
 
 
 def resolve_project(project_ref: str) -> Path:
@@ -447,64 +559,110 @@ def register_backend(args: dict[str, Any]) -> dict[str, Any]:
     request_id = require_text(args.get("request_id"), "request_id", ref=True)
     expected_revision = require_int(args.get("expected_revision"), "expected_revision", 0, 2**63 - 1)
     expected_digest = require_digest(args.get("expected_logical_digest"), "expected_logical_digest")
-    with contextlib.closing(open_registry()) as registry:
-        registry.execute("BEGIN IMMEDIATE")
-        try:
-            row = registry.execute(
-                "SELECT project_ref FROM projects WHERE root_path=?", (str(root),)
-            ).fetchone()
-            project_ref = row[0] if row else "PROJECT-" + uuid.uuid4().hex.upper()
-            database = root / DATABASE_RELATIVE
-            if database.exists():
-                with contextlib.closing(connect_sqlite(database, writable=False)) as existing:
-                    stored = project_metadata(existing).get("project_ref")
+    payload_digest = sha256_json(args)
+    database = root / DATABASE_RELATIVE
+    database.parent.mkdir(parents=True, exist_ok=True)
+    if database.is_symlink() or database.parent.is_symlink():
+        raise WorkflowError("PROJECT_DATABASE_SYMLINK_FORBIDDEN")
+    with contextlib.closing(connect_sqlite(database, writable=True)) as project:
+        if project_metadata_table_exists(project) and project_metadata(project):
+            migrate_project_database(project)
+        with attached_registry(project):
+            project.execute("BEGIN IMMEDIATE")
+            try:
+                replay = attached_registry_replay(
+                    project, request_id, "project_register", payload_digest
+                )
+                if replay is not None:
+                    result, replay_project_ref, is_latest = replay
+                    if not is_latest:
+                        project.rollback()
+                        return result
+                    bound = project.execute(
+                        "SELECT 1 FROM workflow_registry.projects WHERE project_ref=?",
+                        (replay_project_ref,),
+                    ).fetchone()
+                    if bound is None:
+                        ensure_attached_registry_binding(
+                            project, replay_project_ref, root, rebound=False
+                        )
+                        project.commit()
+                    else:
+                        project.rollback()
+                    return result
+
+                # BEGIN IMMEDIATE covers the attached registry as well as the
+                # project database.  Select the reference and bootstrap an
+                # empty/crash-left database only after that shared lock is
+                # held, so concurrent first registrations are serialized.
+                row = project.execute(
+                    "SELECT project_ref FROM workflow_registry.projects WHERE root_path=?", (str(root),)
+                ).fetchone()
+                project_ref = row[0] if row else "PROJECT-" + uuid.uuid4().hex.upper()
+                metadata = project_metadata(project) if project_metadata_table_exists(project) else {}
+                if metadata:
+                    stored = metadata.get("project_ref")
                     if stored:
                         project_ref = stored
-            bound = registry.execute(
-                "SELECT root_path FROM projects WHERE project_ref=?", (project_ref,)
-            ).fetchone()
-            if bound and bound["root_path"] != str(root):
-                raise WorkflowError("PROJECT_REBIND_REQUIRED")
-            initialize_project_database(database, project_ref)
-            with contextlib.closing(connect_sqlite(database, writable=True)) as project:
-                migrate_project_database(project)
+                else:
+                    initialize_project_schema(project, project_ref)
+                metadata = project_metadata(project)
+                if metadata.get("schema_version") != SCHEMA_VERSION:
+                    raise WorkflowError("PROJECT_SCHEMA_UNSUPPORTED")
+                if metadata.get("project_ref") != project_ref:
+                    raise WorkflowError("PROJECT_REF_MISMATCH")
+                local_prior = prior_request(
+                    project, request_id, "project_register", payload_digest
+                )
+                bound = project.execute(
+                    "SELECT root_path FROM workflow_registry.projects WHERE project_ref=?", (project_ref,)
+                ).fetchone()
+                if bound and bound["root_path"] != str(root):
+                    raise WorkflowError("PROJECT_REBIND_REQUIRED")
                 revision = current_revision(project)
                 digest = logical_digest(project)
                 allowed_digest = GENESIS_DIGEST if revision == 0 and expected_digest == GENESIS_DIGEST else digest
                 if expected_revision != revision or expected_digest != allowed_digest:
                     raise WorkflowError("CAS_MISMATCH")
-                prior = project.execute(
-                    "SELECT operation,payload_digest,result_json FROM request_log WHERE request_id=?",
-                    (request_id,),
-                ).fetchone()
-                payload_digest = sha256_json(args)
-                if prior:
-                    if prior["operation"] != "project_register" or prior["payload_digest"] != payload_digest:
-                        raise WorkflowError("REQUEST_ID_REUSED")
-                    return json.loads(prior["result_json"])
                 ensure_git_rules(root)
-                registry.execute(
-                    "INSERT INTO projects(project_ref,root_path,registered_at,rebound_at) VALUES(?,?,?,NULL) "
-                    "ON CONFLICT(project_ref) DO UPDATE SET root_path=excluded.root_path,rebound_at=excluded.registered_at",
-                    (project_ref, str(root), utc_now()),
-                )
                 result = {
                     "project_ref": project_ref,
                     "revision": revision,
                     "logical_digest": digest,
                     "database": DATABASE_RELATIVE.as_posix(),
                 }
-                project.execute("BEGIN IMMEDIATE")
+                ensure_attached_registry_binding(project, project_ref, root, rebound=False)
                 project.execute(
-                    "INSERT INTO request_log VALUES(?,?,?,?,?,?,?)",
-                    (request_id, "project_register", payload_digest, revision, digest, canonical_json(result), utc_now()),
+                    "INSERT INTO workflow_registry.registry_requests "
+                    "(request_id,project_ref,operation,payload_digest,result_json,created_at) "
+                    "VALUES(?,?,?,?,?,?)",
+                    (
+                        request_id,
+                        project_ref,
+                        "project_register",
+                        payload_digest,
+                        canonical_json(result),
+                        utc_now(),
+                    ),
                 )
+                if local_prior is None:
+                    project.execute(
+                        "INSERT INTO request_log VALUES(?,?,?,?,?,?,?)",
+                        (
+                            request_id,
+                            "project_register",
+                            payload_digest,
+                            revision,
+                            digest,
+                            canonical_json(result),
+                            utc_now(),
+                        ),
+                    )
                 project.commit()
-            registry.commit()
-            return result
-        except Exception:
-            registry.rollback()
-            raise
+                return result
+            except Exception:
+                project.rollback()
+                raise
 
 
 def project_list_backend() -> dict[str, Any]:
@@ -515,6 +673,10 @@ def project_list_backend() -> dict[str, Any]:
                     "SELECT project_ref,root_path,registered_at,rebound_at FROM projects ORDER BY project_ref"
                 )
             )
+    except WorkflowError as exc:
+        if exc.code != "PROJECT_NOT_REGISTERED":
+            raise
+        rows = []
     except sqlite3.OperationalError:
         rows = []
     projects: list[dict[str, Any]] = []
@@ -734,6 +896,63 @@ def registry_request_result(
     return json.loads(row["result_json"])
 
 
+def attached_registry_replay(
+    project: sqlite3.Connection, request_id: str, operation: str, payload_digest: str
+) -> tuple[dict[str, Any], str, bool] | None:
+    """Return the stored outcome and whether its registry sequence is latest."""
+    row = project.execute(
+        "SELECT seq,project_ref,operation,payload_digest,result_json "
+        "FROM workflow_registry.registry_requests WHERE request_id=?",
+        (request_id,),
+    ).fetchone()
+    if row is None:
+        return None
+    if row["operation"] != operation or row["payload_digest"] != payload_digest:
+        raise WorkflowError("REQUEST_ID_REUSED")
+    latest = project.execute(
+        "SELECT MAX(seq) FROM workflow_registry.registry_requests WHERE project_ref=?",
+        (row["project_ref"],),
+    ).fetchone()[0]
+    return json.loads(row["result_json"]), row["project_ref"], row["seq"] == latest
+
+
+def ensure_attached_registry_binding(
+    project: sqlite3.Connection, project_ref: str, root: Path, *, rebound: bool
+) -> None:
+    """Make a missing registry binding converge without replacing another one."""
+    bound = project.execute(
+        "SELECT root_path FROM workflow_registry.projects WHERE project_ref=?", (project_ref,)
+    ).fetchone()
+    if bound is not None:
+        if bound["root_path"] != str(root):
+            raise WorkflowError("PROJECT_REBIND_REQUIRED")
+        return
+    conflict = project.execute(
+        "SELECT project_ref FROM workflow_registry.projects WHERE root_path=?", (str(root),)
+    ).fetchone()
+    if conflict is not None and conflict["project_ref"] != project_ref:
+        raise WorkflowError("PROJECT_ROOT_ALREADY_REGISTERED")
+    now = utc_now()
+    project.execute(
+        "INSERT INTO workflow_registry.projects(project_ref,root_path,registered_at,rebound_at) VALUES(?,?,?,?)",
+        (project_ref, str(root), now, now if rebound else None),
+    )
+
+
+def canonical_rebind_state(root: Path, project_ref: str) -> tuple[int, str] | None:
+    """Return a reachable matching old-root state, if there is one to compare."""
+    database = root / DATABASE_RELATIVE
+    # A moved-away old root has no state to compare.  In that normal case, the
+    # target project's CAS check above is intentionally sufficient.
+    if not database.is_file() or database.is_symlink():
+        return None
+    with contextlib.closing(connect_sqlite(database, writable=False)) as canonical:
+        metadata = project_metadata(canonical)
+        if metadata.get("project_ref") != project_ref:
+            return None
+        return current_revision(canonical), logical_digest(canonical)
+
+
 def rebind_backend(args: dict[str, Any]) -> dict[str, Any]:
     project_ref = require_text(args.get("project_ref"), "project_ref", ref=True)
     new_root = validate_git_root(args.get("project_root"))
@@ -749,72 +968,97 @@ def rebind_backend(args: dict[str, Any]) -> dict[str, Any]:
         metadata = project_metadata(project)
         if metadata.get("project_ref") != project_ref:
             raise WorkflowError("PROJECT_REF_MISMATCH")
-        project.execute("BEGIN IMMEDIATE")
-        try:
-            prior = prior_request(project, request_id, "project_rebind", payload_digest)
-            if prior is not None:
-                project.rollback()
-                return prior
-            revision = current_revision(project)
-            digest = logical_digest(project)
-            if revision != expected_revision or digest != expected_digest:
-                raise WorkflowError("CAS_MISMATCH")
-            with contextlib.closing(open_registry()) as registry:
-                registry.execute("BEGIN IMMEDIATE")
-                try:
-                    bound = registry.execute(
-                        "SELECT root_path FROM projects WHERE project_ref=?", (project_ref,)
+        with attached_registry(project):
+            project.execute("BEGIN IMMEDIATE")
+            try:
+                replay = attached_registry_replay(
+                    project, request_id, "project_rebind", payload_digest
+                )
+                if replay is not None:
+                    result, replay_project_ref, is_latest = replay
+                    if not is_latest:
+                        project.rollback()
+                        return result
+                    bound = project.execute(
+                        "SELECT 1 FROM workflow_registry.projects WHERE project_ref=?",
+                        (replay_project_ref,),
                     ).fetchone()
                     if bound is None:
-                        raise WorkflowError("PROJECT_NOT_REGISTERED")
-                    current_root = Path(bound["root_path"])
-                    if current_root != new_root:
-                        # The currently bound root is being replaced. If it is still reachable
-                        # on disk, require the caller to prove it has seen ITS current state too
-                        # -- not just the target database's -- so a stale or forked clone parked
-                        # at a different path cannot silently roll the canonical state backward.
-                        # When the old root is truly gone (the ordinary "directory moved" case),
-                        # there is nothing left to compare against and the target-only CAS above
-                        # already governs the switch.
-                        current_database = current_root / DATABASE_RELATIVE
-                        if current_database.is_file() and not current_database.is_symlink():
-                            with contextlib.closing(connect_sqlite(current_database, writable=False)) as canonical:
-                                canonical_metadata = project_metadata(canonical)
-                                if canonical_metadata.get("project_ref") == project_ref:
-                                    canonical_revision = current_revision(canonical)
-                                    canonical_digest = logical_digest(canonical)
-                                    if canonical_revision != expected_revision or canonical_digest != expected_digest:
-                                        raise WorkflowError("REBIND_CANONICAL_DRIFT")
-                    conflict = registry.execute(
-                        "SELECT project_ref FROM projects WHERE root_path=?", (str(new_root),)
-                    ).fetchone()
-                    if conflict and conflict[0] != project_ref:
-                        raise WorkflowError("PROJECT_ROOT_ALREADY_REGISTERED")
-                    result = {
-                        "project_ref": project_ref,
-                        "revision": revision,
-                        "logical_digest": digest,
-                        "database": DATABASE_RELATIVE.as_posix(),
-                    }
-                    registry.execute(
-                        "INSERT INTO projects VALUES(?,?,?,?) ON CONFLICT(project_ref) DO UPDATE SET "
-                        "root_path=excluded.root_path,rebound_at=excluded.rebound_at",
-                        (project_ref, str(new_root), utc_now(), utc_now()),
-                    )
-                    ensure_git_rules(new_root)
+                        ensure_attached_registry_binding(
+                            project, replay_project_ref, new_root, rebound=True
+                        )
+                        project.commit()
+                    else:
+                        project.rollback()
+                    return result
+
+                local_prior = prior_request(
+                    project, request_id, "project_rebind", payload_digest
+                )
+                revision = current_revision(project)
+                digest = logical_digest(project)
+                if revision != expected_revision or digest != expected_digest:
+                    raise WorkflowError("CAS_MISMATCH")
+                bound = project.execute(
+                    "SELECT root_path FROM workflow_registry.projects WHERE project_ref=?", (project_ref,)
+                ).fetchone()
+                if bound is None:
+                    raise WorkflowError("PROJECT_NOT_REGISTERED")
+                current_root = Path(bound["root_path"])
+                if current_root != new_root:
+                    canonical_state = canonical_rebind_state(current_root, project_ref)
+                    if canonical_state is not None and canonical_state != (
+                        expected_revision,
+                        expected_digest,
+                    ):
+                        raise WorkflowError("REBIND_CANONICAL_DRIFT")
+                conflict = project.execute(
+                    "SELECT project_ref FROM workflow_registry.projects WHERE root_path=?", (str(new_root),)
+                ).fetchone()
+                if conflict and conflict[0] != project_ref:
+                    raise WorkflowError("PROJECT_ROOT_ALREADY_REGISTERED")
+                result = {
+                    "project_ref": project_ref,
+                    "revision": revision,
+                    "logical_digest": digest,
+                    "database": DATABASE_RELATIVE.as_posix(),
+                }
+                ensure_git_rules(new_root)
+                project.execute(
+                    "UPDATE workflow_registry.projects SET root_path=?,rebound_at=? WHERE project_ref=?",
+                    (str(new_root), utc_now(), project_ref),
+                )
+                project.execute(
+                    "INSERT INTO workflow_registry.registry_requests "
+                    "(request_id,project_ref,operation,payload_digest,result_json,created_at) "
+                    "VALUES(?,?,?,?,?,?)",
+                    (
+                        request_id,
+                        project_ref,
+                        "project_rebind",
+                        payload_digest,
+                        canonical_json(result),
+                        utc_now(),
+                    ),
+                )
+                if local_prior is None:
                     project.execute(
                         "INSERT INTO request_log VALUES(?,?,?,?,?,?,?)",
-                        (request_id, "project_rebind", payload_digest, revision, digest, canonical_json(result), utc_now()),
+                        (
+                            request_id,
+                            "project_rebind",
+                            payload_digest,
+                            revision,
+                            digest,
+                            canonical_json(result),
+                            utc_now(),
+                        ),
                     )
-                    project.commit()
-                    registry.commit()
-                    return result
-                except Exception:
-                    registry.rollback()
-                    raise
-        except Exception:
-            project.rollback()
-            raise
+                project.commit()
+                return result
+            except Exception:
+                project.rollback()
+                raise
 
 
 def unregister_backend(args: dict[str, Any]) -> dict[str, Any]:
@@ -823,20 +1067,40 @@ def unregister_backend(args: dict[str, Any]) -> dict[str, Any]:
     expected_revision = require_int(args.get("expected_revision"), "expected_revision", 0, 2**63 - 1)
     expected_digest = require_digest(args.get("expected_logical_digest"), "expected_logical_digest")
     payload_digest = sha256_json(args)
-    with contextlib.closing(open_registry()) as registry:
-        registry.execute("BEGIN IMMEDIATE")
-        try:
-            prior = registry_request_result(registry, request_id, "project_unregister", payload_digest)
-            if prior is not None:
-                registry.rollback()
-                return prior
-            row = registry.execute(
-                "SELECT root_path FROM projects WHERE project_ref=?", (project_ref,)
-            ).fetchone()
-            if row is None:
-                raise WorkflowError("PROJECT_NOT_REGISTERED")
-            database = Path(row[0]) / DATABASE_RELATIVE
-            with contextlib.closing(connect_sqlite(database, writable=False)) as project:
+    # Read the current root first.  The attached transaction below re-checks
+    # the binding while holding its write lock, which is the authoritative
+    # concurrency boundary.
+    with contextlib.closing(open_registry(writable=False)) as registry:
+        prior = registry_request_result(registry, request_id, "project_unregister", payload_digest)
+        if prior is not None:
+            return prior
+        row = registry.execute(
+            "SELECT root_path FROM projects WHERE project_ref=?", (project_ref,)
+        ).fetchone()
+    if row is None:
+        raise WorkflowError("PROJECT_NOT_REGISTERED")
+
+    database = Path(row["root_path"]) / DATABASE_RELATIVE
+    with contextlib.closing(connect_sqlite(database, writable=True)) as project:
+        with attached_registry(project):
+            project.execute("BEGIN IMMEDIATE")
+            try:
+                replay = attached_registry_replay(
+                    project, request_id, "project_unregister", payload_digest
+                )
+                if replay is not None:
+                    project.rollback()
+                    return replay[0]
+                local_prior = prior_request(
+                    project, request_id, "project_unregister", payload_digest
+                )
+                bound = project.execute(
+                    "SELECT root_path FROM workflow_registry.projects WHERE project_ref=?", (project_ref,)
+                ).fetchone()
+                if bound is None:
+                    raise WorkflowError("PROJECT_NOT_REGISTERED")
+                if bound["root_path"] != str(row["root_path"]):
+                    raise WorkflowError("PROJECT_NOT_REGISTERED")
                 metadata = project_metadata(project)
                 revision = current_revision(project)
                 digest = logical_digest(project)
@@ -844,22 +1108,46 @@ def unregister_backend(args: dict[str, Any]) -> dict[str, Any]:
                     raise WorkflowError("PROJECT_REF_MISMATCH")
                 if revision != expected_revision or digest != expected_digest:
                     raise WorkflowError("CAS_MISMATCH")
-            result = {
-                "project_ref": project_ref,
-                "revision": revision,
-                "logical_digest": digest,
-                "unregistered": True,
-            }
-            registry.execute("DELETE FROM projects WHERE project_ref=?", (project_ref,))
-            registry.execute(
-                "INSERT INTO registry_requests VALUES(?,?,?,?,?,?)",
-                (request_id, project_ref, "project_unregister", payload_digest, canonical_json(result), utc_now()),
-            )
-            registry.commit()
-            return result
-        except Exception:
-            registry.rollback()
-            raise
+                result = {
+                    "project_ref": project_ref,
+                    "revision": revision,
+                    "logical_digest": digest,
+                    "unregistered": True,
+                }
+                project.execute(
+                    "DELETE FROM workflow_registry.projects WHERE project_ref=?", (project_ref,)
+                )
+                project.execute(
+                    "INSERT INTO workflow_registry.registry_requests "
+                    "(request_id,project_ref,operation,payload_digest,result_json,created_at) "
+                    "VALUES(?,?,?,?,?,?)",
+                    (
+                        request_id,
+                        project_ref,
+                        "project_unregister",
+                        payload_digest,
+                        canonical_json(result),
+                        utc_now(),
+                    ),
+                )
+                if local_prior is None:
+                    project.execute(
+                        "INSERT INTO request_log VALUES(?,?,?,?,?,?,?)",
+                        (
+                            request_id,
+                            "project_unregister",
+                            payload_digest,
+                            revision,
+                            digest,
+                            canonical_json(result),
+                            utc_now(),
+                        ),
+                    )
+                project.commit()
+                return result
+            except Exception:
+                project.rollback()
+                raise
 
 
 def wave_initialize_backend(args: dict[str, Any]) -> dict[str, Any]:

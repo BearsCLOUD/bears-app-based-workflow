@@ -1013,9 +1013,147 @@ def graph_apply_backend(args: dict[str, Any]) -> dict[str, Any]:
                 )
             set_provenance(root, connection, object_type, object_ref, refs, revision)
             changed.append(object_ref)
+        binding_waves = [
+            row["wave_id"]
+            for row in connection.execute(
+                "SELECT DISTINCT wave_id FROM doc_bindings "
+                "WHERE record_status='active' ORDER BY wave_id"
+            )
+        ]
+        for binding_wave_id in binding_waves:
+            validate_active_doc_bindings(connection, binding_wave_id)
         return {"applied": len(changed), "object_refs": changed}
 
     return mutate_project("graph_apply", args, apply, wave_owned=True)
+
+
+def validate_active_doc_bindings(connection: sqlite3.Connection, wave_id: str) -> None:
+    rows = connection.execute(
+        "SELECT binding_ref,binding_kind,source_refs,target_ref FROM doc_bindings "
+        "WHERE wave_id=? AND record_status='active' ORDER BY binding_ref",
+        (wave_id,),
+    ).fetchall()
+    source_kinds = {
+        "spec_to_wave_doc": "graph_to_spec",
+        "wave_doc_to_constitution": "spec_to_wave_doc",
+    }
+    for row in rows:
+        try:
+            source_refs = normalize_refs(json.loads(row["source_refs"]), "source_refs", nonempty=True)
+        except (TypeError, json.JSONDecodeError, WorkflowError) as exc:
+            raise WorkflowError("DOC_BINDING_SOURCE_INVALID", row["binding_ref"]) from exc
+        if row["binding_kind"] in {"graph_to_task", "graph_to_spec"}:
+            for source_ref in source_refs:
+                entity = connection.execute(
+                    "SELECT 1 FROM entities WHERE entity_ref=? AND status='active'", (source_ref,)
+                ).fetchone()
+                if entity is None:
+                    raise WorkflowError("DOC_BINDING_SOURCE_INVALID", source_ref)
+            if row["binding_kind"] == "graph_to_task":
+                task = connection.execute(
+                    "SELECT 1 FROM tasks WHERE task_ref=? AND wave_id=? AND record_status='active'",
+                    (row["target_ref"], wave_id),
+                ).fetchone()
+                if task is None:
+                    raise WorkflowError("BINDING_TARGET_INVALID", row["target_ref"])
+            continue
+        source_kind = source_kinds.get(row["binding_kind"])
+        if source_kind is None:
+            raise WorkflowError("DOC_BINDING_KIND_INVALID", row["binding_kind"])
+        for source_ref in source_refs:
+            binding = connection.execute(
+                "SELECT 1 FROM doc_bindings WHERE binding_ref=? AND wave_id=? "
+                "AND binding_kind=? AND record_status='active'",
+                (source_ref, wave_id, source_kind),
+            ).fetchone()
+            if binding is None:
+                raise WorkflowError("DOC_BINDING_SOURCE_INVALID", source_ref)
+
+
+def binding_apply_backend(args: dict[str, Any]) -> dict[str, Any]:
+    def apply(root: Path, connection: sqlite3.Connection, revision: int) -> dict[str, Any]:
+        wave_id = require_text(args.get("wave_id"), "wave_id", ref=True)
+        operations = args.get("operations")
+        if not isinstance(operations, list) or not operations:
+            raise WorkflowError("INVALID_ARGUMENT", "operations must not be empty")
+        changed: list[str] = []
+        document_kinds = {"graph_to_spec", "spec_to_wave_doc", "wave_doc_to_constitution"}
+        binding_kinds = {"graph_to_task", *document_kinds}
+        for index, operation in enumerate(operations):
+            if not isinstance(operation, dict):
+                raise WorkflowError("INVALID_ARGUMENT", f"operations[{index}] must be an object")
+            action = require_text(operation.get("action"), "action")
+            binding_ref = require_text(operation.get("binding_ref"), "binding_ref", ref=True)
+            if action not in {"upsert", "retire"}:
+                raise WorkflowError("BINDING_OPERATION_INVALID")
+            existing = connection.execute(
+                "SELECT wave_id,record_status FROM doc_bindings WHERE binding_ref=?", (binding_ref,)
+            ).fetchone()
+            if existing is not None and existing["wave_id"] != wave_id:
+                raise WorkflowError("BINDING_WAVE_MISMATCH", binding_ref)
+            if action == "retire":
+                if existing is None:
+                    raise WorkflowError("BINDING_NOT_FOUND", binding_ref)
+                replacement = operation.get("replacement_ref")
+                if replacement is not None:
+                    replacement = require_text(replacement, "replacement_ref", ref=True)
+                connection.execute(
+                    "UPDATE doc_bindings SET record_status='retired',replacement_ref=?,updated_revision=? "
+                    "WHERE binding_ref=?",
+                    (replacement, revision, binding_ref),
+                )
+            else:
+                binding_kind = require_text(operation.get("binding_kind"), "binding_kind")
+                if binding_kind not in binding_kinds:
+                    raise WorkflowError("BINDING_KIND_INVALID")
+                source_refs = normalize_refs(operation.get("source_refs", []), "source_refs", nonempty=True)
+                if existing is not None and existing["record_status"] == "retired":
+                    raise WorkflowError("RETIRED_RECORD_IMMUTABLE")
+                if binding_kind == "graph_to_task":
+                    target_ref = require_text(operation.get("target_ref"), "target_ref", ref=True)
+                    target_path = target_anchor = content_digest = None
+                    if any(operation.get(field) is not None for field in ("target_path", "target_anchor", "content_digest")):
+                        raise WorkflowError("BINDING_TARGET_INVALID")
+                    task = connection.execute(
+                        "SELECT 1 FROM tasks WHERE task_ref=? AND wave_id=? AND record_status='active'",
+                        (target_ref, wave_id),
+                    ).fetchone()
+                    if task is None:
+                        raise WorkflowError("BINDING_TARGET_INVALID", target_ref)
+                else:
+                    if operation.get("target_ref") is not None:
+                        raise WorkflowError("BINDING_TARGET_INVALID")
+                    target_ref = None
+                    target_path = require_text(operation.get("target_path"), "target_path")
+                    target_anchor = require_text(operation.get("target_anchor"), "target_anchor")
+                    content_digest = require_digest(operation.get("content_digest"), "content_digest")
+                connection.execute(
+                    "INSERT INTO doc_bindings "
+                    "(binding_ref,wave_id,binding_kind,source_refs,target_ref,target_path,target_anchor,"
+                    "content_digest,record_status,replacement_ref,created_revision,updated_revision) "
+                    "VALUES(?,?,?,?,?,?,?,?,'active',NULL,?,?) "
+                    "ON CONFLICT(binding_ref) DO UPDATE SET binding_kind=excluded.binding_kind,"
+                    "source_refs=excluded.source_refs,target_ref=excluded.target_ref,target_path=excluded.target_path,"
+                    "target_anchor=excluded.target_anchor,content_digest=excluded.content_digest,"
+                    "record_status='active',replacement_ref=NULL,updated_revision=excluded.updated_revision",
+                    (
+                        binding_ref,
+                        wave_id,
+                        binding_kind,
+                        canonical_json(source_refs),
+                        target_ref,
+                        target_path,
+                        target_anchor,
+                        content_digest,
+                        revision,
+                        revision,
+                    ),
+                )
+            changed.append(binding_ref)
+        validate_active_doc_bindings(connection, wave_id)
+        return {"applied": len(changed), "binding_refs": changed}
+
+    return mutate_project("binding_apply", args, apply, wave_owned=True)
 
 
 def detect_cycle(adjacency: dict[str, set[str]]) -> list[str]:
@@ -1114,6 +1252,7 @@ def plan_replace_backend(args: dict[str, Any]) -> dict[str, Any]:
                 [(task_ref, dependency, revision) for dependency in dependencies],
             )
             set_provenance(root, connection, "task", task_ref, sources, revision)
+        validate_active_doc_bindings(connection, wave_id)
         connection.execute(
             "UPDATE phases SET status='completed',revision=? WHERE wave_id=? AND phase='app-plan'",
             (revision, wave_id),
@@ -2225,6 +2364,10 @@ MAINTAINER_TOOLS: dict[str, dict[str, Any]] = {
         "description": "Apply one all-or-nothing batch of graph upserts or retirements.",
         "inputSchema": tool_schema({**WAVE_PROPERTIES, "operations": {"type": "array", "minItems": 1, "maxItems": MAX_LIMIT, "items": {"type": "object"}}}, (*WAVE_REQUIRED, "operations")),
     },
+    "binding_apply": {
+        "description": "Apply one all-or-nothing batch of document-binding upserts or retirements.",
+        "inputSchema": tool_schema({**WAVE_PROPERTIES, "operations": {"type": "array", "minItems": 1, "maxItems": MAX_LIMIT, "items": {"type": "object"}}}, (*WAVE_REQUIRED, "operations")),
+    },
     "plan_replace": {
         "description": "Replace the active wave plan and dependencies in one transaction.",
         "inputSchema": tool_schema({**WAVE_PROPERTIES, "tasks": {"type": "array", "maxItems": MAX_LIMIT, "items": {"type": "object"}}}, (*WAVE_REQUIRED, "tasks")),
@@ -2277,6 +2420,7 @@ def execute_tool(mode: str, name: str, arguments: dict[str, Any]) -> dict[str, A
         "wave_initialize": wave_initialize_backend,
         "phase_record": phase_record_backend,
         "graph_apply": graph_apply_backend,
+        "binding_apply": binding_apply_backend,
         "plan_replace": plan_replace_backend,
         "task_record_change": task_record_change_backend,
         "review_record": review_record_backend,

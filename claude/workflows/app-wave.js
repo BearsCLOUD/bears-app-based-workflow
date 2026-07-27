@@ -142,6 +142,32 @@ You must NOT call any app-workflow-maintainer tool. Workflow state is written
 only by the orchestrator lane of this workflow. The read-only app-workflow
 server is available to you where your role allows it.`
 
+// The analysis artifact sink uses the same Codex bridge settings as app-worker
+// in roles/roles.json. The transport has Bash only and does not edit itself.
+const codexDev = (assignment, { label, phase: phaseTitle, schema }) =>
+  agent(
+    `You are a transport subagent, not the executor. Dispatch the bounded development assignment below only through the Codex exec bridge; do not edit project files yourself.
+
+Use Bash to invoke $CLAUDE_PLUGIN_ROOT/scripts/codex_exec_bridge.py run with
+the target project as --cd ".", --sandbox "workspace-write", --model
+"gpt-5.6-terra", and --reasoning-effort "high". Do not pass --allow-network.
+Pass the complete assignment safely as the bridge's brief (not as
+shell-interpreted source), parse its single JSON result, and treat ok:false, a
+non-OK code, or missing changed_files as a failure. The bridge's changed_files
+evidence is authoritative: return every added, modified, or deleted
+repository-relative path as changeRefs, without adding paths from the
+pre-existing worktree. Codex exec receives no app-workflow or
+app-workflow-maintainer access.
+
+Return only the requested schema after a successful bridge result with
+task-owned changed-file evidence. Do not solve, edit, review, or mutate
+workflow state yourself.
+
+Codex assignment follows:
+${assignment}`,
+    { tools: ['Bash'], label, phase: phaseTitle, schema },
+  )
+
 // ---------------------------------------------------------------------------
 // The single write lane
 //
@@ -1181,6 +1207,35 @@ const ANALYSIS_SCHEMA = {
   },
 }
 
+const ANALYSIS_ARTIFACT_SCHEMA = {
+  type: 'object',
+  required: ['artifactWritten', 'artifactPath'],
+  properties: {
+    artifactWritten: { type: 'boolean' },
+    artifactPath: { type: 'string' },
+  },
+}
+
+const writeAnalysisArtifact = async () => {
+  const written = await codexDev(
+    `${BINDING}
+
+Read the existing ${waveDir}/analysis.md and write its exact Markdown content
+back to that path. This is a deterministic artifact sink: do not alter,
+summarize, extend, or interpret the content, and do not edit any other file or
+call any MCP tool. Return artifactWritten true and artifactPath
+"${waveDir}/analysis.md" only after the write succeeds.`,
+    {
+      label: 'artifact:app-analyze',
+      phase: 'Analyze',
+      schema: ANALYSIS_ARTIFACT_SCHEMA,
+    },
+  )
+  if (!written || !written.artifactWritten || written.artifactPath !== `${waveDir}/analysis.md`) {
+    throw new Error('app-analyze artifact sink did not write analysis.md — not recording, wave stops here')
+  }
+}
+
 const runAnalyze = async () => {
   phase('Analyze')
   const spec = PHASE_SPECS[PHASE_SPECS.length - 1]
@@ -1214,6 +1269,7 @@ ${UNTRUSTED}`,
   if (!analysis || !analysis.artifactWritten) {
     throw new Error('app-analyze produced no analysis.md — not recording, wave stops here')
   }
+  await writeAnalysisArtifact()
 
   await recordPhase(spec, { ...analysis, artifactWritten: true })
 

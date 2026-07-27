@@ -1,53 +1,37 @@
 ---
 name: app-functional-graph
-description: Maintain source-linked workflow entities, observations, and closed-type relations through MCP. Use after app-specify.
+description: Maintain a source-linked functional graph for the specified behavior through MCP. The orchestrator workflow decides when this phase runs.
 ---
 
 # App Functional Graph
 
 ## Purpose
 
-Turn the specified behavior into a durable, source-linked graph: entities for the
-things the system has, observations for what is true about them, relations for how
-they constrain each other. The graph is the shared model that planning, dev, and
-analysis read from.
+Represent the specified behavior as a durable, source-linked graph of entities,
+observations, and relations. The graph is the shared model that planning,
+development, and analysis read from.
 
-Done means the graph reflects the current spec, every record carries a local source
-ref, obsolete records are retired rather than dropped, diagnostics show no new
-inconsistency, and `waves/<wave_id>/functional-graph.md` describes the resulting
-model and what changed.
+## Done means
+
+- The graph reflects the current specification and its records cite local source refs.
+- The graph delta is described in `waves/<wave_id>/functional-graph.md`.
+- The artifact explains the resulting model, its constraint-bearing relations, and the meaning of the change.
 
 ## How to think about this phase
 
-- Model what the spec commits to, not what the code happens to look like today.
-  A record that cannot be traced to a local source ref does not belong in the graph.
-- Prefer stable refs that survive rewrites. Renaming a concept is a retire plus a
-  replacement, not an edit of meaning under a stale name.
-- Relations are a closed set of eight: `depends_on`, `constrains`, `defines`,
-  `decomposes_to`, `implemented_by`, `evidenced_by`, `replaces`, `remediates`.
-  If a link does not fit one of them, the model is wrong, not the vocabulary.
-- Records are retired, never deleted. Retire with a `replacement_ref` when a
-  successor exists. Upserting a retired record is rejected, so revive by
-  introducing a successor instead.
-- Keep one logical change in one `graph_apply` batch: a batch commits or rolls
-  back atomically, and splitting it can leave the graph half-migrated.
-- A good artifact lets a reader reconstruct the model without querying: the
-  entities that matter, the relations that carry the constraints, what was
-  retired and why.
+- Model what the specification commits to, not what the code happens to look like today.
+- Treat a record without a local source ref as unsupported graph content.
+- Prefer stable refs that survive rewrites and make each delta's semantic effect clear.
+- Use the closed relation set: `depends_on`, `constrains`, `defines`, `decomposes_to`, `implemented_by`, `evidenced_by`, `replaces`, and `remediates`.
+- Make a good graph delta source-linked, internally coherent, and sufficient for a reader to reconstruct the affected model without querying.
+- Explain which entities, observations, and relations carry the behavior or constraints, and identify any superseded meaning without silently changing it.
 
 ## Tools and artifact
 
-- Reads: `project_status`, `graph_read`, `graph_search`, `graph_diagnostics`.
-- Records: `graph_apply`, then `phase_record`.
-- Writes exactly one artifact: `waves/<wave_id>/functional-graph.md`.
+- Read graph state and diagnostics through the workflow MCP tools.
+- Record the resulting phase artifact at `waves/<wave_id>/functional-graph.md`.
 
-Mutations are performed only by the wave owner and carry `request_id`,
-`expected_revision`, and `expected_logical_digest` read fresh from `project_status`
-on the reader server. Subagents never touch the maintainer server. There is no
-JSON graph fallback; if the workflow servers are unavailable, the phase does not
-proceed.
-
-## Deferred to the orchestrator
-
-Phase ordering, entry and exit gates, retries after a CAS conflict, and the
-decision to advance to app-plan belong to the orchestrator, not to this skill.
+The orchestrator workflow owns phase sequencing and execution decisions. The
+maintainer server owns graph mutation mechanics, validation, concurrency,
+atomicity, and lifecycle enforcement. This skill does not prescribe their order
+or mechanics.

@@ -108,6 +108,57 @@ CREATE TABLE tasks (
 
 CREATE UNIQUE INDEX tasks_active_sequence ON tasks (wave_id, sequence) WHERE record_status = 'active';
 
+-- Canonicity chain: graph -> spec block -> wave-doc block -> constitution line.
+CREATE TABLE doc_bindings (
+    binding_ref TEXT PRIMARY KEY,
+    wave_id TEXT NOT NULL REFERENCES waves(wave_id),
+    binding_kind TEXT NOT NULL CHECK (binding_kind IN (
+        'graph_to_task', 'graph_to_spec', 'spec_to_wave_doc', 'wave_doc_to_constitution'
+    )),
+    source_refs TEXT NOT NULL CHECK (
+        json_valid(source_refs)
+        AND json_type(source_refs) = 'array'
+        AND json_array_length(source_refs) > 0
+    ),
+    target_ref TEXT REFERENCES tasks(task_ref),
+    target_path TEXT,
+    target_anchor TEXT,
+    content_digest TEXT,
+    record_status TEXT NOT NULL CHECK (record_status IN ('active', 'retired')),
+    replacement_ref TEXT,
+    created_revision INTEGER NOT NULL,
+    updated_revision INTEGER NOT NULL,
+    CHECK (
+        (binding_kind = 'graph_to_task'
+            AND target_ref IS NOT NULL
+            AND target_path IS NULL
+            AND target_anchor IS NULL
+            AND content_digest IS NULL)
+        OR
+        (binding_kind IN ('graph_to_spec', 'spec_to_wave_doc', 'wave_doc_to_constitution')
+            AND target_ref IS NULL
+            AND target_path IS NOT NULL
+            AND target_path <> ''
+            AND target_path NOT GLOB '/*'
+            AND target_path <> '..'
+            AND target_path NOT GLOB '../*'
+            AND target_path NOT GLOB '*/../*'
+            AND target_path NOT GLOB '*/..'
+            AND target_path NOT GLOB '*\*'
+            AND target_path GLOB '*.md'
+            AND target_anchor IS NOT NULL
+            AND target_anchor <> ''
+            AND target_anchor NOT GLOB '*[^A-Za-z0-9._-]*'
+            AND content_digest IS NOT NULL
+            AND length(content_digest) = 71
+            AND substr(content_digest, 1, 7) = 'sha256:'
+            AND substr(content_digest, 8) NOT GLOB '*[^0-9a-f]*')
+    )
+);
+
+CREATE INDEX doc_bindings_wave_status
+ON doc_bindings(wave_id, record_status);
+
 CREATE TABLE dependencies (
     task_ref TEXT NOT NULL REFERENCES tasks(task_ref),
     depends_on_ref TEXT NOT NULL REFERENCES tasks(task_ref),

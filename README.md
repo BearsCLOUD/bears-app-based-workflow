@@ -20,9 +20,10 @@ roles into a machine-level configuration.
 | Hooks | `claude/hooks.json` | not applicable |
 | Roles | agent definitions under `claude/agents/` | profile definitions under `agents/` |
 
-The eight skills under `skills/` (one per phase, plus `subagents`) are shared by both
-runtimes. Claude Code loads the plugin, both MCP servers, the skills, the agents, and the
-hooks entry point from `.claude-plugin/plugin.json`.
+The ten skills under `skills/` are shared by both runtimes: seven phase skills,
+`subagents`, and two composable methods (`adaptive-deepening` and
+`graph-completion`). Claude Code loads the plugin, both MCP servers, the skills, the
+agents, and the hooks entry point from `.claude-plugin/plugin.json`.
 
 ```bash
 claude plugin marketplace add /absolute/path/to/bears-app-based-workflow
@@ -131,6 +132,16 @@ Every phase carries `project_ref`, `wave_id`, revision, and logical digest. Phas
 procedural discipline: `phase_record` validates the phase name and the single-active-record
 rule, and does not verify that earlier phases completed. If either required MCP server is
 unavailable, the phase remains `pending`.
+
+## Composable Methods
+
+- `$adaptive-deepening` interleaves an early synthesis with targeted evidence waves
+  selected from the current high-impact gap map.
+- `$graph-completion` fills decision-relevant entity and relation gaps with provenance,
+  explicit conflicts, and validation.
+
+Both methods use `Enrich -> Critique -> Correct`. They are not workflow phases, do not
+mutate workflow state on their own, and do not replace the final `app-analyze` audit.
 
 ## Ownership
 

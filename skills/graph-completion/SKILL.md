@@ -144,11 +144,17 @@ needed.
 ## Bears workflow integration
 
 Within Bears, use this method inside `app-functional-graph` to identify and fill
-missing source-linked graph records and inside `app-analyze` to detect semantic
-or provenance gaps. Reuse the existing MCP graph and its closed relation set; do
-not create a parallel JSON graph or a second ontology. Only the wave owner calls
-`graph_apply` or other maintainer tools. Subagents return bounded candidate or
-critic packets through `$subagents` and never mutate workflow state.
+missing source-linked graph records. Reuse the existing MCP graph and its closed
+relation set; do not create a parallel JSON graph or a second ontology. Generic
+candidate statuses stay in the working artifact until a fact is accepted; the
+persisted MCP graph keeps its existing `active` and `retired` lifecycle model.
+Only the wave owner calls `graph_apply` or other maintainer tools.
+
+Inside `app-analyze`, use only the read-only detection and critique parts of this
+method. A detected gap becomes a finding that reopens the earliest affected
+phase; `app-analyze` never calls `graph_apply` to repair its own finding.
+Subagents return bounded candidate or critic packets through `$subagents` and
+never mutate workflow state.
 
 ## Examples
 

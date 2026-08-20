@@ -60,7 +60,7 @@ Layered top to bottom: validation/hashing/path helpers -> registry and project S
 | Roles       | claude/agents/*.md (generated)                  | agents/*.toml (generated)                           |
 | Extras      | claude/hooks.json, claude/commands/, claude/workflows/ | -                                            |
 
-skills/ (eight skills: one per phase plus subagents) is shared by both runtimes; skills/*/agents/openai.yaml files are Codex UI metadata only.
+skills/ (ten skills: seven phases, subagents, adaptive-deepening, and graph-completion) is shared by both runtimes; skills/*/agents/openai.yaml files are Codex UI metadata only.
 
 Roles are generated, not hand-written: `roles/roles.json` is the single typed source and `scripts/render_roles.py` renders both `claude/agents/*.md` and `agents/*.toml` (`--check` detects drift). Edit the IR, never the artifacts, and re-run the renderer. Three roles remain - app-worker (no MCP), app-reviewer and app-analyst (disjoint read-only subsets); the Codex-only repo-orchestrator and workflow-orchestrator lanes were retired in 0.7.0. `scripts/render_roles.py --check` detects drift between the IR and the artifacts, but nothing test-enforces the allowlists themselves - the maintainer-access boundary now rests on review, not CI.
 

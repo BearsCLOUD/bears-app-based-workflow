@@ -47,6 +47,19 @@ Maintain one compact gap map. Each gap has:
 
 Do not create a complex state system for a small task. A Markdown table is enough.
 
+## Optional role split
+
+For multi-agent work, keep the responsibilities explicit:
+
+- the method planner converts selected gaps into method cards and acceptance rules;
+- workers execute those cards and return evidence packets, not acceptance decisions;
+- the critic receives the objective, evidence, and rules, but does not inherit an
+  unsupported worker conclusion as a premise;
+- the owner corrects the result, updates the gap map, and decides whether to repeat.
+
+One agent may perform several roles for a small task, but critique remains a
+separate pass from enrichment.
+
 ## Workflow
 
 1. **Initialize sparsely.** Create a coarse question map or outline. Do not try to
@@ -120,10 +133,14 @@ Return:
 ## Bears workflow integration
 
 Use this method inside `app-research` and, when requirements remain uncertain,
-inside `app-specify`. It does not add a phase, select workflow routes, mutate MCP
-state, or replace `app-analyze`. The wave owner remains the sole writer. When
-subagents are useful, dispatch bounded assignments through `$subagents` and keep
-one owner for the gap map.
+inside `app-specify`. During `app-research`, the first synthesis is an evidence
+synthesis only: it must not select product behavior or resolve source conflicts
+by preference. Those decisions remain with `app-specify`.
+
+This method does not add a phase, select workflow routes, mutate MCP state, or
+replace `app-analyze`. The wave owner remains the sole writer. When subagents are
+useful, dispatch bounded assignments through `$subagents` and keep one owner for
+the gap map.
 
 ## Examples
 
